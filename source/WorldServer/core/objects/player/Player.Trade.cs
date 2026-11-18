@@ -99,6 +99,12 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            if (target.Ghost)
+            {
+                SendError(target.Name + " is a ghost and can't trade.");
+                return;
+            }
+
             if (target.World is DailyQuestWorld)
             {
                 SendError("The targeted player is in the Marketplace!");

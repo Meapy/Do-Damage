@@ -55,6 +55,9 @@ namespace WorldServer.core.objects
 
             if (tileDesc.Damaging && (objDesc == null || !objDesc.ProtectFromGroundDamage))
             {
+                dmg = ShieldedDamage(dmg);
+                dmg = WardAbsorb(dmg);
+                dmg = VowedDamage(dmg);
                 Health -= dmg;
 
                 if (Health <= 0)
@@ -100,6 +103,9 @@ namespace WorldServer.core.objects
                     // Not Client.Random: the client makes no roll for this hit, and one drawn from its
                     // sequence would put every later roll out of step with the client's.
                     int dmg = Random.Shared.Next(tileDesc.MinDamage, Math.Max(tileDesc.MinDamage, tileDesc.MaxDamage));
+                    dmg = ShieldedDamage(dmg);
+                    dmg = WardAbsorb(dmg);
+                    dmg = VowedDamage(dmg);
 
                     Health -= dmg;
 

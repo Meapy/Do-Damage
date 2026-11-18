@@ -33,6 +33,14 @@ namespace WorldServer.core.commands
 
         public IDictionary<string, Command> Commands => _cmds;
 
+        // The command a chat line starts (its CommandName, for an alias too), or null.
+        public string NameOf(string text)
+        {
+            var index = text.IndexOf(' ');
+            var cmd = text.Substring(1, index == -1 ? text.Length - 1 : index - 1);
+            return _cmds.TryGetValue(cmd, out var command) ? command.CommandName : null;
+        }
+
         public bool Execute(Player player, TickTime time, string text)
         {
             var index = text.IndexOf(' ');

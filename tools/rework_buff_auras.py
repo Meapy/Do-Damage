@@ -5,11 +5,11 @@ further.
 
 The Warrior's helms, the Bard's lutes and the Blademaster's jackets reached 4 to 4.5 tiles at every
 tier, about half a screen, so a party had to stand on top of each other to get Berserk, Inspired or
-Armored. Each ability's party effects (ConditionEffectAura, StatBoostAura, HealNova, Halo, a
+Armored. Each ability's party effects (ConditionEffectAura, StatBoostAura, HealNova, a
 GenericActivate aimed at players, the tomes' cleanses) now reach at least a floor by tier, and
 nothing that reached further already is shortened:
 
-- effects without useWisMod (helms, lutes, jackets, the Monk's fountains, the Ascendant's halos):
+- effects without useWisMod (helms, lutes, jackets, the Monk's fountains):
   6 tiles at T0 up to 8 at T8, 7 when untiered;
 - effects scaled by wisdom (seals, tomes): 5 tiles at T0 up to 7 at T8, 6.5 when untiered,
   before wisdom (75 wisdom makes that half as much again).
@@ -18,8 +18,8 @@ The Snake Charmer Pungi, the one lute that only buffed the bard, shares its Spee
 with the party, as the other lutes do.
 
 Edits the server's and the client's copies of the XML in place, as text, so nothing else in the
-files moves. Running it again changes nothing. tools/port_doomed.py, tools/build_resurrection.py
-and tools/build_ascended_items.py run it after they write their XML, so their items keep it.
+files moves. Running it again changes nothing. tools/build_resurrection.py and
+tools/build_ascended_items.py run it after they write their XML, so their items keep it.
 """
 import os
 import re
@@ -39,9 +39,10 @@ FILES = [
 ]
 
 # the abilities that buff the party: Warrior helm, Paladin seal, Priest tome, Bard lute,
-# Blademaster jacket, Monk fountain, Ascendant halo
-SLOTS = {"16", "12", "4", "28", "37", "130", "126"}
-PARTY = {"ConditionEffectAura", "StatBoostAura", "HealNova", "Halo", "ClearConditionEffectAura",
+# Blademaster jacket, Monk fountain (not the Ascendant's halos: their forcefields are kept smaller on
+# purpose)
+SLOTS = {"16", "12", "4", "28", "37", "130"}
+PARTY = {"ConditionEffectAura", "StatBoostAura", "HealNova", "ClearConditionEffectAura",
          "RemoveNegativeConditions"}
 
 # the least range, by tier 0 to 8, and for an untiered item

@@ -8,11 +8,19 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
-        private _ HauntedCemeteryGates = () => Behav()
-            .Init("Area 2 Controller",
+        private _ HauntedCemeteryGates = () => HauntedCemeteryGatesBehaviours(Behav(), false);
+        private _ ElderCemeteryGates = () => HauntedCemeteryGatesBehaviours(Behav(), true);
+
+        private static Ctor HauntedCemeteryGatesBehaviours(Ctor db, bool elder)
+        {
+            string N(string id) => ElderOr(id, elder);
+            string E(string id) => ElderDefines(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+            return db
+            .Init(E("Area 2 Controller"),
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                    new TransformOnDeath("Haunted Cemetery Graves Portal"),
+                    new TransformOnDeath(N("Haunted Cemetery Graves Portal")),
                     new State("Start",
                         new PlayerWithinTransition(4, "1")
                         ),
@@ -64,14 +72,14 @@ namespace WorldServer.logic
                         ),
                     new State("7",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 6"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 6"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 6"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 6"),
-                        new EntityExistsTransition("Arena Ghost 2", 999, "Check 1")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 6"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 6"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 6"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 6"),
+                        new EntityExistsTransition(N("Arena Ghost 2"), 999, "Check 1")
                         ),
                     new State("Check 1",
-                        new EntitiesNotExistsTransition(100, "8", "Arena Ghost 1", "Arena Ghost 2", "Arena Possessed Girl")
+                        new EntitiesNotExistsTransition(100, "8", N("Arena Ghost 1"), N("Arena Ghost 2"), N("Arena Possessed Girl"))
                         ),
                     new State("8",
                         new SetAltTexture(2),
@@ -151,14 +159,14 @@ namespace WorldServer.logic
                         ),
                     new State("27",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 7"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 7"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 7"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 7"),
-                        new EntityExistsTransition("Arena Ghost 2", 999, "Check 2")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 7"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 7"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 7"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 7"),
+                        new EntityExistsTransition(N("Arena Ghost 2"), 999, "Check 2")
                         ),
                     new State("Check 2",
-                        new EntitiesNotExistsTransition(100, "28", "Arena Ghost 1", "Arena Ghost 2", "Arena Possessed Girl")
+                        new EntitiesNotExistsTransition(100, "28", N("Arena Ghost 1"), N("Arena Ghost 2"), N("Arena Possessed Girl"))
                         ),
                     new State("28",
                         new SetAltTexture(2),
@@ -238,14 +246,14 @@ namespace WorldServer.logic
                         ),
                     new State("47",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 8"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 8"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 8"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 8"),
-                        new EntityExistsTransition("Arena Ghost 2", 999, "Check 3")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 8"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 8"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 8"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 8"),
+                        new EntityExistsTransition(N("Arena Ghost 2"), 999, "Check 3")
                         ),
                     new State("Check 3",
-                        new EntitiesNotExistsTransition(100, "48", "Arena Ghost 1", "Arena Ghost 2", "Arena Possessed Girl")
+                        new EntitiesNotExistsTransition(100, "48", N("Arena Ghost 1"), N("Arena Ghost 2"), N("Arena Possessed Girl"))
                         ),
                     new State("48",
                         new SetAltTexture(2),
@@ -325,14 +333,14 @@ namespace WorldServer.logic
                         ),
                     new State("67",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 9"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 9"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 9"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 9"),
-                        new EntityExistsTransition("Arena Ghost 2", 999, "Check 4")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 9"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 9"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 9"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 9"),
+                        new EntityExistsTransition(N("Arena Ghost 2"), 999, "Check 4")
                         ),
                     new State("Check 4",
-                        new EntitiesNotExistsTransition(100, "68", "Arena Ghost 1", "Arena Ghost 2", "Arena Possessed Girl")
+                        new EntitiesNotExistsTransition(100, "68", N("Arena Ghost 1"), N("Arena Ghost 2"), N("Arena Possessed Girl"))
                         ),
                     new State("68",
                         new SetAltTexture(2),
@@ -412,21 +420,21 @@ namespace WorldServer.logic
                         ),
                     new State("87",
                         new SetAltTexture(0),
-                        new OrderOnce(100, "Arena South Gate Spawner", "Stage 10"),
-                        new OrderOnce(100, "Arena West Gate Spawner", "Stage 10"),
-                        new OrderOnce(100, "Arena East Gate Spawner", "Stage 10"),
-                        new OrderOnce(100, "Arena North Gate Spawner", "Stage 10"),
-                        new EntityExistsTransition("Arena Possessed Girl", 999, "Check 5")
+                        new OrderOnce(100, N("Arena South Gate Spawner"), "Stage 10"),
+                        new OrderOnce(100, N("Arena West Gate Spawner"), "Stage 10"),
+                        new OrderOnce(100, N("Arena East Gate Spawner"), "Stage 10"),
+                        new OrderOnce(100, N("Arena North Gate Spawner"), "Stage 10"),
+                        new EntityExistsTransition(N("Arena Possessed Girl"), 999, "Check 5")
                         ),
                     new State("Check 5",
-                        new EntitiesNotExistsTransition(100, "88", "Arena Ghost Bride", "Arena Possessed Girl")
+                        new EntitiesNotExistsTransition(100, "88", N("Arena Ghost Bride"), N("Arena Possessed Girl"))
                         ),
                     new State("88",
                         new Suicide()
                         )
                     )
                 )
-                .Init("Arena Ghost 1",
+                .Init(E("Arena Ghost 1"),
                     new State(
                         new Prioritize(
                             new Orbit(speed: 0.5, radius: 2.8, acquireRange: 10, target: null),
@@ -436,7 +444,7 @@ namespace WorldServer.logic
                         new Shoot(radius: 5.5, count: 1, projectileIndex: 0, coolDown: 1000)
                     )
                  )
-                .Init("Arena Ghost 2",
+                .Init(E("Arena Ghost 2"),
                     new State(
                         new State("Ini",
                             new SetAltTexture(0),
@@ -456,7 +464,7 @@ namespace WorldServer.logic
                             )
                         )
                 )
-                .Init("Arena Possessed Girl",
+                .Init(E("Arena Possessed Girl"),
                     new State(
                         new Prioritize(
                             new Follow(speed: 0.5, acquireRange: 15, range: 3, duration: 5000, coolDown: 3000),
@@ -465,9 +473,9 @@ namespace WorldServer.logic
                         new Shoot(radius: 24, count: 8, shootAngle: 45, projectileIndex: 0, fixedAngle: 22.5, coolDown: 600)
                     )
                 )
-                .Init("Arena Ghost Bride",
+                .Init(E("Arena Ghost Bride"),
                     new State(
-                        new ScaleHP2(35),
+                        new ScaleHP2(elder ? 15 : 35),
                         new State("Ini",
                             new Prioritize(
                                 new Wander(speed: 0.3),
@@ -484,8 +492,8 @@ namespace WorldServer.logic
                         new State("ActivateBigDemon",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                             new SetAltTexture(1),
-                            new OrderOnce(range: 100, children: "Arena Statue Left", targetState: "Active"),
-                            new EntityNotExistsTransition(target: "Arena Statue Left", dist: 100, targetState: "Attack1")
+                            new OrderOnce(range: 100, children: N("Arena Statue Left"), targetState: "Active"),
+                            new EntityNotExistsTransition(target: N("Arena Statue Left"), dist: 100, targetState: "Attack1")
                         ),
                         new State("Attack1",
                             new SetAltTexture(0),
@@ -504,8 +512,8 @@ namespace WorldServer.logic
                         new State("ActivateWerewolf",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                             new SetAltTexture(1),
-                            new OrderOnce(range: 100, children: "Arena Statue Right", targetState: "Active"),
-                            new EntityNotExistsTransition(target: "Arena Statue Right", dist: 100, targetState: "Attack2")
+                            new OrderOnce(range: 100, children: N("Arena Statue Right"), targetState: "Active"),
+                            new EntityNotExistsTransition(target: N("Arena Statue Right"), dist: 100, targetState: "Attack2")
                         ),
                         new State("Attack2",
                             new SetAltTexture(0),
@@ -518,7 +526,36 @@ namespace WorldServer.logic
                             new Shoot(radius: 8, count: 2, shootAngle: 30, projectileIndex: 1, fixedAngle: 0, coolDown: 1500, coolDownOffset: 0),
                             new Shoot(radius: 8, count: 2, shootAngle: 30, projectileIndex: 1, fixedAngle: 180, coolDown: 1500, coolDownOffset: 0),
                             new Shoot(radius: 8, count: 2, shootAngle: 30, projectileIndex: 1, fixedAngle: 90, coolDown: 1500, coolDownOffset: 300),
-                            new Shoot(radius: 8, count: 2, shootAngle: 30, projectileIndex: 1, fixedAngle: 270, coolDown: 1500, coolDownOffset: 300)
+                            new Shoot(radius: 8, count: 2, shootAngle: 30, projectileIndex: 1, fixedAngle: 270, coolDown: 1500, coolDownOffset: 300),
+                            elder ? new HpLessTransition(threshold: 0.3, targetState: "Waltz") : null
+                        ),
+                        // the Elder Bride's Last Waltz, below 30% once both statues have fallen: veiled,
+                        // she calls two ghosts to dance with her, then turns two pairs of blasts
+                        // round herself, one way and the other, a ring of bleeding bolts on every
+                        // beat, and veils herself again between the dances
+                        new State("Waltz",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(1),
+                            new Taunt(true, "You were not invited, and yet you came. Then DANCE with me, until the music ends!"),
+                            new Flash(0xFFE0E8FF, 0.2, 10),
+                            new ReturnToSpawn(speed: 0.8),
+                            new TimedTransition(time: 2500, targetState: "Dance")
+                        ),
+                        new State("Dance",
+                            new SetAltTexture(0),
+                            new Spawn(N("Arena Ghost 2"), maxChildren: 2, initialSpawn: 2, coolDown: 8000),
+                            new Orbit(speed: 0.35, radius: 2, acquireRange: 12, target: null),
+                            new Shoot(radius: 20, count: 2, shootAngle: 180, projectileIndex: 1, fixedAngle: 0, rotateAngle: 13, coolDown: 250),
+                            new Shoot(radius: 20, count: 2, shootAngle: 180, projectileIndex: 1, fixedAngle: 90, rotateAngle: -13, coolDown: 250, coolDownOffset: 125),
+                            new Shoot(radius: 20, count: 12, shootAngle: 30, projectileIndex: 0, fixedAngle: 15, coolDown: 2000, coolDownOffset: 1000),
+                            new TimedTransition(time: 9000, targetState: "Veil")
+                        ),
+                        new State("Veil",
+                            new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                            new SetAltTexture(1),
+                            new Flash(0xFFE0E8FF, 0.3, 6),
+                            new Shoot(radius: 20, count: 16, shootAngle: 22.5, projectileIndex: 1, fixedAngle: 0, coolDown: 900),
+                            new TimedTransition(time: 2500, targetState: "Dance")
                         )
                     ),
                     new Threshold(.005,
@@ -527,11 +564,21 @@ namespace WorldServer.logic
                     new Threshold(0.01,
                         new ItemLoot("Potion of Speed", 0.3, 3),
                         new ItemLoot("Potion of Wisdom", 0.3)
-                    )
+                    ),
+                    ElderLoot(0.03,
+                        new ItemLoot("Potion of Max Speed", 0.05),
+                        new ItemLoot("Elder Cemetery Key", 0.01)
+                        ),
+                    ElderLoot(0.0001,
+                        new TierLoot(13, ItemType.Weapon, .1),
+                        new TierLoot(14, ItemType.Armor, .1),
+                        new TierLoot(6, ItemType.Ability, .1),
+                        new TierLoot(6, ItemType.Ring, .1)
+                        )
                 )
-                .Init("Arena Statue Right",
+                .Init(E("Arena Statue Right"),
                     new State(
-                        new ScaleHP2(35),
+                        new ScaleHP2(elder ? 15 : 35),
                         new State("Ini",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                             new SetAltTexture(1)
@@ -597,9 +644,9 @@ namespace WorldServer.logic
                         )
                     )
                 )
-                .Init("Arena Statue Left",
+                .Init(E("Arena Statue Left"),
                     new State(
-                        new ScaleHP2(35),
+                        new ScaleHP2(elder ? 15 : 35),
                         new State("Ini",
                             new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                             new SetAltTexture(1)
@@ -641,5 +688,6 @@ namespace WorldServer.logic
                     )
                 )
             ;
+        }
     }
 }

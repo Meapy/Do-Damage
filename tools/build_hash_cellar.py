@@ -15,8 +15,8 @@ From south to north:
 - the Pyre, a round arena a little larger than the old one (his rings and guardians land 9 tiles
   out), with Oryx the Mad God 4 at its centre and a couple of lava pools on the floor.
 
-Oryx the Mad God 4 is redrawn too: his Doomed Realms sprite with burning horns and embers in his
-armour (`hashCellarOryx16x16`; port_doomed.py's TEXTURE_OVERRIDES points him at it).
+Oryx the Mad God 4 is redrawn too: his old sprite with burning horns and embers in his
+armour (`hashCellarOryx16x16`, which his <Texture> in DoomedRealms.xml points at).
 
 Outputs (generated, don't edit):
 - the map, source/Shared/resources/worlds/Dungeons/Oryx's Inferno/Oryx's Inferno.jm;
@@ -303,7 +303,7 @@ def court(types, chars, sanctuary, cellar):
 # Burnt copies of other objects: new id -> (original, ramp, projectile renames). Oryx 4's blue
 # Guardian Elements turn to red Infernal Elements with red flames (their own behaviours, in
 # BehaviorDb.HashCellar.cs), and the white bolts and green stars of his first phase to hellfire
-# (port_doomed.PROJECTILE_OVERRIDES points his projectiles at them).
+# (his projectiles in DoomedRealms.xml point at them).
 RED_RAMP = [(0.0, (24, 2, 2)), (0.3, (110, 8, 8)), (0.6, (200, 24, 16)), (0.85, (255, 64, 32)), (1.0, (255, 120, 64))]
 FIRE_RAMP = [(0.0, (40, 4, 2)), (0.35, (170, 30, 10)), (0.7, (255, 110, 20)), (1.0, (255, 214, 100))]
 BURNT_OBJECTS = {

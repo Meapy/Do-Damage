@@ -1,28 +1,32 @@
-"""Builds what the Elder dungeons need beyond the Doomed Realms port: their darker look and the
-Elder monsters Doomed Realms never made. tools/port_doomed.py runs it first, so
+"""Builds the Elder dungeons: their darker look, the Elder monsters, and their maps.
 
-    python tools/port_doomed.py --dr "<Doomed Realms repo>"
+    python tools/make_elder.py                     # the Elder tiles, monsters and sheet
+    python tools/make_elder.py map <WorldClass> ["<file>.jm"]   # one Elder dungeon's map
 
-regenerates everything. Each Elder dungeon in DUNGEONS is built from betterSkillys' own map of the
-regular dungeon (port_doomed_worlds.py does that, from this file's names):
+Each Elder dungeon in DUNGEONS is built from the game's own map of the regular dungeon:
 
 - Tiles: every ground and wall the regular map uses gets an "Elder <id>" copy in a darker shade
   (the floor dark stone, the walls aged gold), drawn on the client's ElderAssets8x8.png. Each
   walkable ground also gets "Elder <id> Lit 1" to "Lit <LIGHT_LEVELS>", the floor around a brazier.
 - Monsters: every monster the regular map places, or the regular dungeon's behaviours define,
-  that has no Elder version in Doomed Realms gets an "Elder <id>" copy with the Elder stats
-  (port_doomed.rebalance_elders). They share the regular monster's sprite and behaviour.
+  that has no Elder version yet gets an "Elder <id>" copy with the Elder stats (rebalance_elders).
+  They share the regular monster's sprite and behaviour.
 - Spawners: other objects the map places and the behaviours define (Snake Grate) get an
   "Elder <id>" copy, so the Elder version's behaviour spawns Elder monsters.
+- Maps (`map`): the regular map with every ground, wall and monster swapped for its Elder version
+  and braziers lighting its rooms, written to source/Shared/resources/worlds/<MAPS_DIR>/. The
+  world's entry (in custom/DoomedRealmsWorlds.xml) is edited by hand; `map` prints the
+  <RandomLayout> to put in it when the regular dungeon has one.
 
-Outputs (generated, don't edit): source/Shared/resources/xml/custom/ElderGrounds.xml and
-ElderObjects.xml, their client copies, and the sheet. Type codes are kept stable in
-tools/elder/types.json.
+Outputs: source/Shared/resources/xml/custom/ElderGrounds.xml and ElderObjects.xml, their client
+copies, and the sheet. Type codes are kept stable in tools/elder/types.json.
 """
 
+import base64
 import copy
 import glob
 import json
+import math
 import os
 import re
 import struct
@@ -71,9 +75,9 @@ def multipliers(shade, brightness):
     return tuple(m * t for t in tint)
 WALL_CLASSES = ("Wall", "ConnectedWall", "CaveWall")
 
-# Doomed Realms world class -> (regular betterSkillys map, regular behaviour file). An Elder
-# dungeon is laid out anew for every visit if its regular one is (port_doomed_worlds.py copies its
-# <RandomLayout>, with each goal swapped for its Elder version).
+# Elder world class -> (regular map, regular behaviour file). An Elder dungeon is laid out anew for
+# every visit if its regular one is (its <RandomLayout>, with each goal swapped for its Elder
+# version: random_layout).
 DUNGEONS = {
     "ElderTombMap": ("Dungeons/Tomb of the Ancients.jm", "BehaviorDb.Tomb.cs"),
     "ElderPirateCave": ("Dungeons/Pirate Cave.jm", "BehaviorDb.PirateCave.cs"),
@@ -88,19 +92,103 @@ DUNGEONS = {
     "ElderSpriteWorld": ("Dungeons/Sprite World.jm", "BehaviorDb.SpriteWorld.cs"),
     "ElderDavy": ("Dungeons/Davy Jones' Locker.jm", "BehaviorDb.DavyJones.cs"),
     "ElderDraconis": ("Dungeons/Lair of Draconis.jm", "BehaviorDb.Draconis.cs"),
-    # not a Doomed Realms world: port_doomed_worlds.BS_ONLY_ELDER_WORLDS names it and its portal
     "ElderIvoryWyvern": ("Dungeons/Ivory Wyvern.jm", "BehaviorDb.Wyvern.cs"),
     "ElderShatters": ("Dungeons/The Shatters.jm", "BehaviorDb.Shatters.cs"),
     # the Lost Halls and the two worlds it leads to (several behaviour files: "a+b")
     "ElderLostHalls": ("Dungeons/Lost Halls.jm", "BehaviorDb.LostHallsRooms.cs+BehaviorDb.LostHalls.cs"),
     "ElderCultistHideout": ("Dungeons/Cultist Hideout.jm", "BehaviorDb.Cult.cs"),
     "ElderVoid": ("Dungeons/The Void/The Void.jm", "BehaviorDb.Void.cs"),
+    # the Haunted Cemetery's four worlds (the first one's gate spawners serve all three arenas)
+    "ElderCemetery": ("Dungeons/Haunted Cemetery.jm", "BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryGates": ("Dungeons/Haunted Cemetery Gates.jm", "BehaviorDb.HauntedCemeteryGates.cs+BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryGraves": ("Dungeons/Haunted Cemetery Graves.jm", "BehaviorDb.HauntedCemeteryGraves.cs+BehaviorDb.HauntedCemetery.cs"),
+    "ElderCemeteryFinalBattle": ("Dungeons/Haunted Cemetery Final Battle.jm", "BehaviorDb.HauntedCemeteryFinalBattle.cs"),
 }
 # Dungeons run by hidden objects that watch each other by name (the Shatters' switches, gates,
 # bridges, timers and chest spawners): every object their behaviours define gets an Elder copy,
 # the gates the behaviours open and the helpers they only spawn included, so the Elder version's
 # objects watch the Elder ones.
-SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "ElderVoid"}
+SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "ElderVoid", "ElderCemetery",
+                     "ElderCemeteryGates", "ElderCemeteryGraves", "ElderCemeteryFinalBattle"}
+# where the Elder maps go, under source/Shared/resources/worlds
+MAPS_DIR = "Doomed"
+
+ELDER_HP = 2.0
+ELDER_DEFENSE = 10      # added
+ELDER_DAMAGE = 1.3
+ELDER_XP = 2            # <XpBonus>: the experience (and so fame) of a kill, and its per-kill cap
+# regular bosses that are no quest, whose Elder versions are (a Necromantic Relic raises them, and
+# a raised boss is a quest: the arrow, and its health at the top of the screen)
+ELDER_QUESTS = {"Arena Ghost Bride", "Arena Grave Caretaker", "Ghost of Skuld"}
+
+
+def rebalance_elders(dr, bs):
+    """Elder monsters' health, defense, projectile damage and quest flags, from their regular version's,
+    and their experience bonus."""
+    def number(o, tag):
+        e = o.find(tag)
+        try:
+            return float(e.text) if e is not None and e.text else None
+        except ValueError:
+            return None
+
+    def projectile_damage(o):
+        out = {}
+        for p in o.findall("Projectile"):
+            out[p.get("id")] = {t: number(p, t) for t in ("Damage", "MinDamage", "MaxDamage") if number(p, t) is not None}
+        return out
+
+    changed = 0
+    for oid, o in dr.items():
+        regular = bs.get(oid[len("Elder "):]) if oid.startswith("Elder ") else None
+        if regular is None and oid.startswith("Elder "):
+            regular = dr.get(oid[len("Elder "):])
+        if regular is None or o.find("Enemy") is None:
+            continue
+        hp = number(regular, "MaxHitPoints")
+        if hp and o.find("MaxHitPoints") is not None:
+            o.find("MaxHitPoints").text = str(int(round(hp * ELDER_HP)))
+        defense = number(regular, "Defense")
+        if o.find("Defense") is not None:
+            o.find("Defense").text = str(int(round((defense or 0) + ELDER_DEFENSE)))
+        # a quest where the regular one is (the quest arrow leads to it)
+        for tag in ("Quest", "Level"):
+            if regular.find(tag) is not None and o.find(tag) is None:
+                ET.SubElement(o, tag).text = regular.find(tag).text
+        if oid[len("Elder "):] in ELDER_QUESTS and o.find("Quest") is None:
+            ET.SubElement(o, "Quest")
+        bonus = o.find("XpBonus") if o.find("XpBonus") is not None else ET.SubElement(o, "XpBonus")
+        bonus.text = str(ELDER_XP)
+        # projectiles: no id twice (Elder Septavius had two 0s), and every one of the regular
+        # monster's, since an Elder monster can fight with the regular behaviour (Elder Lord Ruthven
+        # lacked the Cross Bullet)
+        ids = set()
+        for p in list(o.findall("Projectile")):
+            if p.get("id") in ids:
+                o.remove(p)
+            ids.add(p.get("id"))
+        for p in regular.findall("Projectile"):
+            if p.get("id") not in ids:
+                o.append(copy.deepcopy(p))
+                ids.add(p.get("id"))
+        base = projectile_damage(regular)
+        for p in o.findall("Projectile"):
+            reg = base.get(p.get("id"))
+            if not reg:
+                continue
+            # one damage for tags the regular projectile doesn't have (Damage vs MinDamage/MaxDamage)
+            avg = reg.get("Damage") or (reg.get("MinDamage", 0) + reg.get("MaxDamage", reg.get("MinDamage", 0))) / 2
+            for tag in ("Damage", "MinDamage", "MaxDamage"):
+                if p.find(tag) is not None:
+                    p.find(tag).text = str(int(round(reg.get(tag, avg) * ELDER_DAMAGE)))
+        changed += 1
+    return changed
+ELDER_BRAZIER = "Elder Brazier"
+# braziers stand by the rooms' walls, corners first, at least this many tiles apart
+BRAZIER_SPACING = 9
+# the floor a brazier lights becomes the "<ground> Lit <level>" ground (tools/make_elder.py), where
+# it can see the tile: level 6 within 2.5 tiles of it, down to level 1 within 10
+LIGHT_REACH = [10, 8.5, 7, 5.5, 4, 2.5]
 
 
 def load(files):
@@ -298,9 +386,8 @@ def write_xml(paths, root_tag, elements, comment):
         community_sprites.rework_file(p)
 
 
-def build(dr_ids):
-    """Writes the Elder tiles and monsters; dr_ids are the Doomed Realms object ids."""
-    import port_doomed  # for rebalance_elders
+def build():
+    """Writes the Elder tiles and monsters."""
     objects, grounds = load(xml_files())
     sheet = Sheet(sheet_sizes())
     types = Types()
@@ -351,9 +438,9 @@ def build(dr_ids):
                 sheet.retexture(w, WALL)
                 new_objects.append(w)
                 made_objects.add(name)
-            elif o.find("Enemy") is not None and name not in dr_ids and name not in objects and name not in made_objects:
+            elif o.find("Enemy") is not None and name not in objects and name not in made_objects:
                 monsters.add(oid)
-            elif (oid in map_objects or all_defined) and oid in defined and name not in dr_ids and name not in objects and name not in made_objects:
+            elif (oid in map_objects or all_defined) and oid in defined and name not in objects and name not in made_objects:
                 # a spawner the map places (Snake Grate): its Elder copy spawns the Elder monsters
                 g = copy.deepcopy(o)
                 g.set("id", name)
@@ -375,7 +462,7 @@ def build(dr_ids):
             display.text = "Elder " + re.sub(r"^The ", "", display.text)
             copies["Elder " + oid] = m
         # (the regular monsters under the names the copies use)
-        port_doomed.rebalance_elders(copies, dict(objects, **{oid: objects.get(oid, by_lower.get(oid.lower())) for oid in monsters}))
+        rebalance_elders(copies, dict(objects, **{oid: objects.get(oid, by_lower.get(oid.lower())) for oid in monsters}))
         for name, m in sorted(copies.items()):
             new_objects.append(m)
             made_objects.add(name)
@@ -383,7 +470,7 @@ def build(dr_ids):
     write_xml(OUTPUTS["grounds"], "GroundTypes", new_grounds,
               "Generated by tools/make_elder.py: the Elder dungeons' darker grounds. Do not edit.")
     write_xml(OUTPUTS["objects"], "Objects", new_objects,
-              "Generated by tools/make_elder.py: the Elder dungeons' walls and the Elder monsters Doomed Realms didn't make. Do not edit.")
+              "Generated by tools/make_elder.py: the Elder dungeons' walls and monsters. Do not edit.")
     sheet.write()
     types.save()
     return len(new_grounds), len(new_objects), len(sheet.sprites)
@@ -408,29 +495,121 @@ def random_layout(path, known):
     return None
 
 
-def referenced_elders(dr_ids):
-    """The Doomed Realms Elder monsters whose regular version an Elder dungeon's map or behaviours
-    use (so the port brings them over even when nothing places them)."""
-    out = set()
-    for path, behaviours in DUNGEONS.values():
-        _, map_objects = map_ids(path)
-        out |= {"Elder " + oid for oid in behaviour_ids(behaviours) | map_objects if "Elder " + oid in dr_ids}
-    return out
-
-
-def regular_map_objects():
-    """The objects the Elder dungeons' regular betterSkillys maps place."""
-    return {oid for path, _ in DUNGEONS.values() for oid in map_ids(path)[1]}
-
-
 def lit_grounds():
     """The Elder grounds that have lit versions."""
     _, grounds = load(OUTPUTS["grounds"][:1])
     return {gid for gid in grounds if gid.startswith("Elder ") and gid + " Lit 1" in grounds}
 
 
+def place_braziers(j, brazier, walls, lit_grounds, avoid=frozenset()):
+    """Puts a brazier by the walls of every room (in its corners first, then along its walls) and
+    lights the floor around it. None stands on a ground in avoid."""
+    w, h, d = j["width"], j["height"], j["dict"]
+    grid = list(struct.unpack(">%dh" % (w * h), zlib.decompress(base64.b64decode(j["data"]))[:2 * w * h]))
+    tile = lambda x, y: d[grid[y * w + x]] if 0 <= x < w and 0 <= y < h else {}
+    is_wall = lambda x, y: any(o["id"] in walls for o in tile(x, y).get("objs") or [])
+    # part of a wall, not a lone pillar
+    wall = lambda x, y: is_wall(x, y) and any(is_wall(x + i, y + k) for i, k in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+
+    def floor(x, y):
+        t = tile(x, y)
+        # (maps made in the editor can hold an object with an empty id, which is no object)
+        return t.get("ground") not in (None, "Empty") and not any(o.get("id") for o in t.get("objs") or []) \
+            and not t.get("regions")
+
+    stands = lambda x, y: floor(x, y) and tile(x, y).get("ground") not in avoid
+
+    cands = []
+    for y in range(h):
+        for x in range(w):
+            if not stands(x, y):
+                continue
+            n, s_, e, wst = wall(x, y - 1), wall(x, y + 1), wall(x + 1, y), wall(x - 1, y)
+            sides = n + s_ + e + wst
+            # by one wall or in a corner, not in a passage between two walls, and with room around it
+            if sides == 0 or (n and s_) or (e and wst):
+                continue
+            if sum(floor(x + i, y + k) for i in (-1, 0, 1) for k in (-1, 0, 1)) < 4:
+                continue
+            cands.append((0 if sides == 2 else 1, y, x))
+    placed = []
+    for _, y, x in sorted(cands):
+        if all(max(abs(x - px), abs(y - py)) >= BRAZIER_SPACING for px, py in placed):
+            placed.append((x, y))
+    entries = {}
+    for x, y in placed:
+        i = grid[y * w + x]
+        if i not in entries:
+            entries[i] = len(d)
+            d.append(dict(d[i], objs=[{"id": brazier}]))
+        grid[y * w + x] = entries[i]
+
+    # light passes over floor, not through walls or the empty space outside the rooms
+    def clear(x, y):
+        return tile(x, y).get("ground") not in (None, "Empty") and not is_wall(x, y)
+
+    def sees(x0, y0, x1, y1):
+        n = max(abs(x1 - x0), abs(y1 - y0))
+        return all(clear(int(round(x0 + (x1 - x0) * k / n)), int(round(y0 + (y1 - y0) * k / n))) for k in range(1, n))
+
+    light = {}
+    reach = max(LIGHT_REACH)
+    for bx, by in placed:
+        for y in range(by - reach, by + reach + 1):
+            for x in range(bx - reach, bx + reach + 1):
+                level = sum(math.hypot(x - bx, y - by) <= r for r in LIGHT_REACH)
+                if level and light.get((x, y), 0) < level and tile(x, y).get("ground") in lit_grounds \
+                        and not is_wall(x, y) and sees(bx, by, x, y):
+                    light[(x, y)] = level
+    lit = {}
+    for (x, y), level in light.items():
+        i = grid[y * w + x]
+        if (i, level) not in lit:
+            lit[(i, level)] = len(d)
+            d.append(dict(d[i], ground="%s Lit %d" % (d[i]["ground"], level)))
+        grid[y * w + x] = lit[(i, level)]
+    j["data"] = base64.b64encode(zlib.compress(b"".join(struct.pack(">h", i) for i in grid), 9)).decode("ascii")
+    return len(placed)
+
+def elder_map(path, dry_braziers=False):
+    """A .jm map with its grounds, walls and monsters swapped for their Elder versions, and braziers
+    lighting its rooms. With dry_braziers none stands in lava or over a void (the Shatters has
+    both along its walls)."""
+    objects, grounds = load(xml_files(include_elder=True))
+    j = json.load(open(os.path.join(MAPS, path), encoding="utf-8-sig"))
+    walls = set()
+    for e in j["dict"]:
+        if e.get("ground") and "Elder " + e["ground"] in grounds:
+            e["ground"] = "Elder " + e["ground"]
+        for o in e.get("objs") or []:
+            if "Elder " + o["id"] in objects:
+                if o["id"] in objects and objects[o["id"]].findtext("Class") in WALL_CLASSES:
+                    walls.add("Elder " + o["id"])
+                o["id"] = "Elder " + o["id"]
+    # (nor on the bridges, which open and shut)
+    avoid = {gid for gid, g in grounds.items() if g.find("NoWalk") is not None or g.find("MinDamage") is not None
+             or gid.endswith(" Bridge")} if dry_braziers else frozenset()
+    place_braziers(j, ELDER_BRAZIER, walls, lit_grounds(), avoid)
+    return j
+
+
 if __name__ == "__main__":
     import sys
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    dr = load(glob.glob(os.path.join(XML_DIR, "custom", "DoomedRealms.xml")))[0]
-    print("Wrote %d Elder grounds, %d Elder objects, %d sprites." % build(set(dr)))
+    if len(sys.argv) in (3, 4) and sys.argv[1] == "map":
+        cls = sys.argv[2]
+        if cls not in DUNGEONS:
+            sys.exit("Not in DUNGEONS: %s (%s)" % (cls, ", ".join(sorted(DUNGEONS))))
+        path = DUNGEONS[cls][0]
+        j = elder_map(path, cls in SCRIPTED_DUNGEONS)
+        objects, _ = load(xml_files(include_elder=True))
+        name = sys.argv[3] if len(sys.argv) == 4 else "Elder " + os.path.basename(path)
+        out = os.path.join(MAPS, MAPS_DIR, name)
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(j, f)
+        print("Wrote %s (%dx%d). Name it in the world's <MapJM>." % (os.path.relpath(out, ROOT), j["width"], j["height"]))
+        layout = random_layout(path, set(objects))
+        if layout:
+            print("Its <RandomLayout>:\n" + "\n".join(layout))
+    else:
+        print("Wrote %d Elder grounds, %d Elder objects, %d sprites." % build())

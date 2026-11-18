@@ -128,6 +128,8 @@ pub enum ScreenFilter {
     Blind,
     /// Drunk: blurred by this many pixels.
     Blur(f32),
+    /// A ghost's sight (lingering at the grave): washed pale and cold, this far (0 to 1).
+    Spirit(f32),
 }
 
 /// How the world looks over what the art draws (Options, Graphics): 0 is off.
@@ -871,6 +873,7 @@ impl Renderer {
             Some(ScreenFilter::Grey) => (1.0, 0.0),
             Some(ScreenFilter::Blind) => (2.0, 0.0),
             Some(ScreenFilter::Blur(r)) => (3.0, r),
+            Some(ScreenFilter::Spirit(k)) => (4.0, k),
         };
         let (w, h) = (self.config.width as f32, self.config.height as f32);
         let texel = [1.0 / w, 1.0 / h];

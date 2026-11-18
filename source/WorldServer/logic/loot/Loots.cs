@@ -94,7 +94,7 @@ namespace WorldServer.logic.loot
             var doomedItems = new List<(Item Item, ItemType Type)>();
             foreach (var item in allItems.Values)
             {
-                // Items ported from Doomed Realms (types 0xD000-0xDFFF, tools/port_doomed.py) stay out of
+                // The items in DoomedRealms.xml (types 0xD000-0xDFFF) stay out of
                 // the random tier drops, apart from the tiered gear of the Doomed Realms classes, whose
                 // slots nothing else fills: a T3 ability drop can be a Mechanic's T3 turret, and the few
                 // TierLoot.DoomedPoolItems. Items whose slot type isn't a loot category stay out too.

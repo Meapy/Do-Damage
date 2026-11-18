@@ -30,13 +30,12 @@ ARMORS = {6: "Leather armor", 7: "Heavy armor", 14: "Robe"}
 RING = 9
 SLOT_NAMES = {**WEAPONS, **ABILITIES, **ARMORS}
 SLOT_NAMES[RING] = "Ring"
-# Do Damage's own items that tools/port_doomed.py keeps among the Doomed Realms ones (type codes
-# 0xD000 on): the T16 armours, Oryx the Ascended God's, drawn and balanced here. Not "From Doomed
-# Realms".
+# Items in DoomedRealms.xml (type codes 0xD000 on) that drop like the game's own: the T16
+# armours, Oryx the Ascended God's.
 OWN_IN_DOOMED = {"Sphinx Leather Armor", "Armor of the Pyramid", "Robe of the Nile"}
 # the Doomed Realms slot types, named as the clients name them (ItemConstants)
 SLOT_NAMES.update({27: "Wakizashi", 28: "Lute", 30: "Pearl", 32: "Turret", 36: "Dual Blades", 37: "Jacket",
-                   126: "Halo", 128: "Summon Scroll", 130: "Fountain", 200: "Martial Art",
+                   126: "Halo", 128: "Summon Scroll", 130: "Fountain", 132: "Censer", 200: "Martial Art",
                    5000: "Oceanic Spell", 5005: "Cannon"})
 
 STATS = {0: "Max HP", 3: "Max MP", 20: "Attack", 21: "Defense", 22: "Speed", 26: "Vitality", 27: "Wisdom",

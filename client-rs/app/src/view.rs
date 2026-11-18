@@ -177,6 +177,8 @@ pub struct Floater {
 /// Damage numbers: red, or purple for a hit that ignored defense (an `ArmorPiercing` shot).
 pub const DAMAGE_COLOR: u32 = 0xFF0000;
 pub const PIERCED_COLOR: u32 = 0xC060FF;
+/// A hit the Father's ward took whole: grey (`ward.rs`).
+pub const WARDED_COLOR: u32 = 0xC4C9D0;
 
 /// Our air underwater (`StatDataType.OxygenBar`): 0-100, or -1 out of the water.
 const BREATH: u8 = 64;
@@ -202,8 +204,13 @@ impl Floater {
         Floater { object_id, text: format!("-{amount}"), color, at, life: 1000, others: false }
     }
 
+    /// A hit our ward took whole: its number grey.
+    pub fn warded(object_id: i32, amount: i32, at: i32) -> Self {
+        Floater { color: WARDED_COLOR, ..Floater::hit(object_id, amount, false, at) }
+    }
+
     pub fn is_damage(&self) -> bool {
-        (self.color == DAMAGE_COLOR || self.color == PIERCED_COLOR) && self.text.starts_with('-')
+        (self.color == DAMAGE_COLOR || self.color == PIERCED_COLOR || self.color == WARDED_COLOR) && self.text.starts_with('-')
     }
 }
 
@@ -1421,7 +1428,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
             for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
                 let Item::Sprite { obj, desc } = item else { continue };
-                if desc.shadow_size <= 0 {
+                // a ghost casts none
+                if desc.shadow_size <= 0 || is_ghost(scene, obj, desc) {
                     continue;
                 }
                 // 30 × 15 px half-axes at size 100, under the object's ground point.
@@ -1469,6 +1477,23 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.objects");
     scene.particles.draw(&cam, renderer);
     crate::prof::mark("v.particles");
+    // the Father's ward round whoever has one: a shell of steel plates (`ward.rs`)
+    for (_, item) in items.iter() {
+        let Item::Sprite { obj, desc } = item else { continue };
+        let ward = obj.stat_int(crate::ward::WARD).unwrap_or(0);
+        if !desc.player || ward <= 0 || hidden(obj) {
+            continue;
+        }
+        let alpha = fade(scene, obj, desc) * if Some(obj.id) == world.me { 1.0 } else { scene.show.player_alpha };
+        if alpha <= 0.0 {
+            continue;
+        }
+        let most = obj.stat_int(crate::ward::WARD_MAX).unwrap_or(ward).max(ward);
+        let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0;
+        let [px, py] = scene.stand(obj);
+        let look = scene.particles.ward_look(obj.id);
+        crate::ward::shell(renderer, px, py - 20.0 * size * k, 33.0 * size * k, ward as f32 / most as f32, look, scene.time, alpha);
+    }
     // Darkness on us (`ConditionEffect` Darkness, as the AIR client drew it): the world goes dark
     // but for a little light round us, under the names, bars and numbers
     if let Some(me) = world.player().filter(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::DARKNESS)) {
@@ -1533,7 +1558,8 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     // HP bars (`GameObject.drawHpBar`) under monsters and players.
     for (_, item) in items.iter().filter(|_| scene.show.hp_bars) {
         let Item::Sprite { obj, desc } = item else { continue };
-        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) {
+        // a ghost has no health to show
+        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) || is_ghost(scene, obj, desc) {
             continue;
         }
         let c = obj.conditions();
@@ -1553,6 +1579,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             let f = hp as f32 / max as f32;
             let color = if f < 0.2 { 0xE01010 } else if f < 0.5 { 0xFF8010 } else { 0x10FF00 };
             renderer.fill(px - half, top, 2.0 * half * f.min(1.0), tall, color, 1.0);
+        }
+        // the Father's ward: a grey layer over the top of the health (`ward.rs`)
+        if let Some(w) = crate::ward::cover(max, obj.stat_int(crate::ward::WARD).unwrap_or(0)).filter(|_| desc.player) {
+            renderer.fill(px - half, top, 2.0 * half * w, tall * crate::ward::LAYER, crate::ward::BAR, 1.0);
+            renderer.fill(px - half, top, 2.0 * half * w, tall * 0.2, crate::ward::BAR_LIGHT, 1.0);
         }
     }
 
@@ -1707,6 +1738,15 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
     own * under_roof(scene, obj) * expiry_alpha
 }
 
+/// A player lingering at their grave as a ghost (grave.rs): the server's `GHOST` stat, or us
+/// once we've risen.
+fn is_ghost(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> bool {
+    desc.player && (obj.is_ghost() || (scene.world.ghost && Some(obj.id) == scene.world.me))
+}
+
+/// A ghost's pale blue edge.
+const GHOST_GLOW: u32 = 0x9CB6FF;
+
 const EXPIRY_WARNING_MS: i32 = 2_000;
 const BAG_EXPIRY_WARNING_MS: i32 = 5_000;
 const PORTAL_EXPIRY_WARNING_MS: i32 = 5_000;
@@ -1763,6 +1803,8 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     // epic or legendary one.
     let glow_stat = if desc.player { Some(59) } else if desc.enemy { Some(115) } else { None };
     let glow = glow_stat.and_then(|s| obj.stat_int(s)).filter(|&g| g > 0 && g <= 0xFF_FFFF).unwrap_or(0) as u32;
+    let ghost = is_ghost(scene, obj, desc);
+    let glow = if ghost { GHOST_GLOW } else { glow };
     let sprite = redrawer.get_glowing(scene.sprites, renderer, look.src, look.mirror, size, dye, glow)?;
     // The canvas's bottom centre stands on the object (raised by its z); sprites scale with the
     // map. On sinking ground (water) the sprite is drawn lower with its bottom cut off, unless it
@@ -1770,12 +1812,15 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     let k = (cam.scale / TILE_PX) as f32;
     let lift = scene.height(obj);
     let [px, py] = cam.to_screen(obj.x, obj.y, desc.z + lift);
+    // a ghost floats a little off the ground, rising and falling as it breathes
+    let phase = scene.time as f32 / 430.0 + (obj.id % 97) as f32;
+    let py = if ghost { py - (3.0 + 2.2 * phase.sin()) * k } else { py };
     let mut sink = 0.0;
     // on stacked floors, how far above its floor's ground it stands (a bridge's deck): standing
     // on it, it sinks into water as on a flat map
     let floor_h = scene.world.levels.as_ref().map_or(0.0, |l| l.height);
     let level = if floor_h > 0.0 { obj.level } else { 0 };
-    if (lift - level as f64 * floor_h).abs() < 1e-6 && !desc.flying && !desc.protect_from_sink() {
+    if !ghost && (lift - level as f64 * floor_h).abs() < 1e-6 && !desc.flying && !desc.protect_from_sink() {
         if let Some(l) = ground.layers_on(scene.world, scene.data, scene.sprites, renderer, level, obj.x as i32, obj.y as i32) {
             sink = (l.sink as f32).min(sprite.h as f32);
         }
@@ -1810,7 +1855,12 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     // pulses red.
     let c = obj.conditions();
     let mut filter = Filter::None;
-    if desc.player {
+    if ghost {
+        // see-through and cold, flickering faintly like a candle
+        let flicker = 0.9 + 0.06 * (scene.time as f32 / 170.0 + phase).sin() + 0.04 * (scene.time as f32 / 61.0).sin();
+        tint.mul = [0.72 * tint.mul[0], 0.86 * tint.mul[1], tint.mul[2], 0.58 * flicker];
+        tint.add = [tint.add[0] + 0.10, tint.add[1] + 0.16, tint.add[2] + 0.30];
+    } else if desc.player {
         if let (Some(hp), Some(max)) = (obj.stat_int(1), obj.stat_int(0)) {
             if (hp as f32) < max as f32 * 0.2 {
                 let rv = ((scene.time as f32 / 200.0).sin().abs() * 10.0).floor() / 10.0;

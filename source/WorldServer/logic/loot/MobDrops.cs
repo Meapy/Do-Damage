@@ -64,7 +64,7 @@ namespace WorldServer.logic.loot
     {
         // the slot types after the betterSkillys ones are the Doomed Realms classes' (DoomedClassSlots)
         private static readonly int[] WeaponT = new int[] { 1, 2, 3, 8, 17, 24, 36, 200 };
-        private static readonly int[] AbilityT = new int[] { 4, 5, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 23, 25, 27, 28, 37, 30, 32, 126, 128, 130, 5000, 5005 };
+        private static readonly int[] AbilityT = new int[] { 4, 5, 11, 12, 13, 15, 16, 18, 19, 20, 21, 22, 23, 25, 27, 28, 37, 30, 32, 126, 128, 130, 132, 5000, 5005 };
         private static readonly int[] ArmorT = new int[] { 6, 7, 14, };
         private static readonly int[] RingT = new int[] { 9 };
         private static readonly int[] PotionT = new int[] { 10 };

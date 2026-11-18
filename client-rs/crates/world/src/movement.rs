@@ -12,6 +12,10 @@ const MAX_SINK_LEVEL: i32 = 18;
 /// Sinking (honey, swamp, lava) never slows us below a character of this Speed walking on that
 /// ground: deep in it, a fast character was down to a tenth of its speed.
 const SINK_FLOOR_SPEED: i32 = 20;
+/// How fast a ghost drifts, tiles/ms: a little quicker than a fast walk, whatever its Speed.
+pub const GHOST_SPEED: f64 = 0.0088;
+/// How far behind the player it follows a ghost settles, tiles.
+const GHOST_TRAIL: f64 = 1.2;
 pub const SPEED_STAT: u8 = 22;
 
 /// The keys held: a direction relative to the screen (x right, y down; each -1, 0 or 1) and
@@ -39,6 +43,9 @@ pub fn move_speed(speed_stat: i32, conditions: [u32; 2], multiplier: f64) -> f64
 
 impl World {
     pub(crate) fn walk(&mut self, dt: i32, input: &MoveInput, data: &GameData) -> Option<(f64, f64)> {
+        if self.ghost {
+            return self.drift(dt, input, data);
+        }
         let me = self.me?;
         let player = self.objects.get(&me)?;
         let conditions = player.conditions();
@@ -100,6 +107,49 @@ impl World {
         Some((nx, ny))
     }
 
+    /// Our ghost's move: through walls and over any ground (inside the map), at one speed, with
+    /// no condition holding it. The keys steer it; with none held it drifts after `ghost_to`,
+    /// quicker the further behind it is, and settles `GHOST_TRAIL` short of it.
+    fn drift(&mut self, dt: i32, input: &MoveInput, data: &GameData) -> Option<(f64, f64)> {
+        let me = self.me?;
+        let player = self.objects.get(&me)?;
+        let (x, y) = (player.x, player.y);
+        let dt = dt.max(0) as f64;
+        let (mut vx, mut vy, mut speed) = (0.0, 0.0, GHOST_SPEED);
+        if input.x != 0.0 || input.y != 0.0 {
+            let angle = input.camera_angle + input.y.atan2(input.x);
+            (vx, vy) = (speed * angle.cos(), speed * angle.sin());
+        } else if let Some((tx, ty)) = self.ghost_to {
+            let (dx, dy) = (tx - x, ty - y);
+            let d = dx.hypot(dy);
+            let gap = d - GHOST_TRAIL;
+            if gap > 0.02 && dt > 0.0 {
+                // eased: a glide that catches up from far, and slows as it arrives
+                speed = (GHOST_SPEED * (0.35 + gap / 2.5)).min(GHOST_SPEED * 6.0).min(gap / dt);
+                (vx, vy) = (dx / d * speed, dy / d * speed);
+            }
+        }
+        if vx == 0.0 && vy == 0.0 {
+            if let Some(p) = self.objects.get_mut(&me) {
+                p.moving = false;
+            }
+            return None;
+        }
+        let edge = 0.5;
+        let nx = (x + dt * vx).clamp(edge, self.width as f64 - edge);
+        let ny = (y + dt * vy).clamp(edge, self.height as f64 - edge);
+        if let Some(p) = self.objects.get_mut(&me) {
+            p.moving = true;
+            p.walk_speed = speed;
+            p.facing = vy.atan2(vx);
+        }
+        if (nx, ny) == (x, y) || !self.place(me, nx, ny, data) {
+            return None;
+        }
+        let _ = self.climb(nx, ny, data);
+        Some((nx, ny))
+    }
+
     /// On stacked floors, our height where we now stand: the ground of the floor at our height,
     /// so a stair's steps take us up or down. False if no floor's square there is known.
     pub(crate) fn climb(&mut self, x: f64, y: f64, data: &GameData) -> bool {
@@ -130,6 +180,11 @@ impl World {
     /// `Player.onMove`, called as each Move goes to the server: the ground's speed, and sinking.
     pub fn on_move(&mut self, data: &GameData) {
         let Some(p) = self.player() else { return };
+        // a ghost floats: no ground slows it or sinks it
+        if self.ghost {
+            (self.ground_speed, self.move_multiplier, self.sink_level) = (1.0, 1.0, 0);
+            return;
+        }
         let ground = self.square_at(p.x as i32, p.y as i32, p.z, data).0.and_then(|t| data.grounds.get(&t));
         let speed = ground.map_or(1.0, |g| g.speed);
         self.ground_speed = speed;

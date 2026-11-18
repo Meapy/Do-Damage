@@ -5,8 +5,7 @@ using BL = WorldServer.logic.loot;
 
 // Loot added to monsters that run a Doomed Realms behaviour but whose Doomed Realms loot is missing or
 // thin: the classic realm heroes and their minions, which upstream betterSkillys never gave a
-// behaviour (tools/port_doomed.py gives them the Doomed Realms one). DoomedSetup.Drops adds these to
-// the generated drops; written by hand, not generated.
+// behaviour. DoomedSetup.Drops adds these to the drops in DoomedMonsters.cs.
 //
 // Heroes drop like the Actual Lich and Actual Ent Ancient (levels 9 and 11, tier 6 and 7 gear),
 // stepping up with the hero's level; minions drop a low-tier item now and then and a potion, as the

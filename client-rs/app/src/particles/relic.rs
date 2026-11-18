@@ -8,7 +8,9 @@
 //! Phylactery's: how many souls), and the target object is the one it follows or flies to.
 //!
 //! Not only the Necromantic items: look 29 is the Chaotic Scripture's Chaos Beam, sent by the
-//! server's `AllyAOE` (`BehaviorDb.Allies.cs`).
+//! server's `AllyAOE` (`BehaviorDb.Allies.cs`), and looks 30 to 32 the Ascendant's forcefield
+//! (`Forcefield.cs`, `Player.Forcefield.cs`), and 33 to 38 the Father's ward (`Player.Ward.cs`),
+//! whose shell round a warded player `ward.rs` draws from the player's stats.
 
 use super::{Motion, Particle, Particles};
 use crate::view::Camera;
@@ -49,7 +51,38 @@ pub mod look {
     pub const SINGULARITY: u8 = 28;
     /// The Chaotic Scripture's Chaos Beam (`AllyAOE`, not a Necromantic power).
     pub const CHAOS: u8 = 29;
-    pub const LAST: u8 = 29;
+    /// The Ascendant's forcefield raised: its halo falls, a column of light, then the dome.
+    pub const FORCEFIELD: u8 = 30;
+    /// A player in a forcefield hit: the field flaring round them.
+    pub const FIELD_BLOCK: u8 = 31;
+    /// A forcefield already up when it came into view: the dome alone, for the time left.
+    pub const FIELD_SEEN: u8 = 32;
+    /// The Father's censer swung: smoke circling him and rolling out to the ward's edge, a sigil
+    /// under him.
+    pub const WARD_CAST: u8 = 33;
+    /// A player warded: plates of grey steel flying in round them and locking shut.
+    pub const WARD_GAIN: u8 = 34;
+    /// A blow the ward took: sparks glancing off its plates (`object_type`: the percent left).
+    pub const WARD_HIT: u8 = 35;
+    /// The ward broken: its plates shattering.
+    pub const WARD_BREAK: u8 = 36;
+    /// The ward's time up: it dissolves back into smoke.
+    pub const WARD_FADE: u8 = 37;
+    /// The Censer of the Last Rite's ward breaking: its shards bursting out to the radius.
+    pub const LAST_RITE: u8 = 38;
+    /// Pestilence of Skuld: the plague climbing out of an enemy that fell to it, a new cloud
+    /// where it fell (pos2.x its radius, `duration` how long it lingers).
+    pub const CONTAGION: u8 = 39;
+    /// The Gravekeeper's Censer: blue grave-flames circling its user (`duration`; pos2.x how many
+    /// are left, none putting them out).
+    pub const GRAVE_FLAMES: u8 = 40;
+    /// The Gravekeeper's Censer: a flame rushing from its user (`source_id`) to an enemy and
+    /// bursting on it.
+    pub const GRAVE_FLAME: u8 = 41;
+    /// Halo of the Ghost Bride: a player its forcefield kept from dying: a veil of light falling
+    /// round them while they're untouchable.
+    pub const VOW: u8 = 42;
+    pub const LAST: u8 = 42;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -84,6 +117,14 @@ pub(super) enum DecalKind {
     /// The Chaotic Scripture's rift: a torn, glowing void, the eight arrows of chaos turning round
     /// it.
     Rift,
+    /// The Ascendant's forcefield: a dome of light seen from above, brightest at its rim, a lattice
+    /// of hexagons shimmering across it, rings of runes turning, ripples running out.
+    Forcefield,
+    /// A hexagon of the forcefield flaring round a player as it turns a blow.
+    FieldFlare,
+    /// The Father's rite under him as he swings his censer: rings of grey steel, eight shield
+    /// plates turning round a square and the marks of the hours, in his censer's colour.
+    WardSigil,
 }
 
 /// A picture on the ground: `DecalKind` at x, y, out to `radius`, from `start` for `ms`
@@ -126,9 +167,12 @@ pub(super) struct Aura {
 fn period(look: u8) -> i32 {
     match look {
         look::PHASE | look::SINGULARITY => 22,
+        look::FORCEFIELD => 26,
         look::SERPENT_WIND | look::UNDERTOW | look::FORGOTTEN => 32,
         look::DAVY | look::IGNITION | look::PENTAGRAM => 45,
-        look::HELLBRAND | look::CHAOS => 60,
+        look::HELLBRAND | look::CHAOS | look::CONTAGION => 60,
+        look::GRAVE_FLAMES => 30,
+        look::VOW => 50,
         look::OATH => 120,
         look::STARLIGHT => 140,
         _ => 100,
@@ -145,7 +189,60 @@ fn mix(a: u32, b: u32, t: f64) -> u32 {
     ch(16) | ch(8) | ch(0)
 }
 
+/// The grey of the Father's ward: its shadow, its steel, its light and its shine.
+pub(crate) const WARD_GREYS: [u32; 4] = [0x6A7078, 0xA8AEB8, 0xD0D4DA, 0xF0F2F6];
+
 /// A number from a decal's seed: the same each frame.
+/// What drifts in an Ascendant's forcefield, by its halo's tier (`field_style`).
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Drift {
+    /// Gold and silver: nothing but its motes.
+    Clear,
+    /// Worn: grey dust sifting down.
+    Dust,
+    /// Rusty: flakes of rust falling off it.
+    Flakes,
+    /// Bronze: specks of verdigris rising.
+    Verdigris,
+    /// Eternal Peace: pale petals drifting down, swaying.
+    Petals,
+    /// God's Blessing: shafts of light turning over it, and sparks rising.
+    Rays,
+    /// The Seraphim: a rim of flame, embers flying up.
+    Embers,
+    /// The Archangel: stars wheeling round it, a second rim, twinkles.
+    Stars,
+}
+
+/// An Ascendant's forcefield beyond its colour, which names its halo's tier (`Forcefield.COLORS`):
+/// the colour that tints it beside its own, what stands in for white in its glints, how unsteady it
+/// is (the lower tiers flicker and their lattice has holes), and what drifts in it.
+#[derive(Clone, Copy, Debug)]
+struct FieldStyle {
+    accent: u32,
+    spark: u32,
+    unsteady: f64,
+    drift: Drift,
+}
+
+fn field_style(color: u32) -> FieldStyle {
+    let (accent, spark, unsteady, drift) = match color & 0xFF_FFFF {
+        0x8E949A => (0x5A6066, 0xDCE0E4, 0.4, Drift::Dust),
+        0xC0602A => (0x6E3A1E, 0xF4A868, 0.3, Drift::Flakes),
+        0xD08A3C => (0x4FB49A, 0xFFE0B0, 0.12, Drift::Verdigris),
+        0xCFDCEB => (0x8FB6E0, 0xFFFFFF, 0.0, Drift::Clear),
+        0x8CF0C8 => (0xF0FFF6, 0xFFFFFF, 0.0, Drift::Petals),
+        0xFFF0A8 => (0xFFC040, 0xFFFFFF, 0.0, Drift::Rays),
+        0xFF6A28 => (0xFFD040, 0xFFF4C8, 0.0, Drift::Embers),
+        0xB27CFF => (0x60D8FF, 0xFFFFFF, 0.0, Drift::Stars),
+        // the Halo of the Ghost Bride's (`Player.VowColor`): rose-white, petals drifting down
+        0xF4E8FF => (0xFFC8E0, 0xFFFFFF, 0.0, Drift::Petals),
+        // the Golden Halo's, and any other
+        _ => (0xBFEFFF, 0xFFFFFF, 0.0, Drift::Clear),
+    };
+    FieldStyle { accent, spark, unsteady, drift }
+}
+
 fn hash(seed: u64, i: u64) -> f64 {
     let mut h = seed ^ i.wrapping_mul(0x9E37_79B9_7F4A_7C15);
     h ^= h >> 33;
@@ -334,7 +431,8 @@ impl Particles {
         let (x, y) = (e.pos1.x as f64, e.pos1.y as f64);
         let r = (e.pos2.x as f64).clamp(0.2, 8.0);
         let color = e.color & 0xFF_FFFF;
-        let ms = e.duration.clamp(0, 10_000);
+        // (a forcefield lasts up to 20 s)
+        let ms = e.duration.clamp(0, if matches!(look, look::FORCEFIELD | look::FIELD_SEEN) { 30_000 } else { 10_000 });
         let id = e.target_object_id;
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
@@ -669,6 +767,79 @@ impl Particles {
                 self.debris(x, y, 18, &[0xFF2020, 0x400000, 0xFF8040], 130.0, 4.0, 6.0, 800, 0);
                 self.puffs(x, y, 10, &[0x200000, 0x401010, 0x101010], 300.0, 1.0, 2.2, 1300, 120);
             }
+            // Pestilence of Skuld's contagion: the fallen enemy bursts into a sick green cloud,
+            // its dead climbing out of it as wisps of mist, the cloud bubbling while it lingers
+            look::CONTAGION => {
+                self.decal(DecalKind::Puddle, x, y, r * 0.8, color, now, ms.clamp(1200, 6000), None);
+                self.decal(DecalKind::Ring, x, y, r, 0xD0FF80, now, 420, None);
+                self.puffs(x, y, 16, &[color, 0x4A7A20, 0x2A3A10, 0xB0E060], 300.0, r * 0.5, 0.5, 1600, 0);
+                self.debris(x, y, 16, &[color, 0xD0FF80, 0x2A3A10], 100.0, 3.0, 5.0, 700, 0);
+                for i in 0..3 {
+                    let mut p = Particle::new(x + self.pm(0.5), y + self.pm(0.5), 0.2, 0xE0FFD0, 220.0, 1100, Motion::Plain).moving(self.pm(0.2) / 1000.0, self.pm(0.2) / 1000.0, 0.0022);
+                    p.delay = 150 + i * 160;
+                    p.fade = true;
+                    p.opacity = 0.7;
+                    p.grow = 0.1;
+                    self.add(p);
+                }
+                self.aura(look, id, x, y, r, color, now, ms.clamp(600, 6000), false);
+            }
+            // the Gravekeeper's Censer: blue flames lit round its user, circling it (an aura) as
+            // many as are left; with none left they go out in a puff of smoke
+            look::GRAVE_FLAMES => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let n = r.round() as usize;
+                let lit = self.auras.iter().any(|a| a.look == look && a.id == id);
+                if n == 0 || ms <= 1 {
+                    self.auras.retain(|a| !(a.look == look && a.id == id));
+                    if lit {
+                        self.puffs(cx, cy, 6, &[0x2440A0, color, 0x606870], 160.0, 0.6, 0.8, 600, 0);
+                    }
+                } else {
+                    if !lit {
+                        self.decal(DecalKind::Ring, cx, cy, 1.4, color, now, 400, None);
+                        self.flames(cx, cy, 0.9, 24, &[0xC0E8FF, color, 0x2440A0], 200.0, 4.0, 700, 300);
+                    }
+                    self.aura(look, id, cx, cy, n as f64, color, now, ms, true);
+                }
+            }
+            // ...one rushing out: a streak of blue fire from its user onto the enemy, bursting
+            // there in a ring of flame and scorch
+            look::GRAVE_FLAME => {
+                let from = e.source_id.and_then(|s| world.objects.get(&s)).map(|o| (o.x, o.y)).unwrap_or((x, y));
+                self.seekers(from.0, from.1, id, (x, y), 6, &[0xFFFFFF, 0xC0E8FF, color], 170.0, 20);
+                self.decal(DecalKind::Ring, x, y, r, color, now + 300, 380, None);
+                self.decal(DecalKind::Scorch, x, y, r * 0.6, 0x2440A0, now + 300, 900, None);
+                for i in 0..26 {
+                    let (a, d) = (2.0 * PI * self.random(), r * 0.6 * self.random().sqrt());
+                    let c = self.pick(&[0xFFFFFF, 0xC0E8FF, color, 0x2440A0]);
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.1, c, 160.0 + 80.0 * self.random(), 500, Motion::Spark)
+                        .moving(self.pm(0.6) / 1000.0, self.pm(0.6) / 1000.0, (3.0 + 3.0 * self.random()) / 1000.0);
+                    p.delay = 300 + i * 6;
+                    self.add(p);
+                }
+                self.debris(x, y, 10, &[color, 0xC0E8FF], 90.0, 3.0, 4.0, 600, 300);
+            }
+            // the Ghost Bride's vow kept: a ring of light, a veil of petals and lace falling round
+            // the player it saved, who shines white, and motes rising off them while they're
+            // untouchable
+            look::VOW => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.decal(DecalKind::Ring, cx, cy, r * 1.6, color, now, 500, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.9, 0xFFC8E0, now + 120, 450, None);
+                for i in 0..28 {
+                    let angle = i as f64 * 2.0 * PI / 28.0;
+                    let motion = Motion::Swirl { id, angle, speed: 0.12, rad: 0.75, out: 0.0, rise: -0.0016 };
+                    let mut p = Particle::new(cx, cy, 2.2, if i % 3 == 0 { 0xFFC8E0 } else { 0xFFFFFF }, 120.0, 900, motion);
+                    p.alpha = 0.0;
+                    p.delay = i * 12;
+                    self.add(p);
+                }
+                if on.is_some() {
+                    self.flashes.insert(id, super::Flash { start: now, color: 0xFFFFFF, period: 300, repeats: (ms / 300).max(1) });
+                }
+                self.aura(look, id, cx, cy, r, color, now, ms.max(600), true);
+            }
             // the Bow of the Event Horizon: a black hole tears open, swallowing light
             look::SINGULARITY => {
                 self.decal(DecalKind::BlackHole, x, y, r, color, now, ms.max(800), None);
@@ -685,7 +856,350 @@ impl Particles {
                 // the plain lightning and blast that come with it (for older clients): not drawn
                 self.chaos_on = Some((id, now));
             }
+            // the Ascendant's forcefield: a halo drops out of the sky onto the spot, strikes a
+            // column of light, and the dome bursts open from it in a double shockwave, golden
+            // light skittering out to its edge and feathers of light drifting down
+            look::FORCEFIELD => {
+                const LAND: i32 = 280;
+                let st = field_style(color);
+                let white = st.spark;
+                let pale = mix(color, white, 0.6);
+                self.fields.retain(|f| f.0 != id);
+                self.fields.push((id, now + ms + 500));
+                // the halo, falling and turning
+                for i in 0..18 {
+                    let a = i as f64 * 2.0 * PI / 18.0;
+                    let c = if i % 3 == 0 { white } else { color };
+                    let motion = Motion::Soul { cx: x, cy: y, angle: a, speed: 0.18, rad: 0.7, out: 0.0012, rise: -4.0 / LAND as f64 };
+                    let mut p = Particle::new(x + 0.7 * a.cos(), y + 0.7 * a.sin(), 4.0, c, 170.0, LAND, motion);
+                    p.alpha = 1.0;
+                    self.add(p);
+                }
+                // the column of light it strikes, white at its heart
+                for row in 0..22 {
+                    for (ox, c, size) in [(0.0, white, 260.0), (-0.22, pale, 230.0), (0.22, pale, 230.0), (-0.4, color, 170.0), (0.4, st.accent, 170.0)] {
+                        let mut p = Particle::new(x + ox, y, row as f64 * 0.32, c, size, 520 - row * 6, Motion::Plain).moving(0.0, 0.0, 0.0015);
+                        p.delay = LAND + row * 9;
+                        p.fade = true;
+                        self.add(p);
+                    }
+                }
+                // the flash where it lands
+                for (size, c, life) in [(1100.0, color, 260), (650.0, white, 180)] {
+                    let mut p = Particle::new(x, y, 0.3, c, size, life, Motion::Spark);
+                    p.delay = LAND;
+                    self.add(p);
+                }
+                // the shockwaves, the second paler and a beat behind
+                self.decal(DecalKind::Ring, x, y, r * 1.08, color, now + LAND, 520, None);
+                self.decal(DecalKind::Ring, x, y, r * 0.9, white, now + LAND + 110, 420, None);
+                // light skittering out along the floor to the dome's edge
+                for i in 0..36 {
+                    let a = i as f64 * 2.0 * PI / 36.0 + self.pm(0.05);
+                    let s = (r / 300.0) * (0.85 + 0.3 * self.random());
+                    let c = if i % 4 == 0 { white } else if i % 2 == 0 { pale } else { color };
+                    let mut p = Particle::new(x, y, 0.15, c, 140.0, 300, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0);
+                    p.delay = LAND;
+                    self.add(p);
+                }
+                // feathers of light, drifting down over it
+                for _ in 0..26 {
+                    let (a, d) = (2.0 * PI * self.random(), r * 0.9 * self.random().sqrt());
+                    let fall = 1400 + (self.random() * 900.0) as i32;
+                    let c = self.pick(&[white, pale, color, st.accent]);
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 3.0 + 1.5 * self.random(), c, 100.0, fall, Motion::Plain)
+                        .moving(self.pm(0.25) / 1000.0, self.pm(0.25) / 1000.0, -3.2 / fall as f64);
+                    p.delay = LAND + (self.random() * 500.0) as i32;
+                    p.fade = true;
+                    self.add(p);
+                }
+                // the dome itself, and the wall of light rising off its rim, for as long as it lasts
+                self.decal(DecalKind::Forcefield, x, y, r, color, now + LAND, (ms - LAND).max(600), None);
+                self.aura(look, id, x, y, r, color, now + LAND, (ms - LAND).max(600), false);
+            }
+            // a forcefield already up: the dome as it is now, for the time it has left
+            look::FIELD_SEEN => {
+                self.fields.retain(|f| f.0 != id);
+                self.fields.push((id, now + ms + 500));
+                // (started as if opened half a second ago: no opening)
+                self.decal(DecalKind::Forcefield, x, y, r, color, now - 500, ms.max(600) + 500, None);
+                self.aura(look::FORCEFIELD, id, x, y, r, color, now, ms.max(600), false);
+            }
+            // a blow turned aside: a hexagon of the field flares round the player, light glancing off
+            look::FIELD_BLOCK => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.decal(DecalKind::FieldFlare, cx, cy, r, color, now, 380, Some(id));
+                let st = field_style(color);
+                for i in 0..10 {
+                    let a = i as f64 * 2.0 * PI / 10.0 + self.pm(0.2);
+                    let c = if i % 2 == 0 { st.spark } else if i % 3 == 0 { st.accent } else { color };
+                    let mut p = Particle::new(cx + r * 0.8 * a.cos(), cy + r * 0.8 * a.sin(), 0.5 + 0.3 * self.random(), c, 90.0, 260, Motion::Spark)
+                        .moving(a.cos() * 0.004, a.sin() * 0.004, 0.002);
+                    p.fade = true;
+                    self.add(p);
+                }
+                if on.is_some() {
+                    self.flashes.insert(id, super::Flash { start: now, color: 0xFFF2B8, period: 120, repeats: 1 });
+                }
+            }
+            // the censer swung: its smoke circling the Father twice as it rises, rolling out across
+            // the floor to the ward's edge in a ring, a grey shockwave and one in the censer's
+            // colour, the sigil of the rite turning under him, and the censer's fire flaring
+            look::WARD_CAST => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.ward_on = Some((id, now));
+                for i in 0..28 {
+                    let c = if i % 5 == 0 { color } else { WARD_GREYS[1 + i as usize % 3] };
+                    let motion = Motion::Swirl { id, angle: i as f64 * 0.45, speed: 0.30, rad: 0.7, out: 0.0005, rise: 0.0009 };
+                    let mut p = Particle::new(cx, cy, 0.35, c, 170.0, 560, motion);
+                    p.alpha = 0.0;
+                    p.delay = i * 8;
+                    self.add(p);
+                }
+                for i in 0..44 {
+                    let a = i as f64 * 2.0 * PI / 44.0 + self.pm(0.05);
+                    let s = r / 650.0 * (0.85 + 0.3 * self.random());
+                    let c = if i % 6 == 0 { color } else { WARD_GREYS[i % 3] };
+                    let mut p = Particle::new(cx, cy, 0.2, c, 200.0, 650, Motion::Plain).moving(a.cos() * s, a.sin() * s, 0.0004);
+                    p.fade = true;
+                    p.opacity = 0.6;
+                    p.grow = 0.25;
+                    p.delay = 140;
+                    self.add(p);
+                }
+                for i in 0..10 {
+                    let a = i as f64 * 2.0 * PI / 10.0 + self.pm(0.1);
+                    let s = r / 520.0 * (0.85 + 0.3 * self.random());
+                    let c = if i % 3 == 0 { WARD_GREYS[3] } else { color };
+                    let mut p = Particle::new(cx, cy, 0.15, c, 120.0, 320, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0);
+                    p.delay = 140;
+                    self.add(p);
+                }
+                self.decal(DecalKind::Ring, cx, cy, r, WARD_GREYS[2], now + 140, 620, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.82, color, now + 230, 520, None);
+                self.decal(DecalKind::WardSigil, cx, cy, 1.7, color, now, 1300, Some(id));
+                for (size, c, life) in [(700.0, color, 220), (420.0, WARD_GREYS[3], 160)] {
+                    let mut p = Particle::new(cx, cy, 0.7, c, size, life, Motion::Spark);
+                    p.delay = 120;
+                    self.add(p);
+                }
+                self.puffs(cx, cy, 10, &WARD_GREYS[..3], 220.0, 0.35, 1.8, 1300, 80);
+            }
+            // a player warded: incense streaming to them from the Father who raised it, then plates
+            // of steel flying in from all round and locking shut with a clang of light
+            look::WARD_GAIN => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.wards.insert(id, super::WardLook { color, gained: now, hit: i32::MIN / 2, left: 100 });
+                let from = e.source_id.filter(|s| *s != id).and_then(|s| world.objects.get(&s)).map(|o| (o.x, o.y));
+                if let Some((sx, sy)) = from {
+                    self.seekers(sx, sy, id, (cx, cy), 7, &[WARD_GREYS[2], WARD_GREYS[3], color], 110.0, 22);
+                }
+                let lag = if from.is_some() { 140 } else { 0 };
+                for i in 0..14 {
+                    let a = i as f64 * 2.0 * PI / 14.0;
+                    let z = 0.25 + 0.45 * (i % 3) as f64;
+                    let c = if i % 4 == 0 { color } else { WARD_GREYS[1 + i as usize % 3] };
+                    let mut p = Particle::new(cx + 1.7 * a.cos(), cy + 1.7 * a.sin(), z, c, 150.0, 900, Motion::Seek { id, tx: cx, ty: cy, speed: 0.007 })
+                        .moving(-a.sin() * 0.003, a.cos() * 0.003, 0.001);
+                    p.delay = lag + i * 10;
+                    self.add(p);
+                }
+                for (size, c, life) in [(520.0, WARD_GREYS[2], 200), (300.0, 0xFFFFFF, 140)] {
+                    let mut p = Particle::new(cx, cy, 0.5, c, size, life, Motion::Spark);
+                    p.delay = lag + 270;
+                    self.add(p);
+                }
+                self.decal(DecalKind::Ring, cx, cy, 1.1, WARD_GREYS[3], now + lag + 270, 320, Some(id));
+            }
+            // a blow taken: sparks glancing off the plate it struck
+            look::WARD_HIT => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let left = (e.object_type as i32).clamp(0, 100);
+                match self.wards.get_mut(&id) {
+                    Some(w) => {
+                        w.hit = now;
+                        w.left = left;
+                    }
+                    None => {
+                        self.wards.insert(id, super::WardLook { color, gained: now - 2000, hit: now, left });
+                    }
+                }
+                let a0 = 2.0 * PI * self.random();
+                for _ in 0..9 {
+                    let b = a0 + self.pm(0.7);
+                    let c = self.pick(&[0xFFFFFF, WARD_GREYS[3], WARD_GREYS[2], color]);
+                    let mut p = Particle::new(cx + 0.55 * a0.cos(), cy + 0.55 * a0.sin(), 0.45 + 0.35 * self.random(), c, 85.0, 260, Motion::Spark)
+                        .moving(b.cos() * 0.0045, b.sin() * 0.0045, 0.002);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            // broken: the plates burst off, tumbling and bouncing, a white flash, dust
+            look::WARD_BREAK => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.wards.remove(&id);
+                for i in 0..24 {
+                    let a = i as f64 * 2.0 * PI / 24.0 + self.pm(0.12);
+                    let s = 2.0 + 2.5 * self.random();
+                    let c = if i % 5 == 0 { color } else { WARD_GREYS[i % 4] };
+                    let z = 0.25 + 0.9 * self.random();
+                    let life = 700 + (self.random() * 400.0) as i32;
+                    let mut p = Particle::new(cx + 0.55 * a.cos(), cy + 0.55 * a.sin(), z, c, 120.0 + 60.0 * self.random(), life, Motion::Ballistic { g: GRAVITY * 0.6 })
+                        .moving(a.cos() * s / 1000.0, a.sin() * s / 1000.0, (1.5 + 2.5 * self.random()) / 1000.0);
+                    p.fade = true;
+                    self.add(p);
+                }
+                for (size, c, life) in [(800.0, color, 220), (520.0, 0xFFFFFF, 150)] {
+                    self.add(Particle::new(cx, cy, 0.5, c, size, life, Motion::Spark));
+                }
+                self.decal(DecalKind::Ring, cx, cy, 1.6, WARD_GREYS[3], now, 360, Some(id));
+                self.puffs(cx, cy, 6, &WARD_GREYS[..3], 180.0, 0.6, 0.6, 700, 40);
+            }
+            // its time up: the shell sighs back into the smoke it was made of
+            look::WARD_FADE => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.wards.remove(&id);
+                self.puffs(cx, cy, 12, &WARD_GREYS[..3], 200.0, 0.45, 1.3, 1100, 0);
+                for i in 0..10 {
+                    let a = i as f64 * 2.0 * PI / 10.0;
+                    let c = if i % 3 == 0 { color } else { WARD_GREYS[2] };
+                    let mut p = Particle::new(cx + 0.5 * a.cos(), cy + 0.5 * a.sin(), 0.3 + 0.5 * self.random(), c, 80.0, 700, Motion::Spark).moving(0.0, 0.0, 0.0018);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            // the Last Rite: the broken ward bursts outward, shards of steel and violet fire tearing
+            // out to the radius in a double shockwave, the rite's sigil burning into the floor
+            look::LAST_RITE => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let hot = mix(color, 0xFFFFFF, 0.55);
+                for (size, c, life) in [(1300.0, color, 260), (700.0, 0xFFFFFF, 170)] {
+                    self.add(Particle::new(cx, cy, 0.5, c, size, life, Motion::Spark));
+                }
+                for i in 0..28 {
+                    let a = i as f64 * 2.0 * PI / 28.0 + self.pm(0.05);
+                    let s = (r / 260.0) * (0.8 + 0.4 * self.random());
+                    let c = if i % 4 == 0 { 0xFFFFFF } else if i % 2 == 0 { hot } else { WARD_GREYS[2] };
+                    let mut p = Particle::new(cx, cy, 0.4, c, 150.0, 260, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0);
+                    p.fade = true;
+                    self.add(p);
+                }
+                self.decal(DecalKind::Ring, cx, cy, r * 1.05, color, now, 480, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.8, 0xFFFFFF, now + 90, 380, None);
+                self.decal(DecalKind::WardSigil, cx, cy, r, color, now, 900, None);
+                self.debris(cx, cy, 22, &[color, hot, WARD_GREYS[2], WARD_GREYS[0]], 120.0, 4.5, 5.5, 900, 0);
+                self.puffs(cx, cy, 10, &[0x2A2236, 0x463C58, WARD_GREYS[0]], 280.0, r * 0.5, 0.9, 1200, 60);
+            }
             _ => {}
+        }
+    }
+
+    /// A forcefield fading away: its dome shatters, shards of light thrown off its rim and
+    /// falling.
+    fn field_shatter(&mut self, a: Aura) {
+        let st = field_style(a.color);
+        let pale = mix(a.color, st.spark, 0.6);
+        let n = (14.0 + a.radius * 5.0) as usize;
+        for i in 0..n {
+            let ang = i as f64 * 2.0 * PI / n as f64 + self.pm(0.1);
+            let (sx, sy) = (a.x + a.radius * ang.cos(), a.y + a.radius * ang.sin());
+            let c = self.pick(&[a.color, pale, st.spark, st.accent]);
+            let s = 0.6 + 1.2 * self.random();
+            let z = 0.3 + 1.6 * self.random();
+            let mut p = Particle::new(sx, sy, z, c, 120.0 + 60.0 * self.random(), 700 + (self.random() * 400.0) as i32, Motion::Ballistic { g: GRAVITY * 0.5 })
+                .moving(ang.cos() * s / 1000.0, ang.sin() * s / 1000.0, (1.0 + 2.0 * self.random()) / 1000.0);
+            p.fade = true;
+            self.add(p);
+        }
+        for i in 0..12 {
+            let ang = 2.0 * PI * self.random();
+            let d = a.radius * self.random().sqrt();
+            let c = if i % 3 == 0 { st.spark } else { pale };
+            let mut p = Particle::new(a.x + d * ang.cos(), a.y + d * ang.sin(), 0.1, c, 110.0, 800, Motion::Plain).moving(0.0, 0.0, 0.0022);
+            p.fade = true;
+            self.add(p);
+        }
+    }
+
+    /// What drifts in a forcefield of the style `st`, by its tier: dust, rust, petals, embers...
+    fn field_drift(&mut self, a: Aura, st: FieldStyle, fading: f64) {
+        let (x, y, r) = (a.x, a.y, a.radius);
+        let (ang, d) = (2.0 * PI * self.random(), r * 0.92 * self.random().sqrt());
+        let (px, py) = (x + d * ang.cos(), y + d * ang.sin());
+        match st.drift {
+            Drift::Clear => {}
+            Drift::Dust => {
+                if self.random() < 0.5 {
+                    let c = self.pick(&[0x6A7076, 0x8E949A, 0xB0B4B8]);
+                    let mut p = Particle::new(px, py, 2.2 + self.random(), c, 70.0 * fading, 1800, Motion::Plain).moving(self.pm(0.1) / 1000.0, self.pm(0.1) / 1000.0, -0.0012);
+                    p.fade = true;
+                    self.add(p);
+                }
+                // a spark spitting off its rim now and then, as a failing field does
+                if self.random() < 0.12 {
+                    let a2 = 2.0 * PI * self.random();
+                    let (sx, sy) = (x + r * a2.cos(), y + r * a2.sin());
+                    for _ in 0..4 {
+                        let b = a2 + self.pm(0.9);
+                        let mut p = Particle::new(sx, sy, 0.3, st.spark, 80.0, 260, Motion::Spark).moving(b.cos() * 0.003, b.sin() * 0.003, 0.002);
+                        p.fade = true;
+                        self.add(p);
+                    }
+                }
+            }
+            Drift::Flakes => {
+                if self.random() < 0.6 {
+                    let c = self.pick(&[0x8A4020, 0xC0602A, 0x5A2A10, 0xD88040]);
+                    let fall = 1300 + (self.random() * 600.0) as i32;
+                    let mut p = Particle::new(px, py, 2.6 + self.random(), c, (60.0 + 50.0 * self.random()) * fading, fall, Motion::Ballistic { g: GRAVITY * 0.08 })
+                        .moving(self.pm(0.3) / 1000.0, self.pm(0.3) / 1000.0, 0.0);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            Drift::Verdigris => {
+                if self.random() < 0.45 {
+                    let c = self.pick(&[st.accent, 0x2E8A70, 0x9AE8D0]);
+                    let mut p = Particle::new(px, py, 0.1, c, 70.0 * fading, 1400, Motion::Plain).moving(0.0, 0.0, 0.0014);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            Drift::Petals => {
+                if self.random() < 0.45 {
+                    let c = self.pick(&[0xF0FFF6, 0xC8FFE8, a.color, 0xFFE8F4]);
+                    let fall = 2200 + (self.random() * 800.0) as i32;
+                    let motion = Motion::Soul { cx: px, cy: py, angle: 2.0 * PI * self.random(), speed: 0.004, rad: 0.25, out: 0.0, rise: -2.6 / fall as f64 };
+                    let mut p = Particle::new(px, py, 2.8, c, (90.0 + 40.0 * self.random()) * fading, fall, motion);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            Drift::Rays => {
+                if self.random() < 0.5 {
+                    let c = self.pick(&[0xFFFFFF, st.accent, a.color]);
+                    let mut p = Particle::new(px, py, 0.1, c, 90.0 * fading, 900, Motion::Spark).moving(0.0, 0.0, 0.0035);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            Drift::Embers => {
+                let a2 = 2.0 * PI * self.random();
+                let rr = r * (0.9 + 0.12 * self.random());
+                let c = self.pick(&[a.color, st.accent, 0xFF3010, st.spark]);
+                let mut p = Particle::new(x + rr * a2.cos(), y + rr * a2.sin(), 0.1, c, (110.0 + 60.0 * self.random()) * fading, 700, Motion::Spark)
+                    .moving(self.pm(0.4) / 1000.0, self.pm(0.4) / 1000.0, 0.004 + 0.002 * self.random());
+                p.fade = true;
+                self.add(p);
+            }
+            Drift::Stars => {
+                if self.random() < 0.55 {
+                    let c = self.pick(&[0xFFFFFF, st.accent, a.color, 0xFFE0FF]);
+                    let mut p = Particle::new(px, py, 0.3 + 2.0 * self.random(), c, (120.0 + 80.0 * self.random()) * fading, 600, Motion::Spark);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
         }
     }
 
@@ -750,6 +1264,35 @@ impl Particles {
                 p.alpha = 0.0;
                 self.add(p);
             }
+            // the plague cloud bubbling
+            look::CONTAGION => {
+                let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.8 * self.random().sqrt());
+                let c = self.pick(&[a.color, 0x4A7A20, 0xD0FF80]);
+                let mut p = Particle::new(x + d * ang.cos(), y + d * ang.sin(), 0.05, c, 100.0 + 60.0 * self.random(), 800, Motion::Plain).moving(0.0, 0.0, 0.0012);
+                p.fade = true;
+                self.add(p);
+            }
+            // the grave-flames circling their keeper, as many as are left (the radius)
+            look::GRAVE_FLAMES => {
+                let n = a.radius.round().max(1.0) as usize;
+                let spin = (now - a.start) as f64 * 0.004;
+                for k in 0..n {
+                    let ang = spin + k as f64 * 2.0 * PI / n as f64;
+                    let (fx, fy) = (x + 0.9 * ang.cos(), y + 0.9 * ang.sin());
+                    let c = self.pick(&[0xFFFFFF, 0xC0E8FF, a.color, a.color, 0x2440A0]);
+                    let mut p = Particle::new(fx + self.pm(0.06), fy + self.pm(0.06), 0.45, c, 150.0, 300, Motion::Spark).moving(0.0, 0.0, 0.0025);
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            // white motes rising off the player the vow keeps
+            look::VOW => {
+                let angle = 2.0 * PI * self.random();
+                let motion = Motion::Swirl { id: a.id, angle, speed: 0.08, rad: 0.55, out: 0.0, rise: 0.0022 };
+                let mut p = Particle::new(x, y, 0.0, self.pick(&[0xFFFFFF, a.color, 0xFFC8E0]), 100.0, 700, motion);
+                p.alpha = 0.0;
+                self.add(p);
+            }
             // a star twinkling about the player
             look::STARLIGHT => {
                 let angle = 2.0 * PI * self.random();
@@ -804,6 +1347,40 @@ impl Particles {
                 p.fade = true;
                 self.add(p);
             }
+            // the forcefield's wall: motes of light rising off its rim, so it stands up off the
+            // floor; now and then one drifting up inside it, or a glint racing round the rim
+            look::FORCEFIELD => {
+                let st = field_style(a.color);
+                let pale = mix(a.color, st.spark, 0.6);
+                let fading = left.clamp(0.25, 1.0);
+                let ang = 2.0 * PI * self.random();
+                let rr = a.radius * (0.97 + 0.03 * self.random());
+                let c = self.pick(&[a.color, pale, st.spark, a.color]);
+                let rise = 0.0016 + 0.0016 * self.random();
+                let mut p = Particle::new(x + rr * ang.cos(), y + rr * ang.sin(), 0.05, c, (100.0 + 50.0 * self.random()) * fading, 900, Motion::Plain).moving(0.0, 0.0, rise);
+                p.fade = true;
+                self.add(p);
+                if self.random() < 0.3 {
+                    let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.85 * self.random().sqrt());
+                    let c = self.pick(&[pale, st.accent, st.spark]);
+                    let mut p = Particle::new(x + d * ang.cos(), y + d * ang.sin(), 0.1, c, 70.0, 1200, Motion::Plain)
+                        .moving(self.pm(0.1) / 1000.0, self.pm(0.1) / 1000.0, 0.0012);
+                    p.fade = true;
+                    self.add(p);
+                }
+                if self.random() < 0.05 {
+                    let ang = 2.0 * PI * self.random();
+                    let dir = if self.random() < 0.5 { 1.0 } else { -1.0 };
+                    let motion = Motion::Soul { cx: x, cy: y, angle: ang, speed: 0.09 * dir, rad: a.radius, out: 0.0, rise: 0.0 };
+                    for k in 0..4 {
+                        let mut p = Particle::new(x, y, 0.15, if k == 0 { st.spark } else { a.color }, 150.0 - k as f64 * 25.0, 520, motion.clone());
+                        p.alpha = 0.0;
+                        p.delay = k * 18;
+                        self.add(p);
+                    }
+                }
+                self.field_drift(a, st, fading);
+            }
             // light pulled round and down into the black hole
             look::SINGULARITY => {
                 let angle = 2.0 * PI * self.random();
@@ -828,6 +1405,12 @@ impl Particles {
             }
         }
         let mut auras = std::mem::take(&mut self.auras);
+        // a forcefield's time is up: it shatters
+        for a in auras.iter().filter(|a| a.look == look::FORCEFIELD && now >= a.until) {
+            self.muting = a.muting;
+            self.field_shatter(*a);
+            self.muting = 0.0;
+        }
         auras.retain(|a| now < a.until);
         for a in auras.iter_mut() {
             if a.follow {
@@ -852,6 +1435,20 @@ impl Particles {
         auras.retain(|a| a.until > 0);
         // (an aura started meanwhile, from aura_tick, can't happen: they only make particles)
         self.auras = auras;
+    }
+
+    /// `--effect 14x` (tests): tier x's forcefield (0 Worn to 8 Archangel, `Forcefield.COLORS`)
+    /// raised on us, and raised again once it has faded.
+    pub(super) fn test_field(&mut self, tier: u8, world: &World, now: i32) {
+        const COLORS: [u32; 9] = [0x8E949A, 0xC0602A, 0xD08A3C, 0xCFDCEB, 0xFFD34A, 0x8CF0C8, 0xFFF0A8, 0xFF6A28, 0xB27CFF];
+        let Some(me) = world.player() else { return };
+        if self.fields.iter().any(|f| f.0 == me.id && now < f.1) {
+            return;
+        }
+        let color = 0xFF00_0000 | COLORS[tier.min(8) as usize];
+        let pos1 = bsk_proto::WorldPos { x: me.x as f32, y: me.y as f32 };
+        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: 6.5, y: look::FORCEFIELD as f32 }, color, duration: 12_000, object_type: 0, source_id: None };
+        self.relic(&e, world, now);
     }
 
     /// `--effect 1xx` (tests): look xx as the server would send it, on us or beside us.
@@ -889,12 +1486,26 @@ impl Particles {
             look::ERUPTION => (3.0, 0xFFFF2020, 0, false),
             look::SINGULARITY => (3.0, 0xFF8040FF, 3200, false),
             look::CHAOS => (2.5, 0xFFB44CFF, 0, false),
+            look::FORCEFIELD | look::FIELD_SEEN => (6.5, 0xFFFFD34A, 8000, false),
+            look::FIELD_BLOCK => (0.9, 0xFFFFD34A, 0, true),
+            look::WARD_CAST => (6.0, 0xFFE8C860, 7000, true),
+            look::WARD_GAIN => (0.9, 0xFFE8C860, 7000, true),
+            look::WARD_HIT => (0.9, 0xFFE8C860, 0, true),
+            look::WARD_BREAK => (1.1, 0xFFE8C860, 0, true),
+            look::WARD_FADE => (1.0, 0xFFE8C860, 0, true),
+            look::LAST_RITE => (3.0, 0xFFC8A0FF, 0, true),
+            look::CONTAGION => (3.0, 0xFF8FA547, 3000, false),
+            look::GRAVE_FLAMES => (3.0, 0xFF60A0FF, 9000, true),
+            look::GRAVE_FLAME => (1.5, 0xFF60A0FF, 0, false),
+            look::VOW => (1.5, 0xFFF4E8FF, 1500, true),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
-        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD);
+        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD | look::GRAVE_FLAME);
         let pos1 = if mine || !flies { bsk_proto::WorldPos { x: mx, y: my } } else { bsk_proto::WorldPos { x: mx + 2.5, y: my } };
-        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0, source_id: None };
+        // (a grave-flame flies from us)
+        let source_id = (which == look::GRAVE_FLAME).then_some(me.id);
+        let e = ShowEffect { effect_type: 41, target_object_id: me.id, pos1, pos2: bsk_proto::WorldPos { x: r, y: which as f32 }, color, duration: ms, object_type: 0, source_id };
         self.relic(&e, world, now);
         // the pentagram's heart erupts as it fills, as the server has it
         if which == look::PENTAGRAM {
@@ -1211,6 +1822,60 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
             pen.disc(rr * 0.36, 0x0A0012, 0.85 * a);
             pen.disc(rr * 0.18 * (1.0 + 0.15 * (secs * 11.0).sin()), d.color, 0.55 * a * flicker);
         }
+        DecalKind::Forcefield => draw_forcefield(pen, d, now),
+        DecalKind::FieldFlare => {
+            let a = envelope(t, 0.0, 0.7);
+            let grow = 1.0 - (1.0 - (t / 0.35).min(1.0)).powi(2);
+            let rr = r * (0.55 + 0.45 * grow);
+            let st = field_style(d.color);
+            let pale = mix(d.color, st.accent, 0.5);
+            let corner = |i: usize, rad: f64| {
+                let ang = PI / 6.0 + i as f64 * PI / 3.0;
+                (rad * ang.cos(), rad * ang.sin())
+            };
+            for i in 0..6 {
+                let (p0, p1) = (corner(i, rr), corner(i + 1, rr));
+                pen.tri([pen.pt(0.0, 0.0), pen.pt(p0.0, p0.1), pen.pt(p1.0, p1.1)], d.color, 0.22 * a);
+                pen.line(p0, p1, 0.14, d.color, 0.45 * a);
+                pen.line(p0, p1, 0.05, st.spark, 0.95 * a);
+                let (q0, q1) = (corner(i, rr * 0.55), corner(i + 1, rr * 0.55));
+                pen.line(q0, q1, 0.04, pale, 0.7 * a);
+            }
+        }
+        DecalKind::WardSigil => {
+            let a = envelope(t, 0.12, 0.5);
+            let spin = secs * 0.8;
+            let open = 1.0 - (1.0 - (t / 0.2).min(1.0)).powi(2);
+            let rr = r * (0.6 + 0.4 * open);
+            pen.disc(rr, WARD_GREYS[0], 0.18 * a);
+            pen.band(rr * 0.93, rr, WARD_GREYS[2], 0.8 * a);
+            pen.band(rr * 0.9, rr * 0.92, d.color, 0.7 * a);
+            pen.band(rr * 0.6, rr * 0.65, d.color, 0.6 * a);
+            // eight shield plates turning round it, each a kite pointing out, interlocked at their
+            // shoulders, round a plain square
+            for k in 0..8 {
+                let mid = spin + k as f64 * PI / 4.0;
+                let (inner, shoulder, tip) = (pen.at(rr * 0.3, mid), pen.at(rr * 0.6, mid), pen.at(rr * 0.88, mid));
+                let (l, rt) = (pen.at(rr * 0.55, mid - 0.32), pen.at(rr * 0.55, mid + 0.32));
+                let fill = if k % 2 == 0 { WARD_GREYS[2] } else { WARD_GREYS[1] };
+                pen.tri([inner, l, tip], fill, 0.55 * a);
+                pen.tri([inner, tip, rt], mix(fill, 0x000000, 0.15), 0.55 * a);
+                pen.tri([l, shoulder, rt], WARD_GREYS[3], 0.35 * a);
+            }
+            for k in 0..4 {
+                let a0 = -spin + PI / 4.0 + k as f64 * PI / 2.0;
+                let a1 = a0 + PI / 2.0;
+                let s = rr * 0.24;
+                pen.line((s * a0.cos(), s * a0.sin()), (s * a1.cos(), s * a1.sin()), rr * 0.04, WARD_GREYS[3], 0.8 * a);
+            }
+            for i in 0..24 {
+                let ang = -spin * 0.5 + i as f64 * 2.0 * PI / 24.0;
+                let (i0, i1) = (rr * if i % 2 == 0 { 0.68 } else { 0.72 }, rr * 0.84);
+                pen.line((i0 * ang.cos(), i0 * ang.sin()), (i1 * ang.cos(), i1 * ang.sin()), rr * 0.025, d.color, 0.6 * a);
+            }
+            pen.disc(rr * 0.18, d.color, 0.45 * a);
+            pen.disc(rr * 0.09, 0xFFFFFF, 0.6 * a);
+        }
         DecalKind::Stars => {
             let a = envelope(t, 0.1, 0.2);
             let spin = secs * 0.9;
@@ -1224,6 +1889,181 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
                 pen.line((sx, sy - k), (sx, sy + k), 0.05, 0xFFFFFF, 0.95 * a * tw);
                 pen.disc_at(sx, sy, 0.06, d.color, a);
             }
+        }
+    }
+}
+
+/// How far a spring has gone at `x` (0 to 1): past its end a little, then back (`easeOutBack`).
+fn overshoot(x: f64) -> f64 {
+    let x = x.clamp(0.0, 1.0);
+    let (c1, c3) = (1.70158, 2.70158);
+    1.0 + c3 * (x - 1.0).powi(3) + c1 * (x - 1.0).powi(2)
+}
+
+/// The Ascendant's forcefield (`DecalKind::Forcefield`): springing open, a dome of light brighter
+/// toward its rim, a lattice of hexagons with ripples of light running out across it and cells
+/// glinting, two rings of runes turning against each other, a ring of six hex cells at its heart; it
+/// flickers in its last two seconds and fades.
+fn draw_forcefield(pen: &mut Pen, d: &Decal, now: i32) {
+    let since = (now - d.start) as f64;
+    let left = d.ms as f64 - since;
+    let secs = since / 1000.0;
+    let r = d.radius;
+    let rr = r * overshoot(since / 420.0);
+    if rr <= 0.05 {
+        return;
+    }
+    let st = field_style(d.color);
+    let white = st.spark;
+    let pale = mix(d.color, white, 0.6);
+    let azure = st.accent;
+    let fade = ((left / 700.0).min(1.0) * (since / 120.0).min(1.0)).clamp(0.0, 1.0) as f32;
+    let flicker = if left < 2000.0 { 0.55 + 0.45 * ((secs * 23.0).sin() * (secs * 7.0).cos()).abs() as f32 } else { 1.0 };
+    // the lower tiers' fields stutter all along: now and then a dip, as a failing light does
+    let stutter = if st.unsteady > 0.0 {
+        let n = hash(d.seed ^ 0x5157, (since / 60.0) as u64);
+        if n < st.unsteady * 0.25 { 0.3 } else { 1.0 - (st.unsteady * 0.35 * n) as f32 }
+    } else {
+        1.0
+    };
+    let breathe = 0.88 + 0.12 * (secs * 2.6).sin() as f32;
+    let a = fade * flicker * stutter;
+
+    // the dome's body: faint in the middle, brighter toward the rim
+    const BANDS: usize = 7;
+    for k in 0..BANDS {
+        let (f0, f1) = (k as f64 / BANDS as f64, (k + 1) as f64 / BANDS as f64);
+        let alpha = 0.035 + 0.17 * f1.powi(3) as f32;
+        pen.band(rr * f0, rr * f1, mix(d.color, azure, 0.25 * (1.0 - f1)), alpha * a * breathe);
+    }
+    // a flash as it opens
+    if since < 500.0 {
+        pen.disc(rr, white, 0.35 * (1.0 - since / 500.0) as f32 * fade);
+    }
+
+    // God's Blessing: shafts of light turning slowly over the dome
+    if st.drift == Drift::Rays {
+        let spin = secs * 0.25;
+        for i in 0..12 {
+            let ang = spin + i as f64 * PI / 6.0;
+            let wide = 0.09 + 0.04 * (secs * 1.3 + i as f64).sin();
+            pen.tri([pen.pt(0.0, 0.0), pen.at(rr, ang - wide), pen.at(rr, ang + wide)], if i % 2 == 0 { white } else { azure }, 0.1 * a * breathe);
+        }
+    }
+
+    // the lattice: hexagons across the dome, clearer toward its rim, ripples of light running out
+    // and a cell glinting here and there
+    let s = 0.62;
+    let (w, h) = (s * 3f64.sqrt(), s * 1.5);
+    let n = (rr / h).ceil() as i32 + 1;
+    let corner = |cx: f64, cy: f64, i: usize| {
+        let ang = PI / 6.0 + i as f64 * PI / 3.0;
+        (cx + s * ang.cos(), cy + s * ang.sin())
+    };
+    let glint_step = (secs * 3.0).floor() as u64;
+    for row in -n..=n {
+        for col in -n..=n {
+            let cx = (col as f64 + if row.rem_euclid(2) == 1 { 0.5 } else { 0.0 }) * w;
+            let cy = row as f64 * h;
+            let dist = cx.hypot(cy);
+            if dist + s > rr {
+                continue;
+            }
+            let cell = ((row + 64) * 131 + col + 64) as u64;
+            // a worn or rusted field's lattice has holes in it, here and there
+            if st.unsteady > 0.0 && hash(d.seed ^ 0xC0DE, cell) < st.unsteady * 0.6 {
+                continue;
+            }
+            let edge = (dist / rr).powf(1.4) as f32;
+            let wave = ((dist * 1.9 - secs * 5.5).sin().max(0.0)).powi(6) as f32;
+            let alpha = (0.1 + 0.35 * edge + 0.55 * wave) * a;
+            if hash(d.seed, cell * 7 + glint_step) > 0.94 {
+                let glow = (1.0 - (secs * 3.0).fract()) as f32;
+                for i in 0..6 {
+                    let (p0, p1) = (corner(cx, cy, i), corner(cx, cy, i + 1));
+                    pen.tri([pen.pt(cx, cy), pen.pt(p0.0, p0.1), pen.pt(p1.0, p1.1)], pale, 0.28 * glow * a);
+                }
+            }
+            // three sides each, so shared sides aren't drawn twice
+            for i in 0..3 {
+                let (p0, p1) = (corner(cx, cy, i), corner(cx, cy, i + 1));
+                pen.line(p0, p1, 0.045, if wave > 0.4 { white } else if (row + col) % 3 == 0 { mix(pale, azure, 0.5) } else { pale }, alpha);
+            }
+        }
+    }
+
+    // ripples running out from its heart
+    let phase = (secs / 1.6).fract();
+    let pr = rr * phase;
+    pen.band(pr - 0.14, pr, pale, 0.35 * (1.0 - phase) as f32 * a);
+
+    // the rings of runes: golden arcs turning one way, pale ones the other, a rune at each end
+    let arcs = |pen: &mut Pen, rad: f64, spin: f64, n: usize, len: f64, width: f64, rgb: u32, alpha: f32| {
+        for k in 0..n {
+            let start = spin + k as f64 * 2.0 * PI / n as f64;
+            const STEPS: usize = 10;
+            for j in 0..STEPS {
+                let (a0, a1) = (start + len * j as f64 / STEPS as f64, start + len * (j + 1) as f64 / STEPS as f64);
+                pen.quad([pen.at(rad + width / 2.0, a0), pen.at(rad + width / 2.0, a1), pen.at(rad - width / 2.0, a1), pen.at(rad - width / 2.0, a0)], rgb, alpha);
+            }
+            for end in [start, start + len] {
+                let (c, sn) = (end.cos(), end.sin());
+                let (px, py) = (rad * c, rad * sn);
+                let k = width * 1.6;
+                pen.quad([pen.pt(px + k * c, py + k * sn), pen.pt(px - k * sn, py + k * c), pen.pt(px - k * c, py - k * sn), pen.pt(px + k * sn, py - k * c)], white, alpha);
+            }
+        }
+    };
+    arcs(pen, rr * 0.86, secs * 0.6, 3, 1.1, 0.07, d.color, 0.8 * a);
+    arcs(pen, rr * 0.74, -secs * 0.9, 4, 0.7, 0.05, mix(pale, azure, 0.4), 0.65 * a);
+
+    // the Archangel's: a third ring of runes, and stars wheeling round outside its rim
+    if st.drift == Drift::Stars {
+        arcs(pen, rr * 0.62, secs * 1.3, 6, 0.4, 0.04, azure, 0.6 * a);
+        for i in 0..8 {
+            let ang = -secs * 0.5 + i as f64 * PI / 4.0;
+            let (sx, sy) = ((rr + 0.35) * ang.cos(), (rr + 0.35) * ang.sin());
+            let tw = (0.55 + 0.45 * (secs * 5.0 + i as f64 * 1.9).sin()) as f32;
+            let k = 0.1 + 0.14 * tw as f64;
+            pen.line((sx - k, sy), (sx + k, sy), 0.05, white, 0.9 * a * tw);
+            pen.line((sx, sy - k), (sx, sy + k), 0.05, white, 0.9 * a * tw);
+            pen.disc_at(sx, sy, 0.07, if i % 2 == 0 { azure } else { d.color }, a);
+        }
+    }
+
+    // the rim: a bright edge, white at its line, glowing out a little
+    pen.band(rr, rr + 0.22, d.color, 0.16 * a * breathe);
+    pen.band(rr - 0.18, rr, d.color, 0.8 * a * breathe);
+    pen.band(rr - 0.06, rr, white, 0.75 * a);
+    if st.drift == Drift::Stars {
+        pen.band(rr + 0.5, rr + 0.56, azure, 0.45 * a * breathe);
+    }
+
+    // the Seraphim's: tongues of flame licking up all round the rim
+    if st.drift == Drift::Embers {
+        const TONGUES: usize = 40;
+        for i in 0..TONGUES {
+            let ang = i as f64 * 2.0 * PI / TONGUES as f64 + secs * 0.15;
+            let lick = 0.5 + 0.5 * (secs * 9.0 + i as f64 * 2.3).sin() * (secs * 4.0 + i as f64 * 0.7).cos();
+            let tall = 0.18 + 0.38 * lick;
+            let wide = PI / TONGUES as f64 * 0.9;
+            let tip = pen.at(rr + tall, ang + 0.04 * (secs * 6.0 + i as f64).sin());
+            pen.tri([pen.at(rr - 0.05, ang - wide), tip, pen.at(rr - 0.05, ang + wide)], if i % 2 == 0 { d.color } else { azure }, 0.55 * a);
+            let tip = pen.at(rr + tall * 0.55, ang);
+            pen.tri([pen.at(rr - 0.03, ang - wide * 0.5), tip, pen.at(rr - 0.03, ang + wide * 0.5)], white, 0.5 * a);
+        }
+    }
+
+    // a ring of six hex cells of the lattice turning at its heart
+    let spin = secs * 0.8;
+    pen.disc(0.55, pale, 0.25 * a * breathe);
+    for cell in 0..6 {
+        let at = spin + cell as f64 * PI / 3.0;
+        let (cx, cy) = (0.42 * at.cos(), 0.42 * at.sin());
+        let color = if cell % 2 == 0 { white } else { mix(white, azure, 0.5) };
+        for i in 0..6 {
+            let (a0, a1) = (spin + i as f64 * PI / 3.0, spin + (i + 1) as f64 * PI / 3.0);
+            pen.line((cx + 0.17 * a0.cos(), cy + 0.17 * a0.sin()), (cx + 0.17 * a1.cos(), cy + 0.17 * a1.sin()), 0.045, color, 0.85 * a);
         }
     }
 }

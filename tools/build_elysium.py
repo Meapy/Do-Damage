@@ -1,5 +1,5 @@
-"""Builds Oryx's Elysium, the Oryx 5 dungeon at the end of the Oryx chain (the Doomed Realms "Doomed
-Cellar": the world keeps that class, port_doomed_worlds.WORLD_NAMES renames it), in gold, white and
+"""Builds Oryx's Elysium, the Oryx 5 dungeon at the end of the Oryx chain (its world is in
+custom/DoomedRealmsWorlds.xml), in gold, white and
 light blue with purple through it.
 
     python tools/build_elysium.py [--preview <folder>]

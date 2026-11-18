@@ -143,7 +143,8 @@ namespace WorldServer.logic
             var hitters = GetHitters();
             foreach (var i in hitters)
             {
-                if (i.Key == null || i.Key.World == null || i.Key.World.GetEntity(i.Key.Id) == null) continue;
+                // a ghost (Player.Grave.cs) has no share in what it hit before it died
+                if (i.Key == null || i.Key.Ghost || i.Key.World == null || i.Key.World.GetEntity(i.Key.Id) == null) continue;
 
                 dat.Add(new Tuple<Player, int>(i.Key, i.Value));
             }
@@ -175,7 +176,7 @@ namespace WorldServer.logic
             foreach (var a in Assists)
             {
                 var player = a.Key;
-                if (player == null || player.World == null || player.World.GetEntity(player.Id) == null)
+                if (player == null || player.Ghost || player.World == null || player.World.GetEntity(player.Id) == null)
                     continue;
                 credit.TryGetValue(player, out var dmg);
                 credit[player] = AssistCredit.Credit(dmg, a.Value, TotalDamage, top);

@@ -565,3 +565,11 @@ fn spectate_messages_match_the_scrying_glass() {
     assert_eq!(ClientMessage::from(Spectate { action: 3 }).to_frame(), B::default().u8(3).frame(162));
     assert_eq!(ClientMessage::from(SpectateSay { text: "hi".into() }).to_frame(), B::default().utf("hi").frame(167));
 }
+
+#[test]
+fn grave() {
+    // GraveHandler reads a byte; GraveInfo.Write an int.
+    assert_eq!(ClientMessage::from(Grave { action: 255 }).to_frame(), B::default().u8(255).frame(168));
+    let ServerMessage::GraveInfo(g) = ServerMessage::decode(169, &B::default().i32(600_000).0).unwrap() else { panic!() };
+    assert_eq!(g.ms, 600_000);
+}

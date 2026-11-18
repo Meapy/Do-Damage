@@ -205,9 +205,9 @@ namespace WorldServer.core.objects
                 return;
             }
 
-            // a halo not again before its cooldown (4 s) is over, as the client waits it out; a little
-            // slack for the trip (other abilities' cooldowns are still the client's alone)
-            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Halo))
+            // a halo's forcefield or a censer's ward not again before its cooldown (4 s) is over, as the client waits it
+            // out; a little slack for the trip (other abilities' cooldowns are still the client's alone)
+            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield || e.Effect == ActivateEffects.Ward))
             {
                 var now = Environment.TickCount64;
                 if (now < _abilityReadyAt - AbilityCooldownSlackMs)
@@ -749,8 +749,11 @@ namespace WorldServer.core.objects
                     case ActivateEffects.MiniPot:
                         AEMiniPot(time, item, target, eff);
                         break;
-                    case ActivateEffects.Halo:
-                        AEHalo(time, item, target, eff);
+                    case ActivateEffects.Forcefield:
+                        AEForcefield(time, item, target, eff);
+                        break;
+                    case ActivateEffects.Ward:
+                        AEWard(item, eff);
                         break;
                     case ActivateEffects.SamuraiAbility:
                         AESamuraiAbility(time, item, target, eff);
@@ -1881,13 +1884,15 @@ namespace WorldServer.core.objects
                     Pos2 = new Position() { X = Id, Y = 255 }
                 }, x);
 
+                // Pestilence of Skuld: what dies poisoned by this throw spreads it (Contagion)
+                var plague = item.RelicPower == "Contagion" ? new Plague() : null;
                 world.AOE(target, eff.Radius, false, entity =>
                 {
                     // the impact first, then the poison; a poison without one sends no 0-damage hit
                     if (impDamage > 0)
                         ((Enemy)entity).Damage(this, ref time, impDamage, true);
                     if (eff.TotalDamage > 0)
-                        PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod);
+                        PoisonEnemy(world, (Enemy)entity, eff, eff.UseWisMod, plague);
                     // and its condEffect, for condDuration (the Infernal Brimstone Poison's Curse)
                     if (eff.ConditionEffect is { } cond && eff.EffectDuration > 0)
                     {
@@ -2209,21 +2214,35 @@ namespace WorldServer.core.objects
             tmr = world.StartNewTimer(200, healTick);
         }
 
-        private void PoisonEnemy(World world, Enemy enemy, ActivateEffect eff, bool poisonWis)
+        private void PoisonEnemy(World world, Enemy enemy, ActivateEffect eff, bool poisonWis, Plague plague = null) =>
+            PoisonEnemy(world, enemy, poisonWis ? (int)UseWisMod(eff.TotalDamage) : eff.TotalDamage, eff.DurationMS, eff.Radius, plague);
+
+        // plague: an enemy that dies while poisoned spreads it (Contagion, Player.RelicPowers.cs),
+        // from a cloud of `radius`
+        private void PoisonEnemy(World world, Enemy enemy, int totalDmg, int durationMs, float radius, Plague plague)
         {
             // Poison ignores defense, as in the original game, and is spread evenly over its
             // duration: one hit a second, with whatever is left on the last one.
-            var totalDmg = poisonWis ? (int)UseWisMod(eff.TotalDamage) : eff.TotalDamage;
-            var durationMs = Math.Max(1, eff.DurationMS);
+            durationMs = Math.Max(1, durationMs);
             var elapsed = 0;
             var sinceHit = 0;
             var dealt = 0;
 
             WorldTimer tmr = null;
 
+            // (it died poisoned, by this or anything else: the plague climbs out of it)
+            bool fell(World w)
+            {
+                if (plague != null && enemy.Dead && enemy.ObjectDesc.Enemy)
+                    Contagion(w, new Position(enemy.X, enemy.Y), radius, totalDmg, durationMs, plague);
+                return true;
+            }
+
             bool poisonTick(World w, TickTime t)
             {
-                if (enemy.Dead || enemy.World != w)
+                if (enemy.Dead)
+                    return fell(w);
+                if (enemy.World != w)
                     return true;
 
                 elapsed += t.ElapsedMsDelta;
@@ -2241,7 +2260,9 @@ namespace WorldServer.core.objects
                     }
                 }
 
-                if (done || enemy.Dead)
+                if (enemy.Dead)
+                    return fell(w);
+                if (done)
                     return true;
 
                 tmr.Reset();

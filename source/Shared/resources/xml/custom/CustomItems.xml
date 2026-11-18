@@ -1203,15 +1203,15 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x106</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x7</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>7</Tier>
-		<Description>A halo worn by the highest of the angels.</Description>
+		<Description>A halo worn by the highest of the angels. Its forcefield bends even the fiercest blows aside.</Description>
 		<Sound>spell/major_heal</Sound>
 		<Cooldown>4</Cooldown>
-		<Activate range="8" amount="70" duration="22">Halo</Activate>
+		<Activate range="6.5" amount="9" duration="22">Forcefield</Activate>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -1227,15 +1227,15 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x106</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x8</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>8</Tier>
-		<Description>The halo of the first angel, brighter than any sun.</Description>
+		<Description>The halo of the first angel, brighter than any sun. Little that strikes its forcefield gets through whole.</Description>
 		<Sound>spell/major_heal</Sound>
 		<Cooldown>4</Cooldown>
-		<Activate range="8" amount="80" duration="24">Halo</Activate>
+		<Activate range="6.5" amount="10" duration="24">Forcefield</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -2495,4 +2495,181 @@
 		<BagType>7</BagType>
 	</Object>
 	<!-- END Infernal potions -->
+	<!-- BEGIN Father's censers (tools/draw_censers.py draws their sprites; the ward is Player.Ward.cs) -->
+	<Object type="0x58A0" id="Tin Censer">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x0</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>0</Tier>
+		<Description>A dented tin censer. The smoke it swings hardens into a thin grey ward.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>55</MpCost>
+		<Cooldown>4</Cooldown>
+		<Activate range="4.5" amount="50" duration="4" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A1" id="Iron Censer">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x1</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>1</Tier>
+		<Description>A heavy censer of black iron. Its smoke sets like a coat of mail on those it touches.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>60</MpCost>
+		<Cooldown>4</Cooldown>
+		<Activate range="4.5" amount="65" duration="4.5" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A2" id="Pewter Censer">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x2</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>2</Tier>
+		<Description>Soft pewter, beaded round its bowl. Its ward is softer still to look at, and as hard as the others.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>65</MpCost>
+		<Cooldown>4</Cooldown>
+		<Activate range="5" amount="80" duration="5" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A3" id="Silver Censer">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x3</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>3</Tier>
+		<Description>A polished silver censer, engraved with old prayers. Every swing lays a ward of grey steel over the faithful.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>2</BagType>
+		<MpCost>70</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>1</FameBonus>
+		<Activate range="5" amount="95" duration="5.5" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A4" id="Cathedral Censer">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x4</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>4</Tier>
+		<Description>Swung down the aisles of a great cathedral. Blows that land on its ward ring like its bells.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>2</BagType>
+		<MpCost>75</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>2</FameBonus>
+		<Activate range="5.5" amount="110" duration="6" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A5" id="Censer of the Bulwark">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x5</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>5</Tier>
+		<Description>Plated like a shield wall. Its smoke turns to steel the moment an enemy's blow comes near.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>4</BagType>
+		<MpCost>80</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>3</FameBonus>
+		<Activate range="5.5" amount="125" duration="6.5" useWisMod="true">Ward</Activate>
+	</Object>
+	<Object type="0x58A6" id="Censer of the Unbroken Vigil">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x6</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>6</Tier>
+		<Description>Kept burning through a hundred nights of siege. No ward it raised was ever broken before dawn.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>4</BagType>
+		<MpCost>85</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>4</FameBonus>
+		<Activate range="6" amount="140" duration="7" useWisMod="true">Ward</Activate>
+		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+	</Object>
+	<Object type="0x58A7" id="Censer of the Iron Choir">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x7</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>7</Tier>
+		<Description>Its smoke spreads like wings, and a choir of iron voices sings in the ward it lays over you.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>9</BagType>
+		<MpCost>90</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>5</FameBonus>
+		<Activate range="6" amount="155" duration="7.5" useWisMod="true">Ward</Activate>
+		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
+		<feedPower>570</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58A8" id="Censer of the Last Rite">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>fatherCensers16x16</File>
+			<Index>0x8</Index>
+		</Texture>
+		<SlotType>132</SlotType>
+		<Tier>8</Tier>
+		<Description>Obsidian, with a white fire inside that never goes out. When a ward it raised breaks, it bursts in a ring of shards that tear into every enemy nearby.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Usable/>
+		<BagType>9</BagType>
+		<MpCost>95</MpCost>
+		<Cooldown>4</Cooldown>
+		<FameBonus>6</FameBonus>
+		<Activate range="6.5" amount="170" duration="8" useWisMod="true" radius="3" totalDamage="400">Ward</Activate>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
+	<!-- END Father's censers -->
 </Objects>

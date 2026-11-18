@@ -118,11 +118,11 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 Every shop here sells for fame; there's no way to earn gold.
 
 - The **Nexus Bazaar**, the stalls along the shopping street of the Nexus's market island: stat potions, consumables,
-  specials, dungeon keys, Elder and Doomed keys, pet generators
+  specials, dungeon keys, Elder and minigame keys, pet generators
   ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Each shop has fewer stalls
   than items: the stalls take turns through its items, a few minutes each (a stall says when its
   item goes). Guests can't buy.
-- `/shop` opens the Doomed Realms shops: weapons, abilities, armor, rings, consumables, dyes, keys
+- `/shop` opens the shops: weapons, abilities, armor, rings, consumables, dyes, keys
   (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 

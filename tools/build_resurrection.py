@@ -106,6 +106,12 @@ SIGNATURE_SHOTS = {
                                ("LOD Black Bullet", 60, 0.8, 100, 2600, [])],
     "Elder Thessal the Mermaid Goddess": [("Trident", 55, 0.9, 100, 4600, []),
                                           ("Thunder Swirl", 45, 0.9, 110, 2200, [])],
+    "Elder Arena Ghost Bride": [("Ghost Big Blast", 70, 0.8, 100, 2400, []),
+                                ("Ghost Bride Attack 1", 45, 1.0, 110, 3200, [("Bleeding", 2)])],
+    "Elder Arena Grave Caretaker": [("Angry Ghost", 60, 0.8, 100, 2600, []),
+                                    ("Fire Spinner", 80, 0.7, 100, 1800, [("Blind", 1.5)])],
+    "Elder Ghost of Skuld": [("Ghost Cross", 55, 0.9, 100, 3200, []),
+                             ("Giga Ghost X", 30, 1.3, 130, 4500, [("Paralyzed", 1)])],
 }
 RELIC_CHANCE = 0.05         # each player past RELIC_THRESHOLD of the damage, per boss
 RELIC_THRESHOLD = 0.02
@@ -138,6 +144,9 @@ BOSSES = [
     ("Elder LH Marble Colossus", "Elder Lost Halls"),
     ("Elder LH Malus 2", "Elder Cultist Hideout"),
     ("Elder LH Void Entity", "The Elder Void"),
+    ("Elder Arena Ghost Bride", "Elder Cemetery"),
+    ("Elder Arena Grave Caretaker", "Elder Cemetery"),
+    ("Elder Ghost of Skuld", "Elder Cemetery"),
 ]
 # --- art ---------------------------------------------------------------------------------------
 # The relic after the design's own: a lump of dark stone, mossy on top, a soul glowing through it.
@@ -302,6 +311,16 @@ UTS = [
     ("Elder LH Void Entity", "Bow of the Event Horizon", "Bow of the Void", 1.15, {"dex": 4}, None,
      ((10, 0, 25), (70, 20, 140), (200, 120, 255)),
      "Strung with a thread of the Void Entity itself. Where its arrows gather, nothing is allowed to stay."),
+    # the Elder Cemetery's three: an Ascendant's halo, a Father's censer and an Assassin's poison
+    ("Elder Arena Ghost Bride", "Halo of the Ghost Bride", "Halo of the Archangel", 1.2, {"wis": 3, "hp": 40}, None,
+     ((40, 25, 60), (165, 140, 205), (255, 240, 250)),
+     "She wore it to the altar, and wore it still when she rose to dance a second time. Whoever stands in its light is held to her vow: not yet, not like this."),
+    ("Elder Arena Grave Caretaker", "The Gravekeeper's Censer", "Censer of the Last Rite", 1.25, {"vit": 4}, None,
+     ((10, 15, 45), (40, 90, 200), (170, 225, 255)),
+     "The Caretaker swung it over every grave he filled. Its smoke still wards the living, and the blue flames inside still go looking for someone to bury."),
+    ("Elder Ghost of Skuld", "Pestilence of Skuld", "Grimhydra Poison", 1.3, {"att": 3, "wis": 3}, None,
+     ((10, 25, 10), (80, 150, 50), (210, 255, 160)),
+     "Skuld brewed it from the dead he kept. Where it kills, the plague does not stay dead: it climbs out of the fallen and goes looking for more."),
 ]
 # The Elder Shatters' own untiered items, dropped by its three Elder bosses (their loot balloons,
 # BehaviorDb.Shatters.cs): the Shatters' rings grown stronger, each with a power, built like the
@@ -343,6 +362,17 @@ TRAILS = {
     "Bow of the Event Horizon": "0x8040FF",
 }
 
+# items drawn from another item's sprite than their base's: the Bride's halo is a wreath of
+# flowers, as Eternal Peace's is, rather than the Archangel's blaze of light
+SPRITE_FROM = {
+    "Halo of the Ghost Bride": "Halo of Eternal Peace",
+}
+
+# attributes an item's ability takes beyond its base's: the plague's sickly green cloud
+ACTIVATE_ATTRS = {
+    "Pestilence of Skuld": {"color": "8fa547"},
+}
+
 # each item's power (Player.RelicPowers.cs): its id, and its name and what it does for the tooltip
 POWERS = {
     "Dreadstump's Drowned Cutlass": ("Broadside", "Broadside", "Every 6th hit, a cannonball bursts on the target for 3 times the hit to every enemy within 2 tiles"),
@@ -376,6 +406,9 @@ POWERS = {
     "Lodestone of the Halls": ("MarbleStance", "Marble Stance", "Standing still for 1.5 seconds turns you to marble: armored until you move"),
     "Ring of the Blood Pact": ("BloodPact", "Blood Pact", "Below half your health, your shots deal 15% more, ignoring defense"),
     "The Hollow Sourcestone": ("Entropy", "Entropy", "Every 5 seconds, breaks the armor of the enemy nearest you within 6 tiles for 2 seconds"),
+    "Halo of the Ghost Bride": ("Vow", "Eternal Vow", "A hit that would kill a player in its forcefield leaves them at 1 health, untouchable for 1.5 seconds (each player once every 45 seconds)"),
+    "The Gravekeeper's Censer": ("GraveFlames", "Grave Flames", "Using it lights three blue flames round you for 9 seconds: each rushes the nearest enemy within 5 tiles and bursts for 300, ignoring defense"),
+    "Pestilence of Skuld": ("Contagion", "Contagion", "An enemy that dies poisoned by it bursts into a new cloud where it fell, half as strong, which spreads in turn (3 times a throw)"),
 }
 # drops of one season only (a SeasonalThreshold), which the second roll leaves out
 SEASONAL = {"Ice Crown"}
@@ -442,22 +475,24 @@ def scale_item(item, k, extra, condition):
 
 def build_uts(objects, types, root, first_cell):
     """The Empowered bosses' items into root, their sprites as cells first_cell on; returns the
-    sprites and {boss: item}."""
+    sprites, the 16x16 ones (items built on a 16x16 sprite, the halos and censers: on the 16x16
+    sheet after SPRITES16) and {boss: item}."""
     sets = manifest_sets()
-    cells, by_boss = [], {}
+    cells, big, by_boss = [], [], {}
     for n, (boss, name, base_id, k, extra, condition, colours, desc) in enumerate(UTS + ELDER_UTS):
         empowered = n < len(UTS)
         base = objects.get(base_id)
         if base is None:
             raise SystemExit("No base item %s for %s" % (base_id, name))
         assert 0.9 <= k <= 1.5, name
-        tex = base.find("Texture")
+        tex = objects[SPRITE_FROM.get(name, base_id)].find("Texture")
         s = sets[tex.findtext("File")]
         index = int(tex.findtext("Index"), 0)
         img = Image.open(os.path.join(ROOT, "client", "src", s["file"])).convert("RGBA")
         cols = img.width // s["w"]
         x0, y0 = (index % cols) * s["w"], (index // cols) * s["h"]
         cell = img.crop((x0, y0, x0 + s["w"], y0 + s["h"]))
+        large = recolour(cell, colours) if cell.size == (16, 16) else None
         if cell.size != (8, 8):
             cell = cell.resize((8, 8), Image.NEAREST)
         cells.append(recolour(cell, colours))
@@ -471,7 +506,14 @@ def build_uts(objects, types, root, first_cell):
         tex = item.find("Texture")
         tex.find("File").text = "resurrection8x8"
         tex.find("Index").text = str(first_cell + n)
+        if large is not None:
+            tex.find("File").text = "resurrection16x16"
+            tex.find("Index").text = str(len(SPRITES16) + len(big))
+            big.append(large)
         scale_item(item, k, extra, condition)
+        for a in item.findall("Activate"):
+            for attr, v in ACTIVATE_ATTRS.get(name, {}).items():
+                a.set(attr, v)
         if name in TRAILS:
             for p in item.iter("Projectile"):
                 for old in p.findall("ParticleTrail"):
@@ -491,7 +533,7 @@ def build_uts(objects, types, root, first_cell):
         root.append(item)
         if empowered:
             by_boss[boss] = name
-    return cells, by_boss
+    return cells, big, by_boss
 
 
 def sheet(sprites, cell, extra=()):
@@ -656,7 +698,7 @@ def build(objects, types):
     el(p, "LifetimeMS", 1800)
     el(p, "ConditionEffect", "Slowed", duration=1.5)
 
-    ut_cells, uts = build_uts(objects, types, root, len(SPRITES8))
+    ut_cells, ut_big, uts = build_uts(objects, types, root, len(SPRITES8))
     config = []
     data = wiki_data.Data()
     for boss_id, dungeon in BOSSES:
@@ -748,7 +790,7 @@ def build(objects, types):
     xml = '<?xml version="1.0" encoding="utf-8"?>\n<!-- Generated by tools/build_resurrection.py: do not edit. -->\n' + ET.tostring(root, encoding="unicode") + "\n"
     cfg = {"relic": RELIC, "relicChance": RELIC_CHANCE, "relicThreshold": RELIC_THRESHOLD, "corpseSeconds": CORPSE_SECONDS,
            "ritualSoul": RITUAL_SOUL, "wailingSoul": WAILING_SOUL, "soulBolt": SOUL_BOLT_ID, "bosses": config}
-    return xml, cfg, ut_cells
+    return xml, cfg, ut_cells, ut_big
 
 
 # --- sound -------------------------------------------------------------------------------------
@@ -1025,8 +1067,8 @@ def main():
         apply_shots(types)
         print("resurrection: %d shots" % len(SHOTS))
         return
-    xml, cfg, ut_cells = build(load_objects(), types)
-    s8, s16 = sheet(SPRITES8, 8, ut_cells), sheet(SPRITES16, 16)
+    xml, cfg, ut_cells, ut_big = build(load_objects(), types)
+    s8, s16 = sheet(SPRITES8, 8, ut_cells), sheet(SPRITES16, 16, ut_big)
     s8.save(SHEET8)
     s16.save(SHEET16)
     if args.preview:

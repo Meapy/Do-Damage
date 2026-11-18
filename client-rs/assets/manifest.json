@@ -1406,6 +1406,18 @@
    "h": 8
   },
   {
+   "name": "ascendantHalos16x16",
+   "file": "kabam/rotmg/assets/custom/images/AscendantHalos16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "fatherCensers16x16",
+   "file": "kabam/rotmg/assets/custom/images/FatherCensers16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,

@@ -232,6 +232,12 @@ public enum MessageId : byte
     SPECTATE_STATUS = 165,
     SPECTATE_CHAT = 166,
     SPECTATE_SAY = 167,
+    // Lingering at the grave (Rust client 2.5.13, Player.Grave.cs): the client says once in each
+    // world that it can stay as a ghost when it dies (GRAVE 255). Its death then comes with
+    // GRAVE_INFO (how long the ghost may stay, ms) and the connection stays open, until the client
+    // closes it to go on to its death screen. Clients that never said so are disconnected at death.
+    GRAVE = 168,
+    GRAVE_INFO = 169,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

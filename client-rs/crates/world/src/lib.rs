@@ -14,7 +14,7 @@ use bsk_proto::{stat, LayerTile, NewTick, ObjectData, StatData, StatValue, Updat
 use std::collections::HashMap;
 
 pub use combat::{Hit, Impact, Projectile};
-pub use movement::{move_speed, MoveInput, SPEED_STAT};
+pub use movement::{move_speed, MoveInput, GHOST_SPEED, SPEED_STAT};
 pub use random::Random;
 
 /// Other objects glide to a tick's positions over this much of the tick's time, so one that
@@ -142,6 +142,11 @@ impl GameObj {
         self.stat_str(stat::NAME).filter(|n| !n.is_empty())
     }
 
+    /// A player who died and lingers at their grave as a ghost (`stat::GHOST`).
+    pub fn is_ghost(&self) -> bool {
+        self.stat_int(stat::GHOST).is_some_and(|g| g > 0)
+    }
+
     /// Whose pet this is (`PetOwner`, a player's object id), if it's a pet.
     pub fn pet_owner(&self) -> Option<i32> {
         self.stat_int(143)
@@ -249,6 +254,11 @@ pub struct World {
     pub last_bolts: Option<i32>,
     anim_seed: u32,
     last_ground_damage: HashMap<(i32, i32), i32>,
+    /// We died and linger at our grave: we drift through walls at `movement::GHOST_SPEED`, and
+    /// nothing hits us.
+    pub ghost: bool,
+    /// Where our ghost drifts by itself (after the player it follows), while no key is held.
+    pub ghost_to: Option<(f64, f64)>,
     /// Monsters' shots that hurt us lately: when, and what their stack has dealt
     /// (`combat::stacked_on`).
     recent_hits: Vec<(Projectile, i32, i32)>,
@@ -289,6 +299,8 @@ impl World {
             last_bolts: None,
             anim_seed: 0x9E37_79B9,
             last_ground_damage: HashMap::new(),
+            ghost: false,
+            ghost_to: None,
             recent_hits: Vec::new(),
         }
     }

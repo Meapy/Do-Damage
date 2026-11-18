@@ -34,6 +34,9 @@ namespace WorldServer.core.resurrection
             "Elder NM Black Dragon God" => Feargus(),
             "Elder lod Ivory Wyvern" => IvoryWyvern(),
             "Elder Thessal the Mermaid Goddess" => Thessal(),
+            "Elder Arena Ghost Bride" => GhostBride(),
+            "Elder Arena Grave Caretaker" => GraveCaretaker(),
+            "Elder Ghost of Skuld" => Skuld(),
             _ => Array.Empty<SoulPhase>(),
         };
 
@@ -45,6 +48,7 @@ namespace WorldServer.core.resurrection
             "Elder Tomb Defender", "Elder Tomb Support", "Elder Tomb Attacker",
             "Elder NM Green Dragon God", "Elder NM Blue Dragon God", "Elder NM Red Dragon God", "Elder NM Black Dragon God",
             "Elder lod Ivory Wyvern", "Elder Thessal the Mermaid Goddess",
+            "Elder Arena Ghost Bride", "Elder Arena Grave Caretaker", "Elder Ghost of Skuld",
         };
 
         private const double High = 0.7, Low = 0.4;
@@ -834,6 +838,171 @@ namespace WorldServer.core.resurrection
                                 landed: () => a.RingFrom(at, Arena.Sig1, 6, t * Math.PI / 9)));
                         }
                     }
+                },
+            },
+        };
+
+        // --- The Elder Cemetery ---------------------------------------------------------------
+
+        private const uint BridalWhite = 0xFFF4E8FF, VeilLilac = 0xFFB9A0E8, GraveBlue = 0xFF60A0FF, GraveDeep = 0xFF2440A0,
+            PlagueGreen = 0xFF8FD047, SkuldTeal = 0xFF2FD29A;
+
+        private static SoulPhase[] GhostBride() => new[]
+        {
+            // the procession: two rows of pews (walls of blasts) fire down an aisle at the nearest
+            // player, three times, each turned a little further; at the aisle's end the altar
+            // bursts under them. Walk up the aisle, then step off the altar
+            new SoulPhase
+            {
+                Name = "Bridal Procession", Below = High, Color = BridalWhite,
+                Line = "Walk with me. Down the aisle, as I never could!",
+                Every = 11000, Busy = 4200,
+                Run = a =>
+                {
+                    var target = a.Nearest();
+                    var aim = target != null ? a.AngleTo(Arena.P(target)) : a.RandomAngle();
+                    a.Gather(VeilLilac, 3);
+                    a.Repeat(3, 900, w =>
+                    {
+                        var dir = aim + Arena.Deg((w - 1) * 25);
+                        var back = a.At(dir, -6);
+                        // the aisle: the middle two of twelve left open
+                        a.Wall(back, dir, 12, 0.9, w % 2 == 0 ? Arena.Sig0 : Arena.Sig1, new HashSet<int> { 5, 6 });
+                    }, 400);
+                    if (target != null)
+                        a.Later(1400, () => a.Blast(Arena.P(target), 2.2, 1400, 1.4, BridalWhite, ConditionEffectIndex.Bleeding, 2000));
+                },
+            },
+            // the last dance: she twirls, six arms of blasts turning round her one way and back,
+            // a ring of bleeding bolts on every fourth step, and the dance ends with a dip: a
+            // blast under every partner
+            new SoulPhase
+            {
+                Name = "The Last Waltz", Below = Low, Color = VeilLilac,
+                Line = "One more dance. Just one more. FOREVER!",
+                Every = 12500, Busy = 5200,
+                Run = a =>
+                {
+                    var start = a.RandomAngle();
+                    var dir = a.Rng.Next(2) == 0 ? 1 : -1;
+                    a.Shield(1200);
+                    a.Repeat(20, 170, i =>
+                    {
+                        var turn = i < 10 ? i : 20 - i;
+                        a.Shoot(Arena.Sig0, start + dir * Arena.Deg(14 * turn), 6, Math.PI / 3);
+                        if (i % 4 == 0)
+                            a.Ring(Arena.Sig1, 10, start + i * 0.3);
+                    }, 600);
+                    a.Later(600 + 20 * 170, () =>
+                    {
+                        foreach (var p in a.Targets())
+                            a.Blast(Arena.P(p), 1.8, 1300, 1.3, VeilLilac);
+                    });
+                },
+            },
+        };
+
+        private static SoulPhase[] GraveCaretaker() => new[]
+        {
+            // graves open across every player's path, three in a row each, and give up their
+            // ghosts in a ring as they open
+            new SoulPhase
+            {
+                Name = "Open Graves", Below = High, Color = GraveBlue,
+                Line = "I have dug a grave for each of you. Lie down!",
+                Every = 10500, Busy = 3800,
+                Run = a =>
+                {
+                    a.Effect(EffectType.Earthquake, GraveDeep);
+                    foreach (var p in a.Targets())
+                    {
+                        var at = Arena.P(p);
+                        var across = a.AngleTo(at) + Math.PI / 2;
+                        for (var k = -1; k <= 1; k++)
+                        {
+                            var grave = Arena.At(at, across, k * 1.7);
+                            if (!a.Walkable(grave))
+                                continue;
+                            a.Later((k + 1) * 250, () => a.Blast(grave, 1.1, 1500, 1.2, GraveBlue,
+                                landed: () => a.RingFrom(grave, Arena.Sig0, 6, a.RandomAngle())));
+                        }
+                    }
+                },
+            },
+            // his lantern swung round: a beam of blinding spinners sweeping a full turn, ghosts
+            // flying the other way, and blue fire striking down on every player twice
+            new SoulPhase
+            {
+                Name = "Lantern Sweep", Below = Low, Color = GraveDeep,
+                Line = "Hold still. I need the light to see where you will rest.",
+                Every = 12000, Busy = 4800,
+                Run = a =>
+                {
+                    var start = a.RandomAngle();
+                    var dir = a.Rng.Next(2) == 0 ? 1 : -1;
+                    a.Gather(GraveBlue, 4);
+                    a.Repeat(30, 130, i =>
+                    {
+                        var ang = start + dir * Arena.Deg(12 * i);
+                        a.Shoot(Arena.Sig1, ang, 3, Arena.Deg(5));
+                        a.Shoot(Arena.Sig0, ang + Math.PI);
+                        if (i % 10 == 5)
+                            foreach (var p in a.Targets())
+                            {
+                                a.Lightning(Arena.P(p), GraveBlue);
+                                a.Blast(Arena.P(p), 1.4, 900, 1.1, GraveBlue);
+                            }
+                    }, 500);
+                },
+            },
+        };
+
+        private static SoulPhase[] Skuld() => new[]
+        {
+            // a dance of death: crosses flare in a ring round him and burst, each throwing four
+            // ghostly crosses out, then a second ring between the first
+            new SoulPhase
+            {
+                Name = "Danse Macabre", Below = High, Color = SkuldTeal,
+                Line = "Dance, little heroes! The dead have waited so long for partners!",
+                Every = 11000, Busy = 4000,
+                Run = a =>
+                {
+                    var start = a.RandomAngle();
+                    for (var ring = 0; ring < 2; ring++)
+                    {
+                        var r = ring;
+                        a.Later(r * 1600, () =>
+                        {
+                            for (var k = 0; k < 6; k++)
+                            {
+                                var at = a.At(start + (k + r * 0.5) * Math.PI / 3, 5.5);
+                                if (!a.Walkable(at))
+                                    continue;
+                                a.Blast(at, 1.6, 1300, 1.3, SkuldTeal, landed: () => a.RingFrom(at, Arena.Sig0, 4, Math.PI / 4));
+                            }
+                        });
+                    }
+                },
+            },
+            // his requiem: the plague drawn in, a slow ring of giant ghosts, three arms of crosses
+            // turning out after them, and the plague bursting under every player as the song ends
+            new SoulPhase
+            {
+                Name = "Plague Requiem", Below = Low, Color = PlagueGreen,
+                Line = "Sing with me! Sing your own requiem!",
+                Every = 13000, Busy = 5000,
+                Run = a =>
+                {
+                    a.Gather(PlagueGreen, 5);
+                    a.Later(500, () => a.Ring(Arena.Sig1, 8, a.RandomAngle()));
+                    var start = a.RandomAngle();
+                    a.Repeat(18, 160, i => a.Shoot(Arena.Sig0, start + Arena.Deg(17 * i), 3, Math.PI * 2 / 3), 900);
+                    a.Later(900 + 18 * 160, () =>
+                    {
+                        foreach (var p in a.Targets())
+                            a.Blast(Arena.P(p), 2.0, 1400, 1.4, PlagueGreen, ConditionEffectIndex.Sick, 2500);
+                    });
                 },
             },
         };

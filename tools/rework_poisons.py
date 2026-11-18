@@ -8,8 +8,6 @@ more damage (impact and poison damage x1.5) and a throw that reaches twice as fa
 
 Edits the server's and the client's copies of the XML in place, as text. The `throwRange`
 attribute marks a poison as done, so running it again changes nothing.
-tools/port_doomed.py runs it after it writes DoomedRealms.xml, so the Doomed Realms poisons
-keep it.
 """
 import os
 import re

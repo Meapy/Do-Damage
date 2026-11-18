@@ -1,7 +1,7 @@
 # The whole game in containers, for development and testing on one machine (SETUP-LOCAL.md,
 # "Docker"). Its own ports and its own data volume: nothing here touches the live servers, this
 # PC's old data (source/Redis/data), the isolated test stacks (6380 / 8081 / 2052 and up) or
-# Doomed Realms (8888, 2050, 843).
+# the other server on this PC (8888, 2050, 843).
 #
 #     docker compose up -d --build        # Redis, account server, world servers, gateway
 #     docker compose logs -f world

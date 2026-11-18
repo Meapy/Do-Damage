@@ -214,7 +214,7 @@
 		<NoMiniMap/>
 	</Object>
 	<!-- a brazier for the Elder dungeons' rooms; the light on the floor around it is lit ground
-	     tiles (tools/port_doomed_worlds.py) -->
+	     tiles (tools/make_elder.py) -->
 	<Object type="0xe902" id="Elder Brazier">
 		<Class>GameObject</Class>
 		<Texture>
@@ -565,7 +565,7 @@
 		<Static/>
 		<ShadowSize>80</ShadowSize>
 	</Object>
-	<!-- the Elder Ivory Wyvern (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Elder Lair of
+	<!-- the Elder Ivory Wyvern (custom/DoomedRealmsWorlds.xml): the Elder Lair of
 	     Draconis's altar opens it, and the Ivory Wyvern leads to it half the time -->
 	<Object type="0x7c03" id="Elder Ivory Wyvern Portal">
 		<Class>Portal</Class>
@@ -590,7 +590,7 @@
 		<Activate id="Elder Ivory Wyvern Portal">CreatePortal</Activate>
 		<feedPower>150</feedPower>
 	</Object>
-	<!-- the Elder Shatters (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Forgotten King's
+	<!-- the Elder Shatters (custom/DoomedRealmsWorlds.xml): the Forgotten King's
 	     loot leads to it half the time, and its key drops from the Elder Shatters' three bosses -->
 	<Object type="0x7c05" id="Elder Shatters Portal">
 		<DisplayId>The Elder Shatters</DisplayId>
@@ -618,7 +618,7 @@
 		<feedPower>200</feedPower>
 		<BagType>7</BagType>
 	</Object>
-	<!-- the Elder Lost Halls (tools/port_doomed_worlds.py BS_ONLY_ELDER_WORLDS): the Marble Colossus,
+	<!-- the Elder Lost Halls (custom/DoomedRealmsWorlds.xml): the Marble Colossus,
 	     Malus and the Void Entity lead to it half the time, and its key drops from their Elder
 	     versions. Its Colossus room leads on to the Elder Cultist Hideout, and a Vial of Pure
 	     Darkness used where the Elder Colossus fell opens the Elder Void (Player.UseItem.cs,
@@ -674,5 +674,102 @@
 		<Size>-1</Size>
 		<ShadowSize>0</ShadowSize>
 		<Effect color="0x270068">Vortex</Effect>
+	</Object>
+	<!-- the Elder Cemetery (custom/DoomedRealmsWorlds.xml), four worlds as the Haunted Cemetery is:
+	     the Ghost of Skuld's loot leads to it half the time, its key drops from its Elder bosses,
+	     and each arena's portal leads on to the next Elder one -->
+	<Object type="0x7c0b" id="Elder Haunted Cemetery Portal">
+		<DisplayId>Elder Cemetery</DisplayId>
+		<Class>Portal</Class>
+		<IntergamePortal/>
+		<DungeonName>Elder Cemetery</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x318</Index>
+		</Texture>
+		<Animation prob="0.4" period="1.8">
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x319</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x31a</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.6">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x31b</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.2">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x31a</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.4">
+				<Texture>
+					<File>lofiObj3</File>
+					<Index>0x318</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Effect color="0x2FD29A">Vortex</Effect>
+	</Object>
+	<Object type="0x7c0c" id="Elder Cemetery Key">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x317</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A key of grave-iron, cold enough to burn, which opens a portal to the Elder Cemetery. The masters of the afterlife were buried here too, and none of them stayed down.</Description>
+		<Sound>use_key</Sound>
+		<Consumable/>
+		<Activate id="Elder Haunted Cemetery Portal">CreatePortal</Activate>
+		<feedPower>200</feedPower>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x7c0d" id="Elder Haunted Cemetery Gates Portal">
+		<DisplayId>Elder Gates</DisplayId>
+		<Class>Portal</Class>
+		<Size>120</Size>
+		<IntergamePortal/>
+		<DungeonName>Elder Cemetery Gates</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x30a</Index>
+		</Texture>
+		<Effect color="0x2FD29A">Vortex</Effect>
+	</Object>
+	<Object type="0x7c0e" id="Elder Haunted Cemetery Graves Portal">
+		<DisplayId>Elder Graves</DisplayId>
+		<Class>Portal</Class>
+		<Size>130</Size>
+		<IntergamePortal/>
+		<DungeonName>Elder Cemetery Graves</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x30a</Index>
+		</Texture>
+		<Effect color="0x2FD29A">Vortex</Effect>
+	</Object>
+	<Object type="0x7c0f" id="Elder Haunted Cemetery Final Rest Portal">
+		<DisplayId>Elder Final Battle</DisplayId>
+		<Class>Portal</Class>
+		<Size>140</Size>
+		<IntergamePortal/>
+		<DungeonName>Elder Cemetery Final Battle</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x30a</Index>
+		</Texture>
+		<Effect color="0x2FD29A">Vortex</Effect>
 	</Object>
 </Objects>

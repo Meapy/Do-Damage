@@ -25,7 +25,7 @@ namespace Shared.resources
         public readonly int ImpactDamage;
         public readonly float MaximumDistance;
         public readonly int MaxTargets;
-        /// PermaPet: the pet's size (petSize, written by tools/port_doomed_pets.py): Tiny, Small,
+        /// PermaPet: the pet's size (petSize): Tiny, Small,
         /// Medium, Large or Oryx. Only Tiny pets' generators are sold.
         public readonly string PetSize;
         public readonly bool NoStack;

@@ -10,6 +10,9 @@ namespace WorldServer.core.objects
 
         public bool IsVisibleToEnemy(bool ignoreInvisible = false)
         {
+            if (Ghost)
+                return false;
+
             if (_newbiePeriod > 0)
                 return false;
 

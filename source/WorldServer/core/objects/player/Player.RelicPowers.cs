@@ -32,6 +32,9 @@ namespace WorldServer.core.objects
         private long _stanceSince;                      // and since when
         private bool _stanceOn;
         private long _entropyReadyAt;                   // The Hollow Sourcestone
+        private int _graveFlames;                       // The Gravekeeper's Censer: flames left round its user,
+        private long _graveFlamesUntil;                 // until when,
+        private long _graveFlameReadyAt;                // and when the next may rush out
         private int _lifestealThisSecond;
         private long _lifestealSecond;
         private long _hitFxAt;                          // the next a hit's own look may show
@@ -71,7 +74,16 @@ namespace WorldServer.core.objects
             Eruption = 27,      // Skull of the Final Ritual: its heart erupting
             Singularity = 28,   // Bow of the Event Horizon: the black hole (ms)
             // 29: the Chaotic Scripture's Chaos Beam, sent by AllyAOE (BehaviorDb.Allies.cs)
+            // 30-32: the Ascendant's forcefield, sent by Forcefield.cs and Player.Forcefield.cs
+            // 33-38: the Father's ward, sent by Player.Ward.cs
+            Contagion = 39,     // Pestilence of Skuld: the plague bursting out of an enemy that fell to it
+            GraveFlames = 40,   // The Gravekeeper's Censer: blue flames circling its user (ms; radius: how many)
+            GraveFlame = 41,    // The Gravekeeper's Censer: a flame rushing from its user to an enemy and bursting
+            Vow = 42,           // Halo of the Ghost Bride: a player its forcefield kept from dying
         }
+
+        // the Ghost Bride's halo's forcefield (Forcefield.cs): pale, its petals drifting (relic.rs)
+        public const uint VowColor = 0xFFF4E8FF;
 
         // on: the object it follows (an aura) or flies to (a soul, blood); at: where it is
         private void RelicFx(Fx look, Entity on, Position at, float radius, uint color, int ms = 0)
@@ -359,6 +371,15 @@ namespace WorldServer.core.objects
                         RelicNote("Ice", 0xFF60C8FF);
                     }
                     break;
+                // three blue grave-flames round its user for 9 s: RelicTick sends them, one at a
+                // time, at the enemies that come near
+                case "GraveFlames":
+                    _graveFlames = 3;
+                    _graveFlamesUntil = Now + 9000;
+                    _graveFlameReadyAt = Now + 300;
+                    RelicFx(Fx.GraveFlames, this, Here, 3, 0xFF60A0FF, 9000);
+                    RelicNote("Grave Flames", 0xFF60A0FF);
+                    break;
                 // out of the Realm's memory for 5 s: RelicHit adds to every shot meanwhile
                 case "Forgotten":
                     _forgottenUntil = Now + 5000;
@@ -548,6 +569,8 @@ namespace WorldServer.core.objects
                 }
             }
 
+            GraveFlamesTick();
+
             // the Elder Guardian's bracer braces: under half health, +12 defense for 5 s, every 20 s
             if (Power(3) == "Bulwark" && Health > 0 && Health < Stats[0] / 2 && Now >= _bulwarkReadyAt)
             {
@@ -568,6 +591,77 @@ namespace WorldServer.core.objects
                 RelicEffect(this, EffectType.AreaBlast, 0xFF40E0C0, new Position(3, 0));
                 RelicFx(Fx.Davy, this, Here, 3, 0xFF40E0C0, 1500);
             }
+        }
+
+        // The Gravekeeper's Censer's flames: while any are left, the nearest enemy within 5 tiles
+        // draws one, 0.4 s apart; it bursts on it 0.3 s later for 300, past its defense, to every
+        // enemy within 1.5 tiles. The circling flames' look is sent again with each one gone.
+        private void GraveFlamesTick()
+        {
+            if (_graveFlames <= 0)
+                return;
+            const uint blue = 0xFF60A0FF;
+            if (Now >= _graveFlamesUntil || Power(1) != "GraveFlames" || Health <= 0)
+            {
+                _graveFlames = 0;
+                RelicFx(Fx.GraveFlames, this, Here, 0, blue, 1);
+                return;
+            }
+            if (Now < _graveFlameReadyAt)
+                return;
+            var near = EnemiesNear(X, Y, 5).Where(e => !e.HasConditionEffect(ConditionEffectIndex.Invincible) && !e.HasConditionEffect(ConditionEffectIndex.Invulnerable))
+                .OrderBy(e => e.DistTo(X, Y)).FirstOrDefault();
+            if (near == null)
+                return;
+            _graveFlameReadyAt = Now + 400;
+            _graveFlames--;
+            var at = PosOf(near);
+            RelicFx(Fx.GraveFlame, near, at, 1.5f, blue);
+            RelicFx(Fx.GraveFlames, this, Here, _graveFlames, blue, _graveFlames > 0 ? (int)(_graveFlamesUntil - Now) : 1);
+            World.StartNewTimer(300, (w, t) =>
+            {
+                if (World != w)
+                    return;
+                var p = near.Dead || near.World != w ? at : PosOf(near);
+                Burst(p, 1.5f, blue);
+                foreach (var e in EnemiesNear(p.X, p.Y, 1.5f))
+                    RelicDamage(e, 300, ref t, true);
+            });
+        }
+
+        // The Ghost Bride's vow, in her halo's forcefield (Player.Shield): a hit that would kill
+        // leaves its player at 1 health, untouchable for 1.5 s; each player once every 45 s.
+        // dmg is what the hit takes from health (after defense, any forcefield and ward).
+        public int VowedDamage(int dmg)
+        {
+            if (dmg < Health || Health <= 0 || Now >= _vowUntil || Now < _vowReadyAt)
+                return dmg;
+            _vowReadyAt = Now + 45000;
+            ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 1500);
+            RelicNote("Vow kept", VowColor);
+            RelicFx(Fx.Vow, this, Here, 1.5f, VowColor, 1500);
+            return Health - 1;
+        }
+
+        // Pestilence of Skuld's contagion: an enemy that dies while poisoned by it bursts into a
+        // new cloud where it fell, half as strong (radius, damage and time), which spreads on in
+        // turn; `plague` counts the spreads one throw has left.
+        public sealed class Plague
+        {
+            public int Left = 3;
+        }
+
+        private void Contagion(World world, Position at, float radius, int totalDamage, int durationMs, Plague plague)
+        {
+            if (World != world || plague.Left <= 0)
+                return;
+            plague.Left--;
+            var r = Math.Max(1.5f, radius / 2);
+            Burst(at, r, 0xFF8FA547);
+            RelicFx(Fx.Contagion, this, at, r, 0xFF8FA547, durationMs / 2);
+            RelicNote("Contagion", 0xFF8FA547);
+            foreach (var e in EnemiesNear(at.X, at.Y, r))
+                PoisonEnemy(world, e, totalDamage / 2, durationMs / 2, r, plague);
         }
     }
 }

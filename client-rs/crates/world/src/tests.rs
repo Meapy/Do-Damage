@@ -118,6 +118,37 @@ fn walking_east_stops_at_the_wall() {
 }
 
 #[test]
+fn a_ghost_drifts_through_walls_and_water() {
+    let d = data();
+    let mut w = world(&d);
+    w.ghost = true;
+    // east, through the wall at (6, 5): 300 ms at GHOST_SPEED
+    let (x, y) = walk(&mut w, &d, 1.0, 0.0, 300);
+    assert!((x - (5.5 + 300.0 * GHOST_SPEED)).abs() < 1e-9, "x = {x}");
+    assert_eq!(y, 5.5);
+    // south over the water at (5, 7), and no further than half a tile inside the map's edge
+    let mut w = world(&d);
+    w.ghost = true;
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 2000);
+    assert_eq!(y, 9.5);
+}
+
+#[test]
+fn a_ghost_follows_and_settles_behind() {
+    let d = data();
+    let mut w = world(&d);
+    w.ghost = true;
+    w.ghost_to = Some((1.5, 5.5));
+    let (x, y) = walk(&mut w, &d, 0.0, 0.0, 3000);
+    // it stops GHOST_TRAIL short of whom it follows
+    assert!((x - 2.7).abs() < 0.05, "x = {x}");
+    assert_eq!(y, 5.5);
+    // a key held steers it instead
+    let (x2, _) = walk(&mut w, &d, 1.0, 0.0, 100);
+    assert!(x2 > x);
+}
+
+#[test]
 fn walking_west_is_free() {
     let d = data();
     let mut w = world(&d);

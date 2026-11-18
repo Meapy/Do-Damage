@@ -19,8 +19,9 @@ north:
 
 The world has a <RandomLayout> (Dungeons.xml), so each visit joins these rooms in a new order with
 the hall at the end of a branch; this map is also the layout used when that fails. The Elder Manor
-is built from this map by tools/port_doomed_worlds.py (bs_elder_map). Use only grounds and walls
-that already have an Elder version (tools/make_elder.py makes them), or run that first.
+is built from this map by `tools/make_elder.py map ElderManor "Elder Manor.jm"`. Use only grounds
+and walls that already have an Elder version (`tools/make_elder.py` makes them), or run that
+first.
 
 The output is generated: change this script and run it again rather than editing the map.
 """

@@ -37,11 +37,19 @@ pub struct Game {
     /// The round trip to the world server, ms, as its last Ping said (none from older servers).
     pub ping: Option<i32>,
     pub ended: bool,
+    /// The connection closed after our death (the server is done with us).
+    socket_done: bool,
     /// The character died (the game ended with its death).
     pub died: bool,
     /// The death's last moments in the world (`DYING_MS` of them) before the game ends: the world
     /// holds still and fades while the death is told.
     pub dying: Option<Dying>,
+    /// Lingering at our grave as a ghost after the death (a server that keeps us, `GraveInfo`):
+    /// watching, drifting and chatting until Continue.
+    pub grave: Option<Grave>,
+    /// Whether we stay at our grave when we die (Options, Gameplay); else the death goes
+    /// straight on to its summary, as before. Set by the app each frame.
+    pub linger: bool,
     /// When a white bag last landed near us (its flash round the view, `whitebag`).
     pub white_bag_at: Option<i32>,
     /// How many worlds we've entered (each `MapInfo`): a new one clears the windows' searches.
@@ -88,6 +96,10 @@ pub struct Game {
     pub quest_damage: Option<QuestDamage>,
     /// The last bosses (quests) we hit that died, newest first (`BOSS_HISTORY` of them).
     pub boss_history: Vec<BossFight>,
+    /// The Ascendants' forcefields up in this world (`ShowEffect` 41, looks 30 and 32): their
+    /// anchor, middle, radius, when they fade and the percentage they take off our hits, which
+    /// comes off the numbers we show for them as the server takes it off our health.
+    forcefields: Vec<(i32, f64, f64, f64, i32, i32)>,
     /// The character's fame records by id (`FameStats`: kills, dungeons, shots...), as the
     /// server last sent them.
     pub fame_stats: std::collections::HashMap<u8, i32>,
@@ -307,6 +319,33 @@ impl Dying {
 /// The closing fade to black, ms.
 pub const DYING_FADE_MS: i32 = 700;
 
+/// When, into the death, a ghost rises from it (lingering at the grave), ms: the death has been
+/// told, before its fade to black.
+pub const GRAVE_RISE_MS: i32 = 3000;
+/// How long Continue takes to fade the world out, ms.
+pub const GRAVE_LEAVE_MS: i32 = 650;
+
+/// Lingering at our grave as a ghost (`GraveInfo`).
+pub struct Grave {
+    /// Who killed us, as the server says.
+    pub killed_by: String,
+    /// When our time as a ghost runs out (the game's clock), as the server says.
+    pub until: i32,
+    /// When we rose from the death (the game's clock), once its telling is done.
+    pub risen_at: Option<i32>,
+    /// The player our ghost drifts after (their object id), and when we picked them.
+    pub follow: Option<(i32, i32)>,
+    /// Continue was asked for, when: the world fades out, then the death's summary.
+    pub leaving_at: Option<i32>,
+}
+
+impl Grave {
+    /// Ms since we rose (0 before).
+    pub fn risen(&self, now: i32) -> i32 {
+        self.risen_at.map_or(0, |at| (now - at).max(0))
+    }
+}
+
 /// `Player.MS_BETWEEN_TELEPORT`.
 const TELEPORT_COOLDOWN: i32 = 10_000;
 /// `UseItem`'s use types for a held ability (the server's `START_USE` and `END_USE`).
@@ -353,8 +392,11 @@ impl Game {
             char_id,
             world: None,
             ended: false,
+            socket_done: false,
             died: false,
             dying: None,
+            grave: None,
+            linger: true,
             white_bag_at: None,
             maps_entered: 0,
             reconnects: 0,
@@ -380,6 +422,7 @@ impl Game {
             dealt: Default::default(),
             quest_damage: None,
             boss_history: Vec::new(),
+            forcefields: Vec::new(),
             fame_stats: Default::default(),
             arena: None,
             arena_votes: None,
@@ -510,13 +553,33 @@ impl Game {
         if self.held.is_some() {
             return;
         }
-        // Dead: the world holds still (nothing more is read: the server is done with us) until
-        // the death has been shown.
+        // Dead: the death plays out over the world. A server that keeps us at our grave goes on
+        // sending it (we rise as a ghost once the death is told); one that's done with us closes
+        // the connection, which ends nothing before the death has been shown.
         if let Some(d) = &self.dying {
-            if d.elapsed(now) >= DYING_MS {
+            let t = d.elapsed(now);
+            let haunting = self.linger && self.grave.is_some();
+            if haunting && t >= GRAVE_RISE_MS {
+                log::info!("rose as a ghost");
+                self.dying = None;
+                if let Some(g) = &mut self.grave {
+                    g.risen_at = Some(now);
+                }
+                if let Some(w) = &mut self.world {
+                    w.ghost = true;
+                }
+                self.sounds.push(("spell/light_heal".into(), 0.55, false));
+            } else if !haunting && t >= DYING_MS {
                 self.ended = true;
+                return;
             }
-            return;
+        }
+        // Continue: once the world has faded, on to the death's summary.
+        if let Some(g) = &self.grave {
+            if g.leaving_at.is_some_and(|at| now - at >= GRAVE_LEAVE_MS) || (g.risen_at.is_some() && now >= g.until) {
+                self.ended = true;
+                return;
+            }
         }
         if let Some(Lost { tries, next_at: Some(at) }) = &self.lost {
             if now < *at {
@@ -537,6 +600,15 @@ impl Game {
                 }
                 SocketEvent::Closed(why) => {
                     log::info!("disconnected: {why}");
+                    // dead: the server is done with us (or our ghost's time is up); the death
+                    // plays out, then its summary
+                    if self.died {
+                        self.socket_done = true;
+                        if self.dying.is_none() {
+                            self.ended = true;
+                        }
+                        break;
+                    }
                     if self.retry_after_drop(now) {
                         break;
                     }
@@ -554,8 +626,7 @@ impl Game {
                 }
                 SocketEvent::Message(msg) => self.handle(&msg, now, data),
             }
-            // dead: nothing after the death is read (the connection closing would end it now)
-            if self.ended || self.dying.is_some() {
+            if self.ended || self.socket_done {
                 break;
             }
         }
@@ -632,6 +703,7 @@ impl Game {
                 }
                 self.world = Some(world);
                 self.particles.clear();
+                self.forcefields.clear();
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
@@ -675,6 +747,8 @@ impl Game {
                 self.socket.send(&bsk_proto::VisitAnswer { id: 0, answer: 254 }.into());
                 // we can show pings (a server that knows them answers, and only then do we ping)
                 self.socket.send(&bsk_proto::PingMark { kind: crate::pings::HELLO, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
+                // we can stay at our grave as a ghost when we die
+                self.socket.send(&bsk_proto::Grave { action: 255 }.into());
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -822,6 +896,9 @@ impl Game {
                 self.status = tf!("You died, killed by {by}.", by = d.killed_by);
                 self.died = true;
                 self.dying = Some(Dying { at: now, killed_by: d.killed_by.clone(), skipped_at: None });
+                // whatever we were doing ends with us
+                self.held_ability = None;
+                self.trade = None;
                 // Our death in the world: a burst of our colours and a ring of red where we fell,
                 // and our class's death cry.
                 if let Some(world) = &self.world {
@@ -836,6 +913,14 @@ impl Game {
                 }
                 return;
             }
+        }
+        // Our death came with this: we stay at our grave as a ghost.
+        if let ServerMessage::GraveInfo(g) = msg {
+            if let Some(d) = &self.dying {
+                log::info!("lingering at the grave for up to {} s", g.ms / 1000);
+                self.grave = Some(Grave { killed_by: d.killed_by.clone(), until: now + g.ms.max(0), risen_at: None, follow: None, leaving_at: None });
+            }
+            return;
         }
         if let ServerMessage::Text(t) = msg {
             if t.name == "*AutoAim*" {
@@ -1074,6 +1159,15 @@ impl Game {
             }
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
             ServerMessage::ShowEffect(e) => {
+                // an Ascendant's forcefield (Forcefield.cs): kept for our hits' numbers, however
+                // faint other players' effects are drawn
+                let look = e.pos2.y.round() as i32;
+                if e.effect_type == 41 && (look == 30 || look == 32) {
+                    let id = e.target_object_id;
+                    self.forcefields.retain(|f| f.0 != id);
+                    let until = now + e.duration.clamp(0, 60_000);
+                    self.forcefields.push((id, e.pos1.x as f64, e.pos1.y as f64, e.pos2.x as f64, until, e.object_type as i32));
+                }
                 // another player's spell or Necromantic power, as faint as their shots (Options,
                 // Visuals): a power names its player (`source_id`), even when it shows on a monster
                 let player = |id: i32| world.objects.get(&id).and_then(|o| data.objects.get(&o.object_type)).is_some_and(|d| d.player);
@@ -1157,7 +1251,66 @@ impl Game {
     }
 
     /// Fire toward the world angle `angle` (mouse held). Sends a PlayerShoot per projectile.
+    /// We're a ghost (or about to rise as one, or dying): no shots, items, abilities, portals,
+    /// trades or teleports; we watch, drift and talk.
+    pub fn haunting(&self) -> bool {
+        self.dying.is_some() || self.grave.is_some()
+    }
+
+    /// The players a ghost can follow: those in sight, nearest first (party and guild before
+    /// the rest), as (object id, name).
+    pub fn followable(&self, data: &GameData) -> Vec<(i32, String)> {
+        let Some(world) = &self.world else { return Vec::new() };
+        let Some(me) = world.player() else { return Vec::new() };
+        let (mx, my) = (me.x, me.y);
+        let guild = me.stat_str(bsk_proto::stat::GUILD_NAME).filter(|g| !g.is_empty()).map(str::to_owned);
+        let mut all: Vec<(bool, f64, i32, String)> = world
+            .objects
+            .values()
+            .filter(|o| Some(o.id) != world.me && !o.is_ghost() && data.objects.get(&o.object_type).is_some_and(|d| d.player))
+            .filter_map(|o| {
+                let name = o.name()?.to_owned();
+                let close = guild.is_some() && o.stat_str(bsk_proto::stat::GUILD_NAME) == guild.as_deref();
+                Some((!close, (o.x - mx).hypot(o.y - my), o.id, name))
+            })
+            .collect();
+        all.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)));
+        all.into_iter().map(|(_, _, id, name)| (id, name)).collect()
+    }
+
+    /// Follow the next (`step` 1) or the previous (-1) player in `followable`, or stop (0).
+    pub fn ghost_follow(&mut self, step: i32, now: i32, data: &GameData) {
+        let list = self.followable(data);
+        let Some(g) = &mut self.grave else { return };
+        if step == 0 || list.is_empty() {
+            g.follow = None;
+            return;
+        }
+        let at = g.follow.and_then(|(id, _)| list.iter().position(|(i, _)| *i == id));
+        let next = match at {
+            Some(i) => (i as i32 + step).rem_euclid(list.len() as i32) as usize,
+            None if step > 0 => 0,
+            None => list.len() - 1,
+        };
+        log::info!("ghost follows {}", list[next].1);
+        g.follow = Some((list[next].0, now));
+    }
+
+    /// Go on from the grave to the death's summary: the world fades, then the game ends.
+    pub fn leave_grave(&mut self, now: i32) {
+        if let Some(g) = &mut self.grave {
+            // not in the first moment after rising (a key still held from the death)
+            if g.risen_at.is_some_and(|at| now - at >= 600) && g.leaving_at.is_none() {
+                log::info!("leaving the grave");
+                g.leaving_at = Some(now);
+            }
+        }
+    }
+
     pub fn shoot(&mut self, now: i32, angle: f64, data: &GameData) {
+        if self.haunting() {
+            return;
+        }
         if self.session.map.as_ref().is_some_and(|m| m.disable_shooting) {
             return;
         }
@@ -1186,14 +1339,33 @@ impl Game {
     /// Move the projectiles and tell the server what they hit.
     fn update_projectiles(&mut self, now: i32, data: &GameData) {
         let Some(world) = &mut self.world else { return };
+        // standing in an Ascendant's forcefield: the strongest one's percentage off each hit
+        self.forcefields.retain(|f| now < f.4);
+        let shield = world.player().map_or(0, |p| {
+            self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5).max().unwrap_or(0)
+        });
+        // our ward (`ward.rs`): what it still takes, counted down as we're hit, so a blow it takes
+        // whole shows grey
+        let mut ward = world.player().and_then(|p| p.stat_int(crate::ward::WARD)).unwrap_or(0);
+        let mut warded = |damage: i32| {
+            let all = damage > 0 && ward >= damage;
+            ward = (ward - damage.max(0)).max(0);
+            all
+        };
         for hit in world.update_projectiles(now, data) {
+            let hit = match hit {
+                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: bsk_world::combat::shielded(damage, shield), pierced, stacked },
+                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: bsk_world::combat::shielded(damage, shield) },
+                other => other,
+            };
             let msg: ClientMessage = match hit {
                 // a shot stacked on one that just hit us adds no sound, and no number unless it
                 // deals more than that one did
                 Hit::Player { stacked: true, bullet_id, owner_id, damage, pierced } => {
                     if damage > 0 {
                         if let Some(me) = world.me {
-                            self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
+                            let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::hit(me, damage, pierced, now) };
+                            self.floaters.push(f);
                         }
                     }
                     PlayerHit { bullet_id, object_id: owner_id }.into()
@@ -1203,7 +1375,8 @@ impl Game {
                         self.sounds.push((s, 1.0, false));
                     }
                     if let Some(me) = world.me {
-                        self.floaters.push(crate::view::Floater::hit(me, damage, pierced, now));
+                        let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::hit(me, damage, pierced, now) };
+                        self.floaters.push(f);
                     }
                     PlayerHit { bullet_id, object_id: owner_id }.into()
                 }
@@ -1224,7 +1397,8 @@ impl Game {
                 Hit::Square { time, bullet_id, owner_id } => SquareHit { time, bullet_id, object_id: owner_id }.into(),
                 Hit::Ground { time, x, y, damage } => {
                     if let Some(me) = world.me {
-                        self.floaters.push(crate::view::Floater::damage(me, damage, now));
+                        let f = if warded(damage) { crate::view::Floater::warded(me, damage, now) } else { crate::view::Floater::damage(me, damage, now) };
+                        self.floaters.push(f);
                     }
                     GroundDamage { time, position: WorldPos { x: x as f32, y: y as f32 } }.into()
                 }
@@ -1239,9 +1413,24 @@ impl Game {
     /// Advance the world by `dt` ms with the keys held; `rotate` is -1, 0 or 1.
     pub fn update(&mut self, now: i32, dt: i32, keys: (f64, f64), rotate: f64, data: &GameData) {
         self.now = now;
-        // the dead don't walk or turn
-        let (keys, rotate) = if self.dying.is_some() { ((0.0, 0.0), 0.0) } else { (keys, rotate) };
+        // the dying don't walk or turn (a ghost does, once risen, until it leaves)
+        let still = self.dying.is_some() || self.grave.as_ref().is_some_and(|g| g.leaving_at.is_some());
+        let (keys, rotate) = if still { ((0.0, 0.0), 0.0) } else { (keys, rotate) };
         self.camera_angle += dt as f64 * ROTATE_SPEED * rotate;
+        // a ghost drifts after the player it follows; a key held takes it back
+        if let Some(g) = &mut self.grave {
+            if keys != (0.0, 0.0) && g.follow.is_some() {
+                g.follow = None;
+            }
+            let at = g.follow.and_then(|(id, _)| self.world.as_ref()?.objects.get(&id)).map(|o| (o.x, o.y));
+            if g.follow.is_some() && at.is_none() {
+                // gone from sight (another world, or too far)
+                g.follow = None;
+            }
+            if let Some(w) = &mut self.world {
+                w.ghost_to = at;
+            }
+        }
         let Some(world) = &mut self.world else { return };
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };
         if let Some((x, y)) = world.update(now, dt, &input, data) {
@@ -1298,6 +1487,9 @@ impl Game {
 
     /// `GameServerConnection.invSwap`.
     pub fn inv_swap(&mut self, now: i32, a: (i32, u8, i32), b: (i32, u8, i32)) {
+        if self.haunting() {
+            return;
+        }
         let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
         let position = WorldPos { x: me.x as f32, y: me.y as f32 };
         let msg = InvSwap {
@@ -1315,6 +1507,9 @@ impl Game {
     /// `ItemGridMediator.addToPotionStack`: a health or magic potion from a slot into its stack
     /// (slot 254 or 255 of the player).
     pub fn add_to_stack(&mut self, now: i32, from: (i32, u8, i32)) {
+        if self.haunting() {
+            return;
+        }
         let Some((k, (_, stack_slot))) = crate::hud::POTIONS.iter().enumerate().find(|(_, p)| p.0 == from.2) else { return };
         let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
         let (id, position) = (me.id, WorldPos { x: me.x as f32, y: me.y as f32 });
@@ -1341,6 +1536,9 @@ impl Game {
 
     /// `useItem_new`: use a consumable (or InvUse item) in a slot. False if it can't be used.
     pub fn use_item(&mut self, now: i32, owner: i32, slot: u8, item: i32, data: &GameData) -> bool {
+        if self.haunting() {
+            return false;
+        }
         let Some(xml) = data.objects.get(&(item as u16)).map(|d| &d.xml) else { return false };
         if !(xml.has("Consumable") || xml.has("InvUse")) {
             self.sounds.push(("error".into(), 1.0, false));
@@ -1364,6 +1562,9 @@ impl Game {
     /// `breakdownSlot` (Ctrl+right-click): break the item in a slot down. Only slots the
     /// server allows (it disconnects for others): our inventory and backpack, or a bag's.
     pub fn breakdown(&mut self, now: i32, owner: i32, slot: u8) {
+        if self.haunting() {
+            return;
+        }
         let mine = self.world.as_ref().and_then(|w| w.me) == Some(owner);
         if (mine && !(4..20).contains(&slot)) || (!mine && slot >= 8) {
             return;
@@ -1373,6 +1574,9 @@ impl Game {
 
     /// `invDrop`: put it on the ground.
     pub fn inv_drop(&mut self, owner: i32, slot: u8, item: i32) {
+        if self.haunting() {
+            return;
+        }
         self.send(InvDrop { slot_object: SlotObject { object_id: owner, slot_id: slot, object_type: item } }.into());
         self.predict(owner, slot, -1);
     }
@@ -1380,6 +1584,9 @@ impl Game {
     /// `Player.useAltWeapon` (Space): the ability in slot 1, aimed at a world point; `angle`
     /// is the world direction of the mouse, for abilities that shoot.
     pub fn use_ability(&mut self, now: i32, x: f64, y: f64, angle: f64, data: &GameData) {
+        if self.haunting() {
+            return;
+        }
         if self.session.map.as_ref().is_some_and(|m| m.disable_abilities) {
             return;
         }
@@ -1452,6 +1659,9 @@ impl Game {
     /// The held ability's key came up: it ends, and with the mana for it (`MpEndCost`) its
     /// projectiles fly toward `angle` (`Player.useAltWeapon`'s release).
     pub fn release_ability(&mut self, now: i32, x: f64, y: f64, angle: f64, data: &GameData) {
+        if self.haunting() {
+            return;
+        }
         let Some(item) = self.held_ability.take() else { return };
         let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
         let (id, mp) = (me.id, me.stat_int(crate::hud::stat::MP).unwrap_or(0));
@@ -1483,6 +1693,9 @@ impl Game {
 
     /// F and V: a health or magic potion from the stacks (`UseBuyPotionCommand`).
     pub fn use_potion(&mut self, now: i32, which: usize) {
+        if self.haunting() {
+            return;
+        }
         let Some(me) = self.world.as_ref().and_then(|w| w.player()) else { return };
         let stack = if which == 0 { crate::hud::stat::HEALTH_POTION_STACK } else { crate::hud::stat::MAGIC_POTION_STACK };
         if me.stat_int(stack).unwrap_or(0) <= 0 {
@@ -1510,6 +1723,9 @@ impl Game {
     }
 
     pub fn request_trade(&mut self, name: &str) {
+        if self.haunting() {
+            return;
+        }
         self.send(RequestTrade { name: name.to_owned() }.into());
     }
 
@@ -1545,6 +1761,9 @@ impl Game {
 
     /// `Player.teleportTo`: once every 10 s.
     pub fn teleport(&mut self, object_id: i32, now: i32) {
+        if self.haunting() {
+            return;
+        }
         if now < self.next_teleport {
             let secs = (self.next_teleport - now + 999) / 1000;
             self.add_chat("*Error*", "", &tn!(secs, "You can't teleport for {n} more second.|You can't teleport for {n} more seconds."), 0, 0, -1, now);
@@ -1777,6 +1996,9 @@ impl Game {
 
     /// `Buy`: buy what the shop sells.
     pub fn buy(&mut self, object_id: i32) {
+        if self.haunting() {
+            return;
+        }
         self.send(Buy { object_id }.into());
     }
 
@@ -1824,11 +2046,23 @@ impl Game {
     }
 
     pub fn use_portal(&mut self, object_id: i32) {
+        if self.haunting() {
+            return;
+        }
         self.socket.send(&UsePortal { object_id }.into());
     }
 
     /// Back to the nexus (the R key). Not from the nexus itself: the server disconnects for that.
     pub fn escape(&mut self) {
+        // a ghost's way out is on to its death screen
+        if self.grave.is_some() {
+            let now = self.now;
+            self.leave_grave(now);
+            return;
+        }
+        if self.haunting() {
+            return;
+        }
         if self.session.map.as_ref().is_some_and(|m| m.name != "Nexus") {
             self.socket.send(&Escape {}.into());
         }

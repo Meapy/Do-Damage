@@ -102,7 +102,7 @@ Things to know when reading it:
   numbers with abilities are out of date for the classes whose ability changed (quivers, tomes,
   helms, shields, seals, poisons, skulls, prisms, scepters, shurikens and lutes). The Ninja's star
   didn't throw then, which is why it added nothing.
-- The Doomed Realms classes' highest stats were rebalanced on 25 October 2026 (Blademaster,
+- The newer classes' highest stats were rebalanced on 25 October 2026 (Blademaster,
   Adept, Snowman, Mechanic and Ascendant up; King and Sharklord down), so their rows here are from
   before that. The class totals above use the new stats. Their abilities changed the same day: the
   Druid's pearls cost less, the Pirate's T5-T8 cannons do twice the damage, and the Summoner's
@@ -136,16 +136,16 @@ Things to know when reading it:
 | Ninja | Kusanagi | Circle of Unity | Leviathan Armor | 4,203 | 4,215 | 0% |
 | Samurai | Kusanagi | Paragon Wakizashi | Annihilation Armor | 3,613 | 4,768 | +32% |
 | Bard | Bow of Deep Enchantment | Nether Lute | Robe of the Ancient Intellect | 4,414 | 4,366 | −1% |
-| Blademaster *(Doomed Realms)* | Eclipse Blades | Jacket of Bloodrut Nature | Leviathan Armor | 3,173 | 4,795 | +51% |
-| Druid *(Doomed Realms)* | Wand of Retribution | Pearl of Total Chaos | Robe of the Ancient Intellect | 3,077 | 3,458 | +12% |
-| Mechanic *(Doomed Realms)* | Dagger of Dire Hatred | Skystorm Turret | Leviathan Armor | 3,675 | 4,478 | +22% |
-| Ascendant *(Doomed Realms)* | Bow of Deep Enchantment | Halo of the Archangel | Leviathan Armor | 3,869 | 3,924 | +1% |
-| Summoner *(Doomed Realms)* | Staff of the Fundamental Core | Scroll of the Mad God | Robe of the Ancient Intellect | 3,506 | 3,646 | +4% |
-| King *(Doomed Realms)* | Staff of the Fundamental Core | Tome of Sacred Thought | Robe of the Ancient Intellect | 4,701 | 4,688 | 0% |
-| Palemaster *(Doomed Realms)* | Staff of the Fundamental Core | Sacrilege Skull | Robe of the Ancient Intellect | 3,663 | 3,821 | +4% |
-| Pirate *(Doomed Realms)* | Sword of Majesty | Doom Cannon | Leviathan Armor | 5,202 | 5,348 | +3% |
-| Sharklord *(Doomed Realms)* | Staff of the Fundamental Core | Tsunami | Robe of the Ancient Intellect | 3,877 | 5,396 | +39% |
-| Snowman *(Doomed Realms)* | Dagger of Dire Hatred | Seal of Righteous Victory | Leviathan Armor | 3,580 | 4,594 | +28% |
-| Father *(Doomed Realms)* | Wand of Retribution | Tome of Sacred Thought | Robe of the Ancient Intellect | 3,364 | 3,407 | +1% |
-| Adept *(Doomed Realms)* | Dagger of Dire Hatred | Spell of Galactic Creation | Leviathan Armor | 3,196 | 4,900 | +53% |
-| Monk *(Doomed Realms)* | Fists of the Eternal Master | Heart of the Fountains | Leviathan Armor | 4,754 | – | – |
+| Blademaster | Eclipse Blades | Jacket of Bloodrut Nature | Leviathan Armor | 3,173 | 4,795 | +51% |
+| Druid | Wand of Retribution | Pearl of Total Chaos | Robe of the Ancient Intellect | 3,077 | 3,458 | +12% |
+| Mechanic | Dagger of Dire Hatred | Skystorm Turret | Leviathan Armor | 3,675 | 4,478 | +22% |
+| Ascendant | Bow of Deep Enchantment | Halo of the Archangel | Leviathan Armor | 3,869 | 3,924 | +1% |
+| Summoner | Staff of the Fundamental Core | Scroll of the Mad God | Robe of the Ancient Intellect | 3,506 | 3,646 | +4% |
+| King | Staff of the Fundamental Core | Tome of Sacred Thought | Robe of the Ancient Intellect | 4,701 | 4,688 | 0% |
+| Palemaster | Staff of the Fundamental Core | Sacrilege Skull | Robe of the Ancient Intellect | 3,663 | 3,821 | +4% |
+| Pirate | Sword of Majesty | Doom Cannon | Leviathan Armor | 5,202 | 5,348 | +3% |
+| Sharklord | Staff of the Fundamental Core | Tsunami | Robe of the Ancient Intellect | 3,877 | 5,396 | +39% |
+| Snowman | Dagger of Dire Hatred | Seal of Righteous Victory | Leviathan Armor | 3,580 | 4,594 | +28% |
+| Father | Wand of Retribution | Tome of Sacred Thought | Robe of the Ancient Intellect | 3,364 | 3,407 | +1% |
+| Adept | Dagger of Dire Hatred | Spell of Galactic Creation | Leviathan Armor | 3,196 | 4,900 | +53% |
+| Monk | Fists of the Eternal Master | Heart of the Fountains | Leviathan Armor | 4,754 | – | – |

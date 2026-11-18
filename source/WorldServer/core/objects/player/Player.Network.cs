@@ -18,6 +18,10 @@ namespace WorldServer.core.objects
                 if (incomingMessage.Client.State == ProtocolState.Disconnected)
                     break;
 
+                // a ghost only moves, talks and acks (Player.Grave.cs)
+                if (Ghost && !GhostMayDo(incomingMessage.MessageId))
+                    continue;
+
                 var handler = MessageHandlers.GetHandler(incomingMessage.MessageId);
                 if (handler == null)
                 {

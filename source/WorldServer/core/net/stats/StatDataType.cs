@@ -79,6 +79,11 @@
         Rank = 77,
         LDBoostTime = 78,
         BaseStat = 79,
+        // the Father's ward (Player.Ward.cs): the points of damage it still takes before health, and
+        // how many it had when raised (the grey bar over the HP bar is the one against the other);
+        // sent to everyone. An older client ignores them.
+        Ward = 80,
+        WardMax = 81,
         ColorChat = 113,
         ColorNameChat = 114,
         GlowEnemy = 115,
@@ -127,6 +132,9 @@
         LifetimeMs = 150,
         // Per-condition remaining durations use LifetimeMs + the condition effect number.
         ConditionDurationBase = LifetimeMs,
+        // A player who died and lingers at their grave as a ghost (1; Player.Grave.cs). Clear of
+        // the condition durations (LifetimeMs + 1..61). An older client ignores it.
+        Ghost = 220,
         None = 255
     }
 }

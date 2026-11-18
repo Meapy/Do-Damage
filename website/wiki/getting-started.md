@@ -40,7 +40,7 @@ in the vault (see [Items](items.html#your-vault)).
 
 ## Choosing a class
 
-Every class is open from the start, the classic ones and the Doomed Realms ones:
+Every class is open from the start, the classic ones and the newer ones:
 {{v:class_count}} in all. Each class uses one kind of weapon, one kind of ability and one
 kind of armor, and has its own highest stats. The [Classes](classes.html) page lists them all.
 
@@ -146,6 +146,28 @@ it when it's out of view, and a dot on the minimap. Danger has a sound of its ow
 times in five seconds. In Options, **Visuals**, Other players, "Pings" shows everyone's, only your party's
 and guild's, or nobody's (yours always show), and **Sound** has Ping sounds.
 
+## When you die
+
+Death is permanent: the character and everything it wore and carried are gone, and its fame is
+counted (keep your best items in your vault). But you don't leave straight away. Once your death
+has been told, you **rise as a ghost** from your grave, pale and see-through, and the world turns
+cold and grey around you. For up to **10 minutes** you can:
+
+- **drift** anywhere in the world with the movement keys, straight through walls and over water
+  and lava, at one steady speed;
+- **follow a player**: the banner at the top names who you follow; the arrows step through the
+  players in sight (guildmates first, then the nearest), and your ghost glides after them while
+  you watch the fight go on (a movement key takes you back);
+- **chat**, whisper (`/tell`), and talk in your guild and party chats: your words show pale blue,
+  and everyone in the world sees your ghost;
+- **ping** with the middle mouse button, to point things out to those still fighting.
+
+A ghost can't be hurt, isn't seen by enemies, and can't shoot, use items, pick up loot, trade,
+teleport or take portals. When you're ready, press **Continue** on the banner (or your Nexus key,
+R) for your death's fame summary. Your ghost also moves on when its time is up, or if its world
+closes. In Options, **Gameplay**, turn off "Stay as a ghost when you die" to go straight to the
+summary instead.
+
 ## The screen
 
 The world fills the window, with one bar down the right:
@@ -191,7 +213,8 @@ the stone water basins at its corners do. From there:
   Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,
   and picks someone new every 45 seconds. Press **Watch** to open it big: the arrows (or the
   Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on
-  them, and beside it a chat for everyone watching. Players in the Nexus, a vault or a guild hall
+  them, and beside it a chat for everyone watching: the player you watch sees what you say there,
+  and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. Players in the Nexus, a vault or a guild hall
   aren't shown, and `/glass off` keeps you out of it.
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:
@@ -201,7 +224,7 @@ the stone water basins at its corners do. From there:
   player to take, or take what someone left.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
   north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
-  Elder and Doomed keys, consumables, specials, pet generators, clothing and accessories). The
+  Elder and minigame keys, consumables, specials, pet generators, clothing and accessories). The
   stalls take turns through each shop's items, and everything there costs fame. Over the bridge
   you come to the **market square**: two rows of stalls showing what players sell, where the
   **Market Broker** (the [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler**

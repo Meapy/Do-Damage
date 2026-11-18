@@ -8,7 +8,7 @@ summary: What to do, how to get stronger, and what everything does, for new play
 Do Damage is a Realm of the Mad God private server. Most of the game works like the original: you
 pick a class, fight your way up through the realm, collect gear, and one death is final for that
 character. But a lot here is different: free starter gear, a Support Bot in the Nexus, dozens of
-dungeons fixed or rebuilt, Doomed Realms classes and items, and an Oryx chain six stages deep.
+dungeons fixed or rebuilt, thirteen extra classes, and an Oryx chain six stages deep.
 
 This wiki is written for this server. The dungeon list, the classes, the commands, the shop prices
 and many of the numbers on these pages are read straight from the game's code and data every time

@@ -25,8 +25,8 @@ sprites reach players with that release. The catalog ships with the servers, so 
 is deployed the account server shows those submissions as in the game, and stops listing them
 as approved.
 
-`rework` points the items at their cells again from the catalog: tools/port_doomed.py and
-tools/make_elder.py run it after they regenerate their XML, so a regeneration keeps the players'
+`rework` points the items at their cells again from the catalog: tools/make_elder.py runs
+it after it regenerates its XML, so a regeneration keeps the players'
 sprites. Running it again changes nothing.
 
 `check` is one of the release checks (AGENTS.md, Git, "Releasing"): it fails while sprites approved

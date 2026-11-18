@@ -51,6 +51,9 @@ namespace Tests
             { "Elder LH Marble Colossus", "Potion of Max Defense" },
             { "Elder LH Malus 2", "Potion of Max Attack" },
             { "Elder LH Void Entity", "Potion of Max Life" },
+            { "Elder Arena Ghost Bride", "Potion of Max Speed" },
+            { "Elder Arena Grave Caretaker", "Potion of Max Wisdom" },
+            { "Elder Ghost of Skuld", "Potion of Max Vitality" },
         };
 
         public static readonly TheoryData<string, string, double> DungeonKeys = new TheoryData<string, string, double>
@@ -73,6 +76,9 @@ namespace Tests
             { "Elder LH Marble Colossus", "Elder Lost Halls Key", 0.01 },
             { "Elder LH Malus 2", "Elder Lost Halls Key", 0.01 },
             { "Elder LH Void Entity", "Elder Lost Halls Key", 0.02 },
+            { "Elder Arena Ghost Bride", "Elder Cemetery Key", 0.01 },
+            { "Elder Arena Grave Caretaker", "Elder Cemetery Key", 0.01 },
+            { "Elder Ghost of Skuld", "Elder Cemetery Key", 0.02 },
         };
 
         // A rare drop: there, but not most kills (Doomed Realms gave some bosses one nearly every kill)
@@ -374,6 +380,90 @@ namespace Tests
             Assert.Empty(state.States);
             Assert.Equal(next == null ? Array.Empty<string>() : new[] { next }, Targets(state));
             // the Empowered form fights as the Elder one does
+            Assert.Same(elder, a.States[a.Data.IdToObjectType["Empowered Elder " + boss]]);
+        }
+
+        // The Elder Cemetery: four worlds, as the Haunted Cemetery has, every monster and spawner
+        // in its Elder version, each arena's portal leading on to the next Elder one, and the way
+        // in from the regular Ghost of Skuld (half the time) and the key.
+        [Fact]
+        public void TheElderCemeteryIsComplete()
+        {
+            var a = Data.Value;
+            var data = a.Data;
+            foreach (var (portal, world) in new[] { ("Elder Haunted Cemetery Portal", "Elder Cemetery"),
+                ("Elder Haunted Cemetery Gates Portal", "Elder Cemetery Gates"), ("Elder Haunted Cemetery Graves Portal", "Elder Cemetery Graves"),
+                ("Elder Haunted Cemetery Final Rest Portal", "Elder Cemetery Final Battle") })
+            {
+                Assert.Equal(world, data.Portals.Values.Single(p => p.IdName == portal).DungeonName);
+                var w = data.AllWorlds.Single(x => x.IdName == world);
+                var map = data.GetWorldData(w.MapJM[0]);
+                Assert.NotNull(map);
+            }
+            Assert.Contains(data.Items.Values.Single(i => i.ObjectId == "Elder Cemetery Key").ActivateEffects, e => e.Id == "Elder Haunted Cemetery Portal");
+
+            // each arena's controller turns into the next Elder portal
+            foreach (var (controller, next) in new[] { ("Area 1 Controller", "Elder Haunted Cemetery Gates Portal"),
+                ("Area 2 Controller", "Elder Haunted Cemetery Graves Portal"), ("Area 3 Controller", "Elder Haunted Cemetery Final Rest Portal") })
+            {
+                var into = All(a.States[data.IdToObjectType["Elder " + controller]]).SelectMany(s => s.Behaviors)
+                    .Where(b => b.GetType().Name == "TransformOnDeath").Select(b => data.ObjectTypeToId[Field<ushort>(b, "target")]);
+                Assert.Equal(new[] { next }, into);
+            }
+            // the gates' spawners call Elder monsters into every arena
+            foreach (var gate in new[] { "Arena South Gate Spawner", "Arena East Gate Spawner", "Arena West Gate Spawner", "Arena North Gate Spawner" })
+            {
+                var spawns = All(a.States[data.IdToObjectType["Elder " + gate]]).SelectMany(s => s.Behaviors)
+                    .Where(b => b.GetType().Name == "Spawn").Select(b => data.ObjectTypeToId[Field<ushort>(b, "_children")]).ToList();
+                Assert.NotEmpty(spawns);
+                Assert.All(spawns, s => Assert.StartsWith("Elder ", s));
+            }
+
+            bool Leads(string id) => All(a.States[data.IdToObjectType[id]]).SelectMany(s => s.Behaviors)
+                .Any(b => b.GetType().Name == "DropPortalOnDeath" && Field<ushort>(b, "_target") == data.IdToObjectType["Elder Haunted Cemetery Portal"]
+                    && Field<float>(b, "_probability") > 0);
+            Assert.True(Leads("Ghost of Skuld"), "the Ghost of Skuld doesn't lead to the Elder Cemetery");
+            Assert.False(Leads("Elder Ghost of Skuld"), "the Elder Ghost of Skuld leads back into the Elder Cemetery");
+        }
+
+        // Raised by a Necromantic Relic, each of the three drops its Elder loot again and an item
+        // of its own, for the classes that had none: the Ascendant's halo, the Father's censer and
+        // the Assassin's poison, each with its power.
+        [Theory]
+        [InlineData("Elder Arena Ghost Bride", "Potion of Max Speed", "Halo of the Ghost Bride", 126, "Vow")]
+        [InlineData("Elder Arena Grave Caretaker", "Potion of Max Wisdom", "The Gravekeeper's Censer", 132, "GraveFlames")]
+        [InlineData("Elder Ghost of Skuld", "Potion of Max Vitality", "Pestilence of Skuld", 18, "Contagion")]
+        public void TheElderCemeteryBossesCanBeRaised(string boss, string potion, string item, int slot, string power)
+        {
+            var a = Data.Value;
+            Assert.True(a.Data.IdToObjectType.ContainsKey(boss + " Remains"), $"{boss} leaves no remains");
+            Assert.True(a.Loot.TryGetValue("Empowered " + boss, out var drops), $"Empowered {boss} has no loot");
+            foreach (var id in new[] { potion, item, "Elder Cemetery Key" })
+                Assert.Contains(drops, d => d.Item == id);
+            var it = a.Data.Items.Values.Single(i => i.ObjectId == item);
+            Assert.Equal(slot, it.SlotType);
+            Assert.Equal(power, it.RelicPower);
+            Assert.Contains(boss, WorldServer.core.resurrection.EmpoweredSignatures.Bosses);
+            // the regular boss drops neither
+            Assert.DoesNotContain(a.Loot[boss.Substring("Elder ".Length)], d => d.Item == item || d.Item == potion || d.Item == "Elder Cemetery Key");
+        }
+
+        // Each of the three has a phase the regular one doesn't: the Bride's Last Waltz and the
+        // Caretaker's Last Burial lead back into the fight; Skuld's Requiem is his last.
+        [Theory]
+        [InlineData("Arena Ghost Bride", "Waltz", "Dance")]
+        [InlineData("Arena Grave Caretaker", "Burial", "Ini")]
+        [InlineData("Ghost of Skuld", "requiem", "requiem2")]
+        public void TheElderCemeteryBossesHaveTheirOwnPhase(string boss, string phase, string next)
+        {
+            var a = Data.Value;
+            static IEnumerable<string> Targets(State s) => s.Transitions.SelectMany(t => t.TargetState).Select(t => t.Name);
+            var regular = a.States[a.Data.IdToObjectType[boss]];
+            var elder = a.States[a.Data.IdToObjectType["Elder " + boss]];
+            Assert.DoesNotContain(phase, All(regular).SelectMany(Targets));
+            Assert.Contains(phase, All(elder).SelectMany(Targets));
+            var state = All(elder).Single(s => s.Name == phase);
+            Assert.Equal(new[] { next }, Targets(state));
             Assert.Same(elder, a.States[a.Data.IdToObjectType["Empowered Elder " + boss]]);
         }
 

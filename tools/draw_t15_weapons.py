@@ -60,7 +60,7 @@ SOURCES = [
         (240, 230, 200): SILVER[2], (248, 240, 220): SILVER[3], (255, 250, 240): SILVER[4],  # gauntlet
         (64, 224, 255): PURPLE[1],                                                   # gems
         (200, 160, 72): GOLD[0], (232, 176, 48): GOLD[1]}),                          # cuff
-    # the Doomed Realms T15 staff, its own sprite recoloured (tools/port_doomed.py TEXTURE_OVERRIDES)
+    # the T15 staff, its old sprite recoloured (its <Texture> in DoomedRealms.xml points here)
     ("Staff of Endless Energy", "kabam/rotmg/assets/doomed/images/lofiObj5.png", 0xbe, {
         (247, 251, 53): SILVER[3],                                                   # shaft
         (103, 51, 171): PURPLE[0], (75, 73, 207): PURPLE[1], (23, 157, 35): PURPLE[2],  # grip, head, core

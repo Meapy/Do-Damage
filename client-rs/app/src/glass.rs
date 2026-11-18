@@ -9,11 +9,14 @@
 //!
 //! Its Watch button opens the big view (`Spectate` 2): the picture over most of the screen, arrows
 //! (and the arrow keys) to step through everyone who can be watched (3, 4), and beside it a chat
-//! of the watchers' own (`SpectateSay`, `SpectateChat`). Closing it (5) gives the choice back to
-//! the glass. Players keep themselves off it with `/glass off`.
+//! of the watchers' own (`SpectateSay`, `SpectateChat`), whose lines also reach the player each
+//! speaker watches (a `Text` to `*Glass*`). Tabs over the chat switch it to the game's own
+//! channels (All, Local, Guild, Party), to read and talk in them without closing the view.
+//! Closing it (5) gives the choice back to the glass. Players keep themselves off it with
+//! `/glass off`.
 
 use crate::ground::Ground;
-use crate::hud::{Layout, Ui};
+use crate::hud::{ChatChannel, Layout, Ui};
 use crate::i18n::{tf, tn, tr};
 use crate::redraw::Redrawer;
 use crate::sprites::Sprites;
@@ -144,7 +147,38 @@ enum Hit {
     Next,
     /// Stay on the one shown, or let the glass pick again.
     Stay,
+    Tab(Tab),
 }
+
+/// What the big view's chat shows and where a line typed in it goes: the watchers' own chat, or
+/// one of the game's channels.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum Tab {
+    #[default]
+    Watchers,
+    Game(ChatChannel),
+}
+
+impl Tab {
+    const ALL: [Tab; 5] = [Tab::Watchers, Tab::Game(ChatChannel::All), Tab::Game(ChatChannel::Local), Tab::Game(ChatChannel::Guild), Tab::Game(ChatChannel::Party)];
+
+    fn label(self) -> &'static str {
+        match self {
+            Tab::Watchers => tr("Watchers"),
+            Tab::Game(c) => c.label(),
+        }
+    }
+
+    fn colour(self) -> u32 {
+        match self {
+            Tab::Watchers => crate::hud::GLASS_COLOUR,
+            Tab::Game(c) => c.colour(),
+        }
+    }
+}
+
+/// A chat row: the rank star leading it (a line's first row only), and its coloured pieces.
+type Row = (Option<i32>, Vec<(String, u32, bool)>);
 
 /// The glass: the picture, and the big view.
 #[derive(Default)]
@@ -158,11 +192,15 @@ pub struct Glass {
     /// The big view is open.
     pub open: bool,
     chat: Vec<ChatLine>,
+    /// The chat's tab.
+    tab: Tab,
     /// Rows scrolled up from the newest.
     chat_scroll: usize,
     input: LineEdit,
     out: Vec<u8>,
     said: Vec<String>,
+    /// Lines typed on one of the game's channels, as sent (`/all ...`).
+    game_said: Vec<String>,
     hits: Vec<(Hit, [f32; 4])>,
     rect: Option<[f32; 4]>,
     /// When we last looked for the glass in the world, and the answer.
@@ -182,24 +220,33 @@ pub fn picture_show(show: Show) -> Show {
 }
 
 impl Glass {
-    /// A new connection: the server has forgotten us.
+    /// A new connection: the server has forgotten us. The tab picked stays.
     pub fn reset(&mut self) {
-        let chat = std::mem::take(&mut self.chat);
-        *self = Glass { chat, ..Glass::default() };
+        *self = Glass { tab: self.tab, ..Glass::default() };
     }
 
-    /// The messages to send (`Game::glass`).
-    pub fn take_out(&mut self) -> (Vec<u8>, Vec<String>) {
-        (std::mem::take(&mut self.out), std::mem::take(&mut self.said))
+    /// The messages to send: the glass's asks and the watchers' lines (`Game::glass`), and the
+    /// lines for the game's own chat.
+    pub fn take_out(&mut self) -> (Vec<u8>, Vec<String>, Vec<String>) {
+        (std::mem::take(&mut self.out), std::mem::take(&mut self.said), std::mem::take(&mut self.game_said))
     }
 
-    /// Opens the big view (the glass's Watch button).
+    /// Opens the big view (the glass's Watch button). The server sends the chat's last lines
+    /// each time it opens, so what we had is dropped rather than shown twice.
     pub fn show(&mut self) {
         if !self.open {
             self.open = true;
             self.watching = true;
+            self.chat.clear();
             self.chat_scroll = 0;
             self.out.push(2);
+        }
+    }
+
+    fn pick_tab(&mut self, tab: Tab) {
+        if tab != self.tab {
+            self.tab = tab;
+            self.chat_scroll = 0;
         }
     }
 
@@ -248,7 +295,7 @@ impl Glass {
                 self.status = Some(s.clone());
             }
             ServerMessage::SpectateChat(c) => {
-                if self.chat_scroll > 0 {
+                if self.chat_scroll > 0 && self.tab == Tab::Watchers {
                     self.chat_scroll += 1;
                 }
                 self.chat.push(ChatLine { kind: c.kind, name: c.name.clone(), stars: c.stars, name_color: c.name_color, text: c.text.clone() });
@@ -385,21 +432,32 @@ impl Glass {
     }
 
     pub fn scroll(&mut self, rows: i32) {
-        self.chat_scroll = (self.chat_scroll as i32 + rows).clamp(0, self.chat.len() as i32) as usize;
+        // (drawing holds it to the rows there are)
+        self.chat_scroll = (self.chat_scroll as i32 + rows).clamp(0, 100_000) as usize;
     }
 
     /// A key while the big view is open: it types into the chat, but for Escape, Enter (send),
-    /// Page Up and Down (the chat) and the arrows (the players, while nothing is typed).
+    /// Tab (the chat's next tab, Shift+Tab the one before), Page Up and Down (the chat) and the
+    /// arrows (the players, while nothing is typed).
     pub fn key(&mut self, code: KeyCode, text: Option<&str>, ctrl: bool, shift: bool) {
         match code {
             KeyCode::Escape => self.close(),
             KeyCode::Enter | KeyCode::NumpadEnter => {
                 let line = std::mem::take(&mut self.input.text);
                 self.input = LineEdit::new("", CHAT_MAX);
-                if !line.trim().is_empty() {
-                    self.said.push(line.trim().to_owned());
+                let line = line.trim();
+                if !line.is_empty() {
+                    match self.tab {
+                        Tab::Watchers => self.said.push(line.to_owned()),
+                        Tab::Game(c) => self.game_said.push(c.send_line(line)),
+                    }
                     self.chat_scroll = 0;
                 }
+            }
+            KeyCode::Tab => {
+                let i = Tab::ALL.iter().position(|t| *t == self.tab).unwrap_or(0);
+                let n = Tab::ALL.len();
+                self.pick_tab(Tab::ALL[if shift { (i + n - 1) % n } else { (i + 1) % n }]);
             }
             KeyCode::ArrowLeft if self.input.text.is_empty() => self.out.push(4),
             KeyCode::ArrowRight if self.input.text.is_empty() => self.out.push(3),
@@ -436,6 +494,7 @@ impl Glass {
             Some(Hit::Close) => self.close(),
             Some(Hit::Prev) => self.out.push(4),
             Some(Hit::Next) => self.out.push(3),
+            Some(Hit::Tab(tab)) => self.pick_tab(tab),
             Some(Hit::Stay) => {
                 let picked = self.status.as_ref().is_some_and(|s| s.picked);
                 self.out.push(if picked { 7 } else { 6 });
@@ -449,7 +508,8 @@ impl Glass {
     }
 
     /// The big view, over most of the world.
-    pub fn draw_big(&mut self, ui: &mut Ui, lay: &Layout, show: Show, mouse: (f64, f64), now: i32) {
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw_big(&mut self, ui: &mut Ui, lay: &Layout, show: Show, game_chat: &[crate::hud::ChatLine], me: &str, mouse: (f64, f64), now: i32) {
         self.hits.clear();
         if !self.open {
             self.rect = None;
@@ -557,62 +617,102 @@ impl Glass {
         let kw = ui.measure(keys, ss, false).min(pic[2] * 0.38);
         ui.label_fit(keys, pic[0] + pic[2] - kw, fy, kw, ss, false, color::TEXT_MUTED);
 
-        self.draw_chat(ui, [r[0] + r[2] - pad - chat_w, top, chat_w, r[1] + r[3] - top - pad], s, now);
+        self.draw_chat(ui, [r[0] + r[2] - pad - chat_w, top, chat_w, r[1] + r[3] - top - pad], s, game_chat, me, mouse, now);
     }
 
-    /// The watchers' chat: its lines, newest at the foot, over the line being typed.
-    fn draw_chat(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, now: i32) {
+    /// The chat: its tabs along the top, its lines (the watchers' or the game channel's picked),
+    /// newest at the foot, over the line being typed.
+    #[allow(clippy::too_many_arguments)]
+    fn draw_chat(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, game_chat: &[crate::hud::ChatLine], me: &str, mouse: (f64, f64), now: i32) {
         theme::rounded(ui.renderer, r, 10.0 * s, (color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0));
         let pad = 12.0 * s;
-        let hs = (14.0 * s).round().max(9.0);
-        ui.label(tr("Watchers' chat"), r[0] + pad, r[1] + pad, hs, true, color::TEXT);
+        let width = r[2] - 2.0 * pad;
+
+        // the tabs, sharing the width by their labels' lengths
+        let ts = (12.0 * s).round().max(9.0);
+        let tab_h = (ts * 2.2).round();
+        let gap = 3.0 * s;
+        let natural: Vec<f32> = Tab::ALL.iter().map(|t| ui.measure(t.label(), ts, true) + 16.0 * s).collect();
+        let k = (width - gap * (Tab::ALL.len() - 1) as f32) / natural.iter().sum::<f32>();
+        let mut x = r[0] + pad;
+        let ty = r[1] + pad;
+        for (tab, w) in Tab::ALL.into_iter().zip(natural) {
+            let w = w * k;
+            let rect = [x, ty, w, tab_h];
+            let (picked, over) = (tab == self.tab, inside(rect, mouse));
+            let rgb = tab.colour();
+            theme::fill(ui.renderer, rect, 6.0 * s, if picked { rgb } else { 0xFFFFFF }, if picked { 0.2 } else if over { 0.08 } else { 0.03 });
+            if picked {
+                theme::fill(ui.renderer, [x + 4.0 * s, ty + tab_h - 2.0 * s, w - 8.0 * s, 2.0 * s], s, rgb, 0.95);
+            }
+            let lw = ui.measure(tab.label(), ts, true).min(w - 6.0 * s);
+            let text = if picked { rgb } else if over { color::TEXT } else { color::TEXT_DIM };
+            ui.label_fit(tab.label(), x + (w - lw) / 2.0, ty + (tab_h - ts * 1.22) / 2.0, lw, ts, true, text);
+            self.hits.push((Hit::Tab(tab), rect));
+            x += w + gap;
+        }
+
         let size = (13.0 * s).round().max(9.0);
         let line_h = (size * 1.35).round();
-        let field = [r[0] + pad, r[1] + r[3] - pad - 32.0 * s, r[2] - 2.0 * pad, 32.0 * s];
+        let field = [r[0] + pad, r[1] + r[3] - pad - 32.0 * s, width, 32.0 * s];
         ui.field_box(field, true, s);
         if self.input.max == 0 {
             self.input = LineEdit::new("", CHAT_MAX);
         }
         let inner = [field[0] + 10.0 * s, field[1], field[2] - 20.0 * s, field[3]];
-        crate::hud::draw_line_edit(ui, &self.input, inner, size, tr("Say something to the other watchers…"), now);
+        let placeholder = match self.tab {
+            Tab::Watchers => tr("Say something to the other watchers…"),
+            Tab::Game(_) => tr("Say something, or /help"),
+        };
+        crate::hud::draw_line_edit(ui, &self.input, inner, size, placeholder, now);
 
-        // the lines, wrapped to the column: only the newest, as many as fit above those scrolled
-        // past, newest last
-        let width = r[2] - 2.0 * pad;
+        // the lines, wrapped to the column, newest first until the column and those scrolled
+        // past are filled
         let classes = crate::stars::class_count(ui.data);
-        let top = r[1] + pad + hs * 1.6;
+        let star_k = size / 16.0;
+        let star_w = 18.0 * star_k;
+        let top = ty + tab_h + 10.0 * s;
         let fit = (((field[1] - 8.0 * s - top) / line_h).floor().max(1.0)) as usize;
-        let mut rows: Vec<(Option<(i32, String, u32)>, String, u32)> = Vec::new();
-        let mut first = self.chat.len();
-        let mut wanted = 0;
-        while first > 0 && wanted < fit + self.chat_scroll {
-            first -= 1;
-            // each line is a row at least, so this many lines fill the column
-            wanted += 1;
-        }
-        for line in &self.chat[first..] {
-            match line.kind {
-                0 => {
-                    let name_rgb = match line.name_color & 0xFF_FFFF {
-                        0 | 0x123456 => color::GOLD,
-                        c => c as u32,
+        let need = fit + self.chat_scroll;
+        let mut rows: Vec<Row> = Vec::new();
+        let add = |ui: &mut Ui, rows: &mut Vec<Row>, star: Option<i32>, pieces: Vec<(String, u32, bool)>| {
+            let wrapped = crate::hud::wrap(ui, &pieces, size, width, if star.is_some() { star_w } else { 0.0 });
+            for (i, row) in wrapped.into_iter().enumerate().rev() {
+                rows.push((if i == 0 { star } else { None }, row));
+            }
+        };
+        match self.tab {
+            Tab::Watchers => {
+                for line in self.chat.iter().rev() {
+                    if rows.len() >= need {
+                        break;
+                    }
+                    let (star, pieces) = match line.kind {
+                        0 => {
+                            let name_rgb = match line.name_color & 0xFF_FFFF {
+                                0 | 0x123456 => color::GOLD,
+                                c => c as u32,
+                            };
+                            (Some(line.stars), vec![(format!("{}: ", line.name), name_rgb, false), (line.text.clone(), color::TEXT, false)])
+                        }
+                        kind => {
+                            let text = if kind == 1 { tf!("{name} is watching.", name = line.name) } else { tf!("{name} stopped watching.", name = line.name) };
+                            (None, vec![(text, color::TEXT_MUTED, false)])
+                        }
                     };
-                    let lead = format!("{}: ", line.name);
-                    let lead_w = ui.measure(&lead, size, true) + 18.0 * s;
-                    let wrapped = crate::screens::wrap(ui, &line.text, size, width - lead_w);
-                    for (i, row) in wrapped.into_iter().enumerate() {
-                        let head = (i == 0).then(|| (line.stars, lead.clone(), name_rgb));
-                        rows.push((head, row, color::TEXT));
-                    }
+                    add(ui, &mut rows, star, pieces);
                 }
-                kind => {
-                    let text = if kind == 1 { tf!("{name} is watching.", name = line.name) } else { tf!("{name} stopped watching.", name = line.name) };
-                    for row in crate::screens::wrap(ui, &text, size, width) {
-                        rows.push((None, row, color::TEXT_MUTED));
+            }
+            Tab::Game(channel) => {
+                for line in game_chat.iter().rev().filter(|l| crate::hud::channel_of(l) == channel) {
+                    if rows.len() >= need {
+                        break;
                     }
+                    add(ui, &mut rows, (line.stars >= 0).then_some(line.stars), line.pieces(me));
                 }
             }
         }
+        rows.reverse();
         self.chat_scroll = self.chat_scroll.min(rows.len().saturating_sub(fit));
         let end = rows.len() - self.chat_scroll;
         let start = end.saturating_sub(fit);
@@ -621,19 +721,16 @@ impl Glass {
             ui.label_fit(hint, r[0] + pad, top, width, size, false, color::TEXT_MUTED);
         }
         let mut y = field[1] - 8.0 * s - (end - start) as f32 * line_h;
-        for (head, text, rgb) in &rows[start..end] {
+        for (star, pieces) in &rows[start..end] {
             let mut x = r[0] + pad;
-            if let Some((stars, lead, name_rgb)) = head {
-                let k = size / 16.0;
-                crate::stars::icon(ui.renderer, x + 8.0 * k, y + size * 0.62, k, crate::stars::color(*stars, classes));
-                x += 18.0 * s;
-                ui.label(lead, x, y, size, true, *name_rgb);
-                x += ui.measure(lead, size, true);
-            } else if !matches!(rgb, &color::TEXT_MUTED) {
-                // a wrapped row lines up under the text
-                x += 18.0 * s;
+            if let Some(stars) = *star {
+                crate::stars::icon(ui.renderer, x + 8.0 * star_k, y + size * 0.62, star_k, crate::stars::color(stars, classes));
+                x += star_w;
             }
-            ui.label(text, x, y, size, false, *rgb);
+            for (piece, rgb, _) in pieces {
+                ui.label_rich(piece, x, y, size, *rgb, now);
+                x += ui.measure_rich(piece, size);
+            }
             y += line_h;
         }
         if self.chat_scroll > 0 {

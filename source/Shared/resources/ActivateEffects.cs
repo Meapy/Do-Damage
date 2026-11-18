@@ -50,7 +50,7 @@
         MonsterToss,
         PartyAOE,
         MiniPot,
-        Halo,
+        Forcefield,
         SamuraiAbility,
         Summon,
         TomeDamage,
@@ -73,6 +73,9 @@
         ArmorShred,
         OvercapStat,
         // the Necromantic Relic: raises a fallen Elder boss beside its remains (BossResurrection)
-        Resurrect
+        Resurrect,
+        // the Father's censers: a grey ward over him and his allies that takes damage before their
+        // health does (Player.Ward.cs)
+        Ward
     }
 }

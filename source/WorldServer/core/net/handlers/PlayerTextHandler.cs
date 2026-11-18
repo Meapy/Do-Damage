@@ -41,6 +41,12 @@ namespace WorldServer.core.net.handlers
             // check for commands before other checks
             if (channel == null && text[0] == '/')
             {
+                // a ghost only talks (Player.Grave.cs)
+                if (player.Ghost && !Player.GhostCommands.Contains(manager.CommandManager.NameOf(text) ?? ""))
+                {
+                    player.SendError("Ghosts can only talk. Continue to your death screen to play on.");
+                    return;
+                }
                 manager.CommandManager.Execute(player, tickTime, text);
                 return;
             }
@@ -70,8 +76,9 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
-            // save message for mob behaviors
-            player.World.ChatReceived(player, body);
+            // save message for mob behaviors (a ghost's words don't reach them)
+            if (!player.Ghost)
+                player.World.ChatReceived(player, body);
 
             if (channel == "all")
                 manager.ChatManager.All(player, body);

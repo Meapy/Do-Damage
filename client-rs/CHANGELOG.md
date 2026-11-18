@@ -12,6 +12,24 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.0 (2026-11-18)
+
+### Game
+- When you die you rise as a ghost from your grave instead of leaving at once: for up to 10 minutes you can drift through walls, follow the players still in sight, watch, chat and ping, until you press Continue for your fame summary. Everyone sees your ghost, pale and see-through; nothing can hurt it, and it can't fight, loot or trade. Options, Gameplay can turn it off.
+
+### Classes
+- The Father swings censers instead of tomes, Tin Censer at T0 up to the Censer of the Last Rite at T8: each lays a grey ward over him and his allies that takes the damage of every hit before their health does, until it breaks or its time is up. The ward shows in grey over the HP bar and as a shell of steel plates round each player, losing a plate for every blow it soaks, with smoke, a turning sigil and plates locking into place as it's raised, sparks as it's struck and a shatter when it breaks. The Censer of the Last Rite's ward bursts into shards that hit every enemy nearby when it breaks. A Father's old tome moves into his inventory.
+- The Ascendant's halos raise a forcefield instead of healing: you and every ally standing in it take less damage from each hit while it lasts, 2% with the Worn Halo up to 10% with the Halo of the Archangel. The field is 1.5 tiles smaller than the old healing circle, and it looks the part: the halo falls from the sky in a column of light, a shimmering dome of hexagons opens out with a ring of hex cells turning at its heart, it flares round anyone it shields from a blow, and it shatters as it fades. Every halo has a new look, and its forcefield takes its colours: a worn iron field that stutters, rust that flakes away, bronze with verdigris, silver, gold, jade with drifting petals, God's Blessing's turning shafts of light, the Seraphim's ring of flame and the Archangel's violet dome with stars wheeling round it.
+
+### Dungeons
+- The Elder Cemetery: half the time the Ghost of Skuld opens the Haunted Cemetery's Elder version, four worlds of Elder monsters with a key of its own. The Ghost Bride dances a Last Waltz, the Grave Caretaker holds a Last Burial and Skuld sings a Requiem instead of dying at a tenth of his health. Each drops a Potion of Max (Speed, Wisdom, Vitality), and each can be raised with a Necromantic Relic for two new attack phases and an item for a class that had none: the Ascendant's Halo of the Ghost Bride (its forcefield saves an ally from a killing blow, once every 45 seconds each), the Father's Gravekeeper's Censer (three blue grave-flames that fly at nearby enemies and burst) and the Assassin's Pestilence of Skuld, the strongest poison yet, whose plague spreads to the enemies around one that dies of it.
+
+### Nexus
+- The Scrying Glass's chat no longer repeats old lines when you open it again, the player being watched now sees what the watchers say (marked Scrying Glass in their chat), and tabs over the chat switch between the watchers' chat and All, Local, Guild and Party, so you can read and talk in them while you watch.
+
+### Website
+- The wiki no longer labels classes, items and pets as coming from another server, and the Party Balloons' description now welcomes you to Do Damage.
+
 ## 2.5.12 (2026-11-16)
 
 ### Nexus

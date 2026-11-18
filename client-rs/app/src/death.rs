@@ -9,7 +9,7 @@ use crate::theme::{self, color};
 use bsk_render::Renderer;
 
 /// The vignette's red, deep and dark.
-const BLOOD: u32 = 0x2A0008;
+pub(crate) const BLOOD: u32 = 0x2A0008;
 
 /// Eased out: quick at first, settling.
 fn ease(u: f32) -> f32 {
