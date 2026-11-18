@@ -71,6 +71,8 @@ RS_ONLY_SETS = [
     ("enthronedItems8x8", "kabam/rotmg/assets/custom/images/EnthronedItems8x8.png", 8, 8),
     # the Fists, T0 to T15 (Cloth Hand Wraps to Fists of the Ascended), a cell each, hand-drawn by the owner
     ("fistsItems8x8", "kabam/rotmg/assets/custom/images/FistsItems8x8.png", 8, 8),
+    # the Ascendant's halos, tier 0 to 8, a cell each (tools/draw_halos.py)
+    ("ascendantHalos16x16", "kabam/rotmg/assets/custom/images/AscendantHalos16x16.png", 16, 16),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),

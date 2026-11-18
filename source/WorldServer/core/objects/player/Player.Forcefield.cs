@@ -11,13 +11,17 @@ namespace WorldServer.core.objects
         private int _shieldPercent;
         private long _shieldUntil;
         private long _shieldFxAt;
+        private uint _shieldColor = Forcefield.COLOR;
 
         // in a forcefield for the next `holdMs`; of several overlapping, the strongest counts
-        public void Shield(int percent, int holdMs)
+        public void Shield(int percent, int holdMs, uint color = Forcefield.COLOR)
         {
             var now = Environment.TickCount64;
             if (now >= _shieldUntil || percent >= _shieldPercent)
+            {
                 _shieldPercent = percent;
+                _shieldColor = color;
+            }
             _shieldUntil = Math.Max(_shieldUntil, now + holdMs);
         }
 
@@ -39,7 +43,7 @@ namespace WorldServer.core.objects
                 World.BroadcastIfVisible(new ShowEffect
                 {
                     EffectType = EffectType.Relic, TargetObjectId = Id, Pos1 = at,
-                    Pos2 = new Position(0.9f, Forcefield.LOOK_BLOCK), Color = new ARGB(Forcefield.COLOR),
+                    Pos2 = new Position(0.9f, Forcefield.LOOK_BLOCK), Color = new ARGB(_shieldColor),
                     SourceId = Id,
                 }, ref at);
             }

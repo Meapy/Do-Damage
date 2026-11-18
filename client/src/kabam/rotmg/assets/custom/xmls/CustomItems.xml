@@ -1203,8 +1203,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x106</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x7</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>7</Tier>
@@ -1227,8 +1227,8 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x106</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x8</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Tier>8</Tier>

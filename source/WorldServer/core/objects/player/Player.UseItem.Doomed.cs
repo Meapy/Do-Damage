@@ -122,10 +122,10 @@ namespace WorldServer.core.objects
         }
 
         // Ascendant halos: a forcefield left where it was cast, taking Amount percent off every hit
-        // the players inside it take (Forcefield.cs).
+        // the players inside it take (Forcefield.cs), in the colour of the halo's tier.
         private void AEForcefield(TickTime time, Item item, Position target, ActivateEffect eff)
         {
-            var field = new Forcefield(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000);
+            var field = new Forcefield(this, eff.Range, eff.Amount, eff.DurationMS > 0 ? eff.DurationMS : 8000, Forcefield.ColorOf(item.Tier));
             field.Move(X, Y);
             field.Z = Z;
             World.EnterWorld(field);

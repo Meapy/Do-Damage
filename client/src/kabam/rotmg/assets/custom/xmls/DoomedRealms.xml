@@ -11612,7 +11612,7 @@
 	</Object>
 	<Object type="0xD249" id="Ascendant">
 		<Class>Player</Class>
-		<Description>A guardian of the heavens who raises golden forcefields that turn aside the blows meant for those inside them.</Description>
+		<Description>A guardian of the heavens who raises forcefields, in the colour of the halo, that turn aside the blows meant for those inside them.</Description>
 		<AnimatedTexture>
 			<File>drPlayers</File>
 			<Index>18</Index>
@@ -11957,8 +11957,8 @@
 		<Item />
 		<Tier>0</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x100</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x0</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>An old halo that could be mistaken for scrap metal. Its forcefield flickers, but it holds.</Description>
@@ -11989,8 +11989,8 @@
 		<Item />
 		<Tier>1</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x101</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x1</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>Someone left their halo lying around in the rain. Its forcefield still crackles to life.</Description>
@@ -12006,8 +12006,8 @@
 		<Item />
 		<Tier>2</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x102</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x2</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>A halo made out of bronze. It's surprisingly sturdy, and so is the forcefield it raises.</Description>
@@ -12023,8 +12023,8 @@
 		<Item />
 		<Tier>3</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x103</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x3</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>A halo made of silver whose forcefield shields all who come near it.</Description>
@@ -12041,8 +12041,8 @@
 		<Item />
 		<Tier>4</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x104</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x4</Index>
 		</Texture>
 		<FameBonus>2</FameBonus>
 		<SlotType>126</SlotType>
@@ -12059,8 +12059,8 @@
 		<Item />
 		<Tier>5</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x105</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x5</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>A divine halo whose forcefield shelters anyone with good intentions from those with evil ones.</Description>
@@ -12077,8 +12077,8 @@
 		<Item />
 		<Tier>6</Tier>
 		<Texture>
-			<File>drLofiObj6</File>
-			<Index>0x106</Index>
+			<File>ascendantHalos16x16</File>
+			<Index>0x6</Index>
 		</Texture>
 		<SlotType>126</SlotType>
 		<Description>A halo once worn by one of the greatest angels of all time. No blow of evil passes its forcefield unblunted.</Description>
