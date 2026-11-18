@@ -1,4 +1,4 @@
-Release 2.5.13
+Release 2.6.0 (client, servers and gateway deploy; players are not disconnected)
 
 ## For players
 

@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.0 (2026-11-18)
 
 ### Game
 - When you die you rise as a ghost from your grave instead of leaving at once: for up to 10 minutes you can drift through walls, follow the players still in sight, watch, chat and ping, until you press Continue for your fame summary. Everyone sees your ghost, pale and see-through; nothing can hurt it, and it can't fight, loot or trade. Options, Gameplay can turn it off.
