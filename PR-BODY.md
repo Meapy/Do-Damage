@@ -10,8 +10,16 @@ Release 2.5.13
   - **Pestilence of Skuld** (Assassin): the strongest poison, 585 on impact and 2,604 over 6 seconds in a 7.5-tile cloud, and its **Contagion**: an enemy that dies of it bursts into a new cloud that poisons those nearby at half strength, up to three times a throw.
 - **Website:** the wiki no longer labels classes, items and pets "From Doomed Realms": its class page groups them as "The newer classes", the dungeons page as "Minigames and more dungeons", and the home page's tile is "More to play". The Party Balloons' description welcomes players to Do Damage instead of another server.
 - **Game:** dying no longer throws you straight out. Once "You died" has been told, you **rise as a ghost** from your grave, pale, see-through and glowing faintly blue, with soul motes drifting up round you, and the world turns cold and grey. For up to 10 minutes you can drift anywhere with the movement keys (through walls, over water and lava), **follow a player** still in sight (the banner's arrows step through them, guildmates first, and your ghost glides after them), chat, whisper, use guild and party chat (your words show pale blue) and ping. Everyone sees your ghost. Nothing can hurt it, enemies ignore it, and it can't shoot, use items, loot, trade, teleport or take portals. **Continue** on the banner (or the Nexus key) fades into the usual fame summary; the ghost also moves on when its time is up or its world closes. Options, Gameplay, "Stay as a ghost when you die" turns it off.
+- **Nexus:** the **Scrying Glass**'s chat is fixed and grows. Opening the big view again no longer shows the last lines a second time (each time it opened, the 30 lines it keeps were added again). Whatever a watcher says now also reaches the player they're watching, in that player's own chat as a violet "[Scrying Glass] <name>" line (not if that player ignores the watcher). And tabs over the chat (Watchers, All, Local, Guild, Party; Tab and Shift+Tab step through them) show the game's own channels and send what you type there, so you can keep talking to your guild or party, or the Nexus, while you watch.
 
 ## Details
+
+### Scrying Glass chat
+
+- **What changed (servers):** `SpectatorHub.Chat` also sends the line as a `Text` with recipient `*Glass*` to the player the speaker is watching (`Tell`: by account, only while that player can be shown, not to one who ignores the speaker, never to the speaker).
+- **What changed (Rust client):** the repeats came from the client keeping its chat lines across closing the big view while the server sends its history again on every open: `Glass::show` now clears them first. `glass.rs` has a `Tab` (Watchers, or a `hud::ChatChannel`): the game's lines are filtered by `hud::channel_of` (`*All*`, `*Guild*`, `*Party*`, the rest Local), rows are wrapped with `hud::wrap` as the main chat's are (emotes too), and lines typed on a game tab go out through the main chat (`chat_send`, as `ChatChannel::send_line`). `hud.rs` draws `*Glass*` lines with the prefix and `GLASS_COLOUR`. The "Watchers' chat" heading became the "Watchers" tab (all 10 tables).
+- **Deploys:** client and world server. Nobody is disconnected; no Redis changes. An older client shows a `*Glass*` line as a whisper from the watcher; an older server simply doesn't send them.
+- **Wiki:** `website/wiki/getting-started.md` (the Scrying Glass paragraph).
 
 ### Lingering at the grave
 
@@ -63,6 +71,8 @@ Release 2.5.13
 - **Not done:** the censers use the tome's heal sound; the AIR client doesn't register the sprite sheet. The Last Rite's burst was not seen hitting an enemy in a test (it builds and the ward's breaks were logged; no errors).
 
 ## Checks
+
+- **Scrying Glass chat:** `cargo test -p bsk-client` (104 passed, with the language tables and the new `glass_lines_are_marked_and_local`), `dotnet build` of WorldServer. Isolated stack (slot 125), a bot (`Watchee`) in the Godlands and the client (`Watcher`) with `--npc ScryingGlass --type`: the bot's log shows `chat <Watcher> hello from the glass`; `--shot`s show the line under the Watchers tab, and after a `--mouse-script` click on Local, the Nexus's lines and the `--say` line there. Reopening the view (the duplicate fix) was checked by reading the code path, not in a run.
 
 - Elder Cemetery: server tests (305, three new in `ElderDungeonsTests.cs`), client tests; on an isolated stack, ran arena 1's waves to the Elder Troll Matriarch and the Elder Gates portal, entered it, saw the Elder Skuld's Requiem at 10%, and raised all three (`/empower`) to see each signature phase fire; the four new looks with `--effect 239`-`242`; built the wiki.
 

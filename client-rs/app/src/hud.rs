@@ -403,12 +403,12 @@ impl Ui<'_> {
     }
 
     /// Like `measure`, with emotes as pictures.
-    fn measure_rich(&mut self, s: &str, size: f32) -> f32 {
+    pub(crate) fn measure_rich(&mut self, s: &str, size: f32) -> f32 {
         crate::emotes::measure(self.sprites, self.fonts, self.text, self.renderer, s, Style { size, bold: false, color: 0 })
     }
 
     /// Like `label`, with emotes as pictures.
-    fn label_rich(&mut self, s: &str, x: f32, y: f32, size: f32, color: u32, now: i32) {
+    pub(crate) fn label_rich(&mut self, s: &str, x: f32, y: f32, size: f32, color: u32, now: i32) {
         crate::emotes::draw(self.sprites, self.fonts, self.text, self.renderer, s, x, y, Style { size, bold: false, color }, now);
     }
 
@@ -4095,6 +4095,11 @@ impl ChatLine {
             "*Guild*" => (name_color, text_color) = (0xA6FF5D, 0xA6FF5D),
             "*Party*" => (name_color, text_color) = (0x78A0FF, 0x78A0FF),
             "*All*" => (name_color, text_color) = (0xF5C77E, 0xF5C77E),
+            // a watcher's line in the Scrying Glass's chat while it shows us
+            "*Glass*" => {
+                text_color = GLASS_COLOUR;
+                out.push((format!("[{}] ", tr("Scrying Glass")), GLASS_COLOUR, false));
+            }
             to => {
                 (name_color, text_color) = (0x00F0FF, 0x00F0FF);
                 if self.name == me {
@@ -4207,7 +4212,7 @@ impl ChatChannel {
         }
     }
 
-    fn label(self) -> &'static str {
+    pub(crate) fn label(self) -> &'static str {
         match self {
             ChatChannel::All => tr("All"),
             ChatChannel::Local => tr("Local"),
@@ -4304,6 +4309,20 @@ fn draw_chat_tabs(ui: &mut Ui, r: [f32; 4], channel: ChatChannel, mouse: (f32, f
         clicks.push(ChatClick { target: ChatClickTarget::Channel(c), rect: [t[0], t[1], t[2], r[1] - t[1]] });
     }
     top
+}
+
+/// The colour of what the Scrying Glass's watchers say to the player it shows.
+pub const GLASS_COLOUR: u32 = 0xB8A4FF;
+
+/// Which channel a line of the chat came by: `*All*`, `*Guild*` and `*Party*` theirs, the rest
+/// (plain lines, whispers, the server's own, the Scrying Glass's) Local.
+pub fn channel_of(line: &ChatLine) -> ChatChannel {
+    match line.recipient.as_str() {
+        "*All*" => ChatChannel::All,
+        "*Guild*" => ChatChannel::Guild,
+        "*Party*" => ChatChannel::Party,
+        _ => ChatChannel::Local,
+    }
 }
 
 /// How long a chat line stays up while the input is closed, ms.
@@ -4684,7 +4703,7 @@ pub fn draw_visit(ui: &mut Ui, lay: &Layout, v: &crate::game::VisitAsk, now: i32
 
 /// Break coloured pieces into rows no wider than `max_w`, at spaces where possible; the first
 /// row starts `indent` in.
-fn wrap(
+pub(crate) fn wrap(
     ui: &mut Ui,
     pieces: &[(String, u32, bool)],
     size: f32,
@@ -4728,6 +4747,20 @@ fn wrap(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn glass_lines_are_marked_and_local() {
+        let line = |recipient: &str| ChatLine { name: "Seer".into(), recipient: recipient.into(), text: "nice dodge".into(), name_color: 0, text_color: 0, stars: 3, at: 0 };
+        let pieces = line("*Glass*").pieces("Me");
+        assert_eq!(pieces[0].0, "[Scrying Glass] ");
+        assert_eq!(pieces[1].0, "<Seer> ");
+        assert_eq!(pieces[2], ("nice dodge".to_owned(), GLASS_COLOUR, false));
+        assert_eq!(channel_of(&line("*Glass*")), ChatChannel::Local);
+        assert_eq!(channel_of(&line("*All*")), ChatChannel::All);
+        assert_eq!(channel_of(&line("*Guild*")), ChatChannel::Guild);
+        assert_eq!(channel_of(&line("*Party*")), ChatChannel::Party);
+        assert_eq!(channel_of(&line("")), ChatChannel::Local);
+    }
 
     #[test]
     fn tooltip_credits_a_players_sprite() {

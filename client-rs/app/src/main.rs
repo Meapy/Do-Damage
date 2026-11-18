@@ -2968,10 +2968,12 @@ impl App {
                 self.right_clicks.clear();
                 self.mouse_down = false;
             }
-            let (glass_acts, said) = self.glass.take_out();
+            let (glass_acts, said, chat_lines) = self.glass.take_out();
             if !glass_acts.is_empty() || !said.is_empty() {
                 game.glass(glass_acts, said);
             }
+            // lines typed on the game's channels in the glass's chat
+            self.chat_send.extend(chat_lines);
             let mut community_acts = std::mem::take(&mut self.community_acts);
             if self.community.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
@@ -3496,7 +3498,7 @@ impl App {
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
-                self.glass.draw_big(&mut ui, &lay, show, mouse, now);
+                self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), mouse, now);
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);

@@ -24,6 +24,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Dungeons
 - The Elder Cemetery: half the time the Ghost of Skuld opens the Haunted Cemetery's Elder version, four worlds of Elder monsters with a key of its own. The Ghost Bride dances a Last Waltz, the Grave Caretaker holds a Last Burial and Skuld sings a Requiem instead of dying at a tenth of his health. Each drops a Potion of Max (Speed, Wisdom, Vitality), and each can be raised with a Necromantic Relic for two new attack phases and an item for a class that had none: the Ascendant's Halo of the Ghost Bride (its forcefield saves an ally from a killing blow, once every 45 seconds each), the Father's Gravekeeper's Censer (three blue grave-flames that fly at nearby enemies and burst) and the Assassin's Pestilence of Skuld, the strongest poison yet, whose plague spreads to the enemies around one that dies of it.
 
+### Nexus
+- The Scrying Glass's chat no longer repeats old lines when you open it again, the player being watched now sees what the watchers say (marked Scrying Glass in their chat), and tabs over the chat switch between the watchers' chat and All, Local, Guild and Party, so you can read and talk in them while you watch.
+
 ### Website
 - The wiki no longer labels classes, items and pets as coming from another server, and the Party Balloons' description now welcomes you to Do Damage.
 

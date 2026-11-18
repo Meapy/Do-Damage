@@ -54,7 +54,8 @@ namespace WorldServer.core.spectate
     /// to everyone in the Nexus whose client asks (SPECTATE 1, while the glass is in view). Its big
     /// view (SPECTATE 2) shows the same, with arrows through everyone who can be watched (3, 4), a
     /// button to stay on the one shown rather than follow the glass's picks (6, and 7 to follow again) and
-    /// a chat of its own between those watching (SPECTATE_SAY, SPECTATE_CHAT).
+    /// a chat of its own between those watching (SPECTATE_SAY, SPECTATE_CHAT), whose lines also reach
+    /// the player each speaker watches (TEXT to <c>*Glass*</c>).
     ///
     /// What a viewer is sent is the watched player's view, built on that player's world thread
     /// after their own update (<see cref="Feed"/>): the tiles, objects and stats their client
@@ -304,6 +305,37 @@ namespace WorldServer.core.spectate
                 return;
             StaticLogger.Instance.Info($"[Scrying Glass] {player.Name}: {text}");
             Say(new SpectateChat { Kind = 0, Name = player.Name, Stars = player.Stars, NameColor = NameColor(player), Text = text });
+            Tell(player, s.Target, text);
+        }
+
+        /// <summary>
+        /// A watcher's line also goes to the player they watch, in that player's own chat
+        /// (recipient <c>*Glass*</c>), so they know what's said about them while they're shown.
+        /// Not to someone who ignores the watcher, nor to the watcher themselves.
+        /// </summary>
+        private void Tell(Player from, int target, string text)
+        {
+            if (target == 0 || target == from.AccountId)
+                return;
+            foreach (var client in _server.ConnectionManager.Clients.Keys)
+            {
+                if (client.Account?.AccountId != target)
+                    continue;
+                var p = client.Player;
+                if (p == null || client.State == ProtocolState.Disconnected || !CanBeShown(p) || client.Account.IgnoreList.Contains(from.AccountId))
+                    return;
+                client.SendPacket(new Text
+                {
+                    ObjectId = -1,
+                    BubbleTime = 0,
+                    NumStars = from.Stars,
+                    Name = from.Name,
+                    Recipient = "*Glass*",
+                    Txt = text,
+                    NameColor = NameColor(from)
+                });
+                return;
+            }
         }
 
         // to everyone with the big view open; players' lines are kept for those who open it later
