@@ -350,7 +350,7 @@ ITEM_SPECS = {
         [("ConditionEffectSelf", {"effect": "Invisible", "duration": 5.5}), ("Teleport", {"maxDistance": 13})],
         [shot(0, "Sunspark", 250, 110, 700)], {}),
     "Vial of Cascading Dusk": (18, 90, 0, [("ATT", 3), ("WIS", 3)], "CascadeDusk",
-        _nb("Thrown, it splashes where it lands for 200, and 1,500 more over 6 s. The dusk spreads: four "
+        _nb("Thrown, it splashes where it lands for 400, and 3,000 more over 6 s. The dusk spreads: four "
             "splashes round it for half that, then four more beyond for half again, each a shade darker."),
         [], [], {}),
 }
@@ -366,10 +366,10 @@ TOOLTIPS = {
         ("Radius", "3.5 sqrs (rift 4)"),
     ],
     "Vial of Cascading Dusk": [
-        ("Splash", "200 + 1,500 over 6 secs"),
+        ("Splash", "400 + 3,000 over 6 secs"),
         ("Radius", "2.5 sqrs"),
-        ("4 round it", "100 + 750 over 6 secs"),
-        ("4 beyond", "50 + 375 over 6 secs"),
+        ("4 round it", "200 + 1,500 over 6 secs"),
+        ("4 beyond", "100 + 750 over 6 secs"),
         ("", "Damage over time ignores defense"),
     ],
 }

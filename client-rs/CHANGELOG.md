@@ -24,7 +24,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.
 
 ### Items
-- The Vial of Cascading Dusk and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
+- The Vial of Cascading Dusk hits twice as hard (400 where it lands and 3,000 over 6 seconds, the cascade's splashes in step) and has a new look: the vial tumbles through the air trailing dusk and stars, shatters in a flash of violet light, and its dusk runs out along the floor to each next splash, every splash leaving a pool of twilight under a ring of stars. It and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
 
 ## 2.6.0 (2026-11-18)
 

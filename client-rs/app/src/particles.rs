@@ -185,6 +185,9 @@ pub struct Particles {
     /// The last ward cast (`relic`, look 33): its Father and when. The plain blast the server
     /// sends with it, for older clients, isn't drawn.
     ward_on: Option<(i32, i32)>,
+    /// The last Vial of Cascading Dusk look (`relic`, looks 43 to 45): its thrower and when. The
+    /// plain throw and bursts the server sends with them, for older clients, aren't drawn.
+    dusk_on: Option<(i32, i32)>,
     /// The Father's wards on players, by player id (`relic`, looks 34 to 37), for the shell drawn
     /// round them (`ward.rs`).
     wards: HashMap<i32, WardLook>,
@@ -285,6 +288,7 @@ impl Particles {
         self.fields.clear();
         self.wards.clear();
         self.ward_on = None;
+        self.dusk_on = None;
         self.jitter_since = None;
     }
 
@@ -423,6 +427,9 @@ impl Particles {
             return;
         }
         if e.effect_type == 5 && self.ward_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
+            return;
+        }
+        if matches!(e.effect_type, 4 | 8) && self.dusk_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
             return;
         }
         if e.effect_type == 10 {

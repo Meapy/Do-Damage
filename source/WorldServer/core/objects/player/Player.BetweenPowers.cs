@@ -25,6 +25,28 @@ namespace WorldServer.core.objects
         // a thrown trap or vial lands in this long
         private const int ThrowMs = 1000;
 
+        // the Vial's own looks (ShowEffect Relic, drawn by the Rust client from 2.6.1:
+        // client-rs/app/src/particles/relic.rs, looks 43-45): the vial's flight, a splash (objectType:
+        // 0 the vial's, 1 the four round it, 2 the four beyond) and the dusk running out to the next
+        // splash (objectType its heading in degrees, radius how far). Sent before the plain throw and
+        // bursts older clients draw, which the new client then leaves out.
+        private const int DuskThrow = 43, DuskSplash = 44, DuskFlow = 45;
+
+        private void DuskFx(int look, Position at, float radius, uint color, int ms = 0, int objectType = 0) =>
+            World?.BroadcastIfVisible(new ShowEffect
+            {
+                EffectType = EffectType.Relic, TargetObjectId = Id, Pos1 = at, Pos2 = new Position(radius, look),
+                Color = new ARGB(color), Duration = ms, ObjectType = (ushort)objectType, SourceId = Id,
+            }, ref at);
+
+        // the dusk running from `from` to `to`, getting there in `ms`
+        private void DuskRun(Position from, Position to, uint color, int ms)
+        {
+            var (dx, dy) = (to.X - from.X, to.Y - from.Y);
+            var deg = (int)MathF.Round(MathF.Atan2(dy, dx) * 180 / MathF.PI);
+            DuskFx(DuskFlow, from, MathF.Sqrt(dx * dx + dy * dy), color, ms, (deg % 360 + 360) % 360);
+        }
+
         // the quiver's arrow in flight: which one, and whether it has burst
         private int _cycloneFlight;
         private bool _cycloneBurst;
@@ -140,25 +162,34 @@ namespace WorldServer.core.objects
                 case "CascadeDusk":
                 {
                     var at = pos;
+                    DuskFx(DuskThrow, at, 2.5f, DuskShades[0], ThrowMs);
                     Throw(at, DuskShades[0]);
                     Mark(at, 2.5f, ThrowMs, DuskShades[0]);
                     After(ThrowMs, (w, t) =>
                     {
-                        Splash(at, 2.5f, 1f, DuskShades[0], ref t);
+                        Splash(at, 2.5f, 1f, DuskShades[0], 0, ref t);
                         foreach (var a in Ring(4))
+                        {
+                            DuskRun(at, Out(at, a, 3.5f), DuskShades[1], 500);
                             Mark(Out(at, a, 3.5f), 3, 500, DuskShades[1]);
+                        }
                     });
                     After(ThrowMs + 500, (w, t) =>
                     {
                         foreach (var a in Ring(4))
-                            Splash(Out(at, a, 3.5f), 3, 0.5f, DuskShades[1], ref t);
+                        {
+                            Splash(Out(at, a, 3.5f), 3, 0.5f, DuskShades[1], 1, ref t);
+                            // each runs on to the two beyond it either side
+                            foreach (var side in new[] { -MathF.PI / 4, MathF.PI / 4 })
+                                DuskRun(Out(at, a, 3.5f), Out(at, a + side, 6.5f), DuskShades[2], 500);
+                        }
                         foreach (var a in Ring(4, MathF.PI / 4))
                             Mark(Out(at, a, 6.5f), 3, 500, DuskShades[2]);
                     });
                     After(ThrowMs + 1000, (w, t) =>
                     {
                         foreach (var a in Ring(4, MathF.PI / 4))
-                            Splash(Out(at, a, 6.5f), 3, 0.25f, DuskShades[2], ref t);
+                            Splash(Out(at, a, 6.5f), 3, 0.25f, DuskShades[2], 2, ref t);
                     });
                     break;
                 }
@@ -168,14 +199,15 @@ namespace WorldServer.core.objects
         private static Position Out(Position at, float angle, float dist) =>
             new Position(at.X + MathF.Cos(angle) * dist, at.Y + MathF.Sin(angle) * dist);
 
-        // one splash of the Vial: 200 and 1,500 over 6 s at full strength
-        private void Splash(Position at, float radius, float scale, uint color, ref TickTime time)
+        // one splash of the Vial: 400 and 3,000 over 6 s at full strength
+        private void Splash(Position at, float radius, float scale, uint color, int stage, ref TickTime time)
         {
+            DuskFx(DuskSplash, at, radius, color, 0, stage);
             Burst(at, radius, color);
             foreach (var e in EnemiesNear(at.X, at.Y, radius))
             {
-                RelicDamage(e, (int)(200 * scale), ref time, false);
-                e.Bleed(this, (int)(1500 * scale), 6000);
+                RelicDamage(e, (int)(400 * scale), ref time, false);
+                e.Bleed(this, (int)(3000 * scale), 6000);
             }
         }
 

@@ -3207,8 +3207,14 @@ impl App {
                 self.settings.save();
             }
             if let (Some((kind, last)), Some(world)) = (&mut self.effect_test, &game.world) {
-                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s)
-                if now - *last >= if *kind > 100 { 900 } else { 500 } {
+                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s; the Vial of
+                // Cascading Dusk's whole cascade, 243, every 4 s)
+                let every = match *kind {
+                    243 => 4000,
+                    101.. => 900,
+                    _ => 500,
+                };
+                if now - *last >= every {
                     *last = now;
                     game.particles.test_effect(*kind, world, now);
                 }

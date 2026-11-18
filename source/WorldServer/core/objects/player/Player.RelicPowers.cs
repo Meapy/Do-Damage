@@ -80,6 +80,8 @@ namespace WorldServer.core.objects
             GraveFlames = 40,   // The Gravekeeper's Censer: blue flames circling its user (ms; radius: how many)
             GraveFlame = 41,    // The Gravekeeper's Censer: a flame rushing from its user to an enemy and bursting
             Vow = 42,           // Halo of the Ghost Bride: a player its forcefield kept from dying
+            // 43-45: the Vial of Cascading Dusk's flight, splashes and spreading dusk, sent by
+            // Player.BetweenPowers.cs (DuskFx)
         }
 
         // the Ghost Bride's halo's forcefield (Forcefield.cs): pale, its petals drifting (relic.rs)

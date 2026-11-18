@@ -932,16 +932,16 @@
 			<Index>0x2d</Index>
 		</Texture>
 		<SlotType>18</SlotType>
-		<Description>Thrown, it splashes where it lands for 200, and 1,500 more over 6 s. The dusk spreads: four splashes round it for half that, then four more beyond for half again, each a shade darker.</Description>
+		<Description>Thrown, it splashes where it lands for 400, and 3,000 more over 6 s. The dusk spreads: four splashes round it for half that, then four more beyond for half again, each a shade darker.</Description>
 		<ActivateOnEquip stat="20" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<Usable />
 		<MpCost>90</MpCost>
 		<ExtraTooltipData>
-			<EffectInfo name="Splash" description="200 + 1,500 over 6 secs" />
+			<EffectInfo name="Splash" description="400 + 3,000 over 6 secs" />
 			<EffectInfo name="Radius" description="2.5 sqrs" />
-			<EffectInfo name="4 round it" description="100 + 750 over 6 secs" />
-			<EffectInfo name="4 beyond" description="50 + 375 over 6 secs" />
+			<EffectInfo name="4 round it" description="200 + 1,500 over 6 secs" />
+			<EffectInfo name="4 beyond" description="100 + 750 over 6 secs" />
 			<EffectInfo name="" description="Damage over time ignores defense" />
 		</ExtraTooltipData>
 		<RelicPower>CascadeDusk</RelicPower>
