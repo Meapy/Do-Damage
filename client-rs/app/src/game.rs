@@ -1121,10 +1121,12 @@ impl Game {
                 world.add_projectile(p);
             }
             ServerMessage::Notification(n) => {
-                // CharacterStatusText: two seconds over the object.
+                // CharacterStatusText: two seconds over the object. The Pirate's luck (a shot that
+                // missed him, `Player.PirateDodged`) is the one the client words itself.
+                let text = if n.text == "Lucky!" { crate::i18n::tr("Lucky!").to_owned() } else { n.text.clone() };
                 self.floaters.push(crate::view::Floater {
                     object_id: n.object_id,
-                    text: n.text.clone(),
+                    text,
                     color: n.color & 0xFF_FFFF,
                     at: now,
                     life: 2000,
@@ -1380,10 +1382,16 @@ impl Game {
             ward = (ward - damage.max(0)).max(0);
             all
         };
+        // a sword class (Frontline) takes a share off every hit after that
+        let front = world.player().is_some_and(|p| bsk_world::combat::frontline_class(data, p.object_type));
+        let taken = |damage: i32| {
+            let d = bsk_world::combat::shielded(damage, shield);
+            if front { bsk_world::combat::frontline(d) } else { d }
+        };
         for hit in world.update_projectiles(now, data) {
             let hit = match hit {
-                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: bsk_world::combat::shielded(damage, shield), pierced, stacked },
-                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: bsk_world::combat::shielded(damage, shield) },
+                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: taken(damage), pierced, stacked },
+                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: taken(damage) },
                 other => other,
             };
             let msg: ClientMessage = match hit {

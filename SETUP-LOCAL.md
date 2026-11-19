@@ -649,6 +649,25 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Frontline, the sword classes' passive** (2026-11-18; `Player.Frontline.cs`, called from
+  `Player.Projectiles.cs`, `Player.cs` `Damage` and `Player.Ground.cs`; the Rust client's
+  `combat.rs` `frontline`, `frontline_class`): a class whose first slot type is 1 (swords: the
+  Warrior, Knight, Paladin and Pirate) takes `FrontlineCutPercent` (15%) off every hit after
+  defense and a forcefield, rounded to the nearest point, which the client predicts for the
+  numbers it shows. Weapon hits on enemies feed a `FrontlineLeech`: 1.5% of the damage, at most
+  40 health a second, paid about once a second as a green "+n" (not while Sick or a ghost). A
+  Paladin's payout also heals every other player within 4 tiles. The Pirate dodges 10% of shots
+  (`PirateDodged`: no damage, no effects, conditions resent, a "Lucky!" notification the client
+  translates). Data: the tiered swords and the Sword of Ascension and Enthroned Sword gained
+  `<MultiHit/>`; the swords that waved, looped or came back fly straight over the same reach
+  (Doctor Swordsworth, the Arcane Rapier, Henchman's Claymore, the Sword of the Colossus, the
+  Keychain Cutlass, the Apocalypse Feather, the Sword of the Rainbow's End, the Swashbuckler's
+  Sickle and the Unstable Anomaly, whose ring of ten stays); tiered helms (and the Enthroned
+  Helm) add Armored on self, tiered shields add Armored on self and Exposed on their shots, tiered
+  seals add a `HealNova`; caps: Knight Attack 60, Paladin Vitality 60, Pirate Life 770 and
+  Defense 30. The client's `damage_with_defense` now treats Armored as the server does (×2, and
+  it holds against armor piercing and Armor Broken).
+
 - **Lingering at the grave** (2026-11-18; `Player.Grave.cs`, `GraveHandler.cs`,
   `packets/outgoing/GraveInfo.cs`; the Rust client's `grave.rs`): a player who dies stays in the
   world as a ghost instead of being disconnected, if their client said it can (168 `GRAVE` 255,

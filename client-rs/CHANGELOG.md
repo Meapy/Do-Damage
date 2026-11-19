@@ -19,6 +19,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - A banner shows each wave's round as it begins, the box under the wave counter keeps its name, and the vote panel shows what the next fight will be.
 - The Arena Leaderboard has a tab for each season: Season 1's runs are kept as they ended, and Season 2 starts afresh, with the Empowered bosses each run slew and where it fell. `/leaderboard 1` lists Season 1. The Hall of Champions' Arena boards follow the current season.
 
+### Classes
+- The sword classes (Warrior, Knight, Paladin and Pirate) are tougher up close. They take 15% less damage from every hit, and their sword heals them 1.5% of the damage it deals, up to 40 health a second. The Paladin's healing also reaches allies within 4 tiles, and one shot in ten misses the Pirate entirely ("Lucky!"). Tiered swords now pierce, hitting everything in a line, and swords whose shots waved, looped or came back now fly straight, over the same range.
+- Each sword class's ability does more. Warrior helms make you Armored for 1 to 2 seconds, Knight shields make you Armored for 1.5 to 2.5 seconds and their shots also leave enemies Exposed (−20 defense) even when they can't be stunned, and Paladin seals heal everyone in range at once (60 at T0 up to 180 at T8). Being Armored now doubles your defense and holds against armor-piercing shots, as it always did on the server; damage numbers now show this. Stat caps: Knight Attack 60 (was 50), Paladin Vitality 60 (was 40), Pirate Life 770 (was 700) and Defense 30 (was 25).
+
 ### Dungeons
 - The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
 - Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.

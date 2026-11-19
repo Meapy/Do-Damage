@@ -32,6 +32,27 @@ Blademaster's jacket reach 6 tiles at T0 and half a tile further every other tie
 already reached further, such as many untiered seals and tomes, keep their range. Each item's
 card on its gear page gives its range.
 
+**The sword classes: Frontline.** The Warrior, Knight, Paladin and Pirate fight a few tiles from
+what they're hitting, so they share a passive, **Frontline**:
+
+- They take **15% less damage** from every hit, after defense (and after an Ascendant's
+  forcefield), including damaging ground.
+- Their sword **heals them 1.5%** of the damage it deals, at most 40 health a second, shown over
+  them about once a second. Being Sick stops it.
+- A **Paladin's** sword heals every ally within 4 tiles as much as it heals him.
+- A **Pirate** has a 1 in 10 chance that a shot misses him entirely: no damage and none of its
+  effects, and "Lucky!" over his head.
+
+Tiered swords **pierce**, hitting every enemy in a line, and every sword flies straight (some
+untiered ones used to wave, loop round the player or come back), over the same range as before.
+Their abilities each add something: **Warrior helms** make you Armored for 1 second (T0–T2),
+1.5 (T3–T5) or 2 (T6–T8 and the Enthroned Helm); **Knight shields** make you Armored for 1.5,
+2 or 2.5 seconds, and their shots leave enemies **Exposed** (20 defense off) for 3 seconds as well
+as stunning them, so a shield still helps against a boss that can't be stunned; **Paladin
+seals** heal everyone in their range at once, 60 at T0 up to 180 at T8 (15 more each tier),
+raised by wisdom like a tome's heal. **Armored** doubles your defense, and armor-piercing shots
+don't get through it.
+
 The **newer classes** (Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademaster, King,
 Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own: turrets, summons, halos, pearls and more. A Summoner can keep up to six summons out at a time; they're drawn small (the Dragon and Oryx about a player's size) so they don't hide what you're fighting. Where a class's own kind of item has no tiers,
 `/gear` leaves that slot alone.

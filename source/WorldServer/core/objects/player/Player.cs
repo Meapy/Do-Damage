@@ -371,6 +371,7 @@ namespace WorldServer.core.objects
             dmg = GameServer.DamageEvent.Apply(src, dmg);
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
             dmg = ShieldedDamage(dmg);
+            dmg = FrontlineDamage(dmg);
             if (!HasConditionEffect(ConditionEffectIndex.Invulnerable))
             {
                 dmg = WardAbsorb(dmg);

@@ -1493,44 +1493,71 @@ impl Front {
         let ts = (28.0 * s).round();
         ui.label(&desc.display_id, left[0] + 22.0 * s, left[1] + 18.0 * s, ts, true, color::TEXT);
         let shown = if self.skin != 0 { ui.data.objects.get(&self.skin).unwrap_or(desc) } else { desc };
-        let well = [left[0] + 22.0 * s, left[1] + 64.0 * s, left[2] - 44.0 * s, left[2] - 44.0 * s];
+        let size = (13.0 * s).round();
+        let (best_level, best_fame) = list.class_stats.get(&class).copied().unwrap_or((0, 0));
+        let next_goal = stars::next_star_fame(best_fame, 0);
+        // The description, then a sword class's passive (the server's `Player.Frontline`), each
+        // line wrapped on its own (an empty one is a gap between paragraphs); `None` a half gap.
+        let width = left[2] - 44.0 * s;
+        let mut text: Vec<Option<(String, u32)>> = Vec::new();
+        let wrap = |ui: &mut Ui, para: &str, colour: u32, text: &mut Vec<Option<(String, u32)>>| {
+            let mut line = String::new();
+            for word in para.split_ascii_whitespace() {
+                let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
+                if ui.measure(&next, size, false) > width && !line.is_empty() {
+                    text.push(Some((std::mem::replace(&mut line, word.to_owned()), colour)));
+                } else {
+                    line = next;
+                }
+            }
+            text.push(Some((line, colour)));
+        };
+        if let Some(d) = desc.xml.lines_of("Description") {
+            for para in d.lines() {
+                wrap(ui, para, color::TEXT_DIM, &mut text);
+            }
+        }
+        if bsk_world::combat::frontline_class(ui.data, class) {
+            text.push(None);
+            wrap(ui, tr("Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
+            if desc.id == "Paladin" {
+                wrap(ui, tr("The Paladin's healing also reaches allies within 4 tiles."), color::TEXT, &mut text);
+            } else if desc.id == "Pirate (Doomed)" {
+                wrap(ui, tr("Pirate's luck: one shot in ten misses him entirely."), color::TEXT, &mut text);
+            }
+        }
+        let text_h: f32 = text.iter().map(|l| if l.is_some() { size * 1.3 } else { size * 0.5 }).sum();
+        // The portrait's well, square, smaller when the text needs the room above Create.
+        let goal_h = if next_goal.is_some() { 18.0 * s } else { 0.0 };
+        let room = left[1] + left[3] - 70.0 * s - (left[1] + 64.0 * s + 42.0 * s + 40.0 * s + goal_h + 12.0 * s) - text_h;
+        let side = room.clamp(110.0 * s, left[2] - 44.0 * s);
+        let well = [left[0] + 22.0 * s + (left[2] - 44.0 * s - side) / 2.0, left[1] + 64.0 * s, side, side];
         theme::rounded(ui.renderer, well, 10.0 * s, (color::FIELD, 0.9), (color::INSET_TOP, 0.9));
-        portrait(ui, shown, 0, 0, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 3.0);
+        portrait(ui, shown, 0, 0, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 3.0 * (side / (left[2] - 44.0 * s)));
         let skin_name = if self.skin != 0 { shown.display_id.clone() } else { tr("Classic").to_owned() };
         let ss = (16.0 * s).round();
         let sw = ui.measure(&skin_name, ss, true);
         ui.label(&skin_name, well[0] + (well[2] - sw) / 2.0, well[1] + well[3] + 10.0 * s, ss, true, color::ACCENT);
         // The class quests (`ClassToolTip`): those done, the bests, and the next goal.
-        let (best_level, best_fame) = list.class_stats.get(&class).copied().unwrap_or((0, 0));
         let done = stars::num_stars(best_fame);
         let qy = well[1] + well[3] + 42.0 * s;
         stars::row(ui.renderer, left[0] + 22.0 * s, qy + 8.0 * s, s, done);
-        let size = (13.0 * s).round();
         let qx = left[0] + 22.0 * s + stars::row_width(s) + 10.0 * s;
         ui.label(&tf!("{done} of {all} Class Quests", done, all = stars::STARS.len()), qx, qy, size, true, color::TEXT);
         ui.label(&tf!("Best level {best_level}, best fame {best_fame}", best_level, best_fame), left[0] + 22.0 * s, qy + 22.0 * s, size, false, 0x5EB531);
         let mut dy = qy + 40.0 * s;
-        if let Some(next) = stars::next_star_fame(best_fame, 0) {
+        if let Some(next) = next_goal {
             ui.label(&tf!("Next goal: earn {next} fame with a {class}", next, class = desc.display_id), left[0] + 22.0 * s, dy, size, false, 0xFC8642);
             dy += 18.0 * s;
         }
-        if let Some(d) = desc.xml.lines_of("Description") {
-            let mut y = dy + 12.0 * s;
-            // Each of its lines wrapped on its own; an empty one is a gap between paragraphs.
-            for para in d.lines() {
-                let mut line = String::new();
-                for word in para.split_ascii_whitespace() {
-                    let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
-                    if ui.measure(&next, size, false) > left[2] - 44.0 * s && !line.is_empty() {
-                        ui.label(&line, left[0] + 22.0 * s, y, size, false, color::TEXT_DIM);
-                        y += size * 1.3;
-                        line = word.to_owned();
-                    } else {
-                        line = next;
-                    }
+        let mut y = dy + 12.0 * s;
+        for line in &text {
+            match line {
+                Some((line, colour)) => {
+                    ui.label(line, left[0] + 22.0 * s, y, size, false, *colour);
+                    y += size * 1.3;
                 }
-                ui.label(&line, left[0] + 22.0 * s, y, size, false, color::TEXT_DIM);
-                y += size * 1.3;
+                None => y += size * 0.5,
             }
         }
         self.button(ui, Target::Create, [left[0] + 22.0 * s, left[1] + left[3] - 62.0 * s, left[2] - 44.0 * s, 44.0 * s], tr("Create character"), Kind::Primary, s, mouse);

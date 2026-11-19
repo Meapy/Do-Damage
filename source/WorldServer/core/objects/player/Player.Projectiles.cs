@@ -166,8 +166,15 @@ namespace WorldServer.core.objects
                 ApplyConditionEffect(projectileDesc.Effects);
                 return;
             }
+            // the Pirate's luck: the shot missed him (its effects too, which the client put on)
+            if (dmg > 0 && PirateDodged())
+            {
+                ResendConditions();
+                return;
+            }
             dmg = RelicAbsorb(dmg);
             dmg = ShieldedDamage(dmg);
+            dmg = FrontlineDamage(dmg);
             dmg = WardAbsorb(dmg);
             dmg = VowedDamage(dmg);
             Health -= dmg;
@@ -268,6 +275,7 @@ namespace WorldServer.core.objects
                         entity.StackShred(shred.Percent, shred.Max, shred.DurationMs);
                     ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
                     RelicHit(entity, dmg, entity.Health <= 0, ref tickTime);
+                    FrontlineHit(dmg);
                 }
                 else if (!projectile.FromWeapon && Inventory[1]?.ObjectType == projectile.ContainerType)
                     BetweenHit(entity, dmg, projectileDesc, ref tickTime);

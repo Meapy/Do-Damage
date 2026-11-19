@@ -1302,5 +1302,9 @@
 "You hit harder and faster for 20 seconds": "Golpeas más fuerte y más rápido durante 20 segundos",
 "{name} has risen!": "¡{name} se ha alzado!",
 "{n} Empowered slain|{n} Empowered slain": "{n} potenciado derrotado|{n} potenciados derrotados",
-"SEASON {n} RECORD": "RÉCORD DE LA TEMPORADA {n}"
+"SEASON {n} RECORD": "RÉCORD DE LA TEMPORADA {n}",
+"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Primera línea: recibe un 15 % menos de daño de cada golpe y se cura un 1,5 % del daño que hace la espada, hasta 40 de vida por segundo.",
+"The Paladin's healing also reaches allies within 4 tiles.": "La curación del Paladín también alcanza a los aliados a 4 casillas o menos.",
+"Pirate's luck: one shot in ten misses him entirely.": "Suerte de pirata: uno de cada diez disparos no le da.",
+"Lucky!": "¡Qué suerte!"
 }

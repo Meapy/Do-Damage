@@ -131,7 +131,7 @@ the gaps between NewTicks. Its flags:
 |---|---|
 | `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character (a new Wizard if none) |
 | `--stay` | With `--credentials`: stop at the character list |
-| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis) or `sprites-item:<item id>` |
+| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis), `sprites-item:<item id>` or `class:0x<type>` (a class's page) |
 | `--no-update` | Don't look for or install updates |
 | `--bench` | No vsync or frame cap, and every 2 s the frame rate, CPU time by section and draw calls in the log (measure a release build) |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit |

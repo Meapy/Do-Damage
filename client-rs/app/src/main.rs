@@ -1753,6 +1753,12 @@ impl App {
                             Some("home") => self.front.show(Screen::Home),
                             Some("account") => self.front.show(Screen::Account),
                             Some("discord") => self.front.show_discord(),
+                            // a class's page, by its type: `class:0x031f`
+                            Some(s) if s.starts_with("class:0x") => {
+                                if let Ok(t) = u16::from_str_radix(&s[8..], 16) {
+                                    self.front.show(Screen::Class(t));
+                                }
+                            }
                             Some(s) if s.starts_with("sprites") => {
                                 self.front_action(screens::Action::SpriteEditor);
                                 self.sprite_editor.test_screen(s);

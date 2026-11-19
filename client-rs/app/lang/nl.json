@@ -1302,5 +1302,9 @@
 "You hit harder and faster for 20 seconds": "Je slaat 20 seconden lang harder en sneller",
 "{name} has risen!": "{name} is herrezen!",
 "{n} Empowered slain|{n} Empowered slain": "{n} versterkte verslagen|{n} versterkte verslagen",
-"SEASON {n} RECORD": "RECORD VAN SEIZOEN {n}"
+"SEASON {n} RECORD": "RECORD VAN SEIZOEN {n}",
+"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Frontlinie: krijgt bij elke treffer 15% minder schade en geneest 1,5% van de schade die het zwaard doet, tot 40 leven per seconde.",
+"The Paladin's healing also reaches allies within 4 tiles.": "De genezing van de Paladin bereikt ook bondgenoten binnen 4 vakjes.",
+"Pirate's luck: one shot in ten misses him entirely.": "Piratengeluk: één op de tien schoten mist hem helemaal.",
+"Lucky!": "Geluk gehad!"
 }

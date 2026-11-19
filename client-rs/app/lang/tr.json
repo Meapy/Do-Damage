@@ -1302,5 +1302,9 @@
 "You hit harder and faster for 20 seconds": "20 saniye boyunca daha sert ve daha hızlı vurursun",
 "{name} has risen!": "{name} yeniden doğdu!",
 "{n} Empowered slain|{n} Empowered slain": "{n} güçlendirilmiş öldürüldü",
-"SEASON {n} RECORD": "{n}. SEZON REKORU"
+"SEASON {n} RECORD": "{n}. SEZON REKORU",
+"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Ön cephe: her vuruştan %15 daha az hasar alır ve kılıcın verdiği hasarın %1,5'i kadar iyileşir, saniyede en çok 40 can.",
+"The Paladin's healing also reaches allies within 4 tiles.": "Paladin'in iyileştirmesi 4 kare içindeki müttefiklere de ulaşır.",
+"Pirate's luck: one shot in ten misses him entirely.": "Korsan şansı: her on atıştan biri onu tamamen ıskalar.",
+"Lucky!": "Şanslıydın!"
 }

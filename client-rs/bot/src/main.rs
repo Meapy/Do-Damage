@@ -439,6 +439,8 @@ fn run(args: Args) -> Result<(), String> {
                     ServerMessage::Text(t) if !t.text.is_empty() => {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }
+                    // what shows over a player or monster: heals ("+40"), "Lucky!" and the rest
+                    ServerMessage::Notification(n) => log::info!("notification over {}: {}", n.object_id, n.text),
                     ServerMessage::VisitRequest(v) => {
                         let what = if v.summon == Some(true) { "summon" } else { "visit" };
                         log::info!("{what} request {} from {} into {} ({} s)", v.id, v.name, v.world, v.seconds);

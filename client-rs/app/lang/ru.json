@@ -1302,5 +1302,9 @@
 "You hit harder and faster for 20 seconds": "20 секунд вы бьёте сильнее и быстрее",
 "{name} has risen!": "{name} восстал!",
 "{n} Empowered slain|{n} Empowered slain": "{n} усиленный повержен|{n} усиленных повержено|{n} усиленных повержено",
-"SEASON {n} RECORD": "РЕКОРД СЕЗОНА {n}"
+"SEASON {n} RECORD": "РЕКОРД СЕЗОНА {n}",
+"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Передовая: получает на 15% меньше урона от каждого попадания и лечится на 1,5% урона, нанесённого мечом, до 40 здоровья в секунду.",
+"The Paladin's healing also reaches allies within 4 tiles.": "Лечение паладина достаётся и союзникам в радиусе 4 клеток.",
+"Pirate's luck: one shot in ten misses him entirely.": "Пиратская удача: каждый десятый выстрел пролетает мимо.",
+"Lucky!": "Повезло!"
 }

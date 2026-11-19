@@ -174,7 +174,7 @@
 		<Equipment>0xa00, 0x0a08, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="750">200</MaxHitPoints>
 		<MaxMagicPoints max="252">100</MaxMagicPoints>
-		<Attack max="50">15</Attack>
+		<Attack max="60">15</Attack>
 		<Defense max="35">0</Defense>
 		<Speed max="50">7</Speed>
 		<Dexterity max="50">10</Dexterity>
@@ -210,7 +210,7 @@
 		<Defense max="25">0</Defense>
 		<Speed max="50">7</Speed>
 		<Dexterity max="50">10</Dexterity>
-		<HpRegen max="40">10</HpRegen>
+		<HpRegen max="60">10</HpRegen>
 		<MpRegen max="75">10</MpRegen>
 		<LevelIncrease min="20" max="30">MaxHitPoints</LevelIncrease>
 		<LevelIncrease min="2" max="8">MaxMagicPoints</LevelIncrease>
