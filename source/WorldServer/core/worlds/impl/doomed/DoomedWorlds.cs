@@ -1450,8 +1450,9 @@ namespace WorldServer.core.worlds.impl.doomed
             : base(gameServer, id, resource, parent) { }
 
         private const string KeysShop = "keys";
+        public const string ElderKeysShop = "elderkeys";
 
-        public static IEnumerable<string> ShopNames =>DoomedEconomyData.ShopItems.Select(i => i.Shop).Distinct();
+        public static IEnumerable<string> ShopNames => DoomedEconomyData.ShopItems.Select(i => i.Shop).Append(ElderKeysShop).Distinct();
 
         public void SetShop(string name)
         {
@@ -1472,8 +1473,11 @@ namespace WorldServer.core.worlds.impl.doomed
             _items = new List<ISellableItem>();
             // the keys shop sells the Bazaar's keys at its prices (MerchantLists.KeyShopPrices), not
             // the few Doomed Realms' key shop had
+            // the Elder keys only for gold (MerchantLists.ElderKeyShopPrices)
             var entries = ShopName == KeysShop
                 ? MerchantLists.KeyShopPrices.Select(k => (Shop: KeysShop, Item: k.Key, k.Price, Currency: CurrencyType.Fame)).ToList()
+                : ShopName == ElderKeysShop
+                ? MerchantLists.ElderKeyShopPrices.Select(k => (Shop: ElderKeysShop, Item: k.Key, k.Price, Currency: CurrencyType.Gold)).ToList()
                 : DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName && !SealedDungeons.IsSealedItem(i.Item)).ToList();
             _currency = entries.Count > 0 ? entries[0].Currency : CurrencyType.Fame;
             foreach (var e in entries)

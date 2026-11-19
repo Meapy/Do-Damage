@@ -701,7 +701,8 @@ class Data:
             m = re.search(listname + r'\s*=\s*new List<ISellableItem>\s*\{(.*?)\};', text, re.S)
             for name, price in re.findall(r'ShopItem\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
                 out[name] = (int(price), shop)
-        for arr, shop in (("DungeonKeyPrices", "Dungeon Keys"), ("DoomedKeyPrices", "Elder and Doomed Keys")):
+        # the Doomed keys share the regular keys' pavilion; the Elder keys are gold (elder_keys)
+        for arr, shop in (("DungeonKeyPrices", "Dungeon Keys"), ("DoomedKeyPrices", "Dungeon Keys")):
             m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
             prices = re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else "")
             for name, price in prices:
@@ -711,15 +712,25 @@ class Data:
         self.pet_generator_price = int(m.group(1)) if m else None
         return out
 
+    def elder_keys(self):
+        """{Elder key item id: price in gold}: the Elder keys, sold only for gold, in the Bazaar's
+        Elder pavilion and /shop elderkeys (MerchantLists.ElderKeyPrices), without a closed
+        dungeon's key."""
+        with open(MERCHANTS, encoding="utf-8-sig") as f:
+            text = f.read()
+        m = re.search(r'ElderKeyPrices\s*=\s*\{(.*?)\};', text, re.S)
+        return {name: int(price) for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else "")
+                if name not in sealed_items()}
+
     def key_shop(self):
         """{key item id: price in fame} that /shop keys sells (MerchantLists.KeyShopPrices): the
-        Bazaar's keys but NotInKeyShop, and KeyShopOnlyPrices, without a closed dungeon's key."""
+        Bazaar's fame keys but NotInKeyShop, without a closed dungeon's key."""
         with open(MERCHANTS, encoding="utf-8-sig") as f:
             text = f.read()
         m = re.search(r'NotInKeyShop\s*=\s*\{(.*?)\};', text, re.S)
         left_out = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
         out = {}
-        for arr in ("DungeonKeyPrices", "DoomedKeyPrices", "KeyShopOnlyPrices"):
+        for arr in ("DungeonKeyPrices", "DoomedKeyPrices"):
             m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
             for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
                 if name not in left_out and name not in sealed_items():

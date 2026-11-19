@@ -58,7 +58,7 @@ COMMAND_HELP = {
     "guildvault": "The guild vault's log: who put in or took out what, the newest first: <code>/gvault [count]</code>.",
     "arena": "Into the Arena's next game, the one its Nexus portal leads to.",
     "gear": "Free starter gear for your class, and a couple of boosters. See below for its limits.",
-    "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame. With no name it lists the shops.",
+    "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame, and the gold shops (elderkeys for the Elder dungeons' keys). With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
@@ -406,6 +406,7 @@ class Gen:
         self.idx = self.d.drops_index()
         self.bazaar = self.d.bazaar()
         self.key_shop = self.d.key_shop()
+        self.elder_keys = self.d.elder_keys()
         self.portals = self.d.portals()
         self.keys = self.d.keys()
         self.incant = self.d.incantations(dropped=self.idx)
@@ -784,8 +785,9 @@ class Gen:
                     kd = [(m, c) for m, c in self.idx.get(k, []) if not HIDDEN_MONSTER.search(m) and c]
                     price = self.bazaar.get(k)
                     shop = self.key_shop.get(k)
-                    if kd or price or shop:
-                        keys.append((k, kd, price, shop))
+                    gold = self.elder_keys.get(k)
+                    if kd or price or shop or gold:
+                        keys.append((k, kd, price, shop, gold))
             special = []
             unlock = []
             for p in portals:
@@ -955,8 +957,10 @@ class Gen:
             rows.append(("Portal from", ", ".join(src)))
         if x["bot"]:
             rows.append(("Nexus", "The Support Bot opens it sometimes"))
-        for k, kd, price, shop in x["keys"]:
+        for k, kd, price, shop, gold in x["keys"]:
             bits = []
+            if gold:
+                bits.append("Nexus Bazaar or <code>/shop elderkeys</code>, %d gold" % gold)
             if price and shop == price[0]:
                 bits.append("Nexus Bazaar or <code>/shop keys</code>, %d fame" % shop)
             else:
@@ -986,7 +990,7 @@ class Gen:
         pips = ('<span class="danger" style="--d:%d" role="img" aria-label="Difficulty %d of 6: %s" title="%s"></span>'
                 % (lvl, lvl, DIFFICULTY_WORDS[lvl - 1], DIFFICULTY_WORDS[lvl - 1]) if lvl else "")
         search = " ".join([x["name"], d.name(x["boss"] or "")] + [d.name(m) for m, _ in x["sources"]]
-                          + [d.name(k) for k, _, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
+                          + [d.name(k) for k, *_ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
@@ -1165,10 +1169,12 @@ class Gen:
                 how.append("%s, in %s" % (esc(d.name(item)), joined([esc(a) for a in areas])))
             if not how and x["sources"]:
                 how.append("Portal from " + joined([esc(who(d, m)) for m, _ in x["sources"]]))
-            for k, kd, price, shop in x["keys"]:
+            for k, kd, price, shop, gold in x["keys"]:
                 bits = []
                 if kd:
                     bits.append("from " + joined(["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]))
+                if gold:
+                    bits.append("%d gold in the Bazaar or /shop elderkeys" % gold)
                 if price and shop == price[0]:
                     bits.append("%d fame in the Bazaar or /shop keys" % shop)
                 else:

@@ -39,7 +39,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The daily login reward and gifts (such as this month's free Lil' Oryx) need 5 stars on your account, so fresh accounts can't be made just to collect them. Quests and achievements need none.
 
 ### Gold Store
-- Gold can now be bought on the website's new Gold Store (dodmg.com/gold.html), with PayPal or a card: sign in with your game account, pick a pack ($1 buys 100 gold, and bigger packs add bonus gold: +5% at $5 up to +25% at $100) and it lands on your account the moment the payment clears, even mid-dungeon, with a message in chat. Spend it in the gold shops (`/shop donorkeys` and the others).
+- Gold can now be bought on the website's new Gold Store (dodmg.com/gold.html), with PayPal or a card: sign in with your game account, pick a pack ($1 buys 100 gold, and bigger packs add bonus gold: +5% at $5 up to +25% at $100) and it lands on your account the moment the payment clears, even mid-dungeon, with a message in chat. Spend it in the gold shops (`/shop elderkeys` and the others).
+- Every Elder dungeon's key is now sold only for gold, and cheaply: 10 gold for the Elder Pirate Cave and Spider Den keys up to 100 for the Elder Lost Halls, at the Nexus Bazaar's Elder key stalls or with `/shop elderkeys` (`/shop donorkeys` still works). They're no longer sold for fame, and still drop in their dungeons. The Doomed keys and incantations moved to the dungeon key stalls.
 
 ### Servers
 - Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.

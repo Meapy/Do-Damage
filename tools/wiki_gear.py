@@ -259,6 +259,8 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        if oid in self.gen.elder_keys:
+            rows.append(("Shop", "Nexus Bazaar (Elder Keys) or <code>/shop elderkeys</code>, %d gold" % self.gen.elder_keys[oid]))
         any_done = False
         for r in self.forged.get(oid, []):
             # an Ascended item from any item of a tier and kind: one line for all its recipes
@@ -668,6 +670,8 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        if oid in self.gen.elder_keys:
+            rows.append(("Shop", "Nexus Bazaar (Elder Keys) or <code>/shop elderkeys</code>, %d gold" % self.gen.elder_keys[oid]))
         return rows
 
     def _pet_card(self, ident, texture, edge, name, tag, lines, desc, src, flags, search):

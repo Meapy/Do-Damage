@@ -223,9 +223,10 @@ the stone water basins at its corners do. From there:
   chests** in front of the storehouse, which everyone can use: put something in for another
   player to take, or take what someone left.
 - **West**, over the arched wooden bridge: the **market island**. Its shopping street along the
-  north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon keys,
-  Elder and minigame keys, consumables, specials, pet generators, clothing and accessories). The
-  stalls take turns through each shop's items, and everything there costs fame. Over the bridge
+  north is the Nexus Bazaar: each shop is a row of stalls in front of a house (stat potions, dungeon
+  and minigame keys, Elder keys, consumables, specials, pet generators, clothing and accessories). The
+  stalls take turns through each shop's items, and everything there costs fame but the Elder keys,
+  which cost [gold](../gold.html). Over the bridge
   you come to the **market square**: two rows of stalls showing what players sell, where the
   **Market Broker** (the [Marketplace](marketplace.html)), the **Tinkerer** and the **Chronicler**
   (your [quests, daily reward and achievements](quests.html)) stroll about. Up the cross street,

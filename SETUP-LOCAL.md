@@ -665,6 +665,18 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Elder keys for gold** (2026-11-19; `MerchantLists.ElderKeyPrices`, `DoomedShop`,
+  `ShopCommand`): every Elder dungeon's key (17) is sold only for gold: the Nexus's Store 12
+  (now a gold shop; 4 stalls, so they rotate) and `/shop elderkeys` (`/shop donorkeys` still
+  opens it). 10 gold (Pirate Cave, Spider Den), 15 (Snake Pit, Sprite World, Manor), 20 (Beach,
+  Jungle), 25 (Undead Lair, Davy, Ocean Trench), 30 (Abyss), 35 (Cemetery), 40 (Draconis, Ivory
+  Wyvern), 50 (Tomb), 75 (Shatters), 100 (Lost Halls). They're gone from Store 12's fame list
+  and `/shop keys` (whose `KeyShopOnlyPrices` went), and the seven old `donorkeys` entries
+  (50-500 gold) from `DoomedEconomyData`; the Doomed keys moved to Store 11. Drops are unchanged.
+  The `<Shop><Name>donorkeys</Name>` blocks on the keys in `DoomedRealms.xml` are old data nothing
+  reads. Players can still sell keys they found on the Marketplace for fame. The wiki reads
+  `ElderKeyPrices` (`wiki_data.elder_keys`). `KeyShopTests` checks no Elder key is sold for fame
+  anywhere and each is sold for 10-100 gold.
 - **The Gold Store** (2026-11-19; "Gold store" above): gold, which nothing in game pays out, is
   bought with PayPal on the website. Account server `GoldController` (`gold/store`, `signin`,
   `me`, `signout`, `order`, `capture`, `paypal-webhook`, JSON) and `PayPal.cs` (Orders API v2:
@@ -674,7 +686,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   scripts); world server `GoldNews` refreshes an online player's gold on the `Gold` channel
   (`GoldMsg`) and tells them. The page (`website/gold.html`, `gold.js`, styles at the end of
   `style.css`, `coin` and `coins` sprites in `site.js`) is linked from the site's and the wiki's
-  menus. The gold shops (`/shop donor`, `donorkeys`, `donorpets`, `america`) were already there.
+  menus. The gold shops (`/shop donor`, `donorpets`, `america`) were already there; the Elder keys
+  became gold-only (next entry).
   Old clients need nothing: the gold arrives as a stat change.
 - **Frontline, the sword classes' passive** (2026-11-18; `Player.Frontline.cs`, called from
   `Player.Projectiles.cs`, `Player.cs` `Damage` and `Player.Ground.cs`; the Rust client's
@@ -2047,7 +2060,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Monsters without HP:** objects with no `MaxHitPoints` (anchors, spawners, traps, controllers) started at 0 HP and `Enemy.Tick` killed them on their first tick, before their behaviour ran. 139 behaviours were affected, among them the Tomb's boss anchor (which dropped the exit portal at once), the Pentaract, turrets and most dungeon controllers. Only enemies with HP now die at 0 HP; the others end through their behaviour.
 - **Missing projectiles:** 358 `Shoot` behaviours named a projectile index that their monster's XML doesn't define, so `Shoot` logged "Doesnt have projectile" and the attack never fired. Each now uses the projectile it most plausibly meant: the Forgotten King's tentacle spirals 4 → 0 (White Bullet, otherwise only in its death burst), the rage rings of Oryx 2 and Oryx Deux 7/8 → 13/14 (the Quiet and Weak spinners), Cyclops God's blade attack 4 → 10 (Blade), the NM Blue Dragon God 4 → 6 (the Red Spinning Fireball it never used), Stheno's spiral 2 → 1 (the blinding bullet), the Red Guardian Bee 4 → 3 (its Ball; the other guardian bees' 4 is a second Ball), Archdemon Malphas and Malphas Deux in their small phase 1 → 0 (fast small bullet), the Royal Cnidarian's rings 0 → 2 (Bubble Wave), F.E.R.A.L.'s spray 0 → 2 (Psychic Attack), and the Wishing Troll, Epic Larva and small Cnidarians to the only projectile each has. `python tools/check_shoot_projectiles.py` lists any such call; it attributes each `Shoot` to the `.Init` it is in, or to every `.Init` that calls its helper method.
 - **Nexus Bazaar** (`Exalt/Nexus New Auru.jm`, built by `tools/build_nexus_bazaar.py`): the big sand island south of the town, with the class memorial, couldn't be reached, because the town's dock ended at Dark Water Flowing. A bridge now continues the dock to the island, a road with lanterns leads to the memorial plaza, and nine market pavilions stand around it, with palm trees and beach umbrellas on the open sand. Only stores 5 and 6 (pet generators, large cloths) had stalls on this map, and the other shop lists were empty. Every bazaar shop sells for fame (players have no way to earn gold); prices match the Doomed Realms `/shop` where both sell an item (`MerchantLists.cs`):
-  - Dungeon Keys (Store 11): the regular key of each of the 43 dungeons that has a world, one stall each, 10 to 500 fame. Elder and Doomed Keys (Store 12): 19 keys and incantations, one stall each; the Christmas Key was the 20th until 2026-10-24 and isn't sold anywhere now (`DoomedKeyPrices`; the castle nexus's Store 12 pavilion has 19 stalls, `build_castle_maps.PAVILIONS`, so none stands empty). Keys players hold still open Christmas Oryx's Chamber; nothing drops it. Enchanted Keys (Store 4): 18 keys that also turn into a Mystery ST Crate, at twice the key plus 250. Guild, test and reusable keys aren't sold.
+  - Dungeon Keys (Store 11): the regular key of each of the 43 dungeons that has a world, 10 to 500 fame, and since 2026-11-19 the Doomed keys and incantations (`DoomedKeyPrices`) too. Elder Keys (Store 12): every Elder dungeon's key, for gold only (`ElderKeyPrices`, "Elder keys for gold" in Changes from upstream); before, Store 12 sold the Elder and Doomed keys for fame. The Christmas Key isn't sold anywhere since 2026-10-24. Keys players hold still open Christmas Oryx's Chamber; nothing drops it. Enchanted Keys (Store 4): 18 keys that also turn into a Mystery ST Crate, at twice the key plus 250. Guild, test and reusable keys aren't sold.
   - Stat Potions (Store 1): the eight stat potions, 150 fame (Life and Mana 300). Consumables (Store 2): health and magic potions, tinctures, effusions and drake eggs. Specials (Store 3): XP Boosters, the Loot Drop Potion, Backpack and mystery dyes; Vault Chest and Char Slot Unlockers aren't sold in the Nexus Bazaar. More vault chests cost 500 fame in the vault; character slots cost 1,000 fame on the character screen. Small cloths, clothing dyes and accessory dyes (Stores 7 to 9) rotate through their stalls as the town's large cloths do.
   - Merchant fixes: a stall whose shop had every item out on other stalls was dropped for good (`NexusWorld.SendOutMerchant`); it now waits and tries again. A shop item missing from the game data is removed at start-up instead of becoming a merchant with an invalid item.
 - **Nexus fountains:** the four fountains in the nexus's water basins were the frozen winter kind, which give off nothing. They are now the White Fountain, with its spray, and standing within 3.5 tiles of one gives the Healing condition (`NexusWorld.HealByFountains`, renewed every half second). The map change and the healing take effect when the world server restarts.

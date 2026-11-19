@@ -132,7 +132,7 @@ STREET_C = (86, 100, 61)                         # from the east bridge to the c
 SHOPS = [
     ("Store 1", 78, 8, True),           # stat potions, a stall each
     ("Store 11", 104, 5, True),         # dungeon keys
-    ("Store 12", 116, 4, True),         # Elder and Doomed keys
+    ("Store 12", 116, 4, True),         # Elder keys, for gold
     ("Store 2", 80, 4, False),          # consumables
     ("Store 3", 90, 3, False),          # specials
     ("Store 5", 104, 3, False),         # pet generators

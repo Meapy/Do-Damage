@@ -377,6 +377,9 @@ namespace WorldServer.core.commands.doomed
         {
             var names = DoomedShop.ShopNames.ToList();
             var name = args.Trim();
+            // the Elder keys' gold shop was "donorkeys" before it sold them all
+            if (name.Equals("donorkeys", StringComparison.OrdinalIgnoreCase))
+                name = DoomedShop.ElderKeysShop;
             var shop = names.FirstOrDefault(n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (shop == null)
             {

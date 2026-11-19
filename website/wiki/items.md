@@ -115,18 +115,23 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 
 ## The shops
 
-Every shop here sells for fame, except the gold shops (`/shop donorkeys` for Elder dungeon keys,
-`/shop donor`, `/shop donorpets` and `/shop america`). Gold isn't earned in game: it's bought in
-the [Gold Store](../gold.html) on this site, with PayPal or a card, and reaches your account at
-once, even while you play.
+Every shop here sells for fame, except the gold shops: the **Elder keys** (`/shop elderkeys`, and
+the Bazaar's Elder key stalls), `/shop donor`, `/shop donorpets` and `/shop america`. Gold isn't
+earned in game: it's bought in the [Gold Store](../gold.html) on this site ($1 for 100 gold, with
+bonus gold on bigger packs), with PayPal or a card, and reaches your account at once, even while
+you play.
+
+Every Elder dungeon's key is sold for gold only, from 10 gold (the Elder Pirate Cave and Spider
+Den) to 100 (the Elder Lost Halls); they still drop in their dungeons. Each dungeon's page lists
+its key's price.
 
 - The **Nexus Bazaar**, the stalls along the shopping street of the Nexus's market island: stat potions, consumables,
-  specials, dungeon keys, Elder and minigame keys, pet generators
+  specials, dungeon and minigame keys, Elder keys (for gold), pet generators
   ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Each shop has fewer stalls
   than items: the stalls take turns through its items, a few minutes each (a stall says when its
   item goes). Guests can't buy.
 - `/shop` opens the shops: weapons, abilities, armor, rings, consumables, dyes, keys
-  (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets, and the gold shops.
+  (every dungeon's key at the Bazaar's prices) and pets for fame, and the gold shops.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 
 The Nexus Bazaar's specials and consumables:

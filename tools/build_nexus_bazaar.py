@@ -36,7 +36,7 @@ PILLAR = "Grey Pillar"
 # so a pavilion is 2 * columns + 3 tiles wide and 2 * rows + 3 tall.
 PAVILIONS = [
     ("Dungeon Keys", "Store 11", 86, 193, 11, 4),
-    ("Elder and Doomed Keys", "Store 12", 117, 193, 10, 2),
+    ("Elder Keys", "Store 12", 117, 193, 10, 2),
     ("Enchanted Keys", "Store 4", 133, 208, 9, 2),
     ("Consumables", "Store 2", 133, 219, 9, 2),
     ("Stat Potions", "Store 1", 133, 229, 4, 2),
@@ -55,7 +55,7 @@ PATHS = [
     (82, 217, 99, 218),     # plaza to Small Cloths / Clothing Dyes
     (82, 226, 99, 227),     # plaza to Clothing Dyes / Accessory Dyes
     (86, 204, 110, 205),    # along the front of Dungeon Keys
-    (117, 200, 139, 201),   # along the front of Elder and Doomed Keys
+    (117, 200, 139, 201),   # along the front of Elder Keys
 ]
 
 BRIDGE_X = (111, 115)       # railing, three planks, railing, in line with the dock
