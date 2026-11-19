@@ -26,6 +26,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Dungeons
 - The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
 - Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.
+- Bosses in the Elder dungeons and the Black Between grow less with a group: each extra player adds half as much health as before, Empowered bosses there included.
 
 ### Items
 - The Vial of Cascading Dusk hits twice as hard (400 where it lands and 3,000 over 6 seconds, the cascade's splashes in step) and has a new look: the vial tumbles through the air trailing dusk and stars, shatters in a flash of violet light, and its dusk runs out along the floor to each next splash, every splash leaving a pool of twilight under a ring of stars. It and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.

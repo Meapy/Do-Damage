@@ -24,7 +24,8 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 > Drop chances are the listed ones; your real chance is higher (about double when you're alone),
 > since every roll grows with your share of the damage. Difficulty is a rough guide from the
 > boss's health, alone: groups make bosses tougher, and some easy bosses have hard dungeons
-> before them.
+> before them. In the Elder dungeons and the Black Between each extra player adds half as much
+> health to a boss as elsewhere.
 
 ## Candyland Hunting Grounds
 
