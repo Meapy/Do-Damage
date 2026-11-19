@@ -13,7 +13,8 @@
 //!
 //! `--say` sends chat lines or commands (split by `;;`), one 3 s after each world is joined or
 //! 3 s after the last. `--wander` walks the bot round a circle of that radius about where it
-//! joined each world, so several bots keep parts of a realm awake for load tests.
+//! joined each world, so several bots keep parts of a realm awake for load tests. `!browse` asks for the
+//! Marketplace's listings and `!buy <id>` buys one, as its window does (both logged).
 //!
 //! `--fight` plays as a player does (`fight.rs`): it circles the nearest enemy, shoots it and
 //! uses its ability, with the client's game logic and the game's XML (the client's assets,
@@ -42,8 +43,10 @@
 //! the left (the guild vault's first in a guild hall), split by `;`: `put <inventory slot> <chest slot>` or
 //! `take <chest slot> <inventory slot>`. It walks up to the chest, swaps the two slots, logs the
 //! server's InvResult (0 done, 1 refused) and goes on to the next a second later. `upgrade` buys
-//! the Guild Hall Upgrade in the hall instead (and logs the BuyResult), `goto <x> <y>` walks to a
-//! tile (to bring something out of sight into view) and `wait <seconds>` waits.
+//! the Guild Hall Upgrade in the hall instead (and logs the BuyResult), `buychest` buys the
+//! nearest closed chest in the vault with fame (`buychest gold` with gold; the BuyResult and
+//! each closed chest's prices are logged), `goto <x> <y>` walks to a tile (to bring something out
+//! of sight into view) and `wait <seconds>` waits.
 
 mod fight;
 
@@ -84,6 +87,8 @@ enum VaultMove {
     /// chest slot, inventory slot
     Take(u8, u8),
     Upgrade,
+    /// a closed vault chest, with gold (0) or fame (1)
+    BuyChest(u8),
     Goto(f32, f32),
     Wait(u64),
 }
@@ -131,6 +136,7 @@ fn parse_args() -> Result<Args, String> {
                         "put" => VaultMove::Put(n(1)?, n(2)?),
                         "take" => VaultMove::Take(n(1)?, n(2)?),
                         "upgrade" => VaultMove::Upgrade,
+                        "buychest" => VaultMove::BuyChest(if p.get(1) == Some(&"gold") { 0 } else { 1 }),
                         "goto" => VaultMove::Goto(n(1)? as f32 + 0.5, n(2)? as f32 + 0.5),
                         "wait" => VaultMove::Wait(n(1)? as u64),
                         _ => return Err(format!("--vault: {m}")),
@@ -252,6 +258,8 @@ fn run(args: Args) -> Result<(), String> {
     let mut vault_move = vault.next();
     let mut chest: Option<(i32, WorldPos)> = None;
     let mut upgrade: Option<(i32, WorldPos)> = None;
+    // the vault's closed chests (0x0505), to buy the nearest
+    let mut closed: Vec<(i32, WorldPos)> = Vec::new();
     let mut vault_at: Option<Instant> = None;
     // --ping: the kinds still to send in this world, and when the next may go (once the server answered)
     let mut pings: Vec<u8> = Vec::new();
@@ -265,7 +273,14 @@ fn run(args: Args) -> Result<(), String> {
             next_say = None;
             if let Some(line) = say.next() {
                 log::info!("saying {line}");
-                socket.send(&PlayerText { text: line.clone() }.into());
+                // the Marketplace's messages, as its window sends them: `!browse`, `!buy <id>`
+                if line == "!browse" {
+                    socket.send(&bsk_proto::MarketBrowse { version: -1, gold: Some(1) }.into());
+                } else if let Some(id) = line.strip_prefix("!buy ").and_then(|v| v.trim().parse().ok()) {
+                    socket.send(&bsk_proto::MarketAct { action: 1, id, price: 0 }.into());
+                } else {
+                    socket.send(&PlayerText { text: line.clone() }.into());
+                }
                 next_say = Some(Instant::now() + Duration::from_secs(3));
             }
         }
@@ -296,6 +311,10 @@ fn run(args: Args) -> Result<(), String> {
         // where the move is done: by the chest, the upgrade, or a tile (0 for no object)
         let goal = match vault_move {
             Some(VaultMove::Upgrade) => upgrade.map(|(id, at)| (id, WorldPos { x: at.x, y: at.y + 0.8 })),
+            Some(VaultMove::BuyChest(_)) => session.position.and_then(|p| {
+                let d = |a: WorldPos| (a.x - p.x).powi(2) + (a.y - p.y).powi(2);
+                closed.iter().min_by(|a, b| d(a.1).total_cmp(&d(b.1))).map(|&(id, at)| (id, WorldPos { x: at.x, y: at.y + 0.8 }))
+            }),
             Some(&VaultMove::Goto(x, y)) => Some((0, WorldPos { x, y })),
             Some(VaultMove::Wait(_)) => Some((0, WorldPos { x: -1.0, y: -1.0 })),
             _ => chest.map(|(id, at)| (id, WorldPos { x: at.x, y: at.y + 0.8 })),
@@ -317,7 +336,12 @@ fn run(args: Args) -> Result<(), String> {
                     match mv {
                         VaultMove::Upgrade => {
                             log::info!("vault: buying the hall upgrade (object {target})");
-                            socket.send(&bsk_proto::Buy { object_id: target }.into());
+                            socket.send(&bsk_proto::Buy { object_id: target, currency: None }.into());
+                        }
+                        VaultMove::BuyChest(currency) => {
+                            log::info!("vault: buying the closed chest {target} with {}", if currency == 0 { "gold" } else { "fame" });
+                            socket.send(&bsk_proto::Buy { object_id: target, currency: Some(currency) }.into());
+                            closed.retain(|&(id, _)| id != target);
                         }
                         VaultMove::Put(a, b) | VaultMove::Take(a, b) => {
                             let put = matches!(mv, VaultMove::Put(..));
@@ -403,6 +427,11 @@ fn run(args: Args) -> Result<(), String> {
                                 upgrade = Some((o.status.object_id, o.status.pos));
                             }
                         }
+                        for o in u.new_objs.iter().filter(|o| o.object_type == 0x0505) {
+                            closed.push((o.status.object_id, o.status.pos));
+                            let stat = |id: u8| o.status.stats.iter().find(|s| s.id == id).map(|s| format!("{:?}", s.value));
+                            log::info!("closed chest {}: fame price {:?}, gold price {:?}", o.status.object_id, stat(36), stat(221));
+                        }
                         // the guild vault's first chest: the top one, then the left (GuildHallWorld's order)
                         for o in u.new_objs.iter().filter(|o| o.object_type == 0x0504) {
                             let key = |p: WorldPos| (p.y as i32, p.x as i32);
@@ -436,6 +465,15 @@ fn run(args: Args) -> Result<(), String> {
                     }
                     ServerMessage::InvResult(r) => log::info!("vault: InvResult {}", r.result),
                     ServerMessage::BuyResult(r) => log::info!("vault: BuyResult {} {}", r.result, r.result_string),
+                    ServerMessage::MarketResult(r) => log::info!("market: {} {} (fame {}, gold {:?})", r.ok, r.message, r.fame, r.gold),
+                    ServerMessage::MarketListings(m) => {
+                        let currencies = m.listing_currencies.as_ref().map(|c| c.0.clone()).unwrap_or_default();
+                        for (i, l) in m.listings.iter().enumerate() {
+                            let unit = if currencies.get(i) == Some(&0) { "gold" } else { "fame" };
+                            log::info!("market: listing {} item 0x{:04x} for {} {unit} by {}", l.id, l.item_type, l.price, l.seller);
+                        }
+                        log::info!("market: tax {}%, gold tax {:?}", m.tax, m.gold_tax);
+                    }
                     ServerMessage::Text(t) if !t.text.is_empty() => {
                         log::info!("chat <{}> {}", t.name, t.text)
                     }

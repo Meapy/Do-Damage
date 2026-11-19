@@ -1002,13 +1002,14 @@ def server_events():
 
 
 def market_rules():
-    """The Marketplace's tax, listing limit and how long a listing lasts (Marketplace.cs)."""
+    """The Marketplace's taxes (fame, gold), listing limit and how long a listing lasts
+    (Marketplace.cs)."""
     src = _read(os.path.join(SRC, "WorldServer", "core", "market", "Marketplace.cs"))
 
     def const(name):
         m = re.search(r'const int %s\s*=\s*([\d_]+)' % name, src)
         return int(m.group(1).replace("_", "")) if m else 0
-    return {"tax": const("TaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
+    return {"tax": const("TaxPercent"), "gold_tax": const("GoldTaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
             "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24,
             "slot_step": const("SlotPriceStep"), "max_extra": const("MaxExtraSlots"),
             "max_slots": const("MaxListings") + const("MaxExtraSlots")}
@@ -1077,13 +1078,15 @@ def realm():
 
 
 def account():
-    """New accounts and what they can buy (init.xml, DbAccount)."""
+    """New accounts and what they can buy (init.xml, DbAccount, UnlockPrices: slots and vault
+    chests for fame, doubling every few bought with fame, or for gold, always the same)."""
     root = ET.parse(os.path.join(SRC, "Shared", "resources", "data", "init.xml")).getroot()
     na = root.find("NewAccounts")
     acc = _read(os.path.join(SRC, "Shared", "database", "account", "DbAccount.cs"))
+    unlocks = _read(os.path.join(SRC, "Shared", "database", "UnlockPrices.cs"))
 
-    def const(name):
-        return int(re.search(name + r'\s*=\s*(\d+)', acc).group(1))
+    def const(name, src=acc):
+        return int(re.search(name + r'\s*=\s*(\d+)', src).group(1))
     return {
         "char_slots": _int(_text(na, "MaxCharSlot"), 1),
         "vault_chests": _int(_text(na, "VaultCount"), 1),
@@ -1095,6 +1098,9 @@ def account():
         "storage_base": const("PotionStorageBase"),
         "storage_step": const("PotionStoragePerLevel"),
         "storage_cost": const("PotionStorageUpgradeCost"),
+        "unlock_doubles": const("DoublesEvery", unlocks),
+        "slot_gold": const("SlotGold", unlocks),
+        "vault_gold": const("VaultGold", unlocks),
     }
 
 

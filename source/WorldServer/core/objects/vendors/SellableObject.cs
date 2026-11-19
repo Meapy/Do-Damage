@@ -28,6 +28,10 @@ namespace WorldServer.core.objects.vendors
 
         public virtual void Buy(Player player) => SendFailed(player, BuyResult.Uninitialized);
 
+        // a Buy naming the currency to pay in (ClosedVaultChest sells for fame or gold); the
+        // others sell for their one currency
+        public virtual void Buy(Player player, CurrencyType currency) => Buy(player);
+
         protected override void ExportStats(IDictionary<StatDataType, object> stats, bool isOtherPlayer)
         {
             stats[StatDataType.MerchandisePrice] = Price;
@@ -42,7 +46,7 @@ namespace WorldServer.core.objects.vendors
             ResultString = $"Purchase Error: {result.GetDescription()}"
         });
 
-        protected BuyResult ValidateCustomer(Player player, Item item)
+        protected BuyResult ValidateCustomer(Player player, Item item, int? price = null, CurrencyType? currency = null)
         {
             if (World is TestWorld)
                 return BuyResult.IsTestMap;
@@ -61,7 +65,7 @@ namespace WorldServer.core.objects.vendors
                     return BuyResult.IsGuest;
             }
 
-            if (player.GetCurrency(Currency) < Price)
+            if (player.GetCurrency(currency ?? Currency) < (price ?? Price))
                 return BuyResult.InsufficientFunds;
 
             if (item != null) // not perfect, but does the job for now

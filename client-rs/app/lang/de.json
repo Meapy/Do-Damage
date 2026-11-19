@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Frontkämpfer: nimmt bei jedem Treffer 15 % weniger Schaden und heilt sich um 1,5 % des Schadens, den das Schwert verursacht, bis zu 40 Leben pro Sekunde.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Die Heilung des Paladins erreicht auch Verbündete im Umkreis von 4 Feldern.",
 "Pirate's luck: one shot in ten misses him entirely.": "Piratenglück: Jeder zehnte Schuss verfehlt ihn ganz.",
-"Lucky!": "Glück gehabt!"
+"Lucky!": "Glück gehabt!",
+"Buy a character slot?": "Einen Charakterplatz kaufen?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Du hast {fame} Ruhm und {gold} Gold. Der Ruhmpreis verdoppelt sich alle 5 mit Ruhm gekauften Plätze.",
+"{fame} fame or {gold} gold": "{fame} Ruhm oder {gold} Gold",
+"Bought {name} from {seller} for {price} gold": "{name} von {seller} für {price} Gold gekauft",
+"Buyers pay {price} gold": "Käufer zahlen {price} Gold",
+"How much gold?": "Wie viel Gold?",
+"Listed {name} for {price} gold": "{name} für {price} Gold angeboten",
+"Price in gold": "Preis in Gold",
+"Set a price in gold.": "Leg einen Preis in Gold fest.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "{name} an {buyer} für {price} Gold verkauft: du bekommst {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Der Marktmakler behält {tax} % jedes Verkaufs für Ruhm und {gold} % für Gold. Unverkaufte Gegenstände kommen in deine Kiste zurück.",
+"You get {net} gold ({tax}% tax)": "Du bekommst {net} Gold ({tax} % Steuer)",
+"{price} gold · you get {net} · {time} left": "{price} Gold · du bekommst {net} · noch {time}"
 }

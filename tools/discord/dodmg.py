@@ -346,15 +346,17 @@ def _md(text):
 
 
 def market_line(l):
+    # priced in gold ("currency": "gold") or fame (none)
+    unit = "gold" if l.get("currency") == "gold" else "fame"
     if l.get("kind") == "sold":
-        return "**%s** bought **%s** from **%s** for **%s** fame" % (
+        return "**%s** bought **%s** from **%s** for **%s** %s" % (
             _md(l.get("buyer", "?")), _md(l.get("item", "an item")), _md(l.get("seller", "?")),
-            "{:,}".format(int(l.get("price") or 0)))
+            "{:,}".format(int(l.get("price") or 0)), unit)
     hours = int(l.get("hours") or 0)
     days = hours // 24
     lasts = ("1 day" if days == 1 else "%d days" % days) if hours >= 24 and hours % 24 == 0 else "%d h" % hours
-    return "**%s** listed **%s** for **%s** fame (for %s)" % (
-        _md(l.get("seller", "?")), _md(l.get("item", "an item")), "{:,}".format(int(l.get("price") or 0)), lasts)
+    return "**%s** listed **%s** for **%s** %s (for %s)" % (
+        _md(l.get("seller", "?")), _md(l.get("item", "an item")), "{:,}".format(int(l.get("price") or 0)), unit, lasts)
 
 
 def market_messages(listings, site=SITE):

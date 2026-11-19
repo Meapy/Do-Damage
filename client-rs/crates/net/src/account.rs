@@ -70,6 +70,9 @@ pub struct CharList {
     /// What the next character slot costs, and in what (0 gold, 1 fame).
     pub next_slot_price: i32,
     pub next_slot_currency: i32,
+    /// What it costs in gold instead (`NextCharSlotGoldPrice`; 0 from a server that only sells
+    /// it for `next_slot_currency`).
+    pub next_slot_gold: i32,
     /// `<OwnedSkins>`.
     pub owned_skins: Vec<u16>,
     /// `<ClassStats>`: the best level and fame reached with each class.
@@ -164,6 +167,7 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
         list.credits = int("Credits");
         list.next_slot_price = int("NextCharSlotPrice");
         list.next_slot_currency = int("NextCharSlotCurrency");
+        list.next_slot_gold = int("NextCharSlotGoldPrice");
         if let Some(d) = account.children().find(|c| c.has_tag_name("Discord")) {
             list.discord_offered = true;
             if d.attribute("linked").is_some_and(|l| l.eq_ignore_ascii_case("true")) {
@@ -958,9 +962,9 @@ mod tests {
     fn slots_skins_legends_and_fame() {
         let xml = r#"<Chars nextCharId="2" maxNumChars="1"><OwnedSkins>835,0x0343</OwnedSkins>
             <Account><AccountId>7</AccountId><NextCharSlotPrice>500</NextCharSlotPrice>
-            <NextCharSlotCurrency>1</NextCharSlotCurrency></Account></Chars>"#;
+            <NextCharSlotCurrency>1</NextCharSlotCurrency><NextCharSlotGoldPrice>500</NextCharSlotGoldPrice></Account></Chars>"#;
         let list = parse_char_list(xml).unwrap();
-        assert_eq!((list.account_id, list.next_slot_price, list.next_slot_currency), (7, 500, 1));
+        assert_eq!((list.account_id, list.next_slot_price, list.next_slot_currency, list.next_slot_gold), (7, 500, 1, 500));
         assert_eq!(list.owned_skins, vec![835, 0x343]);
 
         let legends = parse_fame_list(

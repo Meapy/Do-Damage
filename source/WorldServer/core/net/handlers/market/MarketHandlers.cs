@@ -17,12 +17,16 @@ namespace WorldServer.core.net.handlers.market
         public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
         {
             var known = rdr.ReadInt32();
+            // a client that knows listings in gold says so (1); an older one sees only fame's
+            var knowsGold = rdr.BaseStream.Length - rdr.BaseStream.Position >= 1 && rdr.ReadByte() == 1;
             var player = client.Player;
             if (player == null || !client.GameServer.Marketplace.MayView(player))
                 return;
             var market = client.GameServer.Marketplace;
-            var (version, listings) = market.Listings();
+            var (version, all) = market.Listings();
+            var listings = knowsGold ? all : all.Where(l => l.Currency != Shared.resources.CurrencyType.Gold);
             var id = client.Account.AccountId;
+            var history = market.Store.History(id);
             client.SendPacket(new MarketListings
             {
                 Version = (int)version,
@@ -33,7 +37,9 @@ namespace WorldServer.core.net.handlers.market
                 SlotPrice = Marketplace.SlotPrice(client.Account),
                 Listings = listings.Take(Marketplace.MaxSent).ToArray(),
                 Box = market.Store.Box(id).Select(b => b.Item).ToArray(),
-                History = market.Store.History(id).ToArray()
+                History = (knowsGold ? history : history.Where(h => h.Currency != Shared.resources.CurrencyType.Gold)).ToArray(),
+                GoldTax = Marketplace.GoldTaxPercent,
+                KnowsGold = knowsGold
             });
         }
     }
@@ -50,11 +56,17 @@ namespace WorldServer.core.net.handlers.market
             var slot = rdr.ReadByte();
             var price = rdr.ReadInt32();
             var hours = rdr.ReadInt32();
+            // the price's currency (0 gold, 1 fame), when the client sends one: fame without
+            var currency = rdr.BaseStream.Length - rdr.BaseStream.Position >= 1 && rdr.ReadByte() == 0
+                ? Shared.resources.CurrencyType.Gold
+                : Shared.resources.CurrencyType.Fame;
             var player = client.Player;
             if (player == null)
                 return;
             var market = client.GameServer.Marketplace;
-            var (ok, message) = fromVault ? market.SellFromVault(player, chest, slot, price, hours) : market.Sell(player, slot, price, hours);
+            var (ok, message) = fromVault
+                ? market.SellFromVault(player, chest, slot, price, hours, currency)
+                : market.Sell(player, slot, price, hours, currency: currency);
             MarketActHandler.Answer(client, ok, message);
         }
     }
@@ -91,7 +103,8 @@ namespace WorldServer.core.net.handlers.market
         {
             Ok = ok,
             Message = message,
-            Fame = client.Player?.CurrentFame ?? 0
+            Fame = client.Player?.CurrentFame ?? 0,
+            Gold = client.Player?.Credits ?? 0
         });
     }
 }

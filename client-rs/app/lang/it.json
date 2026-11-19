@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Prima linea: subisce il 15% di danni in meno da ogni colpo e si cura dell'1,5% dei danni inflitti dalla spada, fino a 40 di salute al secondo.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Le cure del Paladino raggiungono anche gli alleati entro 4 caselle.",
 "Pirate's luck: one shot in ten misses him entirely.": "Fortuna del pirata: un colpo su dieci lo manca del tutto.",
-"Lucky!": "Che fortuna!"
+"Lucky!": "Che fortuna!",
+"Buy a character slot?": "Comprare uno slot personaggio?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Hai {fame} fama e {gold} oro. Il prezzo in fama raddoppia ogni 5 slot comprati con la fama.",
+"{fame} fame or {gold} gold": "{fame} fama o {gold} oro",
+"Bought {name} from {seller} for {price} gold": "Hai comprato {name} da {seller} per {price} oro",
+"Buyers pay {price} gold": "Chi compra paga {price} oro",
+"How much gold?": "Quanto oro?",
+"Listed {name} for {price} gold": "Hai messo in vendita {name} per {price} oro",
+"Price in gold": "Prezzo in oro",
+"Set a price in gold.": "Imposta un prezzo in oro.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "Hai venduto {name} a {buyer} per {price} oro: ricevi {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Il Mediatore del mercato trattiene il {tax}% di ogni vendita in fama e il {gold}% in oro. Gli invenduti tornano nella tua cassa.",
+"You get {net} gold ({tax}% tax)": "Ricevi {net} oro ({tax}% di tassa)",
+"{price} gold · you get {net} · {time} left": "{price} oro · ricevi {net} · restano {time}"
 }

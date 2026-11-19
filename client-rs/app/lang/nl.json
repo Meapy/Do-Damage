@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Frontlinie: krijgt bij elke treffer 15% minder schade en geneest 1,5% van de schade die het zwaard doet, tot 40 leven per seconde.",
 "The Paladin's healing also reaches allies within 4 tiles.": "De genezing van de Paladin bereikt ook bondgenoten binnen 4 vakjes.",
 "Pirate's luck: one shot in ten misses him entirely.": "Piratengeluk: één op de tien schoten mist hem helemaal.",
-"Lucky!": "Geluk gehad!"
+"Lucky!": "Geluk gehad!",
+"Buy a character slot?": "Een personageplek kopen?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Je hebt {fame} roem en {gold} goud. De prijs in roem verdubbelt na elke 5 plekken die je met roem koopt.",
+"{fame} fame or {gold} gold": "{fame} roem of {gold} goud",
+"Bought {name} from {seller} for {price} gold": "{name} gekocht van {seller} voor {price} goud",
+"Buyers pay {price} gold": "Kopers betalen {price} goud",
+"How much gold?": "Hoeveel goud?",
+"Listed {name} for {price} gold": "{name} te koop gezet voor {price} goud",
+"Price in gold": "Prijs in goud",
+"Set a price in gold.": "Stel een prijs in goud in.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "{name} verkocht aan {buyer} voor {price} goud: je krijgt {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "De Marktmakelaar houdt {tax}% van elke verkoop voor roem en {gold}% voor goud. Onverkochte voorwerpen komen terug in je doos.",
+"You get {net} gold ({tax}% tax)": "Je krijgt {net} goud ({tax}% belasting)",
+"{price} gold · you get {net} · {time} left": "{price} goud · je krijgt {net} · nog {time}"
 }

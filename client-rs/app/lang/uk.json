@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Передова: отримує на 15% менше шкоди від кожного влучання і лікується на 1,5% шкоди, завданої мечем, до 40 здоров'я на секунду.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Лікування паладина дістається й союзникам у радіусі 4 клітинок.",
 "Pirate's luck: one shot in ten misses him entirely.": "Піратська удача: кожен десятий постріл пролітає повз.",
-"Lucky!": "Пощастило!"
+"Lucky!": "Пощастило!",
+"Buy a character slot?": "Купити слот персонажа?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "У вас {fame} слави і {gold} золота. Ціна в славі подвоюється кожні 5 слотів, куплених за славу.",
+"{fame} fame or {gold} gold": "{fame} слави або {gold} золота",
+"Bought {name} from {seller} for {price} gold": "Куплено: {name} у {seller} за {price} золота",
+"Buyers pay {price} gold": "Покупці платять {price} золота",
+"How much gold?": "Скільки золота?",
+"Listed {name} for {price} gold": "Виставлено: {name} за {price} золота",
+"Price in gold": "Ціна в золоті",
+"Set a price in gold.": "Призначте ціну в золоті.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "Продано: {name} гравцеві {buyer} за {price} золота, вам — {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Маклер бере {tax}% з кожного продажу за славу і {gold}% за золото. Непродане повертається до ящика.",
+"You get {net} gold ({tax}% tax)": "Ви отримаєте {net} золота (податок {tax}%)",
+"{price} gold · you get {net} · {time} left": "{price} золота · вам {net} · лишилося {time}"
 }

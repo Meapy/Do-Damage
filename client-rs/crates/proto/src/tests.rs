@@ -349,11 +349,15 @@ fn vault_messages_match_vault_contents_handler() {
 
 #[test]
 fn marketplace_messages_match_market_handlers() {
-    // MarketBrowseHandler reads an int; MarketSellHandler a bool, an int, a byte and two ints;
+    // MarketBrowseHandler reads an int and, when there, a byte (1: we know listings in gold);
+    // MarketSellHandler a bool, an int, a byte, two ints and, when there, the currency (0 gold);
     // MarketActHandler a byte and two ints.
-    assert_eq!(ClientMessage::from(MarketBrowse { version: -1 }).to_frame(), B::default().i32(-1).frame(121));
-    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72 };
+    assert_eq!(ClientMessage::from(MarketBrowse { version: -1, gold: None }).to_frame(), B::default().i32(-1).frame(121));
+    assert_eq!(ClientMessage::from(MarketBrowse { version: -1, gold: Some(1) }).to_frame(), B::default().i32(-1).u8(1).frame(121));
+    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72, currency: None };
     assert_eq!(ClientMessage::from(sell).to_frame(), B::default().u8(1).i32(2).u8(5).i32(1500).i32(72).frame(123));
+    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72, currency: Some(0) };
+    assert_eq!(ClientMessage::from(sell).to_frame(), B::default().u8(1).i32(2).u8(5).i32(1500).i32(72).u8(0).frame(123));
     assert_eq!(ClientMessage::from(MarketAct { action: 1, id: 42, price: 900 }).to_frame(), B::default().u8(1).i32(42).i32(900).frame(124));
     // MarketListings.Write: version, now, unchanged, tax, limit; listings (id, item, price,
     // seller, start, end, stack, imprints); box (id, item, stack, imprints, why, time); history
@@ -375,11 +379,19 @@ fn marketplace_messages_match_market_handlers() {
     let mut newer = body.clone();
     newer.extend_from_slice(&1500i32.to_be_bytes());
     let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &newer).unwrap() else { panic!() };
-    assert_eq!(m.slot_price, Some(1500));
+    assert_eq!((m.slot_price, m.gold_tax), (Some(1500), None));
+    // to a client that knows gold: the gold tax, then each listing's and history line's currency
+    newer.extend_from_slice(&B::default().u8(10).i16(1).u8(0).i16(1).u8(1).0);
+    let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &newer).unwrap() else { panic!() };
+    assert_eq!(m.gold_tax, Some(10));
+    assert_eq!((m.listing_currencies.unwrap().0, m.history_currencies.unwrap().0), (vec![0], vec![1]));
     assert_eq!(ClientMessage::from(MarketAct { action: 4, id: 0, price: 1500 }).to_frame(), B::default().u8(4).i32(0).i32(1500).frame(124));
     let body = B::default().u8(1).utf("Bought").i32(1234).0;
     let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
-    assert_eq!((r.ok, r.message.as_str(), r.fame), (true, "Bought", 1234));
+    assert_eq!((r.ok, r.message.as_str(), r.fame, r.gold), (true, "Bought", 1234, None));
+    let body = B::default().u8(1).utf("Bought").i32(1234).i32(56).0;
+    let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
+    assert_eq!(r.gold, Some(56));
 }
 
 #[test]

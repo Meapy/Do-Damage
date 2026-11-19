@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Primera línea: recibe un 15 % menos de daño de cada golpe y se cura un 1,5 % del daño que hace la espada, hasta 40 de vida por segundo.",
 "The Paladin's healing also reaches allies within 4 tiles.": "La curación del Paladín también alcanza a los aliados a 4 casillas o menos.",
 "Pirate's luck: one shot in ten misses him entirely.": "Suerte de pirata: uno de cada diez disparos no le da.",
-"Lucky!": "¡Qué suerte!"
+"Lucky!": "¡Qué suerte!",
+"Buy a character slot?": "¿Comprar un hueco de personaje?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Tienes {fame} de fama y {gold} de oro. El precio en fama se duplica cada 5 huecos comprados con fama.",
+"{fame} fame or {gold} gold": "{fame} de fama o {gold} de oro",
+"Bought {name} from {seller} for {price} gold": "Compraste {name} a {seller} por {price} de oro",
+"Buyers pay {price} gold": "Los compradores pagan {price} de oro",
+"How much gold?": "¿Cuánto oro?",
+"Listed {name} for {price} gold": "Pusiste {name} a la venta por {price} de oro",
+"Price in gold": "Precio en oro",
+"Set a price in gold.": "Pon un precio en oro.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "Vendiste {name} a {buyer} por {price} de oro: recibes {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "El Corredor del Mercado se queda un {tax} % de cada venta por fama y un {gold} % por oro. Lo que no se vende vuelve a tu caja.",
+"You get {net} gold ({tax}% tax)": "Recibes {net} de oro ({tax} % de impuesto)",
+"{price} gold · you get {net} · {time} left": "{price} de oro · recibes {net} · quedan {time}"
 }

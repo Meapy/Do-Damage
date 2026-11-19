@@ -664,6 +664,7 @@ class Gen:
             "char_slots": a["char_slots"], "vault_chests": a["vault_chests"],
             "slot_cost": "%d %s" % (a["slot_cost"], a["slot_currency"]),
             "vault_chest_price": a["vault_chest_price"], "potion_stack": a["potion_stack"],
+            "unlock_doubles": a["unlock_doubles"], "slot_gold": a["slot_gold"], "vault_gold": a["vault_gold"],
             "storage_base": a["storage_base"], "storage_step": a["storage_step"], "storage_cost": a["storage_cost"],
             "gear_level": g["max_level"], "gear_max_tier": g["max_tier"],
             "gear_boosters": joined([with_article(self.d.name(b))

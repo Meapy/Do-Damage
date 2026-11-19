@@ -825,6 +825,8 @@ pub enum Button {
     Enter(i32),
     /// Buy from the shop.
     Buy(i32),
+    /// Buy it with gold instead (a closed vault chest, sold for fame or gold).
+    BuyGold(i32),
     /// The NPC's button (open its window, or go to the character list).
     Npc(crate::npc::NpcKind),
     /// A nearby player in the party list: opens the player menu.
@@ -938,8 +940,8 @@ pub enum InteractKind {
     Portal,
     /// `SellableObject` (merchants, guild merchants, closed vault chests): what it sells (-1
     /// when it sells itself), the price and currency (0 gold, 1 fame, 2 guild fame), the rank
-    /// it needs.
-    Shop { item: i32, price: i32, currency: i32, rank_req: i32 },
+    /// it needs, and its price in gold besides (a closed vault chest; 0 for none).
+    Shop { item: i32, price: i32, currency: i32, rank_req: i32, gold_price: i32 },
     /// An NPC with a panel (the Armoire, the guild register...), the rank it asks for, and the
     /// price it sends (the Guild Register's, 0 during a free guilds event).
     Npc { kind: crate::npc::NpcKind, rank_req: i32, price: Option<i32> },
@@ -954,6 +956,8 @@ pub mod merch {
     pub const MINS_LEFT: u8 = 43;
     pub const DISCOUNT: u8 = 44;
     pub const RANK_REQ: u8 = 45;
+    /// A closed vault chest's price in gold, beside its fame price.
+    pub const GOLD_PRICE: u8 = 221;
 }
 
 /// How near the Divine Forge (or the Enchanter) its window can be opened, in tiles (the server
@@ -981,7 +985,13 @@ pub fn interact_target(world: &World, data: &GameData) -> Option<Interact> {
             } else if is_shop(d) {
                 let stat = |id: u8| o.stat_int(id).unwrap_or(0);
                 let item = if d.class == ObjectClass::Merchant { o.stat_int(merch::TYPE).unwrap_or(-1) } else { -1 };
-                InteractKind::Shop { item, price: stat(merch::PRICE), currency: stat(merch::CURRENCY), rank_req: stat(merch::RANK_REQ) }
+                InteractKind::Shop {
+                    item,
+                    price: stat(merch::PRICE),
+                    currency: stat(merch::CURRENCY),
+                    rank_req: stat(merch::RANK_REQ),
+                    gold_price: stat(merch::GOLD_PRICE),
+                }
             } else if let Some(kind) = match &d.class {
                 ObjectClass::Other(c) => crate::npc::NpcKind::of_class(c),
                 _ => None,
@@ -1333,7 +1343,13 @@ impl Panel {
                     panel.buttons.push((Button::Npc(kind), ia(8.0, 52.0, 168.0, 34.0)));
                 }
             } else {
-                panel.buttons.push((Button::Buy(target.id), ia(60.0, 48.0, 116.0, 32.0)));
+                if let InteractKind::Shop { gold_price: 1.., .. } = target.kind {
+                    // for fame or for gold, one above the other
+                    panel.buttons.push((Button::Buy(target.id), ia(60.0, 32.0, 116.0, 27.0)));
+                    panel.buttons.push((Button::BuyGold(target.id), ia(60.0, 63.0, 116.0, 27.0)));
+                } else {
+                    panel.buttons.push((Button::Buy(target.id), ia(60.0, 48.0, 116.0, 32.0)));
+                }
                 if let InteractKind::Shop { item, .. } = target.kind {
                     panel.shop_icon = Some((ia(8.0, 30.0, 46.0, 46.0), item));
                 }
@@ -1520,7 +1536,7 @@ impl Panel {
                 state.page = p;
             }
             // The interact area's buttons only once it has settled on what it shows.
-            if matches!(button, Button::Enter(_) | Button::Buy(_) | Button::Npc(_))
+            if matches!(button, Button::Enter(_) | Button::Buy(_) | Button::BuyGold(_) | Button::Npc(_))
                 && !self.interact.as_ref().is_some_and(|t| state.interact_settled(t.id, now))
             {
                 return true;
@@ -1798,6 +1814,10 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
             }
             Button::Buy(_) => match panel.interact.as_ref().map(|i| i.kind) {
                 Some(InteractKind::Shop { price, currency, .. }) => (tf!("Buy  ·  {price}", price = price_text(price, currency)), Kind::Primary),
+                _ => continue,
+            },
+            Button::BuyGold(_) => match panel.interact.as_ref().map(|i| i.kind) {
+                Some(InteractKind::Shop { gold_price, .. }) => (tf!("Buy  ·  {price}", price = price_text(gold_price, 0)), Kind::Primary),
                 _ => continue,
             },
             Button::Npc(_) => match panel.interact.as_ref().map(|i| i.kind) {

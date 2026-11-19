@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Pierwsza linia: otrzymuje 15% mniej obrażeń od każdego trafienia i leczy się o 1,5% obrażeń zadanych mieczem, do 40 zdrowia na sekundę.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Leczenie Paladyna obejmuje też sojuszników w promieniu 4 pól.",
 "Pirate's luck: one shot in ten misses him entirely.": "Szczęście pirata: co dziesiąty pocisk całkiem go omija.",
-"Lucky!": "Farciarz!"
+"Lucky!": "Farciarz!",
+"Buy a character slot?": "Kupić miejsce na postać?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Masz {fame} sławy i {gold} złota. Cena w sławie podwaja się co 5 miejsc kupionych za sławę.",
+"{fame} fame or {gold} gold": "{fame} sławy lub {gold} złota",
+"Bought {name} from {seller} for {price} gold": "Kupiono {name} od {seller} za {price} złota",
+"Buyers pay {price} gold": "Kupujący płacą {price} złota",
+"How much gold?": "Ile złota?",
+"Listed {name} for {price} gold": "Wystawiono {name} za {price} złota",
+"Price in gold": "Cena w złocie",
+"Set a price in gold.": "Ustal cenę w złocie.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "Sprzedano {name} graczowi {buyer} za {price} złota: dostajesz {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Pośrednik Targowy zatrzymuje {tax}% z każdej sprzedaży za sławę i {gold}% za złoto. Niesprzedane przedmioty wracają do skrzynki.",
+"You get {net} gold ({tax}% tax)": "Dostajesz {net} złota ({tax}% podatku)",
+"{price} gold · you get {net} · {time} left": "{price} złota · dostajesz {net} · zostało {time}"
 }

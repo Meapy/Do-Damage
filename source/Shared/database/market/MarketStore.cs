@@ -75,7 +75,7 @@ local function hist(acc, entry)
   redis.call('LTRIM', k, 0, 49)
 end
 local function entry(kind, o, price, net, other, now)
-  return cjson.encode({kind = kind, itemType = o.itemType, itemData = o.itemData, price = price, net = net, other = other, time = now})
+  return cjson.encode({kind = kind, itemType = o.itemType, itemData = o.itemData, price = price, net = net, other = other, time = now, currency = o.currency})
 end
 local function box(acc, o, why, boxId, now)
   redis.call('RPUSH', 'market.box.' .. acc, cjson.encode({boxId = boxId, itemType = o.itemType, itemData = o.itemData, why = why, time = now}))
@@ -139,17 +139,21 @@ if o.itemType ~= tonumber(@itemType) then return {-10} end
 if tonumber(@price) > 0 and o.price ~= tonumber(@price) then return {-3, o.price} end
 local now = tonumber(@now)
 if o.timeLeft <= now then return {-4} end
-local fame = tonumber(redis.call('HGET', @buyerAcc, 'fame') or '0') or 0
-if fame < o.price then return {-5, fame} end
+-- priced in gold (currency 0) or fame (1, and every listing from before gold)
+local gold = o.currency == 0
+local field, total, taxPercent = 'fame', 'totalFame', tonumber(@tax)
+if gold then field, total, taxPercent = 'credits', 'totalCredits', tonumber(@goldTax) end
+local have = tonumber(redis.call('HGET', @buyerAcc, field) or '0') or 0
+if have < o.price then return {-5, have} end
 redis.call('HDEL', @marketKey, @id)
 redis.call('SREM', 'market.seller.' .. o.sellerId, @id)
 redis.call('INCR', @versionKey)
-local left = redis.call('HINCRBY', @buyerAcc, 'fame', -o.price)
-local tax = math.floor(o.price * tonumber(@tax) / 100)
+local left = redis.call('HINCRBY', @buyerAcc, field, -o.price)
+local tax = math.floor(o.price * taxPercent / 100)
 local net = o.price - tax
 if net > 0 then
-  redis.call('HINCRBY', 'account.' .. o.sellerId, 'fame', net)
-  redis.call('HINCRBY', 'account.' .. o.sellerId, 'totalFame', net)
+  redis.call('HINCRBY', 'account.' .. o.sellerId, field, net)
+  redis.call('HINCRBY', 'account.' .. o.sellerId, total, net)
 end
 local inInventory = 0
 if deliver(@lockKey, @token, @charKey, @items, @datas) then inInventory = 1 else box(@buyerId, o, 'bought', tonumber(@boxId), now) end
@@ -262,8 +266,9 @@ return all
             return list;
         }
 
-        // The listing as it would be stored.
-        public static DbMarketData NewListing(int id, int sellerId, string sellerName, ushort itemType, ItemData data, int price, int start, int end) => new DbMarketData
+        // The listing as it would be stored, priced in fame or gold.
+        public static DbMarketData NewListing(int id, int sellerId, string sellerName, ushort itemType, ItemData data, int price, int start, int end,
+            resources.CurrencyType currency = resources.CurrencyType.Fame) => new DbMarketData
         {
             Id = id,
             ItemType = itemType,
@@ -273,7 +278,7 @@ return all
             Price = price,
             StartTime = start,
             TimeLeft = end,
-            Currency = resources.CurrencyType.Fame
+            Currency = currency == resources.CurrencyType.Gold ? currency : resources.CurrencyType.Fame
         };
 
         private static string Json(DbMarketData l) => JsonConvert.SerializeObject(l);
@@ -337,16 +342,18 @@ return all
         public sealed class BuyResult
         {
             public Result Result;
-            public int FameLeft;        // the buyer's fame after paying
+            public int FameLeft;        // the buyer's fame (or gold, for a listing in gold) after paying
             public bool InInventory;    // delivered into the inventory, else into the box
             public int Net;             // what the seller got
             public int SellerId;
             public int Price;           // PriceChanged: the listing's price
         }
 
-        // Buys a listing: the fame moves, the listing goes, and the item lands in the buyer's
-        // inventory (items/datas: the inventory with it, or null when there's no room) or box.
-        public BuyResult Buy(Owner buyer, string buyerName, int id, ushort itemType, int expectedPrice, int taxPercent, ushort[] items, ItemData[] datas, int now)
+        // Buys a listing: the fame (or gold, the seller paid less goldTaxPercent) moves, the
+        // listing goes, and the item lands in the buyer's inventory (items/datas: the inventory
+        // with it, or null when there's no room) or box.
+        public BuyResult Buy(Owner buyer, string buyerName, int id, ushort itemType, int expectedPrice, int taxPercent, int goldTaxPercent,
+            ushort[] items, ItemData[] datas, int now)
         {
             var (bytes, json) = items != null ? CharacterFields(items, datas) : (Array.Empty<byte>(), "");
             var r = (RedisResult[])_db.ScriptEvaluate(BuyScript, new
@@ -363,6 +370,7 @@ return all
                 price = expectedPrice,
                 now,
                 tax = taxPercent,
+                goldTax = goldTaxPercent,
                 boxId = NextId(),
                 token = buyer.LockToken,
                 items = bytes,
@@ -531,6 +539,8 @@ return all
         // listing. A sale's Id is a fresh one, so the feed stays in order for the bot.
         [JsonProperty("kind", NullValueHandling = NullValueHandling.Ignore)] public string Kind;
         [JsonProperty("buyer", NullValueHandling = NullValueHandling.Ignore)] public string Buyer;
+        // "gold" for a listing in gold; none for fame
+        [JsonProperty("currency", NullValueHandling = NullValueHandling.Ignore)] public string Currency;
     }
 
     public sealed class MarketHistoryEntry
@@ -545,5 +555,7 @@ return all
         // sold: the buyer; bought: the seller
         [JsonProperty("other")] public string Other;
         [JsonProperty("time")] public int Time;
+        // what the price was in (fame for every line from before gold listings)
+        [JsonProperty("currency")] public resources.CurrencyType Currency = resources.CurrencyType.Fame;
     }
 }

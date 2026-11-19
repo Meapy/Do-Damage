@@ -35,8 +35,11 @@ free Potion of Maxy the first time, and a new password from the Discord bot if y
 yours ([how](faq.html#why-link-my-discord)). It's optional.
 
 A new account has {{v:char_slots}} character slots and {{v:vault_chests}} vault chests. More slots
-cost {{v:slot_cost}} on the character screen; more vault chests cost {{v:vault_chest_price}} fame
-in the vault (see [Items](items.html#your-vault)).
+cost {{v:slot_cost}} or {{v:slot_gold}} gold on the character screen; more vault chests cost
+{{v:vault_chest_price}} fame or {{v:vault_gold}} gold in the vault (see
+[Items](items.html#your-vault)). The fame price doubles every {{v:unlock_doubles}} slots (or
+chests) you buy with fame; the gold price never changes, and buying with gold doesn't raise the
+fame price.
 
 ## Choosing a class
 

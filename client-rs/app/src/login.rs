@@ -52,9 +52,13 @@ impl Endpoint {
         )
     }
 
-    /// `/account/purchaseCharSlot`.
-    pub fn buy_slot(&self, email: &str, password: &str) -> Pending<http::Response> {
-        http::post_form(&format!("{}/account/purchaseCharSlot", self.account), &[("guid", email), ("password", password)])
+    /// `/account/purchaseCharSlot`, with gold or with fame.
+    pub fn buy_slot(&self, email: &str, password: &str, gold: bool) -> Pending<http::Response> {
+        let currency = if gold { "0" } else { "1" };
+        http::post_form(
+            &format!("{}/account/purchaseCharSlot", self.account),
+            &[("guid", email), ("password", password), ("currency", currency)],
+        )
     }
 
     /// `/account/purchaseSkin`.

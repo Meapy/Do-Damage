@@ -176,6 +176,8 @@ enum Target {
     Delete(i32),
     ConfirmYes,
     ConfirmNo,
+    /// The confirmation's other yes: pay with gold (a character slot).
+    ConfirmGold,
     NewChar,
     Class(u16),
     Skin(u16),
@@ -229,7 +231,8 @@ pub enum Action {
     Create(u16, u16),
     Delete(i32),
     Logout,
-    BuySlot,
+    /// Buy a character slot, with gold (true) or fame.
+    BuySlot(bool),
     BuySkin(u16),
     ChangePassword,
     /// Ask for the legends of this time span.
@@ -709,6 +712,11 @@ impl Front {
             Target::Delete(id) => self.confirm = Some(Confirm::Delete(id)),
             Target::ConfirmYes => return self.confirmed(),
             Target::ConfirmNo => self.confirm = None,
+            Target::ConfirmGold => {
+                if self.confirm.take() == Some(Confirm::BuySlot) {
+                    return Some(Action::BuySlot(true));
+                }
+            }
             Target::NewChar => self.show(Screen::NewChar),
             Target::Class(t) => {
                 self.skin = 0;
@@ -794,7 +802,7 @@ impl Front {
     fn confirmed(&mut self) -> Option<Action> {
         match self.confirm.take()? {
             Confirm::Delete(id) => Some(Action::Delete(id)),
-            Confirm::BuySlot => Some(Action::BuySlot),
+            Confirm::BuySlot => Some(Action::BuySlot(false)),
             Confirm::BuySkin(t) => Some(Action::BuySkin(t)),
             Confirm::Unlink => Some(Action::DiscordUnlink),
         }
@@ -1244,10 +1252,17 @@ impl Front {
             let label = tr(label);
             let lw = ui.measure(label, size, true);
             ui.label(label, r[0] + (r[2] - lw) / 2.0, r[1] + r[3] / 2.0 - size * 1.25, size, true, if over { color::ACCENT_HI } else { color::TEXT });
-            let cost = if fame { tf!("{price} fame", price) } else { tf!("{price} gold", price) };
+            let gold = list.next_slot_gold;
+            let cost = if fame && gold > 0 {
+                tf!("{fame} fame or {gold} gold", fame = price, gold)
+            } else if fame {
+                tf!("{price} fame", price)
+            } else {
+                tf!("{price} gold", price)
+            };
             let cs = (15.0 * s).round();
             let cw = ui.measure(&cost, cs, true);
-            let afford = if fame { list.fame >= price } else { list.credits >= price };
+            let afford = if fame { list.fame >= price || gold > 0 && list.credits >= gold } else { list.credits >= price };
             ui.label(&cost, r[0] + (r[2] - cw) / 2.0, r[1] + r[3] / 2.0 + 4.0 * s, cs, true, if afford { color::ACCENT } else { color::DANGER });
             self.targets.push((Target::BuySlot, r));
         }
@@ -1449,6 +1464,12 @@ impl Front {
                     .unwrap_or_else(|| tr("this character").into());
                 (tf!("Delete {what}?", what), tr("Its items and fame are gone for good.").to_owned(), tr("Delete"), Kind::Danger)
             }
+            Confirm::BuySlot if list.next_slot_currency == 1 && list.next_slot_gold > 0 => (
+                tr("Buy a character slot?").to_owned(),
+                tf!("You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.", fame = list.fame, gold = list.credits),
+                tr("Buy"),
+                Kind::Primary,
+            ),
             Confirm::BuySlot => {
                 let price = list.next_slot_price;
                 let title = if list.next_slot_currency == 1 { tf!("Buy a character slot for {price} fame?", price) } else { tf!("Buy a character slot for {price} gold?", price) };
@@ -1477,6 +1498,19 @@ impl Front {
         ui.label(&title, r[0] + 26.0 * s, r[1] + 24.0 * s, tsize, true, color::TEXT);
         ui.label(&detail, r[0] + 26.0 * s, r[1] + 58.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         let by = r[1] + r[3] - 62.0 * s;
+        if confirm == Confirm::BuySlot && list.next_slot_currency == 1 && list.next_slot_gold > 0 {
+            // a character slot: for fame (doubling) or for gold, each button its price
+            let fame = tf!("{price} fame", price = list.next_slot_price);
+            let gold = tf!("{price} gold", price = list.next_slot_gold);
+            let bw = ((r[2] - 52.0 * s - 24.0 * s) / 3.0).min(150.0 * s);
+            let x = |i: f32| r[0] + r[2] - 26.0 * s - (3.0 - i) * bw - (2.0 - i) * 12.0 * s;
+            self.button(ui, Target::ConfirmNo, [x(0.0), by, bw, 40.0 * s], tr("Cancel"), Kind::Secondary, s, mouse);
+            let fame_kind = if list.fame >= list.next_slot_price { Kind::Primary } else { Kind::Secondary };
+            let gold_kind = if list.credits >= list.next_slot_gold { Kind::Primary } else { Kind::Secondary };
+            self.button(ui, Target::ConfirmYes, [x(1.0), by, bw, 40.0 * s], &fame, fame_kind, s, mouse);
+            self.button(ui, Target::ConfirmGold, [x(2.0), by, bw, 40.0 * s], &gold, gold_kind, s, mouse);
+            return;
+        }
         self.button(ui, Target::ConfirmNo, [r[0] + r[2] - 290.0 * s, by, 128.0 * s, 40.0 * s], tr("Cancel"), Kind::Secondary, s, mouse);
         self.button(ui, Target::ConfirmYes, [r[0] + r[2] - 152.0 * s, by, 128.0 * s, 40.0 * s], yes, kind, s, mouse);
     }

@@ -30,7 +30,8 @@ use winit::keyboard::KeyCode;
 pub enum Act {
     /// The listings if they changed since this version, the box and the history.
     Browse(i32),
-    Sell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32 },
+    /// List an item, for gold or fame.
+    Sell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32, gold: bool },
     /// Buy this listing at the price we saw.
     Buy(i32, i32),
     Cancel(i32),
@@ -102,8 +103,9 @@ const NO_ANSWER: i32 = 5000;
 const CONFIRM_MS: i32 = 3000;
 /// `confirm`'s listing id while buying a listing slot (listing ids start at 1).
 const SLOT_CONFIRM: i32 = -1;
-/// `FAME_STAT`: the account's fame.
+/// `FAME_STAT`: the account's fame; `CREDITS_STAT`: its gold.
 const FAME_STAT: u8 = 39;
+const CREDITS_STAT: u8 = 35;
 
 /// An item that can be listed: an inventory slot, or a vault chest's slot.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -128,6 +130,8 @@ enum Hit {
     Source(bool),
     Pick(Pick),
     Days(u8),
+    /// Sell for gold (true) or fame.
+    Currency(bool),
     List,
     BuySlot,
     Up,
@@ -146,6 +150,13 @@ pub struct Market {
     /// The server's clock less ours (seconds), for the time left.
     offset: i64,
     tax: u8,
+    /// The tax on a sale for gold; 0 from a server that has only fame.
+    gold_tax: u8,
+    /// The listings priced in gold, and which history lines were.
+    gold: std::collections::HashSet<i32>,
+    history_gold: Vec<bool>,
+    /// Selling for gold rather than fame.
+    sell_gold: bool,
     limit: u8,
     /// What our next listing slot costs, 0 when we have them all or the server doesn't sell them.
     slot_price: i32,
@@ -196,6 +207,11 @@ fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 
 fn unix_now() -> i64 {
     web_time::SystemTime::now().duration_since(web_time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64)
+}
+
+/// An amount of gold or fame, as the prices show it: "12,500 fame".
+fn amount(n: i32, gold: bool) -> String {
+    if gold { tn!(n, "{n} gold|{n} gold", n = fame(n)) } else { tn!(n, "{n} fame|{n} fame", n = fame(n)) }
 }
 
 /// A fame amount with thousands separated: 12,500.
@@ -350,13 +366,21 @@ impl Market {
                 self.tax = m.tax;
                 self.limit = m.limit;
                 self.slot_price = m.slot_price.unwrap_or(0);
+                self.gold_tax = m.gold_tax.unwrap_or(0);
+                if self.gold_tax == 0 {
+                    self.sell_gold = false;
+                }
                 if !m.unchanged || !self.loaded {
+                    let currencies = m.listing_currencies.map(|c| c.0).unwrap_or_default();
+                    self.gold = m.listings.0.iter().zip(currencies).filter(|&(_, c)| c == 0).map(|(l, _)| l.id).collect();
                     self.listings = m.listings.0;
                     self.version = m.version;
                     self.dirty = true;
                 }
                 self.loaded = true;
                 self.boxed = m.boxed.0;
+                let currencies = m.history_currencies.map(|c| c.0).unwrap_or_default();
+                self.history_gold = (0..m.history.0.len()).map(|i| currencies.get(i) == Some(&0)).collect();
                 self.history = m.history.0;
                 Vec::new()
             }
@@ -375,6 +399,11 @@ impl Market {
                 self.ask(self.now, true)
             }
         }
+    }
+
+    /// The tax on a sale in gold or fame.
+    fn tax_of(&self, gold: bool) -> i32 {
+        if gold { self.gold_tax as i32 } else { self.tax as i32 }
     }
 
     fn server_now(&self) -> i64 {
@@ -486,20 +515,22 @@ impl Market {
                 self.typing_price = true;
             }
             Hit::Days(d) => self.days = d,
+            Hit::Currency(gold) => self.sell_gold = gold && self.gold_tax > 0,
             Hit::List => {
                 let price: i32 = self.price.parse().unwrap_or(0);
                 let Some((p, _)) = self.pick else {
                     self.message = Some((tr("Pick an item to sell first.").into(), true));
                     return Vec::new();
                 };
+                let gold = self.sell_gold;
                 if price <= 0 {
-                    self.message = Some((tr("Set a price in fame.").into(), true));
+                    self.message = Some((if gold { tr("Set a price in gold.") } else { tr("Set a price in fame.") }.into(), true));
                     return Vec::new();
                 }
                 let hours = self.days as i32 * 24;
                 return vec![match p {
-                    Pick::Inv(slot) => Act::Sell { from_vault: false, chest: 0, slot, price, hours },
-                    Pick::Vault(chest, slot) => Act::Sell { from_vault: true, chest, slot, price, hours },
+                    Pick::Inv(slot) => Act::Sell { from_vault: false, chest: 0, slot, price, hours, gold },
+                    Pick::Vault(chest, slot) => Act::Sell { from_vault: true, chest, slot, price, hours, gold },
                 }];
             }
             Hit::BuySlot => {
@@ -637,6 +668,12 @@ impl Market {
         let ft = tn!(fame_now, "{n} fame|{n} fame", n = fame(fame_now));
         let fw = ui.measure(&ft, font(15.0), true);
         ui.label(&ft, r[0] + r[2] - fw - 62.0 * s, r[1] + 19.0 * s, font(15.0), true, color::ACCENT);
+        if self.gold_tax > 0 {
+            let gold_now = me.map_or(0, |m| m.stat_int(CREDITS_STAT).unwrap_or(0));
+            let gt = amount(gold_now, true);
+            let gw = ui.measure(&gt, font(15.0), true);
+            ui.label(&gt, r[0] + r[2] - fw - gw - 80.0 * s, r[1] + 19.0 * s, font(15.0), true, color::GOLD);
+        }
         let cb = [r[0] + r[2] - 42.0 * s, r[1] + 14.0 * s, 28.0 * s, 28.0 * s];
         if inside(cb, mouse) {
             theme::fill(ui.renderer, cb, 6.0 * s, 0xFFFFFF, 0.1);
@@ -690,6 +727,11 @@ impl Market {
             None => (
                 match self.tab {
                     Tab::Browse => tr("Click Buy, then again to confirm. Items go to your inventory, or your box when it's full.").to_owned(),
+                    Tab::Sell if self.gold_tax > 0 => tf!(
+                        "The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.",
+                        tax = self.tax,
+                        gold = self.gold_tax
+                    ),
                     Tab::Sell => tf!("The Market Broker keeps {tax}% of each sale. Unsold items come back to your box.", tax = self.tax),
                     Tab::Mine => tr("Taking a listing back returns it to your inventory, or your box when it's full.").to_owned(),
                     Tab::Box => tr("Items wait here, imprints and all, until you collect them.").to_owned(),
@@ -776,9 +818,10 @@ impl Market {
                 tf!("{tier} · {seller} · {time} left", tier, seller = l.seller, time = left(l.end as i64 - now))
             };
             ui.label(&sub, tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
-            let price = tn!(l.price, "{n} fame|{n} fame", n = fame(l.price));
+            let gold = self.gold.contains(&l.id);
+            let price = amount(l.price, gold);
             let pw = ui.measure(&price, font(15.0), true);
-            ui.label(&price, rr[0] + rr[2] - 132.0 * s - pw, rr[1] + (rr[3] - font(15.0) * 1.22) / 2.0, font(15.0), true, color::ACCENT);
+            ui.label(&price, rr[0] + rr[2] - 132.0 * s - pw, rr[1] + (rr[3] - font(15.0) * 1.22) / 2.0, font(15.0), true, if gold { color::GOLD } else { color::ACCENT });
             let bb = [rr[0] + rr[2] - 118.0 * s, rr[1] + 8.0 * s, 112.0 * s, rr[3] - 16.0 * s];
             if self.mine(l) {
                 ui.label(tr("Yours"), bb[0] + 36.0 * s, bb[1] + 6.0 * s, font(13.0), true, color::TEXT_MUTED);
@@ -874,11 +917,18 @@ impl Market {
             _ => ui.label(tr("Pick an item on the left to sell it."), ix, y + 18.0 * s, font(14.0), false, color::TEXT_MUTED),
         }
         y += 76.0 * s;
-        ui.label(tr("Price in fame"), ix, y, font(12.0), true, color::TEXT_DIM);
+        let gold = self.sell_gold;
+        ui.label(if gold { tr("Price in gold") } else { tr("Price in fame") }, ix, y, font(12.0), true, color::TEXT_DIM);
+        if self.gold_tax > 0 {
+            // for fame or for gold, beside the label
+            let (fl, gl) = (tr("Fame"), tr("Gold"));
+            let cw = ui.measure(fl, font(12.0), true) + ui.measure(gl, font(12.0), true) + 50.0 * s;
+            self.chips(ui, pr[0] + pr[2] - 18.0 * s - cw, y - 6.0 * s, &[(Hit::Currency(false), fl, !gold), (Hit::Currency(true), gl, gold)], s, mouse);
+        }
         let fr = [ix, y + 20.0 * s, pr[2] - 36.0 * s, 34.0 * s];
         let price = self.price.clone();
         let shown = price.parse::<i32>().map_or(String::new(), fame);
-        Self::field(ui, fr, &shown, tr("How much fame?"), self.typing_price, s, now);
+        Self::field(ui, fr, &shown, if gold { tr("How much gold?") } else { tr("How much fame?") }, self.typing_price, s, now);
         self.hits.push((Hit::Price, fr));
         y += 66.0 * s;
         ui.label(tr("Lasts"), ix, y, font(12.0), true, color::TEXT_DIM);
@@ -888,9 +938,15 @@ impl Market {
         y += 60.0 * s;
         let p: i32 = self.price.parse().unwrap_or(0);
         if p > 0 {
-            let net = p - p * self.tax as i32 / 100;
-            ui.label(&tf!("Buyers pay {price} fame", price = fame(p)), ix, y, font(13.0), false, color::TEXT_DIM);
-            ui.label(&tf!("You get {net} fame ({tax}% tax)", net = fame(net), tax = self.tax), ix, y + 20.0 * s, font(14.0), true, color::ACCENT);
+            let tax = self.tax_of(gold);
+            let net = p - p * tax / 100;
+            let (pays, gets) = if gold {
+                (tf!("Buyers pay {price} gold", price = fame(p)), tf!("You get {net} gold ({tax}% tax)", net = fame(net), tax))
+            } else {
+                (tf!("Buyers pay {price} fame", price = fame(p)), tf!("You get {net} fame ({tax}% tax)", net = fame(net), tax))
+            };
+            ui.label(&pays, ix, y, font(13.0), false, color::TEXT_DIM);
+            ui.label(&gets, ix, y + 20.0 * s, font(14.0), true, if gold { color::GOLD } else { color::ACCENT });
         }
         let mine = self.listings.iter().filter(|l| self.mine(l)).count();
         let sy = pr[1] + pr[3] - 92.0 * s;
@@ -934,8 +990,11 @@ impl Market {
             self.item(ui, ir, l.item_type as i32, l.stack, [l.offensive as u32, l.defensive as u32, l.misc as u32, 0], None, mouse, s, "");
             let tx = ir[0] + ir[2] + 12.0 * s;
             ui.label(&name_of(ui.data, l.item_type as i32), tx, rr[1] + 6.0 * s, font(14.0), true, color::TEXT);
-            let net = l.price - l.price * self.tax as i32 / 100;
-            ui.label(&tf!("{price} fame · you get {net} · {time} left", price = fame(l.price), net = fame(net), time = left(l.end as i64 - now)), tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
+            let gold = self.gold.contains(&l.id);
+            let net = l.price - l.price * self.tax_of(gold) / 100;
+            let (price, net, time) = (fame(l.price), fame(net), left(l.end as i64 - now));
+            let line = if gold { tf!("{price} gold · you get {net} · {time} left", price, net, time) } else { tf!("{price} fame · you get {net} · {time} left", price, net, time) };
+            ui.label(&line, tx, rr[1] + 26.0 * s, font(12.0), false, color::TEXT_MUTED);
             let bb = [rr[0] + rr[2] - 118.0 * s, rr[1] + 8.0 * s, 112.0 * s, rr[3] - 16.0 * s];
             ui.button(bb, tr("Take back"), Kind::Danger, inside(bb, mouse), s * 0.85);
             self.hits.push((Hit::Cancel(l.id), bb));
@@ -993,8 +1052,15 @@ impl Market {
         let row_h = 40.0 * s;
         self.rows = (((b[3] - 40.0 * s) / row_h).floor() as usize).max(1);
         self.row = self.row.min(self.history.len().saturating_sub(self.rows));
-        let history: Vec<MarketHistory> = self.history.iter().skip(self.row).take(self.rows).cloned().collect();
-        for (i, h) in history.iter().enumerate() {
+        let history: Vec<(MarketHistory, bool)> = self
+            .history
+            .iter()
+            .enumerate()
+            .skip(self.row)
+            .take(self.rows)
+            .map(|(i, h)| (h.clone(), self.history_gold.get(i).copied().unwrap_or(false)))
+            .collect();
+        for (i, (h, gold)) in history.iter().enumerate() {
             let rr = [b[0] + 6.0 * s, b[1] + 6.0 * s + i as f32 * row_h, b[2] - 12.0 * s, row_h - 4.0 * s];
             if i % 2 == 0 {
                 theme::fill(ui.renderer, rr, 6.0 * s, 0xFFFFFF, 0.025);
@@ -1003,6 +1069,9 @@ impl Market {
             self.item(ui, ir, h.item_type as i32, 0, [0; 4], None, mouse, s, "");
             let name = name_of(ui.data, h.item_type as i32);
             let (text, col) = match h.kind {
+                1 if *gold => (tf!("Listed {name} for {price} gold", name, price = fame(h.price)), color::TEXT_DIM),
+                2 if *gold => (tf!("Sold {name} to {buyer} for {price} gold: you got {net}", name, buyer = h.other, price = fame(h.price), net = fame(h.net)), color::GOOD),
+                3 if *gold => (tf!("Bought {name} from {seller} for {price} gold", name, seller = h.other, price = fame(h.price)), color::ACCENT),
                 1 => (tf!("Listed {name} for {price} fame", name, price = fame(h.price)), color::TEXT_DIM),
                 2 => (tf!("Sold {name} to {buyer} for {price} fame: you got {net}", name, buyer = h.other, price = fame(h.price), net = fame(h.net)), color::GOOD),
                 3 => (tf!("Bought {name} from {seller} for {price} fame", name, seller = h.other, price = fame(h.price)), color::ACCENT),
@@ -1030,7 +1099,43 @@ mod tests {
     }
 
     fn answer(listings: Vec<MarketListing>, version: i32, unchanged: bool) -> Event {
-        Event::Listings(MarketListings { version, now: 1000, unchanged, tax: 5, limit: 10, slot_price: Some(500), listings: List16(listings), boxed: List16(Vec::new()), history: List16(Vec::new()) })
+        Event::Listings(MarketListings {
+            version,
+            now: 1000,
+            unchanged,
+            tax: 5,
+            limit: 10,
+            slot_price: Some(500),
+            listings: List16(listings),
+            boxed: List16(Vec::new()),
+            history: List16(Vec::new()),
+            gold_tax: None,
+            listing_currencies: None,
+            history_currencies: None,
+        })
+    }
+
+    #[test]
+    fn listings_in_gold_are_told_apart_and_sold_for_gold_only_where_the_server_has_it() {
+        let mut m = Market { open: true, ..Default::default() };
+        let Event::Listings(mut a) = answer(vec![listing(1, 50, 1, 9, "A"), listing(2, 10, 3, 5, "B")], 2, false) else { unreachable!() };
+        a.gold_tax = Some(10);
+        a.listing_currencies = Some(List16(vec![1, 0]));
+        m.event(Event::Listings(a));
+        assert!(!m.gold.contains(&1) && m.gold.contains(&2));
+        assert_eq!((m.tax_of(false), m.tax_of(true)), (5, 10));
+        // selling for gold
+        let data = GameData::default();
+        m.hits = vec![(Hit::Currency(true), [0.0, 0.0, 10.0, 10.0]), (Hit::List, [20.0, 0.0, 10.0, 10.0])];
+        m.click((5.0, 5.0), &data);
+        m.pick = Some((Pick::Inv(4), 9));
+        m.price = "300".into();
+        assert_eq!(m.click((25.0, 5.0), &data), vec![Act::Sell { from_vault: false, chest: 0, slot: 4, price: 300, hours: 0, gold: true }]);
+        // an older server: fame only
+        m.event(answer(Vec::new(), 3, false));
+        assert!(!m.sell_gold && m.gold.is_empty());
+        m.click((5.0, 5.0), &data);
+        assert!(!m.sell_gold);
     }
 
     #[test]

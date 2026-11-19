@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Ön cephe: her vuruştan %15 daha az hasar alır ve kılıcın verdiği hasarın %1,5'i kadar iyileşir, saniyede en çok 40 can.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Paladin'in iyileştirmesi 4 kare içindeki müttefiklere de ulaşır.",
 "Pirate's luck: one shot in ten misses him entirely.": "Korsan şansı: her on atıştan biri onu tamamen ıskalar.",
-"Lucky!": "Şanslıydın!"
+"Lucky!": "Şanslıydın!",
+"Buy a character slot?": "Karakter yuvası alınsın mı?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "{fame} şöhretin ve {gold} altının var. Şöhretle alınan her 5 yuvada şöhret fiyatı iki katına çıkar.",
+"{fame} fame or {gold} gold": "{fame} şöhret ya da {gold} altın",
+"Bought {name} from {seller} for {price} gold": "{seller} oyuncusundan {price} altına alındı: {name}",
+"Buyers pay {price} gold": "Alıcılar {price} altın öder",
+"How much gold?": "Ne kadar altın?",
+"Listed {name} for {price} gold": "{price} altına satışa konuldu: {name}",
+"Price in gold": "Altın olarak fiyat",
+"Set a price in gold.": "Altın olarak bir fiyat belirle.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "{name}, {buyer} oyuncusuna {price} altına satıldı: eline geçen {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Pazar Simsarı şöhretle yapılan her satıştan %{tax}, altınla yapılandan %{gold} alır. Satılmayan eşyalar kutuna geri gelir.",
+"You get {net} gold ({tax}% tax)": "Eline {net} altın geçer (%{tax} vergi)",
+"{price} gold · you get {net} · {time} left": "{price} altın · eline {net} geçer · {time} kaldı"
 }

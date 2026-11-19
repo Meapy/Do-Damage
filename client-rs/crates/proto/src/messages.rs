@@ -237,9 +237,16 @@ messages! {
             // what our next listing slot costs in fame (0: we have them all); an older server
             // leaves it out, and sells none
             slot_price: Option<i32>,
+            // when we said we know listings in gold (MarketBrowse): the tax on a sale for gold,
+            // then each listing's and each history line's currency (0 gold, 1 fame), in order;
+            // an older server sends none, and has only fame
+            gold_tax: Option<u8>,
+            listing_currencies: Option<List16<u8>>,
+            history_currencies: Option<List16<u8>>,
         },
-        // How a Marketplace action went: what to tell the player, and our fame now.
-        125 => MarketResult { ok: bool, message: String, fame: i32 },
+        // How a Marketplace action went: what to tell the player, our fame now and (a newer
+        // server) our gold.
+        125 => MarketResult { ok: bool, message: String, fame: i32, gold: Option<i32> },
         // Someone's /visit (after VisitAnswer 255): the request's id, who asks, where they'd
         // join us, and the seconds left to answer (0: the request has gone); after VisitAnswer
         // 254, whether it's a /summon (us to their world) instead (a 2.3.7 server leaves it out).
@@ -318,7 +325,9 @@ messages! {
         24 => Load { char_id: i32 },
         27 => Teleport { object_id: i32 },
         28 => UsePortal { object_id: i32 },
-        30 => Buy { object_id: i32 },
+        // currency (0 gold, 1 fame) for what sells for either (a closed vault chest); none
+        // pays in the one it's priced in.
+        30 => Buy { object_id: i32, currency: Option<u8> },
         33 => GroundDamage { time: i32, position: WorldPos },
         34 => PlayerHit { bullet_id: i32, object_id: i32 },
         35 => EnemyHit { time: i32, bullet_id: i32, target_id: i32, kill: bool },
@@ -394,10 +403,12 @@ messages! {
         119 => ArenaVote { action: u8 },
         // The Marketplace window: the listings if they changed since this version (-1: we have
         // none), and our box and history. An older server doesn't know it, and never answers.
-        121 => MarketBrowse { version: i32 },
+        // `gold` 1: we know listings in gold (without it the server leaves them out).
+        121 => MarketBrowse { version: i32, gold: Option<u8> },
         // List an item for this many fame for this many hours: an inventory slot, or (from_vault)
         // a vault chest's slot.
-        123 => MarketSell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32 },
+        // `currency`: 0 gold, 1 fame (fame without it).
+        123 => MarketSell { from_vault: bool, chest: i32, slot: u8, price: i32, hours: i32, currency: Option<u8> },
         // 1 buys listing `id` at the price we saw, 2 takes our listing `id` back, 3 collects box
         // item `id` (0: all that fit), 4 buys another listing slot at the price we saw (id 0; an
         // older server answers that it doesn't know it).

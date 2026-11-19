@@ -42,6 +42,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Gold Store
 - Gold can now be bought on the website's new Gold Store (dodmg.com/gold.html), with PayPal or a card: sign in with your game account, pick a pack ($1 buys 100 gold, and bigger packs add bonus gold: +5% at $5 up to +25% at $100) and it lands on your account the moment the payment clears, even mid-dungeon, with a message in chat. Spend it in the gold shops (`/shop elderkeys` and the others).
 - Every Elder dungeon's key is now sold only for gold, and cheaply: 10 gold for the Elder Pirate Cave and Spider Den keys up to 100 for the Elder Lost Halls, at the Nexus Bazaar's Elder key stalls or with `/shop elderkeys` (`/shop donorkeys` still works). They're no longer sold for fame, and still drop in their dungeons. The Doomed keys and incantations moved to the dungeon key stalls.
+- Character slots and vault chests can be bought with gold too, always 500 gold a slot and 250 a chest. With fame they still start at 1,000 and 500, but the fame price now doubles after every 5 you buy with fame; buying with gold doesn't raise it.
+- Items can be sold on the Marketplace for gold as well as fame: pick Fame or Gold beside the price on the Sell tab, or `/sell <slot> <price> gold`. The Market Broker keeps 10% of a sale for gold (5% for fame), and listings show which they're priced in.
+- The vault garden is twice as big, with room for 120 vault chests.
 
 ### Servers
 - Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.

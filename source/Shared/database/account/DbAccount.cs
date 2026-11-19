@@ -53,6 +53,10 @@ namespace Shared.database.account
         public int MarketSlots => GetValue<int>("marketSlots");
         public void StoredMarketSlots(int slots) => SetStored("marketSlots", slots);
         public int MaxCharSlot { get => GetValue<int>("maxCharSlot"); set => SetValue("maxCharSlot", value); }
+        // character slots and vault chests bought with fame (UnlockPrices): only the purchases'
+        // transactions write them, so they're kept as Redis holds them rather than set and flushed.
+        public int CharSlotsFame => GetValue<int>(UnlockPrices.SlotsFameField);
+        public int VaultChestsFame => GetValue<int>(UnlockPrices.VaultFameField);
         public string Name { get => GetValue<string>("name"); set => SetValue("name", value); }
         public bool NameChosen { get => GetValue<bool>("nameChosen"); set => SetValue("nameChosen", value); }
         public int NextCharId { get => GetValue<int>("nextCharId"); set => SetValue("nextCharId", value); }

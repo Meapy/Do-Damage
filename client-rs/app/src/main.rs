@@ -710,7 +710,8 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Stack(s) => game.add_to_stack(now, slot_of(&s)),
         Action::Button(Button::Nexus) => game.escape(),
         Action::Button(Button::Enter(id)) => game.use_portal(id),
-        Action::Button(Button::Buy(id)) => game.buy(id),
+        Action::Button(Button::Buy(id)) => game.buy(id, None),
+        Action::Button(Button::BuyGold(id)) => game.buy(id, Some(0)),
         Action::Button(Button::Menu(opt, id)) => {
             let name = game.world.as_ref().and_then(|w| w.objects.get(&id)).and_then(|o| o.name()).unwrap_or("").to_owned();
             log::info!("player menu: {opt:?} {name}");
@@ -1352,9 +1353,9 @@ impl App {
             }
             Action::Play(id) => self.play(Join::Load { char_id: id }),
             Action::Create(class, skin) => self.play(Join::Create { class_type: class, skin_type: skin }),
-            Action::BuySlot => {
+            Action::BuySlot(gold) => {
                 let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
-                self.request = Some((Request::BuySlot, endpoint.buy_slot(email, password)));
+                self.request = Some((Request::BuySlot, endpoint.buy_slot(email, password, gold)));
             }
             Action::BuySkin(skin) => {
                 let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
@@ -2656,7 +2657,7 @@ impl App {
                     // shop): not a portal under the bag it shows instead.
                     Some(Bind::Interact) => match built.as_ref().and_then(|p| p.interact.clone()) {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
-                        Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
+                        Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id, None),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
                             to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                             self.keys.clear();

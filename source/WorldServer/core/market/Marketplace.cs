@@ -17,7 +17,7 @@ using WorldServer.utils;
 
 namespace WorldServer.core.market
 {
-    // The Marketplace in the Nexus: players list items for fame and others buy them, from the
+    // The Marketplace in the Nexus: players list items for fame or gold and others buy them, from the
     // Market Broker's window (the Rust client's market.rs) or the market stalls (MarketStall).
     // Every change is one script in MarketStore, so nothing is duplicated or lost when two buyers
     // race, a buyer races the seller taking the item back, or two world servers sweep at once.
@@ -26,8 +26,9 @@ namespace WorldServer.core.market
     //   writes the listing; each account has at most MaxListings at once, and the slots it has
     //   bought for fame on top (BuySlot, at most MaxExtraSlots).
     // - Buying moves the fame (the seller gets the price less TaxPercent, as before 2.3.3, even
-    //   while away) and puts the item in the buyer's inventory, or their Marketplace box when it's
-    //   full. Taking a listing back works the same way for the seller.
+    //   while away) or the gold (less GoldTaxPercent) and puts the item in the buyer's inventory,
+    //   or their Marketplace box when it's full. Taking a listing back works the same way for the
+    //   seller.
     // - Listings end after their time (1, 3 or 7 days): the sweeper puts the item in the seller's
     //   box. Items wait in the box, imprints and all, until collected from the window.
     // - Sellers hear of sales and expiries at once if they're playing, else when they next come
@@ -38,6 +39,8 @@ namespace WorldServer.core.market
         // to it opens the window in the Rust client
         public const string BrokerClass = "MarketNPC";
         public const int TaxPercent = 5;
+        // the tax on a sale for gold
+        public const int GoldTaxPercent = 10;
         public const int MaxListings = 10;
         // Listing slots players can buy on top of MaxListings, for fame: the first SlotPriceStep,
         // each one after SlotPriceStep more than the last.
@@ -174,10 +177,10 @@ namespace WorldServer.core.market
             return null;
         }
 
-        public static string CheckPrice(int price, int hours)
+        public static string CheckPrice(int price, int hours, CurrencyType currency = CurrencyType.Fame)
         {
             if (price < MinPrice || price > MaxPrice)
-                return $"Set a price from {MinPrice} to {MaxPrice:N0} fame.";
+                return $"Set a price from {MinPrice} to {MaxPrice:N0} {Unit(currency)}.";
             if (hours < 1 || hours > MaxHours)
                 return "Listings last from an hour to 7 days.";
             return null;
@@ -190,8 +193,17 @@ namespace WorldServer.core.market
         public static int SlotPrice(Shared.database.account.DbAccount acc) =>
             acc.MarketSlots >= MaxExtraSlots ? 0 : SlotPriceStep * (Math.Max(acc.MarketSlots, 0) + 1);
 
+        // The tax on a sale in this currency, in percent.
+        public static int Tax(CurrencyType currency) => currency == CurrencyType.Gold ? GoldTaxPercent : TaxPercent;
+
         // The seller's share of a price.
-        public static int Net(int price) => price - price * TaxPercent / 100;
+        public static int Net(int price, CurrencyType currency = CurrencyType.Fame) => price - price * Tax(currency) / 100;
+
+        // "fame" or "gold", as the messages name a price's currency.
+        public static string Unit(CurrencyType currency) => currency == CurrencyType.Gold ? "gold" : "fame";
+
+        // What a listing's buyer pays in: gold or fame (every other value).
+        public static CurrencyType Paid(CurrencyType currency) => currency == CurrencyType.Gold ? CurrencyType.Gold : CurrencyType.Fame;
 
         // The inventory slots items come from and go to: the 8 below the equipment, and the
         // backpack's 8 with one.
@@ -248,9 +260,10 @@ namespace WorldServer.core.market
         // --- listing -------------------------------------------------------------------------
 
         // Lists the item in this inventory slot. Returns (done, what to tell the player).
-        public (bool Ok, string Message) Sell(Player player, int slot, int price, int hours, bool rate = true)
+        public (bool Ok, string Message) Sell(Player player, int slot, int price, int hours, bool rate = true, CurrencyType currency = CurrencyType.Fame)
         {
-            var refusal = Refusal(player, rate) ?? CheckPrice(price, hours);
+            currency = Paid(currency);
+            var refusal = Refusal(player, rate) ?? CheckPrice(price, hours, currency);
             if (refusal != null)
                 return (false, refusal);
             if (!Slots(player).Contains(slot))
@@ -263,7 +276,7 @@ namespace WorldServer.core.market
 
             var acc = player.Client.Account;
             var now = Now;
-            var listing = MarketStore.NewListing(Store.NextId(), acc.AccountId, player.Name, item.ObjectType, data, price, now, now + hours * 3600);
+            var listing = MarketStore.NewListing(Store.NextId(), acc.AccountId, player.Name, item.ObjectType, data, price, now, now + hours * 3600, currency);
             var (items, datas) = WithSlot(player, slot, null, null);
             MarketStore.Result r;
             try
@@ -280,15 +293,16 @@ namespace WorldServer.core.market
             SetSlot(player, slot, null, null);
             Changed();
             Announce(player, listing, item, hours, now);
-            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} for {price} fame ({listing.Id}, {hours} h)");
-            return (true, $"Listed {item.DisplayName} for {price:N0} fame. You'll get {Net(price):N0} when it sells.");
+            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} for {price} {Unit(currency)} ({listing.Id}, {hours} h)");
+            return (true, $"Listed {item.DisplayName} for {price:N0} {Unit(currency)}. You'll get {Net(price, currency):N0} when it sells.");
         }
 
         // Lists the item in a vault chest's slot, from Redis (as the Divine Forge takes from the
         // vault): not while its owner is in the vault, whose world holds the chests.
-        public (bool Ok, string Message) SellFromVault(Player player, int chest, int slot, int price, int hours)
+        public (bool Ok, string Message) SellFromVault(Player player, int chest, int slot, int price, int hours, CurrencyType currency = CurrencyType.Fame)
         {
-            var refusal = Refusal(player) ?? CheckPrice(price, hours);
+            currency = Paid(currency);
+            var refusal = Refusal(player) ?? CheckPrice(price, hours, currency);
             if (refusal != null)
                 return (false, refusal);
             var acc = player.Client.Account;
@@ -325,7 +339,7 @@ namespace WorldServer.core.market
                 newDatas = System.Text.Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(datas));
             }
             var now = Now;
-            var listing = MarketStore.NewListing(Store.NextId(), acc.AccountId, player.Name, item.ObjectType, data, price, now, now + hours * 3600);
+            var listing = MarketStore.NewListing(Store.NextId(), acc.AccountId, player.Name, item.ObjectType, data, price, now, now + hours * 3600, currency);
             MarketStore.Result r;
             try
             {
@@ -340,8 +354,8 @@ namespace WorldServer.core.market
                 return (false, Describe(r));
             Changed();
             Announce(player, listing, item, hours, now);
-            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} from vault chest {chest} for {price} fame ({listing.Id}, {hours} h)");
-            return (true, $"Listed {item.DisplayName} from your vault for {price:N0} fame. You'll get {Net(price):N0} when it sells.");
+            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> listed {item.ObjectId} from vault chest {chest} for {price} {Unit(currency)} ({listing.Id}, {hours} h)");
+            return (true, $"Listed {item.DisplayName} from your vault for {price:N0} {Unit(currency)}. You'll get {Net(price, currency):N0} when it sells.");
         }
 
         // A new listing, told to everyone: a Marketplace line in every world server's chat, and the
@@ -351,12 +365,13 @@ namespace WorldServer.core.market
             if (player.Client.Account.Hidden)
                 return;
             var name = item.DisplayName;
-            _server.ChatManager.MarketListed(player.AccountId, $"{player.Name} listed {name} for {listing.Price:N0} fame.");
+            _server.ChatManager.MarketListed(player.AccountId, $"{player.Name} listed {name} for {listing.Price:N0} {Unit(listing.Currency)}.");
             Store.RecordListed(new MarketFeedEntry
             {
                 Id = listing.Id,
                 Item = name,
                 Price = listing.Price,
+                Currency = listing.Currency == CurrencyType.Gold ? "gold" : null,
                 Seller = player.Name,
                 Hours = hours,
                 Time = now
@@ -370,13 +385,14 @@ namespace WorldServer.core.market
             if (buyer.Client.Account.Hidden)
                 return;
             var name = item.DisplayName;
-            _server.ChatManager.MarketListed(buyer.AccountId, $"{buyer.Name} bought {name} from {listing.SellerName} for {listing.Price:N0} fame.");
+            _server.ChatManager.MarketListed(buyer.AccountId, $"{buyer.Name} bought {name} from {listing.SellerName} for {listing.Price:N0} {Unit(listing.Currency)}.");
             Store.RecordListed(new MarketFeedEntry
             {
                 Id = Store.NextId(),
                 Kind = "sold",
                 Item = name,
                 Price = listing.Price,
+                Currency = listing.Currency == CurrencyType.Gold ? "gold" : null,
                 Seller = listing.SellerName,
                 Buyer = buyer.Name,
                 Time = Now
@@ -455,8 +471,10 @@ namespace WorldServer.core.market
             var item = ItemOf(listing.ItemType);
             if (item == null)
                 return (false, "That item no longer exists.");
-            if (player.CurrentFame < listing.Price)
-                return (false, $"You need {listing.Price:N0} fame for that, and have {player.CurrentFame:N0}.");
+            var currency = Paid(listing.Currency);
+            var unit = Unit(currency);
+            if (player.GetCurrency(currency) < listing.Price)
+                return (false, $"You need {listing.Price:N0} {unit} for that, and have {player.GetCurrency(currency):N0}.");
 
             var data = DataOf(listing.ItemData);
             var slot = FreeSlot(player);
@@ -464,7 +482,7 @@ namespace WorldServer.core.market
             MarketStore.BuyResult r;
             try
             {
-                r = Store.Buy(MarketStore.Of(acc, player.Client.Character), player.Name, id, listing.ItemType, expectedPrice, TaxPercent, items, datas, Now);
+                r = Store.Buy(MarketStore.Of(acc, player.Client.Character), player.Name, id, listing.ItemType, expectedPrice, TaxPercent, GoldTaxPercent, items, datas, Now);
             }
             catch (RedisException e)
             {
@@ -475,19 +493,31 @@ namespace WorldServer.core.market
             if (r.Result != MarketStore.Result.Ok)
             {
                 if (r.Result == MarketStore.Result.NotEnoughFame)
+                {
                     RefreshFame(player);
+                    if (currency == CurrencyType.Gold)
+                        return (false, "You haven't enough gold.");
+                }
                 return (false, Describe(r.Result));
             }
-            acc.StoredFame(r.FameLeft);
-            player.CurrentFame = r.FameLeft;
+            if (currency == CurrencyType.Gold)
+            {
+                acc.StoredCredits(r.FameLeft);
+                player.Credits = r.FameLeft;
+            }
+            else
+            {
+                acc.StoredFame(r.FameLeft);
+                player.CurrentFame = r.FameLeft;
+            }
             if (r.InInventory)
                 SetSlot(player, slot, item, data);
             Notify(r.SellerId);
             AnnounceSale(player, listing, item);
-            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> bought {item.ObjectId} ({id}) for {listing.Price} fame from <{listing.SellerName} {listing.SellerId}>");
+            StaticLogger.Instance.Info($"Marketplace: <{player.Name} {acc.AccountId}> bought {item.ObjectId} ({id}) for {listing.Price} {unit} from <{listing.SellerName} {listing.SellerId}>");
             return (true, r.InInventory
-                ? $"Bought {item.DisplayName} for {listing.Price:N0} fame."
-                : $"Bought {item.DisplayName} for {listing.Price:N0} fame. Your inventory is full: it's waiting in your Marketplace box.");
+                ? $"Bought {item.DisplayName} for {listing.Price:N0} {unit}."
+                : $"Bought {item.DisplayName} for {listing.Price:N0} {unit}. Your inventory is full: it's waiting in your Marketplace box.");
         }
 
         // Takes one of the player's listings back, into the inventory or the box.
@@ -581,7 +611,7 @@ namespace WorldServer.core.market
 
         // --- news ----------------------------------------------------------------------------
 
-        // Tells the server the account plays on that its fame and news changed.
+        // Tells the server the account plays on that its fame (or gold) and news changed.
         private void Notify(int accountId) =>
             _server.InterServerManager.Publish(Channel.Market, new MarketMsg { AccountId = accountId });
 
@@ -601,13 +631,17 @@ namespace WorldServer.core.market
             }
         }
 
-        // The fame Redis holds, after a sale paid it from elsewhere.
+        // The fame and gold Redis holds, after a sale paid it from elsewhere.
         private void RefreshFame(Player player)
         {
             var acc = player.Client.Account;
-            var fame = (int)_server.Database.Conn.HashGet(acc.Key, "fame");
+            var both = _server.Database.Conn.HashGet(acc.Key, new RedisValue[] { "fame", "credits" });
+            var fame = (int)both[0];
             acc.StoredFame(fame);
             player.CurrentFame = fame;
+            var gold = (int)both[1];
+            acc.StoredCredits(gold);
+            player.Credits = gold;
         }
 
         private void TellNews(Player player)
@@ -617,7 +651,7 @@ namespace WorldServer.core.market
             catch (RedisException) { return; }
             foreach (var n in news)
                 player.SendInfo(n.Kind == "sold"
-                    ? $"<Marketplace> {n.Other} bought your {Name(n.ItemType)} for {n.Price:N0} fame: you got {n.Net:N0} after the {TaxPercent}% tax."
+                    ? $"<Marketplace> {n.Other} bought your {Name(n.ItemType)} for {n.Price:N0} {Unit(n.Currency)}: you got {n.Net:N0} after the {Tax(Paid(n.Currency))}% tax."
                     : $"<Marketplace> Your {Name(n.ItemType)} didn't sell in time: it's waiting in your Marketplace box.");
         }
 

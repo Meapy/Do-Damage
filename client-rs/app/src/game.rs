@@ -1912,8 +1912,10 @@ impl Game {
     pub fn market(&mut self, act: crate::market::Act) {
         use crate::market::Act;
         let msg: ClientMessage = match act {
-            Act::Browse(version) => bsk_proto::MarketBrowse { version }.into(),
-            Act::Sell { from_vault, chest, slot, price, hours } => bsk_proto::MarketSell { from_vault, chest, slot, price, hours }.into(),
+            Act::Browse(version) => bsk_proto::MarketBrowse { version, gold: Some(1) }.into(),
+            Act::Sell { from_vault, chest, slot, price, hours, gold } => {
+                bsk_proto::MarketSell { from_vault, chest, slot, price, hours, currency: Some(if gold { 0 } else { 1 }) }.into()
+            }
             // MarketActHandler: 1 buy, 2 take back, 3 collect from the box, 4 buy a listing slot
             Act::Buy(id, price) => bsk_proto::MarketAct { action: 1, id, price }.into(),
             Act::Cancel(id) => bsk_proto::MarketAct { action: 2, id, price: 0 }.into(),
@@ -2046,11 +2048,12 @@ impl Game {
     }
 
     /// `Buy`: buy what the shop sells.
-    pub fn buy(&mut self, object_id: i32) {
+    /// Buy what `object_id` sells, in `currency` (0 gold, 1 fame) when it sells for either.
+    pub fn buy(&mut self, object_id: i32, currency: Option<u8>) {
         if self.haunting() {
             return;
         }
-        self.send(Buy { object_id }.into());
+        self.send(Buy { object_id, currency }.into());
     }
 
     /// `Merchant.update`: every 5 s a merchant in view says what's special about it ("New!",

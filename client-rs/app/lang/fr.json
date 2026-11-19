@@ -1306,5 +1306,18 @@
 "Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Première ligne : subit 15 % de dégâts en moins à chaque coup et se soigne de 1,5 % des dégâts infligés par l'épée, jusqu'à 40 points de vie par seconde.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Les soins du Paladin atteignent aussi les alliés à 4 cases ou moins.",
 "Pirate's luck: one shot in ten misses him entirely.": "Chance du pirate : un tir sur dix le rate complètement.",
-"Lucky!": "Veinard !"
+"Lucky!": "Veinard !",
+"Buy a character slot?": "Acheter un emplacement de personnage ?",
+"You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.": "Tu as {fame} de renommée et {gold} d'or. Le prix en renommée double tous les 5 emplacements achetés avec de la renommée.",
+"{fame} fame or {gold} gold": "{fame} de renommée ou {gold} d'or",
+"Bought {name} from {seller} for {price} gold": "{name} acheté à {seller} pour {price} d'or",
+"Buyers pay {price} gold": "Les acheteurs paient {price} d'or",
+"How much gold?": "Combien d'or ?",
+"Listed {name} for {price} gold": "{name} mis en vente pour {price} d'or",
+"Price in gold": "Prix en or",
+"Set a price in gold.": "Fixez un prix en or.",
+"Sold {name} to {buyer} for {price} gold: you got {net}": "{name} vendu à {buyer} pour {price} d'or : vous recevez {net}",
+"The Market Broker keeps {tax}% of each sale for fame and {gold}% for gold. Unsold items come back to your box.": "Le Courtier du marché garde {tax} % de chaque vente en renommée et {gold} % en or. Les invendus reviennent dans votre boîte.",
+"You get {net} gold ({tax}% tax)": "Vous recevez {net} d'or ({tax} % de taxe)",
+"{price} gold · you get {net} · {time} left": "{price} d'or · vous recevez {net} · reste {time}"
 }

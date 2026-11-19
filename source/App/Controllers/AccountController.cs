@@ -54,7 +54,9 @@ namespace App.Controllers
         }
 
         [HttpPost("purchaseCharSlot")]
-        public async Task PurchaseCharSlot([FromForm] string guid, [FromForm] string password)
+        // currency "0" (gold, UnlockPrices.SlotGold) or anything else, older clients sending none,
+        // fame (the fame price doubling every UnlockPrices.DoublesEvery bought with fame)
+        public async Task PurchaseCharSlot([FromForm] string guid, [FromForm] string password, [FromForm] string currency)
         {
             var db = _core.Database;
 
@@ -73,10 +75,11 @@ namespace App.Controllers
                     return;
                 }
 
-                var currency = _core.Resources.Settings.NewAccounts.SlotCurrency;
-                var price = _core.Resources.Settings.NewAccounts.SlotCost;
+                acc.Reload(UnlockPrices.SlotsFameField);
+                var paid = currency == "0" ? CurrencyType.Gold : CurrencyType.Fame;
+                var price = SlotPrice(acc, paid);
 
-                if (currency == CurrencyType.Gold && acc.Credits < price || currency == CurrencyType.Fame && acc.Fame < price)
+                if (paid == CurrencyType.Gold && acc.Credits < price || paid == CurrencyType.Fame && acc.Fame < price)
                 {
                     Response.CreateError("Insufficient funds");
                     return;
@@ -84,12 +87,14 @@ namespace App.Controllers
 
                 var trans = db.Conn.CreateTransaction();
 
-                var t1 = db.UpdateCurrency(acc, -price, currency, trans);
+                var t1 = db.UpdateCurrency(acc, -price, paid, trans);
 
                 trans.AddCondition(Condition.HashEqual(acc.Key, "maxCharSlot", acc.MaxCharSlot));
 
                 // queued commands only complete once the transaction runs, so they can't be awaited before it
                 _ = trans.HashIncrementAsync(acc.Key, "maxCharSlot");
+                if (paid == CurrencyType.Fame)
+                    _ = trans.HashIncrementAsync(acc.Key, UnlockPrices.SlotsFameField);
 
                 if (!await trans.ExecuteAsync())
                 {
@@ -101,6 +106,13 @@ namespace App.Controllers
                 Response.CreateSuccess();
             }
         }
+
+        // the next character slot's price in gold (always the same) or fame (doubling)
+        internal int SlotPrice(DbAccount acc, CurrencyType currency) => SlotPrice(_core, acc, currency);
+
+        internal static int SlotPrice(CoreService core, DbAccount acc, CurrencyType currency) => currency == CurrencyType.Gold
+            ? UnlockPrices.SlotGold
+            : UnlockPrices.FamePrice(core.Resources.Settings.NewAccounts.SlotCost, acc.CharSlotsFame);
 
         // removed so that people cant call the api and get shit for free
         //[HttpPost("handleDono")]

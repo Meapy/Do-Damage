@@ -665,6 +665,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Slots and vault chests for gold, the Marketplace in gold, a bigger vault** (2026-11-19):
+  character slots and vault chests cost fame doubling every 5 bought with fame (1,000 and 500 to
+  start; `Shared/database/UnlockPrices.cs`, counted in the account fields `charSlotsFame` and
+  `vaultChestsFame`, which only `AccountController.PurchaseCharSlot` and `ClosedVaultChest.Buy`
+  write) or a flat 500 / 250 gold that doesn't count. `/account/purchaseCharSlot` takes
+  `currency` (0 gold), the character list sends `NextCharSlotGoldPrice`, closed chests send stat
+  221 (`MerchandiseGoldPrice`) and `Buy` may end with a currency byte. Marketplace listings can
+  be priced in gold (`Marketplace.GoldTaxPercent` 10%; listings' `currency` 0): `MarketBrowse`
+  ending in 1 asks for them (older clients get only fame listings), `MarketSell` ends with the
+  currency, `/sell <slot> <price> gold`. The vault garden (`tools/build_vault.py`) has 120 chest
+  tiles, 12 rows longer.
 - **Elder keys for gold** (2026-11-19; `MerchantLists.ElderKeyPrices`, `DoomedShop`,
   `ShopCommand`): every Elder dungeon's key (17) is sold only for gold: the Nexus's Store 12
   (now a gold shop; 4 stalls, so they rotate) and `/shop elderkeys` (`/shop donorkeys` still
