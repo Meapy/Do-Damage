@@ -25,6 +25,8 @@ namespace App
         public readonly StatusHistory Status;
         private readonly Timer LegendSweeper = new Timer(60000);
         public readonly ChampionsService Champions;
+        // the gold store's PayPal (Controllers/GoldController.cs); sells nothing without its keys
+        public readonly PayPal PayPal;
 
         public readonly List<ushort> PlayerClasses;
         public readonly Dictionary<ushort, string> _classes;
@@ -63,6 +65,9 @@ namespace App
             LegendSweeper.Start();
 
             Champions = new ChampionsService(this);
+
+            PayPal = new PayPal(Config.serverSettings.paypal ?? new PayPalSettings());
+            Logger.Info(PayPal.Enabled ? $"Gold store: PayPal {PayPal.Mode}, prices in {PayPal.Currency}" : "Gold store: closed (no PayPal keys)");
 
             Status = new StatusHistory(this);
 

@@ -30,6 +30,11 @@ namespace Shared.isc
         // a /visit or /summon between two world servers, such as the old and the new one of a
         // hand-over (WorldServer RemoteVisits)
         [Description("Visit")]
-        Visit
+        Visit,
+
+        // the gold store paid or took back gold (App GoldController): the server the account
+        // plays on updates its gold and tells it (WorldServer GoldNews)
+        [Description("Gold")]
+        Gold
     }
 }

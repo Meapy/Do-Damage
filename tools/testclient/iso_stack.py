@@ -192,6 +192,9 @@ def start(args):
         d["serverInfo"]["port"] = APP_PORT
         # Its own published client (build_client_rs.py --publish-to build/iso<N>/client).
         d["serverSettings"]["clientFolder"] = os.path.join(ISO, "client")
+        # The gold store on a stand-in PayPal (tools/testclient/paypal_mock.py), never the real one
+        d["serverSettings"]["paypal"] = ({"clientId": "mock", "secret": "mock", "apiBase": args.paypal}
+                                         if args.paypal else {})
     set_json(os.path.join(app_dir, "server.json"), app_cfg)
 
     def world_cfg(d):
@@ -279,6 +282,9 @@ def main():
     s.add_argument("--no-build", action="store_true", help="reuse the last build in build/iso")
     s.add_argument("--data-from", help="copy the Redis data from this folder")
     s.add_argument("--rolling", action="store_true", help="the world server behind the world proxy (rolling_restart.py)")
+    s.add_argument("--paypal", metavar="URL",
+                   help="the gold store's PayPal API: a stand-in such as tools/testclient/paypal_mock.py "
+                        "(http://127.0.0.1:18099); without it the store is closed")
     st = sub.add_parser("stop")
     st.add_argument("--take-over", action="store_true",
                     help="also stop another checkout's or worktree's test stack holding this slot's ports")

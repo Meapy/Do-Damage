@@ -164,6 +164,11 @@ dotnet test source\Tests
   `sprites.pending` and `sprites.approved`, the lists `sprites.by.<account>`, and rate counters
   `sprites.wait.*`, `.day.*`, `.ip.*`, `.all.*`. What shipped is
   `resources/data/community_sprites.json`, written by `tools/community_sprites.py` only.
+- **Gold store** (`Shared/database/GoldStore.cs`, `App/Controllers/GoldController.cs`): `gold.order.<id>`
+  hashes (paid ones kept for good: they're the payment records), `gold.orders.<acc>`,
+  `gold.capture.<id>`, `gold.sales`, `gold.log`, `gold.session.<token>`, `gold.made.<acc>`. Gold
+  is paid into `credits` and `totalCredits` only by its Lua scripts; never change a paid order by
+  hand. SETUP-LOCAL.md, "Gold store".
 
 ```
 source\Redis\redis-cli.exe hget names MEAPY

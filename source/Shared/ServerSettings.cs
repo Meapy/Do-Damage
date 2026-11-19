@@ -27,6 +27,10 @@ namespace Shared
         // resetting passwords (App/Controllers/DiscordController.cs), or BSK_DISCORD_SECRET in the
         // environment. Empty: no linking. deploy/deploy.py sets it (SETUP-LOCAL.md, "Discord").
         public string discordSecret { get; set; } = "";
+        // The account server's gold store (App/Controllers/GoldController.cs, dodmg.com/gold):
+        // PayPal's keys and where the money goes. Without a client id and secret it sells nothing.
+        // deploy/deploy.py fills it from deploy/paypal.local.json (SETUP-LOCAL.md, "Gold store").
+        public PayPalSettings paypal { get; set; } = new PayPalSettings();
         public int restartTime { get; set; } = 0;
         // An isolated test stack (tools/testclient/iso_stack.py sets it; never the live servers):
         // every character that enters a world is maxed, as /max does, at full health and mana,

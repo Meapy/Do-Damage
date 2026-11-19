@@ -169,17 +169,26 @@ systemctl start bsk-redis
 # sign-ins and account requests for the few seconds it takes to start.
 account_restart=0
 # The Discord bot's secret (serverSettings.discordSecret, linked accounts) comes from the bot's
-# settings on the deploying machine: a deploy without them keeps the one installed.
+# settings on the deploying machine, and the gold store's PayPal keys (serverSettings.paypal) from
+# its deploy/paypal.local.json: a deploy without them keeps the ones installed.
 if [ -f $ROOT/app/server.json ]; then
     python3 - $ROOT/app/server.json $IN/app/server.json <<'PY'
 import json, sys
 old, new = (json.load(open(p, encoding="utf-8-sig")) for p in sys.argv[1:3])
-kept = old.get("serverSettings", {}).get("discordSecret", "")
-if kept and not new.get("serverSettings", {}).get("discordSecret"):
-    new.setdefault("serverSettings", {})["discordSecret"] = kept
+was, now = old.get("serverSettings", {}), new.setdefault("serverSettings", {})
+changed = False
+if was.get("discordSecret") and not now.get("discordSecret"):
+    now["discordSecret"] = was["discordSecret"]
+    changed = True
+if (was.get("paypal") or {}).get("clientId") and not (now.get("paypal") or {}).get("clientId"):
+    now["paypal"] = was["paypal"]
+    changed = True
+if changed:
     json.dump(new, open(sys.argv[2], "w", encoding="utf-8"), indent=2)
 PY
 fi
+# the PayPal secret is in there: only the account server's user reads it
+chmod 600 $IN/app/server.json 2>/dev/null || true
 if ! diff -rq --exclude=logs $IN/app $ROOT/app >/dev/null 2>&1; then
     say "account server changed: installing it (sign-ins pause while it restarts)"
     rm -rf /opt/bsk/app.new && cp -r $IN/app /opt/bsk/app.new && chown -R bsk:bsk /opt/bsk/app.new

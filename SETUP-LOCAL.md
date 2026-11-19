@@ -606,6 +606,22 @@ python deploy\deploy.py --status           # includes bsk-discord
 
 Running the bot itself on this PC (`bot.py --env ...`) works for a quick check, with `DISCORD_STATE` pointed somewhere outside the repository. Don't leave it running beside the VPS's: both would edit the status message and answer commands.
 
+## Gold store
+
+Players buy gold at https://dodmg.com/gold.html (`website/gold.html`, `gold.js`) with PayPal or a card. The account server sells (`App/Controllers/GoldController.cs`, `App/PayPal.cs`, Redis side `Shared/database/GoldStore.cs`): the prices are set there, never by the page; it makes a PayPal order for the pack, and once the buyer approves it in PayPal's window it captures it, checks with PayPal that the capture completed for that order's amount, currency, account and pack, and pays the gold in (one Lua script, so an order is paid in once however often it's captured or announced). A player who's online sees it at once ("+N Gold" over the character and a chat line, `WorldServer/core/GoldNews.cs` on the Redis channel `Gold`).
+
+**Setting it up** (until then the page says the store is closed):
+
+1. A PayPal **Business** account for the address the money should go to (a personal account can be upgraded for free), with the email confirmed.
+2. At https://developer.paypal.com, Apps & Credentials, make a REST app under that account: its client id and secret. The Sandbox tab has test keys and test buyer accounts; Live has the real ones.
+3. Copy `deploy/paypal.example.json` to `deploy/paypal.local.json` in the main checkout (git-ignored) and fill in `mode` (`sandbox` first, `live` for real money), `clientId`, `secret` and `payeeEmail` (the PayPal account paid; empty means the account that owns the app). `currency` (USD by default) and `packs` (id, gold, bonus included in gold, price, best) can change; drop `packs` for the defaults (`GoldStore.DefaultPacks`: $1 = 100 gold, with bonus gold of 5% at $5, 10% at $10, 15% at $20, 20% at $50 and 25% at $100). For deploys from GitHub, put the same JSON in the `PAYPAL_CONFIG` secret of the production environment. A deploy without either keeps the settings already on the server (`install.sh`); `server.json` there is mode 600.
+4. In the REST app, **Webhooks**, add `https://play.dodmg.com/api/gold/paypal-webhook` with the events `CHECKOUT.ORDER.APPROVED`, `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.PENDING`, `PAYMENT.CAPTURE.REFUNDED` and `PAYMENT.CAPTURE.REVERSED`. It pays in orders whose page was closed after approval and payments PayPal held back, and takes refunded or charged-back gold back. Its body is never trusted: each event only names an order or capture, which the server looks up at PayPal with its own keys.
+5. Deploy (the account server restarts; nobody is disconnected), and buy the smallest pack in sandbox with a sandbox buyer account before switching `mode` to `live`.
+
+**Records** (Redis): `gold.order.<PayPal order id>` (unpaid ones expire after a day, paid ones are kept), `gold.orders.<account>`, `gold.capture.<capture id>`, `gold.sales` (gold, orders, refunds and `cents.<currency>` sold) and `gold.log` (every payment and refund, newest first, the last 1,000, with the buyer's PayPal address). The account server's log has a "Gold:" line for each order, payment, pending payment and refund. A refund takes back as much of the gold as is left and logs what was already spent (`missing`); a partial refund is only logged. Store sessions (`gold.session.<token>`) last an hour after the last request; an account may make 12 orders an hour.
+
+**Testing** without money: `python tools\testclient\paypal_mock.py --port 18099` (a stand-in for PayPal's API), `python tools\testclient\iso_stack.py --slot N start --paypal http://127.0.0.1:18099`, then `python tools\testclient\gold_store_test.py --account http://127.0.0.1:<account port>` runs the whole flow (23 checks: paying once, pending, closed page, made-up webhooks, refunds, refusals); `dotnet test source\Tests --filter GoldStoreTests` tests the Redis side. The page itself, built with `tools\build_site.py` and served with `/api` forwarded to the stack, takes `?mockpay=http://127.0.0.1:18099` on localhost for a button that pays at the stand-in. Windows sometimes reserves port ranges (`netsh int ipv4 show excludedportrange protocol=tcp`; on 2026-11-19 8021-8120, every slot's account port): pick a slot whose ports are clear.
+
 ## Admin
 
 Rank is the `rank` field of the account in Redis:
@@ -649,6 +665,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Gold Store** (2026-11-19; "Gold store" above): gold, which nothing in game pays out, is
+  bought with PayPal on the website. Account server `GoldController` (`gold/store`, `signin`,
+  `me`, `signout`, `order`, `capture`, `paypal-webhook`, JSON) and `PayPal.cs` (Orders API v2:
+  token, create, capture, look up; `PayPal-Request-Id` on each so a retry is the same request);
+  `serverSettings.paypal` (`Shared/PayPalSettings.cs`, or `BSK_PAYPAL_*` in the environment);
+  `GoldStore.cs` (orders, sessions, the hourly order limit, `Credit` and `TakeBack` as Lua
+  scripts); world server `GoldNews` refreshes an online player's gold on the `Gold` channel
+  (`GoldMsg`) and tells them. The page (`website/gold.html`, `gold.js`, styles at the end of
+  `style.css`, `coin` and `coins` sprites in `site.js`) is linked from the site's and the wiki's
+  menus. The gold shops (`/shop donor`, `donorkeys`, `donorpets`, `america`) were already there.
+  Old clients need nothing: the gold arrives as a stat change.
 - **Frontline, the sword classes' passive** (2026-11-18; `Player.Frontline.cs`, called from
   `Player.Projectiles.cs`, `Player.cs` `Damage` and `Player.Ground.cs`; the Rust client's
   `combat.rs` `frontline`, `frontline_class`): a class whose first slot type is 1 (swords: the

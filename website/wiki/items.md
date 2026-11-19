@@ -115,7 +115,10 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 
 ## The shops
 
-Every shop here sells for fame; there's no way to earn gold.
+Every shop here sells for fame, except the gold shops (`/shop donorkeys` for Elder dungeon keys,
+`/shop donor`, `/shop donorpets` and `/shop america`). Gold isn't earned in game: it's bought in
+the [Gold Store](../gold.html) on this site, with PayPal or a card, and reaches your account at
+once, even while you play.
 
 - The **Nexus Bazaar**, the stalls along the shopping street of the Nexus's market island: stat potions, consumables,
   specials, dungeon keys, Elder and minigame keys, pet generators
@@ -123,7 +126,7 @@ Every shop here sells for fame; there's no way to earn gold.
   than items: the stalls take turns through its items, a few minutes each (a stall says when its
   item goes). Guests can't buy.
 - `/shop` opens the shops: weapons, abilities, armor, rings, consumables, dyes, keys
-  (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets.
+  (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets, and the gold shops.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 
 The Nexus Bazaar's specials and consumables:

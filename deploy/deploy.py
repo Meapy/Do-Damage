@@ -448,6 +448,11 @@ def build(cfg, args):
         secret = discord_link_secret()
         if secret:
             d["serverSettings"]["discordSecret"] = secret
+        # the gold store's PayPal keys (SETUP-LOCAL.md, "Gold store"); without
+        # deploy/paypal.local.json, install.sh keeps the ones the server has
+        paypal = paypal_settings()
+        if paypal:
+            d["serverSettings"]["paypal"] = paypal
     shutil.copyfile(os.path.join(source, "App", "server.json"), os.path.join(STAGE, "app", "server.json"))
     set_json(os.path.join(STAGE, "app", "server.json"), account)
 
@@ -668,6 +673,25 @@ def discord_link_secret():
     dodmg = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(dodmg)
     return dodmg.link_secret(dodmg.load_env(local))
+
+
+def paypal_settings():
+    """The gold store's PayPal settings (serverSettings.paypal) from deploy/paypal.local.json
+    (git-ignored; deploy/paypal.example.json shows them), or None without that file. It must
+    have a client id and secret: a store half set up is refused here rather than on the server."""
+    local = os.path.join(HERE, "paypal.local.json")
+    if not os.path.exists(local):
+        return None
+    with open(local, encoding="utf-8-sig") as f:
+        cfg = json.load(f)
+    cfg = {k: v for k, v in cfg.items() if not k.startswith("_")}
+    if not cfg.get("clientId") or not cfg.get("secret"):
+        sys.exit("deploy/paypal.local.json needs a clientId and a secret (SETUP-LOCAL.md, \"Gold store\")")
+    if cfg.get("mode", "sandbox") not in ("sandbox", "live"):
+        sys.exit("deploy/paypal.local.json: mode is \"sandbox\" or \"live\"")
+    # never the keys or the payee's address: GitHub's deploy logs are public
+    print("gold store: PayPal %s" % cfg.get("mode", "sandbox"))
+    return cfg
 
 
 def discord_env(cfg, stage, releases=None):

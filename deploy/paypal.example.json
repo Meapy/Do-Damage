@@ -1,0 +1,17 @@
+{
+  "_comment": "Copy to deploy/paypal.local.json (not tracked) and fill in; on GitHub, the PAYPAL_CONFIG secret holds the same. See SETUP-LOCAL.md, Gold store. Leave packs out for the defaults ($1 = 100 gold, bonus gold on bigger packs); gold includes the bonus.",
+  "mode": "sandbox",
+  "clientId": "<the REST app's client id, developer.paypal.com>",
+  "secret": "<the REST app's secret>",
+  "payeeEmail": "<the PayPal account the money goes to; empty: the account that owns the app>",
+  "currency": "USD",
+  "brandName": "Do Damage",
+  "packs": [
+    { "id": "pouch", "gold": 100, "bonus": 0, "price": 1.00 },
+    { "id": "sack", "gold": 525, "bonus": 25, "price": 5.00 },
+    { "id": "chest", "gold": 1100, "bonus": 100, "price": 10.00, "best": true },
+    { "id": "hoard", "gold": 2300, "bonus": 300, "price": 20.00 },
+    { "id": "vault", "gold": 6000, "bonus": 1000, "price": 50.00 },
+    { "id": "treasury", "gold": 12500, "bonus": 2500, "price": 100.00 }
+  ]
+}

@@ -12,6 +12,8 @@ From the environment (SETUP-LOCAL.md, "Deploying from GitHub"):
                          above is used) and keep the rest, such as -p
     DISCORD_ENV          optional: deploy/discord.local.env's contents. Without it the bot keeps
                          the settings it has on the VPS (install.sh)
+    PAYPAL_CONFIG        optional: deploy/paypal.local.json's contents (the gold store's PayPal
+                         keys). Without it the account server keeps the ones it has (install.sh)
     CLIENT_UPDATE_KEY    with --signing: build/client-update.key's contents (the hex line)
 """
 import json
@@ -75,6 +77,14 @@ def main():
     discord = os.environ.get("DISCORD_ENV", "").strip()
     if discord:
         write_private(os.path.join(HERE, "discord.local.env"), discord)
+
+    paypal = os.environ.get("PAYPAL_CONFIG", "").strip()
+    if paypal:
+        try:
+            json.loads(paypal)
+        except ValueError as e:
+            sys.exit("the PAYPAL_CONFIG secret isn't JSON (%s at line %d)" % (e.__class__.__name__, getattr(e, "lineno", 0)))
+        write_private(os.path.join(HERE, "paypal.local.json"), paypal)
 
     if signing:
         write_private(os.path.join(ROOT, "build", "client-update.key"), need("CLIENT_UPDATE_KEY"))
