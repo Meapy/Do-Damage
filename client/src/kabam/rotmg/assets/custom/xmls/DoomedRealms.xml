@@ -972,6 +972,9 @@
 		<Activate duration="8">Decoy</Activate>
 		<Activate maxDistance="30">Teleport</Activate>
 		<Activate effect="Invisible" duration="3">ConditionEffectSelf</Activate>
+		<ExtraTooltipData>
+			<EffectInfo name="" description="Only usable once you&apos;ve been visible for 0.5 secs"/>
+		</ExtraTooltipData>
 	</Object>
 	<Object type="0xD039" id="Scepter of Vorv">
 		<Class>Equipment</Class>

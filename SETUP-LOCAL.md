@@ -1014,6 +1014,12 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     alone; elsewhere a teleport still crosses walls. Checked on the maps (O3 and O5: the boss
     unreachable from the spawn with the gates on, reachable with them off; Oryx 4 unaffected).
     World server only.
+  - **Plane walks wait until you've been seen** (2026-11-19; `Player.UseItem.cs` `PlaneWalks`,
+    `Player.Effects.cs`, the client's `game.rs` `use_ability`): an ability that both teleports and
+    makes you invisible (the Cloak of the Planewalker, the Cloak of the Planar Rift, the Prism of
+    the Bloody Surprise) is refused until you have been visible for 0.5 s (the server allows
+    0.4 s, for the trip). The Planewalker's 1.5 s cooldown under 5.5 s of invisibility let a Rogue
+    stay invisible for good. Their tooltips carry the rule as an `EffectInfo` line.
   - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
     `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
     ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all

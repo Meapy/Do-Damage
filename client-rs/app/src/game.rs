@@ -20,6 +20,8 @@ pub const DEFAULT_CAMERA_ANGLE: f64 = 7.0 * std::f64::consts::PI / 4.0;
 pub const RESET_CAMERA_ANGLE: f64 = 0.0;
 /// `Parameters.PLAYER_ROTATE_SPEED`, radians per millisecond.
 const ROTATE_SPEED: f64 = 0.003;
+/// How long we must have been seen before a cloak makes us invisible again (ms).
+const VISIBLE_BEFORE_INVISIBLE: i32 = 500;
 /// `Map.MIN_VIEW_RADIUS` (the server's default sight) and `MAX_VIEW_RADIUS`, in tiles.
 const MIN_VIEW_RADIUS: i32 = 15;
 const MAX_VIEW_RADIUS: i32 = 40;
@@ -165,6 +167,9 @@ pub struct Game {
     merchant_talk: std::collections::HashMap<i32, (i32, usize)>,
     /// When the ability (Space) can be used again (`Player.nextAltAttack_`).
     next_ability: i32,
+    /// When we were last invisible: a plane walk (a teleport that makes us invisible) waits until we've been seen
+    /// for `VISIBLE_BEFORE_INVISIBLE` ms, as the server does (`Player.UseItem.cs`).
+    last_invisible: i32,
     /// What we sent, by message name (logged when the game closes).
     pub counts: std::collections::BTreeMap<&'static str, u32>,
     /// Chat, oldest first (kept across worlds, as the AIR client's TextBox is).
@@ -459,6 +464,7 @@ impl Game {
             keys: Vec::new(),
             merchant_talk: Default::default(),
             next_ability: 0,
+            last_invisible: i32::MIN / 2,
             counts: Default::default(),
             chat: Vec::new(),
             hold_reconnect: false,
@@ -1468,6 +1474,9 @@ impl Game {
             }
         }
         let Some(world) = &mut self.world else { return };
+        if world.player().is_some_and(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::INVISIBLE)) {
+            self.last_invisible = now;
+        }
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };
         if let Some((x, y)) = world.update(now, dt, &input, data) {
             self.session.set_position(WorldPos { x: x as f32, y: y as f32 }, now);
@@ -1637,7 +1646,11 @@ impl Game {
             return;
         }
         // Player.useAltWeapon: an error, or not enough mana.
-        if paused || !xml.has("Usable") {
+        // a plane walk (a teleport that makes us invisible): not while invisible, nor until we've
+        // been seen a moment, as the server refuses it
+        let walks = xml.children_named("Activate").any(|a| a.text.trim() == "Teleport")
+            && xml.children_named("Activate").any(|a| a.text.trim() == "ConditionEffectSelf" && a.attr("effect") == Some("Invisible"));
+        if paused || !xml.has("Usable") || (walks && now - self.last_invisible < VISIBLE_BEFORE_INVISIBLE) {
             self.sounds.push(("error".into(), 1.0, false));
             return;
         }

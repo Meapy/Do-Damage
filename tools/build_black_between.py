@@ -372,6 +372,9 @@ TOOLTIPS = {
         ("4 beyond", "100 + 750 over 6 secs"),
         ("", "Damage over time ignores defense"),
     ],
+    "Cloak of the Planar Rift": [
+        ("", "Only usable once you've been visible for 0.5 secs"),
+    ],
 }
 
 def gear_item(types, sheet, name, spec):

@@ -37,6 +37,10 @@ namespace WorldServer.core.objects
             if (Client == null || Client.Account == null)
                 return;
             
+            // a plane walk waits until we've been seen for a moment (Player.UseItem.cs)
+            if (HasConditionEffect(ConditionEffectIndex.Invisible))
+                _lastInvisibleAt = Environment.TickCount64;
+
             if (HasConditionEffect(ConditionEffectIndex.Quiet) && Mana > 0)
                 Mana = 0;
 

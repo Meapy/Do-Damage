@@ -30,6 +30,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Items
 - The Vial of Cascading Dusk hits twice as hard (400 where it lands and 3,000 over 6 seconds, the cascade's splashes in step) and has a new look: the vial tumbles through the air trailing dusk and stars, shatters in a flash of violet light, and its dusk runs out along the floor to each next splash, every splash leaving a pool of twilight under a ring of stars. It and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
+- The Cloak of the Planewalker, the Cloak of the Planar Rift and the Prism of the Bloody Surprise can no longer be used again while you're still invisible from the last use: you have to be visible for half a second first. Their tooltips say so.
 
 ### Game
 - The daily login reward and gifts (such as this month's free Lil' Oryx) need 5 stars on your account, so fresh accounts can't be made just to collect them. Quests and achievements need none.

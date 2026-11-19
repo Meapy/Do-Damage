@@ -218,6 +218,16 @@ namespace WorldServer.core.objects
                 _abilityReadyAt = now + (long)(item.Cooldown * 1000);
             }
 
+            // a plane walk (a teleport that makes you invisible) only once you've been seen for half a
+            // second: the Planewalker's cooldown (1.5 s) is shorter than its invisibility (5.5 s), so
+            // it could be used again and again without ever showing; a little slack for the trip
+            if (slot == 1 && entity == this && PlaneWalks(item)
+                && Environment.TickCount64 - _lastInvisibleAt < VisibleBeforeInvisibleMs - VisibleSlackMs)
+            {
+                Refuse(null);
+                return;
+            }
+
             // a forge shard goes to the forge storage, so with that full it isn't spent
             if (ForgeStorage.Full(this, item.ObjectId))
             {
@@ -1512,6 +1522,17 @@ namespace WorldServer.core.objects
         // when an ability with a cooldown of a second or more can be used again (Environment.TickCount64)
         private long _abilityReadyAt;
         private const int AbilityCooldownSlackMs = 300;
+
+        // when we were last invisible (Environment.TickCount64, kept by HandleEffects), and how long
+        // we must have been seen before a plane walk makes us invisible again
+        private long _lastInvisibleAt = long.MinValue / 2;
+        private const int VisibleBeforeInvisibleMs = 500, VisibleSlackMs = 100;
+
+        // an ability that teleports and makes us invisible: the Cloak of the Planewalker, the Cloak of
+        // the Planar Rift, the Prism of the Bloody Surprise
+        private static bool PlaneWalks(Item item) =>
+            item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Teleport)
+            && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.ConditionEffectSelf && e.ConditionEffect == ConditionEffectIndex.Invisible);
 
         // How many Infernal potions a stat takes past its class's maximum.
         public const int OvercapPotions = 5;

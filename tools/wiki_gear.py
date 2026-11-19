@@ -359,6 +359,12 @@ class Gear:
                 name, desc = (info.get("name") or "").strip(), (info.get("description") or "").strip()
                 if name and desc and name not in ("Trap",):
                     out.append("%s: %s" % (name, desc[0].lower() + desc[1:]))
+        # a plane walk (a teleport that makes you invisible) waits until you've been seen for half a
+        # second (Player.UseItem.cs, PlaneWalks)
+        acts = it["el"].findall("Activate")
+        if (any((a.text or "").strip() == "Teleport" for a in acts)
+                and any((a.text or "").strip() == "ConditionEffectSelf" and a.get("effect") == "Invisible" for a in acts)):
+            out.append("only usable once you've been visible for 0.5s")
         return "; ".join(out)
 
     def effect(self, a, share=0):

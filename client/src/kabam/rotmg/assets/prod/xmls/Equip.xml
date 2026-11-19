@@ -5574,6 +5574,9 @@
 		<MpCost>100</MpCost>
 		<Activate effect="Invisible" duration="5.5">ConditionEffectSelf</Activate>
 		<Activate maxDistance="13">Teleport</Activate>
+		<ExtraTooltipData>
+			<EffectInfo name="" description="Only usable once you&apos;ve been visible for 0.5 secs"/>
+		</ExtraTooltipData>
 		<Cooldown>1.5</Cooldown>
 		<feedPower>750</feedPower>
 		<Soulbound/>
