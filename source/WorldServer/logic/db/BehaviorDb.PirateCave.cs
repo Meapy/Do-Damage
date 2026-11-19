@@ -59,7 +59,7 @@ namespace WorldServer.logic
                 new ItemLoot("Pirate Rum", 0.01), Elder("Dreadstump the Pirate King"),
                 ElderLoot(0.03, new ItemLoot("Elder Pirate Cave Key", 0.01)),
                 // the Elder dungeon's Potion of Max
-                ElderLoot(0.01, new ItemLoot("Potion of Max Attack", 0.05)))
+                ElderLoot(0.01, new ItemLoot("Potion of Max Attack", 0.025)))
             .Init(E("Pirate Lieutenant"),
                 new State(
                     new Prioritize(

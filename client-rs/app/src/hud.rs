@@ -3315,7 +3315,9 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "IncrementStat" => {
             let mut s = tf!("Permanently +{n} {stat}", n = a.attr_int("amount", 0), stat = stat_name(a.attr_int("stat", -1)));
             // what it stores when the stat is already maxed, when that isn't the whole amount
+            // Life and Mana count storeAmount in HP/MP: the server stores a fifth of it as potions
             let store = a.attr_int("storeAmount", 0);
+            let store = if matches!(a.attr_int("stat", -1), 0 | 3) { store / 5 } else { store };
             if store > 0 {
                 s += &tf!(" (+{store} to potion storage when maxed)", store);
             }

@@ -419,7 +419,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.03,
                     new ItemLoot("Bracer of the Elder Guardian", 0.01),
-                    new ItemLoot("Potion of Max Defense", 0.05),
+                    new ItemLoot("Potion of Max Defense", 0.025),
                     new ItemLoot("Elder Shatters Key", 0.01)
                     ),
                 ElderLoot(0.0001,
@@ -668,7 +668,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.03,
                     new ItemLoot("The Eclipsed Gemstone", 0.01),
-                    new ItemLoot("Potion of Max Mana", 0.05),
+                    new ItemLoot("Potion of Max Mana", 0.025),
                     new ItemLoot("Elder Shatters Key", 0.01)
                     ),
                 ElderLoot(0.0001,
@@ -2467,7 +2467,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.03,
                     new ItemLoot("The Remembered Crown", 0.01),
-                    new ItemLoot("Potion of Max Life", 0.05),
+                    new ItemLoot("Potion of Max Life", 0.025),
                     new ItemLoot("Elder Shatters Key", 0.02)
                     ),
                 ElderLoot(0.0001,

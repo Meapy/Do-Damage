@@ -541,7 +541,7 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Wisdom", 0.3)
                 ),
                 ElderLoot(0.03,
-                    new ItemLoot("Potion of Max Wisdom", 0.05),
+                    new ItemLoot("Potion of Max Wisdom", 0.025),
                     new ItemLoot("Elder Cemetery Key", 0.01)
                     ),
                 ElderLoot(0.0001,

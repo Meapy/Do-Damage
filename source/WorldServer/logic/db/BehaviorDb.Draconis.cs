@@ -79,7 +79,7 @@ namespace WorldServer.logic
                     new ItemLoot("Blue Dragon Gods Helm", 0.01)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Wisdom", 0.06),
+                    new ItemLoot("Potion of Max Wisdom", 0.03),
                     new ItemLoot("Robe of Silk Water", 0.02)
                     )];
 
@@ -94,7 +94,7 @@ namespace WorldServer.logic
                     new ItemLoot("Red Dragon Gods Helm", 0.01)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Vitality", 0.06),
+                    new ItemLoot("Potion of Max Vitality", 0.03),
                     new ItemLoot("Momento of the Fire Dragon", 0.02)
                     )];
 
@@ -109,7 +109,7 @@ namespace WorldServer.logic
                     new ItemLoot("Black Dragon Gods Blade", 0.01)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Dexterity", 0.06),
+                    new ItemLoot("Potion of Max Dexterity", 0.03),
                     new ItemLoot("Lightning Bow", 0.02),
                     // what Doomed Realms' Black Dragon God dropped in the old Elder lair
                     new ItemLoot("Celestial Blade", 0.01),
@@ -129,7 +129,7 @@ namespace WorldServer.logic
                     new ItemLoot("Green Dragon Gods Helm", 0.01)
                     ),
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Speed", 0.06),
+                    new ItemLoot("Potion of Max Speed", 0.03),
                     new ItemLoot("Armor of the Leaf", 0.02)
                     )];
 

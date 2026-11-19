@@ -366,7 +366,7 @@ namespace WorldServer.logic
                     new ItemLoot("Cemetery Key", 0.008)
                     ),
                 ElderLoot(0.03,
-                    new ItemLoot("Potion of Max Vitality", 0.05),
+                    new ItemLoot("Potion of Max Vitality", 0.025),
                     new ItemLoot("Elder Cemetery Key", 0.02)
                     ),
                 ElderLoot(0.0001,

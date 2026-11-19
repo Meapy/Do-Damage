@@ -43,7 +43,7 @@ namespace WorldServer.logic
                     ), Elder("Masked Party God"),
                 // the Elder dungeon's Potion of Max
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Speed", 0.05),
+                    new ItemLoot("Potion of Max Speed", 0.025),
                     new ItemLoot("Elder Beach Key", 0.01)));
         }
     }

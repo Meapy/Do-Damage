@@ -119,7 +119,7 @@ namespace WorldServer.logic
                     ),
                 // the Elder Manor's chance at a Potion of Max, as the Elder Tomb's bosses
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Attack", 0.01)
+                    new ItemLoot("Potion of Max Attack", 0.005)
                     ), Elder("Coffin"))
             // the bats round Lord Ruthven while he is a swarm
             .Init(E("Vampire Bat"),
