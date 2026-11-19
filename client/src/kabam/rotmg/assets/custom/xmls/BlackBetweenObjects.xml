@@ -912,9 +912,6 @@
 		<Cooldown>1.5</Cooldown>
 		<Activate effect="Invisible" duration="5.5">ConditionEffectSelf</Activate>
 		<Activate maxDistance="13">Teleport</Activate>
-		<ExtraTooltipData>
-			<EffectInfo name="" description="Only usable once you've been visible for 0.5 secs" />
-		</ExtraTooltipData>
 		<Projectile id="0">
 			<ObjectId>Sunspark</ObjectId>
 			<Damage>250</Damage>

@@ -1528,10 +1528,12 @@ namespace WorldServer.core.objects
         private long _lastInvisibleAt = long.MinValue / 2;
         private const int VisibleBeforeInvisibleMs = 500, VisibleSlackMs = 100;
 
-        // an ability that teleports and makes us invisible: the Cloak of the Planewalker, the Cloak of
-        // the Planar Rift, the Prism of the Bloody Surprise
+        // an ability that teleports and makes us invisible: the Cloak of the Planewalker, the Prism of
+        // the Bloody Surprise. Not an Empowered boss's item (<RelicPower>): the Elder Cloak of the
+        // Planar Rift is left as it was.
         private static bool PlaneWalks(Item item) =>
-            item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Teleport)
+            item.RelicPower == null
+            && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Teleport)
             && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.ConditionEffectSelf && e.ConditionEffect == ConditionEffectIndex.Invisible);
 
         // How many Infernal potions a stat takes past its class's maximum.

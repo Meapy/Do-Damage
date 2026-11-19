@@ -1648,7 +1648,9 @@ impl Game {
         // Player.useAltWeapon: an error, or not enough mana.
         // a plane walk (a teleport that makes us invisible): not while invisible, nor until we've
         // been seen a moment, as the server refuses it
-        let walks = xml.children_named("Activate").any(|a| a.text.trim() == "Teleport")
+        // (not an Empowered boss's item, `RelicPower`: the Cloak of the Planar Rift is left as it was)
+        let walks = !xml.has("RelicPower")
+            && xml.children_named("Activate").any(|a| a.text.trim() == "Teleport")
             && xml.children_named("Activate").any(|a| a.text.trim() == "ConditionEffectSelf" && a.attr("effect") == Some("Invisible"));
         if paused || !xml.has("Usable") || (walks && now - self.last_invisible < VISIBLE_BEFORE_INVISIBLE) {
             self.sounds.push(("error".into(), 1.0, false));
