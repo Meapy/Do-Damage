@@ -57,13 +57,19 @@ The **newer classes** (Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademas
 Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own: turrets, summons, halos, pearls and more. A Summoner can keep up to six summons out at a time; they're drawn small (the Dragon and Oryx about a player's size) so they don't hide what you're fighting. Where a class's own kind of item has no tiers,
 `/gear` leaves that slot alone.
 
+**The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
+player standing in it takes a share less damage from each hit. Standing in several at once stacks
+them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%
+fields take 15% off and three 17%, up to 90% at most.
+
 **The Father's ward.** The Father swings a **censer** (Tin Censer at T0 up to the Censer of the
 Last Rite at T8, every tier forged from two of the one below). Its smoke hardens into a grey
 **ward** over him and every ally within its range: a shield of so many points, shown in grey on
 the HP bar and as a shell of steel plates round the player, that takes the damage of every hit
 (after defense) before health does. It lasts until it's spent, when it breaks, or until its time
-is up. Wisdom adds to it as it does to a tome's heal. A new ward over one still up keeps the
-stronger and starts its time again; a censer can be swung once every 4 seconds. Damage over time,
+is up. Wisdom adds to it as it does to a tome's heal. A new ward over one still up stacks on it
+at half strength: two wards of 170 give 255, three 297 (the strongest counts in full, each other at
+half the one before), never less than the new ward alone, and it lasts as long as the newest; a censer can be swung once every 4 seconds. Damage over time,
 such as bleeding, goes straight through it. When a ward from the Censer of the Last Rite breaks,
 its shards burst out and hit every enemy within 3 tiles for 400.
 

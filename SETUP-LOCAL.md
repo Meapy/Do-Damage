@@ -2148,7 +2148,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   rounded to the nearest point (`ShieldedDamage`; the Rust client's `combat::shielded` takes the
   same off the numbers it shows). 2% at T0 rising 1% a tier to 10% at T8; the radius is 1.5 tiles
   less than the healing circle's (4.5 at T0-T1 up to 6.5 from T4), so `rework_buff_auras.py` no
-  longer floors the halos. Overlapping fields don't add up: the strongest counts. The caster gets
+  longer floors the halos. Overlapping fields stack (since 2.6.1): the strongest counts in full and
+  each other at half the one before, rounded down, at most 90% (`Player.StackedShield`, the client's
+  `combat::stacked_shield`). The caster gets
   assist credit for each player in it, a second at a time. Its look is the Rust client's
   (`particles/relic.rs`, `ShowEffect` 41 looks 30 to 32: the halo falling, a column of light,
   shockwaves, then a hex-lattice dome with turning rune rings, a wall of light off its rim, a flare
@@ -2180,7 +2182,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   maxed Wisdom) for `duration` (4 to 8 s): stats 80 `Ward` and 81 `WardMax`, sent to everyone.
   Every hit after defense and any forcefield takes from it before health (`WardAbsorb` in
   `PlayerHit`, `Player.Damage` and both ground paths); damage over time goes through it. A new
-  ward over one still up keeps the stronger and starts its time again. The Censer of the Last
+  ward over one still up stacks on it (since 2.6.1): of the wards raised while it has been up and
+  not yet out of time, the strongest counts in full and each other at half the one before
+  (`Player.Stacked`); the new one adds what it raises that total by, never leaving less than it
+  would alone, and the ward lasts to the last of their times. The Censer of the Last
   Rite's ward (`radius`, `totalDamage`) bursts when broken, for 400 to every enemy within 3 tiles,
   in the next tick. The caster gets assist credit for each player warded. Looks: `ShowEffect` 41
   looks 33 to 38 (cast, a player warded, a blow taken at most every 200 ms with the percent left in

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.net.stats;
@@ -11,8 +13,8 @@ namespace WorldServer.core.objects
 {
     // The Father's ward (his censers, Activate Ward): a grey shield over the HP bar. Every point of
     // damage that gets past defense and any forcefield comes off it before health, until it's spent
-    // (it breaks) or its time is up (it fades). A ward raised over one still up keeps the stronger,
-    // and its time starts again. Damage over time (bleeding, suffocation) goes through it.
+    // (it breaks) or its time is up (it fades). A ward raised over one still up stacks on it at half
+    // strength for each ward already in the stack (GiveWard). Damage over time (bleeding, suffocation) goes through it.
     //
     // Everyone sees it: the stats Ward (points left) and WardMax (points when raised), which the
     // Rust client draws as a grey bar over the HP bar and a shell of steel plates round the player,
@@ -61,6 +63,8 @@ namespace WorldServer.core.objects
 
         private long _wardUntil;
         private long _wardFxAt;
+        // the wards raised while this one has been up: each one's points and until when
+        private readonly List<(int Amount, long Until)> _wardLayers = new();
         private uint _wardColor = WARD_ACCENTS[0];
         // the Last Rite: what its ward does to the enemies round it when it breaks, and who raised it
         private int _wardBurst;
@@ -99,23 +103,35 @@ namespace WorldServer.core.objects
             });
         }
 
-        // warded by `by`: the stronger of this ward and one still up, its time from now
+        // warded by `by`. A ward raised over one still up stacks on it: of the wards raised while it
+        // has been up (and not yet run out of time), the strongest counts in full and each other at
+        // half the one before (Player.Stacked), so this one adds what it raises that by. It never
+        // leaves less than it would raise alone, nor more than the stack. Its time runs to the
+        // last of theirs.
         public void GiveWard(Player by, int amount, int ms, uint color, int tier, int burst = 0, float burstRadius = 0)
         {
             // nothing to ward in a ghost (Player.Grave.cs)
             if (amount <= 0 || World == null || Ghost)
                 return;
             var now = Environment.TickCount64;
-            if (Ward <= 0 || amount >= Ward)
+            if (Ward <= 0 || now >= _wardUntil)
+                _wardLayers.Clear();
+            _wardLayers.RemoveAll(l => now >= l.Until);
+            var before = Stacked(_wardLayers.Select(l => l.Amount));
+            var strongest = _wardLayers.Count == 0 ? 0 : _wardLayers.Max(l => l.Amount);
+            _wardLayers.Add((amount, now + ms));
+            var after = Stacked(_wardLayers.Select(l => l.Amount));
+            var ward = Math.Min(Math.Max(Math.Max(Ward, 0) + after - before, amount), after);
+            if (amount >= strongest)
             {
-                Ward = amount;
-                WardMax = amount;
                 _wardColor = color;
                 _wardBurst = burst;
                 _wardBurstRadius = burstRadius > 0 ? burstRadius : 3;
                 _wardBy = by;
             }
-            _wardUntil = now + ms;
+            Ward = ward;
+            WardMax = ward;
+            _wardUntil = Math.Max(_wardUntil > now ? _wardUntil : 0, now + ms);
             var at = new Position(X, Y);
             World.BroadcastIfVisible(new ShowEffect
             {

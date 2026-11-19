@@ -1375,10 +1375,10 @@ impl Game {
     /// Move the projectiles and tell the server what they hit.
     fn update_projectiles(&mut self, now: i32, data: &GameData) {
         let Some(world) = &mut self.world else { return };
-        // standing in an Ascendant's forcefield: the strongest one's percentage off each hit
+        // standing in Ascendants' forcefields: their percentages off each hit, stacked at half each
         self.forcefields.retain(|f| now < f.4);
         let shield = world.player().map_or(0, |p| {
-            self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5).max().unwrap_or(0)
+            bsk_world::combat::stacked_shield(self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5))
         });
         // our ward (`ward.rs`): what it still takes, counted down as we're hit, so a blow it takes
         // whole shows grey

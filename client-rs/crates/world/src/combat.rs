@@ -190,6 +190,14 @@ pub fn frontline_class(data: &GameData, object_type: u16) -> bool {
         == Some(SWORD_SLOT)
 }
 
+/// What overlapping forcefields take off together: the strongest in full, each after it at half
+/// the one before (rounded down), at most 90: the server's `Player.StackedShield`.
+pub fn stacked_shield(percents: impl IntoIterator<Item = i32>) -> i32 {
+    let mut p: Vec<i32> = percents.into_iter().filter(|&p| p > 0).collect();
+    p.sort_unstable_by(|a, b| b.cmp(a));
+    p.iter().take(30).enumerate().map(|(i, &v)| v >> i).sum::<i32>().min(90)
+}
+
 impl Projectile {
     #[allow(clippy::too_many_arguments)]
     pub fn new(owner_id: i32, bullet_id: i32, container_type: u16, bullet_type: i32, angle: f64, start_time: i32, x: f64, y: f64, speed_mul: f64, damage: i32, damages_players: bool) -> Self {
@@ -765,6 +773,16 @@ mod tests {
         assert_eq!(shielded(25, 2), 24);
         assert_eq!(shielded(0, 10), 0);
         assert_eq!(shielded(80, 0), 80);
+    }
+
+    #[test]
+    fn forcefields_stack_at_half_each() {
+        assert_eq!(stacked_shield([]), 0);
+        assert_eq!(stacked_shield([30]), 30);
+        assert_eq!(stacked_shield([20, 40]), 50);
+        assert_eq!(stacked_shield([30, 30, 30]), 52);
+        assert_eq!(stacked_shield([25, 25, 0]), 37);
+        assert_eq!(stacked_shield([80, 80]), 90);
     }
 
     #[test]
