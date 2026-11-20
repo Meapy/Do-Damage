@@ -668,9 +668,12 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **World watchdog** (2026-11-20): on 2026-11-20 at 17:13 the live Nexus's thread stopped for good
   (0% CPU, waiting on something) while the rest of the server ran on: nobody could enter the
   Nexus, and players in it, its vaults and its Arenas were frozen until a rolling restart by hand
-  at 17:20. `WorldServer/core/WorldWatchdog.cs` now does that by itself after a minute and saves a
-  dump (source/AGENTS.md, "Stuck worlds"). The cause isn't found yet: the dump of that hang is
-  `/root/diag/world-b-hang-547985.dmp` on the game VPS.
+  at 17:20. The dump showed the thread had ended on an exception: a Marketplace stall turned to a
+  gold listing sent its currency as a `CurrencyType`, which `ObjectStats.Write` threw on, outside
+  the world loop's `try`. Fixed (`SellableObject` keeps an `int`; enum stats are written as numbers;
+  a message that can't be written is dropped; `RootWorldThread` catches and logs everything a pass
+  throws), and `WorldServer/core/WorldWatchdog.cs` replaces a world that stops coming round by
+  itself after a minute, saving a dump (source/AGENTS.md, "Stuck worlds").
 
 - **The Realm Pass** (2026-11-20): a monthly season pass, 1,000 gold for its Gilded track. All of
   it is data in `Shared/resources/data/pass.json` (its `_about` says how: price, tiers, XP per

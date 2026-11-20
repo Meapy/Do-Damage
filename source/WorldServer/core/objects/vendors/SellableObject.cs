@@ -10,18 +10,21 @@ namespace WorldServer.core.objects.vendors
 {
     public abstract class SellableObject : StaticObject
     {
-        private StatTypeValue<CurrencyType> _currency;
+        // an int, not a CurrencyType: a change goes out as it's stored, and stats are written as
+        // numbers (a CurrencyType, sent when a Marketplace stall turned to a gold listing, ended
+        // the Nexus's thread on 2026-11-20)
+        private StatTypeValue<int> _currency;
         private StatTypeValue<int> _price;
         private StatTypeValue<int> _rankReq;
 
         protected SellableObject(GameServer manager, ushort objType) : base(manager, objType, null, true, false, false)
         {
             _price = new StatTypeValue<int>(this, StatDataType.MerchandisePrice, 0);
-            _currency = new StatTypeValue<CurrencyType>(this, StatDataType.MerchandiseCurrency, 0);
+            _currency = new StatTypeValue<int>(this, StatDataType.MerchandiseCurrency, 0);
             _rankReq = new StatTypeValue<int>(this, StatDataType.MerchandiseRankReq, 0);
         }
 
-        public CurrencyType Currency { get => _currency.GetValue(); set => _currency.SetValue(value); }
+        public CurrencyType Currency { get => (CurrencyType)_currency.GetValue(); set => _currency.SetValue((int)value); }
         public int Price { get => _price.GetValue(); set => _price.SetValue(value); }
         public int RankRequired { get => _rankReq.GetValue(); set => _rankReq.SetValue(value); }
         public int Tax { get; set; }

@@ -77,7 +77,17 @@ namespace WorldServer.core.net.datas
                     continue;
                 }
 
-                throw new InvalidOperationException($"Stat '{i.Key}' of type '{i.Value?.GetType().ToString() ?? "null"}' not supported.");
+                // an enum stat (a CurrencyType): its number
+                if (i.Value is Enum)
+                {
+                    wtr.Write(Convert.ToInt32(i.Value));
+                    continue;
+                }
+
+                // anything else is a bug, logged; a 0 keeps the message whole. Throwing here ended
+                // the world thread sending it (the Nexus's, on 2026-11-20).
+                WorldServer.utils.StaticLogger.Instance.Error($"Stat '{i.Key}' of type '{i.Value?.GetType().ToString() ?? "null"}' not supported: sent as 0");
+                wtr.Write(0);
             }
         }
     }
