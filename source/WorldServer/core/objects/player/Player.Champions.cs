@@ -57,13 +57,13 @@ namespace WorldServer.core.objects
         }
 
         // The glow: the source chosen in the Customize window, else the player's own (/glow), then
-        // a champion's, then a legend's red (LookChoice).
+        // a champion's, then the Arena's hot pink, then a legend's red (LookChoice).
         public void UpdateGlow()
         {
             var acc = Client?.Account;
             if (acc == null)
                 return;
-            Glow = LookChoice.Glow(acc.GlowFrom, acc.GlowColor, Champion.Glow, IsLegend);
+            Glow = LookChoice.Glow(acc.GlowFrom, acc.GlowColor, Champion.Glow, IsLegend, IsArenaFirst);
         }
 
         // The name's colour in chat: a champion's over the one chosen (an achievement rank's

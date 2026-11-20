@@ -189,7 +189,9 @@ damage, counted as it counts for loot, and their share includes it.
 
 The Arena is waves of monsters that get harder as you go, until everyone has fallen. It plays in
 **seasons**, each with its own leaderboard: Season 1 (*The Mad God's Trial*) is over and kept as it
-ended, and **Season 2, *Rise of the Fallen***, is being played.
+ended, and **Season 2, *Rise of the Fallen***, is being played. The players of Season 1's #1 solo
+run and #1 group run keep a hot pink glow for good, picked in the Customize window (see the
+[Hall of Champions](champions.html)).
 
 ### Season 2: rounds
 

@@ -155,9 +155,14 @@ namespace WorldServer.core
             var restartRequested = false;
             var nextRestartRequest = RestartCloseTime;
 
+            // a world thread stuck in its loop: a rolling restart (behind the proxy) and a dump
+            Watchdog = new WorldWatchdog(this, () => TryWriteFile(RESTART_REQUEST, ""));
+
             var watch = Stopwatch.StartNew();
             while (Running)
             {
+                Watchdog.Tick();
+
                 // behind the world proxy: a restart starts a new world server beside this one
                 // (the proxy does it, tools/rolling_restart.py), which takes over without kicking
                 if (ConnectionListener.BehindProxy)
@@ -387,9 +392,20 @@ namespace WorldServer.core
             if (minutes > 0)
                 ChatManager.ServerAnnounce($"The server has been updated! You'll switch to the new version the next time you go to the Nexus (in {minutes} minutes at the latest). Your current world stays as it is.");
 
-            // nobody is busy in the Nexus: those players switch now
+            // nobody is busy in the Nexus: those players switch now, as do those on a world that's
+            // stuck (WorldWatchdog), who can't go anywhere by themselves
             foreach (var client in ConnectionManager.Clients.Keys.ToArray())
-                if (client.Player?.World is NexusWorld)
+                if (client.Player?.World is NexusWorld || Watchdog.IsStuck(client.Player?.World))
+                    MoveToNewServer(client);
+        }
+
+        public WorldWatchdog Watchdog { get; private set; }
+
+        // a world got stuck while handing over: its players switch now
+        public void MoveFrozenPlayers()
+        {
+            foreach (var client in ConnectionManager.Clients.Keys.ToArray())
+                if (Watchdog.IsStuck(client.Player?.World))
                     MoveToNewServer(client);
         }
 

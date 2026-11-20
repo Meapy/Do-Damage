@@ -111,6 +111,9 @@ namespace WorldServer.networking.packets.outgoing.quests
         public int OwnGlow;
         public byte NameFrom;
         public byte GlowFrom;
+        // after them (older clients stop before it): whether the account came first in an ended
+        // Arena season, solo or in a group (the hot pink glow, Shared.database.leaderboard.ArenaFirsts)
+        public bool ArenaFirst;
 
         public override MessageId MessageId => MessageId.QUESTS_DATA;
 
@@ -190,6 +193,7 @@ namespace WorldServer.networking.packets.outgoing.quests
             wtr.Write(OwnGlow);
             wtr.Write(NameFrom);
             wtr.Write(GlowFrom);
+            wtr.Write(ArenaFirst);
         }
     }
 }

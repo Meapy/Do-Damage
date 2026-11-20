@@ -16,6 +16,14 @@ namespace WorldServer.core.worlds
         private World World;
         private bool Stopped;
 
+        // when this thread's loop last came round (Environment.TickCount64): the world watchdog
+        // (core/WorldWatchdog.cs) notices a world stuck in a tick, which no player can leave
+        private long _lastPass = Environment.TickCount64;
+
+        public string Name => $"{World.IdName} {World.Id}";
+        public bool IsStopped => Stopped;
+        public long SilentMs => Environment.TickCount64 - Volatile.Read(ref _lastPass);
+
         public RootWorldThread(WorldManager worldManager, World world)
         {
             WorldManager = worldManager;
@@ -44,11 +52,21 @@ namespace WorldServer.core.worlds
                 NetworkSendHandler.BeginBatch();
                 while (!Stopped)
                 {
+                    Volatile.Write(ref _lastPass, Environment.TickCount64);
                     var ioStart = watch.ElapsedMilliseconds;
                     profile.Begin();
                     // the time now, for the messages (a Pong's round trip): it was last set before the last pass
                     realmTime.TotalElapsedMs = watch.ElapsedMilliseconds;
-                    World.ProcessPlayerIO(ref realmTime);
+                    // nothing thrown may leave this loop: it would end the thread unseen (no log, the
+                    // world never removed) and freeze everyone in it, as the Nexus on 2026-11-20
+                    try
+                    {
+                        World.ProcessPlayerIO(ref realmTime);
+                    }
+                    catch (Exception e)
+                    {
+                        Failed("Messages", e);
+                    }
                     profile.Mark(TickProfile.Phase.Io);
                     // players' messages hold up the tick too (a command, a login)
                     var ioMs = watch.ElapsedMilliseconds - ioStart;
@@ -78,7 +96,7 @@ namespace WorldServer.core.worlds
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine($"[{World.IdName} {World.Id}] Tick: {e.StackTrace}");
+                            Failed("Tick", e);
                         }
 
                         // a slow tick delays every player in this world
@@ -100,7 +118,14 @@ namespace WorldServer.core.worlds
                     }
 
                     profile.Begin();
-                    NetworkSendHandler.FlushBatch();
+                    try
+                    {
+                        NetworkSendHandler.FlushBatch();
+                    }
+                    catch (Exception e)
+                    {
+                        Failed("Sending", e);
+                    }
                     profile.Mark(TickProfile.Phase.Send);
 
                     // sleep until a player's message arrives or the next tick is due; also with nobody
@@ -115,6 +140,25 @@ namespace WorldServer.core.worlds
                 WorldManager.RemoveWorld(World);
 
             }, TaskCreationOptions.LongRunning);
+        }
+
+        // logged in full (the old Console line had only the stack, no message), at most once a
+        // second, with how many were left out: a fault that repeats every pass doesn't flood the log
+        private long _nextFailureLog;
+        private int _failuresLeftOut;
+
+        private void Failed(string phase, Exception e)
+        {
+            var now = Environment.TickCount64;
+            if (now < _nextFailureLog)
+            {
+                _failuresLeftOut++;
+                return;
+            }
+            _nextFailureLog = now + 1000;
+            var more = _failuresLeftOut > 0 ? $" ({_failuresLeftOut} more since the last)" : "";
+            _failuresLeftOut = 0;
+            StaticLogger.Instance.Error($"[{Name}] {phase} failed{more}: {e}");
         }
 
         public void Stop()

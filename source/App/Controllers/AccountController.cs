@@ -37,17 +37,20 @@ namespace App.Controllers
             if (status == DbLoginStatus.OK)
             {
                 var type = (ushort)Utils.GetInt(skinType);
-                var skinDesc = _core.Resources.GameData.Skins[type];
                 var classStats = _core.Database.ReadClassStats(acc);
 
-                // the Realm Pass's season skins are never sold
-                if (skinDesc.PassSkin || skinDesc.UnlockLevel > classStats[skinDesc.PlayerClassType].BestLevel || skinDesc.Cost > acc.Credits)
+                // every skin is sold (SkinDesc.Cost, 200 gold) once its class has reached its
+                // level, but the Realm Pass's season skins: only the pass gives them
+                if (!_core.Resources.GameData.Skins.TryGetValue(type, out var skinDesc) || skinDesc.PassSkin
+                    || acc.Skins.Contains(type)
+                    || skinDesc.UnlockLevel > classStats[skinDesc.PlayerClassType].BestLevel
+                    || skinDesc.Cost > acc.Credits
+                    || !db.PurchaseSkin(acc, type, skinDesc.Cost))
                 {
                     Response.CreateError("Failed to purchase skin");
                     return;
                 }
 
-                db.PurchaseSkin(acc, type, skinDesc.Cost);
                 Response.CreateSuccess();
                 return;
             }

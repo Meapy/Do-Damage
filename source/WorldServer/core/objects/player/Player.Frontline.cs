@@ -13,7 +13,7 @@ namespace WorldServer.core.objects
     public partial class Player
     {
         public const int SwordSlotType = 1;
-        public const int FrontlineCutPercent = 15;
+        public const int FrontlineCutPercent = 5;
         // the Paladin's leech heals the other players within this many tiles as much as him
         public const float PaladinLeechRange = 4f;
         // the Pirate's chance in 100 of a shot missing him altogether

@@ -213,6 +213,10 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
+  A skin costs **200 gold**, bought on a class's page when you make a new character (some need
+  the class at a level first); once bought it's yours on the account, and the Armoire puts it on
+  any character of that class. The [Realm Pass](realm-pass.html)'s skins come only from its
+  Gilded track.
   Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,
   and picks someone new every 45 seconds. Press **Watch** to open it big: the arrows (or the
   Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on

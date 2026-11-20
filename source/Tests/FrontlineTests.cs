@@ -13,11 +13,11 @@ namespace Tests
         private static string Xml(string dir, string file) => Path.Combine(AppContext.BaseDirectory, "resources", "xml", dir, file);
 
         [Fact]
-        public void TheCutTakesFifteenPercentRounded()
+        public void TheCutTakesFivePercentRounded()
         {
-            Assert.Equal(85, Player.FrontlineCut(100));
-            Assert.Equal(136, Player.FrontlineCut(160)); // 24 off
-            Assert.Equal(8, Player.FrontlineCut(10));    // 1.5 off rounds to 2
+            Assert.Equal(95, Player.FrontlineCut(100));
+            Assert.Equal(152, Player.FrontlineCut(160)); // 8 off
+            Assert.Equal(9, Player.FrontlineCut(10));    // 0.5 off rounds to 1
             Assert.Equal(0, Player.FrontlineCut(0));
             Assert.Equal(1, Player.FrontlineCut(1));
         }

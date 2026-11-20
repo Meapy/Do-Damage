@@ -31,10 +31,12 @@ pub const CLAIM_GIFT: u8 = 6;
 pub const GLOW: u8 = 7;
 
 /// The glow sources, by their number in `QuestLooks::glow_from` (`LookChoice.GlowNamed`).
-const GLOW_NAMES: [&str; 5] = ["auto", "champion", "legend", "own", "none"];
-/// The Hall of Champions' gold, and the Legends' red (`ChampionBoards.Gold`, `LookChoice`).
+const GLOW_NAMES: [&str; 6] = ["auto", "champion", "legend", "own", "none", "arena"];
+/// The Hall of Champions' gold, the Legends' red and the Arena's hot pink (`ChampionBoards.Gold`,
+/// `LookChoice`).
 const CHAMPION_GOLD: u32 = 0xFFD24A;
 const LEGEND_RED: u32 = 0xFF0000;
+const ARENA_PINK: u32 = 0xFF69B4;
 
 /// `QuestNotice` kinds.
 const NOTICE_QUEST: u8 = 0;
@@ -1061,9 +1063,13 @@ pub(crate) fn medal(ui: &mut Ui, (cx, cy): (f32, f32), rad: f32, rgb: u32, claim
 /// A name colour to pick: its colour (or the default's "A"), edged when chosen, locked when not
 /// reached.
 /// The glow the server picks when the player leaves it to it (`LookChoice.Glow`, automatic):
-/// their own, then a champion's, then a legend's.
-fn auto_glow(l: &bsk_proto::QuestLooks) -> u32 {
-    [l.own_glow as u32, l.champion_glow as u32, if l.legend { LEGEND_RED } else { 0 }].into_iter().find(|&c| c != 0).unwrap_or(0)
+/// their own, then a champion's, then the Arena's (`arena`: they came first in an ended
+/// season), then a legend's.
+fn auto_glow(l: &bsk_proto::QuestLooks, arena: bool) -> u32 {
+    [l.own_glow as u32, l.champion_glow as u32, if arena { ARENA_PINK } else { 0 }, if l.legend { LEGEND_RED } else { 0 }]
+        .into_iter()
+        .find(|&c| c != 0)
+        .unwrap_or(0)
 }
 
 impl Quests {
@@ -1152,12 +1158,17 @@ impl Quests {
             note(ui, tr("This server can't change your glow yet."), y);
             return;
         };
-        let auto = auto_glow(&l);
+        let arena = d.arena_first.unwrap_or(false);
+        let auto = auto_glow(&l, arena);
         let mut cards: Vec<(u8, &str, Option<u32>, bool)> = vec![
             (0, tr("Automatic"), (auto != 0).then_some(auto), false),
             (1, tr("Hall of Champions"), Some(if l.champion_glow != 0 { l.champion_glow as u32 } else { CHAMPION_GOLD }), l.champion_glow == 0),
             (2, tr("Legends"), Some(LEGEND_RED), !l.legend),
         ];
+        // a server that doesn't say leaves the card out: it couldn't be chosen there
+        if d.arena_first.is_some() {
+            cards.push((5, tr("Arena"), Some(ARENA_PINK), !arena));
+        }
         if l.own_glow != 0 {
             cards.push((3, tr("Your own"), Some(l.own_glow as u32), false));
         }
@@ -1204,10 +1215,12 @@ impl Quests {
         }
         y += ch + 12.0 * s;
         let hint = match hovered.unwrap_or(l.glow_from) {
+            0 if d.arena_first.is_some() => tr("Picked for you: your own glow first, then the Hall of Champions', then the Arena's, then the Legends'."),
             0 => tr("Picked for you: your own glow first, then the Hall of Champions', then the Legends'."),
             1 => tr("From a place in the top 10 of the Stars board in the Hall of Champions."),
             2 => tr("From a character on the Legends board, the dead's fame."),
             3 => tr("The colour you set with /glow."),
+            5 => tr("For the players who came first in Arena Season 1, solo or in a group."),
             _ => tr("No glow at all."),
         };
         note(ui, hint, y);
@@ -1274,6 +1287,7 @@ mod tests {
             .into(),
             gifts: None,
             looks: None,
+            arena_first: None,
         }
     }
 
@@ -1340,9 +1354,14 @@ mod tests {
         q.show(Some(Tab::Achievements));
         assert!(!q.customize);
         let l = bsk_proto::QuestLooks { champion_glow: 0xD3DEEA, legend: true, ..Default::default() };
-        assert_eq!(auto_glow(&l), 0xD3DEEA);
-        assert_eq!(auto_glow(&bsk_proto::QuestLooks { own_glow: 0x00FF00, ..l }), 0x00FF00);
-        assert_eq!(auto_glow(&bsk_proto::QuestLooks { champion_glow: 0, ..l }), LEGEND_RED);
+        assert_eq!(auto_glow(&l, true), 0xD3DEEA);
+        assert_eq!(auto_glow(&bsk_proto::QuestLooks { own_glow: 0x00FF00, ..l }, true), 0x00FF00);
+        assert_eq!(auto_glow(&bsk_proto::QuestLooks { champion_glow: 0, ..l }, false), LEGEND_RED);
+        // the Arena's #1s: hot pink over the Legends' red
+        assert_eq!(auto_glow(&bsk_proto::QuestLooks { champion_glow: 0, ..l }, true), ARENA_PINK);
+        q.show_named("customize");
+        q.hits = vec![(Hit::Glow(5), [0.0, 0.0, 10.0, 10.0])];
+        assert_eq!(q.click((5.0, 5.0)), Some(Act::Claim(GLOW, "arena".into())));
     }
 
     #[test]

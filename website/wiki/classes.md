@@ -35,7 +35,7 @@ card on its gear page gives its range.
 **The sword classes: Frontline.** The Warrior, Knight, Paladin and Pirate fight a few tiles from
 what they're hitting, so they share a passive, **Frontline**:
 
-- They take **15% less damage** from every hit, after defense (and after an Ascendant's
+- They take **5% less damage** from every hit, after defense (and after an Ascendant's
   forcefield), including damaging ground.
 - Their sword **heals them 1.5%** of the damage it deals, at most 40 health a second, shown over
   them about once a second. Being Sick stops it.

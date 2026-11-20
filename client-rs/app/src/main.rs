@@ -1108,6 +1108,7 @@ impl App {
                 name_color: c.name_color,
                 text_color: c.text_color,
                 stars: c.stars,
+                title: c.title,
                 at: now - c.age,
             })
             .collect();
@@ -1248,6 +1249,7 @@ impl App {
                     name_color: c.name_color,
                     text_color: c.text_color,
                     stars: c.stars,
+                    title: c.title,
                     age: now - c.at,
                 })
                 .collect(),

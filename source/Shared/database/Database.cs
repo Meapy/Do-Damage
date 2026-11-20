@@ -7,6 +7,7 @@ using Shared.database.leaderboard;
 using Shared.database.market;
 using Shared.database.party;
 using Shared.database.vault;
+using Shared.pass;
 using Shared.resources;
 using StackExchange.Redis;
 using System;
@@ -289,12 +290,12 @@ namespace Shared.database
                 return DbCreateStatus.ReachCharLimit;
             }
 
-            // check skin requirements
+            // check skin requirements: one the account owns (bought, or the Realm Pass's), for this class
             if (skinType != 0)
             {
-                var skinDesc = _resources.GameData.Skins[skinType];
-
-                if (!acc.Skins.Contains(skinType) ||
+                acc.Reload("skins");
+                if (!_resources.GameData.Skins.TryGetValue(skinType, out var skinDesc) ||
+                    !acc.Skins.Contains(skinType) ||
                     skinDesc.PlayerClassType != type)
                 {
                     character = null;
@@ -399,10 +400,6 @@ namespace Shared.database
             }
             else
                 _db.KeyDelete("classStats.0");
-
-            // make sure guests have all skins if they are supposed to
-            if (newAccounts.SkinsUnlocked)
-                acnt.Skins = (from skin in _resources.GameData.Skins.Values select skin.Type).ToArray();
 
             return acnt;
         }
@@ -758,19 +755,125 @@ namespace Shared.database
 
         public void Mute(string ip, TimeSpan? timeSpan = null) => _db.StringSetAsync($"mutes:{ip}", "", timeSpan);
 
-        public void PurchaseSkin(DbAccount acc, ushort skinType, int cost)
+        // Takes the gold (spent, so totalCredits stays) and adds the skin; false when the account
+        // has too little gold. The caller checks the skin may be sold and isn't owned already.
+        public bool PurchaseSkin(DbAccount acc, ushort skinType, int cost)
         {
-            if (cost > 0)
-                acc.TotalCredits = (int)_db.HashIncrement(acc.Key, "totalCredits", cost);
+            var credits = (int)_db.HashIncrement(acc.Key, "credits", -cost);
+            if (credits < 0)
+            {
+                acc.StoredCredits((int)_db.HashIncrement(acc.Key, "credits", cost));
+                return false;
+            }
+            acc.StoredCredits(credits);
 
-            acc.Credits = (int)_db.HashIncrement(acc.Key, "credits", -cost);
-
-            // not thread safe
-            var ownedSkins = acc.Skins.ToList();
-            ownedSkins.Add(skinType);
-
-            acc.Skins = ownedSkins.ToArray();
+            acc.Reload("skins");
+            acc.Skins = acc.Skins.Append(skinType).Distinct().ToArray();
             acc.FlushAsync();
+            return true;
+        }
+
+        // Every skin was given away (init.xml's old <SkinsUnlocked/>), the Realm Pass's too, until
+        // 2.6.2 put a price on them. Once, at the account server's first start since: each account
+        // keeps the skins its living characters wear (not the pass's) and the pass skins it
+        // claimed this season; the rest are to buy. A living character in a pass skin its account
+        // didn't claim goes back to its class's own look (Player checks it too, as it loads).
+        public void TakeBackGivenSkins()
+        {
+            const string done = "migrations:skinsPriced";
+            if (_db.KeyExists(done))
+                return;
+
+            // without the pass's seasons, the pass skins players claimed can't be told apart: wait
+            PassData passData;
+            try
+            {
+                passData = PassData.Load($"{_resources.ResourcePath}/data/pass.json");
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Skins: can't read the Realm Pass ({e.Message}); the given skins are left for the next start");
+                return;
+            }
+            if (!_db.StringSet(done, DateTime.UtcNow.ToString("o"), when: When.NotExists))
+                return;
+
+            var last = (int)_db.StringGet("nextAccId");
+            int accounts = 0, before = 0, after = 0, undressed = 0;
+            for (var id = 1; id <= last; id++)
+            {
+                if (!_db.KeyExists($"account.{id}"))
+                    continue;
+                try
+                {
+                    TakeBackGivenSkins(id, passData, ref before, ref after, ref undressed);
+                    accounts++;
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Skins: account {id} left as it was: {e.Message}");
+                }
+            }
+            Log.Info($"Skins: {accounts} accounts kept {after} of the {before} skins they had; {undressed} characters out of unclaimed Realm Pass skins");
+        }
+
+        private void TakeBackGivenSkins(int id, PassData passData, ref int before, ref int after, ref int undressed)
+        {
+            var skins = _resources.GameData.Skins;
+            {
+                var acc = new DbAccount(_db, id);
+                var owned = acc.Skins;
+                var claimed = ClaimedPassSkins(passData, acc.Pass);
+
+                var keep = new HashSet<ushort>(claimed);
+                var chars = GetAliveCharacters(acc).Select(c => new DbChar(acc, c)).Where(c => !c.IsNull).ToList();
+                foreach (var chr in chars)
+                {
+                    var worn = (ushort)chr.Skin;
+                    if (worn == 0 || !skins.TryGetValue(worn, out var desc))
+                        continue;
+                    if (!desc.PassSkin)
+                        keep.Add(worn);
+                    else if (!claimed.Contains(worn))
+                    {
+                        chr.Skin = 0;
+                        chr.FlushAsync();
+                        undressed++;
+                    }
+                }
+
+                before += owned.Length;
+                after += keep.Count;
+                if (keep.Count != owned.Length || !keep.SetEquals(owned))
+                {
+                    acc.Skins = keep.OrderBy(s => s).ToArray();
+                    acc.FlushAsync().Wait();
+                }
+            }
+        }
+
+        // The Realm Pass skins an account claimed (its state's Gilded tiers taken this season).
+        private HashSet<ushort> ClaimedPassSkins(PassData data, string json)
+        {
+            var set = new HashSet<ushort>();
+            var state = PassState.FromJson(json);
+            if (state.Season == null)
+                return set;
+            var def = new PassBook(data, state).DefOf(state.Season);
+            if (def == null)
+                return set;
+            for (var t = 0; t < 63; t++)
+            {
+                var rewards = (state.GildedTaken(t) ? def.GildedAt(t) : new List<PassReward>())
+                    .Concat(state.FreeTaken(t) ? def.FreeAt(t) : new List<PassReward>());
+                foreach (var r in rewards.Where(r => r.Skin != null))
+                {
+                    var skin = _resources.GameData.Skins.Values.FirstOrDefault(s => s.ObjectId == r.Skin);
+                    if (skin != null)
+                        set.Add(skin.Type);
+                }
+            }
+            return set;
         }
 
         public DbClassStats ReadClassStats(DbAccount acc) => new DbClassStats(acc);
@@ -811,9 +914,6 @@ namespace Shared.database
                 LastSeen = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds,
                 FuelContributed = 0
             };
-
-            if (newAccounts.SkinsUnlocked)
-                acc.Skins = (from skin in _resources.GameData.Skins.Values select skin.Type).ToArray();
 
             acc.FlushAsync();
 
@@ -1284,10 +1384,6 @@ namespace Shared.database
                     stats.Unlock(@class);
 
             stats.FlushAsync();
-
-            // make sure account has all skins if they are supposed to
-            if (_resources.Settings.NewAccounts.SkinsUnlocked)
-                acc.Skins = (from skin in _resources.GameData.Skins.Values select skin.Type).ToArray();
 
             return DbLoginStatus.OK;
         }

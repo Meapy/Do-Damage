@@ -363,6 +363,8 @@ namespace WorldServer.core.quests
                 return ClaimResult.Fail("Reach the top 10 of the Stars board in the Hall of Champions first.");
             if (from == LookChoice.GlowLegend && !_player.IsLegend)
                 return ClaimResult.Fail("Get a character onto the Legends board first.");
+            if (from == LookChoice.GlowArena && !_player.IsArenaFirst)
+                return ClaimResult.Fail("Only the players who came first in Arena Season 1, solo or in a group, glow hot pink.");
             if (from == LookChoice.GlowOwn && _account.GlowColor == 0)
                 return ClaimResult.Fail("You have no glow of your own.");
             _account.GlowFrom = from;
@@ -370,6 +372,7 @@ namespace WorldServer.core.quests
             {
                 LookChoice.GlowChampion => "You glow in your Hall of Champions colour.",
                 LookChoice.GlowLegend => "You glow in the Legends' red.",
+                LookChoice.GlowArena => "You glow in the Arena champions' hot pink.",
                 LookChoice.GlowOwn => "You glow in your own colour.",
                 LookChoice.GlowNone => "You don't glow any more.",
                 _ => "Your glow is picked for you again.",
@@ -510,6 +513,7 @@ namespace WorldServer.core.quests
             msg.OwnGlow = _account.GlowColor;
             msg.NameFrom = (byte)_account.NameFrom;
             msg.GlowFrom = (byte)_account.GlowFrom;
+            msg.ArenaFirst = _player.IsArenaFirst;
             _player.Client.SendPacket(msg);
         }
 

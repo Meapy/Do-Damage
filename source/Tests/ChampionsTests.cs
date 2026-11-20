@@ -174,5 +174,19 @@ namespace Tests
             Assert.Equal(LookChoice.GlowLegend, LookChoice.GlowNamed("legend"));
             Assert.Equal(-1, LookChoice.GlowNamed("rainbow"));
         }
+
+        [Fact]
+        public void ArenaFirstsGlowHotPink()
+        {
+            const int own = 0x00FF00, champ = ChampionBoards.Silver;
+            Assert.Equal(LookChoice.ArenaGlow, LookChoice.Glow(LookChoice.GlowArena, own, champ, true, true));
+            // automatic: their own and a champion's first, then the Arena's over the Legends'
+            Assert.Equal(own, LookChoice.Glow(LookChoice.GlowAuto, own, champ, true, true));
+            Assert.Equal(champ, LookChoice.Glow(LookChoice.GlowAuto, 0, champ, true, true));
+            Assert.Equal(LookChoice.ArenaGlow, LookChoice.Glow(LookChoice.GlowAuto, 0, 0, true, true));
+            // not a #1: the usual order
+            Assert.Equal(LookChoice.LegendGlow, LookChoice.Glow(LookChoice.GlowArena, 0, 0, true, false));
+            Assert.Equal(LookChoice.GlowArena, LookChoice.GlowNamed("arena"));
+        }
     }
 }

@@ -29,8 +29,20 @@ namespace WorldServer.networking.packets.outgoing
             s.Position = 0;
             s.SetLength(0);
 
-            Write(wtr);
-            wtr.Flush();
+            // a message that can't be written is dropped (null: skipped), not thrown: sends run on
+            // world threads, and an exception here ended the Nexus's on 2026-11-20
+            try
+            {
+                Write(wtr);
+                wtr.Flush();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Couldn't write a {MessageId} message: dropped");
+                _stream = null;
+                _writer = null;
+                return null;
+            }
 
             var bodyLength = (int)s.Position;
             var packetLength = bodyLength + 5;

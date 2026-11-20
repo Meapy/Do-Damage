@@ -414,11 +414,14 @@ pub struct SkinInfo<'a> {
     pub owned: bool,
     /// The class level it needs, when the account hasn't reached it.
     pub needs_level: Option<i32>,
-    /// Only given out (`<UnlockSpecial>`), never sold.
-    pub special: bool,
     /// A Realm Pass season's skin (`<PassSkin>`): only the pass gives it.
     pub pass: bool,
     pub cost: i32,
+}
+
+/// What a skin costs in gold (the server's `SkinDesc`: 200 unless the skin says).
+pub fn skin_cost(d: &ObjectDesc) -> i32 {
+    d.xml.int("Cost", 200)
 }
 
 /// The skins of `class` that can be chosen (not `<NoSkinSelect>`), in type order.
@@ -435,10 +438,8 @@ pub fn class_skins<'a>(data: &'a bsk_data::GameData, class: u16, list: &CharList
                 desc: d,
                 owned: list.owned_skins.contains(&d.object_type),
                 needs_level: (level > best).then_some(level),
-                special: d.xml.has("UnlockSpecial"),
                 pass: d.xml.has("PassSkin"),
-                // SkinDesc: 300 gold unless the skin says.
-                cost: d.xml.int("Cost", 300),
+                cost: skin_cost(d),
             }
         })
         .collect();
@@ -1481,7 +1482,7 @@ impl Front {
             Confirm::BuySkin(t) => {
                 let skin = ui.data.objects.get(&t);
                 let name = skin.map_or(tr("this skin"), |d| d.display_id.as_str());
-                let cost = skin.map_or(300, |d| d.xml.int("Cost", 300));
+                let cost = skin.map_or(200, skin_cost);
                 (tf!("Buy {name} for {cost} gold?", name, cost), tf!("You have {gold} gold.", gold = list.credits), tr("Buy"), Kind::Primary)
             }
             Confirm::Unlink => (
@@ -1556,7 +1557,7 @@ impl Front {
         }
         if bsk_world::combat::frontline_class(ui.data, class) {
             text.push(None);
-            wrap(ui, tr("Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
+            wrap(ui, tr("Frontline: takes 5% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
             if desc.id == "Paladin" {
                 wrap(ui, tr("The Paladin's healing also reaches allies within 4 tiles."), color::TEXT, &mut text);
             } else if desc.id == "Pirate (Doomed)" {
@@ -1609,7 +1610,7 @@ impl Front {
         ui.label(&gold, x0 + skins_w + 16.0 * s, left[1] + 9.0 * s, gs, true, 0xFFE27A);
         let (tw_, th_, gap) = (104.0 * s, 128.0 * s, 10.0 * s);
         let cols = (((w - x0 - pad + gap) / (tw_ + gap)).floor() as usize).max(1);
-        let mut entries: Vec<(u16, &ObjectDesc, bool, Option<String>)> = vec![(0, desc, true, None)];
+        let mut entries: Vec<(u16, &ObjectDesc, bool, Option<String>, i32)> = vec![(0, desc, true, None, 0)];
         for k in &skins {
             let note = if k.owned {
                 None
@@ -1617,15 +1618,13 @@ impl Front {
                 Some(tf!("Level {level}", level))
             } else if k.pass {
                 Some(tr("Realm Pass").to_owned())
-            } else if k.special {
-                Some(tr("Special").to_owned())
             } else {
                 Some(tf!("{price} gold", price = k.cost))
             };
-            entries.push((k.desc.object_type, k.desc, k.owned, note));
+            entries.push((k.desc.object_type, k.desc, k.owned, note, k.cost));
         }
         let max_rows = (((left[3] - 40.0 * s) / (th_ + gap)).floor() as usize).max(1);
-        for (i, (t, d, owned, note)) in entries.iter().take(cols * max_rows).enumerate() {
+        for (i, (t, d, owned, note, cost)) in entries.iter().take(cols * max_rows).enumerate() {
             let r = [x0 + (i % cols) as f32 * (tw_ + gap), left[1] + 40.0 * s + (i / cols) as f32 * (th_ + gap), tw_, th_];
             let selected = self.skin == *t;
             let buyable = !owned && note.as_deref().is_some_and(|n| n.ends_with("gold"));
@@ -1645,7 +1644,7 @@ impl Front {
             if let Some(n) = note {
                 let small = (11.0 * s).round().max(8.0);
                 let w2 = ui.measure(n, small, true);
-                let c = if buyable { if list.credits >= 300 { color::ACCENT } else { color::DANGER } } else { 0xFFB070 };
+                let c = if buyable { if list.credits >= *cost { color::ACCENT } else { color::DANGER } } else { 0xFFB070 };
                 ui.label(n, r[0] + (r[2] - w2) / 2.0, r[1] + 106.0 * s, small, true, c);
             }
             if usable || buyable {

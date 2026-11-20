@@ -13,6 +13,11 @@ namespace WorldServer.networking.packets.outgoing
         public string CleanText { get; set; }
         public int NameColor { get; set; } = 0;
         public int TextColor { get; set; } = 0;
+        // the speaker's title, after the rest (older clients leave it unread): 0 none, 1 Gilded
+        // (the Gilded Realm Pass of this season: the Rust client shows "[Gilded]" before the name)
+        public byte Title { get; set; }
+
+        public const byte TitleGilded = 1;
 
         public override MessageId MessageId => MessageId.TEXT;
 
@@ -27,6 +32,7 @@ namespace WorldServer.networking.packets.outgoing
             wtr.WriteUTF16(CleanText);
             wtr.Write(NameColor);
             wtr.Write(TextColor);
+            wtr.Write(Title);
         }
     }
 }
