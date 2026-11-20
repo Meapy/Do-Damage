@@ -16,45 +16,82 @@ namespace Shared.database.leaderboard
         /// "Arena"; empty for older runs.
         public string Arena;
         public string[] Players;
+        /// From Season 2 on: the Empowered bosses the run slew, and the round it ended in ("The
+        /// Shatters"; empty when not kept).
+        public int Empowered;
+        public string FellTo = "";
         /// One player alone; the leaderboards keep solo and group runs apart.
         public bool Solo => Players.Length == 1;
     }
 
-    /// The arena leaderboard: a sorted set of runs (the world server's arenas add them; /leaderboard
-    /// and the account server's /arena/leaderboard read them). The score is the wave reached plus a
-    /// fraction below 0.1 that is larger the quicker the run, so of two runs to the same wave the
-    /// quicker one ranks first. A member is "<unix ms>|<seconds>|<arena>|<players>", players joined
-    /// by ", "; runs from before times were kept are "<unix ms>|<players>" with a whole score.
+    /// The arena leaderboards: a sorted set of runs for each season (ArenaSeasons; the world
+    /// server's arenas add them, /leaderboard and the account server's /arena/leaderboard read
+    /// them). The score is the wave reached plus a fraction below 0.1 that is larger the quicker the
+    /// run, so of two runs to the same wave the quicker one ranks first. A member is
+    /// "<unix ms>|<seconds>|<arena>|<players>", players joined by ", "; runs from before times were
+    /// kept are "<unix ms>|<players>" with a whole score. From Season 2 on a member is
+    /// "2|<unix ms>|<seconds>|<empowered slain>|<round it ended in>|<players>" (a unix ms is never 2).
     public static class DbArenaRuns
     {
+        /// Season 1's key (ArenaSeasons).
         public const string Key = "doomed.arenaLeaderboard";
         private const int MAX_SECONDS = 999_999;
+        private const string V2 = "2";
 
-        public static void Add(IDatabase db, int wave, int seconds, string arena, IEnumerable<string> players)
+        /// A run of the current season.
+        public static void Add(IDatabase db, int wave, int seconds, string arena, IEnumerable<string> players, int empowered = 0, string fellTo = "") =>
+            Add(db, ArenaSeasons.Current, wave, seconds, arena, players, empowered, fellTo);
+
+        public static void Add(IDatabase db, ArenaSeason season, int wave, int seconds, string arena, IEnumerable<string> players, int empowered = 0, string fellTo = "")
         {
             seconds = Math.Clamp(seconds, 0, MAX_SECONDS);
-            var names = string.Join(", ", players.Select(p => p.Replace("|", "")));
-            var member = $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}|{seconds}|{arena}|{names}";
-            var score = wave + (MAX_SECONDS + 1 - seconds) / 10_000_000.0;
-            db.SortedSetAdd(Key, member, score, CommandFlags.FireAndForget);
+            var names = string.Join(", ", players.Select(Clean));
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var member = season.Number == 1
+                ? $"{now}|{seconds}|{Clean(arena)}|{names}"
+                : $"{V2}|{now}|{seconds}|{Math.Max(0, empowered)}|{Clean(fellTo)}|{names}";
+            db.SortedSetAdd(season.Key, member, Score(wave, seconds), CommandFlags.FireAndForget);
         }
 
-        public static List<DbArenaRun> Top(IDatabase db, int count) =>
-            db.SortedSetRangeByRankWithScores(Key, 0, Math.Max(1, count) - 1, Order.Descending)
+        public static double Score(int wave, int seconds) =>
+            wave + (MAX_SECONDS + 1 - Math.Clamp(seconds, 0, MAX_SECONDS)) / 10_000_000.0;
+
+        private static string Clean(string text) => (text ?? "").Replace("|", "");
+
+        /// The best runs of a season (the current one for null), best first.
+        public static List<DbArenaRun> Top(IDatabase db, ArenaSeason season, int count) =>
+            db.SortedSetRangeByRankWithScores((season ?? ArenaSeasons.Current).Key, 0, Math.Max(1, count) - 1, Order.Descending)
                 .Select(e => Parse(e.Element, e.Score)).ToList();
 
-        /// The best solo (or group) runs, best first, from the top `scan` of all runs.
-        public static List<DbArenaRun> Top(IDatabase db, int count, bool solo, int scan = 1000) =>
-            Top(db, scan).Where(r => r.Solo == solo).Take(Math.Max(1, count)).ToList();
+        /// The best solo (or group) runs of a season, best first, from its top `scan` runs.
+        public static List<DbArenaRun> Top(IDatabase db, ArenaSeason season, int count, bool solo, int scan = 1000) =>
+            Top(db, season, scan).Where(r => r.Solo == solo).Take(Math.Max(1, count)).ToList();
+
+        /// How many solo (or group) runs of a season rank above a run to `wave` in `seconds`, from
+        /// its top `scan` runs: 0 when it would be the best.
+        public static int RankOf(IDatabase db, ArenaSeason season, int wave, int seconds, bool solo, int scan = 1000)
+        {
+            var score = Score(wave, seconds);
+            return Top(db, season, scan).Where(r => r.Solo == solo).Count(r => Score(r.Wave, r.Seconds) > score);
+        }
 
         public static DbArenaRun Parse(string member, double score)
         {
             var parts = member.Split('|');
             var run = new DbArenaRun { Wave = (int)Math.Floor(score), Seconds = -1, Arena = "" };
-            long.TryParse(parts[0], out run.Time);
             string players;
-            if (parts.Length >= 4 && int.TryParse(parts[1], out var seconds))
+            if (parts.Length >= 6 && parts[0] == V2)
             {
+                long.TryParse(parts[1], out run.Time);
+                int.TryParse(parts[2], out run.Seconds);
+                int.TryParse(parts[3], out run.Empowered);
+                run.FellTo = parts[4];
+                run.Arena = "Arena";
+                players = string.Join("|", parts.Skip(5));
+            }
+            else if (parts.Length >= 4 && int.TryParse(parts[1], out var seconds))
+            {
+                long.TryParse(parts[0], out run.Time);
                 run.Seconds = seconds;
                 // runs from the arenas there were before the Arena ("Battle Arena", "Free Battle
                 // Arena", the public /arena's "Arena") all count as the Arena's
@@ -62,7 +99,10 @@ namespace Shared.database.leaderboard
                 players = string.Join("|", parts.Skip(3));
             }
             else
+            {
+                long.TryParse(parts[0], out run.Time);
                 players = parts.Length > 1 ? string.Join("|", parts.Skip(1)) : "";
+            }
             run.Players = players.Split(", ", StringSplitOptions.RemoveEmptyEntries);
             return run;
         }

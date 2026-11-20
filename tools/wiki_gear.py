@@ -259,6 +259,8 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        if oid in self.gen.elder_keys:
+            rows.append(("Shop", "Nexus Bazaar (Elder Keys) or <code>/shop elderkeys</code>, %d gold" % self.gen.elder_keys[oid]))
         any_done = False
         for r in self.forged.get(oid, []):
             # an Ascended item from any item of a tier and kind: one line for all its recipes
@@ -359,6 +361,13 @@ class Gear:
                 name, desc = (info.get("name") or "").strip(), (info.get("description") or "").strip()
                 if name and desc and name not in ("Trap",):
                     out.append("%s: %s" % (name, desc[0].lower() + desc[1:]))
+        # a plane walk (a teleport that makes you invisible) waits until you've been seen for half a
+        # second (Player.UseItem.cs, PlaneWalks); not an Empowered boss's item (the Planar Rift)
+        acts = it["el"].findall("Activate")
+        if (it["el"].find("RelicPower") is None
+                and any((a.text or "").strip() == "Teleport" for a in acts)
+                and any((a.text or "").strip() == "ConditionEffectSelf" and a.get("effect") == "Invisible" for a in acts)):
+            out.append("only usable once you've been visible for 0.5s")
         return "; ".join(out)
 
     def effect(self, a, share=0):
@@ -661,6 +670,8 @@ class Gear:
         if oid in self.gen.bazaar:
             price, shop = self.gen.bazaar[oid]
             rows.append(("Shop", "Nexus Bazaar (%s), %d fame" % (h.esc(shop), price)))
+        if oid in self.gen.elder_keys:
+            rows.append(("Shop", "Nexus Bazaar (Elder Keys) or <code>/shop elderkeys</code>, %d gold" % self.gen.elder_keys[oid]))
         return rows
 
     def _pet_card(self, ident, texture, edge, name, tag, lines, desc, src, flags, search):

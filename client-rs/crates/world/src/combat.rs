@@ -130,13 +130,15 @@ pub fn bound_to_pi(a: f64) -> f64 {
     a
 }
 
-/// `GameObject.damageWithDefense`; AS3 truncates to int at each assignment.
+/// `GameObject.damageWithDefense` as the server works it out (`StatsManager.DamageWithDefense`):
+/// Armored doubles defense and keeps it against armor piercing and Armor Broken. AS3 truncates to
+/// int at each assignment.
 pub fn damage_with_defense(damage: i32, defense: i32, armor_piercing: bool, conditions: [u32; 2]) -> i32 {
     let mut def = defense;
-    if armor_piercing || has(conditions, condition::ARMOR_BROKEN) {
+    if has(conditions, condition::ARMORED) {
+        def *= 2;
+    } else if armor_piercing || has(conditions, condition::ARMOR_BROKEN) {
         def = 0;
-    } else if has(conditions, condition::ARMORED) {
-        def = (def as f64 * 1.5) as i32;
     }
     if has(conditions, condition::EXPOSED) {
         def -= 20;
@@ -162,6 +164,38 @@ pub fn shielded(damage: i32, percent: i32) -> i32 {
         return damage;
     }
     damage - (damage * percent + 50) / 100
+}
+
+/// Frontline, the sword classes' passive (the server's `Player.Frontline`): every hit (after
+/// defense and a forcefield) loses this share, rounded to the nearest point.
+pub const FRONTLINE_CUT_PERCENT: i32 = 15;
+/// The weapon slot type of swords: a class whose first slot takes them is Frontline.
+pub const SWORD_SLOT: i32 = 1;
+
+/// What a hit of `damage` leaves a Frontline class with (`Player.FrontlineCut`).
+pub fn frontline(damage: i32) -> i32 {
+    if damage <= 0 {
+        return damage;
+    }
+    damage - (damage * FRONTLINE_CUT_PERCENT + 50) / 100
+}
+
+/// Whether the class of this object type is Frontline: its first slot takes swords.
+pub fn frontline_class(data: &GameData, object_type: u16) -> bool {
+    data.objects
+        .get(&object_type)
+        .and_then(|d| d.xml.text_of("SlotTypes"))
+        .and_then(|s| s.split(',').next())
+        .and_then(|s| s.trim().parse::<i32>().ok())
+        == Some(SWORD_SLOT)
+}
+
+/// What overlapping forcefields take off together: the strongest in full, each after it at half
+/// the one before (rounded down), at most 90: the server's `Player.StackedShield`.
+pub fn stacked_shield(percents: impl IntoIterator<Item = i32>) -> i32 {
+    let mut p: Vec<i32> = percents.into_iter().filter(|&p| p > 0).collect();
+    p.sort_unstable_by(|a, b| b.cmp(a));
+    p.iter().take(30).enumerate().map(|(i, &v)| v >> i).sum::<i32>().min(90)
 }
 
 impl Projectile {
@@ -723,8 +757,9 @@ mod tests {
         // At least 10% gets through.
         assert_eq!(damage_with_defense(100, 95, false, [0, 0]), 10);
         assert_eq!(damage_with_defense(100, 95, true, [0, 0]), 100);
-        // Armored: defence ×1.5 (truncated): 45.
-        assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0]), 55);
+        // Armored: defence ×2, as the server: 60; armor piercing doesn't go through it.
+        assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0]), 40);
+        assert_eq!(damage_with_defense(100, 30, true, [1 << (condition::ARMORED - 1), 0]), 40);
         // Curse: ×1.25.
         assert_eq!(damage_with_defense(100, 0, false, [0, 1 << (condition::CURSE - 32)]), 125);
     }
@@ -738,5 +773,25 @@ mod tests {
         assert_eq!(shielded(25, 2), 24);
         assert_eq!(shielded(0, 10), 0);
         assert_eq!(shielded(80, 0), 80);
+    }
+
+    #[test]
+    fn forcefields_stack_at_half_each() {
+        assert_eq!(stacked_shield([]), 0);
+        assert_eq!(stacked_shield([30]), 30);
+        assert_eq!(stacked_shield([20, 40]), 50);
+        assert_eq!(stacked_shield([30, 30, 30]), 52);
+        assert_eq!(stacked_shield([25, 25, 0]), 37);
+        assert_eq!(stacked_shield([80, 80]), 90);
+    }
+
+    #[test]
+    fn frontline_rounds_as_the_server_does() {
+        // the server's FrontlineTests
+        assert_eq!(frontline(100), 85);
+        assert_eq!(frontline(160), 136);
+        assert_eq!(frontline(10), 8);
+        assert_eq!(frontline(1), 1);
+        assert_eq!(frontline(0), 0);
     }
 }

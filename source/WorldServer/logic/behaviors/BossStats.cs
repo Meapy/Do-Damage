@@ -86,8 +86,9 @@ namespace WorldServer.logic.behaviors
             foreach (var player in host.GetNearestEntities(_range, null, true).OfType<Player>())
                 s.Counted.Add(player.Id);
 
-            // the first player is the base health; each one after adds perPlayer of it
-            var added = (int)(_health * _perPlayer * System.Math.Max(0, s.Counted.Count - 1));
+            // the first player is the base health; each one after adds perPlayer of it (half as much
+            // in the hardest dungeons, GroupScaling)
+            var added = (int)(_health * _perPlayer * GroupScaling.Share(host) * System.Math.Max(0, s.Counted.Count - 1));
             if (added == s.Added)
                 return;
             if (added > s.Added)

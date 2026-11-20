@@ -701,7 +701,8 @@ class Data:
             m = re.search(listname + r'\s*=\s*new List<ISellableItem>\s*\{(.*?)\};', text, re.S)
             for name, price in re.findall(r'ShopItem\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
                 out[name] = (int(price), shop)
-        for arr, shop in (("DungeonKeyPrices", "Dungeon Keys"), ("DoomedKeyPrices", "Elder and Doomed Keys")):
+        # the Doomed keys share the regular keys' pavilion; the Elder keys are gold (elder_keys)
+        for arr, shop in (("DungeonKeyPrices", "Dungeon Keys"), ("DoomedKeyPrices", "Dungeon Keys")):
             m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
             prices = re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else "")
             for name, price in prices:
@@ -711,15 +712,25 @@ class Data:
         self.pet_generator_price = int(m.group(1)) if m else None
         return out
 
+    def elder_keys(self):
+        """{Elder key item id: price in gold}: the Elder keys, sold only for gold, in the Bazaar's
+        Elder pavilion and /shop elderkeys (MerchantLists.ElderKeyPrices), without a closed
+        dungeon's key."""
+        with open(MERCHANTS, encoding="utf-8-sig") as f:
+            text = f.read()
+        m = re.search(r'ElderKeyPrices\s*=\s*\{(.*?)\};', text, re.S)
+        return {name: int(price) for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else "")
+                if name not in sealed_items()}
+
     def key_shop(self):
         """{key item id: price in fame} that /shop keys sells (MerchantLists.KeyShopPrices): the
-        Bazaar's keys but NotInKeyShop, and KeyShopOnlyPrices, without a closed dungeon's key."""
+        Bazaar's fame keys but NotInKeyShop, without a closed dungeon's key."""
         with open(MERCHANTS, encoding="utf-8-sig") as f:
             text = f.read()
         m = re.search(r'NotInKeyShop\s*=\s*\{(.*?)\};', text, re.S)
         left_out = set(re.findall(r'"([^"]+)"', m.group(1) if m else ""))
         out = {}
-        for arr in ("DungeonKeyPrices", "DoomedKeyPrices", "KeyShopOnlyPrices"):
+        for arr in ("DungeonKeyPrices", "DoomedKeyPrices"):
             m = re.search(arr + r'\s*=\s*\{(.*?)\};', text, re.S)
             for name, price in re.findall(r'\("([^"]+)",\s*(\d+)\)', m.group(1) if m else ""):
                 if name not in left_out and name not in sealed_items():
@@ -991,13 +1002,14 @@ def server_events():
 
 
 def market_rules():
-    """The Marketplace's tax, listing limit and how long a listing lasts (Marketplace.cs)."""
+    """The Marketplace's taxes (fame, gold), listing limit and how long a listing lasts
+    (Marketplace.cs)."""
     src = _read(os.path.join(SRC, "WorldServer", "core", "market", "Marketplace.cs"))
 
     def const(name):
         m = re.search(r'const int %s\s*=\s*([\d_]+)' % name, src)
         return int(m.group(1).replace("_", "")) if m else 0
-    return {"tax": const("TaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
+    return {"tax": const("TaxPercent"), "gold_tax": const("GoldTaxPercent"), "limit": const("MaxListings"), "max_price": const("MaxPrice"),
             "default_days": const("DefaultHours") // 24, "max_days": const("MaxHours") // 24,
             "slot_step": const("SlotPriceStep"), "max_extra": const("MaxExtraSlots"),
             "max_slots": const("MaxListings") + const("MaxExtraSlots")}
@@ -1066,13 +1078,15 @@ def realm():
 
 
 def account():
-    """New accounts and what they can buy (init.xml, DbAccount)."""
+    """New accounts and what they can buy (init.xml, DbAccount, UnlockPrices: slots and vault
+    chests for fame, doubling every few bought with fame, or for gold, always the same)."""
     root = ET.parse(os.path.join(SRC, "Shared", "resources", "data", "init.xml")).getroot()
     na = root.find("NewAccounts")
     acc = _read(os.path.join(SRC, "Shared", "database", "account", "DbAccount.cs"))
+    unlocks = _read(os.path.join(SRC, "Shared", "database", "UnlockPrices.cs"))
 
-    def const(name):
-        return int(re.search(name + r'\s*=\s*(\d+)', acc).group(1))
+    def const(name, src=acc):
+        return int(re.search(name + r'\s*=\s*(\d+)', src).group(1))
     return {
         "char_slots": _int(_text(na, "MaxCharSlot"), 1),
         "vault_chests": _int(_text(na, "VaultCount"), 1),
@@ -1084,6 +1098,9 @@ def account():
         "storage_base": const("PotionStorageBase"),
         "storage_step": const("PotionStoragePerLevel"),
         "storage_cost": const("PotionStorageUpgradeCost"),
+        "unlock_doubles": const("DoublesEvery", unlocks),
+        "slot_gold": const("SlotGold", unlocks),
+        "vault_gold": const("VaultGold", unlocks),
     }
 
 

@@ -64,7 +64,8 @@ namespace WorldServer.logic.behaviors
         private readonly int _scaleAfter;
 
         // amount: percent of the base HP added for each player past the first scaleStart. Scaling
-        // starts with the second player, so a boss fought alone has the HP its XML gives.
+        // starts with the second player, so a boss fought alone has the HP its XML gives. In the
+        // hardest dungeons each player adds half of it (GroupScaling).
         public ScaleHP2(int amount, int scaleStart = 1, double range = 25.0)
         {
             _percentage = amount;
@@ -123,7 +124,8 @@ namespace WorldServer.logic.behaviors
 
                 if (plrCount > scstate.initialScaleAmount)
                 {
-                    var amountPerPlayer = _percentage * enemy.ObjectDesc.MaxHP / 100;
+                    // half as much in the hardest dungeons (GroupScaling)
+                    var amountPerPlayer = (int)(_percentage * GroupScaling.Share(host) * enemy.ObjectDesc.MaxHP / 100);
                     var amountInc = (plrCount - scstate.initialScaleAmount) * amountPerPlayer;
                     amountInc += (itemCount - scstate.initialItemScaleAmount) * enemy.ObjectDesc.MaxHP / 40;
                     //Console.WriteLine(itemCount + " - "+scstate.initialItemScaleAmount + " * "+enemy.ObjectDesc.MaxHP + " / 25 = " + (itemCount - scstate.initialItemScaleAmount) * enemy.ObjectDesc.MaxHP / 50);

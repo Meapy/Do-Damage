@@ -220,6 +220,7 @@ namespace WorldServer.core.commands.doomed
             if (slots.Any(s => SellPrice(inv[s].ObjectId) <= 0))
                 return "The forge doesn't buy some of those items.";
             fame = slots.Sum(s => SellPrice(inv[s].ObjectId));
+            WorldServer.utils.StaticLogger.Instance.Info($"Forge: <{player.Name} {player.AccountId}> sold {string.Join(", ", slots.Select(s => inv[s].ObjectId))} for {fame} fame");
             foreach (var s in slots)
             {
                 inv[s] = null;
@@ -375,12 +376,23 @@ namespace WorldServer.core.commands.doomed
         protected override bool Process(Player player, TickTime time, string args)
         {
             var names = DoomedShop.ShopNames.ToList();
-            var name = args.Trim();
+            // "/shop dyes dark blue": the shop, then words the items' names must have
+            var parts = args.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var name = parts.Length > 0 ? parts[0] : "";
+            var filter = parts.Length > 1 ? parts[1].Trim() : "";
+            // the Elder keys' gold shop was "donorkeys" before it sold them all
+            if (name.Equals("donorkeys", StringComparison.OrdinalIgnoreCase))
+                name = DoomedShop.ElderKeysShop;
             var shop = names.FirstOrDefault(n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (shop == null)
             {
-                player.SendInfo("Usage: /shop <name>. Shops: " + string.Join(", ", names));
+                player.SendInfo("Usage: /shop <name> [colour or name]. Shops: " + string.Join(", ", names));
                 return name.Length == 0;
+            }
+            if (filter.Length > 0 && DoomedShop.Entries(player.GameServer.Resources.GameData, shop, filter).Count == 0)
+            {
+                player.SendError($"The {shop} shop has nothing called \"{filter}\".");
+                return false;
             }
             if (player.World is DoomedBattleArena || player.World is DoomedMinigame)
             {
@@ -393,10 +405,90 @@ namespace WorldServer.core.commands.doomed
                 player.SendError("The shop is closed.");
                 return false;
             }
-            world.SetShop(shop);
-            world.DisplayName = "Shop: " + shop;
+            world.SetShop(shop, filter);
+            world.DisplayName = "Shop: " + shop + (filter.Length > 0 ? " (" + filter + ")" : "");
             player.Reconnect(world);
             return true;
+        }
+    }
+
+    // An admin's tests of the Arena's rounds, in an Arena: /arenatest wave <n> (the next fight starts
+    // at that wave), /arenatest empowered [boss] (the next fight brings an Empowered boss),
+    // /arenatest probe [seconds] [text] (before the game starts: each boss of the season, or those
+    // whose id holds the text (or one of several, split by commas), or "#k/n" the k-th of n shares, fought in turn in the ring: ArenaProbe), /arenatest plan [from] [to]
+    // (the rounds planned for those waves).
+    internal class ArenaTestCommand : Command
+    {
+        public override RankingType RankRequirement => RankingType.Admin;
+        public override string CommandName => "arenatest";
+
+        protected override bool Process(Player player, TickTime time, string args)
+        {
+            if (player.World is not DoomedBattleArena arena)
+            {
+                player.SendError("Only in an Arena.");
+                return false;
+            }
+            var parts = (args ?? "").Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var rest = parts.Length > 1 ? parts[1].Trim() : "";
+            switch (parts.Length > 0 ? parts[0].ToLowerInvariant() : "")
+            {
+                case "wave" when int.TryParse(rest, out var wave):
+                    if (!arena.ForceWave(wave))
+                    {
+                        player.SendError("Only before the game or between waves.");
+                        return false;
+                    }
+                    player.SendInfo($"The next fight starts at wave {wave}.");
+                    return true;
+                case "empowered":
+                {
+                    var pool = ArenaSeason2.EmpoweredPool.Select(e => e.Boss).ToArray();
+                    var boss = rest.Length == 0 ? pool[Random.Shared.Next(pool.Length)]
+                        : pool.FirstOrDefault(b => b.Contains(rest, StringComparison.OrdinalIgnoreCase)) ?? rest;
+                    if (!arena.ForceEmpowered(boss))
+                    {
+                        player.SendError($"No Empowered form for {boss}.");
+                        return false;
+                    }
+                    player.SendInfo($"The next fight brings Empowered {boss}.");
+                    return true;
+                }
+                case "probe":
+                {
+                    if (arena.Wave > 0)
+                    {
+                        player.SendError("Only before the game starts.");
+                        return false;
+                    }
+                    var words = rest.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    var seconds = words.Length > 0 && int.TryParse(words[0], out var s) ? s : 90;
+                    var filter = words.Length > 0 && int.TryParse(words[0], out _) ? (words.Length > 1 ? words[1] : "") : rest;
+                    // "#2/4": the second quarter of them, for several admins probing at once
+                    var part = System.Text.RegularExpressions.Regex.Match(filter, @"^#(\d+)/(\d+)$");
+                    var bosses = ArenaSeason2.AllBosses.Where((b, i) => part.Success
+                        ? i % int.Parse(part.Groups[2].Value) == int.Parse(part.Groups[1].Value) - 1
+                        : filter.Length == 0 || filter.Split(',').Any(f => b.Contains(f.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
+                    arena.StartProbe(player, bosses, seconds);
+                    player.SendInfo($"Probing {bosses.Count} bosses, {seconds} s each at most.");
+                    return true;
+                }
+                case "plan":
+                {
+                    var nums = rest.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(n => int.TryParse(n, out var v) ? v : 0).ToArray();
+                    var from = Math.Max(1, nums.Length > 0 ? nums[0] : Math.Max(1, arena.Wave));
+                    var to = Math.Clamp(nums.Length > 1 ? nums[1] : from + 9, from, from + 40);
+                    DoomedEconomy.SendLines(player, $"Rounds {from}-{to}:", Enumerable.Range(from, to - from + 1).Select(w =>
+                    {
+                        var r = arena.Planned(w);
+                        return $"{w}. {r.Title} [{DoomedBattleArena.FormatName(r.Format)}{(r.Twist != ArenaTwist.None ? ", " + DoomedBattleArena.TwistName(r.Twist) : "")}] {string.Join(", ", r.AllBosses)}";
+                    }));
+                    return true;
+                }
+                default:
+                    player.SendError("Usage: /arenatest wave <n> | empowered [boss] | probe [seconds] [text] | plan [from] [to]");
+                    return false;
+            }
         }
     }
 
@@ -424,13 +516,18 @@ namespace WorldServer.core.commands.doomed
 
         protected override bool Process(Player player, TickTime time, string args)
         {
+            // /leaderboard 1: an earlier season's (ArenaSeasons), kept as it ended
             var db = player.GameServer.Database.Conn;
+            var season = ArenaSeasons.Parse(args?.Trim());
+            var label = $"Season {season.Number}, {season.Name}";
             foreach (var solo in new[] { true, false })
             {
-                var top = DbArenaRuns.Top(db, 10, solo);
-                DoomedEconomy.SendLines(player, solo ? "Arena Leaderboard, solo:" : "Arena Leaderboard, groups:",
-                    top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} in {DbArenaRuns.FormatTime(t.Seconds)} - {string.Join(", ", t.Players)}"));
+                var top = DbArenaRuns.Top(db, season, 10, solo);
+                DoomedEconomy.SendLines(player, solo ? $"Arena Leaderboard ({label}), solo:" : $"Arena Leaderboard ({label}), groups:",
+                    top.Count == 0 ? new[] { "None" } : top.Select((t, i) => $"{i + 1}. Wave {t.Wave} in {DbArenaRuns.FormatTime(t.Seconds)}{(t.Empowered > 0 ? $", {t.Empowered} Empowered slain" : "")} - {string.Join(", ", t.Players)}"));
             }
+            if (season == ArenaSeasons.Current && ArenaSeasons.All.Length > 1)
+                player.SendInfo("Earlier seasons: /leaderboard " + string.Join(", ", ArenaSeasons.All.Where(s => s != season).Select(s => s.Number)));
             return true;
         }
     }

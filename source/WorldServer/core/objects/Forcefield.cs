@@ -9,7 +9,8 @@ namespace WorldServer.core.objects
 {
     // The Ascendant's halos: a forcefield left where it was cast, in its halo's colour (COLORS). Every player standing in
     // it takes `percent` off each hit (shots, ground, anything else: Player.ShieldedDamage) until it
-    // fades. Uses the Trap object (0x0711) as an invisible anchor, as the healing halo it replaced
+    // fades. Overlapping fields stack, each after the strongest at half the one before
+    // (Player.StackedShield). Uses the Trap object (0x0711) as an invisible anchor, as the healing halo it replaced
     // did.
     //
     // Its look is the Rust client's (client-rs/app/src/particles/relic.rs, looks 30 to 32): a
@@ -127,7 +128,7 @@ namespace WorldServer.core.objects
             {
                 if (entity is not Player player)
                     return;
-                player.Shield(percent, HOLD_MS, color, vow);
+                player.Shield(Id, percent, HOLD_MS, color, vow);
                 if (giveCredit)
                     player.BuffedBy(owner, 1500);
             });

@@ -168,6 +168,13 @@ impl Text {
     /// Interface text: crisp glyphs with a soft one-pixel shadow (none under dark text, which
     /// sits on light buttons), instead of the glow that keeps world text readable.
     pub fn draw_ui(&mut self, fonts: &Fonts, renderer: &mut Renderer, text: &str, x: f32, y: f32, style: Style) {
+        self.draw_ui_alpha(fonts, renderer, text, x, y, style, 1.0);
+    }
+
+    /// `draw_ui`, faded to `alpha` (a banner coming and going).
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw_ui_alpha(&mut self, fonts: &Fonts, renderer: &mut Renderer, text: &str, x: f32, y: f32, style: Style, alpha: f32) {
+        let alpha = alpha.clamp(0.0, 1.0);
         let size = style.size.round() as u32;
         let font = fonts.font(style.bold);
         let ascent = font.as_scaled(scale(font, size as f32)).ascent();
@@ -176,13 +183,13 @@ impl Text {
         let [r, gc, b] = bsk_render::rgb_f32(style.color);
         let light = 0.299 * r + 0.587 * gc + 0.114 * b > 0.45;
         if light {
-            let shadow = Tint { mul: [0.0, 0.0, 0.0, 0.55], add: [0.0; 3] };
+            let shadow = Tint { mul: [0.0, 0.0, 0.0, 0.55 * alpha], add: [0.0; 3] };
             let drop = (size as f32 / 14.0).round().max(1.0);
             for &(fill, _, gx, gy) in &placed {
                 renderer.sprite(fill, Quad::rect(gx, gy + drop, fill.w as f32, fill.h as f32), shadow);
             }
         }
-        let tint = Tint { mul: [r, gc, b, 1.0], add: [0.0; 3] };
+        let tint = Tint { mul: [r, gc, b, alpha], add: [0.0; 3] };
         for &(fill, _, gx, gy) in &placed {
             renderer.sprite(fill, Quad::rect(gx, gy, fill.w as f32, fill.h as f32), tint);
         }

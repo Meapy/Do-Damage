@@ -23,6 +23,12 @@ namespace WorldServer.core.quests
     {
         public const byte CLAIM_QUEST = 0, CLAIM_BONUS = 1, CLAIM_LOGIN = 2, CLAIM_ACHIEVEMENT = 3, SWAP = 4, COLOR = 5, CLAIM_GIFT = 6, GLOW = 7;
 
+        // The stars an account needs for the daily login rewards and the free gifts, so fresh
+        // accounts made only to collect them (a Lil' Oryx each) get nothing.
+        public const int RewardStars = 5;
+
+        private bool TooNewForRewards => _player.Stars < RewardStars;
+
         private static QuestData _data;
         private static readonly object DataLock = new object();
 
@@ -156,6 +162,7 @@ namespace WorldServer.core.quests
                 return;
             _player.ChampionCounter.Count(e);
             community.CommunityGoals.Count(_player, e);
+            _player.Pass?.Event(e);
             var notices = new List<QuestNotice>();
             var changes = Book.Apply(e, notices);
             if (changes.Count == 0)
@@ -266,6 +273,8 @@ namespace WorldServer.core.quests
                 result = ClaimResult.Fail("Register your account to collect rewards.");
             else if (_player.World is TestWorld)
                 result = ClaimResult.Fail("Not here.");
+            else if ((kind == CLAIM_LOGIN || kind == CLAIM_GIFT) && TooNewForRewards)
+                result = ClaimResult.Fail($"Reach {RewardStars} stars to collect daily rewards and gifts.");
             else
                 result = kind switch
                 {
@@ -292,6 +301,12 @@ namespace WorldServer.core.quests
                 // recorded before anything is paid, so a claim is never paid twice
                 Save();
                 Pay(result.Rewards);
+                // the Realm Pass's XP for the claim: the quest's period, the bonus's, or the daily reward
+                var period = kind == CLAIM_QUEST ? Book.Current().Where(q => q.Slot.Id == id).Select(q => q.Period).FirstOrDefault()
+                    : Enum.TryParse<QuestPeriod>(id, true, out var bp) ? bp : QuestPeriod.Daily;
+                _player.Pass?.QuestClaimed(kind, period);
+                if (kind == COLOR)
+                    _player.Pass?.ColorChosenElsewhere();
                 // the quest book counts these for the achievements itself; the community goals
                 // hear of them here
                 if (kind == CLAIM_QUEST)

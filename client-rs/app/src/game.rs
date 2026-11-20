@@ -20,6 +20,8 @@ pub const DEFAULT_CAMERA_ANGLE: f64 = 7.0 * std::f64::consts::PI / 4.0;
 pub const RESET_CAMERA_ANGLE: f64 = 0.0;
 /// `Parameters.PLAYER_ROTATE_SPEED`, radians per millisecond.
 const ROTATE_SPEED: f64 = 0.003;
+/// How long we must have been seen before a cloak makes us invisible again (ms).
+const VISIBLE_BEFORE_INVISIBLE: i32 = 500;
 /// `Map.MIN_VIEW_RADIUS` (the server's default sight) and `MAX_VIEW_RADIUS`, in tiles.
 const MIN_VIEW_RADIUS: i32 = 15;
 const MAX_VIEW_RADIUS: i32 = 40;
@@ -78,6 +80,8 @@ pub struct Game {
     pub pet_pen: Option<bsk_proto::PetPen>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
+    /// The Realm Pass, for its window and the HUD's button (`pass.rs`).
+    pub pass_events: Vec<crate::pass::Event>,
     /// The community goals and their banners, for their window (`community.rs`).
     pub community_events: Vec<crate::community::Event>,
     /// The server's chat lines held back while a community claim is answered and its loot rolls
@@ -111,6 +115,11 @@ pub struct Game {
     /// asks).
     pub arena_votes: Option<bsk_proto::ArenaVotes>,
     arena_asked: bool,
+    /// The Arena's rounds (`ArenaRound`, Season 2): the fight running, what the next one will be
+    /// (while the votes are open), and the banner shown over the world (the message, and when).
+    pub arena_fight: Option<bsk_proto::ArenaRound>,
+    pub arena_next: Option<bsk_proto::ArenaRound>,
+    pub arena_banner: Option<(bsk_proto::ArenaRound, i32)>,
     /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
     /// from `*AutoAim*` (a name no player can have); `--aim auto` asks for it.
     pub auto_aim: bool,
@@ -160,6 +169,9 @@ pub struct Game {
     merchant_talk: std::collections::HashMap<i32, (i32, usize)>,
     /// When the ability (Space) can be used again (`Player.nextAltAttack_`).
     next_ability: i32,
+    /// When we were last invisible: a plane walk (a teleport that makes us invisible) waits until we've been seen
+    /// for `VISIBLE_BEFORE_INVISIBLE` ms, as the server does (`Player.UseItem.cs`).
+    last_invisible: i32,
     /// What we sent, by message name (logged when the game closes).
     pub counts: std::collections::BTreeMap<&'static str, u32>,
     /// Chat, oldest first (kept across worlds, as the AIR client's TextBox is).
@@ -415,6 +427,7 @@ impl Game {
             collection: None,
             pet_pen: None,
             quest_events: Vec::new(),
+            pass_events: Vec::new(),
             community_events: Vec::new(),
             claim_hold: None,
             music: None,
@@ -427,6 +440,9 @@ impl Game {
             arena: None,
             arena_votes: None,
             arena_asked: false,
+            arena_fight: None,
+            arena_next: None,
+            arena_banner: None,
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
@@ -451,6 +467,7 @@ impl Game {
             keys: Vec::new(),
             merchant_talk: Default::default(),
             next_ability: 0,
+            last_invisible: i32::MIN / 2,
             counts: Default::default(),
             chat: Vec::new(),
             hold_reconnect: false,
@@ -707,6 +724,9 @@ impl Game {
                 self.arena = None;
                 self.arena_votes = None;
                 self.arena_asked = false;
+                self.arena_fight = None;
+                self.arena_next = None;
+                self.arena_banner = None;
                 self.pings.clear();
                 self.show_displays = info.show_displays;
                 self.music = Some(info.music.clone());
@@ -740,6 +760,8 @@ impl Game {
                 }
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
+                // the Realm Pass likewise: its tier on the HUD, and every gain from now on
+                self.socket.send(&bsk_proto::PassAct { kind: crate::pass::act::REQUEST, value: 0 }.into());
                 // community goals: to say when one of their rewards waits, and for their banners
                 self.socket.send(&bsk_proto::CommunityRequest {}.into());
                 // we can show visit and summon requests, in the corner
@@ -1061,6 +1083,9 @@ impl Game {
             ServerMessage::QuestProgress(p) => self.quest_events.push(crate::quests::Event::Progress(p.changes.0.clone())),
             ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
             ServerMessage::QuestNotice(n) => self.quest_events.push(crate::quests::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
+            ServerMessage::PassData(d) => self.pass_events.push(crate::pass::Event::Data(Box::new(d.clone()))),
+            ServerMessage::PassXp(x) => self.pass_events.push(crate::pass::Event::Xp(x.clone())),
+            ServerMessage::PassResult(r) => self.pass_events.push(crate::pass::Event::Result(Box::new(r.clone()))),
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => {
                 self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone()));
@@ -1110,17 +1135,36 @@ impl Game {
                 world.add_projectile(p);
             }
             ServerMessage::Notification(n) => {
-                // CharacterStatusText: two seconds over the object.
+                // CharacterStatusText: two seconds over the object. The Pirate's luck (a shot that
+                // missed him, `Player.PirateDodged`) is the one the client words itself.
+                let text = if n.text == "Lucky!" { crate::i18n::tr("Lucky!").to_owned() } else { n.text.clone() };
                 self.floaters.push(crate::view::Floater {
                     object_id: n.object_id,
-                    text: n.text.clone(),
+                    text,
                     color: n.color & 0xFF_FFFF,
                     at: now,
                     life: 2000,
                     others: false,
                 });
             }
-            ServerMessage::ArenaVotes(v) => self.arena_votes = Some(v.clone()),
+            ServerMessage::ArenaVotes(v) => {
+                if !v.open {
+                    self.arena_next = None;
+                }
+                self.arena_votes = Some(v.clone());
+            }
+            ServerMessage::ArenaRound(r) => match r.kind {
+                // what the next fight will be
+                0 => self.arena_next = Some(r.clone()),
+                // a fight begins: its rounds, and its banner
+                1 => {
+                    self.arena_next = None;
+                    self.arena_fight = Some(r.clone());
+                    self.arena_banner = Some((r.clone(), now));
+                }
+                // an Empowered boss rises, a boss rush's next boss: a banner of its own
+                _ => self.arena_banner = Some((r.clone(), now)),
+            },
             ServerMessage::PingShow(p) => self.pings.show(p, now),
             ServerMessage::SpectateInfo(_) | ServerMessage::SpectateFeed(_) | ServerMessage::SpectateStatus(_) | ServerMessage::SpectateChat(_) => {
                 self.glass_events.push(msg.clone())
@@ -1339,10 +1383,10 @@ impl Game {
     /// Move the projectiles and tell the server what they hit.
     fn update_projectiles(&mut self, now: i32, data: &GameData) {
         let Some(world) = &mut self.world else { return };
-        // standing in an Ascendant's forcefield: the strongest one's percentage off each hit
+        // standing in Ascendants' forcefields: their percentages off each hit, stacked at half each
         self.forcefields.retain(|f| now < f.4);
         let shield = world.player().map_or(0, |p| {
-            self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5).max().unwrap_or(0)
+            bsk_world::combat::stacked_shield(self.forcefields.iter().filter(|f| (p.x - f.1).hypot(p.y - f.2) <= f.3).map(|f| f.5))
         });
         // our ward (`ward.rs`): what it still takes, counted down as we're hit, so a blow it takes
         // whole shows grey
@@ -1352,10 +1396,16 @@ impl Game {
             ward = (ward - damage.max(0)).max(0);
             all
         };
+        // a sword class (Frontline) takes a share off every hit after that
+        let front = world.player().is_some_and(|p| bsk_world::combat::frontline_class(data, p.object_type));
+        let taken = |damage: i32| {
+            let d = bsk_world::combat::shielded(damage, shield);
+            if front { bsk_world::combat::frontline(d) } else { d }
+        };
         for hit in world.update_projectiles(now, data) {
             let hit = match hit {
-                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: bsk_world::combat::shielded(damage, shield), pierced, stacked },
-                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: bsk_world::combat::shielded(damage, shield) },
+                Hit::Player { bullet_id, owner_id, damage, pierced, stacked } => Hit::Player { bullet_id, owner_id, damage: taken(damage), pierced, stacked },
+                Hit::Ground { time, x, y, damage } => Hit::Ground { time, x, y, damage: taken(damage) },
                 other => other,
             };
             let msg: ClientMessage = match hit {
@@ -1432,6 +1482,9 @@ impl Game {
             }
         }
         let Some(world) = &mut self.world else { return };
+        if world.player().is_some_and(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::INVISIBLE)) {
+            self.last_invisible = now;
+        }
         let input = MoveInput { x: keys.0, y: keys.1, camera_angle: self.camera_angle };
         if let Some((x, y)) = world.update(now, dt, &input, data) {
             self.session.set_position(WorldPos { x: x as f32, y: y as f32 }, now);
@@ -1601,7 +1654,13 @@ impl Game {
             return;
         }
         // Player.useAltWeapon: an error, or not enough mana.
-        if paused || !xml.has("Usable") {
+        // a plane walk (a teleport that makes us invisible): not while invisible, nor until we've
+        // been seen a moment, as the server refuses it
+        // (not an Empowered boss's item, `RelicPower`: the Cloak of the Planar Rift is left as it was)
+        let walks = !xml.has("RelicPower")
+            && xml.children_named("Activate").any(|a| a.text.trim() == "Teleport")
+            && xml.children_named("Activate").any(|a| a.text.trim() == "ConditionEffectSelf" && a.attr("effect") == Some("Invisible"));
+        if paused || !xml.has("Usable") || (walks && now - self.last_invisible < VISIBLE_BEFORE_INVISIBLE) {
             self.sounds.push(("error".into(), 1.0, false));
             return;
         }
@@ -1861,8 +1920,10 @@ impl Game {
     pub fn market(&mut self, act: crate::market::Act) {
         use crate::market::Act;
         let msg: ClientMessage = match act {
-            Act::Browse(version) => bsk_proto::MarketBrowse { version }.into(),
-            Act::Sell { from_vault, chest, slot, price, hours } => bsk_proto::MarketSell { from_vault, chest, slot, price, hours }.into(),
+            Act::Browse(version) => bsk_proto::MarketBrowse { version, gold: Some(1) }.into(),
+            Act::Sell { from_vault, chest, slot, price, hours, gold } => {
+                bsk_proto::MarketSell { from_vault, chest, slot, price, hours, currency: Some(if gold { 0 } else { 1 }) }.into()
+            }
             // MarketActHandler: 1 buy, 2 take back, 3 collect from the box, 4 buy a listing slot
             Act::Buy(id, price) => bsk_proto::MarketAct { action: 1, id, price }.into(),
             Act::Cancel(id) => bsk_proto::MarketAct { action: 2, id, price: 0 }.into(),
@@ -1935,6 +1996,12 @@ impl Game {
         self.send(msg);
     }
 
+    /// Ask the Realm Pass's server side (`PassTracker.cs`).
+    pub fn pass(&mut self, act: crate::pass::Act) {
+        let (kind, value) = act.wire();
+        self.send(bsk_proto::PassAct { kind, value }.into());
+    }
+
     /// Ask the community goals' server side (`CommunityGoals.cs`).
     pub fn community(&mut self, act: crate::community::Act) {
         use crate::community::Act;
@@ -1995,11 +2062,12 @@ impl Game {
     }
 
     /// `Buy`: buy what the shop sells.
-    pub fn buy(&mut self, object_id: i32) {
+    /// Buy what `object_id` sells, in `currency` (0 gold, 1 fame) when it sells for either.
+    pub fn buy(&mut self, object_id: i32, currency: Option<u8>) {
         if self.haunting() {
             return;
         }
-        self.send(Buy { object_id }.into());
+        self.send(Buy { object_id, currency }.into());
     }
 
     /// `Merchant.update`: every 5 s a merchant in view says what's special about it ("New!",

@@ -60,6 +60,11 @@ dotnet test source\Tests
   runs `rolling_restart.py deploy --reuse` (asked again every 30 minutes until draining). Without
   the proxy it kicks everyone 5 minutes after a warning and starts itself again (on Linux, systemd
   does).
+- **Crashes:** if the active world server's process is gone and no restart or deploy is running,
+  the proxy runs `rolling_restart.py up --no-build` after 5 s (at most once per 5 minutes). Code
+  on socket threads (the `NetworkHandler` callbacks, `Client.Disconnect`) must never let an
+  exception out: on a pool thread it ends the process without saving anyone. Touch a player's
+  world state there only through `World.Post`.
 - **Realms carry over:** each Nexus realm keeps a snapshot in the Redis hash `realms`
   (`core/worlds/RealmSnapshots.cs`, `RealmManager.Snapshot.cs`) that a new server reopens;
   `/uptime` reads `worlds:upSince`. New realm state worth keeping goes in the snapshot; what it
@@ -136,6 +141,16 @@ dotnet test source\Tests
 - **Testing:** `/questadmin time <hours>`, `add <event> [n] [flags]`, `done`, `reset` (admins, on a
   test stack only).
 
+## The Realm Pass
+
+- **Rules** in `Shared/pass/` (no game code, `PassBookTests`), everything tunable in
+  `Shared/resources/data/pass.json` (its `_about`); the game side is
+  `WorldServer/core/pass/PassTracker.cs`, one per player, fed by the same hooks as the quests.
+- **State:** the `pass` field of `account.<id>` (JSON), saved after every claim and purchase
+  (before paying), every 30 s while it changes, and on leaving.
+- **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>` and
+  `look <aura> [skin id]` (admins, on a test stack only); the Rust client's `--pass <tab>`.
+
 ## Commands
 
 - In `core/commands/` (`admin/`, `player/`, `supporter/`, `doomed/`): nested classes of the
@@ -159,6 +174,11 @@ dotnet test source\Tests
   `sprites.pending` and `sprites.approved`, the lists `sprites.by.<account>`, and rate counters
   `sprites.wait.*`, `.day.*`, `.ip.*`, `.all.*`. What shipped is
   `resources/data/community_sprites.json`, written by `tools/community_sprites.py` only.
+- **Gold store** (`Shared/database/GoldStore.cs`, `App/Controllers/GoldController.cs`): `gold.order.<id>`
+  hashes (paid ones kept for good: they're the payment records), `gold.orders.<acc>`,
+  `gold.capture.<id>`, `gold.sales`, `gold.log`, `gold.session.<token>`, `gold.made.<acc>`. Gold
+  is paid into `credits` and `totalCredits` only by its Lua scripts; never change a paid order by
+  hand. SETUP-LOCAL.md, "Gold store".
 
 ```
 source\Redis\redis-cli.exe hget names MEAPY

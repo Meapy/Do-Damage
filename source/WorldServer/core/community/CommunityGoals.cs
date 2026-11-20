@@ -41,8 +41,9 @@ namespace WorldServer.core.community
     // first server to see it so marks it `finished` and adds a bonus goal for its slot to
     // `community:week:<yyyyMMdd>:early` ("<slot>,<goal>,<unix start>"), which ends that run and
     // runs until the weekly reset as usual. Each server announces the bonus goals it sees start.
-    // A running bonus goal whose goal was fixed bigger than Early's limits give now is eased to
-    // match when a server first reads it (a deploy that lowers them eases those running).
+    // A bonus goal is sized by its own scale, as any run. One fixed bigger than that (once, the
+    // pace of the goal it replaced made it bigger: a fourth field, its "heat", now ignored) is
+    // eased to its own size when a server first reads it while it runs.
     public static class CommunityGoals
     {
         private const int RefreshSeconds = 5;
@@ -253,10 +254,7 @@ namespace WorldServer.core.community
                 {
                     var parts = ((string)v ?? "").Split(',');
                     if (parts.Length >= 3 && int.TryParse(parts[0], out var slot) && long.TryParse(parts[2], out var unix))
-                    {
-                        var heat = parts.Length > 3 && double.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var h) ? h : 1;
-                        list.Add(new EarlyStart(slot, parts[1], DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime, heat));
-                    }
+                        list.Add(new EarlyStart(slot, parts[1], DateTimeOffset.FromUnixTimeSeconds(unix).UtcDateTime));
                 }
                 EarlyStarts[week] = list;
                 return list;
@@ -302,13 +300,11 @@ namespace WorldServer.core.community
                     Log.Info($"Community goals: {run.Key} finished early, and no goal is left for a bonus");
                     return;
                 }
-                // the faster it went, the harder the bonus goal
-                var heat = Data.Heat(run, rs.Total, rs.Goal, now);
                 picked.Add(next);
-                _db.ListRightPush(EarlyKey(week), $"{run.Slot},{next},{at},{heat.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}");
+                _db.ListRightPush(EarlyKey(week), $"{run.Slot},{next},{at}");
                 _db.KeyExpire(EarlyKey(week), WeekKeptFor);
                 EarlyStarts.TryRemove(week, out _);
-                Log.Info($"Community goals: {run.Key} finished early at {rs.Total:N0} of {rs.Goal:N0}; {next} starts as a bonus, {heat:0.##} times its size");
+                Log.Info($"Community goals: {run.Key} finished early at {rs.Total:N0} of {rs.Goal:N0}; {next} starts as a bonus");
             }
             catch (Exception e)
             {
@@ -341,8 +337,8 @@ namespace WorldServer.core.community
                 var fixing = new List<(CommunityRun Run, int Wanted, Task<bool> First, Task<RedisValue> Goal)>();
                 foreach (var run in unfixed)
                 {
-                    // a bonus goal after quick finishes is harder by their heat
-                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, (scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1) * run.Heat);
+                    // each goal by its own scale, a bonus goal too
+                    var goal = run.Special ? run.Def.Goal : CommunityData.GoalOf(run.Def, scales.TryGetValue(run.Def.Id, out var sc) ? sc : 1);
                     var first = batch.HashSetAsync(TotalKey(run.Key), "goal", goal, When.NotExists);
                     tasks.Add(first);
                     tasks.Add(batch.KeyExpireAsync(TotalKey(run.Key), KeepFor(run)));
@@ -380,13 +376,14 @@ namespace WorldServer.core.community
                 foreach (var (run, wanted, first, goal) in fixing)
                     if (goal.IsCompletedSuccessfully && goal.Result.TryParse(out int g) && g > 0)
                     {
-                        // a running bonus goal fixed bigger than the rules give now (Early's
-                        // limits lowered since it began): eased to match, never made harder
+                        // a running bonus goal fixed bigger than its own scale gives (made
+                        // bigger by the goal it replaced, before 2026-11-20): eased to match,
+                        // never made harder
                         if (run.Bonus && run.Running(now) && wanted < g)
                             try
                             {
                                 _db.HashSet(TotalKey(run.Key), "goal", wanted);
-                                Log.Info($"Community goals: {run.Key} eased from {g:N0} to {wanted:N0}, as the bonus goals are sized now");
+                                Log.Info($"Community goals: {run.Key} eased from {g:N0} to {wanted:N0}, its own size");
                                 g = wanted;
                             }
                             catch (Exception e)
@@ -512,9 +509,8 @@ namespace WorldServer.core.community
                 var id = run.Def.Id;
                 var scales = Scales();
                 var old = scales.TryGetValue(id, out var sc) ? sc : 1;
-                // by its pace over a week (a run finished early or a bonus run is shorter), against
-                // its goal without the heat
-                var next = Data.NextScale(old, rs.Total, Math.Max(1, (int)Math.Round(rs.Goal / run.Heat)), run.Weeks, run.Cut);
+                // by its pace over a week (a run finished early or a bonus run is shorter)
+                var next = Data.NextScale(old, rs.Total, rs.Goal, run.Weeks, run.Cut);
                 SetScale(id, next);
                 Settled[run.Key] = 0;
                 Log.Info($"Community goals: {run.Key} ended at {rs.Total:N0} of {rs.Goal:N0}; {id}'s scale {old:0.###} -> {next:0.###} (next goal {CommunityData.GoalOf(run.Def, next):N0})");
@@ -796,6 +792,9 @@ namespace WorldServer.core.community
             var rewards = new List<RewardDef>();
             var names = new List<string>();
             var rolled = new List<(CommunityGoalDef Def, LootEntry Entry, int Level)>();
+            // a Gilded Realm Pass: luckier rolls, and more of them
+            var (luck, more) = player.Pass?.CommunityBoost ?? (0, 0);
+            var boosted = false;
             foreach (var (rs, t) in wanted)
             {
                 // the claim is kept first: only one claim of it ever pays
@@ -804,6 +803,12 @@ namespace WorldServer.core.community
                 _db.KeyExpire(ClaimedKey(rs.Run.Key), KeepFor(rs.Run));
                 var def = rs.Run.Def;
                 var (defs, level) = Data.ClaimRewards(def, t);
+                if ((luck > 0 || more > 0) && defs.Any(r => r.Roll > 0))
+                {
+                    level += luck;
+                    defs = Boosted(defs, more);
+                    boosted = true;
+                }
                 var rolls = new List<LootEntry>();
                 rewards.AddRange(Data.Resolve(def, defs, level, Random.Shared, rolls));
                 rolled.AddRange(rolls.Select(e => (def, e, level)));
@@ -821,7 +826,8 @@ namespace WorldServer.core.community
                 // the best roll, by name, for the player; the rarest ones for everyone
                 var top = rolled.OrderByDescending(r => Data.RarityOf(r.Entry)).Select(r => r.Entry).FirstOrDefault();
                 var bestText = top != null && Data.RarityOf(top) >= 2 ? $" Best roll: {top} ({Capital(Data.Rarities[Data.RarityOf(top)])})!" : "";
-                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText, Reels(player, rolled));
+                var gilded = boosted ? " Your Gilded Realm Pass made the rolls luckier." : "";
+                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText + gilded, Reels(player, rolled));
                 foreach (var (def, e, _) in rolled.Where(r => Data.Announced(r.Entry)))
                     Broadcast(CommunityNotice.LOOT, $"{player.Name} struck it lucky!",
                         $"{Capital(Data.Rarities[Data.RarityOf(e)])} loot from \"{def.Title}\": {e}!");
@@ -829,6 +835,16 @@ namespace WorldServer.core.community
             else
                 Answer(false, "Already claimed.");
             SendData(player);
+        }
+
+        // A stage's rewards with `more` rolls added to its first roll of the loot.
+        private static List<RewardDef> Boosted(List<RewardDef> defs, int more)
+        {
+            var list = defs.ToList();
+            var i = list.FindIndex(r => r.Roll > 0);
+            if (i >= 0 && more > 0)
+                list[i] = new RewardDef { Roll = list[i].Roll + more, Fame = list[i].Fame, Item = list[i].Item, Count = list[i].Count };
+            return list;
         }
 
         // the client's reel: it scrolls REEL_LENGTH lines of the goal's loot and stops on the prize

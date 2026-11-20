@@ -321,6 +321,7 @@ namespace App
         public int AmountDonated { get; private set; }
         public int NextCharSlotPrice { get; private set; }
         public int NextCharSlotCurrency { get; private set; }
+        public int NextCharSlotGoldPrice { get; private set; }
         public string MenuMusic { get; private set; }
         public string DeadMusic { get; private set; }
 
@@ -349,8 +350,10 @@ namespace App
                 FirstDeath = acc.FirstDeath,
 
                 Credits = acc.Credits,
-                NextCharSlotPrice = core.Resources.Settings.NewAccounts.SlotCost,
-                NextCharSlotCurrency = (int)core.Resources.Settings.NewAccounts.SlotCurrency,
+                // fame, doubling every UnlockPrices.DoublesEvery bought with fame; gold the same each time
+                NextCharSlotPrice = Controllers.AccountController.SlotPrice(core, acc, Shared.resources.CurrencyType.Fame),
+                NextCharSlotCurrency = (int)Shared.resources.CurrencyType.Fame,
+                NextCharSlotGoldPrice = Controllers.AccountController.SlotPrice(core, acc, Shared.resources.CurrencyType.Gold),
                 MenuMusic = core.Resources.Settings.MenuMusic,
                 DeadMusic = core.Resources.Settings.DeadMusic,
 
@@ -383,6 +386,7 @@ namespace App
                     new XElement("AmountDonated", AmountDonated),
                     new XElement("NextCharSlotPrice", NextCharSlotPrice),
                     new XElement("NextCharSlotCurrency", NextCharSlotCurrency),
+                    new XElement("NextCharSlotGoldPrice", NextCharSlotGoldPrice),
                     new XElement("MenuMusic", MenuMusic),
                     new XElement("DeadMusic", DeadMusic),
                     new XElement("StoredPotions", string.Join(",", StoredPotions)),

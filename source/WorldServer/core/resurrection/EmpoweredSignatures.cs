@@ -262,6 +262,10 @@ namespace WorldServer.core.resurrection
         /// 21,000 health to break in 6.5 seconds for a group of two).</summary>
         public const double RitualSoulShare = 0.012;
 
+        /// <summary>What each ritual soul still standing at the chant's end heals Malus, as a share
+        /// of his health (2.5% each, up to 7.5% every 17 seconds, outhealed a player on their own).</summary>
+        public const double RitualHealShare = 0.01;
+
         private static SoulPhase[] Malus()
         {
             var ritual = new List<Enemy>();
@@ -329,7 +333,7 @@ namespace WorldServer.core.resurrection
                                 a.Lightning(Arena.P(s), CultRed);
                                 a.World.LeaveWorld(s);
                             }
-                            a.Heal(0.025 * left.Count);
+                            a.Heal(RitualHealShare * left.Count);
                             a.Say("Their blood is MINE!");
                             a.Ring(Arena.Sig1, 20, a.RandomAngle());
                         });

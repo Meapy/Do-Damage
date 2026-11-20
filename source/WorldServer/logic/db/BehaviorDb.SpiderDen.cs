@@ -58,7 +58,7 @@ namespace WorldServer.logic
                     ), Elder("Arachna the Spider Queen"),
                 // the Elder dungeon's Potion of Max
                 ElderLoot(0.01,
-                    new ItemLoot("Potion of Max Defense", 0.05),
+                    new ItemLoot("Potion of Max Defense", 0.025),
                     new ItemLoot("Elder Spider Den Key", 0.01)))
             .Init(E("Arachna Web Spoke 1"),
                 new State(

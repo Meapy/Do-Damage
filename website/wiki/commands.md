@@ -40,7 +40,7 @@ the top right corner of their screen, "*Name* wants to visit you" or "*Name* wan
 you", with **Yes** and **No**; it doesn't stop them moving, shooting or using their ability, and
 only the mouse answers it, or they type `/yes` or `/no`. If they say Yes, the one moving goes
 straight there, invulnerable for their first 3 seconds; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
-`/summon cancel`) takes your request back.
+`/summon cancel`) takes your request back. You can join (or be summoned into) any one instance once; a Gilded [Realm Pass](realm-pass.html) makes it twice.
 
 From a dungeon or instance, `/help` sends summon requests to eligible online players currently in
 the Nexus or a realm. `/phelp` and `/ghelp` limit the call to online party or guild members in
@@ -69,10 +69,12 @@ You can ask multiple players at once; each recipient can accept their request, a
 ## Shops and selling
 
 - `/shop` lists the shops and `/shop <name>` opens one: weapons, abilities, armor, rings,
-  consumables, dyes, keys and pets, for fame. `/shop keys` has every dungeon's key, regular
-  and Elder (the Elder Ivory Wyvern, Shatters and Lost Halls keys are sold only
-  there), and the Oryx's Inferno and Elysium incantations; not the Oryx's Castle and Chamber keys.
-  It has more keys than stalls, so the stalls take turns, a few minutes each.
+  consumables, dyes, keys and pets, for fame, and the gold shops. `/shop keys` has every
+  dungeon's key, and the Oryx's Inferno and Elysium incantations; not the Oryx's Castle and
+  Chamber keys, nor the Elder keys (`/shop elderkeys`, for gold). `/shop dyes` has every dye
+  colour for fame and every patterned cloth for gold. A shop with more items than stalls has
+  its stalls take turns, a few minutes each; `/shop <name> <words>` shows only the items whose
+  names have those words, such as `/shop dyes dark blue`.
 - The Divine Forge's **Sell for fame** tab buys items: it shows your inventory with what it pays
   for each one, and you pick what to sell. (`/sellfame` points you there.)
 - The [Marketplace](marketplace.html) sells to other players for fame, from the Market Broker in the

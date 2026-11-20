@@ -191,6 +191,22 @@ namespace Tests
         }
 
         [Fact]
+        public void GildedPassAllowsASecondTripAndNoMore()
+        {
+            var p = Dungeon();
+            p.Allowed = VisitRules.GildedTrips;
+            p.Trips = 1;
+            Assert.Null(VisitRules.Refusal(p, "Bob"));
+            Assert.Null(VisitRules.Refusal(p, "Bob", summon: true));
+            p.Trips = 2;
+            Assert.Contains("already been in", VisitRules.Refusal(p, "Bob"));
+            Assert.Contains("can't bring them back", VisitRules.Refusal(p, "Bob", summon: true));
+            p.Allowed = VisitRules.Trips;
+            p.Trips = 1;
+            Assert.Contains("already been in", VisitRules.Refusal(p, "Bob"));
+        }
+
+        [Fact]
         public void SummonsShareTheVisitorsLimits()
         {
             var book = new VisitBook();

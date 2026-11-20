@@ -10,28 +10,36 @@ namespace WorldServer.core.commands
 {
     public partial class Command
     {
-        // /sell <slot> <price> [days]: lists an inventory item on the Marketplace, as its window
-        // does. Slots 1-8 are the inventory, 9-16 the backpack's.
+        // /sell <slot> <price> [gold] [days]: lists an inventory item on the Marketplace, as its
+        // window does, for fame or, with "gold" after the price, gold. Slots 1-8 are the
+        // inventory, 9-16 the backpack's.
         internal class Sell : Command
         {
             public override string CommandName => "sell";
 
             protected override bool Process(Player player, TickTime time, string args)
             {
-                var parts = (args ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 2 || !int.TryParse(parts[0], out var slot) || !int.TryParse(parts[1], out var price)
+                var parts = new System.Collections.Generic.List<string>((args ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                var gold = parts.Count > 2 && (parts[2].Equals("gold", StringComparison.OrdinalIgnoreCase) || parts[2].Equals("fame", StringComparison.OrdinalIgnoreCase));
+                if (gold)
+                {
+                    gold = parts[2].Equals("gold", StringComparison.OrdinalIgnoreCase);
+                    parts.RemoveAt(2);
+                }
+                if (parts.Count < 2 || !int.TryParse(parts[0], out var slot) || !int.TryParse(parts[1], out var price)
                     || slot < 1 || slot > 16)
                 {
-                    player.SendInfo("/sell <inventory slot 1-16> <price in fame> [days: 1, 3 or 7]: lists an item on the Marketplace.");
+                    player.SendInfo("/sell <inventory slot 1-16> <price> [gold] [days: 1, 3 or 7]: lists an item on the Marketplace, for fame or gold.");
                     return false;
                 }
                 var days = 3;
-                if (parts.Length > 2 && (!int.TryParse(parts[2], out days) || days < 1 || days > 7))
+                if (parts.Count > 2 && (!int.TryParse(parts[2], out days) || days < 1 || days > 7))
                 {
                     player.SendError("A listing lasts 1 to 7 days.");
                     return false;
                 }
-                var (ok, message) = player.GameServer.Marketplace.Sell(player, slot + 3, price, days * 24);
+                var currency = gold ? Shared.resources.CurrencyType.Gold : Shared.resources.CurrencyType.Fame;
+                var (ok, message) = player.GameServer.Marketplace.Sell(player, slot + 3, price, days * 24, currency: currency);
                 if (ok)
                     player.SendInfo(message);
                 else

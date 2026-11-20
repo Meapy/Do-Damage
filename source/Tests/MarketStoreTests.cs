@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Shared.database.character.inventory;
 using Shared.database.market;
+using Shared.resources;
 using StackExchange.Redis;
 using Xunit;
 
@@ -215,7 +216,7 @@ namespace Tests
             var seller = Player(1, 50);
             var buyer = Player(2, 1000);
             var l = List(seller, Sword, 200);
-            var r = _store.Buy(buyer, "Buyer", l.Id, Sword, 200, 5, Inv(Sword), new ItemData[28], Now);
+            var r = _store.Buy(buyer, "Buyer", l.Id, Sword, 200, 5, 10, Inv(Sword), new ItemData[28], Now);
             Assert.Equal(MarketStore.Result.Ok, r.Result);
             Assert.True(r.InInventory);
             Assert.Equal(800, r.FameLeft);
@@ -235,13 +236,47 @@ namespace Tests
         }
 
         [Fact]
+        public void AListingInGoldMovesGoldLessItsOwnTaxAndLeavesFameAlone()
+        {
+            var seller = Player(1, 50);
+            var buyer = Player(2, 1000);
+            _db.HashSet("account.1", "credits", 5);
+            _db.HashSet("account.2", "credits", 150);
+            var l = MarketStore.NewListing(_store.NextId(), 1, "Seller1", Sword, null, 200, Now, Now + 3600, CurrencyType.Gold);
+            Assert.Equal(MarketStore.Result.Ok, _store.ListFromInventory(seller, Inv(), new ItemData[28], l, 10, Now));
+            Assert.Equal(CurrencyType.Gold, _store.All().Single().Currency);
+
+            // 150 gold isn't enough, whatever the fame
+            Assert.Equal(MarketStore.Result.NotEnoughFame, _store.Buy(buyer, "Buyer", l.Id, Sword, 200, 5, 10, Inv(Sword), new ItemData[28], Now).Result);
+            _db.HashSet("account.2", "credits", 250);
+            var r = _store.Buy(buyer, "Buyer", l.Id, Sword, 200, 5, 10, Inv(Sword), new ItemData[28], Now);
+            Assert.Equal(MarketStore.Result.Ok, r.Result);
+            Assert.Equal(50, r.FameLeft);                                   // the gold left
+            Assert.Equal(50, (int)_db.HashGet("account.2", "credits"));
+            Assert.Equal(5 + 180, (int)_db.HashGet("account.1", "credits")); // 10% of 200 kept as tax
+            Assert.Equal(180, (int)_db.HashGet("account.1", "totalCredits"));
+            Assert.Equal(180, r.Net);
+            Assert.Equal((50, 1000), (Fame(1), Fame(2)));
+            var news = _store.TakeNews(1).Single();
+            Assert.Equal((CurrencyType.Gold, 180), (news.Currency, news.Net));
+            Assert.Equal(CurrencyType.Gold, _store.History(2).Single().Currency);
+        }
+
+        [Fact]
+        public void HistoryFromBeforeGoldListingsReadsAsFame()
+        {
+            _db.ListLeftPush(MarketStore.HistoryKey(3), "{\"kind\":\"sold\",\"itemType\":1,\"price\":10,\"net\":9,\"other\":\"B\",\"time\":1}");
+            Assert.Equal(CurrencyType.Fame, _store.History(3).Single().Currency);
+        }
+
+        [Fact]
         public void BuyingWithAFullInventoryPutsTheItemInTheBoxWithItsData()
         {
             var seller = Player(1, 0);
             var buyer = Player(2, 1000);
             var data = new ItemData { ObjectId = "Sword", Imprints = new[] { 3, 0, 1 } };
             var l = List(seller, Sword, 100, data);
-            var r = _store.Buy(buyer, "Buyer", l.Id, Sword, 100, 5, null, null, Now);
+            var r = _store.Buy(buyer, "Buyer", l.Id, Sword, 100, 5, 10, null, null, Now);
             Assert.Equal(MarketStore.Result.Ok, r.Result);
             Assert.False(r.InInventory);
             var box = _store.Box(2).Single();
@@ -262,7 +297,7 @@ namespace Tests
             var buyer = Player(2, 1000);
             var l = List(seller, Sword, 100);
             var moved = new MarketStore.Owner(2, "old token", buyer.CharKey);
-            var r = _store.Buy(moved, "Buyer", l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], Now);
+            var r = _store.Buy(moved, "Buyer", l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now);
             Assert.Equal(MarketStore.Result.Ok, r.Result);
             Assert.False(r.InInventory);
             Assert.Equal(Empty, Items(buyer)[4]);
@@ -275,15 +310,15 @@ namespace Tests
             var seller = Player(1, 0);
             var poor = Player(2, 99);
             var l = List(seller, Sword, 100);
-            Assert.Equal(MarketStore.Result.NotEnoughFame, _store.Buy(poor, "P", l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], Now).Result);
-            Assert.Equal(MarketStore.Result.OwnListing, _store.Buy(seller, "S", l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], Now).Result);
+            Assert.Equal(MarketStore.Result.NotEnoughFame, _store.Buy(poor, "P", l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now).Result);
+            Assert.Equal(MarketStore.Result.OwnListing, _store.Buy(seller, "S", l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now).Result);
             var rich = Player(3, 1000);
-            var changed = _store.Buy(rich, "R", l.Id, Sword, 50, 5, Inv(Sword), new ItemData[28], Now);
+            var changed = _store.Buy(rich, "R", l.Id, Sword, 50, 5, 10, Inv(Sword), new ItemData[28], Now);
             Assert.Equal(MarketStore.Result.PriceChanged, changed.Result);
             Assert.Equal(100, changed.Price);
-            Assert.Equal(MarketStore.Result.ItemChanged, _store.Buy(rich, "R", l.Id, Bow, 100, 5, Inv(Bow), new ItemData[28], Now).Result);
-            Assert.Equal(MarketStore.Result.Expired, _store.Buy(rich, "R", l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], Now + 25 * 3600).Result);
-            Assert.Equal(MarketStore.Result.Gone, _store.Buy(rich, "R", 999999, Sword, 100, 5, Inv(Sword), new ItemData[28], Now).Result);
+            Assert.Equal(MarketStore.Result.ItemChanged, _store.Buy(rich, "R", l.Id, Bow, 100, 5, 10, Inv(Bow), new ItemData[28], Now).Result);
+            Assert.Equal(MarketStore.Result.Expired, _store.Buy(rich, "R", l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now + 25 * 3600).Result);
+            Assert.Equal(MarketStore.Result.Gone, _store.Buy(rich, "R", 999999, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now).Result);
             Assert.Equal(99, Fame(2));
             Assert.Equal(1000, Fame(3));
             Assert.Equal(0, Fame(1));
@@ -304,7 +339,7 @@ namespace Tests
             var threads = buyers.Select((b, i) => new Thread(() =>
             {
                 start.Wait();
-                results[i] = new MarketStore(_db).Buy(b, "B" + b.AccountId, l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], Now);
+                results[i] = new MarketStore(_db).Buy(b, "B" + b.AccountId, l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], Now);
             })).ToList();
             threads.ForEach(t => t.Start());
             start.Set();
@@ -336,7 +371,7 @@ namespace Tests
                 var outcomes = new List<string>();
                 var tasks = new List<Thread>
                 {
-                    new Thread(() => { start.Wait(); if (_store.Buy(buyer, "B", l.Id, Sword, 100, 5, Inv(Sword), new ItemData[28], end - 1).Result == MarketStore.Result.Ok) lock (outcomes) outcomes.Add("bought"); }),
+                    new Thread(() => { start.Wait(); if (_store.Buy(buyer, "B", l.Id, Sword, 100, 5, 10, Inv(Sword), new ItemData[28], end - 1).Result == MarketStore.Result.Ok) lock (outcomes) outcomes.Add("bought"); }),
                     new Thread(() => { start.Wait(); if (_store.Cancel(seller, l.Id, Inv(Sword), new ItemData[28], end).Result == MarketStore.Result.Ok) lock (outcomes) outcomes.Add("cancelled"); }),
                     new Thread(() => { start.Wait(); if (_store.Expire(l.Id, end) == MarketStore.Result.Ok) lock (outcomes) outcomes.Add("expired"); }),
                     new Thread(() => { start.Wait(); if (_store.Expire(l.Id, end) == MarketStore.Result.Ok) lock (outcomes) outcomes.Add("expired"); }),

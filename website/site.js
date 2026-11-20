@@ -309,6 +309,32 @@
       ".ouuuuuGGuo.",
       "..ouuuuuuo..",
       "...oooooo..."
+    ],
+    coin: [
+      "..oooooo..",
+      ".oyyyyyYo.",
+      "oyywyyyYGo",
+      "oywyYYyYGo",
+      "oyyYyyGyGo",
+      "oyyYyyGyGo",
+      "oyyyGGyYGo",
+      "oyYyyyYYGo",
+      ".oGGGGGGo.",
+      "..oooooo.."
+    ],
+    coins: [
+      ".oooooooo........",
+      "oyywyyyyYo.......",
+      "oGGGGGGGGoooooo..",
+      "oYyyyyyyoyyyyyYo.",
+      "oGGGGGGoyywyyyYGo",
+      "oYyyyyyoywyYYyYGo",
+      "oGGGGGGoyyYyyGyGo",
+      "oYyyyyyoyyYyyGyGo",
+      "oGGGGGGoyyyGGyYGo",
+      "oYyyyyyoyYyyyYYGo",
+      "oGGGGGGGoGGGGGGo.",
+      ".oooooooooooooo.."
     ]
   };
 
@@ -325,6 +351,9 @@
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" width="' + w * px +
       '" height="' + h * px + '" aria-hidden="true">' + rects + "</svg>";
   }
+
+  // for pages that draw sprites of their own (gold.js)
+  window.ddSprite = sprite;
 
   // --- Patch notes on the home page --------------------------------------------------------
   // A long release folds to its first lines under a fade, with a button to open it all.

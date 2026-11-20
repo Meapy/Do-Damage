@@ -4,6 +4,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod audio;
+mod auras;
 mod champions;
 mod changelog;
 mod collection;
@@ -25,6 +26,7 @@ mod forge;
 mod quests;
 mod market;
 mod particles;
+mod pass;
 mod petpen;
 mod petals;
 mod pings;
@@ -129,8 +131,8 @@ enum NpcRequest {
     SetBoard,
     Members,
     Potions,
-    /// the Arena Leaderboard's solo (true) or group runs
-    Leaderboard(bool),
+    /// the Arena Leaderboard's solo (true) or group runs, of a season (None: the current one)
+    Leaderboard(bool, Option<i32>),
     Champions,
     Weekly,
 }
@@ -272,6 +274,9 @@ struct App {
     /// the server on opening.
     quests: quests::Quests,
     quest_acts: Vec<quests::Act>,
+    /// The Realm Pass window, its XP pills and tier banner, and what it asked of the server.
+    pass: pass::Pass,
+    pass_acts: Vec<pass::Act>,
     /// Options, Gameplay: what drinking from loot bags has done (`auto_drink`).
     auto_drunk: AutoDrink,
     /// The world (`Game::maps_entered`) the vault's search was typed in: a new one clears it.
@@ -297,6 +302,9 @@ struct App {
     /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
     /// achievements) or the Customize window (customize) once its data has come.
     quests_test: Option<String>,
+    /// `--pass <tab>` (tests): open the Realm Pass at that tab (rewards, earn, looks) once its
+    /// data has come.
+    pass_test: Option<String>,
     /// `--champions <board>` (tests): open the Hall of Champions at that board (its id or name)
     /// once in the game, wherever we stand.
     champions_test: Option<String>,
@@ -347,7 +355,7 @@ enum KeeperAct {
     Glass,
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), pass: (&mut pass::Pass, &mut Vec<pass::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
@@ -396,6 +404,13 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
             acts.extend(log.show(Some(tab)));
             return false;
         }
+        // the Wayfarer: the Realm Pass
+        NpcKind::RealmPass => {
+            let (window, acts) = pass;
+            quests.0.close();
+            acts.extend(window.show(None));
+            return false;
+        }
         // the Warcaller: the community goals
         NpcKind::CommunityGoals => {
             let (window, acts) = community;
@@ -423,7 +438,7 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildBoard => Window::Board { text: None, edit: None, error: None },
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
-        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, runs: None, error: None },
+        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, season: None, board: None, seasons: Vec::new(), error: None },
         NpcKind::ChampionsBoard => Window::Champions(Box::default()),
         NpcKind::Herald => Window::Weekly { stats: None, error: None },
         // a statue: the Hall at its board (the nearest statue's)
@@ -710,7 +725,8 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Stack(s) => game.add_to_stack(now, slot_of(&s)),
         Action::Button(Button::Nexus) => game.escape(),
         Action::Button(Button::Enter(id)) => game.use_portal(id),
-        Action::Button(Button::Buy(id)) => game.buy(id),
+        Action::Button(Button::Buy(id)) => game.buy(id, None),
+        Action::Button(Button::BuyGold(id)) => game.buy(id, Some(0)),
         Action::Button(Button::Menu(opt, id)) => {
             let name = game.world.as_ref().and_then(|w| w.objects.get(&id)).and_then(|o| o.name()).unwrap_or("").to_owned();
             log::info!("player menu: {opt:?} {name}");
@@ -736,7 +752,7 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Button(Button::VisitYes) => game.answer_visit(true),
         Action::Button(Button::VisitNo) => game.answer_visit(false),
         Action::Button(Button::Member(_)) => {}
-        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
+        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Pass | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
     }
     None
 }
@@ -1352,9 +1368,9 @@ impl App {
             }
             Action::Play(id) => self.play(Join::Load { char_id: id }),
             Action::Create(class, skin) => self.play(Join::Create { class_type: class, skin_type: skin }),
-            Action::BuySlot => {
+            Action::BuySlot(gold) => {
                 let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
-                self.request = Some((Request::BuySlot, endpoint.buy_slot(email, password)));
+                self.request = Some((Request::BuySlot, endpoint.buy_slot(email, password, gold)));
             }
             Action::BuySkin(skin) => {
                 let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
@@ -1483,6 +1499,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.pass.reset();
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
@@ -1531,6 +1548,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.pass.reset();
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
@@ -1577,12 +1595,12 @@ impl App {
         let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) else { return };
         // The signs over objects: fetched while one is near, and taken when they come.
         if self.signs.want_arena(now) {
-            self.signs.request = Some(endpoint.arena_leaderboard(1, None));
+            self.signs.request = Some(endpoint.arena_leaderboard(1, None, None));
         }
         if let Some(response) = self.signs.request.as_ref().and_then(|p| p.take()) {
             self.signs.request = None;
-            if let Ok(runs) = login::reached(response).and_then(|x| bsk_net::account::parse_arena_runs(&x)) {
-                self.signs.set_arena(&runs);
+            if let Ok(board) = login::reached(response).and_then(|x| bsk_net::account::parse_arena_board(&x)) {
+                self.signs.set_arena(&board.runs, board.season);
             }
         }
         // ... and the Hall of Champions' statues
@@ -1602,7 +1620,9 @@ impl App {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
-                Some(npc::Window::Leaderboard { solo, .. }) => Some((NpcRequest::Leaderboard(solo), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo)))),
+                Some(npc::Window::Leaderboard { solo, season, .. }) => {
+                    Some((NpcRequest::Leaderboard(solo, season), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo), season)))
+                }
                 Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
                 Some(npc::Window::Weekly { .. }) => Some((NpcRequest::Weekly, endpoint.weekly_stats())),
                 _ => None,
@@ -1633,11 +1653,20 @@ impl App {
                 Ok(c) => (*counts, *error) = (Some(c), None),
                 Err(e) => *error = Some(e),
             },
-            // an answer for the other tab, from before a switch, is dropped (the switch asked again)
-            (NpcRequest::Leaderboard(asked), Some(npc::Window::Leaderboard { solo, runs, error })) if asked == *solo => match response.and_then(|x| acc::parse_arena_runs(&x)) {
-                Ok(r) => (*runs, *error) = (Some(r), None),
-                Err(e) => *error = Some(e),
-            },
+            // an answer for another tab, from before a switch, is dropped (the switch asked again)
+            (NpcRequest::Leaderboard(asked, asked_season), Some(npc::Window::Leaderboard { solo, season, board, seasons, error }))
+                if asked == *solo && asked_season == *season =>
+            {
+                match response.and_then(|x| acc::parse_arena_board(&x)) {
+                    Ok(b) => {
+                        if !b.seasons.is_empty() {
+                            *seasons = b.seasons.clone();
+                        }
+                        (*board, *error) = (Some(b), None);
+                    }
+                    Err(e) => *error = Some(e),
+                }
+            }
             (NpcRequest::Champions, Some(npc::Window::Champions(view))) => {
                 match response.and_then(|x| acc::parse_champions(&x)) {
                     Ok(data) => {
@@ -1742,6 +1771,12 @@ impl App {
                             Some("home") => self.front.show(Screen::Home),
                             Some("account") => self.front.show(Screen::Account),
                             Some("discord") => self.front.show_discord(),
+                            // a class's page, by its type: `class:0x031f`
+                            Some(s) if s.starts_with("class:0x") => {
+                                if let Ok(t) = u16::from_str_radix(&s[8..], 16) {
+                                    self.front.show(Screen::Class(t));
+                                }
+                            }
                             Some(s) if s.starts_with("sprites") => {
                                 self.front_action(screens::Action::SpriteEditor);
                                 self.sprite_editor.test_screen(s);
@@ -2097,6 +2132,17 @@ impl App {
             if pressed {
                 self.collection.key(code);
                 self.pet_pen.key(code);
+            }
+            self.keys.remove(&code);
+            return;
+        }
+        if self.pass.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                if Some(code) == self.settings.key(options::Bind::Pass) {
+                    self.pass.close();
+                } else {
+                    self.pass.key(code);
+                }
             }
             self.keys.remove(&code);
             return;
@@ -2513,6 +2559,7 @@ impl App {
                 self.forge.open = false;
                 self.vault.open = false;
                 self.quests.open = false;
+                self.pass.close();
                 self.community.open = false;
                 self.collection.open = false;
                 self.pet_pen.open = false;
@@ -2618,6 +2665,7 @@ impl App {
                 now,
                 history: &game.boss_history,
                 arena_votes: game.arena_votes.as_ref(),
+                arena_next: game.arena_next.as_ref(),
                 visit: game.visit.as_ref(),
                 fame: &game.fame_stats,
             };
@@ -2638,9 +2686,9 @@ impl App {
                     // shop): not a portal under the bag it shows instead.
                     Some(Bind::Interact) => match built.as_ref().and_then(|p| p.interact.clone()) {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
-                        Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id),
+                        Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id, None),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -2693,7 +2741,13 @@ impl App {
                         self.options_ui.show();
                         self.keys.clear();
                     }
+                    Some(Bind::Pass) => {
+                        self.quests.close();
+                        self.pass_acts.extend(self.pass.show(None));
+                        self.keys.clear();
+                    }
                     Some(Bind::Quests) => {
+                        self.pass.close();
                         let tab = self.quests.best_tab();
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         self.keys.clear();
@@ -2726,7 +2780,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                 }
                 // --chat: once the --say lines have gone, so they don't type into it
                 if self.say.is_empty() {
@@ -2869,7 +2923,7 @@ impl App {
                 }
             }
             // The quest log: a click on a popup opens it; while open it takes the mouse.
-            if !self.quests.open && !self.options_ui.open && !self.game_menu {
+            if !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
                 let (log, acts) = (&mut self.quests, &mut self.quest_acts);
                 self.clicks.retain(|&(down, pos)| match down.then(|| log.toast_click(pos)).flatten() {
                     Some(act) => {
@@ -2900,8 +2954,30 @@ impl App {
                 log::info!("quests: {act:?}");
                 game.quest(act);
             }
+            // The Realm Pass: while open it takes the mouse.
+            let mut pass_acts = std::mem::take(&mut self.pass_acts);
+            if self.pass.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        pass_acts.extend(self.pass.click(pos));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.pass_events) {
+                self.pass.event(e, now);
+            }
+            if self.pass.loaded() {
+                if let Some(tab) = self.pass_test.take() {
+                    self.pass.show_named(&tab);
+                }
+            }
+            for act in pass_acts {
+                log::info!("pass: {act:?}");
+                game.pass(act);
+            }
             // The community goals: a click on a banner opens them; while open they take the mouse.
-            if !self.community.open && !self.quests.open && !self.options_ui.open && !self.game_menu {
+            if !self.community.open && !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
                 let (window, acts) = (&mut self.community, &mut self.community_acts);
                 self.clicks.retain(|&(down, pos)| match down.then(|| window.banner_click(pos)).flatten() {
                     Some(act) => {
@@ -3134,7 +3210,13 @@ impl App {
                     }
                 }
                 for action in actions {
+                    if let hud::Action::Button(hud::Button::Pass) = action {
+                        self.quests.close();
+                        self.pass_acts.extend(self.pass.show(None));
+                        continue;
+                    }
                     if let hud::Action::Button(hud::Button::Quests) = action {
+                        self.pass.close();
                         let tab = self.quests.best_tab();
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         continue;
@@ -3146,7 +3228,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -3195,8 +3277,14 @@ impl App {
                 self.settings.save();
             }
             if let (Some((kind, last)), Some(world)) = (&mut self.effect_test, &game.world) {
-                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s)
-                if now - *last >= if *kind > 100 { 900 } else { 500 } {
+                // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s; the Vial of
+                // Cascading Dusk's whole cascade, 243, every 4 s)
+                let every = match *kind {
+                    243 => 4000,
+                    101.. => 900,
+                    _ => 500,
+                };
+                if now - *last >= every {
                     *last = now;
                     game.particles.test_effect(*kind, world, now);
                 }
@@ -3239,6 +3327,7 @@ impl App {
             || self.vault.open
             || self.glass.open
             || self.quests.open
+            || self.pass.open
             || self.community.open
             || self.npcs.window.is_some()
             || self.hud.drag.is_some();
@@ -3386,12 +3475,16 @@ impl App {
                             now,
                             history: &game.boss_history,
                             arena_votes: game.arena_votes.as_ref(),
+                            arena_next: game.arena_next.as_ref(),
                             visit: game.visit.as_ref(),
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
                         self.hud.quests_key = options::key_label(self.settings.key(options::Bind::Quests));
                         self.hud.quests_ready = self.quests.ready();
+                        self.hud.pass = self.pass.hud();
+                        self.hud.pass_key = options::key_label(self.settings.key(options::Bind::Pass));
+                        self.pass.key = self.hud.pass_key.clone();
                         self.hud.in_vault = vault::is_vault(game.map_name());
                         self.hud.interact_key = self.settings.key(options::Bind::Interact).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.tabs_key = self.settings.key(options::Bind::SwitchTabs).map_or(String::new(), |k| options::key_label(Some(k)));
@@ -3425,9 +3518,17 @@ impl App {
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
                 }
+                let voting = game.arena_votes.as_ref().is_some_and(|v| v.open);
                 if let Some(votes) = &game.arena_votes {
                     let me = game.world.as_ref().and_then(|w| w.me);
-                    hud::draw_arena_votes(&mut ui, &lay, votes, me, mouse);
+                    hud::draw_arena_votes(&mut ui, &lay, votes, game.arena_next.as_ref(), me, mouse);
+                }
+                // the round being fought, under the wave box while the votes are shut
+                if let (Some(fight), false, Some(_)) = (&game.arena_fight, voting, game.arena) {
+                    hud::draw_arena_round(&mut ui, &lay, fight);
+                }
+                if let Some(banner) = &game.arena_banner {
+                    hud::draw_arena_banner(&mut ui, &lay, banner, now);
                 }
                 if let Some(visit) = &game.visit {
                     hud::draw_visit(&mut ui, &lay, visit, now, mouse);
@@ -3475,6 +3576,7 @@ impl App {
                     now,
                     history: &game.boss_history,
                     arena_votes: game.arena_votes.as_ref(),
+                    arena_next: game.arena_next.as_ref(),
                     visit: game.visit.as_ref(),
                     fame: &game.fame_stats,
                 };
@@ -3491,6 +3593,7 @@ impl App {
                 let inv: Vec<(u8, [f32; 4])> = p.slots.iter().filter(|s| matches!(s.kind, hud::SlotKind::Inventory(_))).map(|s| (s.index, s.rect())).collect();
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.pass.draw(&mut ui, &lay, world.player(), mouse, now);
                 // the toasts and banners wait while we die
                 if game.dying.is_none() {
                     self.quests.draw_toasts(&mut ui, &lay, now);
@@ -3502,6 +3605,8 @@ impl App {
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);
+                    let button = self.hud.pass.map(|_| lay.pass_button(self.hud.in_vault));
+                    self.pass.draw_toasts(&mut ui, &lay, button, below, now);
                 }
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
@@ -3522,6 +3627,7 @@ impl App {
             && !self.vault.open
             && !self.glass.open
             && !self.quests.open
+            && !self.pass.open
             && !self.quests.on_toast(mouse)
             && !self.community.open
             && !self.community.on_banner(mouse)
@@ -3892,6 +3998,17 @@ impl ApplicationHandler<UserEvent> for App {
                     self.front.wheel(notches as i32);
                 }
             }
+            WindowEvent::MouseWheel { delta, .. } if self.pass.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The track moves a tier a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.pass.scroll(-notches as i32);
+            }
             WindowEvent::MouseWheel { delta, .. } if self.quests.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The achievements scroll a row a notch.
                 let lines = match delta {
@@ -4145,6 +4262,8 @@ fn main() {
         events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
+        pass: Default::default(),
+        pass_acts: Vec::new(),
         auto_drunk: AutoDrink::default(),
         search_map: 0,
         community: Default::default(),
@@ -4161,6 +4280,7 @@ fn main() {
         npc_test: text_arg("--npc"),
         chat_test: text_arg("--chat"),
         quests_test: text_arg("--quests"),
+        pass_test: text_arg("--pass"),
         champions_test: text_arg("--champions"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
         changelog: Default::default(),

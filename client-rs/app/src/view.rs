@@ -1425,6 +1425,14 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                 }
             }
         }
+        // the Realm Pass's auras and skins: what lies on the ground under their wearers
+        for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
+            let Item::Sprite { obj, desc } = item else { continue };
+            if let Some(w) = wearer(scene, obj, desc, world.me, k).filter(|_| !hidden(obj)) {
+                let z = scene.height(obj);
+                crate::auras::ground(renderer, &w, &scene.particles.trails, &|x, y| cam.to_screen(x, y, z), scene.time);
+            }
+        }
         if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
             for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
                 let Item::Sprite { obj, desc } = item else { continue };
@@ -1477,6 +1485,13 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     crate::prof::mark("v.objects");
     scene.particles.draw(&cam, renderer);
     crate::prof::mark("v.particles");
+    // the Realm Pass's auras and skins: what floats round their wearers
+    for (_, item) in items.iter() {
+        let Item::Sprite { obj, desc } = item else { continue };
+        if let Some(w) = wearer(scene, obj, desc, world.me, k).filter(|_| !hidden(obj)) {
+            crate::auras::air(renderer, &w, scene.time);
+        }
+    }
     // the Father's ward round whoever has one: a shell of steel plates (`ward.rs`)
     for (_, item) in items.iter() {
         let Item::Sprite { obj, desc } = item else { continue };
@@ -1740,6 +1755,30 @@ fn fade(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> f32 {
 
 /// A player lingering at their grave as a ghost (grave.rs): the server's `GHOST` stat, or us
 /// once we've risen.
+/// A player wearing a Realm Pass aura or skin (`auras.rs`), as it's drawn round them; none for a
+/// ghost, one faded out, or while particles are off.
+fn wearer(scene: &Scene, obj: &GameObj, desc: &ObjectDesc, me: Option<i32>, k: f32) -> Option<crate::auras::Wearer> {
+    if !desc.player || scene.particles.disabled || is_ghost(scene, obj, desc) {
+        return None;
+    }
+    let aura = obj.stat_int(bsk_proto::stat::AURA).unwrap_or(0).clamp(0, 255) as u8;
+    let aura = if aura <= crate::auras::LAST { aura } else { 0 };
+    let skin_type = obj.stat_int(76).unwrap_or(0);
+    let skin_desc = (skin_type > 0).then(|| scene.data.objects.get(&(skin_type as u16))).flatten();
+    let skin = skin_desc.and_then(|d| d.xml.text_of("PassSkin")).and_then(crate::auras::SkinLook::named);
+    if aura == 0 && skin.is_none() {
+        return None;
+    }
+    let alpha = fade(scene, obj, desc) * if Some(obj.id) == me { 1.0 } else { scene.show.player_alpha };
+    if alpha <= 0.0 {
+        return None;
+    }
+    // a 16-pixel skin is drawn at half the size to stand as tall as the 8-pixel classes
+    let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0 * if skin.is_some() { 2.0 } else { 1.0 };
+    let [x, y] = scene.stand(obj);
+    Some(crate::auras::Wearer { id: obj.id, x, y, tile: crate::auras::TILE * k, size, aura, skin, alpha })
+}
+
 fn is_ghost(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> bool {
     desc.player && (obj.is_ghost() || (scene.world.ghost && Some(obj.id) == scene.world.me))
 }

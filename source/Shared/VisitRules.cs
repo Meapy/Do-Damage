@@ -5,6 +5,9 @@ namespace Shared
     // a portal, once each, and never back into one they've been in.
     public static class VisitRules
     {
+        // trips into one instance: once, or twice with the Gilded Realm Pass
+        public const int Trips = 1, GildedTrips = 2;
+
         public enum Kind
         {
             Instance,
@@ -27,6 +30,10 @@ namespace Shared
             public bool Same;
             // the visitor's account has had a character in this instance, or visited it before
             public bool BeenIn;
+            // trips the visitor's account has used on this instance (a portal entry counts as one) and how
+            // many it has (Allowed); when set, they replace BeenIn
+            public int Trips;
+            public int Allowed;
             public bool Full;
             public bool SinglePlayer;
         }
@@ -49,7 +56,7 @@ namespace Shared
             }
             if (p.Same)
                 return $"You're already with {target}.";
-            if (p.BeenIn)
+            if (p.BeenIn || (p.Allowed > 0 && p.Trips >= p.Allowed))
                 return $"You've already been in that {p.Name}: /visit can't take you back in.";
             if (p.SinglePlayer)
                 return $"{target} is in a {p.Name} made for one.";
@@ -68,7 +75,7 @@ namespace Shared
             }
             if (p.Same)
                 return $"{target} is already with you.";
-            if (p.BeenIn)
+            if (p.BeenIn || (p.Allowed > 0 && p.Trips >= p.Allowed))
                 return $"{target} has already been in this {p.Name}: /summon can't bring them back in.";
             if (p.SinglePlayer)
                 return $"Your {p.Name} is made for one.";

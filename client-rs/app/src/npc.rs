@@ -10,7 +10,7 @@
 use crate::hud::{Layout, Ui};
 use crate::i18n::{mark, tf, tn, tr};
 use crate::theme::{self, color, Kind};
-use bsk_net::account::{ArenaRun, Guild};
+use bsk_net::account::{ArenaBoard, ArenaRun, ArenaSeason, Guild};
 use bsk_world::GameObj;
 use winit::keyboard::KeyCode;
 
@@ -61,6 +61,8 @@ pub enum NpcKind {
     Herald,
     /// The Warcaller at the north point of the Nexus spawn: the community goals.
     CommunityGoals,
+    /// The Wayfarer beside him: the Realm Pass (`pass.rs`).
+    RealmPass,
     /// The Collection stand in the vault: every piece of gear the account has had.
     Collection,
     /// The Cosmic Anvil the Mysterious One leaves in the Black Between: corrupting Enthroned gear.
@@ -91,6 +93,7 @@ impl NpcKind {
             "ChampionStatue" => Self::ChampionStatue,
             "Herald" => Self::Herald,
             "CommunityGoals" => Self::CommunityGoals,
+            "RealmPass" => Self::RealmPass,
             "Collection" => Self::Collection,
             "PetPen" => Self::PetPen,
             "CosmicAnvil" => Self::CosmicAnvil,
@@ -165,6 +168,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::ChampionStatue => open(tr("A champion of the Hall"), tr("View")),
         NpcKind::Herald => open(tr("This week in the realm"), tr("View")),
         NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
+        NpcKind::RealmPass => open(tr("The season's road and its rewards"), tr("Open")),
         NpcKind::Collection => open(tr("Every piece of gear you've had"), tr("View")),
         NpcKind::PetPen => open(tr("Raise and swap your pets"), tr("Open")),
         NpcKind::ScryingGlass => open(tr("Watch adventurers out in the realm"), tr("Watch")),
@@ -218,8 +222,9 @@ pub enum Window {
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
     Members { list: Option<Guild>, page: usize, error: Option<String> },
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
-    /// `/arena/leaderboard`, best first, once it has come: solo runs or group runs.
-    Leaderboard { solo: bool, runs: Option<Vec<ArenaRun>>, error: Option<String> },
+    /// `/arena/leaderboard`, best first, once it has come: solo runs or group runs, of a season
+    /// (None: the current one), with every season (kept while another tab loads).
+    Leaderboard { solo: bool, season: Option<i32>, board: Option<ArenaBoard>, seasons: Vec<ArenaSeason>, error: Option<String> },
     /// `/champions/board`: the Hall of Champions.
     Champions(Box<crate::champions::View>),
     /// `/stats/weekly`: the server's week, once it has come.
@@ -255,6 +260,7 @@ enum Hit {
     Storage(u8, u8),
     Tab(usize),
     Solo(bool),
+    Season(i32),
 }
 
 /// The open window and its buttons as last drawn.
@@ -403,9 +409,18 @@ impl Npcs {
                 view.tab = i;
                 None
             }
-            (Hit::Solo(on), Window::Leaderboard { solo, runs, error }) => {
+            (Hit::Solo(on), Window::Leaderboard { solo, board, error, .. }) => {
                 if *solo != on {
-                    (*solo, *runs, *error) = (on, None, None);
+                    (*solo, *board, *error) = (on, None, None);
+                    self.reload_at = Some(0);
+                }
+                None
+            }
+            (Hit::Season(n), Window::Leaderboard { season, board, error, .. }) => {
+                // the season asked for, or the one shown (the current one, before any was asked)
+                let at = season.or(board.as_ref().map(|b| b.season).filter(|&s| s > 0));
+                if at != Some(n) {
+                    (*season, *board, *error) = (Some(n), None, None);
                     self.reload_at = Some(0);
                 }
                 None
@@ -492,10 +507,12 @@ impl Npcs {
                 (500.0, 104.0 + GUILD_HEAD + 30.0 * rows as f32 + if n > MEMBER_ROWS { 64.0 } else { 0.0 })
             }
             Window::Potions { .. } => (480.0, 112.0 + 38.0 * 8.0 + 56.0),
-            // the best run's card, then a row for each of the rest (room for three while loading)
-            Window::Leaderboard { runs, .. } => {
-                let rest = runs.as_ref().map_or(3, |r| r.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
-                (540.0, 74.0 + 44.0 + 118.0 + 30.0 * rest as f32 + 10.0)
+            // the tabs, the season's line, the best run's card, then a row for each of the rest
+            // (room for three while loading)
+            Window::Leaderboard { board, seasons, .. } => {
+                let rest = board.as_ref().map_or(3, |b| b.runs.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
+                let season_line = if seasons.is_empty() { 0.0 } else { 26.0 };
+                (560.0, 74.0 + 44.0 + season_line + 118.0 + 30.0 * rest as f32 + 10.0)
             }
             Window::Champions(_) => crate::champions::SIZE,
             // three rows of three cards, then the most slain
@@ -739,28 +756,54 @@ impl Npcs {
                     }
                 }
             }
-            Window::Leaderboard { solo, runs, error } => {
+            Window::Leaderboard { solo, season, board, seasons, error } => {
                 let ts = font(12.5);
-                // the Solo and Group tabs, then the runs under them
+                // the seasons' tabs on the left (when the server has seasons), the Solo and Group
+                // tabs on the right, then the season's line and the runs under them
                 let cs = font(13.0);
+                let current = board.as_ref().map_or(0, |b| b.current).max(seasons.last().map_or(0, |l| l.number));
+                let at = season.or(board.as_ref().map(|b| b.season).filter(|&n| n > 0)).unwrap_or(current);
                 let mut tx = body[0];
-                for (on, label) in [(true, tr("Solo")), (false, tr("Group"))] {
-                    let tr = [tx, body[1], ui.measure(label, cs, true) + 36.0 * s, 30.0 * s];
-                    crate::champions::chip(ui, tr, label, *solo == on, inside(tr, mouse), cs, None, s);
-                    self.buttons.push((Hit::Solo(on), tr));
-                    tx += tr[2] + 6.0 * s;
+                for se in seasons.iter() {
+                    let label = tf!("Season {n}", n = se.number);
+                    let cr = [tx, body[1], ui.measure(&label, cs, true) + 36.0 * s, 30.0 * s];
+                    crate::champions::chip(ui, cr, &label, at == se.number, inside(cr, mouse), cs, None, s);
+                    self.buttons.push((Hit::Season(se.number), cr));
+                    tx += cr[2] + 6.0 * s;
                 }
-                let body = [body[0], body[1] + 44.0 * s, body[2], body[3] - 44.0 * s];
-                match runs {
+                let mut tx = body[0] + body[2];
+                for (on, label) in [(false, tr("Group")), (true, tr("Solo"))] {
+                    let w = ui.measure(label, cs, true) + 36.0 * s;
+                    tx -= w;
+                    let cr = [tx, body[1], w, 30.0 * s];
+                    crate::champions::chip(ui, cr, label, *solo == on, inside(cr, mouse), cs, None, s);
+                    self.buttons.push((Hit::Solo(on), cr));
+                    tx -= 6.0 * s;
+                }
+                let mut body = [body[0], body[1] + 44.0 * s, body[2], body[3] - 44.0 * s];
+                if let Some(se) = seasons.iter().find(|se| se.number == at) {
+                    draw_season_line(ui, se, se.number == current, body, s);
+                    body = [body[0], body[1] + 26.0 * s, body[2], body[3] - 26.0 * s];
+                }
+                let past = at > 0 && at < current;
+                match board {
                     None => {
                         let t = error.as_deref().unwrap_or(tr("Loading…"));
                         ui.label(t, body[0], body[1], ts, false, if error.is_some() { color::DANGER } else { color::TEXT_MUTED });
                     }
-                    Some(runs) if runs.is_empty() => {
-                        let t = if *solo { tr("No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board.") } else { tr("No group runs yet. Survive waves in the Arena (/arena) with others to get on the board.") };
-                        ui.label(t, body[0], body[1], ts, false, color::TEXT_MUTED);
+                    Some(b) if b.runs.is_empty() => {
+                        let t = match (past, *solo) {
+                            (true, true) => tr("No solo runs were made that season."),
+                            (true, false) => tr("No group runs were made that season."),
+                            (false, true) => tr("No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board."),
+                            (false, false) => tr("No group runs yet. Survive waves in the Arena (/arena) with others to get on the board."),
+                        };
+                        let lines = wrap(ui, t, ts, body[2]);
+                        for (i, line) in lines.iter().enumerate() {
+                            ui.label(line, body[0], body[1] + i as f32 * ts * 1.3, ts, false, color::TEXT_MUTED);
+                        }
                     }
-                    Some(runs) => draw_runs(ui, runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
+                    Some(b) => draw_runs(ui, &b.runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
                 }
             }
             Window::Champions(view) => {
@@ -865,10 +908,46 @@ fn submit(prompt: Prompt, input: &str, busy: &mut bool, error: &mut Option<Strin
     Some(if prompt == Prompt::Name { Act::ChooseName(name) } else { Act::CreateGuild(name) })
 }
 
+/// A unix time in ms as a date, "2026-11-21" (the same in every language).
+pub fn date_of(ms: i64) -> String {
+    // days since 1970-01-01 to a civil date (Howard Hinnant's algorithm)
+    let z = ms.div_euclid(86_400_000) + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = yoe + era * 400 + if m <= 2 { 1 } else { 0 };
+    format!("{y}-{m:02}-{d:02}")
+}
+
+/// The season's line under the tabs: its name, and when it began or that it's over and kept as
+/// it ended.
+fn draw_season_line(ui: &mut Ui, se: &ArenaSeason, live: bool, body: [f32; 4], s: f32) {
+    let font = |size: f32| (size * s).round().max(9.0);
+    let ns = font(13.0);
+    let name = if se.name.is_empty() { tf!("Season {n}", n = se.number) } else { se.name.clone() };
+    ui.label(&name, body[0], body[1], ns, true, if live { color::GOLD } else { color::TEXT });
+    let x = body[0] + ui.measure(&name, ns, true) + 10.0 * s;
+    let detail = match (live, se.start > 0, se.end > 0) {
+        (true, true, _) => tf!("Being played  ·  since {date}", date = date_of(se.start)),
+        (true, false, _) => tr("Being played").to_owned(),
+        (false, _, true) => tf!("Over  ·  ended {date}, kept as it finished", date = date_of(se.end)),
+        (false, _, false) => tr("Over, kept as it finished").to_owned(),
+    };
+    let ds = font(11.5);
+    let detail = fit(ui, &detail, ds, body[0] + body[2] - x);
+    ui.label(&detail, x, body[1] + (ns - ds) * 0.7, ds, false, if live { color::GOOD } else { color::TEXT_MUTED });
+}
+
 /// The leaderboard's runs in `body`: the best one in a gold-edged card (its wave, time, arena
-/// and everyone who took part), then the rest a row each. The viewer's own name stands out.
+/// and everyone who took part; from Season 2 the Empowered bosses it slew and the round it ended
+/// in), then the rest a row each. The viewer's own name stands out.
 fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     const GOLD: u32 = 0xFFD24A;
+    const EMPOWERED: u32 = 0xFF4FD8;
     let font = |size: f32| (size * s).round().max(9.0);
     let names = |r: &ArenaRun| if r.players.is_empty() { tr("Unknown").to_owned() } else { r.players.join(", ") };
     let mine = |r: &ArenaRun| r.players.iter().any(|p| p == me);
@@ -887,8 +966,19 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     let small = font(13.0);
     let detail = if best.arena.is_empty() { run_time(best.seconds) } else { format!("{}  ·  {}", run_time(best.seconds), best.arena) };
     ui.label(&detail, tx, y + (big - small) * 0.8, small, false, color::TEXT_DIM);
+    if best.empowered > 0 {
+        // the Empowered bosses it slew, at the card's top right
+        let es = font(13.0);
+        let t = tn!(best.empowered, "{n} Empowered slain|{n} Empowered slain", n = best.empowered);
+        let tw = ui.measure(&t, es, true);
+        let ex = card[0] + card[2] - 16.0 * s - tw;
+        crate::hud::ui_icon(ui, crate::hud::ui_icon::SKULL, ex - 12.0 * s, y + big * 0.6, 16.0 * s);
+        ui.label(&t, ex, y + (big - es) * 0.8, es, true, EMPOWERED);
+    }
     y += big * 1.35;
-    ui.label(tr("Time taken and the players who took part"), x, y, font(10.5), true, color::TEXT_MUTED);
+    let caption = if best.fell.is_empty() { tr("Time taken and the players who took part").to_owned() } else { tf!("Fell at {round}", round = best.fell) };
+    let caption = fit(ui, &caption, font(10.5), card[2] - 32.0 * s);
+    ui.label(&caption, x, y, font(10.5), true, if best.fell.is_empty() { color::TEXT_MUTED } else { color::TEXT_DIM });
     y += font(10.5) * 1.5;
     let ps = font(12.5);
     let lines = wrap(ui, &names(best), ps, card[2] - 32.0 * s);
@@ -913,7 +1003,13 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
         ui.label(&format!("#{}", i + 1), body[0], ty, ts, true, color::TEXT_DIM);
         ui.label(&tf!("Wave {wave}", wave = r.wave), body[0] + 40.0 * s, ty, ts, true, c);
         ui.label(&run_time(r.seconds), body[0] + 122.0 * s, ty, ts, false, color::TEXT_DIM);
-        let px = body[0] + 190.0 * s;
+        let mut px = body[0] + 190.0 * s;
+        if r.empowered > 0 {
+            // a skull and how many Empowered bosses it slew
+            crate::hud::ui_icon(ui, crate::hud::ui_icon::SKULL, px + 7.0 * s, ry + 14.0 * s, 14.0 * s);
+            ui.label(&r.empowered.to_string(), px + 16.0 * s, ty, ts, true, EMPOWERED);
+            px += 40.0 * s;
+        }
         let who = fit(ui, &names(r), ts, body[0] + body[2] - px);
         ui.label(&who, px, ty, ts, false, c);
     }

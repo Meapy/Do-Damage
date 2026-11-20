@@ -1433,8 +1433,8 @@ namespace WorldServer.logic.doomed
                     },
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(2, 5, 3, 8,
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Defense")),
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Vitality")),
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Defense")),
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Vitality")),
                         Tuple.Create(0.005, (ILoot) new ItemLoot("Demon Blade")),
                         Tuple.Create(0.004, (ILoot)new ItemLoot("Sword of the Abyss")),
                         Tuple.Create(0.01, (ILoot)new ItemLoot("Ring of the Abyss")),
@@ -1797,7 +1797,7 @@ namespace WorldServer.logic.doomed
             null,
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(360, new LootDef(0, 3, 0, 8,
-                        Tuple.Create(0.1, (ILoot)new ItemLoot("Potion of Max Mana")),
+                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Mana")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Scaled Robe")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Oceans Gift")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Idol of the Fish")),
@@ -2233,7 +2233,7 @@ namespace WorldServer.logic.doomed
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 2, 0, 2,
                         Tuple.Create(0.05, (ILoot)new ItemLoot("Armor of the Leaf")),
-                            Tuple.Create(0.06, (ILoot)new ItemLoot("Potion of Max Speed"))
+                            Tuple.Create(0.03, (ILoot)new ItemLoot("Potion of Max Speed"))
                         ))));
 
         // Elder Grey Sea Slurp
@@ -3125,8 +3125,8 @@ namespace WorldServer.logic.doomed
                         Tuple.Create(0.1, (ILoot) new TierLoot(5, ItemType.Ability))
                         )),
                     Tuple.Create(100, new LootDef(1, 1, 1, 2,
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Dexterity")),
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Defense"))
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Dexterity")),
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Defense"))
                         ))));
 
         // Elder Lion Archer
@@ -4606,7 +4606,7 @@ namespace WorldServer.logic.doomed
                         Tuple.Create(0.001, (ILoot)new ItemLoot("Seal of the Fallen Angel")),
                         Tuple.Create(0.02, (ILoot)new ItemLoot("Soul Mask")),
                         Tuple.Create(0.0009, (ILoot)new ItemLoot("Soul Tipped Dirk")),
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Wisdom")),
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Wisdom")),
                         Tuple.Create(0.3, (ILoot) new TierLoot(3, ItemType.Ring)),
                         Tuple.Create(0.2, (ILoot) new TierLoot(4, ItemType.Ring)),
                         Tuple.Create(0.3, (ILoot) new TierLoot(7, ItemType.Weapon)),
@@ -4785,7 +4785,7 @@ namespace WorldServer.logic.doomed
                     },
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 2, 2, 8,
-                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Speed")),
+                        Tuple.Create(0.025, (ILoot)new ItemLoot("Potion of Max Speed")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Skin Armor")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Skin Shield")),
                         Tuple.Create(0.05, (ILoot) new ItemLoot("Snake Eye Ring")),
@@ -4977,7 +4977,7 @@ namespace WorldServer.logic.doomed
                 },
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 5, 2, 5,
-                        Tuple.Create(0.1, (ILoot) new ItemLoot("Potion of Max Mana")),
+                        Tuple.Create(0.05, (ILoot) new ItemLoot("Potion of Max Mana")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Scaled Robe")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Oceans Gift")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Idol of the Fish")),
@@ -5121,7 +5121,7 @@ namespace WorldServer.logic.doomed
             null,
             new LootBehavior(LootDef.Empty, 
                     Tuple.Create(100, new LootDef(0, 2, 0, 2,
-                        Tuple.Create(0.1, (ILoot)new ItemLoot("Potion of Max Life")),
+                        Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Life")),
                           Tuple.Create(0.01, (ILoot)new ItemLoot("Raw Hope")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Large Egyptian Cloth")),
                             Tuple.Create(0.01, (ILoot)new ItemLoot("Small Egyptian Cloth"))
@@ -5225,7 +5225,7 @@ namespace WorldServer.logic.doomed
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 5, 0, 8,
                         Tuple.Create(0.05, (ILoot)new ItemLoot("Crusader's Lost Relic")),
-                           Tuple.Create(0.1, (ILoot)new ItemLoot("Potion of Max Life")),
+                           Tuple.Create(0.05, (ILoot)new ItemLoot("Potion of Max Life")),
                         Tuple.Create(0.01, (ILoot)new ItemLoot("Angel's Hope")),
                             Tuple.Create(0.03, (ILoot)new ItemLoot("Pyramid Artifact Generator")),
                             Tuple.Create(0.5, (ILoot)new ItemLoot("Large Egyptian Cloth")),
@@ -5301,7 +5301,7 @@ namespace WorldServer.logic.doomed
             null,
             new LootBehavior(LootDef.Empty,
                     Tuple.Create(100, new LootDef(0, 2, 0, 2,
-                        Tuple.Create(0.1, (ILoot) new ItemLoot("Potion of Max Life")),
+                        Tuple.Create(0.05, (ILoot) new ItemLoot("Potion of Max Life")),
                                                 Tuple.Create(0.01, (ILoot)new ItemLoot("Wings of Natural Bloodlust")),
                             Tuple.Create(0.5, (ILoot)new ItemLoot("Large Egyptian Cloth")),
                             Tuple.Create(0.5, (ILoot)new ItemLoot("Small Egyptian Cloth"))

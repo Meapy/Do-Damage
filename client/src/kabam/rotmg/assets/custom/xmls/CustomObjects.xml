@@ -178,6 +178,33 @@
 		<Static/>
 		<ShadowSize>80</ShadowSize>
 	</Object>
+	<!-- see The Tinkerer: the Wayfarer beside the Warcaller at the north point of the spawn's
+	     island (QuestGivers.cs places him), who opens the Realm Pass in the Rust client -->
+	<Object type="0x498e" id="The Wayfarer">
+		<Class>RealmPass</Class>
+		<DisplayId>The Wayfarer</DisplayId>
+		<Texture>
+			<File>questNpcs16x16</File>
+			<Index>0x0c</Index>
+		</Texture>
+		<Animation prob="1.0" period="0.0">
+			<Frame time="1.4">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x0c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.6">
+				<Texture>
+					<File>questNpcs16x16</File>
+					<Index>0x0d</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>110</Size>
+		<Static/>
+		<ShadowSize>80</ShadowSize>
+	</Object>
 	<!-- see The Tinkerer -->
 	<Object type="0x497c" id="The Chronicler">
 		<Class>Chronicler</Class>

@@ -11,6 +11,10 @@ impl B {
         self.0.push(v);
         self
     }
+    fn u16(mut self, v: u16) -> Self {
+        self.0.extend(v.to_be_bytes());
+        self
+    }
     fn i16(mut self, v: i16) -> Self {
         self.0.extend(v.to_be_bytes());
         self
@@ -345,11 +349,15 @@ fn vault_messages_match_vault_contents_handler() {
 
 #[test]
 fn marketplace_messages_match_market_handlers() {
-    // MarketBrowseHandler reads an int; MarketSellHandler a bool, an int, a byte and two ints;
+    // MarketBrowseHandler reads an int and, when there, a byte (1: we know listings in gold);
+    // MarketSellHandler a bool, an int, a byte, two ints and, when there, the currency (0 gold);
     // MarketActHandler a byte and two ints.
-    assert_eq!(ClientMessage::from(MarketBrowse { version: -1 }).to_frame(), B::default().i32(-1).frame(121));
-    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72 };
+    assert_eq!(ClientMessage::from(MarketBrowse { version: -1, gold: None }).to_frame(), B::default().i32(-1).frame(121));
+    assert_eq!(ClientMessage::from(MarketBrowse { version: -1, gold: Some(1) }).to_frame(), B::default().i32(-1).u8(1).frame(121));
+    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72, currency: None };
     assert_eq!(ClientMessage::from(sell).to_frame(), B::default().u8(1).i32(2).u8(5).i32(1500).i32(72).frame(123));
+    let sell = MarketSell { from_vault: true, chest: 2, slot: 5, price: 1500, hours: 72, currency: Some(0) };
+    assert_eq!(ClientMessage::from(sell).to_frame(), B::default().u8(1).i32(2).u8(5).i32(1500).i32(72).u8(0).frame(123));
     assert_eq!(ClientMessage::from(MarketAct { action: 1, id: 42, price: 900 }).to_frame(), B::default().u8(1).i32(42).i32(900).frame(124));
     // MarketListings.Write: version, now, unchanged, tax, limit; listings (id, item, price,
     // seller, start, end, stack, imprints); box (id, item, stack, imprints, why, time); history
@@ -371,11 +379,19 @@ fn marketplace_messages_match_market_handlers() {
     let mut newer = body.clone();
     newer.extend_from_slice(&1500i32.to_be_bytes());
     let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &newer).unwrap() else { panic!() };
-    assert_eq!(m.slot_price, Some(1500));
+    assert_eq!((m.slot_price, m.gold_tax), (Some(1500), None));
+    // to a client that knows gold: the gold tax, then each listing's and history line's currency
+    newer.extend_from_slice(&B::default().u8(10).i16(1).u8(0).i16(1).u8(1).0);
+    let ServerMessage::MarketListings(m) = ServerMessage::decode(122, &newer).unwrap() else { panic!() };
+    assert_eq!(m.gold_tax, Some(10));
+    assert_eq!((m.listing_currencies.unwrap().0, m.history_currencies.unwrap().0), (vec![0], vec![1]));
     assert_eq!(ClientMessage::from(MarketAct { action: 4, id: 0, price: 1500 }).to_frame(), B::default().u8(4).i32(0).i32(1500).frame(124));
     let body = B::default().u8(1).utf("Bought").i32(1234).0;
     let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
-    assert_eq!((r.ok, r.message.as_str(), r.fame), (true, "Bought", 1234));
+    assert_eq!((r.ok, r.message.as_str(), r.fame, r.gold), (true, "Bought", 1234, None));
+    let body = B::default().u8(1).utf("Bought").i32(1234).i32(56).0;
+    let ServerMessage::MarketResult(r) = ServerMessage::decode(125, &body).unwrap() else { panic!() };
+    assert_eq!(r.gold, Some(56));
 }
 
 #[test]
@@ -436,6 +452,58 @@ fn arena_vote_messages_match_arena_votes() {
     assert_eq!((v.open, v.next_wave, v.max_combine, v.combine, v.next_needed, v.combine_needed, v.starting), (true, 7, 5, 2, 2, 2, false));
     let p = &v.voters[0];
     assert_eq!((p.object_id, p.name.as_str(), p.next, p.pick), (1001, "Tester", true, 2));
+}
+
+#[test]
+fn arena_round_matches_arena_round_message() {
+    // ArenaRoundMessage.Write: kind, season, first and last wave, a byte count of rounds (wave,
+    // title, format, twist, a byte count of boss types).
+    let body = B::default().u8(1).u8(2).i32(12).i32(13).u8(2)
+        .i32(12).utf("The Snake Pit").u8(3).u8(1).u8(2).u16(0x0d4f).u16(0x0d50)
+        .i32(13).utf("Candyland").u8(0).u8(0).u8(0).0;
+    let ServerMessage::ArenaRound(r) = ServerMessage::decode(170, &body).unwrap() else { panic!() };
+    assert_eq!((r.kind, r.season, r.wave, r.last_wave, r.rounds.len()), (1, 2, 12, 13, 2));
+    let first = &r.rounds[0];
+    assert_eq!((first.wave, first.title.as_str(), first.format, first.twist), (12, "The Snake Pit", 3, 1));
+    assert_eq!(first.bosses.iter().copied().collect::<Vec<_>>(), vec![0x0d4f, 0x0d50]);
+    assert!(r.rounds[1].bosses.is_empty());
+}
+
+#[test]
+fn pass_messages_match_pass_tracker() {
+    // PassActHandler reads the kind, then the value.
+    assert_eq!(ClientMessage::from(PassAct { kind: 1, value: -1 }).to_frame(), B::default().u8(1).i32(-1).frame(171));
+    // PassRewardInfo.Write: kind, item, amount, name.
+    let reward = |b: B, kind: u8, item: u16, amount: i32, name: &str| b.u8(kind).u16(item).i32(amount).utf(name);
+    // PassDataMessage.Write
+    let mut b = B::default().i32(1_000).u8(1).utf("frostfall").utf("Frostfall").utf("frost")
+        .i32(0x8FD0FF).i32(0x12233F).i32(0xEAF7FF).i32(10).i32(20)
+        .i32(2_500).i32(1_000).i32(1_500).i32(1_000).i32(1_234).u8(1)
+        .u8(50).u8(3).u8(1).i32(0)
+        .u8(1);
+    b = reward(b.u8(1), 0, 0, 100, "");
+    b = reward(b.u8(2), 4, 0xE100, 0x030e, "Frostcrown Archmage");
+    b = reward(b, 3, 0, 100, "");
+    b = b.u8(1).u8(0);
+    b = reward(b.u8(1), 1, 0x0a1f, 2, "");
+    b = b.u8(2).u8(0).i32(150).u8(13).i32(5).i32(15);
+    b = b.u8(1).u8(2).utf("Frostcrown").i32(0x8FD0FF).u8(1).u8(2);
+    b = b.u8(0).u8(0).utf("Emberwake").utf("ember").i32(30).u8(1).u8(1);
+    let ServerMessage::PassData(d) = ServerMessage::decode(172, &b.0).unwrap() else { panic!() };
+    assert!(d.active && d.gilded && d.first_dungeon_ready);
+    assert_eq!((d.season_name.as_str(), d.xp, d.momentum, d.pace_tier, d.gold), ("Frostfall", 2_500, 50, 3, 1_234));
+    assert_eq!(d.tiers.len(), 1);
+    assert_eq!((d.tiers[0].free.len(), d.tiers[0].gilded.len(), d.tiers[0].free_claimed), (1, 2, true));
+    assert_eq!((d.tiers[0].gilded[0].kind, d.tiers[0].gilded[0].item, d.tiers[0].gilded[0].name.as_str()), (4, 0xE100, "Frostcrown Archmage"));
+    assert_eq!((d.cache[0].item, d.sources.len(), d.sources[1].amount, d.dungeon_step), (0x0a1f, 2, 5, 15));
+    assert_eq!((d.auras[0].name.as_str(), d.auras[0].owned, d.aura, d.colors.len()), ("Frostcrown", true, 2, 0));
+    assert_eq!((d.next_name.as_str(), d.next_starts_at, d.community_luck, d.community_rolls), ("Emberwake", 30, 1, 1));
+    // PassXp.Write and PassResult.Write
+    let ServerMessage::PassXp(x) = ServerMessage::decode(173, &B::default().i32(150).u8(0).i32(2_650).u8(2).u8(1).0).unwrap() else { panic!() };
+    assert_eq!((x.gained, x.source, x.xp, x.tier, x.momentum), (150, 0, 2_650, 2, true));
+    let body = reward(B::default().u8(3).u8(1).i32(1).utf("Opened!").u8(1), 3, 0, 50, "").0;
+    let ServerMessage::PassResult(r) = ServerMessage::decode(174, &body).unwrap() else { panic!() };
+    assert_eq!((r.code, r.success, r.count, r.rewards[0].amount), (3, true, 1, 50));
 }
 
 #[test]

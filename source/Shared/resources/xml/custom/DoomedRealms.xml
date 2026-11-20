@@ -972,6 +972,9 @@
 		<Activate duration="8">Decoy</Activate>
 		<Activate maxDistance="30">Teleport</Activate>
 		<Activate effect="Invisible" duration="3">ConditionEffectSelf</Activate>
+		<ExtraTooltipData>
+			<EffectInfo name="" description="Only usable once you&apos;ve been visible for 0.5 secs"/>
+		</ExtraTooltipData>
 	</Object>
 	<Object type="0xD039" id="Scepter of Vorv">
 		<Class>Equipment</Class>
@@ -8804,9 +8807,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes attack power. At full maximum attack, it adds 6 attack potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes attack power. At full maximum attack, it adds 10 attack potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="20" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="20" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8820,9 +8823,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes defense power. At full maximum defense, it adds 6 defense potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes defense power. At full maximum defense, it adds 10 defense potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="21" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="21" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8836,9 +8839,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes speed. At full maximum speed, it adds 6 speed potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes speed. At full maximum speed, it adds 10 speed potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="22" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="22" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8852,9 +8855,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes vitality. At full maximum vitality, it adds 6 vitality potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes vitality. At full maximum vitality, it adds 10 vitality potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="26" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="26" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8868,9 +8871,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes wisdom. At full maximum wisdom, it adds 6 wisdom potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes wisdom. At full maximum wisdom, it adds 10 wisdom potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="27" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="27" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8884,9 +8887,9 @@
 		</Texture>
 		<SlotType>10</SlotType>
 		<Tier>12</Tier>
-		<Description>A potion that permanently maxes dexterity. At full maximum dexterity, it adds 6 dexterity potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes dexterity. At full maximum dexterity, it adds 10 dexterity potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="28" amount="100" storeAmount="6">IncrementStat</Activate>
+		<Activate stat="28" amount="100" storeAmount="10">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -8899,9 +8902,9 @@
 			<Index>0x100</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>A rare potion that permanently maxes health. At full maximum health, it adds 6 life potions to your potion storage instead.</Description>
+		<Description>A rare potion that permanently maxes health. At full maximum health, it adds 10 life potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="0" amount="1000" storeAmount="30">IncrementStat</Activate>
+		<Activate stat="0" amount="1000" storeAmount="50">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>6</BagType>
@@ -8914,9 +8917,9 @@
 			<Index>0x101</Index>
 		</Texture>
 		<SlotType>10</SlotType>
-		<Description>A potion that permanently maxes magic. At full maximum magic, it adds 6 mana potions to your potion storage instead.</Description>
+		<Description>A potion that permanently maxes magic. At full maximum magic, it adds 10 mana potions to your potion storage instead.</Description>
 		<Sound>use_potion</Sound>
-		<Activate stat="3" amount="1000" storeAmount="30">IncrementStat</Activate>
+		<Activate stat="3" amount="1000" storeAmount="50">IncrementStat</Activate>
 		<Consumable />
 		<Potion />
 		<BagType>4</BagType>
@@ -11759,10 +11762,10 @@
 		<BloodProb>1.0</BloodProb>
 		<SlotTypes>1, 5005, 6, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
 		<Equipment>0xa00, 0xD1B4, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
-		<MaxHitPoints max="700">120</MaxHitPoints>
+		<MaxHitPoints max="770">120</MaxHitPoints>
 		<MaxMagicPoints max="250">100</MaxMagicPoints>
 		<Attack max="55">10</Attack>
-		<Defense max="25">0</Defense>
+		<Defense max="30">0</Defense>
 		<Speed max="75">15</Speed>
 		<Dexterity max="70">15</Dexterity>
 		<HpRegen max="40">15</HpRegen>

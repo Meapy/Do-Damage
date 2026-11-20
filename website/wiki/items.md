@@ -63,8 +63,11 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
 
 - **Vault chests**, eight slots each, in rows on the raked gravel beyond the torii, that keep
   items safe when a character dies. A new account has
-  {{v:vault_chests}}; more cost {{v:vault_chest_price}} fame each (click a closed chest in the
-  vault), or use a Vault Chest Unlocker.
+  {{v:vault_chests}}; walk up to a closed chest to buy another for {{v:vault_chest_price}} fame or
+  {{v:vault_gold}} gold, or use a Vault Chest Unlocker. The fame price doubles every
+  {{v:unlock_doubles}} chests bought with fame ({{v:vault_chest_price}}, then twice that from the
+  next {{v:unlock_doubles}}...); the gold price stays the same and doesn't count towards it. The
+  garden has room for 120 chests.
 - (Not in your vault but in the Nexus: four **shared vault chests** in the vault yard, north
   across the spawn's pond, that every player can put items in and take them from. They keep
   their items through restarts.)
@@ -115,15 +118,27 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 
 ## The shops
 
-Every shop here sells for fame; there's no way to earn gold.
+Every shop here sells for fame, except the gold shops: the **Elder keys** (`/shop elderkeys`, and
+the Bazaar's Elder key stalls), the patterned cloths in `/shop dyes`, `/shop donor`,
+`/shop donorpets` and `/shop america`. Gold isn't
+earned in game: it's bought in the [Gold Store](../gold.html) on this site ($1 for 100 gold, with
+bonus gold on bigger packs), with PayPal or a card, and reaches your account at once, even while
+you play.
+
+Every Elder dungeon's key is sold for gold only, from 10 gold (the Elder Pirate Cave and Spider
+Den) to 100 (the Elder Lost Halls); they still drop in their dungeons. Each dungeon's page lists
+its key's price.
 
 - The **Nexus Bazaar**, the stalls along the shopping street of the Nexus's market island: stat potions, consumables,
-  specials, dungeon keys, Elder and minigame keys, pet generators
+  specials, dungeon and minigame keys, Elder keys (for gold), pet generators
   ({{v:pet_price}} fame) and clothing and accessories (cloths and dyes). Each shop has fewer stalls
   than items: the stalls take turns through its items, a few minutes each (a stall says when its
   item goes). Guests can't buy.
 - `/shop` opens the shops: weapons, abilities, armor, rings, consumables, dyes, keys
-  (every dungeon's key, Elder ones too, at the Bazaar's prices) and pets.
+  (every dungeon's key at the Bazaar's prices) and pets for fame, and the gold shops.
+  `/shop dyes` has every dye and cloth: the solid colours for 20 fame each, the patterned cloths
+  (stripes, rainbows, stars and the rest) for 20 gold each. Words after the shop's name show
+  only what has them: `/shop dyes dark blue`, `/shop dyes rainbow`.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 
 The Nexus Bazaar's specials and consumables:

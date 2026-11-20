@@ -21,7 +21,8 @@ namespace WorldServer.core.objects.vendors
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         // The nexus bazaar's shops (tools/build_nexus_bazaar.py puts their stalls on the map). Prices
-        // are in fame and match the Doomed Realms shop (/shop) where both sell an item.
+        // are in fame and match the Doomed Realms shop (/shop) where both sell an item, but for
+        // the Elder keys and the permanent pets, which are gold.
 
         private static readonly List<ISellableItem> StatPotions = new List<ISellableItem>
         {
@@ -85,33 +86,55 @@ namespace WorldServer.core.objects.vendors
             ("Oryx Chicken Chamber Key", 400)
         };
 
-        // the Christmas Key isn't sold (it still opens its dungeon); the Bazaar has a stall for each of these
+        // the Christmas Key isn't sold (it still opens its dungeon); sold for fame beside the
+        // regular keys (Store 11) since the Elder keys took Store 12 for gold
         private static readonly (string Key, int Price)[] DoomedKeyPrices =
         {
             ("Doom Crystal Key", 30), ("Zombies Key", 50), ("Birthday Key", 50), ("Island Key", 75),
-            ("Hash Cellar Incantation", 500), ("Doomed Cellar Incantation", 1000),
-            ("Elder Pirate Cave Key", 50), ("Elder Spider Den Key", 70), ("Elder Snake Pit Key", 100), ("Elder Sprite World Key", 100),
-            ("Elder Manor Key", 100), ("Elder Beach Key", 150), ("Elder Jungle Key", 150), ("Elder Undead Lair Key", 200),
-            ("Elder Davy Key", 200), ("Elder Ocean Trench Key", 200), ("Elder Abyss Key", 300), ("Elder Draconis Key", 400),
-            ("Elder Tomb Key", 500)
+            ("Hash Cellar Incantation", 500), ("Doomed Cellar Incantation", 1000)
         };
 
-        // /shop keys (DoomedShop): every key the Bazaar sells, regular, Doomed and Elder, but the
-        // Oryx chain's keys (Oryx 1 and 2 leave those portals open), plus the Elder keys the
-        // Bazaar's pavilion has no stall for. More than the shop's 48 stalls, so they rotate.
-        private static readonly string[] NotInKeyShop = { "Oryx's Castle Key", "Oryx Chamber Key", "Oryx Chicken Chamber Key" };
-        private static readonly (string Key, int Price)[] KeyShopOnlyPrices =
+        // Every Elder dungeon's key, sold only for gold (bought in the Gold Store, $1 = 100 gold):
+        // the Bazaar's Elder pavilion (Store 12) and /shop elderkeys. 10 to 100 gold, in step with
+        // how hard the dungeon is. The keys still drop in their dungeons as before.
+        public static readonly (string Key, int Price)[] ElderKeyPrices =
         {
-            ("Elder Ivory Wyvern Key", 400), ("Elder Shatters Key", 600), ("Elder Lost Halls Key", 750),
-            ("Elder Cemetery Key", 300)
+            ("Elder Pirate Cave Key", 10), ("Elder Spider Den Key", 10), ("Elder Snake Pit Key", 15),
+            ("Elder Sprite World Key", 15), ("Elder Manor Key", 15), ("Elder Beach Key", 20),
+            ("Elder Jungle Key", 20), ("Elder Undead Lair Key", 25), ("Elder Davy Key", 25),
+            ("Elder Ocean Trench Key", 25), ("Elder Abyss Key", 30), ("Elder Cemetery Key", 35),
+            ("Elder Draconis Key", 40), ("Elder Ivory Wyvern Key", 40), ("Elder Tomb Key", 50),
+            ("Elder Shatters Key", 75), ("Elder Lost Halls Key", 100)
         };
+
+        // /shop keys (DoomedShop): every key the Bazaar sells for fame, regular and Doomed, but the
+        // Oryx chain's keys (Oryx 1 and 2 leave those portals open). No Elder keys: those are gold
+        // (/shop elderkeys). More than the shop's 48 stalls, so they rotate.
+        private static readonly string[] NotInKeyShop = { "Oryx's Castle Key", "Oryx Chamber Key", "Oryx Chicken Chamber Key" };
 
         public static IEnumerable<(string Key, int Price)> KeyShopPrices =>
-            DungeonKeyPrices.Concat(DoomedKeyPrices).Concat(KeyShopOnlyPrices)
+            DungeonKeyPrices.Concat(DoomedKeyPrices)
                 .Where(k => !NotInKeyShop.Contains(k.Key) && !SealedDungeons.IsSealedItem(k.Key));
 
-        private static readonly List<ISellableItem> DungeonKeys =DungeonKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
-        private static readonly List<ISellableItem> DoomedKeys = DoomedKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
+        // /shop dyes (DoomedShop): every clothing and accessory dye and cloth in the game. A dye of one
+        // solid colour (Tex1/Tex2 0x01RRGGBB) costs fame, a cloth with a pattern (any other texture)
+        // gold; the same number either way. The dye removers (0xFFFFFFFF) aren't colours.
+        public const int DyeShopPrice = 20;
+
+        public static bool IsSolidDye(Item item) => ((uint)(item.Texture1 != 0 ? item.Texture1 : item.Texture2) >> 24) == 1;
+
+        public static IEnumerable<(string Item, int Price, CurrencyType Currency)> DyeShopPrices(XmlData data) =>
+            data.Items.Values
+                .Where(i => i.Class == "Dye" && (i.Texture1 != 0 || i.Texture2 != 0) && i.Texture1 != -1 && i.Texture2 != -1)
+                .OrderBy(i => i.ObjectType)
+                .Select(i => (i.ObjectId, DyeShopPrice, IsSolidDye(i) ? CurrencyType.Fame : CurrencyType.Gold));
+
+        /// <summary>/shop elderkeys and the Bazaar's Elder pavilion: the Elder keys, in gold, without a closed dungeon's.</summary>
+        public static IEnumerable<(string Key, int Price)> ElderKeyShopPrices =>
+            ElderKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key));
+
+        private static readonly List<ISellableItem> DungeonKeys = DungeonKeyPrices.Concat(DoomedKeyPrices).Where(k => !SealedDungeons.IsSealedItem(k.Key)).Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
+        private static readonly List<ISellableItem> ElderKeys = ElderKeyShopPrices.Select(k => (ISellableItem)new ShopItem(k.Key, (ushort)k.Price)).ToList();
 
         public static void Initialize(GameServer gameServer)
         {
@@ -150,7 +173,7 @@ namespace WorldServer.core.objects.vendors
             // source for now (SETUP-LOCAL.md, "Untiered rings"), and its empty pavilion made way for
             // the Hall of Champions
             { TileRegion.Store_11, new Tuple<List<ISellableItem>, CurrencyType, int>(DungeonKeys, CurrencyType.Fame, 0) },
-            { TileRegion.Store_12, new Tuple<List<ISellableItem>, CurrencyType, int>(DoomedKeys, CurrencyType.Fame, 0) }
+            { TileRegion.Store_12, new Tuple<List<ISellableItem>, CurrencyType, int>(ElderKeys, CurrencyType.Gold, 0) }
         };
 
         private static void InitDyes(GameServer gameServer)

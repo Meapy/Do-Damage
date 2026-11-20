@@ -3,7 +3,8 @@ using Shared.resources;
 
 namespace Shared.database.market
 {
-    // A Marketplace listing, as the `market` hash holds it (MarketStore): priced in fame.
+    // A Marketplace listing, as the `market` hash holds it (MarketStore): priced in fame or,
+    // since 2026-11-19, gold (Currency; every older listing says fame).
     public class DbMarketData
     {
         [JsonProperty("currency")] public CurrencyType Currency;

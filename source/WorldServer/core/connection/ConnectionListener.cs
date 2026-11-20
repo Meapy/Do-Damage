@@ -251,7 +251,15 @@ namespace WorldServer.core.connection
             }
 
             client.Socket?.Close();
-            client.Reset();
+            try
+            {
+                client.Reset();
+            }
+            catch (Exception e)
+            {
+                // still give the client back to the pool below, or each failure costs a connection slot
+                StaticLogger.Instance.Error($"Resetting a disconnected client failed: {e}");
+            }
 
             // Back into the pool a little later: the old socket's last send or receive can still be
             // completing on another thread, and a new connection given this client meanwhile was

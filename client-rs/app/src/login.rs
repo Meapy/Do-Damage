@@ -52,9 +52,13 @@ impl Endpoint {
         )
     }
 
-    /// `/account/purchaseCharSlot`.
-    pub fn buy_slot(&self, email: &str, password: &str) -> Pending<http::Response> {
-        http::post_form(&format!("{}/account/purchaseCharSlot", self.account), &[("guid", email), ("password", password)])
+    /// `/account/purchaseCharSlot`, with gold or with fame.
+    pub fn buy_slot(&self, email: &str, password: &str, gold: bool) -> Pending<http::Response> {
+        let currency = if gold { "0" } else { "1" };
+        http::post_form(
+            &format!("{}/account/purchaseCharSlot", self.account),
+            &[("guid", email), ("password", password), ("currency", currency)],
+        )
     }
 
     /// `/account/purchaseSkin`.
@@ -110,15 +114,17 @@ impl Endpoint {
         http::post_form(&format!("{}/guild/listMembers", self.account), &[("guid", email), ("password", password)])
     }
 
-    /// `/arena/leaderboard`: the best `count` arena runs, only solo or group ones when `solo` says.
-    pub fn arena_leaderboard(&self, count: usize, solo: Option<bool>) -> Pending<http::Response> {
+    /// `/arena/leaderboard`: the best `count` arena runs, only solo or group ones when `solo` says,
+    /// of a season (the current one for none).
+    pub fn arena_leaderboard(&self, count: usize, solo: Option<bool>, season: Option<i32>) -> Pending<http::Response> {
         let n = count.to_string();
         let players = match solo {
             Some(true) => "solo",
             Some(false) => "group",
             None => "",
         };
-        http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n), ("players", players)])
+        let season = season.map(|s| s.to_string()).unwrap_or_default();
+        http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n), ("players", players), ("season", &season)])
     }
 
     /// `/champions/board`: the Hall of Champions, with `name`'s own places (empty: none).
@@ -394,7 +400,7 @@ pub fn startup() -> Result<Startup, String> {
             "--stay" | "--bench" | "--resume" | "--no-update" => {}
             "--credentials" => credentials = it.next(),
             // Read by main (screenshots, scripted input).
-            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--chat" | "--quests" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" | "--screen" => {
+            "--shot" | "--shot-after" | "--look" | "--hold" | "--walk-to" | "--aim" | "--say" | "--type" | "--npc" | "--chat" | "--quests" | "--pass" | "--champions" | "--effect" | "--size" | "--mouse" | "--mouse-script" | "--screen" => {
                 it.next();
             }
             // Read by i18n (the language for this run).

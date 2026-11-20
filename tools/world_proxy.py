@@ -26,6 +26,9 @@ tools/rolling_restart.py starts it and keeps its state, <state folder>/state.jso
   running after RESTART_HOURS is stopped (SIGTERM: the tool stops the server it was starting).
   A server whose restart didn't happen asks again later (GameServer).
 - A world server that is still starting ("starting" in the state) gets no connections.
+- When the active world server's process is gone (a crash) and no restart or deploy is running,
+  it runs `rolling_restart.py up --no-build` after REVIVE_AFTER seconds: a new one from the last
+  build, in the same slot. At most once per REVIVE_BACKOFF, so one that can't start doesn't loop.
 - It runs the command in deploy.request (a JSON list of rolling_restart.py arguments, written by
   `rolling_restart.py request`), its output in deploy.log and its exit code in deploy.result: on
   Linux the world servers it starts then belong to the proxy's service, as the first one does.
@@ -46,6 +49,8 @@ POLICY = struct.pack(">i", 1014001516)  # "<pol": a Flash policy-file request
 SLOT_BY_RANGE = {1: "a", 2: "b"}       # world id // 1000000
 MAX_FIRST = 1 << 20
 RESTART_HOURS = 2  # a deploy --reuse waits for a hand-over (60 minutes) and a start (10)
+REVIVE_AFTER = 5     # seconds the active world server must be gone before another is started
+REVIVE_BACKOFF = 300  # at most one such start per 5 minutes, so a server that can't start doesn't loop
 
 STATE_DIR = None
 state = {}
@@ -217,6 +222,30 @@ def run_tool(args, out_name):
                             + state.get("tool_args", []) + args, stdout=out, stderr=subprocess.STDOUT, **flags)
 
 
+def process_alive(pid):
+    """Whether a world server still runs with this process id (as rolling_restart.alive)."""
+    if not pid:
+        return False
+    if WINDOWS:
+        import ctypes
+        k = ctypes.windll.kernel32
+        h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k.GetExitCodeProcess(h, ctypes.byref(code))
+        k.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
+    try:
+        with open("/proc/%d/stat" % pid, "rb") as f:
+            if f.read().rsplit(b")", 1)[1].split()[0] == b"Z":
+                return False
+        with open("/proc/%d/cmdline" % pid, "rb") as f:
+            return b"WorldServer" in f.read()
+    except (OSError, IndexError):
+        return False
+
+
 def collect_stopped():
     """Linux: world servers started by `rolling_restart.py serve` are this process's children,
     and stay zombies until collected."""
@@ -237,10 +266,30 @@ async def supervise():
     restart_started = 0
     deploying = None
     waiting_said = False
+    reviving = None
+    gone_for = 0
+    last_revive = 0
     while True:
         load_state()
         collect_stopped()
         active = state.get("active")
+        # The active world server crashed (its process is gone, nothing is replacing it): start
+        # another from its last build, or everyone gets "didn't answer" until someone notices.
+        if reviving is not None and reviving.poll() is not None:
+            log("starting a new world server finished (exit code %s)%s" % (
+                reviving.returncode, "" if reviving.returncode == 0 else ": see restart.log"))
+            reviving = None
+        b = state.get("backends", {}).get(active) if active else None
+        if (b and not b.get("starting") and b.get("pid") and reviving is None and restarting is None
+                and deploying is None and not process_alive(b["pid"])):
+            gone_for += 1
+            if gone_for >= REVIVE_AFTER and time.time() - last_revive > REVIVE_BACKOFF:
+                log("world server %s (pid %s) has stopped without being replaced: starting a new one" % (active, b["pid"]))
+                reviving = run_tool(["up", "--no-build"], "restart.log")
+                last_revive = time.time()
+                gone_for = 0
+        else:
+            gone_for = 0
         request = active and os.path.join(STATE_DIR, active, "restart.request")
         deploy_request = os.path.join(STATE_DIR, "deploy.request")
         for slot in ("a", "b"):

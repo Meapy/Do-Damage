@@ -114,6 +114,9 @@ Things to know when reading it:
 - Bows and daggers do 10% more damage since 5 November 2026 (every tier and untiered one), so the
   rows of the classes that use them (Rogue, Archer, Assassin, Huntress, Trickster, Bard, Mechanic,
   Ascendant, Snowman and Adept) are about a tenth low; the tables above have the new numbers.
+- The Knight's highest Attack went from 50 to 60 in 2.6.1, so his rows are about a tenth low.
+  The sword classes' abilities gained Armored, Exposed and an instant heal then too, which a
+  lone dummy doesn't show, except the Knight's Exposed (20 defense off for the whole party).
 - The runs used the T14 weapons. The T15 weapons, from Oryx the Ascended God, came on 23 October
   2026 and do about a quarter more, so "Weapon only" is low for every class now. The Staff of
   Endless Energy (the staves' T15) does 100-135 since then too.

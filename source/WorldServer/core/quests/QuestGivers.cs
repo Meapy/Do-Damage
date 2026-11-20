@@ -16,19 +16,24 @@ namespace WorldServer.core.quests
     // on their map's marker tiles (Nexus_Tinkerer, Nexus_Chronicler: the market square, in the
     // garden and on the islands), where they walk about the square (NexusVillagers), so they greet
     // from wherever they are. The Herald opens the server's week (DbWeeklyStats) and greets no one;
-    // he stands by the Arena Leaderboard's court (Nexus_Herald). A map without the markers has them
-    // where the garden did.
+    // he stands by the Arena Leaderboard's court (Nexus_Herald). The Wayfarer (the Realm Pass)
+    // stands a few steps east of the Warcaller, at the north point of the spawn's island, where
+    // everyone passes, and greets with the pass. A map without the markers has them where the
+    // garden did.
     public sealed class QuestGivers
     {
         private const float GREET_RANGE = 4.5f;
         private const float GREET_AGAIN = 180f;
 
-        private static readonly (string Id, string Name, TileRegion Marker, float X, float Y)[] Npcs =
+        // each NPC's marker (or the spot without one) and how far from it he stands
+        private static readonly (string Id, string Name, TileRegion Marker, float X, float Y, int Dx, int Dy)[] Npcs =
         {
-            ("NG Tinkerer", "#The Tinkerer", TileRegion.Nexus_Tinkerer, 106.5f, 61.5f),
-            ("NG Chronicler", "#The Chronicler", TileRegion.Nexus_Chronicler, 114.5f, 61.5f),
-            ("The Herald", "#The Herald", TileRegion.Nexus_Herald, 38.5f, 47.5f),
+            ("NG Tinkerer", "#The Tinkerer", TileRegion.Nexus_Tinkerer, 106.5f, 61.5f, 0, 0),
+            ("NG Chronicler", "#The Chronicler", TileRegion.Nexus_Chronicler, 114.5f, 61.5f, 0, 0),
+            ("The Herald", "#The Herald", TileRegion.Nexus_Herald, 38.5f, 47.5f, 0, 0),
+            ("The Wayfarer", "#The Wayfarer", TileRegion.Nexus_Warcaller, 68.5f, 53.5f, 4, 1),
         };
+        private const int WAYFARER = 3;
 
         private readonly World _world;
         private readonly List<(Entity Npc, string Name)> _npcs = new List<(Entity, string)>();
@@ -39,10 +44,10 @@ namespace WorldServer.core.quests
 
         public void Init()
         {
-            foreach (var (id, name, marker, x, y) in Npcs)
+            foreach (var (id, name, marker, x, y, dx, dy) in Npcs)
             {
                 var (mx, my, mz) = _world.Marker(marker) ?? (x, y, 0f);
-                var (sx, sy) = FindSpot(mx, my);
+                var (sx, sy) = FindSpot(mx + dx, my + dy);
                 var npc = _world.CreateNewEntity(id, sx, sy, _world.Levels == null ? (float?)null : mz);
                 if (npc != null)
                     _npcs.Add((npc, name));
@@ -61,14 +66,16 @@ namespace WorldServer.core.quests
             for (var i = 0; i < _npcs.Count; i++)
             {
                 var (npc, name) = _npcs[i];
-                if (i > 1)
+                if (i == 2)
                     continue;
                 foreach (var player in _world.Players.Values)
                 {
                     if (_greeted.ContainsKey((i, player.Id)) || player.SqDistTo(npc) > GREET_RANGE * GREET_RANGE || player.Quests == null)
                         continue;
                     _greeted[(i, player.Id)] = _clock + GREET_AGAIN;
-                    var line = i == 0 ? TinkererLine(player) : ChroniclerLine(player);
+                    if (i == WAYFARER && player.Pass == null)
+                        continue;
+                    var line = i == 0 ? TinkererLine(player) : i == 1 ? ChroniclerLine(player) : WayfarerLine(player);
                     player.Client.SendPacket(new Text() { Name = name, ObjectId = npc.Id, NumStars = -1, BubbleTime = 5, Recipient = "", Txt = line });
                 }
             }
@@ -110,6 +117,27 @@ namespace WorldServer.core.quests
             var points = book.Points;
             var rank = book.Data.Ranks.Count == 0 ? "" : book.Data.Ranks[book.RankOf(points)].Name;
             return $"{rank} {player.Name}, {points} points of deeds. Your next daily reward comes in {Span(QuestPeriods.NextReset(QuestPeriod.Daily, now) - now)}.";
+        }
+
+        private static string WayfarerLine(Player player)
+        {
+            if (player.Client.Account.Guest)
+                return "Every road needs a name to walk it, traveller. Register, and I'll show you the season's.";
+            var pass = player.Pass;
+            var book = pass.Book;
+            if (!book.Active)
+                return "The roads are quiet between seasons. Come back soon.";
+            var ready = pass.ReadyCount;
+            if (ready > 0)
+                return ready == 1
+                    ? $"{player.Name}! A reward from the {book.Season.Name} road waits for you. Press Y, or walk with me."
+                    : $"{player.Name}! {ready} rewards from the {book.Season.Name} road wait for you. Press Y, or walk with me.";
+            var left = book.Season.EndsAt - QuestTracker.Now;
+            if (book.Tier >= book.Data.Tiers)
+                return $"The whole {book.Season.Name} road walked, {player.Name}! Every {book.Data.BonusXp:N0} pass XP more fills a Wayfarer's Cache.";
+            if (!book.State.Gilded && book.Tier >= 5)
+                return $"Tier {book.Tier} already, {player.Name}. Gild your pass, and every Gilded reward you've passed is yours at once.";
+            return $"{book.Season.Name}, tier {book.Tier} of {book.Data.Tiers}, {player.Name}. {(int)left.TotalDays} days left on this road.";
         }
 
         private static string Span(TimeSpan t) =>

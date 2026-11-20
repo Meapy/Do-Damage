@@ -70,6 +70,9 @@ pub struct CharList {
     /// What the next character slot costs, and in what (0 gold, 1 fame).
     pub next_slot_price: i32,
     pub next_slot_currency: i32,
+    /// What it costs in gold instead (`NextCharSlotGoldPrice`; 0 from a server that only sells
+    /// it for `next_slot_currency`).
+    pub next_slot_gold: i32,
     /// `<OwnedSkins>`.
     pub owned_skins: Vec<u16>,
     /// `<ClassStats>`: the best level and fame reached with each class.
@@ -164,6 +167,7 @@ pub fn parse_char_list(xml: &str) -> Result<CharList, String> {
         list.credits = int("Credits");
         list.next_slot_price = int("NextCharSlotPrice");
         list.next_slot_currency = int("NextCharSlotCurrency");
+        list.next_slot_gold = int("NextCharSlotGoldPrice");
         if let Some(d) = account.children().find(|c| c.has_tag_name("Discord")) {
             list.discord_offered = true;
             if d.attribute("linked").is_some_and(|l| l.eq_ignore_ascii_case("true")) {
@@ -521,26 +525,67 @@ pub struct ArenaRun {
     /// "Arena" (the server reads older runs' "Battle Arena" and "Free Battle Arena" as it); empty for older runs.
     pub arena: String,
     pub players: Vec<String>,
+    /// From Season 2: the Empowered bosses the run slew, and the round it ended in (empty when
+    /// not kept, and from older servers).
+    pub empowered: i32,
+    pub fell: String,
+}
+
+/// One Arena season (`/arena/leaderboard`): its number and name, and when it began and ended
+/// (unix ms; 0 for unknown, or not over).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ArenaSeason {
+    pub number: i32,
+    pub name: String,
+    pub start: i64,
+    pub end: i64,
+}
+
+/// `/arena/leaderboard`: the season these runs are of and the current one (0 from an older
+/// server, which has no seasons), every season, and the runs, best first.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct ArenaBoard {
+    pub season: i32,
+    pub current: i32,
+    pub seasons: Vec<ArenaSeason>,
+    pub runs: Vec<ArenaRun>,
 }
 
 /// `/arena/leaderboard`: the best arena runs, best first.
 pub fn parse_arena_runs(xml: &str) -> Result<Vec<ArenaRun>, String> {
+    parse_arena_board(xml).map(|b| b.runs)
+}
+
+/// `/arena/leaderboard` with its seasons.
+pub fn parse_arena_board(xml: &str) -> Result<ArenaBoard, String> {
     if let Some(e) = error_text(xml) {
         return Err(e);
     }
     let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
-    Ok(doc
-        .root_element()
-        .children()
-        .filter(|c| c.has_tag_name("Run"))
-        .map(|r| ArenaRun {
-            wave: r.attribute("wave").and_then(parse_int).unwrap_or(0) as i32,
-            seconds: r.attribute("seconds").and_then(parse_int).unwrap_or(-1) as i32,
-            time: r.attribute("time").and_then(parse_int).unwrap_or(0),
-            arena: r.attribute("arena").unwrap_or("").to_owned(),
-            players: r.children().filter(|p| p.has_tag_name("Player")).filter_map(|p| p.text()).map(str::to_owned).collect(),
-        })
-        .collect())
+    let root = doc.root_element();
+    let int = |n: roxmltree::Node, a: &str, or: i64| n.attribute(a).and_then(parse_int).unwrap_or(or);
+    Ok(ArenaBoard {
+        season: int(root, "season", 0) as i32,
+        current: int(root, "current", 0) as i32,
+        seasons: root
+            .children()
+            .filter(|c| c.has_tag_name("Season"))
+            .map(|s| ArenaSeason { number: int(s, "number", 0) as i32, name: s.attribute("name").unwrap_or("").to_owned(), start: int(s, "start", 0), end: int(s, "end", 0) })
+            .collect(),
+        runs: root
+            .children()
+            .filter(|c| c.has_tag_name("Run"))
+            .map(|r| ArenaRun {
+                wave: int(r, "wave", 0) as i32,
+                seconds: int(r, "seconds", -1) as i32,
+                time: int(r, "time", 0),
+                arena: r.attribute("arena").unwrap_or("").to_owned(),
+                players: r.children().filter(|p| p.has_tag_name("Player")).filter_map(|p| p.text()).map(str::to_owned).collect(),
+                empowered: int(r, "empowered", 0) as i32,
+                fell: r.attribute("fell").unwrap_or("").to_owned(),
+            })
+            .collect(),
+    })
 }
 
 /// `/stats/weekly`: the server's week so far, which the Herald in the Nexus shows (the account
@@ -917,9 +962,9 @@ mod tests {
     fn slots_skins_legends_and_fame() {
         let xml = r#"<Chars nextCharId="2" maxNumChars="1"><OwnedSkins>835,0x0343</OwnedSkins>
             <Account><AccountId>7</AccountId><NextCharSlotPrice>500</NextCharSlotPrice>
-            <NextCharSlotCurrency>1</NextCharSlotCurrency></Account></Chars>"#;
+            <NextCharSlotCurrency>1</NextCharSlotCurrency><NextCharSlotGoldPrice>500</NextCharSlotGoldPrice></Account></Chars>"#;
         let list = parse_char_list(xml).unwrap();
-        assert_eq!((list.account_id, list.next_slot_price, list.next_slot_currency), (7, 500, 1));
+        assert_eq!((list.account_id, list.next_slot_price, list.next_slot_currency, list.next_slot_gold), (7, 500, 1, 500));
         assert_eq!(list.owned_skins, vec![835, 0x343]);
 
         let legends = parse_fame_list(
@@ -1028,6 +1073,23 @@ mod tests {
         assert_eq!((runs[0].wave, runs[0].seconds, runs[0].arena.as_str()), (23, 754, "Battle Arena"));
         assert_eq!(runs[0].players, vec!["Ann".to_owned(), "Bo".to_owned()]);
         assert_eq!((runs[1].seconds, runs[1].players.len()), (-1, 1));
+        assert_eq!((runs[0].empowered, runs[0].fell.as_str()), (0, ""));
+    }
+
+    #[test]
+    fn arena_board_with_seasons() {
+        let board = parse_arena_board(
+            r#"<ArenaRuns season="1" current="2"><Season number="1" name="The Mad God's Trial" start="0" end="1763700000000"/>
+            <Season number="2" name="Rise of the Fallen" start="1763700000000" end="0"/>
+            <Run wave="34" seconds="1999" time="5" arena="Arena" empowered="2" fell="The Shatters: the Bridge"><Player>Di</Player></Run></ArenaRuns>"#,
+        )
+        .unwrap();
+        assert_eq!((board.season, board.current, board.seasons.len()), (1, 2, 2));
+        assert_eq!(board.seasons[1], ArenaSeason { number: 2, name: "Rise of the Fallen".into(), start: 1763700000000, end: 0 });
+        assert_eq!((board.runs[0].empowered, board.runs[0].fell.as_str()), (2, "The Shatters: the Bridge"));
+        // an older server: no seasons
+        let old = parse_arena_board(r#"<ArenaRuns><Run wave="3" seconds="1" time="1" arena=""><Player>A</Player></Run></ArenaRuns>"#).unwrap();
+        assert_eq!((old.season, old.current, old.seasons.len(), old.runs.len()), (0, 0, 0, 1));
     }
 
     #[test]

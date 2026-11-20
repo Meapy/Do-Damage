@@ -42,6 +42,8 @@ pub enum Bind {
     Options,
     /// The quest log: quests, daily rewards and achievements.
     Quests,
+    /// The Realm Pass.
+    Pass,
     /// The vault window: every vault chest's items at once.
     VaultView,
     /// `switchTabs`: the inventory or the backpack.
@@ -61,7 +63,7 @@ pub enum Bind {
 }
 
 /// Every binding: what, its label, its name in the file, its default key.
-pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 42] = [
+pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 43] = [
     (Bind::MoveUp, mark("Move up"), "moveUp", Some(KeyCode::KeyW)),
     (Bind::MoveLeft, mark("Move left"), "moveLeft", Some(KeyCode::KeyA)),
     (Bind::MoveDown, mark("Move down"), "moveDown", Some(KeyCode::KeyS)),
@@ -94,6 +96,7 @@ pub const BINDS: [(Bind, &str, &str, Option<KeyCode>); 42] = [
     (Bind::ZoomOut, mark("Minimap zoom out"), "miniMapZoomOut", Some(KeyCode::Minus)),
     (Bind::Options, mark("Options"), "options", Some(KeyCode::KeyO)),
     (Bind::Quests, mark("Quest log"), "questLog", Some(KeyCode::KeyJ)),
+    (Bind::Pass, mark("Realm Pass"), "realmPass", Some(KeyCode::KeyY)),
     (Bind::VaultView, mark("Vault contents"), "vaultView", Some(KeyCode::KeyK)),
     (Bind::SwitchTabs, mark("Inventory / backpack"), "switchTabs", Some(KeyCode::KeyB)),
     (Bind::Center, mark("Center on player"), "toggleCentering", Some(KeyCode::KeyX)),

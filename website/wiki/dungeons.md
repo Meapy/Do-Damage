@@ -12,7 +12,7 @@ leaves one, and portals bosses drop inside a dungeon stay open).
 
 **How to get in:** most dungeon portals drop from monsters in the realm, open for a while, and
 show the dungeon's name. A **key** opens its dungeon's portal wherever you use it. Keys drop from
-bosses and are sold in the **Nexus Bazaar**. The Support Bot also opens a random dungeon by the
+bosses and are sold in the **Nexus Bazaar**, the Elder dungeons' keys for gold only. The Support Bot also opens a random dungeon by the
 Nexus spawn every {{v:bot_minutes}} minutes.
 
 A **Portal of Cowardice** takes you back the way you came: to the realm from a dungeon opened in
@@ -24,7 +24,8 @@ Some dungeons are laid out anew for every run, from the rooms of their map: smal
 > Drop chances are the listed ones; your real chance is higher (about double when you're alone),
 > since every roll grows with your share of the damage. Difficulty is a rough guide from the
 > boss's health, alone: groups make bosses tougher, and some easy bosses have hard dungeons
-> before them.
+> before them. In the Elder dungeons and the Black Between each extra player adds half as much
+> health to a boss as elsewhere.
 
 ## Candyland Hunting Grounds
 
@@ -121,7 +122,7 @@ to the altar opens. Beat all four in any order and the altar opens the Ivory
 Wyvern's portal, and half the time the Elder Lair's.
 
 Each dragon drops its own stat potions and, rarely, a relic of itself to keep. An Elder Draconis
-Key, sold for 400 fame at the Bazaar or dropped by the Elder Lair's dragons, opens the Elder Lair
+Key, sold for 40 gold at the Bazaar or dropped by the Elder Lair's dragons, opens the Elder Lair
 too. The **Elder Lair** is the same lair with Elder dragons: twice their health, harder hits and
 faster attacks, and better loot, including a potion that maxes the dragon's stat and its Elder
 armour or bow. Its altar opens the Elder Ivory Wyvern instead of the Ivory Wyvern.

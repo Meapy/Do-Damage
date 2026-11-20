@@ -82,7 +82,22 @@ pub mod look {
     /// Halo of the Ghost Bride: a player its forcefield kept from dying: a veil of light falling
     /// round them while they're untouchable.
     pub const VOW: u8 = 42;
-    pub const LAST: u8 = 42;
+    /// The Vial of Cascading Dusk thrown: the vial arcing from its thrower (the target) to where
+    /// it lands (pos1) over `duration` ms, trailing dusk and stars.
+    pub const DUSK_THROW: u8 = 43;
+    /// The Vial of Cascading Dusk splashing (pos2.x its radius, `color` the splash's shade,
+    /// `object_type` which: 0 the vial itself shattering, 1 the four round it, 2 the four beyond).
+    pub const DUSK_SPLASH: u8 = 44;
+    /// The dusk running out from a splash (pos1) to where the next one lands: pos2.x tiles away
+    /// at `object_type` degrees, getting there in `duration` ms.
+    pub const DUSK_FLOW: u8 = 45;
+    /// A Realm Pass tier reached (`PassTracker`): a column of the season's light (`color`)
+    /// bursting up round its player, a ring racing out, stars and sparks.
+    pub const PASS_TIER: u8 = 46;
+    /// The Realm Pass made Gilded: a crown of gold sparks wheeling round its player, gold
+    /// raining out, two rings.
+    pub const PASS_GILDED: u8 = 47;
+    pub const LAST: u8 = 47;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -173,6 +188,7 @@ fn period(look: u8) -> i32 {
         look::HELLBRAND | look::CHAOS | look::CONTAGION => 60,
         look::GRAVE_FLAMES => 30,
         look::VOW => 50,
+        look::DUSK_SPLASH => 90,
         look::OATH => 120,
         look::STARLIGHT => 140,
         _ => 100,
@@ -188,6 +204,12 @@ fn mix(a: u32, b: u32, t: f64) -> u32 {
     };
     ch(16) | ch(8) | ch(0)
 }
+
+/// The Vial of Cascading Dusk's colours beside its shades: the night under it, a deep violet and
+/// the last pink of the sky.
+const DUSK_DEEP: u32 = 0x1A0A30;
+const DUSK_MID: u32 = 0x5A2A9A;
+const DUSK_PINK: u32 = 0xFF8AD8;
 
 /// The grey of the Father's ward: its shadow, its steel, its light and its shine.
 pub(crate) const WARD_GREYS: [u32; 4] = [0x6A7078, 0xA8AEB8, 0xD0D4DA, 0xF0F2F6];
@@ -421,6 +443,141 @@ impl Particles {
         self.puffs(x, y, 12, &[0x1A0828, 0x2C1040, dark], 300.0, r * 0.6, 0.8, 1300, FALL + 40);
     }
 
+    /// The Vial of Cascading Dusk's flight from `from` to `to` in `ms`: a tumbling vial (a dark
+    /// heart in a violet glow, a white glint turning round it) on an arc, a ribbon of dusk left
+    /// hanging behind it, stars shaken loose, drops of dusk falling and its shadow on the floor.
+    fn dusk_throw(&mut self, from: (f64, f64), to: (f64, f64), ms: i32, color: u32) {
+        const PEAK: f64 = 2.2;
+        let t_all = ms as f64;
+        let (dx, dy) = (to.0 - from.0, to.1 - from.1);
+        // where it is `t` ms in: along the line, up a parabola PEAK tiles high at the middle
+        let at = |t: f64| {
+            let f = (t / t_all).clamp(0.0, 1.0);
+            (from.0 + dx * f, from.1 + dy * f, 0.5 + 4.0 * PEAK * f * (1.0 - f))
+        };
+        // the vial: drawn afresh every 16 ms along its arc, each lasting a frame or two
+        let steps = (ms / 16).max(1);
+        for i in 0..steps {
+            let t = i as f64 * t_all / steps as f64;
+            let (px, py, pz) = at(t);
+            let spin = t * 0.018;
+            for (ox, oy, c, size) in [(0.0, 0.0, color, 300.0), (0.0, 0.0, DUSK_DEEP, 150.0), (0.16 * spin.cos(), 0.16 * spin.sin(), 0xFFFFFF, 70.0)] {
+                let mut p = Particle::new(px + ox, py + oy, pz, c, size, 40, Motion::Plain);
+                p.delay = t as i32;
+                self.add(p);
+            }
+            // the ribbon it leaves, hanging a moment, sinking and fading
+            if i % 2 == 0 {
+                let c = self.pick(&[color, DUSK_PINK, DUSK_MID, 0xE8C8FF]);
+                let mut p = Particle::new(px + self.pm(0.05), py + self.pm(0.05), pz, c, 150.0 + 60.0 * self.random(), 420, Motion::Spark)
+                    .moving(self.pm(0.2) / 1000.0, self.pm(0.2) / 1000.0, -0.0006);
+                p.delay = t as i32;
+                self.add(p);
+            }
+            // stars shaken loose, twinkling as they drift down
+            if i % 5 == 2 {
+                let mut p = Particle::new(px, py, pz, 0xFFF4FF, 80.0, 700, Motion::Ballistic { g: GRAVITY * 0.2 })
+                    .moving(self.pm(0.6) / 1000.0, self.pm(0.6) / 1000.0, 0.0008);
+                p.delay = t as i32;
+                p.fade = true;
+                self.add(p);
+            }
+            // drops of dusk dripping off it
+            if i % 7 == 4 {
+                let mut p = Particle::new(px, py, pz, DUSK_MID, 90.0, 900, Motion::Ballistic { g: GRAVITY })
+                    .moving(dx / t_all * 0.3, dy / t_all * 0.3, 0.0);
+                p.delay = t as i32;
+                p.fade = true;
+                self.add(p);
+            }
+            // its shadow racing along the floor under it
+            if i % 2 == 1 {
+                let mut p = Particle::new(px, py, 0.02, 0x100818, 160.0, 40, Motion::Plain);
+                p.delay = t as i32;
+                p.alpha = 0.45;
+                self.add(p);
+            }
+        }
+    }
+
+    /// One of the Vial of Cascading Dusk's splashes at (x, y), out to `r`, in `color`; `stage` 0
+    /// the vial's own (the glass shatters, the biggest), 1 and 2 the cascade's, each smaller.
+    fn dusk_splash(&mut self, x: f64, y: f64, r: f64, color: u32, stage: u8, now: i32) {
+        let k = [1.0, 0.8, 0.65][stage as usize];
+        let hot = mix(color, 0xFFFFFF, 0.55);
+        // the flash
+        for (size, c, life) in [(1100.0 * k, color, 260), (650.0 * k, hot, 190), (320.0 * k, 0xFFFFFF, 130)] {
+            self.add(Particle::new(x, y, 0.35, c, size, life, Motion::Spark));
+        }
+        // the shockwave and a white ring after it, the pool spreading and a ring of stars over it
+        self.decal(DecalKind::Ring, x, y, r * 1.2, color, now, 420, None);
+        self.decal(DecalKind::Ring, x, y, r * 0.8, 0xF4E0FF, now + 70, 340, None);
+        self.decal(DecalKind::Puddle, x, y, r * 0.8, mix(color, DUSK_DEEP, 0.65), now, 1800, None);
+        self.decal(DecalKind::Stars, x, y, r * 0.75, hot, now + 60, if stage == 0 { 2200 } else { 1500 }, None);
+        // the glass of the vial itself, shattering
+        if stage == 0 {
+            self.debris(x, y, 22, &[0xFFFFFF, 0xEDE0FF, 0xC8B0FF, 0x9AD8FF], 70.0, 5.5, 7.0, 750, 0);
+        }
+        // dusk flung out in drops, and a crown of it racing out along the floor
+        self.debris(x, y, (26.0 * k) as usize, &[color, DUSK_PINK, DUSK_MID, hot], 110.0 * k, 4.2 * r / 2.5, 5.0, 750, 0);
+        for i in 0..16 {
+            let a = i as f64 * 2.0 * PI / 16.0 + self.pm(0.1);
+            let s = r * 0.0019 * (0.8 + 0.4 * self.random());
+            let c = if i % 4 == 0 { 0xFFFFFF } else if i % 2 == 0 { hot } else { color };
+            self.add(Particle::new(x, y, 0.2, c, 150.0 * k, 300, Motion::Sparker).moving(a.cos() * s, a.sin() * s, 0.0));
+        }
+        // twilight climbing out of it in a spiral, stars among it
+        let n = (26.0 * k) as i32;
+        for i in 0..n {
+            let angle = i as f64 * 2.0 * PI / n as f64;
+            let c = if i % 5 == 0 { 0xFFFFFF } else if i % 3 == 0 { DUSK_PINK } else { color };
+            let rad = 0.25 + r * 0.45 * self.random();
+            let motion = Motion::Soul { cx: x, cy: y, angle, speed: if stage == 1 { -0.11 } else { 0.11 }, rad, out: 0.0004, rise: 0.0034 };
+            let mut p = Particle::new(x, y, 0.15, c, 120.0 + 70.0 * self.random(), 900 + (self.random() * 400.0) as i32, motion);
+            p.alpha = 0.0;
+            p.delay = 60 + i * 9;
+            self.add(p);
+        }
+        // mist rolling out over the pool
+        self.puffs(x, y, (8.0 * k) as usize, &[DUSK_DEEP, 0x2C1450, mix(color, DUSK_DEEP, 0.5)], 200.0 * k, r * 0.5, 0.5, 1100, 80);
+        // and the mist and stars it breathes while the dusk bleeds them
+        self.aura(look::DUSK_SPLASH, -1, x, y, r, color, now, 1800, false);
+    }
+
+    /// The Vial of Cascading Dusk's dusk running out over the floor from `from` to `to` in `ms`:
+    /// a bright head and a wavering ribbon behind it, stars spilling off it.
+    fn dusk_flow(&mut self, from: (f64, f64), to: (f64, f64), ms: i32, color: u32) {
+        let (dx, dy) = (to.0 - from.0, to.1 - from.1);
+        let len = dx.hypot(dy).max(0.01);
+        let (nx, ny) = (-dy / len, dx / len);
+        let n = ((len * 10.0) as i32).max(1);
+        let phase = 2.0 * PI * self.random();
+        for i in 0..=n {
+            let f = i as f64 / n as f64;
+            let sway = (f * 3.0 * PI + phase).sin() * 0.28 * (1.0 - f * 0.6);
+            let (px, py) = (from.0 + dx * f + nx * sway, from.1 + dy * f + ny * sway);
+            let t = (f * ms as f64) as i32;
+            // the head
+            let mut head = Particle::new(px, py, 0.35, 0xFFFFFF, 160.0, 34, Motion::Plain);
+            head.delay = t;
+            self.add(head);
+            let mut glow = Particle::new(px, py, 0.3, color, 330.0, 50, Motion::Plain);
+            glow.delay = t;
+            glow.alpha = 0.8;
+            self.add(glow);
+            // the ribbon left behind it
+            let c = self.pick(&[color, DUSK_PINK, DUSK_MID]);
+            let mut p = Particle::new(px, py, 0.25, c, 150.0 + 50.0 * self.random(), 520, Motion::Spark).moving(0.0, 0.0, 0.0004);
+            p.delay = t;
+            self.add(p);
+            if i % 4 == 0 {
+                let mut s = Particle::new(px, py, 0.3, 0xFFF4FF, 70.0, 600, Motion::Spark).moving(nx * self.pm(0.6) / 1000.0, ny * self.pm(0.6) / 1000.0, 0.0012);
+                s.delay = t;
+                self.add(s);
+            }
+        }
+    }
+
     /// `ShowEffect` 41: the power `look` (pos2.y) at work.
     pub(super) fn relic(&mut self, e: &ShowEffect, world: &World, now: i32) {
         let look = e.pos2.y.round() as i32;
@@ -433,6 +590,7 @@ impl Particles {
         let color = e.color & 0xFF_FFFF;
         // (a forcefield lasts up to 20 s)
         let ms = e.duration.clamp(0, if matches!(look, look::FORCEFIELD | look::FIELD_SEEN) { 30_000 } else { 10_000 });
+        let r = if matches!(look, look::PASS_TIER | look::PASS_GILDED) { r.max(2.0) } else { r };
         let id = e.target_object_id;
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
@@ -839,6 +997,72 @@ impl Particles {
                     self.flashes.insert(id, super::Flash { start: now, color: 0xFFFFFF, period: 300, repeats: (ms / 300).max(1) });
                 }
                 self.aura(look, id, cx, cy, r, color, now, ms.max(600), true);
+            }
+            // the Vial of Cascading Dusk in flight: a glowing vial tumbling along its arc, a ribbon
+            // of dusk and falling stars behind it
+            look::DUSK_THROW => {
+                self.dusk_on = Some((id, now));
+                let from = on.unwrap_or((x - 1.0, y - 1.0));
+                self.dusk_throw(from, (x, y), ms.clamp(300, 3000), color);
+            }
+            // the Vial of Cascading Dusk splashing: a flash, the glass shattering (the vial's own
+            // splash), dusk flung out and pooling on the floor under a ring of stars, a spiral of
+            // twilight climbing out of it and mist rolling off while it bleeds them
+            look::DUSK_SPLASH => {
+                self.dusk_on = Some((id, now));
+                self.dusk_splash(x, y, r, color, e.object_type.min(2) as u8, now);
+            }
+            // the dusk running out along the floor to the next splash
+            look::PASS_TIER => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let pale = mix(color, 0xFFFFFF, 0.6);
+                self.decal(DecalKind::Ring, cx, cy, r, color, now, 520, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.6, 0xFFFFFF, now + 80, 380, None);
+                self.decal(DecalKind::Stars, cx, cy, 1.1, color, now, 1400, Some(id));
+                // the column: light streaming straight up out of the ground round them
+                for i in 0..36 {
+                    let a = 2.0 * PI * i as f64 / 36.0;
+                    let d = 0.25 + 0.35 * self.random();
+                    let c = [color, pale, 0xFFFFFF][i % 3];
+                    let mut p = Particle::new(cx + d * a.cos(), cy + d * a.sin(), 0.1, c, 110.0 + 70.0 * self.random(), 650, Motion::Spark)
+                        .moving(0.0, 0.0, 0.006 + 0.004 * self.random());
+                    p.delay = (i as i32 * 17) % 260;
+                    self.add(p);
+                }
+                // a spiral of sparks winding up and out
+                for i in 0..16 {
+                    let a = i as f64 * 0.8;
+                    let mut p = Particle::new(cx, cy, 0.2 + i as f64 * 0.12, pale, 120.0, 700, Motion::Spark)
+                        .moving(a.cos() * 0.0025, a.sin() * 0.0025, 0.002);
+                    p.delay = i * 30;
+                    self.add(p);
+                }
+                self.debris(cx, cy, 18, &[color, pale, 0xFFFFFF], 110.0, 3.0, 6.0, 800, 120);
+                self.aura(look::STARLIGHT, id, cx, cy, 0.9, color, now, 1600, true);
+            }
+            look::PASS_GILDED => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                const GOLD: u32 = 0xFFD24A;
+                const SHINE: u32 = 0xFFF4C0;
+                self.decal(DecalKind::Ring, cx, cy, r * 1.2, GOLD, now, 600, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.7, SHINE, now + 140, 450, None);
+                self.decal(DecalKind::Stars, cx, cy, 1.2, GOLD, now, 2200, Some(id));
+                // a crown of gold over their head, its points flaring
+                for i in 0..10 {
+                    let a = 2.0 * PI * i as f64 / 10.0;
+                    let mut p = Particle::new(cx, cy, 1.4, if i % 2 == 0 { SHINE } else { GOLD }, 150.0, 1500, Motion::Swirl { id, angle: a, speed: 0.06, rad: 0.45, out: 0.0, rise: 0.0 });
+                    p.fade = true;
+                    self.add(p);
+                }
+                // gold raining out of it, and coins of light thrown up
+                self.debris(cx, cy, 30, &[GOLD, SHINE, 0xE0A020], 120.0, 3.5, 8.0, 1100, 100);
+                self.puffs(cx, cy, 8, &[GOLD, SHINE], 220.0, 0.8, 1.5, 900, 60);
+                self.aura(look::OATH, id, cx, cy, 1.0, GOLD, now, 1800, true);
+            }
+            look::DUSK_FLOW => {
+                self.dusk_on = Some((id, now));
+                let a = (e.object_type as f64).to_radians();
+                self.dusk_flow((x, y), (x + r * a.cos(), y + r * a.sin()), ms.clamp(150, 2000), color);
             }
             // the Bow of the Event Horizon: a black hole tears open, swallowing light
             look::SINGULARITY => {
@@ -1264,6 +1488,24 @@ impl Particles {
                 p.alpha = 0.0;
                 self.add(p);
             }
+            // the dusk pool breathing out mist, now and then a star climbing out of it
+            look::DUSK_SPLASH => {
+                let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.75 * self.random().sqrt());
+                let (px, py) = (x + d * ang.cos(), y + d * ang.sin());
+                if self.random() < 0.22 {
+                    let mut p = Particle::new(px, py, 0.1, 0xFFF4FF, 70.0 + 50.0 * self.random(), 900, Motion::Spark).moving(0.0, 0.0, 0.0016);
+                    p.alpha = 0.9;
+                    self.add(p);
+                } else {
+                    let c = self.pick(&[a.color, DUSK_DEEP, DUSK_MID, DUSK_PINK]);
+                    let mut p = Particle::new(px, py, 0.05, c, (70.0 + 50.0 * self.random()) * left.max(0.35), 800, Motion::Plain)
+                        .moving(self.pm(0.15) / 1000.0, self.pm(0.15) / 1000.0, 0.0009);
+                    p.fade = true;
+                    p.opacity = 0.45;
+                    p.grow = 0.02;
+                    self.add(p);
+                }
+            }
             // the plague cloud bubbling
             look::CONTAGION => {
                 let (ang, d) = (2.0 * PI * self.random(), a.radius * 0.8 * self.random().sqrt());
@@ -1498,10 +1740,15 @@ impl Particles {
             look::GRAVE_FLAMES => (3.0, 0xFF60A0FF, 9000, true),
             look::GRAVE_FLAME => (1.5, 0xFF60A0FF, 0, false),
             look::VOW => (1.5, 0xFFF4E8FF, 1500, true),
+            look::DUSK_THROW => (0.0, 0xFFC060FF, 1000, false),
+            look::DUSK_SPLASH => (2.5, 0xFFC060FF, 0, false),
+            look::DUSK_FLOW => (3.5, 0xFF9A48F0, 500, false),
+            look::PASS_TIER => (3.0, 0xFF8FD0FF, 2200, true),
+            look::PASS_GILDED => (3.0, 0xFFFFD24A, 2200, true),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
-        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD | look::GRAVE_FLAME);
+        let flies = matches!(which, look::SOUL_GATHER | look::SOUL_RELEASE | look::BLOOD | look::GRAVE_FLAME | look::DUSK_THROW);
         let pos1 = if mine || !flies { bsk_proto::WorldPos { x: mx, y: my } } else { bsk_proto::WorldPos { x: mx + 2.5, y: my } };
         // (a grave-flame flies from us)
         let source_id = (which == look::GRAVE_FLAME).then_some(me.id);
@@ -1511,6 +1758,37 @@ impl Particles {
         if which == look::PENTAGRAM {
             let e = ShowEffect { pos2: bsk_proto::WorldPos { x: 3.0, y: look::ERUPTION as f32 }, ..e };
             self.delayed.push((now + 1900, e));
+        }
+        // the vial's whole cascade where it lands, timed as the server's `CascadeDusk` has it
+        if which == look::DUSK_THROW {
+            let (cx, cy) = (pos1.x, pos1.y);
+            let shades = [0xFFC060FF, 0xFF9A48F0, 0xFF6A50E0];
+            let at = |a: f32, d: f32| bsk_proto::WorldPos { x: cx + a.cos() * d, y: cy + a.sin() * d };
+            let fx = |pos1, r: f32, which: u8, color: u32, duration: i32, object_type: u16| ShowEffect {
+                effect_type: 41,
+                target_object_id: me.id,
+                pos1,
+                pos2: bsk_proto::WorldPos { x: r, y: which as f32 },
+                color,
+                duration,
+                object_type,
+                source_id: None,
+            };
+            let q = std::f32::consts::FRAC_PI_2;
+            self.delayed.push((now + 1000, fx(pos1, 2.5, look::DUSK_SPLASH, shades[0], 0, 0)));
+            for i in 0..4 {
+                let a = i as f32 * q;
+                self.delayed.push((now + 1000, fx(pos1, 3.5, look::DUSK_FLOW, shades[1], 500, (a.to_degrees().round() as i32).rem_euclid(360) as u16)));
+                self.delayed.push((now + 1500, fx(at(a, 3.5), 3.0, look::DUSK_SPLASH, shades[1], 0, 1)));
+                for side in [-0.5f32, 0.5] {
+                    let to = at(a + side * q, 6.5);
+                    let from = at(a, 3.5);
+                    let (dx, dy) = (to.x - from.x, to.y - from.y);
+                    let deg = (dy.atan2(dx).to_degrees().round() as i32).rem_euclid(360) as u16;
+                    self.delayed.push((now + 1500, fx(from, dx.hypot(dy), look::DUSK_FLOW, shades[2], 500, deg)));
+                }
+                self.delayed.push((now + 2000, fx(at(a + q / 2.0, 6.5), 3.0, look::DUSK_SPLASH, shades[2], 0, 2)));
+            }
         }
     }
 

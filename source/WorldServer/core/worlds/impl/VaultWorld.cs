@@ -44,6 +44,16 @@ namespace WorldServer.core.worlds.impl
             LeaveWorld(original);
         }
 
+        private readonly List<ClosedVaultChest> ClosedChests = new List<ClosedVaultChest>();
+
+        // the closed chests' fame price for the vault's owner, which doubles as they buy
+        public void PriceClosedChests()
+        {
+            Client.Account.Reload(Shared.database.UnlockPrices.VaultFameField);
+            foreach (var chest in ClosedChests)
+                chest.PriceFor(Client.Account);
+        }
+
         public override bool AllowedAccess(Client client) => (AccountId == client.Account.AccountId) || client.Account.Admin;
 
         // the Collection (Player.Collection.cs): a few steps west of the spawn, on the first free
@@ -143,7 +153,9 @@ namespace WorldServer.core.worlds.impl
             }
 
             foreach (var i in vaultChestPosition)
-                CreateNewEntity(0x0505, i.X + 0.5f, i.Y + 0.5f);
+                if (CreateNewEntity(0x0505, i.X + 0.5f, i.Y + 0.5f) is ClosedVaultChest closed)
+                    ClosedChests.Add(closed);
+            PriceClosedChests();
 
             PlaceCollection(spawn);
 

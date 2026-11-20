@@ -158,6 +158,7 @@ jobs:
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
           VPS_CONFIG: ${{ secrets.VPS_CONFIG }}
           DISCORD_ENV: ${{ secrets.DISCORD_ENV }}
+          PAYPAL_CONFIG: ${{ secrets.PAYPAL_CONFIG }}
         run: python deploy/ci_setup.py
       - name: The client releases just published
         if: needs.client.outputs.published == 'true'
@@ -182,4 +183,4 @@ jobs:
         run: python deploy/deploy.py --status
       - name: Forget the secrets
         if: always()
-        run: rm -rf deploy/vps.local.json deploy/discord.local.env ~/.ssh/dodmg_deploy build/vps
+        run: rm -rf deploy/vps.local.json deploy/discord.local.env deploy/paypal.local.json ~/.ssh/dodmg_deploy build/vps

@@ -350,11 +350,29 @@ ITEM_SPECS = {
         [("ConditionEffectSelf", {"effect": "Invisible", "duration": 5.5}), ("Teleport", {"maxDistance": 13})],
         [shot(0, "Sunspark", 250, 110, 700)], {}),
     "Vial of Cascading Dusk": (18, 90, 0, [("ATT", 3), ("WIS", 3)], "CascadeDusk",
-        _nb("Thrown, it splashes where it lands for 200, and 1,500 more over 6 s. The dusk spreads: four "
+        _nb("Thrown, it splashes where it lands for 400, and 3,000 more over 6 s. The dusk spreads: four "
             "splashes round it for half that, then four more beyond for half again, each a shade darker."),
         [], [], {}),
 }
 
+
+# the numbers in the tooltip (ExtraTooltipData) for gear whose ability shoots nothing: without a
+# projectile or an <Activate> with numbers, the client has no damage to show
+TOOLTIPS = {
+    "Trinity Trap": [
+        ("Lightning", "300, paralysed for 2 secs"),
+        ("Veil", "300, slowed for 4 secs"),
+        ("Rift", "200 + 450 over 3 secs"),
+        ("Radius", "3.5 sqrs (rift 4)"),
+    ],
+    "Vial of Cascading Dusk": [
+        ("Splash", "400 + 3,000 over 6 secs"),
+        ("Radius", "2.5 sqrs"),
+        ("4 round it", "200 + 1,500 over 6 secs"),
+        ("4 beyond", "100 + 750 over 6 secs"),
+        ("", "Damage over time ignores defense"),
+    ],
+}
 
 def gear_item(types, sheet, name, spec):
     slot, mp, cooldown, stats, power, text, activates, shots, extra = spec
@@ -372,6 +390,10 @@ def gear_item(types, sheet, name, spec):
         sub(e, "Cooldown", cooldown)
     for effect, attrs in activates:
         sub(e, "Activate", effect, **attrs)
+    if name in TOOLTIPS:
+        extra_data = sub(e, "ExtraTooltipData")
+        for label, text in TOOLTIPS[name]:
+            sub(extra_data, "EffectInfo", name=label, description=text)
     for k, v in extra.items():
         sub(e, k, v)
     for p in shots:

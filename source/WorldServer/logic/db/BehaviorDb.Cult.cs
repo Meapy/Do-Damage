@@ -493,7 +493,7 @@ namespace WorldServer.logic
                     ),
                 ElderLoot(0.02,
                     new ItemLoot("Ring of the Blood Pact", 0.01),
-                    new ItemLoot("Potion of Max Attack", 0.05),
+                    new ItemLoot("Potion of Max Attack", 0.025),
                     new ItemLoot("Elder Lost Halls Key", 0.01),
                     new TierLoot(14, ItemType.Weapon, 0.1),
                     new TierLoot(15, ItemType.Armor, 0.05),

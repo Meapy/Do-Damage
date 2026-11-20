@@ -12,6 +12,52 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.1 (2026-11-20)
+
+### Arena
+- Arena Season 2, Rise of the Fallen: every wave is a round from one of nearly 80 dungeons and corners of the realm, from Realm 2's bosses and the Snake Pit up to the Shatters, the Lost Halls, the Cult, the Void, Oryx and the Elder dungeons, dealt so none comes back before the rest have. Rounds can be a Horde, a Clash of two dungeons, a Boss Rush, a Legendary Throwback or a Showdown every tenth wave, and from wave 6 they may bring a twist (Elite, Swarm, Ironclad, Frenzy, Bounty, Blessing or Golden). From wave 12 an Empowered Elder boss may rise in the middle of a fight, worth 200 fame each and counted on the leaderboard.
+- A banner shows each wave's round as it begins, the box under the wave counter keeps its name, and the vote panel shows what the next fight will be.
+- The Arena Leaderboard has a tab for each season: Season 1's runs are kept as they ended, and Season 2 starts afresh, with the Empowered bosses each run slew and where it fell. `/leaderboard 1` lists Season 1. The Hall of Champions' Arena boards follow the current season.
+
+### Classes
+- The sword classes (Warrior, Knight, Paladin and Pirate) are tougher up close. They take 15% less damage from every hit, and their sword heals them 1.5% of the damage it deals, up to 40 health a second. The Paladin's healing also reaches allies within 4 tiles, and one shot in ten misses the Pirate entirely ("Lucky!"). Tiered swords now pierce, hitting everything in a line, and swords whose shots waved, looped or came back now fly straight, over the same range.
+- Each sword class's ability does more. Warrior helms make you Armored for 1 to 2 seconds, Knight shields make you Armored for 1.5 to 2.5 seconds and their shots also leave enemies Exposed (−20 defense) even when they can't be stunned, and Paladin seals heal everyone in range at once (60 at T0 up to 180 at T8). Being Armored now doubles your defense and holds against armor-piercing shots, as it always did on the server; damage numbers now show this. Stat caps: Knight Attack 60 (was 50), Paladin Vitality 60 (was 40), Pirate Life 770 (was 700) and Defense 30 (was 25).
+
+- Ascendant forcefields and Father wards now stack: standing in two forcefields, or getting a second ward while one is up, adds the weaker one at half strength, a third at a quarter, and so on (forcefields up to 90% less damage).
+
+### Dungeons
+- The Necromantic items (the untiered drop of each Empowered Elder boss) drop at: 3%
+- Empowered Malus heals much less from his blood moon ritual: each cultist soul left standing gives him back 1% of his health instead of 2.5%, so he can be beaten on your own.
+- Bosses in the Elder dungeons and the Black Between grow less with a group: each extra player adds half as much health as before, Empowered bosses there included.
+
+### Items
+- The Vial of Cascading Dusk hits twice as hard (400 where it lands and 3,000 over 6 seconds, the cascade's splashes in step) and has a new look: the vial tumbles through the air trailing dusk and stars, shatters in a flash of violet light, and its dusk runs out along the floor to each next splash, every splash leaving a pool of twilight under a ring of stars. It and the Trinity Trap now show their damage in their tooltips: each splash or stage, its radius and its damage over time.
+- The Cloak of the Planewalker and the Prism of the Bloody Surprise can no longer be used again while you're still invisible from the last use: you have to be visible for half a second first. Their tooltips say so.
+- The Necklace of Light drops half as often from Elder Limon the Sprite God.
+- Adjusted the Potions of Max drop rates, and a Potion of Max used on a maxed stat now puts 10 potions in your potion storage instead of 6.
+
+### Game
+- The daily login reward and gifts (such as this month's free Lil' Oryx) need 5 stars on your account, so fresh accounts can't be made just to collect them. Quests and achievements need none.
+- Each community goal is sized by how the realm did on that goal alone. A bonus goal is no longer made bigger because the goal it replaced was finished quickly, and a goal the realm fell short of is never harder the next time it comes up. Bonus goals already running drop back to their own size.
+
+### Gold Store
+- Gold can now be bought on the website's new Gold Store (dodmg.com/gold.html), with PayPal or a card: sign in with your game account, pick a pack ($1 buys 100 gold, and bigger packs add bonus gold: +5% at $5 up to +25% at $100) and it lands on your account the moment the payment clears, even mid-dungeon, with a message in chat. Spend it in the gold shops (`/shop elderkeys` and the others).
+- Every Elder dungeon's key is now sold only for gold, and cheaply: 10 gold for the Elder Pirate Cave and Spider Den keys up to 100 for the Elder Lost Halls, at the Nexus Bazaar's Elder key stalls or with `/shop elderkeys` (`/shop donorkeys` still works). They're no longer sold for fame, and still drop in their dungeons. The Doomed keys and incantations moved to the dungeon key stalls.
+- Character slots and vault chests can be bought with gold too, always 500 gold a slot and 250 a chest. With fame they still start at 1,000 and 500, but the fame price now doubles after every 5 you buy with fame; buying with gold doesn't raise it.
+- Items can be sold on the Marketplace for gold as well as fame: pick Fame or Gold beside the price on the Sell tab, or `/sell <slot> <price> gold`. The Market Broker keeps 10% of a sale for gold (5% for fame), and listings show which they're priced in.
+- The vault garden is twice as big, with room for 120 vault chests.
+- `/shop dyes` has every colour now: all 141 clothing and accessory dyes for 20 fame each (it had 17), and every patterned cloth, from stripes and rainbows to the Oryx cloths, for 20 gold each. They take turns at its stalls, so `/shop dyes <colour>` shows only the ones you're after, such as `/shop dyes dark blue` or `/shop dyes rainbow`.
+
+### Realm Pass
+- The Realm Pass: a new season every month, 30 tiers earned by playing as you already do (quests, the daily reward, dungeons, bosses, realms and fame), with no chores and no tier slower than the one before. Open it with Y, the new Pass button beside Quests, or the Wayfarer just north of the Nexus spawn; `/pass` tells your tier in the chat.
+- The free track rewards everyone: fame, Potions of Max, Loot Drop Potions, an Elder key, an XP booster and the season's aura at tier 30. Gild it for 1,000 gold a season for a reward at every tier: three hand-drawn skins with their own effects (the Wizard's Frostcrown Archmage, the Warrior's Winterguard and the Archer's Aurora Ranger), 300 gold back, Elder keys, Potions of Max, clovers, a character slot, a name colour and the season's grand aura. Gilding counts for the tiers you've already reached.
+- Auras are new: snow, embers or stars round your character and in your footsteps, seen by everyone. Wear them and the name colours from the pass's Looks tab.
+- Behind the season's pace, Momentum makes pass XP come 50% faster until you catch up. Past tier 30, every 1,500 XP fills a Wayfarer's Cache, and anything you reached but didn't claim is paid when the season ends.
+- While your pass is Gilded, the community goals' loot is rolled one Overdrive level luckier, and once more. A Gilded pass also lets you `/visit` and `/summon` into the same dungeon twice instead of once, and saves you once from a defeat in the Arena.
+
+### Servers
+- Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.
+
 ## 2.6.0 (2026-11-18)
 
 ### Game

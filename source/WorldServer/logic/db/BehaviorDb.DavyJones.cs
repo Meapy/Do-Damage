@@ -85,7 +85,7 @@ namespace WorldServer.logic
                     ), Elder("Davy Jones"),
                 ElderLoot(0.005, new ItemLoot("Elder Davy Key", 0.009)),
                 // the Elder dungeon's Potion of Max
-                ElderLoot(0.01, new ItemLoot("Potion of Max Wisdom", 0.05)))
+                ElderLoot(0.01, new ItemLoot("Potion of Max Wisdom", 0.025)))
             .Init(E("Ghost Lanturn Off"),
                 new State(
                     new State("default",

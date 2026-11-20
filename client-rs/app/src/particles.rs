@@ -159,6 +159,8 @@ pub struct Particles {
     pet_line: Option<(i32, u32)>,
     /// Objects' own effects (`<Effect>`), by object id.
     emitters: HashMap<i32, Emitter>,
+    /// Where players in a skin walked (`auras.rs` leaves footprints and trails there).
+    pub trails: crate::auras::Trails,
     /// On stacked floors, our height: the floor new particles are made on.
     floor: f64,
     /// Objects thrown (`ShowEffect` 16 naming an object, the islands' barman's bottle) waiting
@@ -185,6 +187,9 @@ pub struct Particles {
     /// The last ward cast (`relic`, look 33): its Father and when. The plain blast the server
     /// sends with it, for older clients, isn't drawn.
     ward_on: Option<(i32, i32)>,
+    /// The last Vial of Cascading Dusk look (`relic`, looks 43 to 45): its thrower and when. The
+    /// plain throw and bursts the server sends with them, for older clients, aren't drawn.
+    dusk_on: Option<(i32, i32)>,
     /// The Father's wards on players, by player id (`relic`, looks 34 to 37), for the shell drawn
     /// round them (`ward.rs`).
     wards: HashMap<i32, WardLook>,
@@ -285,6 +290,7 @@ impl Particles {
         self.fields.clear();
         self.wards.clear();
         self.ward_on = None;
+        self.dusk_on = None;
         self.jitter_since = None;
     }
 
@@ -423,6 +429,9 @@ impl Particles {
             return;
         }
         if e.effect_type == 5 && self.ward_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
+            return;
+        }
+        if matches!(e.effect_type, 4 | 8) && self.dusk_on.is_some_and(|(id, at)| id == e.target_object_id && (0..500).contains(&(now - at))) {
             return;
         }
         if e.effect_type == 10 {
@@ -655,6 +664,13 @@ impl Particles {
             self.relic(&e, world, now);
         }
         self.relic_update(world, now);
+        // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`)
+        for obj in world.objects.values() {
+            if obj.stat_int(76).unwrap_or(0) != 0 {
+                self.trails.walk(obj.id, obj.x, obj.y, now);
+            }
+        }
+        self.trails.prune(now);
         let dt = dt.max(0);
         let mut spawned = Vec::new();
         let mut list = std::mem::take(&mut self.list);

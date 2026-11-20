@@ -38,6 +38,7 @@ import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 import wiki_quests  # noqa: E402
 import wiki_community  # noqa: E402
+import wiki_pass  # noqa: E402
 import wiki_loot  # noqa: E402
 
 ROOT = wd.ROOT
@@ -58,11 +59,12 @@ COMMAND_HELP = {
     "guildvault": "The guild vault's log: who put in or took out what, the newest first: <code>/gvault [count]</code>.",
     "arena": "Into the Arena's next game, the one its Nexus portal leads to.",
     "gear": "Free starter gear for your class, and a couple of boosters. See below for its limits.",
-    "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame. With no name it lists the shops.",
+    "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame, and the gold shops (elderkeys for the Elder dungeons' keys). With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "warcaller": "To the Warcaller on the Nexus's Arena island, from anywhere: you arrive in front of him, ready to see the <a href=\"community-goals.html\">community goals</a> and claim their rewards.",
+    "pass": "Your <a href=\"realm-pass.html\">Realm Pass</a> in the chat: the season, your tier, the XP to the next and the time left (<kbd>Y</kbd> opens the pass itself).",
     "goals": "This week's <a href=\"community-goals.html\">community goals</a> in the chat: how far the realm has come, and your part. The Warcaller on the Nexus's Arena island shows them and pays their rewards.",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",
@@ -110,7 +112,7 @@ COMMAND_HELP = {
     "afk": "Pauses you while no monster is near (not in the Arena). Again to unpause.",
     "pause": "The same as /afk.",
     "arenas": "Lists the Arena games running now.",
-    "leaderboard": "The best Arena waves, solo runs and group runs apart.",
+    "leaderboard": "The best Arena waves of the current season, solo runs and group runs apart; <code>/leaderboard 1</code> for Season 1.",
     "gleaderboard": "The guilds with the most fame.",
     "uptime": "How long the game has been up (server updates don't stop it), and how long ago the current server took over.",
     "restartwhen": "When the world server next restarts.",
@@ -406,6 +408,7 @@ class Gen:
         self.idx = self.d.drops_index()
         self.bazaar = self.d.bazaar()
         self.key_shop = self.d.key_shop()
+        self.elder_keys = self.d.elder_keys()
         self.portals = self.d.portals()
         self.keys = self.d.keys()
         self.incant = self.d.incantations(dropped=self.idx)
@@ -623,6 +626,28 @@ class Gen:
     def gen_community_loot(self, used):
         return self.community.loot()
 
+    # --- the Realm Pass (tools/wiki_pass.py) ---------------------------------------------------------
+    @property
+    def realm_pass(self):
+        if getattr(self, "_realm_pass", None) is None:
+            self._realm_pass = wiki_pass.Pass(self)
+        return self._realm_pass
+
+    def gen_pass_seasons(self, used):
+        return self.realm_pass.seasons()
+
+    def gen_pass_tracks(self, used):
+        return self.realm_pass.tracks()
+
+    def gen_pass_xp(self, used):
+        return self.realm_pass.xp()
+
+    def gen_pass_cache(self, used):
+        return self.realm_pass.cache()
+
+    def gen_pass_looks(self, used):
+        return self.realm_pass.looks()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 
@@ -657,12 +682,14 @@ class Gen:
         return {
             **self.quests.values(),
             **self.community.values(),
+            **self.realm_pass.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
             "nexus_afk": "%g" % wd.nexus_afk_minutes(),
             "char_slots": a["char_slots"], "vault_chests": a["vault_chests"],
             "slot_cost": "%d %s" % (a["slot_cost"], a["slot_currency"]),
             "vault_chest_price": a["vault_chest_price"], "potion_stack": a["potion_stack"],
+            "unlock_doubles": a["unlock_doubles"], "slot_gold": a["slot_gold"], "vault_gold": a["vault_gold"],
             "storage_base": a["storage_base"], "storage_step": a["storage_step"], "storage_cost": a["storage_cost"],
             "gear_level": g["max_level"], "gear_max_tier": g["max_tier"],
             "gear_boosters": joined([with_article(self.d.name(b))
@@ -784,8 +811,9 @@ class Gen:
                     kd = [(m, c) for m, c in self.idx.get(k, []) if not HIDDEN_MONSTER.search(m) and c]
                     price = self.bazaar.get(k)
                     shop = self.key_shop.get(k)
-                    if kd or price or shop:
-                        keys.append((k, kd, price, shop))
+                    gold = self.elder_keys.get(k)
+                    if kd or price or shop or gold:
+                        keys.append((k, kd, price, shop, gold))
             special = []
             unlock = []
             for p in portals:
@@ -955,8 +983,10 @@ class Gen:
             rows.append(("Portal from", ", ".join(src)))
         if x["bot"]:
             rows.append(("Nexus", "The Support Bot opens it sometimes"))
-        for k, kd, price, shop in x["keys"]:
+        for k, kd, price, shop, gold in x["keys"]:
             bits = []
+            if gold:
+                bits.append("Nexus Bazaar or <code>/shop elderkeys</code>, %d gold" % gold)
             if price and shop == price[0]:
                 bits.append("Nexus Bazaar or <code>/shop keys</code>, %d fame" % shop)
             else:
@@ -986,7 +1016,7 @@ class Gen:
         pips = ('<span class="danger" style="--d:%d" role="img" aria-label="Difficulty %d of 6: %s" title="%s"></span>'
                 % (lvl, lvl, DIFFICULTY_WORDS[lvl - 1], DIFFICULTY_WORDS[lvl - 1]) if lvl else "")
         search = " ".join([x["name"], d.name(x["boss"] or "")] + [d.name(m) for m, _ in x["sources"]]
-                          + [d.name(k) for k, _, _, _ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
+                          + [d.name(k) for k, *_ in x["keys"]] + [d.name(i) for i, _ in x["loot"] + x["max"]])
         return ('<article class="dg" id="%s" data-search="%s"><header><h3>%s</h3>%s</header>'
                 '<dl>%s</dl></article>' % (ident, esc(search.lower()), esc(x["name"]), pips,
                                          "".join("<div><dt>%s</dt><dd>%s</dd></div>" % r for r in rows)))
@@ -1165,10 +1195,12 @@ class Gen:
                 how.append("%s, in %s" % (esc(d.name(item)), joined([esc(a) for a in areas])))
             if not how and x["sources"]:
                 how.append("Portal from " + joined([esc(who(d, m)) for m, _ in x["sources"]]))
-            for k, kd, price, shop in x["keys"]:
+            for k, kd, price, shop, gold in x["keys"]:
                 bits = []
                 if kd:
                     bits.append("from " + joined(["%s (%s)" % (esc(who(d, m)), pct(c)) for m, c in kd[:3]]))
+                if gold:
+                    bits.append("%d gold in the Bazaar or /shop elderkeys" % gold)
                 if price and shop == price[0]:
                     bits.append("%d fame in the Bazaar or /shop keys" % shop)
                 else:
@@ -1346,6 +1378,7 @@ TEMPLATE = """<!doctype html>
       <a href="{site}#descent">The descent</a>
       <a href="{site}#get">Get the game</a>
       <a href="{home}" aria-current="page">Wiki</a>
+      <a href="{site}gold.html">Gold</a>
       <a href="{site}changelog.html">Changelog</a>
       <a href="https://discord.gg/FVhqJe8CG">Discord</a>
     </nav>

@@ -610,7 +610,7 @@ namespace WorldServer.logic
                     ),
                     ElderLoot(0.03,
                         new ItemLoot("Lodestone of the Halls", 0.01),
-                        new ItemLoot("Potion of Max Defense", 0.05),
+                        new ItemLoot("Potion of Max Defense", 0.025),
                         new ItemLoot("Elder Lost Halls Key", 0.01),
                         new TierLoot(14, ItemType.Weapon, 0.1),
                         new TierLoot(15, ItemType.Armor, 0.05),

@@ -131,7 +131,7 @@ the gaps between NewTicks. Its flags:
 |---|---|
 | `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character (a new Wizard if none) |
 | `--stay` | With `--credentials`: stop at the character list |
-| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis) or `sprites-item:<item id>` |
+| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis), `sprites-item:<item id>` or `class:0x<type>` (a class's page) |
 | `--no-update` | Don't look for or install updates |
 | `--bench` | No vsync or frame cap, and every 2 s the frame rate, CPU time by section and draw calls in the log (measure a release build) |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit |
@@ -142,8 +142,9 @@ the gaps between NewTicks. Its flags:
 | `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`, `Vault` in a vault, `ScryingGlass`...) |
 | `--chat <channel>[:text]` | Open the chat box on `all`, `local`, `guild` or `party`, with the text typed in |
 | `--quests <tab>` | Open the quest log at `daily`, `weekly`, `monthly`, `login`, `achievements` or `customize` |
+| `--pass <tab>` | Open the Realm Pass at `rewards`, `earn` or `looks` |
 | `--options <tab>` | Open Options at `controls`, `gameplay`, `graphics`, `visuals`, `crosshair`, `sound` or `language` |
-| `--effect <type>` | Show that `ShowEffect` type on you every half second (101 and up: the Necromantic, Ascendant and Father looks, `relic::look`, 133 to 138 the ward's; 140 to 148: the halos' forcefields, tier 0 to 8; 2xx: look xx, for the looks from 39 on) |
+| `--effect <type>` | Show that `ShowEffect` type on you every half second (101 and up: the Necromantic, Ascendant and Father looks, `relic::look`, 133 to 138 the ward's; 140 to 148: the halos' forcefields, tier 0 to 8; 2xx: look xx, for the looks from 39 on; 243 plays the Vial of Cascading Dusk's whole cascade) |
 | `--type <text>` | Type into the first NPC prompt, the guild board, the forge's or vault's search, the Marketplace's price or the Scrying Glass's chat |
 | `--lang <code>` | Use that language for this run |
 | `--size WxH` | Open the window at this size (physical pixels) |

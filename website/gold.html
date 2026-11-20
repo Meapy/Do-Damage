@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gold Store: {{NAME}}</title>
+  <meta name="description" content="Buy gold for your {{NAME}} account with PayPal. It lands on your account at once, in game too.">
+  <meta name="theme-color" content="#0c0915">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css?v={{BUILD}}">
+</head>
+<body class="sub-page">
+  <header class="bar">
+    <a class="logo" href="./"><i class="sprite" data-sprite="crown" data-px="2"></i><span>{{NAME}}</span></a>
+    <nav class="links">
+      <a href="./#descent">The descent</a>
+      <a href="./#realm">The realm</a>
+      <a href="./#get">Get the game</a>
+      <a href="wiki/">Wiki</a>
+      <a href="gold.html" aria-current="page">Gold</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="https://discord.gg/FVhqJe8CG">Discord</a>
+    </nav>
+    <a class="bar-link" href="wiki/">Wiki</a>
+    <a class="pill-play" href="play/">Play now</a>
+  </header>
+
+  <main class="block page gold-page">
+    <header class="block-head gold-head">
+      <p class="eyebrow">Gold Store</p>
+      <h1><i class="sprite" data-sprite="coins" data-px="4"></i>Fill your coffers</h1>
+      <p class="sub">Gold buys character slots (500 each) and vault chests (250 each), every Elder dungeon's key (10 to 100 gold, at the Nexus Bazaar or <code>/shop elderkeys</code>),
+        items other players sell for gold on the Marketplace, and the other gold shops (<code>/shop donor</code>, <code>/shop donorpets</code>), and keeps the server running. Pay with PayPal or a card; the gold lands on your account
+        the moment the payment clears, even mid-dungeon.</p>
+    </header>
+
+    <p class="gold-banner" id="gold-sandbox" hidden>Test mode: payments go to PayPal's sandbox, no real money moves.</p>
+    <p class="gold-banner gold-closed" id="gold-closed" hidden>The gold store is closed for now. Check back soon, or ask on Discord.</p>
+
+    <section class="gold-steps" id="gold-app" aria-live="polite">
+      <!-- 1. who's buying -->
+      <article class="gold-card" id="step-account">
+        <h2 class="gold-step"><span>1</span>Your account</h2>
+        <form id="signin" class="gold-form" autocomplete="on">
+          <label>Name or email<input name="guid" autocomplete="username" required maxlength="128"></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
+          <button class="btn btn-ember" type="submit"><i class="sprite" data-sprite="sword" data-px="2"></i>Sign in</button>
+          <p class="gold-error" id="signin-error" role="alert"></p>
+          <p class="dim gold-note">The same name and password as in the game. They go only to the game's own server; PayPal never sees them.</p>
+        </form>
+        <div id="who" class="gold-who" hidden>
+          <div>
+            <p class="dim">Buying for</p>
+            <p class="gold-name" id="who-name"></p>
+          </div>
+          <div class="gold-balance">
+            <p class="dim">Gold now</p>
+            <p class="gold-amount"><i class="sprite" data-sprite="coin" data-px="2"></i><span id="who-gold">0</span></p>
+          </div>
+          <button class="btn btn-ghost gold-switch" type="button" id="signout">Not you?</button>
+        </div>
+      </article>
+
+      <!-- 2. the pack -->
+      <article class="gold-card" id="step-pack">
+        <h2 class="gold-step"><span>2</span>Choose your gold</h2>
+        <div class="gold-packs" id="packs" role="radiogroup" aria-label="Gold packs"></div>
+      </article>
+
+      <!-- 3. paying -->
+      <article class="gold-card" id="step-pay">
+        <h2 class="gold-step"><span>3</span>Pay</h2>
+        <div class="gold-summary" id="summary"><p class="dim">Sign in and choose a pack.</p></div>
+        <div id="paypal-buttons" class="gold-paypal"></div>
+        <p class="gold-error" id="pay-error" role="alert"></p>
+        <p class="dim gold-note">Payments are handled by PayPal: we never see your card or bank details. Gold is a digital item
+          delivered at once, so it can't be returned once paid in.</p>
+      </article>
+    </section>
+
+    <section class="gold-history" id="history" hidden>
+      <h2>Your purchases</h2>
+      <table class="gold-table">
+        <thead><tr><th>Date</th><th>Gold</th><th>Paid</th><th>Status</th><th>Order</th></tr></thead>
+        <tbody id="history-rows"></tbody>
+      </table>
+    </section>
+
+    <section class="faq gold-faq">
+      <details><summary>When does the gold arrive?</summary><p>As soon as PayPal says the payment is complete, usually a second
+        after you pay. If you're in game you'll see a gold <b>+N Gold</b> over your character and a message in chat. A payment
+        PayPal holds back (a bank transfer, a review) is paid in by itself when it clears.</p></details>
+      <details><summary>I closed the page before it said thank you</summary><p>Your gold still arrives: PayPal tells the server
+        about every payment by itself. Sign in here again to see it under Your purchases.</p></details>
+      <details><summary>What can I buy with gold?</summary><p>Character slots for 500 gold each and vault chests for 250 each, always the same price (with fame
+        they double after every 5). Every Elder dungeon's key, sold only for gold, 10 to 100 each, at the Nexus Bazaar's Elder key stalls or <code>/shop elderkeys</code>.
+        Items players list for gold on the Marketplace. The other gold shops are <code>/shop donor</code>, <code>/shop donorpets</code> and <code>/shop america</code>. Everything else sells
+        for fame, which you earn by playing.</p></details>
+      <details><summary>Something went wrong</summary><p>Ask on <a href="https://discord.gg/FVhqJe8CG">Discord</a> with the order id
+        from your PayPal receipt or from Your purchases. A refunded or charged-back payment takes its gold back.</p></details>
+    </section>
+
+    <div class="gold-done" id="done" hidden role="dialog" aria-modal="true" aria-labelledby="done-title">
+      <canvas id="done-coins" aria-hidden="true"></canvas>
+      <div class="gold-done-card">
+        <i class="sprite" data-sprite="coins" data-px="6"></i>
+        <h2 id="done-title">+<span id="done-gold">0</span> gold</h2>
+        <p id="done-text">Thank you! It's on your account now.</p>
+        <p class="gold-amount big"><i class="sprite" data-sprite="coin" data-px="3"></i><span id="done-balance">0</span></p>
+        <div class="gold-done-actions">
+          <a class="btn btn-ember" href="play/"><i class="sprite" data-sprite="sword" data-px="2"></i>Play now</a>
+          <button class="btn btn-ghost" type="button" id="done-close">Buy more</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p><span class="mono">{{NAME}} {{VERSION}}</span> · <a href="play/">Play</a> · <a href="./">Home</a> · <a href="https://github.com/Meapy/Do-Damage">Source code</a></p>
+    <p class="dim">A fan-made private server, not affiliated with DECA Games or Kabam. Realm of the Mad God is a trademark of its owners.</p>
+  </footer>
+
+  <script src="site.js?v={{BUILD}}"></script>
+  <script src="gold.js?v={{BUILD}}"></script>
+</body>
+</html>

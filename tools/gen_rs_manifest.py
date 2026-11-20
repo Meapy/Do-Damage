@@ -111,6 +111,8 @@ RS_ONLY_SETS = [
 ]
 # (name, file, frame width, frame height, sheet width, sheet height, direction): characters
 RS_ONLY_CHARS = [
+    # the Realm Pass's skins (tools/draw_pass_skins.py)
+    ("passSkins16", "kabam/rotmg/assets/custom/images/PassSkins16x16.png", 16, 16, 112, 48, "right"),
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
@@ -155,7 +157,8 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
-                      "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml"]
+                      "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/PassSkins.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

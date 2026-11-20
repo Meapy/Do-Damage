@@ -24,6 +24,11 @@ namespace WorldServer.networking.packets.outgoing.market
         // What the account's next listing slot costs in fame, 0 when it has them all: last, so
         // older clients, which stop before it, are unaffected.
         public int SlotPrice;
+        // For a client that knows listings in gold (MarketBrowse said so), after the rest: the tax
+        // on a sale for gold, then each listing's and each history line's currency (0 gold, 1
+        // fame), in the order they came.
+        public bool KnowsGold;
+        public byte GoldTax;
 
         public override void Write(NetworkWriter wtr)
         {
@@ -64,7 +69,19 @@ namespace WorldServer.networking.packets.outgoing.market
                 wtr.Write(h.Time);
             }
             wtr.Write(SlotPrice);
+            if (!KnowsGold)
+                return;
+            wtr.Write(GoldTax);
+            wtr.Write((short)(Unchanged ? 0 : Listings.Length));
+            if (!Unchanged)
+                foreach (var l in Listings)
+                    wtr.Write(Currency(l.Currency));
+            wtr.Write((short)History.Length);
+            foreach (var h in History)
+                wtr.Write(Currency(h.Currency));
         }
+
+        private static byte Currency(Shared.resources.CurrencyType c) => (byte)(c == Shared.resources.CurrencyType.Gold ? 0 : 1);
 
         // The stack's count (0 for a single item) and the three imprints.
         private static void WriteData(NetworkWriter wtr, string json)
@@ -85,7 +102,8 @@ namespace WorldServer.networking.packets.outgoing.market
         private static byte Kind(string kind) => kind switch { "listed" => 1, "sold" => 2, "bought" => 3, "cancelled" => 4, "expired" => 5, _ => 0 };
     }
 
-    // How a Marketplace action went (MARKET_RESULT): what to tell the player, and their fame now.
+    // How a Marketplace action went (MARKET_RESULT): what to tell the player, and their fame now,
+    // then their gold (an older client stops before it).
     public class MarketResult : OutgoingMessage
     {
         public override MessageId MessageId => MessageId.MARKET_RESULT;
@@ -93,12 +111,14 @@ namespace WorldServer.networking.packets.outgoing.market
         public bool Ok;
         public string Message;
         public int Fame;
+        public int Gold;
 
         public override void Write(NetworkWriter wtr)
         {
             wtr.Write(Ok);
             wtr.WriteUTF16(Message ?? "");
             wtr.Write(Fame);
+            wtr.Write(Gold);
         }
     }
 }

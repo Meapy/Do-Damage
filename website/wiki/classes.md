@@ -32,17 +32,44 @@ Blademaster's jacket reach 6 tiles at T0 and half a tile further every other tie
 already reached further, such as many untiered seals and tomes, keep their range. Each item's
 card on its gear page gives its range.
 
+**The sword classes: Frontline.** The Warrior, Knight, Paladin and Pirate fight a few tiles from
+what they're hitting, so they share a passive, **Frontline**:
+
+- They take **15% less damage** from every hit, after defense (and after an Ascendant's
+  forcefield), including damaging ground.
+- Their sword **heals them 1.5%** of the damage it deals, at most 40 health a second, shown over
+  them about once a second. Being Sick stops it.
+- A **Paladin's** sword heals every ally within 4 tiles as much as it heals him.
+- A **Pirate** has a 1 in 10 chance that a shot misses him entirely: no damage and none of its
+  effects, and "Lucky!" over his head.
+
+Tiered swords **pierce**, hitting every enemy in a line, and every sword flies straight (some
+untiered ones used to wave, loop round the player or come back), over the same range as before.
+Their abilities each add something: **Warrior helms** make you Armored for 1 second (T0–T2),
+1.5 (T3–T5) or 2 (T6–T8 and the Enthroned Helm); **Knight shields** make you Armored for 1.5,
+2 or 2.5 seconds, and their shots leave enemies **Exposed** (20 defense off) for 3 seconds as well
+as stunning them, so a shield still helps against a boss that can't be stunned; **Paladin
+seals** heal everyone in their range at once, 60 at T0 up to 180 at T8 (15 more each tier),
+raised by wisdom like a tome's heal. **Armored** doubles your defense, and armor-piercing shots
+don't get through it.
+
 The **newer classes** (Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademaster, King,
 Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own: turrets, summons, halos, pearls and more. A Summoner can keep up to six summons out at a time; they're drawn small (the Dragon and Oryx about a player's size) so they don't hide what you're fighting. Where a class's own kind of item has no tiers,
 `/gear` leaves that slot alone.
+
+**The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
+player standing in it takes a share less damage from each hit. Standing in several at once stacks
+them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%
+fields take 15% off and three 17%, up to 90% at most.
 
 **The Father's ward.** The Father swings a **censer** (Tin Censer at T0 up to the Censer of the
 Last Rite at T8, every tier forged from two of the one below). Its smoke hardens into a grey
 **ward** over him and every ally within its range: a shield of so many points, shown in grey on
 the HP bar and as a shell of steel plates round the player, that takes the damage of every hit
 (after defense) before health does. It lasts until it's spent, when it breaks, or until its time
-is up. Wisdom adds to it as it does to a tome's heal. A new ward over one still up keeps the
-stronger and starts its time again; a censer can be swung once every 4 seconds. Damage over time,
+is up. Wisdom adds to it as it does to a tome's heal. A new ward over one still up stacks on it
+at half strength: two wards of 170 give 255, three 297 (the strongest counts in full, each other at
+half the one before), never less than the new ward alone, and it lasts as long as the newest; a censer can be swung once every 4 seconds. Damage over time,
 such as bleeding, goes straight through it. When a ward from the Censer of the Last Rite breaks,
 its shards burst out and hit every enemy within 3 tiles for 400.
 

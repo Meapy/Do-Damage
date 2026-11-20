@@ -163,7 +163,7 @@ namespace WorldServer.logic
                 ElderLoot(0.01,
                     new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
-                    new ItemLoot("Potion of Max Life", 0.01),
+                    new ItemLoot("Potion of Max Life", 0.005),
                     new ItemLoot("Angel's Hope", 0.01),
                     new ItemLoot("Large Egyptian Cloth", 0.5),
                     new ItemLoot("Small Egyptian Cloth", 0.5)
@@ -301,7 +301,7 @@ namespace WorldServer.logic
                 ElderLoot(0.01,
                     new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
-                    new ItemLoot("Potion of Max Life", 0.01),
+                    new ItemLoot("Potion of Max Life", 0.005),
                     new ItemLoot("Wings of Natural Bloodlust", 0.01),
                     new ItemLoot("Large Egyptian Cloth", 0.5),
                     new ItemLoot("Small Egyptian Cloth", 0.5)
@@ -514,7 +514,7 @@ namespace WorldServer.logic
                 ElderLoot(0.01,
                     new ItemLoot("Potion of Mana", 0.5),
                     new ItemLoot("Jade Beetle", 0.009),
-                    new ItemLoot("Potion of Max Life", 0.01),
+                    new ItemLoot("Potion of Max Life", 0.005),
                     new ItemLoot("Raw Hope", 0.01),
                     new ItemLoot("Large Egyptian Cloth", 0.01),
                     new ItemLoot("Small Egyptian Cloth", 0.01)

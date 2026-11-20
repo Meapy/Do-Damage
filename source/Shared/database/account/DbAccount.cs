@@ -53,6 +53,10 @@ namespace Shared.database.account
         public int MarketSlots => GetValue<int>("marketSlots");
         public void StoredMarketSlots(int slots) => SetStored("marketSlots", slots);
         public int MaxCharSlot { get => GetValue<int>("maxCharSlot"); set => SetValue("maxCharSlot", value); }
+        // character slots and vault chests bought with fame (UnlockPrices): only the purchases'
+        // transactions write them, so they're kept as Redis holds them rather than set and flushed.
+        public int CharSlotsFame => GetValue<int>(UnlockPrices.SlotsFameField);
+        public int VaultChestsFame => GetValue<int>(UnlockPrices.VaultFameField);
         public string Name { get => GetValue<string>("name"); set => SetValue("name", value); }
         public bool NameChosen { get => GetValue<bool>("nameChosen"); set => SetValue("nameChosen", value); }
         public int NextCharId { get => GetValue<int>("nextCharId"); set => SetValue("nextCharId", value); }
@@ -77,6 +81,9 @@ namespace Shared.database.account
         public int[] ForgeShards { get => GetValue<int[]>("forgeShards") ?? new int[0]; set => SetValue("forgeShards", value); }
         // quests, daily login rewards and achievements (Shared.quests.QuestState, as JSON)
         public string Progress { get => GetValue<string>("progress"); set => SetValue("progress", value); }
+        // the Realm Pass: this season's XP and claims, and the auras and name colours owned
+        // (Shared.pass.PassState, as JSON)
+        public string Pass { get => GetValue<string>("pass"); set => SetValue("pass", value); }
         // the Discord account linked to this one (DiscordLinks, which writes them): its id and its
         // name when it was linked; null when there's none
         public string DiscordId => GetValue<string>("discordId");

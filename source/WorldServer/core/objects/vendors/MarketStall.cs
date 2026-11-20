@@ -6,8 +6,8 @@ using WorldServer.networking.packets.outgoing;
 
 namespace WorldServer.core.objects.vendors
 {
-    // A stall of the Nexus's market square showing one player's Marketplace listing, as a merchant
-    // shows its item: walking up to it and buying is a Marketplace purchase (Marketplace.Buy), so
+    // A stall of the Nexus's market square showing one player's Marketplace listing (in fame or
+    // gold), as a merchant shows its item: walking up to it and buying is a Marketplace purchase (Marketplace.Buy), so
     // every client can buy from the stalls, an old one too. MarketStalls picks what each shows.
     public sealed class MarketStall : SellableObject
     {
@@ -36,6 +36,7 @@ namespace WorldServer.core.objects.vendors
             ListingId = listing.Id;
             _type.SetValue(listing.ItemType);
             Price = listing.Price;
+            Currency = listing.Currency == CurrencyType.Gold ? CurrencyType.Gold : CurrencyType.Fame;
             _minsLeft.SetValue(System.Math.Max(1, (listing.TimeLeft - now) / 60));
         }
 

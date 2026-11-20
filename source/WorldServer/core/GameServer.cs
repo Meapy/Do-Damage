@@ -33,6 +33,7 @@ namespace WorldServer.core
         public Database Database { get; private set; }
         public MarketSweeper MarketSweeper { get; private set; }
         public core.market.Marketplace Marketplace { get; private set; }
+        public GoldNews GoldNews { get; private set; }
         public ConnectionManager ConnectionManager { get; private set; }
         public ConnectionListener ConnectionListener { get; private set; }
         public ChatManager ChatManager { get; private set; }
@@ -74,6 +75,7 @@ namespace WorldServer.core
             DamageEvent = new DamageEvent(Configuration.serverSettings, Resources.GameData);
             Database = new Database(Resources, Configuration);
             Marketplace = new core.market.Marketplace(this);
+            GoldNews = new GoldNews(this);
             MarketSweeper = new MarketSweeper(Marketplace);
             ConnectionManager = new ConnectionManager(this);
             ConnectionListener = new ConnectionListener(this);
@@ -131,7 +133,10 @@ namespace WorldServer.core
             RemoteVisits = new RemoteVisits(this);
             ChatManager.Initialize();
             Marketplace.Init();
+            GoldNews.Init();
             WeeklyStats.Start(Database.Conn);
+            // the Arena season this server plays has begun, if it hadn't (its leaderboard's dates)
+            Shared.database.leaderboard.ArenaSeasons.Begin(Database.Conn);
             community.CommunityGoals.Start(this);
             ConnectionListener.Initialize();
             MarketSweeper.Start();

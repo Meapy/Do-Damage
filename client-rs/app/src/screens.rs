@@ -176,6 +176,8 @@ enum Target {
     Delete(i32),
     ConfirmYes,
     ConfirmNo,
+    /// The confirmation's other yes: pay with gold (a character slot).
+    ConfirmGold,
     NewChar,
     Class(u16),
     Skin(u16),
@@ -229,7 +231,8 @@ pub enum Action {
     Create(u16, u16),
     Delete(i32),
     Logout,
-    BuySlot,
+    /// Buy a character slot, with gold (true) or fame.
+    BuySlot(bool),
     BuySkin(u16),
     ChangePassword,
     /// Ask for the legends of this time span.
@@ -413,6 +416,8 @@ pub struct SkinInfo<'a> {
     pub needs_level: Option<i32>,
     /// Only given out (`<UnlockSpecial>`), never sold.
     pub special: bool,
+    /// A Realm Pass season's skin (`<PassSkin>`): only the pass gives it.
+    pub pass: bool,
     pub cost: i32,
 }
 
@@ -431,6 +436,7 @@ pub fn class_skins<'a>(data: &'a bsk_data::GameData, class: u16, list: &CharList
                 owned: list.owned_skins.contains(&d.object_type),
                 needs_level: (level > best).then_some(level),
                 special: d.xml.has("UnlockSpecial"),
+                pass: d.xml.has("PassSkin"),
                 // SkinDesc: 300 gold unless the skin says.
                 cost: d.xml.int("Cost", 300),
             }
@@ -709,6 +715,11 @@ impl Front {
             Target::Delete(id) => self.confirm = Some(Confirm::Delete(id)),
             Target::ConfirmYes => return self.confirmed(),
             Target::ConfirmNo => self.confirm = None,
+            Target::ConfirmGold => {
+                if self.confirm.take() == Some(Confirm::BuySlot) {
+                    return Some(Action::BuySlot(true));
+                }
+            }
             Target::NewChar => self.show(Screen::NewChar),
             Target::Class(t) => {
                 self.skin = 0;
@@ -794,7 +805,7 @@ impl Front {
     fn confirmed(&mut self) -> Option<Action> {
         match self.confirm.take()? {
             Confirm::Delete(id) => Some(Action::Delete(id)),
-            Confirm::BuySlot => Some(Action::BuySlot),
+            Confirm::BuySlot => Some(Action::BuySlot(false)),
             Confirm::BuySkin(t) => Some(Action::BuySkin(t)),
             Confirm::Unlink => Some(Action::DiscordUnlink),
         }
@@ -1244,10 +1255,17 @@ impl Front {
             let label = tr(label);
             let lw = ui.measure(label, size, true);
             ui.label(label, r[0] + (r[2] - lw) / 2.0, r[1] + r[3] / 2.0 - size * 1.25, size, true, if over { color::ACCENT_HI } else { color::TEXT });
-            let cost = if fame { tf!("{price} fame", price) } else { tf!("{price} gold", price) };
+            let gold = list.next_slot_gold;
+            let cost = if fame && gold > 0 {
+                tf!("{fame} fame or {gold} gold", fame = price, gold)
+            } else if fame {
+                tf!("{price} fame", price)
+            } else {
+                tf!("{price} gold", price)
+            };
             let cs = (15.0 * s).round();
             let cw = ui.measure(&cost, cs, true);
-            let afford = if fame { list.fame >= price } else { list.credits >= price };
+            let afford = if fame { list.fame >= price || gold > 0 && list.credits >= gold } else { list.credits >= price };
             ui.label(&cost, r[0] + (r[2] - cw) / 2.0, r[1] + r[3] / 2.0 + 4.0 * s, cs, true, if afford { color::ACCENT } else { color::DANGER });
             self.targets.push((Target::BuySlot, r));
         }
@@ -1449,6 +1467,12 @@ impl Front {
                     .unwrap_or_else(|| tr("this character").into());
                 (tf!("Delete {what}?", what), tr("Its items and fame are gone for good.").to_owned(), tr("Delete"), Kind::Danger)
             }
+            Confirm::BuySlot if list.next_slot_currency == 1 && list.next_slot_gold > 0 => (
+                tr("Buy a character slot?").to_owned(),
+                tf!("You have {fame} fame and {gold} gold. The fame price doubles every 5 slots bought with fame.", fame = list.fame, gold = list.credits),
+                tr("Buy"),
+                Kind::Primary,
+            ),
             Confirm::BuySlot => {
                 let price = list.next_slot_price;
                 let title = if list.next_slot_currency == 1 { tf!("Buy a character slot for {price} fame?", price) } else { tf!("Buy a character slot for {price} gold?", price) };
@@ -1477,6 +1501,19 @@ impl Front {
         ui.label(&title, r[0] + 26.0 * s, r[1] + 24.0 * s, tsize, true, color::TEXT);
         ui.label(&detail, r[0] + 26.0 * s, r[1] + 58.0 * s, (14.0 * s).round(), false, color::TEXT_DIM);
         let by = r[1] + r[3] - 62.0 * s;
+        if confirm == Confirm::BuySlot && list.next_slot_currency == 1 && list.next_slot_gold > 0 {
+            // a character slot: for fame (doubling) or for gold, each button its price
+            let fame = tf!("{price} fame", price = list.next_slot_price);
+            let gold = tf!("{price} gold", price = list.next_slot_gold);
+            let bw = ((r[2] - 52.0 * s - 24.0 * s) / 3.0).min(150.0 * s);
+            let x = |i: f32| r[0] + r[2] - 26.0 * s - (3.0 - i) * bw - (2.0 - i) * 12.0 * s;
+            self.button(ui, Target::ConfirmNo, [x(0.0), by, bw, 40.0 * s], tr("Cancel"), Kind::Secondary, s, mouse);
+            let fame_kind = if list.fame >= list.next_slot_price { Kind::Primary } else { Kind::Secondary };
+            let gold_kind = if list.credits >= list.next_slot_gold { Kind::Primary } else { Kind::Secondary };
+            self.button(ui, Target::ConfirmYes, [x(1.0), by, bw, 40.0 * s], &fame, fame_kind, s, mouse);
+            self.button(ui, Target::ConfirmGold, [x(2.0), by, bw, 40.0 * s], &gold, gold_kind, s, mouse);
+            return;
+        }
         self.button(ui, Target::ConfirmNo, [r[0] + r[2] - 290.0 * s, by, 128.0 * s, 40.0 * s], tr("Cancel"), Kind::Secondary, s, mouse);
         self.button(ui, Target::ConfirmYes, [r[0] + r[2] - 152.0 * s, by, 128.0 * s, 40.0 * s], yes, kind, s, mouse);
     }
@@ -1493,44 +1530,71 @@ impl Front {
         let ts = (28.0 * s).round();
         ui.label(&desc.display_id, left[0] + 22.0 * s, left[1] + 18.0 * s, ts, true, color::TEXT);
         let shown = if self.skin != 0 { ui.data.objects.get(&self.skin).unwrap_or(desc) } else { desc };
-        let well = [left[0] + 22.0 * s, left[1] + 64.0 * s, left[2] - 44.0 * s, left[2] - 44.0 * s];
+        let size = (13.0 * s).round();
+        let (best_level, best_fame) = list.class_stats.get(&class).copied().unwrap_or((0, 0));
+        let next_goal = stars::next_star_fame(best_fame, 0);
+        // The description, then a sword class's passive (the server's `Player.Frontline`), each
+        // line wrapped on its own (an empty one is a gap between paragraphs); `None` a half gap.
+        let width = left[2] - 44.0 * s;
+        let mut text: Vec<Option<(String, u32)>> = Vec::new();
+        let wrap = |ui: &mut Ui, para: &str, colour: u32, text: &mut Vec<Option<(String, u32)>>| {
+            let mut line = String::new();
+            for word in para.split_ascii_whitespace() {
+                let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
+                if ui.measure(&next, size, false) > width && !line.is_empty() {
+                    text.push(Some((std::mem::replace(&mut line, word.to_owned()), colour)));
+                } else {
+                    line = next;
+                }
+            }
+            text.push(Some((line, colour)));
+        };
+        if let Some(d) = desc.xml.lines_of("Description") {
+            for para in d.lines() {
+                wrap(ui, para, color::TEXT_DIM, &mut text);
+            }
+        }
+        if bsk_world::combat::frontline_class(ui.data, class) {
+            text.push(None);
+            wrap(ui, tr("Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
+            if desc.id == "Paladin" {
+                wrap(ui, tr("The Paladin's healing also reaches allies within 4 tiles."), color::TEXT, &mut text);
+            } else if desc.id == "Pirate (Doomed)" {
+                wrap(ui, tr("Pirate's luck: one shot in ten misses him entirely."), color::TEXT, &mut text);
+            }
+        }
+        let text_h: f32 = text.iter().map(|l| if l.is_some() { size * 1.3 } else { size * 0.5 }).sum();
+        // The portrait's well, square, smaller when the text needs the room above Create.
+        let goal_h = if next_goal.is_some() { 18.0 * s } else { 0.0 };
+        let room = left[1] + left[3] - 70.0 * s - (left[1] + 64.0 * s + 42.0 * s + 40.0 * s + goal_h + 12.0 * s) - text_h;
+        let side = room.clamp(110.0 * s, left[2] - 44.0 * s);
+        let well = [left[0] + 22.0 * s + (left[2] - 44.0 * s - side) / 2.0, left[1] + 64.0 * s, side, side];
         theme::rounded(ui.renderer, well, 10.0 * s, (color::FIELD, 0.9), (color::INSET_TOP, 0.9));
-        portrait(ui, shown, 0, 0, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 3.0);
+        portrait(ui, shown, 0, 0, well[0] + well[2] / 2.0, well[1] + well[3] / 2.0, s * 3.0 * (side / (left[2] - 44.0 * s)));
         let skin_name = if self.skin != 0 { shown.display_id.clone() } else { tr("Classic").to_owned() };
         let ss = (16.0 * s).round();
         let sw = ui.measure(&skin_name, ss, true);
         ui.label(&skin_name, well[0] + (well[2] - sw) / 2.0, well[1] + well[3] + 10.0 * s, ss, true, color::ACCENT);
         // The class quests (`ClassToolTip`): those done, the bests, and the next goal.
-        let (best_level, best_fame) = list.class_stats.get(&class).copied().unwrap_or((0, 0));
         let done = stars::num_stars(best_fame);
         let qy = well[1] + well[3] + 42.0 * s;
         stars::row(ui.renderer, left[0] + 22.0 * s, qy + 8.0 * s, s, done);
-        let size = (13.0 * s).round();
         let qx = left[0] + 22.0 * s + stars::row_width(s) + 10.0 * s;
         ui.label(&tf!("{done} of {all} Class Quests", done, all = stars::STARS.len()), qx, qy, size, true, color::TEXT);
         ui.label(&tf!("Best level {best_level}, best fame {best_fame}", best_level, best_fame), left[0] + 22.0 * s, qy + 22.0 * s, size, false, 0x5EB531);
         let mut dy = qy + 40.0 * s;
-        if let Some(next) = stars::next_star_fame(best_fame, 0) {
+        if let Some(next) = next_goal {
             ui.label(&tf!("Next goal: earn {next} fame with a {class}", next, class = desc.display_id), left[0] + 22.0 * s, dy, size, false, 0xFC8642);
             dy += 18.0 * s;
         }
-        if let Some(d) = desc.xml.lines_of("Description") {
-            let mut y = dy + 12.0 * s;
-            // Each of its lines wrapped on its own; an empty one is a gap between paragraphs.
-            for para in d.lines() {
-                let mut line = String::new();
-                for word in para.split_ascii_whitespace() {
-                    let next = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
-                    if ui.measure(&next, size, false) > left[2] - 44.0 * s && !line.is_empty() {
-                        ui.label(&line, left[0] + 22.0 * s, y, size, false, color::TEXT_DIM);
-                        y += size * 1.3;
-                        line = word.to_owned();
-                    } else {
-                        line = next;
-                    }
+        let mut y = dy + 12.0 * s;
+        for line in &text {
+            match line {
+                Some((line, colour)) => {
+                    ui.label(line, left[0] + 22.0 * s, y, size, false, *colour);
+                    y += size * 1.3;
                 }
-                ui.label(&line, left[0] + 22.0 * s, y, size, false, color::TEXT_DIM);
-                y += size * 1.3;
+                None => y += size * 0.5,
             }
         }
         self.button(ui, Target::Create, [left[0] + 22.0 * s, left[1] + left[3] - 62.0 * s, left[2] - 44.0 * s, 44.0 * s], tr("Create character"), Kind::Primary, s, mouse);
@@ -1551,6 +1615,8 @@ impl Front {
                 None
             } else if let Some(level) = k.needs_level {
                 Some(tf!("Level {level}", level))
+            } else if k.pass {
+                Some(tr("Realm Pass").to_owned())
             } else if k.special {
                 Some(tr("Special").to_owned())
             } else {

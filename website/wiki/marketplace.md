@@ -3,10 +3,11 @@ title: Marketplace
 nav: 7
 sprite: chest
 eyebrow: Players selling to players
-summary: The Marketplace in the Nexus: listing items from your inventory or vault for fame, browsing and buying, the market square's stalls, the tax and limits, and your box and history.
+summary: The Marketplace in the Nexus: listing items from your inventory or vault for fame or gold, browsing and buying, the market square's stalls, the taxes and limits, and your box and history.
 ---
-The **Marketplace** is where players sell items to each other for fame. You list an item at your
-price; anyone can buy it, even while you're offline, and the fame is yours the moment it sells.
+The **Marketplace** is where players sell items to each other for fame or gold. You list an item
+at your price; anyone can buy it, even while you're offline, and the fame (or gold) is yours the
+moment it sells.
 
 ## Finding it
 
@@ -31,8 +32,9 @@ The window's **Browse** tab lists everything for sale:
 - **Sort** by newest, cheapest, dearest, or ending soon.
 - Hover over an item for its full tooltip, imprints included.
 
-Click **Buy**, then **Confirm**. The price comes off your fame and the item goes into your
-inventory. If your inventory is full, it waits in your **box** (below), so a purchase is never
+Each listing shows its price in fame or in gold (in gold's colour). Click **Buy**, then
+**Confirm**. The price comes off your fame, or your gold for a listing in gold, and the item goes
+into your inventory. If your inventory is full, it waits in your **box** (below), so a purchase is never
 lost. If someone else bought it first, or its seller took it back, the window says so and you pay
 nothing.
 
@@ -41,7 +43,8 @@ nothing.
 On the **Sell** tab, pick where the item comes from, your **Inventory** or your **Vault** (you
 needn't go there), and click it. Then:
 
-- set a **price** in fame, up to {{v:market_max_price}};
+- choose **Fame** or **Gold** beside the price, and set the **price**, up to
+  {{v:market_max_price}};
 - choose how long it lasts: **1, 3 or 7 days**;
 - click **List on the Marketplace**.
 
@@ -49,7 +52,8 @@ The item leaves your inventory or vault at once and is held by the Marketplace u
 ends or you take it back. Everyone hears about it: a **Marketplace** line in chat tells every
 player in the game who listed what and for how much, and the bot posts the same in the Discord
 server's **#marketplace** channel. Every purchase is announced the same way, with who bought what from whom. The window shows what you'll get: the Broker keeps
-**{{v:market_tax}}%** of each sale as its fee. You can have **{{v:market_limit}} listings** at a
+**{{v:market_tax}}%** of each sale for fame and **{{v:market_gold_tax}}%** of each sale for gold as
+its fee. You can have **{{v:market_limit}} listings** at a
 time.
 
 **More listing slots:** the button beside "listings in use" on the Sell tab buys another slot for
@@ -58,13 +62,14 @@ fame**, and each one after it {{v:market_slot_step}} more than the last, up to
 **{{v:market_max_extra}} extra** ({{v:market_max_slots}} listings at once). Slots are for your
 whole account and stay yours for good.
 
-`/sell <slot> <price> [days]` lists from your inventory without opening the window: slots 1-8,
-9-16 for the backpack, for {{v:market_default_days}} days unless you say (1 to
-{{v:market_max_days}}).
+`/sell <slot> <price> [gold] [days]` lists from your inventory without opening the window: slots
+1-8, 9-16 for the backpack, for fame, or gold with `gold` after the price, for
+{{v:market_default_days}} days unless you say (1 to {{v:market_max_days}}).
 
 Untradeable items can't be listed (their tooltips say "Untradeable").
 
-**When it sells**, the fame is added to your account straight away, whether you're online or not.
+**When it sells**, the fame or gold is added to your account straight away, whether you're online
+or not.
 You get a message in the chat, or when you next come to the Nexus if you were away.
 
 ## My listings, the box and the history
@@ -83,3 +88,4 @@ You get a message in the chat, or when you next come to the Nexus if you were aw
   seen it. To change your price, take the item back and list it again.
 - You can't buy your own listings.
 - Fame from sales counts towards your account's fame like any other.
+- Gold you get from sales spends like gold from the [Gold Store](../gold.html).
