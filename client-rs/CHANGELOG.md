@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.1 (2026-11-20)
 
 ### Arena
 - Arena Season 2, Rise of the Fallen: every wave is a round from one of nearly 80 dungeons and corners of the realm, from Realm 2's bosses and the Snake Pit up to the Shatters, the Lost Halls, the Cult, the Void, Oryx and the Elder dungeons, dealt so none comes back before the rest have. Rounds can be a Horde, a Clash of two dungeons, a Boss Rush, a Legendary Throwback or a Showdown every tenth wave, and from wave 6 they may bring a twist (Elite, Swarm, Ironclad, Frenzy, Bounty, Blessing or Golden). From wave 12 an Empowered Elder boss may rise in the middle of a fight, worth 200 fame each and counted on the leaderboard.
