@@ -75,12 +75,10 @@ ends there, its rewards wait to be claimed as an ended goal's do, and a **bonus 
 kind takes its place at once, with its own tiers, levels and loot. A banner tells everyone.
 
 - The bonus goal runs until the usual **Monday reset**, when the new week's goals come as always.
-- **The faster a goal is finished, the harder things get.** The bonus goal is bigger than usual by
-  how quickly the last one went (finish one in a day and a half and the next asks up to twice as
-  much), and each quick finish in a row builds on the last, up to {{v:community_early_heat}} times
-  the usual size. It all cools off at the Monday reset.
-- The finished goal comes back harder too, by the same pace (at most twice as hard), the next time
-  it's drawn.
+- The bonus goal is sized by **its own** past, as any goal is (see "Goals that fit the realm"): how
+  quickly the finished goal went doesn't make it any bigger.
+- **The faster a goal is finished, the harder it comes back**: the next time it's drawn it's bigger
+  by how quickly it went, at most {{v:community_early_step}} times as big at once.
 - It's never one of the week's other goals, and where it can be, none of last week's or next
   week's either. Finish the bonus goal too and another follows.
 - None starts in the last {{v:community_early_hours}} hours of the week.
@@ -110,8 +108,10 @@ The goals size themselves to how the realm plays. When a week's goal ends, the n
 up it's made **harder** if the realm went well past it and **easier** if the realm fell short,
 aiming for the realm to end each goal at about {{v:community_adapt_target}}% (a little
 {{v:community_bonus_name}}). It moves at most {{v:community_adapt_up}}% harder or
-{{v:community_adapt_down}}% easier at a time, and the tiers and levels move with it. The goals
-below are as written; the window shows each week's.
+{{v:community_adapt_down}}% easier at a time, and the tiers and levels move with it. Each goal
+keeps its own measure: how the realm did on one goal never changes another's. A goal that ran for
+only part of a week (a bonus goal, say) counts by its pace, but one that fell short of its goal
+never comes back harder. The goals below are as written; the window shows each week's.
 
 ## Every goal
 

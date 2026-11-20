@@ -38,6 +38,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Game
 - The daily login reward and gifts (such as this month's free Lil' Oryx) need 5 stars on your account, so fresh accounts can't be made just to collect them. Quests and achievements need none.
+- Each community goal is sized by how the realm did on that goal alone. A bonus goal is no longer made bigger because the goal it replaced was finished quickly, and a goal the realm fell short of is never harder the next time it comes up. Bonus goals already running drop back to their own size.
 
 ### Gold Store
 - Gold can now be bought on the website's new Gold Store (dodmg.com/gold.html), with PayPal or a card: sign in with your game account, pick a pack ($1 buys 100 gold, and bigger packs add bonus gold: +5% at $5 up to +25% at $100) and it lands on your account the moment the payment clears, even mid-dungeon, with a message in chat. Spend it in the gold shops (`/shop elderkeys` and the others).
