@@ -69,10 +69,12 @@ You can ask multiple players at once; each recipient can accept their request, a
 ## Shops and selling
 
 - `/shop` lists the shops and `/shop <name>` opens one: weapons, abilities, armor, rings,
-  consumables, dyes, keys and pets, for fame. `/shop keys` has every dungeon's key, regular
-  and Elder (the Elder Ivory Wyvern, Shatters and Lost Halls keys are sold only
-  there), and the Oryx's Inferno and Elysium incantations; not the Oryx's Castle and Chamber keys.
-  It has more keys than stalls, so the stalls take turns, a few minutes each.
+  consumables, dyes, keys and pets, for fame, and the gold shops. `/shop keys` has every
+  dungeon's key, and the Oryx's Inferno and Elysium incantations; not the Oryx's Castle and
+  Chamber keys, nor the Elder keys (`/shop elderkeys`, for gold). `/shop dyes` has every dye
+  colour for fame and every patterned cloth for gold. A shop with more items than stalls has
+  its stalls take turns, a few minutes each; `/shop <name> <words>` shows only the items whose
+  names have those words, such as `/shop dyes dark blue`.
 - The Divine Forge's **Sell for fame** tab buys items: it shows your inventory with what it pays
   for each one, and you pick what to sell. (`/sellfame` points you there.)
 - The [Marketplace](marketplace.html) sells to other players for fame, from the Market Broker in the

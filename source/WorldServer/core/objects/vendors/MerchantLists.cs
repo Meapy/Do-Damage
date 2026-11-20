@@ -116,6 +116,19 @@ namespace WorldServer.core.objects.vendors
             DungeonKeyPrices.Concat(DoomedKeyPrices)
                 .Where(k => !NotInKeyShop.Contains(k.Key) && !SealedDungeons.IsSealedItem(k.Key));
 
+        // /shop dyes (DoomedShop): every clothing and accessory dye and cloth in the game. A dye of one
+        // solid colour (Tex1/Tex2 0x01RRGGBB) costs fame, a cloth with a pattern (any other texture)
+        // gold; the same number either way. The dye removers (0xFFFFFFFF) aren't colours.
+        public const int DyeShopPrice = 20;
+
+        public static bool IsSolidDye(Item item) => ((uint)(item.Texture1 != 0 ? item.Texture1 : item.Texture2) >> 24) == 1;
+
+        public static IEnumerable<(string Item, int Price, CurrencyType Currency)> DyeShopPrices(XmlData data) =>
+            data.Items.Values
+                .Where(i => i.Class == "Dye" && (i.Texture1 != 0 || i.Texture2 != 0) && i.Texture1 != -1 && i.Texture2 != -1)
+                .OrderBy(i => i.ObjectType)
+                .Select(i => (i.ObjectId, DyeShopPrice, IsSolidDye(i) ? CurrencyType.Fame : CurrencyType.Gold));
+
         /// <summary>/shop elderkeys and the Bazaar's Elder pavilion: the Elder keys, in gold, without a closed dungeon's.</summary>
         public static IEnumerable<(string Key, int Price)> ElderKeyShopPrices =>
             ElderKeyPrices.Where(k => !SealedDungeons.IsSealedItem(k.Key));

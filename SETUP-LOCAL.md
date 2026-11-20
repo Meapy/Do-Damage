@@ -705,6 +705,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   reads. Players can still sell keys they found on the Marketplace for fame. The wiki reads
   `ElderKeyPrices` (`wiki_data.elder_keys`). `KeyShopTests` checks no Elder key is sold for fame
   anywhere and each is sold for 10-100 gold.
+- **Every dye in `/shop dyes`** (2026-11-20; `MerchantLists.DyeShopPrices`, `DoomedShop.Entries`,
+  `ShopCommand`): the dyes shop is built from the game data instead of 34 hand-written
+  `DoomedEconomyData.ShopItems` lines (17 colours): every `Class` Dye item but the removers
+  (texture 0xFFFFFFFF), 544 in all. A dye whose texture is a solid colour (`0x01RRGGBB`, the 141
+  colours of `EmbeddedData_DyesCXML.xml` in clothing and accessory) costs `DyeShopPrice` (20)
+  fame, a patterned cloth (the 256 of `EmbeddedData_TextilesCXML.xml` and the Twilight, Demonic
+  and Oryx cloths) 20 gold. `DoomedShop` now keeps a currency per item, not one per shop. Words
+  after the shop's name (`/shop dyes dark blue`) keep only the items whose names have them all,
+  for any shop; the world is named `Shop: dyes (dark blue)`. The Bazaar's clothing and accessory
+  pavilions are unchanged (every dye and cloth, for fame). `DyeShopTests`.
 - **The Gold Store** (2026-11-19; "Gold store" above): gold, which nothing in game pays out, is
   bought with PayPal on the website. Account server `GoldController` (`gold/store`, `signin`,
   `me`, `signout`, `order`, `capture`, `paypal-webhook`, JSON) and `PayPal.cs` (Orders API v2:

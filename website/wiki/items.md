@@ -119,7 +119,8 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 ## The shops
 
 Every shop here sells for fame, except the gold shops: the **Elder keys** (`/shop elderkeys`, and
-the Bazaar's Elder key stalls), `/shop donor`, `/shop donorpets` and `/shop america`. Gold isn't
+the Bazaar's Elder key stalls), the patterned cloths in `/shop dyes`, `/shop donor`,
+`/shop donorpets` and `/shop america`. Gold isn't
 earned in game: it's bought in the [Gold Store](../gold.html) on this site ($1 for 100 gold, with
 bonus gold on bigger packs), with PayPal or a card, and reaches your account at once, even while
 you play.
@@ -135,6 +136,9 @@ its key's price.
   item goes). Guests can't buy.
 - `/shop` opens the shops: weapons, abilities, armor, rings, consumables, dyes, keys
   (every dungeon's key at the Bazaar's prices) and pets for fame, and the gold shops.
+  `/shop dyes` has every dye and cloth: the solid colours for 20 fame each, the patterned cloths
+  (stripes, rainbows, stars and the rest) for 20 gold each. Words after the shop's name show
+  only what has them: `/shop dyes dark blue`, `/shop dyes rainbow`.
 - The Divine Forge in the Nexus buys items for fame (its Sell for fame tab).
 
 The Nexus Bazaar's specials and consumables:

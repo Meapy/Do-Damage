@@ -46,6 +46,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Character slots and vault chests can be bought with gold too, always 500 gold a slot and 250 a chest. With fame they still start at 1,000 and 500, but the fame price now doubles after every 5 you buy with fame; buying with gold doesn't raise it.
 - Items can be sold on the Marketplace for gold as well as fame: pick Fame or Gold beside the price on the Sell tab, or `/sell <slot> <price> gold`. The Market Broker keeps 10% of a sale for gold (5% for fame), and listings show which they're priced in.
 - The vault garden is twice as big, with room for 120 vault chests.
+- `/shop dyes` has every colour now: all 141 clothing and accessory dyes for 20 fame each (it had 17), and every patterned cloth, from stripes and rainbows to the Oryx cloths, for 20 gold each. They take turns at its stalls, so `/shop dyes <colour>` shows only the ones you're after, such as `/shop dyes dark blue` or `/shop dyes rainbow`.
 
 ### Realm Pass
 - The Realm Pass: a new season every month, 30 tiers earned by playing as you already do (quests, the daily reward, dungeons, bosses, realms and fame), with no chores and no tier slower than the one before. Open it with Y, the new Pass button beside Quests, or the Wayfarer just north of the Nexus spawn; `/pass` tells your tier in the chat.

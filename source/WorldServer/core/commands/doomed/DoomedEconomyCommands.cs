@@ -376,15 +376,23 @@ namespace WorldServer.core.commands.doomed
         protected override bool Process(Player player, TickTime time, string args)
         {
             var names = DoomedShop.ShopNames.ToList();
-            var name = args.Trim();
+            // "/shop dyes dark blue": the shop, then words the items' names must have
+            var parts = args.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var name = parts.Length > 0 ? parts[0] : "";
+            var filter = parts.Length > 1 ? parts[1].Trim() : "";
             // the Elder keys' gold shop was "donorkeys" before it sold them all
             if (name.Equals("donorkeys", StringComparison.OrdinalIgnoreCase))
                 name = DoomedShop.ElderKeysShop;
             var shop = names.FirstOrDefault(n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (shop == null)
             {
-                player.SendInfo("Usage: /shop <name>. Shops: " + string.Join(", ", names));
+                player.SendInfo("Usage: /shop <name> [colour or name]. Shops: " + string.Join(", ", names));
                 return name.Length == 0;
+            }
+            if (filter.Length > 0 && DoomedShop.Entries(player.GameServer.Resources.GameData, shop, filter).Count == 0)
+            {
+                player.SendError($"The {shop} shop has nothing called \"{filter}\".");
+                return false;
             }
             if (player.World is DoomedBattleArena || player.World is DoomedMinigame)
             {
@@ -397,8 +405,8 @@ namespace WorldServer.core.commands.doomed
                 player.SendError("The shop is closed.");
                 return false;
             }
-            world.SetShop(shop);
-            world.DisplayName = "Shop: " + shop;
+            world.SetShop(shop, filter);
+            world.DisplayName = "Shop: " + shop + (filter.Length > 0 ? " (" + filter + ")" : "");
             player.Reconnect(world);
             return true;
         }

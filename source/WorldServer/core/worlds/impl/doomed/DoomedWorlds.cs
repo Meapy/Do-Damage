@@ -1438,26 +1438,45 @@ namespace WorldServer.core.worlds.impl.doomed
     }
 
     // Shop: merchants on every Store_1 tile selling one of the Doomed Realms shop lists
-    // (DoomedEconomyData.ShopItems), chosen with /shop <name>.
+    // (DoomedEconomyData.ShopItems), chosen with /shop <name>; /shop <name> <words> sells only
+    // the items whose names have those words (a colour among the dyes, say).
     public sealed class DoomedShop : World, IMerchantWorld
     {
         private readonly List<MerchantData> _inactive = new List<MerchantData>();
         private List<ISellableItem> _items;
-        private CurrencyType _currency;
+        private readonly Dictionary<ISellableItem, CurrencyType> _currencies = new Dictionary<ISellableItem, CurrencyType>();
         public string ShopName { get; private set; } = DoomedEconomyData.DefaultShop;
+        public string Filter { get; private set; } = "";
 
         public DoomedShop(GameServer gameServer, int id, WorldResource resource, World parent)
             : base(gameServer, id, resource, parent) { }
 
         private const string KeysShop = "keys";
         public const string ElderKeysShop = "elderkeys";
+        private const string DyesShop = "dyes";
 
-        public static IEnumerable<string> ShopNames => DoomedEconomyData.ShopItems.Select(i => i.Shop).Append(ElderKeysShop).Distinct();
+        public static IEnumerable<string> ShopNames => DoomedEconomyData.ShopItems.Select(i => i.Shop).Append(ElderKeysShop).Append(DyesShop).Distinct();
 
-        public void SetShop(string name)
+        public void SetShop(string name, string filter = "")
         {
             ShopName = name;
+            Filter = filter.Trim();
             _items = null;
+        }
+
+        // what a shop sells: the keys, the Elder keys and the dyes from the game's lists, the rest
+        // from ShopItems
+        public static List<(string Item, int Price, CurrencyType Currency)> Entries(XmlData data, string shop, string filter = "")
+        {
+            var entries = shop == KeysShop
+                ? MerchantLists.KeyShopPrices.Select(k => (Item: k.Key, k.Price, Currency: CurrencyType.Fame))
+                : shop == ElderKeysShop
+                ? MerchantLists.ElderKeyShopPrices.Select(k => (Item: k.Key, k.Price, Currency: CurrencyType.Gold))
+                : shop == DyesShop
+                ? MerchantLists.DyeShopPrices(data)
+                : DoomedEconomyData.ShopItems.Where(i => i.Shop == shop && !SealedDungeons.IsSealedItem(i.Item)).Select(i => (i.Item, i.Price, i.Currency));
+            var words = filter.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return entries.Where(e => words.All(w => e.Item.Contains(w, StringComparison.OrdinalIgnoreCase))).ToList();
         }
 
         public override void Init()
@@ -1471,24 +1490,21 @@ namespace WorldServer.core.worlds.impl.doomed
         {
             var data = GameServer.Resources.GameData;
             _items = new List<ISellableItem>();
+            _currencies.Clear();
             // the keys shop sells the Bazaar's keys at its prices (MerchantLists.KeyShopPrices), not
-            // the few Doomed Realms' key shop had
-            // the Elder keys only for gold (MerchantLists.ElderKeyShopPrices)
-            var entries = ShopName == KeysShop
-                ? MerchantLists.KeyShopPrices.Select(k => (Shop: KeysShop, Item: k.Key, k.Price, Currency: CurrencyType.Fame)).ToList()
-                : ShopName == ElderKeysShop
-                ? MerchantLists.ElderKeyShopPrices.Select(k => (Shop: ElderKeysShop, Item: k.Key, k.Price, Currency: CurrencyType.Gold)).ToList()
-                : DoomedEconomyData.ShopItems.Where(i => i.Shop == ShopName && !SealedDungeons.IsSealedItem(i.Item)).ToList();
-            _currency = entries.Count > 0 ? entries[0].Currency : CurrencyType.Fame;
-            foreach (var e in entries)
+            // the few Doomed Realms' key shop had; the Elder keys only for gold
+            // (MerchantLists.ElderKeyShopPrices); the dyes shop every dye and cloth
+            // (MerchantLists.DyeShopPrices), each in its own currency
+            foreach (var e in Entries(data, ShopName, Filter))
                 if (data.IdToObjectType.TryGetValue(e.Item, out var type) && data.Items.ContainsKey(type))
                 {
                     var item = new ShopItem(e.Item, (ushort)Math.Min(e.Price, ushort.MaxValue));
                     item.SetItem(type);
                     _items.Add(item);
+                    _currencies[item] = e.Currency;
                 }
-            // more items than stalls (the keys): each stall shows its item for a few minutes, as
-            // the Bazaar's do, so all of them come round
+            // more items than stalls (the keys, the dyes): each stall shows its item for a few
+            // minutes, as the Bazaar's do, so all of them come round
             var rotates = _items.Count > _inactive.Count;
             foreach (var m in _inactive)
                 m.Rotates = rotates;
@@ -1506,7 +1522,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 _inactive.Remove(m);
                 m.SellableItem = _items[Random.Shared.Next(_items.Count)];
                 _items.Remove(m.SellableItem);
-                m.CurrencyType = _currency;
+                m.CurrencyType = _currencies.TryGetValue(m.SellableItem, out var currency) ? currency : CurrencyType.Fame;
                 m.RankRequired = 0;
                 m.NewMerchant = new NexusMerchant(GameServer, 0x01ca);
                 m.NewMerchant.Move(m.Position.X + 0.5f, m.Position.Y + 0.5f);
