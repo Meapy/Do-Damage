@@ -102,7 +102,7 @@ class Pass:
                 "<tbody>%s</tbody></table></div>" % "".join(rows))
 
     def tracks(self):
-        """Every season's 30 tiers: the free reward and the Gilded one."""
+        """Every season's tiers: the free reward and the Gilded one."""
         out = []
         for s in self.p.get("seasons", []):
             free, gilded = s.get("free", []), s.get("gilded", [])

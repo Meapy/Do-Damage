@@ -19,6 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Realm Pass
 - A Gilded pass gives you a gold [Gilded] title in chat, with a glint that runs across it now and then, and the pass has a new Gilded perks tab listing everything a Gilded pass does besides its rewards: twice the /visit and /summon trips, a second chance in the Arena, luckier community goal loot and the chat title.
+- Every season now has 40 tiers instead of 30, with more loot along the way. The free track adds a small and a medium pet and two dungeon white bags; the Gilded track adds two boss pets, a Lil' Oryx, two Necromantic items and a Potion of Maxy. Seasons already running get the new tiers too.
 
 ### Classes
 - The sword classes (Warrior, Knight, Paladin and Pirate) now take 5% less damage from every hit, down from 15%.

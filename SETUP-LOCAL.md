@@ -673,7 +673,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Shared/pass/` (`PassData`, `PassState`, `PassBook`; `PassBookTests`), the game side in
   `WorldServer/core/pass/PassTracker.cs` (one per player, fed by the quest hooks; pays fame and
   gold to the account, items to the vault's gift chest), state in the account field `pass`
-  (JSON). Messages 171-174 (`PassAct`, `PassData`, `PassXp`, `PassResult`), player stat 222
+  (JSON). 40 tiers since 2.6.2 (30 at launch): `tiers` can grow mid-season, as the claims are bits
+  of a `long` (63 at most), but only while nobody is past the old last tier, or they'd get the new
+  tiers on top of Caches already opened. Messages 171-174 (`PassAct`, `PassData`, `PassXp`, `PassResult`), player stat 222
   `Aura`, relic looks 46 (a tier) and 47 (Gilded). A Gilded pass rolls the community goals' loot
   `community.luck` Overdrive levels luckier and `community.rolls` more times
   (`CommunityGoals.cs`). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,

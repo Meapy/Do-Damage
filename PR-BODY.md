@@ -1,9 +1,10 @@
-Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass skins only from the pass, a [Gilded] chat title and the pass's Gilded perks tab, the sword classes take 5% less damage (was 15%); deploys client, servers and website (players are not disconnected)
+Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass skins only from the pass, a [Gilded] chat title and the pass's Gilded perks tab, the Realm Pass at 40 tiers with pets, white bags, Necromantic items and a Potion of Maxy, the sword classes take 5% less damage (was 15%); deploys client, servers and website (players are not disconnected)
 
 ## For players
 
 - **Skins:** every skin was unlocked for everyone by mistake, the Realm Pass's season skins too. Each skin now costs **200 gold** (it said 300 where it showed a price at all), bought on a class's page when making a new character, once the class has reached the skin's level; the skins that said "Special" are sold the same way. Whatever skin one of your living characters is wearing stays yours, so nobody loses the look they play. The Realm Pass's skins (Frostcrown Archmage, Winterguard, Aurora Ranger) come only from claiming them on the Gilded track: a character wearing one its account never claimed goes back to its class's own look.
 - **Realm Pass:** a Gilded pass now gives a **[Gilded] title** before your name in the chat, in gold, with a soft light that runs across it every few seconds and a small glint as it leaves. The pass window has a new **Gilded perks** tab: everything a Gilded pass does besides its track (twice the `/visit` and `/summon` trips, a second chance in the Arena, luckier community goal loot, the chat title and the track itself), each card marked Active once your pass is Gilded.
+- **Realm Pass:** every season has **40 tiers** instead of 30 (still 1,000 pass XP each; the Wayfarer's Caches start after tier 40), and both tracks carry more loot. The **free track** adds a small pet at tier 8, a dungeon white bag at 16, a medium pet at 30, 300 fame at 32, a second white bag at 34, two Lucky Clovers at 36 and a Potion of Max Life at 38; the season's aura moves to tier 40. Frostfall gives the Snowy Owl, Esben's Wedding Ring, the Lantern Wisp and the Arctic Bow; Emberwake the Baby Dragon, the Demon Blade, the Ember Wyrmling and the Doom Bow; Starfall Kirby, the Celestial Blade, the Djinn and the Crystal Wand. The **Gilded track** gets a boss pet at tier 14 and another at 30, three Loot Drop Potions at 31, a **Necromantic item** at 32 and another at 35, a Potion of Max at 33, 150 gold at 34, a Vault Chest Unlocker at 36, a **Potion of Maxy** at 37, an Elder Cemetery key at 38 and a **Lil' Oryx** at 39, with the grand aura and 1,000 fame at 40. Frostfall: Lil' Crystal Prisoner and Lil' Esben, the Shroud of the Forgotten King and the Orb of the Drowned Tide, Lil' Oryx. Emberwake: Malphas and the Ember Matriarch, the Archdemon's Soulfire Staff and the Wyrmfire Katana, Lil' Infernal Oryx. Starfall: Lil' Megamoth and Nut, the Tome of the Night Sky and the Bow of the Event Horizon, Lil' Celestial Oryx.
 - **Classes:** Frontline, the sword classes' passive (Warrior, Knight, Paladin, Pirate), now takes **5%** off every hit instead of 15%. The sword's healing (1.5% of its damage, at most 40 health a second), the Paladin's healing of allies and the Pirate's lucky dodge are unchanged.
 
 ## Details
@@ -31,11 +32,23 @@ Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass s
 - The class card's Frontline line (`screens.rs`) says 5%, in every `lang/*.json`; `website/wiki/classes.md` and SETUP-LOCAL.md say 5%.
 - Redeploys: world servers and client. Until players update, an old client shows hits on sword classes about 10% smaller than the server deals (health comes from the server; only the floating numbers are off). Nobody is disconnected; no Redis data changes.
 
+### Realm Pass: 40 tiers and more loot
+
+- `source/Shared/resources/data/pass.json`: `tiers` 30 to 40. In each season's tracks the old last tier (aura, and the Gilded's aura and 1,000 fame) moves to tier 40, tiers 31-39 are new, and a few empty free tiers (8, 16) and one Gilded tier (14, a repeated Potion of Max Life) now hold the new rewards. Nothing else in the file changed. Every item name was checked against the server XML; `PassData.Validate` drops and logs any that don't exist.
+- No code change: the tier count, the claim bitmasks (a `long`, room for 63), the pace and the client's Rewards strip all follow `tiers`. The Wayfarer's Caches now begin past tier 40.
+- **Frostfall is already running** (from 2026-11-20): its players get the new tiers when this deploys. Nobody can be past tier 30 yet (that's 30,000 XP on the day it opened), so nobody has opened a Cache that the new tiers would also pay. Tiers claimed keep their bits; tier 30 (claimed by nobody yet) now holds a pet instead of the aura.
+- The pace now asks for 40,000 XP by three-quarters of the season instead of 30,000, so Momentum starts earlier for the same play. If that proves too slow, `xpPerTier` can come down.
+- Pets are soulbound and go to the gift chest like every item reward.
+- `website/wiki/realm-pass.md` (the summary, what each track gives, how fast the last tier comes); `tools/wiki_pass.py` (a docstring said 30). The track tables are generated from the data.
+- Redeploys: world servers (the data) and the website. Players are not disconnected; no Redis changes.
+
 ### Wiki
 
 - `website/wiki/realm-pass.md`: the fourth tab, the chat title, pass skins only from the track. `website/wiki/getting-started.md`: skins cost 200 gold and where to buy them.
 
 ## Checks
+
+- Realm Pass at 40 tiers: every item reward resolves to an item in `source/Shared/resources/xml`; both tracks of every season have 40 tiers; `dotnet test source\Tests --filter PassBookTests` passes; `python tools/build_wiki.py --out <scratch>` shows 40 rows per season with the new rewards.
 
 - `dotnet build -c Release` of `source/` succeeds.
 - `cargo test -p bsk-client -p bsk-proto` (translation checks, chat pieces with and without the Gilded title).
