@@ -665,6 +665,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Skins sold at the Armoire** (2026-11-20): a `Reskin` for a skin the account lacks buys it
+  (`ReskinHandler`): the same rules as `/account/purchaseSkin` (not a Realm Pass skin, the class
+  at the skin's `<UnlockLevel>`, counting the character's own level, and `<Cost>` gold, 200 by
+  default) through `Database.PurchaseSkin`, then puts it on. The Rust client's Armoire (`npc.rs`)
+  lists every skin of the class with its price, level or "Realm Pass", and asks before buying.
+  Older clients only send skins they own, so nothing changes for them.
+
 - **World watchdog** (2026-11-20): on 2026-11-20 at 17:13 the live Nexus's thread stopped for good
   (0% CPU, waiting on something) while the rest of the server ran on: nobody could enter the
   Nexus, and players in it, its vaults and its Arenas were frozen until a rolling restart by hand

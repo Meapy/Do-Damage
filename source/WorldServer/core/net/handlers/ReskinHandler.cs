@@ -1,4 +1,5 @@
 ﻿using Shared;
+using System;
 using System.Linq;
 using WorldServer.networking;
 using WorldServer.core.worlds;
@@ -16,12 +17,13 @@ namespace WorldServer.core.net.handlers
             if (client.Player == null)
                 return;
 
+            var player = client.Player;
             var gameData = client.GameServer.Resources.GameData;
 
             client.Account.Reload("skins"); // get newest skin data
 
             var ownedSkins = client.Account.Skins;
-            var currentClass = client.Player.ObjectType;
+            var currentClass = player.ObjectType;
 
             var skinData = gameData.Skins;
             var skinSize = 100;
@@ -32,28 +34,59 @@ namespace WorldServer.core.net.handlers
 
                 if (skinDesc == null)
                 {
-                    client.Player.SendError("Unknown skin type.");
-                    return;
-                }
-
-                if (!ownedSkins.Contains(skinType))
-                {
-                    client.Player.SendError("Skin not owned.");
+                    player.SendError("Unknown skin type.");
                     return;
                 }
 
                 if (skinDesc.PlayerClassType != currentClass)
                 {
-                    client.Player.SendError("Skin is for different class.");
+                    player.SendError("Skin is for different class.");
                     return;
                 }
+
+                // The Armoire sells the skins the account lacks, as the character list does
+                // (/account/purchaseSkin): not the Realm Pass's, and only once the class has
+                // reached the skin's level. Older clients only ever send skins they own.
+                if (!ownedSkins.Contains(skinType) && !Buy(client, skinDesc))
+                    return;
 
                 skinSize = skinDesc.Size;
             }
 
             // set skin
-            client.Player.Skin = skinType;
-            client.Player.Size = skinSize;
+            player.Skin = skinType;
+            player.Size = skinSize;
+        }
+
+        private static bool Buy(Client client, Shared.resources.SkinDesc skinDesc)
+        {
+            var player = client.Player;
+            var acc = client.Account;
+
+            if (skinDesc.PassSkin)
+            {
+                player.SendError("Only the Realm Pass gives this skin.");
+                return false;
+            }
+
+            var best = player.FameCounter?.ClassStats?[skinDesc.PlayerClassType].BestLevel ?? 0;
+            if (skinDesc.UnlockLevel > Math.Max(best, player.Level))
+            {
+                player.SendError($"Reach level {skinDesc.UnlockLevel} with this class to buy this skin.");
+                return false;
+            }
+
+            acc.Reload("credits");
+            if (skinDesc.Cost > acc.Credits || !client.GameServer.Database.PurchaseSkin(acc, skinDesc.Type, skinDesc.Cost))
+            {
+                player.Credits = acc.Credits;
+                player.SendError("Not enough gold for this skin.");
+                return false;
+            }
+
+            player.Credits = acc.Credits;
+            player.SendInfo($"Skin bought for {skinDesc.Cost} gold.");
+            return true;
         }
     }
 }

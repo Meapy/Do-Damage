@@ -420,11 +420,22 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         }
         NpcKind::Reskin => {
             let class = me.object_type;
-            let mut skins = vec![0];
+            let level = me.stat_int(hud::stat::LEVEL).unwrap_or(0);
+            let worn = me.stat_int(hud::stat::TEXTURE).unwrap_or(0) as u16;
+            let mut skins = vec![npc::ArmoireSkin { skin: 0, lock: npc::SkinLock::Owned, cost: 0 }];
             if let Some(list) = list {
-                skins.extend(screens::class_skins(data, class, list).iter().filter(|k| k.owned).map(|k| k.desc.object_type));
+                skins.extend(screens::class_skins(data, class, list).iter().map(|k| {
+                    let lock = match k.needs_level {
+                        // the character's own level counts before the list hears of it
+                        _ if k.owned || k.desc.object_type == worn => npc::SkinLock::Owned,
+                        _ if k.pass => npc::SkinLock::Pass,
+                        Some(needs) if needs > level => npc::SkinLock::Level(needs),
+                        _ => npc::SkinLock::ForSale,
+                    };
+                    npc::ArmoireSkin { skin: k.desc.object_type, lock, cost: k.cost }
+                }));
             }
-            Window::Skins { class, skins }
+            Window::Skins { class, skins, confirm: None }
         }
         NpcKind::NameChanger => Window::Prompt { prompt: Prompt::Name, input: String::new(), error: None, busy: false },
         NpcKind::GuildRegister => {
@@ -470,6 +481,12 @@ fn npc_act(act: npc::Act, game: &mut Game, npcs: &mut npc::Npcs, now: i32) -> Op
     match act {
         Act::Reskin(skin) => {
             game.reskin(skin);
+            npcs.close();
+        }
+        // the server takes the gold and puts it on (or says why not, in chat)
+        Act::BuySkin(skin) => {
+            game.reskin(skin);
+            npcs.buying = Some(skin as u16);
             npcs.close();
         }
         Act::ChooseName(name) => game.choose_name(&name),
@@ -3587,6 +3604,17 @@ impl App {
                 if matches!(self.npcs.window, Some(npc::Window::Prompt { prompt: npc::Prompt::Guild, .. })) {
                     if let Some(price) = guild_register_price(world, data) {
                         self.npcs.guild_price = Some(price);
+                    }
+                }
+                // a skin bought at the Armoire is the account's once the character wears it
+                if let (Some(skin), Some(me)) = (self.npcs.buying, world.player()) {
+                    if me.stat_int(hud::stat::TEXTURE) == Some(skin as i32) {
+                        self.npcs.buying = None;
+                        if let Some(list) = &mut self.front.list {
+                            if !list.owned_skins.contains(&skin) {
+                                list.owned_skins.push(skin);
+                            }
+                        }
                     }
                 }
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
