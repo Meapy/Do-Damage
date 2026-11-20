@@ -12,6 +12,14 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Skins
+- Skins were all free by mistake: each now costs 200 gold, bought on a class's page when you make a new character. A skin one of your living characters is wearing stays yours. The Realm Pass's skins come only from its Gilded track.
+
+### Realm Pass
+- A Gilded pass gives you a gold [Gilded] title in chat, with a glint that runs across it now and then, and the pass has a new Gilded perks tab listing everything a Gilded pass does besides its rewards: twice the /visit and /summon trips, a second chance in the Arena, luckier community goal loot and the chat title.
+
 ## 2.6.1 (2026-11-20)
 
 ### Arena

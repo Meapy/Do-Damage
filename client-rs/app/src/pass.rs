@@ -140,21 +140,29 @@ pub enum Tab {
     Rewards,
     Earn,
     Looks,
+    Perks,
 }
 
 impl Tab {
-    /// A tab by name (`--pass`): rewards, earn, looks.
+    /// A tab by name (`--pass`): rewards, earn, looks, perks.
     pub fn named(name: &str) -> Option<Tab> {
         Some(match name.to_ascii_lowercase().as_str() {
             "rewards" | "track" | "" => Tab::Rewards,
             "earn" | "xp" => Tab::Earn,
             "looks" | "auras" => Tab::Looks,
+            "perks" | "gilded" => Tab::Perks,
             _ => return None,
         })
     }
 }
 
-const TABS: [(Tab, &str); 3] = [(Tab::Rewards, mark("Rewards")), (Tab::Earn, mark("Earn XP")), (Tab::Looks, mark("Looks"))];
+const TABS: [(Tab, &str); 4] =
+    [(Tab::Rewards, mark("Rewards")), (Tab::Earn, mark("Earn XP")), (Tab::Looks, mark("Looks")), (Tab::Perks, mark("Gilded perks"))];
+
+/// `/visit` and `/summon` trips into one instance, without and with the Gilded pass (the
+/// server's `VisitRules.Trips` and `GildedTrips`).
+const TRIPS: i32 = 1;
+const GILDED_TRIPS: i32 = 2;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Hit {
@@ -268,7 +276,7 @@ fn rgb(c: i32, or: u32) -> u32 {
     if c == 0 { or } else { c as u32 & 0xFF_FFFF }
 }
 
-fn mix(a: u32, b: u32, t: f32) -> u32 {
+pub(crate) fn mix(a: u32, b: u32, t: f32) -> u32 {
     let t = t.clamp(0.0, 1.0);
     let ch = |s: u32| -> u32 {
         let (x, y) = (((a >> s) & 0xFF) as f32, ((b >> s) & 0xFF) as f32);
@@ -549,6 +557,7 @@ impl Pass {
                 Tab::Rewards => self.draw_track(ui, &d, body, s, mouse, now),
                 Tab::Earn => self.draw_earn(ui, &d, body, s),
                 Tab::Looks => self.draw_looks(ui, &d, me, body, s, mouse, now),
+                Tab::Perks => self.draw_perks(ui, &d, body, s, now),
             }
         }
         let foot_y = r[1] + r[3] - 32.0 * s;
@@ -1049,6 +1058,71 @@ impl Pass {
         }
     }
 
+    /// What the Gilded pass does while it's held, beside its track's rewards: a card each, lit
+    /// once the pass is Gilded.
+    fn draw_perks(&mut self, ui: &mut Ui, d: &PassData, body: [f32; 4], s: f32, now: i32) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        ui.label(tr("What the Gilded pass gives"), body[0], body[1], font(16.0), true, color::GOLD);
+        let sub = if d.gilded {
+            tf!("All yours until {season} ends.", season = d.season_name)
+        } else {
+            tf!("Gild your pass and all of this is yours until {season} ends.", season = d.season_name)
+        };
+        ui.label_fit(&sub, body[0], body[1] + 24.0 * s, body[2], font(12.0), false, color::TEXT_MUTED);
+
+        // (icon, title, text): the trips, the Arena, the community goals, the chat title, the track
+        let trips = tf!("/visit and /summon take you into each dungeon {gilded} times instead of {plain}.", gilded = GILDED_TRIPS, plain = TRIPS);
+        let mut perks: Vec<(u8, &str, String)> = vec![
+            (0, tr("Twice the trips"), trips),
+            (1, tr("A second chance in the Arena"), tr("Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.").to_owned()),
+        ];
+        if d.community_luck > 0 || d.community_rolls > 0 {
+            perks.push((2, tr("Luckier community goal loot"), tr("A Gilded pass makes each stage's loot luckier, with an extra roll.").to_owned()));
+        }
+        perks.push((3, tr("A title in chat"), tr("Your name in chat wears a gold [Gilded] title with a glint of its own.").to_owned()));
+        perks.push((4, tr("The Gilded track"), tr("Every Gilded reward you've passed is waiting on the track.").to_owned()));
+
+        let cols = if body[2] > 640.0 * s { 2 } else { 1 };
+        let gap = 10.0 * s;
+        let cw = (body[2] - gap * (cols - 1) as f32) / cols as f32;
+        let ch = 74.0 * s;
+        let top = body[1] + 52.0 * s;
+        let lit = d.gilded;
+        let edge = if lit { GILD } else { color::BORDER };
+        for (i, (icon, title, text)) in perks.iter().enumerate() {
+            let r = [body[0] + (i % cols) as f32 * (cw + gap), top + (i / cols) as f32 * (ch + gap), cw, ch];
+            if r[1] + r[3] > body[1] + body[3] {
+                break;
+            }
+            let (t, b) = if lit { (0x2C2012, 0x17100A) } else { (color::WARM_TOP, color::WARM_BOTTOM) };
+            theme::frame(ui.renderer, r, 8.0 * s, s.max(1.0), (edge, 1.0), ((t, 0.92), (b, 0.92)));
+            let (ix, iy) = (r[0] + 28.0 * s, r[1] + ch / 2.0);
+            if lit {
+                // a slow breath of light behind each lit perk's icon, the cards out of step
+                let breath = 0.12 + 0.06 * ((now as f32 / 700.0) + i as f32 * 1.3).sin();
+                glow_disc(ui.renderer, ix, iy, 24.0 * s, GILD, breath);
+            }
+            let ic = if lit { GILD } else { color::TEXT_MUTED };
+            match icon {
+                0 => ui_icon(ui, crate::hud::ui_icon::NEXUS, ix, iy, 26.0 * s),
+                1 => ui_icon(ui, crate::hud::ui_icon::SWORDS, ix, iy, 26.0 * s),
+                2 => theme::star(ui.renderer, ix, iy, 11.0 * s, ic),
+                3 => ui_icon(ui, crate::hud::ui_icon::BANNER, ix, iy, 26.0 * s),
+                _ => ui_icon(ui, crate::hud::ui_icon::CROWN, ix, iy, 26.0 * s),
+            }
+            // the state, top right: on, or what turns it on
+            let (state, sc) = if lit { (tr("Active"), color::GOOD) } else { (tr("Gilded only"), color::TEXT_MUTED) };
+            let sw = ui.measure(state, font(11.0), true);
+            ui.label(state, r[0] + r[2] - sw - 12.0 * s, r[1] + 10.0 * s, font(11.0), true, sc);
+            let tx = r[0] + 54.0 * s;
+            ui.label_fit(title, tx, r[1] + 10.0 * s, r[2] - (tx - r[0]) - sw - 24.0 * s, font(14.0), true, if lit { GILD_LIGHT } else { color::TEXT });
+            let lines = crate::npc::wrap(ui, text, font(12.0), r[2] - (tx - r[0]) - 12.0 * s);
+            for (k, l) in lines.iter().take(2).enumerate() {
+                ui.label(l, tx, r[1] + 32.0 * s + k as f32 * font(12.0) * 1.25, font(12.0), false, color::TEXT_DIM);
+            }
+        }
+    }
+
     /// The auras and name colours: each shown live, worn with a click.
     #[allow(clippy::too_many_arguments)]
     fn draw_looks(&mut self, ui: &mut Ui, d: &PassData, me: Option<&GameObj>, body: [f32; 4], s: f32, mouse: (f64, f64), now: i32) {
@@ -1540,7 +1614,7 @@ fn glow_disc(r: &mut Renderer, cx: f32, cy: f32, rad: f32, rgb: u32, a: f32) {
 }
 
 /// A four-pointed twinkle.
-fn sparkle(r: &mut Renderer, x: f32, y: f32, len: f32, rgb: u32, a: f32) {
+pub(crate) fn sparkle(r: &mut Renderer, x: f32, y: f32, len: f32, rgb: u32, a: f32) {
     if len < 0.5 || a <= 0.004 {
         return;
     }

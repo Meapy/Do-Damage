@@ -100,6 +100,8 @@ messages! {
         6 => Text {
             name: String, object_id: i32, num_stars: i32, bubble_time: u8, recipient: String,
             text: String, clean_text: String, name_color: i32, text_color: i32,
+            // The speaker's title (1: the Gilded Realm Pass); older servers leave it out.
+            title: Option<u8>,
         },
         7 => ServerPlayerShoot {
             bullet_id: i32, owner_id: i32, container_type: i32, starting_pos: WorldPos, angle: f32, damage: i32,

@@ -965,6 +965,9 @@ impl Game {
                 }
             } else if !bubble_only {
                 self.add_chat(&t.name, &t.recipient, &t.text, t.name_color, t.text_color, t.num_stars, now);
+                if let Some(line) = self.chat.last_mut() {
+                    line.title = t.title.unwrap_or(0);
+                }
             }
             // GameServerConnection.onText: a balloon over the speaker, coloured by who it is.
             let speaker = self.world.as_ref().and_then(|w| w.objects.get(&t.object_id));
@@ -1270,6 +1273,7 @@ impl Game {
             name_color,
             text_color,
             stars,
+            title: 0,
             at: now,
         });
         if self.chat.len() > CHAT_KEEP {

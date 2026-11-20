@@ -21,7 +21,7 @@ namespace Shared.resources
             ObjectId = e.GetAttribute<string>("id");
             PlayerClassType = e.GetValue<ushort>("PlayerClassType");
             UnlockLevel = e.GetValue<int>("UnlockLevel");
-            Cost = e.GetValue("Cost", 300);
+            Cost = e.GetValue("Cost", 200);
             Size = e.GetValue("Size", 100);
             PassSkin = e.Element("PassSkin") != null;
         }

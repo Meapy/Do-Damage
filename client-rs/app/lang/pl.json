@@ -1425,5 +1425,19 @@
 "{n} character slot|{n} character slots": "{n} miejsce na postać|{n} miejsca na postacie|{n} miejsc na postacie",
 "{n} tier claimed!|{n} tiers claimed!": "Odebrano {n} poziom!|Odebrano {n} poziomy!|Odebrano {n} poziomów!",
 "{season}: a reward waits. Press {key} to claim it.": "{season}: czeka nagroda. Naciśnij {key}, by ją odebrać.",
-"{xp} pass XP this season": "{xp} XP przepustki w tym sezonie"
+"{xp} pass XP this season": "{xp} XP przepustki w tym sezonie",
+"Gilded perks": "Złote korzyści",
+"What the Gilded pass gives": "Co daje złota przepustka",
+"All yours until {season} ends.": "Wszystko twoje do końca sezonu {season}.",
+"Gild your pass and all of this is yours until {season} ends.": "Pozłoć przepustkę, a wszystko to będzie twoje do końca sezonu {season}.",
+"/visit and /summon take you into each dungeon {gilded} times instead of {plain}.": "/visit i /summon zabierają cię do każdego lochu {gilded} razy zamiast {plain}.",
+"Twice the trips": "Dwa razy więcej podróży",
+"A second chance in the Arena": "Druga szansa na Arenie",
+"Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.": "Raz na grę porażka na Arenie stawia cię z powrotem na nogi, zamiast cię wyrzucić.",
+"Luckier community goal loot": "Szczęśliwsze łupy z celów społeczności",
+"A title in chat": "Tytuł na czacie",
+"Your name in chat wears a gold [Gilded] title with a glint of its own.": "Twoje imię na czacie nosi złoty tytuł [Złota] z własnym błyskiem.",
+"The Gilded track": "Złota ścieżka",
+"Active": "Aktywne",
+"Gilded only": "Tylko złota"
 }

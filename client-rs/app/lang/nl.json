@@ -1425,5 +1425,19 @@
 "{n} character slot|{n} character slots": "{n} personageplek|{n} personageplekken",
 "{n} tier claimed!|{n} tiers claimed!": "{n} niveau opgehaald!|{n} niveaus opgehaald!",
 "{season}: a reward waits. Press {key} to claim it.": "{season}: er wacht een beloning. Druk op {key} om hem op te halen.",
-"{xp} pass XP this season": "{xp} pass-XP dit seizoen"
+"{xp} pass XP this season": "{xp} pass-XP dit seizoen",
+"Gilded perks": "Vergulde voordelen",
+"What the Gilded pass gives": "Wat de vergulde pass je geeft",
+"All yours until {season} ends.": "Helemaal van jou tot {season} afloopt.",
+"Gild your pass and all of this is yours until {season} ends.": "Verguld je pass en dit is allemaal van jou tot {season} afloopt.",
+"/visit and /summon take you into each dungeon {gilded} times instead of {plain}.": "/visit en /summon brengen je {gilded} keer in elke dungeon in plaats van {plain}.",
+"Twice the trips": "Twee keer zoveel reizen",
+"A second chance in the Arena": "Een tweede kans in de Arena",
+"Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.": "Eén keer per spel zet een nederlaag in de Arena je weer op je benen in plaats van je eruit te sturen.",
+"Luckier community goal loot": "Gelukkigere buit bij gemeenschapsdoelen",
+"A title in chat": "Een titel in de chat",
+"Your name in chat wears a gold [Gilded] title with a glint of its own.": "Je naam in de chat draagt een gouden titel [Verguld] met een eigen glans.",
+"The Gilded track": "De vergulde baan",
+"Active": "Actief",
+"Gilded only": "Alleen verguld"
 }

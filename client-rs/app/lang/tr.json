@@ -1425,5 +1425,19 @@
 "{n} character slot|{n} character slots": "{n} karakter yuvası",
 "{n} tier claimed!|{n} tiers claimed!": "{n} kademe alındı!",
 "{season}: a reward waits. Press {key} to claim it.": "{season}: bir ödül bekliyor. Almak için {key} tuşuna bas.",
-"{xp} pass XP this season": "Bu sezon {xp} pas XP'si"
+"{xp} pass XP this season": "Bu sezon {xp} pas XP'si",
+"Gilded perks": "Yaldızlı ayrıcalıklar",
+"What the Gilded pass gives": "Yaldızlı pasın verdikleri",
+"All yours until {season} ends.": "{season} bitene kadar hepsi senin.",
+"Gild your pass and all of this is yours until {season} ends.": "Pasını yaldızla, {season} bitene kadar bunların hepsi senin.",
+"/visit and /summon take you into each dungeon {gilded} times instead of {plain}.": "/visit ve /summon seni her zindana {plain} yerine {gilded} kez götürür.",
+"Twice the trips": "İki kat yolculuk",
+"A second chance in the Arena": "Arena'da ikinci şans",
+"Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.": "Oyun başına bir kez, Arena'daki yenilgi seni dışarı atmak yerine ayağa kaldırır.",
+"Luckier community goal loot": "Topluluk hedeflerinde daha şanslı ganimet",
+"A title in chat": "Sohbette bir unvan",
+"Your name in chat wears a gold [Gilded] title with a glint of its own.": "Sohbetteki adın kendine has parıltısıyla altın bir [Yaldızlı] unvanı taşır.",
+"The Gilded track": "Yaldızlı yol",
+"Active": "Etkin",
+"Gilded only": "Yalnızca yaldızlı"
 }

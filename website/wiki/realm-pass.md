@@ -25,7 +25,7 @@ Elder keys, Potions of Max, a character slot, a name colour and the season's gra
   of the Warcaller at the north point of the Nexus's spawn island. He greets you with what waits.
 - `/pass` in the chat tells your tier, the XP to the next and the time left.
 
-The window has three tabs:
+The window has four tabs:
 
 - **Rewards**: the season's road, six tiers at a time (scroll with the wheel or the arrows). The
   free reward is above each tier and the Gilded one below; what you've reached and not claimed
@@ -33,6 +33,8 @@ The window has three tabs:
 - **Earn XP**: what gives pass XP, today's first-dungeon bonus, Momentum and the Gilded boost to
   the community goals.
 - **Looks**: the auras and name colours you own, each playing live, to wear or take off.
+- **Gilded perks**: everything the Gilded pass does while you hold it, beside its track, each
+  marked Active once your pass is Gilded.
 
 ## Earning pass XP
 
@@ -59,6 +61,8 @@ ends and gives, besides its track:
 - **The community goals' loot, boosted**: while your pass is Gilded, the loot of every
   [community goal](community-goals.html) tier you claim is rolled {{v:pass_luck}} Overdrive level
   luckier, and rolled {{v:pass_rolls}} more time.
+- **A title in chat**: your name in the chat wears a gold **[Gilded]** title before it, which a
+  soft glint runs across every few seconds.
 - A gold crown of light when you buy it, which everyone around you sees.
 
 Gold comes from the [Gold Store](../gold.html), and the Gilded track pays some
@@ -72,7 +76,8 @@ bigger than an ordinary character: the **Frostcrown Archmage** (Wizard, at tier 
 effects: frost motes spiralling round the Archmage and ice in his footsteps, frost mist and
 steaming breath round the Winterguard, and the northern lights over the Aurora Ranger, streaming
 behind her as she runs. A skin you win is yours on the account: wear it on that class at the
-Armoire in the Nexus, or pick it when you make a new character.
+Armoire in the Nexus, or pick it when you make a new character. The season's skins come only from
+the Gilded track: they're never sold, and the Armoire won't put one on without it.
 
 **Auras** are new: a living effect round your character that everyone sees, such as falling snow
 and a ring of ice, or a turning constellation. Your steps leave a trail of it. **Name colours**

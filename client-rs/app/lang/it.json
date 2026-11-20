@@ -1425,5 +1425,19 @@
 "{n} character slot|{n} character slots": "{n} slot personaggio|{n} slot personaggio",
 "{n} tier claimed!|{n} tiers claimed!": "{n} livello riscosso!|{n} livelli riscossi!",
 "{season}: a reward waits. Press {key} to claim it.": "{season}: ti aspetta una ricompensa. Premi {key} per riscuoterla.",
-"{xp} pass XP this season": "{xp} XP del pass in questa stagione"
+"{xp} pass XP this season": "{xp} XP del pass in questa stagione",
+"Gilded perks": "Vantaggi dorati",
+"What the Gilded pass gives": "Cosa ti dà il pass dorato",
+"All yours until {season} ends.": "Tutto tuo finché non finisce {season}.",
+"Gild your pass and all of this is yours until {season} ends.": "Dora il tuo pass e tutto questo è tuo finché non finisce {season}.",
+"/visit and /summon take you into each dungeon {gilded} times instead of {plain}.": "/visit e /summon ti portano in ogni dungeon {gilded} volte invece di {plain}.",
+"Twice the trips": "Il doppio dei viaggi",
+"A second chance in the Arena": "Una seconda possibilità nell'Arena",
+"Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.": "Una volta a partita, una sconfitta nell'Arena ti rimette in piedi invece di buttarti fuori.",
+"Luckier community goal loot": "Bottino più fortunato negli obiettivi della comunità",
+"A title in chat": "Un titolo in chat",
+"Your name in chat wears a gold [Gilded] title with a glint of its own.": "Il tuo nome in chat porta un titolo d'oro [Dorato] con un luccichio tutto suo.",
+"The Gilded track": "Il percorso dorato",
+"Active": "Attivo",
+"Gilded only": "Solo dorato"
 }

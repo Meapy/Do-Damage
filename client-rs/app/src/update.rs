@@ -288,6 +288,9 @@ pub struct ResumeChat {
     /// The speaker's rank, or -1 for none (and from versions before 1.1.1, which didn't send it).
     #[serde(default = "no_stars")]
     pub stars: i32,
+    /// The speaker's title (`ChatLine::title`); none from versions before 2.6.2.
+    #[serde(default)]
+    pub title: u8,
     /// How long ago it arrived, ms.
     pub age: i32,
 }

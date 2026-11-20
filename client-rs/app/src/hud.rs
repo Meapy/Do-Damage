@@ -4124,8 +4124,40 @@ pub struct ChatLine {
     pub text_color: i32,
     /// The speaker's rank (`TextBoxLine.rankIcon_`), or -1 for none.
     pub stars: i32,
+    /// The speaker's title (`Text.title`): `TITLE_GILDED`, or 0 for none.
+    pub title: u8,
     /// When it arrived, ms.
     pub at: i32,
+}
+
+/// `Text.title`: the speaker holds this season's Gilded Realm Pass.
+pub const TITLE_GILDED: u8 = 1;
+/// The "[Gilded]" tag's gold. Only the tag is drawn in it, so `draw_chat` knows it by its colour
+/// and gives it its glint.
+pub const GILDED_TAG: u32 = 0xF2D06B;
+
+/// The Gilded tag: gold letters a soft light runs across every few seconds, left to right, with
+/// a small four-point glint where it leaves. Quiet the rest of the time.
+fn draw_gilded_tag(ui: &mut Ui, tag: &str, x: f32, y: f32, size: f32, line_h: f32, now: i32) {
+    const PERIOD: i32 = 4200;
+    const SWEEP: f32 = 900.0;
+    let total = ui.measure_rich(tag.trim_end(), size).max(1.0);
+    // where the light is along the tag, 0 to 1 (past 1: resting until the next pass)
+    let t = (now.rem_euclid(PERIOD)) as f32 / SWEEP;
+    let mut cx = x;
+    for ch in tag.chars() {
+        let s = ch.to_string();
+        let w = ui.measure_rich(&s, size);
+        let at = (cx + w / 2.0 - x) / total;
+        let near = (1.0 - ((at - t * 1.3 + 0.15).abs() / 0.18)).clamp(0.0, 1.0);
+        ui.label_rich(&s, cx, y, size, crate::pass::mix(GILDED_TAG, 0xFFF4C8, near * 0.85), now);
+        cx += w;
+    }
+    // the glint as the light leaves the tag's end
+    let fade = 1.0 - ((t - 1.0) / 0.25).abs();
+    if fade > 0.0 {
+        crate::pass::sparkle(ui.renderer, x + total + 1.0, y + line_h * 0.3, size * 0.35 * fade, 0xFFF4C8, 0.9 * fade);
+    }
 }
 
 impl ChatLine {
@@ -4177,6 +4209,9 @@ impl ChatLine {
                     name = to.to_owned();
                 }
             }
+        }
+        if !name.is_empty() && self.title == TITLE_GILDED {
+            out.push((format!("[{}] ", tr("Gilded")), GILDED_TAG, false));
         }
         if !name.is_empty() {
             out.push((format!("<{name}> "), name_color, false));
@@ -4524,7 +4559,11 @@ pub fn draw_chat(
                 }
             }
             let shown_color = if *help_link { color::ACCENT_HI } else { *c };
-            ui.label_rich(piece, x, y, size, shown_color, now);
+            if *c == GILDED_TAG && !*help_link {
+                draw_gilded_tag(ui, piece, x, y, size, line_h, now);
+            } else {
+                ui.label_rich(piece, x, y, size, shown_color, now);
+            }
             if *help_link {
                 ui.rect(x, y + line_h - 1.0, w, 1.0, color::ACCENT_HI, 1.0);
                 if let Some(target) = help_target {
@@ -5027,7 +5066,7 @@ mod tests {
 
     #[test]
     fn glass_lines_are_marked_and_local() {
-        let line = |recipient: &str| ChatLine { name: "Seer".into(), recipient: recipient.into(), text: "nice dodge".into(), name_color: 0, text_color: 0, stars: 3, at: 0 };
+        let line = |recipient: &str| ChatLine { name: "Seer".into(), recipient: recipient.into(), text: "nice dodge".into(), name_color: 0, text_color: 0, stars: 3, title: 0, at: 0 };
         let pieces = line("*Glass*").pieces("Me");
         assert_eq!(pieces[0].0, "[Scrying Glass] ");
         assert_eq!(pieces[1].0, "<Seer> ");
@@ -5100,6 +5139,7 @@ mod tests {
             name_color: 0,
             text_color: 0,
             stars: -1,
+            title: 0,
             at: 0,
         };
         assert_eq!(line("Bob", "").pieces("Me"), vec![("<Bob> ".into(), 0x00FF00, false), ("hi".into(), 0xFFFFFF, false)]);
@@ -5107,6 +5147,11 @@ mod tests {
         assert_eq!(line("#Oryx", "").pieces("Me")[0], ("<Oryx> ".into(), 0xFFA800, false));
         // A tell we sent shows who it went to.
         assert_eq!(line("Me", "Bob").pieces("Me")[0], ("To: ".into(), 0x00F0FF, false));
+        // a Gilded speaker's tag comes before the name; the server's own lines never have one
+        let gilded = ChatLine { title: TITLE_GILDED, ..line("Bob", "") };
+        assert_eq!(gilded.pieces("Me")[0], ("[Gilded] ".into(), GILDED_TAG, false));
+        assert_eq!(gilded.pieces("Me")[1].0, "<Bob> ");
+        assert_eq!(ChatLine { title: TITLE_GILDED, ..line("", "") }.pieces("Me")[0].1, 0xFFFF00);
     }
 
     #[test]
@@ -5118,6 +5163,7 @@ mod tests {
             name_color: 0,
             text_color: 0,
             stars: -1,
+            title: 0,
             at: 0,
         };
         assert!(line

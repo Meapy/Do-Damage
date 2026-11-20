@@ -1425,5 +1425,19 @@
 "{n} character slot|{n} character slots": "{n} место для героя|{n} места для героев|{n} мест для героев",
 "{n} tier claimed!|{n} tiers claimed!": "Получен {n} уровень!|Получено {n} уровня!|Получено {n} уровней!",
 "{season}: a reward waits. Press {key} to claim it.": "{season}: вас ждёт награда. Нажмите {key}, чтобы забрать.",
-"{xp} pass XP this season": "{xp} опыта пропуска за сезон"
+"{xp} pass XP this season": "{xp} опыта пропуска за сезон",
+"Gilded perks": "Золотые бонусы",
+"What the Gilded pass gives": "Что даёт золотой пропуск",
+"All yours until {season} ends.": "Всё ваше до конца сезона {season}.",
+"Gild your pass and all of this is yours until {season} ends.": "Сделайте пропуск золотым, и всё это ваше до конца сезона {season}.",
+"/visit and /summon take you into each dungeon {gilded} times instead of {plain}.": "/visit и /summon переносят вас в каждое подземелье {gilded} раза вместо {plain}.",
+"Twice the trips": "Вдвое больше переходов",
+"A second chance in the Arena": "Второй шанс на Арене",
+"Once a game, a defeat in the Arena puts you back on your feet instead of sending you out.": "Раз за игру поражение на Арене ставит вас на ноги, а не выкидывает наружу.",
+"Luckier community goal loot": "Удачнее добыча в общих целях",
+"A title in chat": "Титул в чате",
+"Your name in chat wears a gold [Gilded] title with a glint of its own.": "Ваше имя в чате носит золотой титул [Золотой] со своим блеском.",
+"The Gilded track": "Золотая дорога",
+"Active": "Активно",
+"Gilded only": "Только золотой"
 }

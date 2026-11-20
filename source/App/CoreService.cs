@@ -54,6 +54,8 @@ namespace App
                 Resources = new Resources(Config.serverSettings.resourceFolder, false);
 
             Database = new Database(Resources, Config);
+            // once: the skins every account was given for nothing are taken back (2.6.2)
+            Database.TakeBackGivenSkins();
             // the players' sprites this release has in it (SpritesController)
             SpriteSubmissions.UseCatalog(Resources.ResourcePath);
 

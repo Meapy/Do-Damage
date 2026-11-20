@@ -317,8 +317,9 @@ namespace WorldServer.core.objects
             XPBoostTime = character.XPBoostTime;
             LDBoostTime = character.LDBoostTime;
 
+            // a skin the account owns (bought, or the Realm Pass's); else the class's own look
             var skinType = (ushort)character.Skin;
-            if (gameData.Skins.ContainsKey(skinType))
+            if (gameData.Skins.ContainsKey(skinType) && account.Skins.Contains(skinType))
             {
                 Skin = character.Skin;
                 Size = gameData.Skins[skinType].Size;
