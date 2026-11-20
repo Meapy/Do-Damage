@@ -41,6 +41,8 @@ you", with **Yes** and **No**; it doesn't stop them moving, shooting or using th
 only the mouse answers it, or they type `/yes` or `/no`. If they say Yes, the one moving goes
 straight there, invulnerable for their first 3 seconds; if they don't answer in 30 seconds it counts as No. `/visit cancel` (or
 `/summon cancel`) takes your request back. You can join (or be summoned into) any one instance once; a Gilded [Realm Pass](realm-pass.html) makes it twice.
+The Scrying Glass's **Ask to join** button sends the same request to the player it shows, and
+from there it reaches realms too (you arrive at the realm's shore).
 
 From a dungeon or instance, `/help` sends summon requests to eligible online players currently in
 the Nexus or a realm. `/phelp` and `/ghelp` limit the call to online party or guild members in

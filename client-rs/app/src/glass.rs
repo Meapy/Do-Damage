@@ -14,6 +14,10 @@
 //! channels (All, Local, Guild, Party), to read and talk in them without closing the view.
 //! Closing it (5) gives the choice back to the glass. Players keep themselves off it with
 //! `/glass off`.
+//!
+//! The big view also shows the gear the one watched wears (from the picture's stats: anyone may
+//! see a player's equipment), each item's tooltip on hover, and its Ask to join button (8) asks
+//! them, as `/visit` does, to let us in where they are; the server's replies show under the picture.
 
 use crate::ground::Ground;
 use crate::hud::{ChatChannel, Layout, Ui};
@@ -46,6 +50,10 @@ const CAMERA_EASE_MS: f64 = 110.0;
 const CAMERA_JUMP: f64 = 4.0;
 /// How long the picture ripples when it changes, ms.
 const RIPPLE_MS: i32 = 650;
+/// How long a reply to Ask to join shows under the picture, ms, and how long after asking one
+/// is still taken as a reply (the other side has `VisitBook.TimeoutMs`, 30 s, to answer).
+const REPLY_MS: i32 = 8000;
+const ASK_MS: i32 = 40_000;
 /// Chat lines kept, and the most typed in one.
 const CHAT_KEEP: usize = 100;
 const CHAT_MAX: usize = 200;
@@ -63,6 +71,8 @@ pub struct Picture {
     target_id: i32,
     name: String,
     world_name: String,
+    /// The map's name: "Nexus" when no one is out (no one to ask to join).
+    map: String,
     object_type: u16,
     world: World,
     ground: Ground,
@@ -147,6 +157,10 @@ enum Hit {
     Next,
     /// Stay on the one shown, or let the glass pick again.
     Stay,
+    /// Ask the one shown to let us join them.
+    Join,
+    /// One of the gear slots of the one shown.
+    Gear(u8),
     Tab(Tab),
 }
 
@@ -206,6 +220,9 @@ pub struct Glass {
     /// When we last looked for the glass in the world, and the answer.
     looked_at: Option<i32>,
     near: bool,
+    /// Ask to join was pressed (its time is taken when next drawn), and when.
+    asked: bool,
+    asked_at: Option<i32>,
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -276,6 +293,7 @@ impl Glass {
                     target_id: i.target_id,
                     name: i.name.clone(),
                     world_name: i.world.clone(),
+                    map: i.map.clone(),
                     object_type: i.object_type,
                     world,
                     ground: Ground::default(),
@@ -495,6 +513,11 @@ impl Glass {
             Some(Hit::Prev) => self.out.push(4),
             Some(Hit::Next) => self.out.push(3),
             Some(Hit::Tab(tab)) => self.pick_tab(tab),
+            Some(Hit::Join) => {
+                self.out.push(8);
+                self.asked = true;
+            }
+            Some(Hit::Gear(_)) => {}
             Some(Hit::Stay) => {
                 let picked = self.status.as_ref().is_some_and(|s| s.picked);
                 self.out.push(if picked { 7 } else { 6 });
@@ -509,8 +532,11 @@ impl Glass {
 
     /// The big view, over most of the world.
     #[allow(clippy::too_many_arguments)]
-    pub fn draw_big(&mut self, ui: &mut Ui, lay: &Layout, show: Show, game_chat: &[crate::hud::ChatLine], me: &str, mouse: (f64, f64), now: i32) {
+    pub fn draw_big(&mut self, ui: &mut Ui, lay: &Layout, show: Show, game_chat: &[crate::hud::ChatLine], me: &str, me_obj: Option<&GameObj>, mouse: (f64, f64), now: i32) {
         self.hits.clear();
+        if std::mem::take(&mut self.asked) {
+            self.asked_at = Some(now);
+        }
         if !self.open {
             self.rect = None;
             return;
@@ -609,15 +635,81 @@ impl Glass {
             let kind = if picked { theme::Kind::Secondary } else { theme::Kind::Primary };
             ui.button(br, label, kind, inside(br, mouse), s * 0.8);
             self.hits.push((Hit::Stay, br));
+            wx += bw + 8.0 * s;
+        }
+        if self.picture.as_ref().is_some_and(|p| p.map != "Nexus") {
+            let label = tr("Ask to join");
+            let bs = (12.0 * s).round().max(9.0);
+            let bw = ui.measure(label, bs, true) + 28.0 * s;
+            let br = [wx, fy - 5.0 * s, bw, 24.0 * s];
+            ui.button(br, label, theme::Kind::Secondary, inside(br, mouse), s * 0.8);
+            self.hits.push((Hit::Join, br));
             wx += bw + 12.0 * s;
         }
-        let who = if picked { tr("Staying on them: the glass won't switch until you let it pick.") } else { tr("The glass picks someone new every little while.") };
-        ui.label_fit(who, wx, fy, pic[0] + pic[2] * 0.62 - wx, ss, false, color::TEXT_MUTED);
+        let room = pic[0] + pic[2] * 0.62 - wx;
+        if let Some((text, rgb)) = self.reply(game_chat, now) {
+            ui.label_fit(&text, wx, fy, room, ss, true, rgb);
+        } else {
+            let who = if picked { tr("Staying on them: the glass won't switch until you let it pick.") } else { tr("The glass picks someone new every little while.") };
+            ui.label_fit(who, wx, fy, room, ss, false, color::TEXT_MUTED);
+        }
         let keys = tr("Arrows switch · Enter chats · Esc closes");
         let kw = ui.measure(keys, ss, false).min(pic[2] * 0.38);
         ui.label_fit(keys, pic[0] + pic[2] - kw, fy, kw, ss, false, color::TEXT_MUTED);
 
+        let hovered = self.draw_gear(ui, pic, s, mouse);
+
         self.draw_chat(ui, [r[0] + r[2] - pad - chat_w, top, chat_w, r[1] + r[3] - top - pad], s, game_chat, me, mouse, now);
+
+        if let Some((item, imprints)) = hovered {
+            let mut lines = crate::hud::item_tooltip_imprinted(ui.data, item, me_obj, crate::hud::SlotKind::Shop, imprints);
+            lines.extend(crate::hud::imprint_lines(ui.data, item, imprints));
+            crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
+        }
+    }
+
+    /// The server's latest reply to Ask to join (a line of its own in the game's chat since we
+    /// asked), while it's fresh: its text and colour.
+    fn reply(&self, game_chat: &[crate::hud::ChatLine], now: i32) -> Option<(String, u32)> {
+        let asked = self.asked_at.filter(|t| (0..ASK_MS).contains(&(now - t)))?;
+        let line = game_chat.iter().rev().take_while(|l| l.at >= asked).find(|l| l.recipient.is_empty() && matches!(l.name.as_str(), "" | "*Error*"))?;
+        (now - line.at < REPLY_MS).then(|| (line.text.clone(), if line.name == "*Error*" { color::DANGER } else { color::GOOD }))
+    }
+
+    /// What the one watched wears, in a box at the picture's foot on the left: their level and
+    /// class over their four equipment slots. The item under the mouse, with its imprints.
+    fn draw_gear(&mut self, ui: &mut Ui, pic: [f32; 4], s: f32, mouse: (f64, f64)) -> Option<(i32, [u32; 4])> {
+        let target = self.picture.as_ref()?.target()?;
+        let slot = 40.0 * s;
+        let (gap, pad) = (4.0 * s, 8.0 * s);
+        let ls = (11.5 * s).round().max(9.0);
+        let w = 4.0 * slot + 3.0 * gap + 2.0 * pad;
+        let h = pad + ls * 1.3 + 4.0 * s + slot + pad;
+        let r = [pic[0] + 10.0 * s, pic[1] + pic[3] - h - 10.0 * s, w, h];
+        theme::fill(ui.renderer, r, 8.0 * s, 0x000000, 0.6);
+        let class = ui.data.objects.get(&target.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
+        let level = target.stat_int(crate::hud::stat::LEVEL).unwrap_or(1);
+        let info = tf!("Level {level} {class}", level = level, class);
+        ui.label_fit(&info, r[0] + pad, r[1] + pad, w - 2.0 * pad, ls, true, color::TEXT);
+        let mut hovered = None;
+        let mut hits = Vec::new();
+        for i in 0..4u8 {
+            let sr = [r[0] + pad + i as f32 * (slot + gap), r[1] + pad + ls * 1.3 + 4.0 * s, slot, slot];
+            let item = target.stat_int(crate::hud::slot_stat(i)).unwrap_or(-1);
+            let over = inside(sr, mouse);
+            ui.slot_box(sr, if item > 0 { crate::screens::tier_edge(ui.data, item) } else { None }, over && item > 0, s);
+            if item > 0 {
+                let imprints = crate::hud::slot_imprints(target, i);
+                ui.item_icon(item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
+                crate::hud::draw_imprint_marks(ui, imprints, sr, s);
+                if over {
+                    hovered = Some((item, imprints));
+                }
+            }
+            hits.push((Hit::Gear(i), sr));
+        }
+        self.hits.extend(hits);
+        hovered
     }
 
     /// The chat: its tabs along the top, its lines (the watchers' or the game channel's picked),

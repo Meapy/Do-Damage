@@ -32,6 +32,26 @@ namespace Tests
         }
 
         [Fact]
+        public void TheGlassReachesRealmsButNotTheRest()
+        {
+            var p = new VisitRules.Place { Kind = VisitRules.Kind.Realm, Name = "Realm", BeenIn = true, Trips = 3, Allowed = 1 };
+            Assert.Null(VisitRules.Refusal(p, "Bob", realm: true));
+            p.Closed = true;
+            Assert.Contains("closing", VisitRules.Refusal(p, "Bob", realm: true));
+            p.Closed = false;
+            p.Full = true;
+            Assert.Contains("full", VisitRules.Refusal(p, "Bob", realm: true));
+            p.Full = false;
+            p.Same = true;
+            Assert.Contains("already with", VisitRules.Refusal(p, "Bob", realm: true));
+            // the rest as /visit
+            var v = Dungeon();
+            v.Kind = VisitRules.Kind.Vault;
+            Assert.NotNull(VisitRules.Refusal(v, "Bob", realm: true));
+            Assert.Null(VisitRules.Refusal(Dungeon(), "Bob", realm: true));
+        }
+
+        [Fact]
         public void NeverBackIntoAnInstanceYouveBeenIn()
         {
             var p = Dungeon();

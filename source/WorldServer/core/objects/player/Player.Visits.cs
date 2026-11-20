@@ -95,6 +95,7 @@ namespace WorldServer.core.objects
             }
             p.SinglePlayer = world != null && world.MaxPlayers <= 1;
             p.Full = world != null && world.IsPlayersMax();
+            p.Closed = world is RealmWorld realm && realm.Closed;
             return p;
         }
 
@@ -124,13 +125,14 @@ namespace WorldServer.core.objects
         }
 
         // This player asks `target` to let them in where they are (a visit), or to come to them
-        // (a summon); false (with the reason told) when they can't.
-        public bool AskToVisit(Client target, bool summon = false)
+        // (a summon); false (with the reason told) when they can't. `glass`: asked from the
+        // Scrying Glass's Ask to join (SpectatorHub), which reaches realms too.
+        public bool AskToVisit(Client target, bool summon = false, bool glass = false)
         {
             var me = Client.Account;
             var them = target.Player;
             var world = summon ? World : them.World;
-            var refusal = VisitRules.Refusal(VisitPlace(world, summon ? them : this), them.Name, summon);
+            var refusal = VisitRules.Refusal(VisitPlace(world, summon ? them : this), them.Name, summon, realm: glass && !summon);
             if (refusal == null && target.Account.IgnoreList.Contains(me.AccountId))
                 refusal = "Player not found!";
             VisitBook.Request request = null;
@@ -141,6 +143,7 @@ namespace WorldServer.core.objects
                 SendError(refusal);
                 return false;
             }
+            request.Glass = glass && !summon;
 
             var place = world.GetDisplayName();
             var secs = VisitBook.TimeoutMs / 1000;
@@ -290,14 +293,15 @@ namespace WorldServer.core.objects
             if (r.Summon)
                 GoToSummoner(asker);
             else
-                LetVisitorIn(asker, r.VisitorName);
+                LetVisitorIn(asker, r.VisitorName, r.Glass);
         }
 
         // A Yes to a visit: the visitor comes to where we are now (which may not be where we were asked).
-        private void LetVisitorIn(Client visitor, string visitorName)
+        private void LetVisitorIn(Client visitor, string visitorName, bool glass = false)
         {
             var world = World;
-            var refusal = VisitRules.Refusal(VisitPlace(world, visitor.Player), Name);
+            var place = VisitPlace(world, visitor.Player);
+            var refusal = VisitRules.Refusal(place, Name, realm: glass);
             if (refusal != null)
             {
                 SendError($"{visitorName} can't join you here.");
@@ -306,7 +310,8 @@ namespace WorldServer.core.objects
             }
             var visitorId = visitor.Account.AccountId;
             world.Invite(visitorId);        // even into an Arena game that has started
-            world.MarkBeenIn(visitorId);    // once only, even if they never arrive
+            if (place.Kind != VisitRules.Kind.Realm)
+                world.MarkBeenIn(visitorId);    // once only, even if they never arrive
             OnPlayersThread(visitor, p =>
             {
                 if (world.Deleted)

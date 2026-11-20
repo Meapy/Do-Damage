@@ -813,6 +813,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   in the glass (clipped by the renderer's new scissor runs) and in the big view, beside the chat.
   Older clients never send 162 (the glass only asks in the Nexus with the object in view), and an
   older server simply ignores a new client's.
+  - **Ask to join and their gear** (2026-11-20, 2.6.3): `SPECTATE` 8 asks the one shown in the big
+    view to let the viewer in (`SpectatorHub.AskToJoin` → `Player.AskToVisit(glass: true)`), the
+    `/visit` request with its box, cooldowns and `/yes`/`/no`; `VisitBook.Request.Glass` carries
+    that it came from the glass, so `VisitRules.Refusal(realm: true)` lets a Yes take them into a
+    realm too (refused when the realm is closing, full, or they're already there;
+    `VisitRules.Place.Closed`), without counting a trip. The client hides the button while the
+    glass shows the Nexus, and shows the server's reply lines (`""` and `*Error*` chat since the
+    ask) under the picture. The watched player's four equipment slots, with imprints and
+    tooltips, come from the public stats the feed already carried (`Inventory0`-`3`,
+    `InventoryData0`-`3`), drawn in a box at the picture's foot. An older server ignores 8.
 
 - **Visits between world servers** (2026-11-14; new `core/RemoteVisits.cs`, `Channel.Visit` and
   `VisitMsg` in `Shared/isc`; `Command.Visit`, `SummonCommand`, `Player.Visits.cs`,

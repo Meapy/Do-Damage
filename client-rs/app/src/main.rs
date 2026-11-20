@@ -3631,7 +3631,7 @@ impl App {
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
-                self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), mouse, now);
+                self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), world.player(), mouse, now);
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);

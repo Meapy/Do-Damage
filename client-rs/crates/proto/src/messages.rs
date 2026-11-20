@@ -469,7 +469,8 @@ messages! {
         160 => Corrupt { slot: u8 },
         // The Scrying Glass: 0 stop watching, 1 watch it (it's in view), 2 open its big view, 3 the
         // next player, 4 the one before, 5 close the big view, 6 stay on the one shown, 7 let the
-        // glass pick again. An older server doesn't know it.
+        // glass pick again, 8 ask to join the one shown (a /visit request; from 2.6.3). An older
+        // server doesn't know it.
         162 => Spectate { action: u8 },
         // A line in the big view's chat (or a /command).
         167 => SpectateSay { text: String },

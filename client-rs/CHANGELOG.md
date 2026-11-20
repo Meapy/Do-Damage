@@ -17,6 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Skins
 - The Armoire in the Nexus sells skins now: it shows every skin of your class with its price, and buying one puts it straight on. Skins that need a level or the Realm Pass show what they need.
 
+### Scrying Glass
+- The big view shows the gear of the player you're watching (hover an item to see it), and its new **Ask to join** button asks them to let you in where they are, realms too: they answer Yes or No as with `/visit`.
+
 ## 2.6.2 (2026-11-20)
 
 ### Skins
