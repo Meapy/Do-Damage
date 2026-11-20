@@ -21,9 +21,6 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - A Gilded pass gives you a gold [Gilded] title in chat, with a glint that runs across it now and then, and the pass has a new Gilded perks tab listing everything a Gilded pass does besides its rewards: twice the /visit and /summon trips, a second chance in the Arena, luckier community goal loot and the chat title.
 - Every season now has 40 tiers instead of 30, with more loot along the way. The free track adds a small and a medium pet and two dungeon white bags; the Gilded track adds two boss pets, a Lil' Oryx, two Necromantic items and a Potion of Maxy. Seasons already running get the new tiers too.
 
-### Classes
-- The sword classes (Warrior, Knight, Paladin and Pirate) now take 5% less damage from every hit, down from 15%.
-
 ### Arena
 - The players who came first in Arena Season 1, solo or in a group, can glow hot pink: pick Arena under Glow in the Customize window.
 
@@ -35,7 +32,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Arena Leaderboard has a tab for each season: Season 1's runs are kept as they ended, and Season 2 starts afresh, with the Empowered bosses each run slew and where it fell. `/leaderboard 1` lists Season 1. The Hall of Champions' Arena boards follow the current season.
 
 ### Classes
-- The sword classes (Warrior, Knight, Paladin and Pirate) are tougher up close. They take 15% less damage from every hit, and their sword heals them 1.5% of the damage it deals, up to 40 health a second. The Paladin's healing also reaches allies within 4 tiles, and one shot in ten misses the Pirate entirely ("Lucky!"). Tiered swords now pierce, hitting everything in a line, and swords whose shots waved, looped or came back now fly straight, over the same range.
+- The sword classes (Warrior, Knight, Paladin and Pirate) are tougher up close. They take 5% less damage from every hit, and their sword heals them 1.5% of the damage it deals, up to 40 health a second. The Paladin's healing also reaches allies within 4 tiles, and one shot in ten misses the Pirate entirely ("Lucky!"). Tiered swords now pierce, hitting everything in a line, and swords whose shots waved, looped or came back now fly straight, over the same range.
 - Each sword class's ability does more. Warrior helms make you Armored for 1 to 2 seconds, Knight shields make you Armored for 1.5 to 2.5 seconds and their shots also leave enemies Exposed (−20 defense) even when they can't be stunned, and Paladin seals heal everyone in range at once (60 at T0 up to 180 at T8). Being Armored now doubles your defense and holds against armor-piercing shots, as it always did on the server; damage numbers now show this. Stat caps: Knight Attack 60 (was 50), Paladin Vitality 60 (was 40), Pirate Life 770 (was 700) and Defense 30 (was 25).
 
 - Ascendant forcefields and Father wards now stack: standing in two forcefields, or getting a second ward while one is up, adds the weaker one at half strength, a third at a quarter, and so on (forcefields up to 90% less damage).
