@@ -53,7 +53,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The free track rewards everyone: fame, Potions of Max, Loot Drop Potions, an Elder key, an XP booster and the season's aura at tier 30. Gild it for 1,000 gold a season for a reward at every tier: three hand-drawn skins with their own effects (the Wizard's Frostcrown Archmage, the Warrior's Winterguard and the Archer's Aurora Ranger), 300 gold back, Elder keys, Potions of Max, clovers, a character slot, a name colour and the season's grand aura. Gilding counts for the tiers you've already reached.
 - Auras are new: snow, embers or stars round your character and in your footsteps, seen by everyone. Wear them and the name colours from the pass's Looks tab.
 - Behind the season's pace, Momentum makes pass XP come 50% faster until you catch up. Past tier 30, every 1,500 XP fills a Wayfarer's Cache, and anything you reached but didn't claim is paid when the season ends.
-- While your pass is Gilded, the community goals' loot is rolled one Overdrive level luckier, and once more.
+- While your pass is Gilded, the community goals' loot is rolled one Overdrive level luckier, and once more. A Gilded pass also lets you `/visit` and `/summon` into the same dungeon twice instead of once, and saves you once from a defeat in the Arena.
 
 ### Servers
 - Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.

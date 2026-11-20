@@ -249,6 +249,9 @@ namespace WorldServer.core.pass
 
         public int ReadyCount => Off ? 0 : Book.ReadyCount;
 
+        // The Gilded pass of this season is bought (twice the /visit and /summon trips, one save in the Arena).
+        public bool IsGilded => !Off && Book.Active && Book.State.Gilded;
+
         // The Gilded pass's boost to the community goals' loot (CommunityGoals.Claim).
         public (int Luck, int Rolls) CommunityBoost
         {

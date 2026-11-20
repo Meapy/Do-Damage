@@ -174,6 +174,13 @@ Release 2.6.1: Arena Season 2, the sword classes reworked, Ascendant forcefields
 - **Redis:** a new account field `pass` (JSON; absent means a fresh pass). Nothing migrated.
 - **Not done:** Emberwake and Starfall have no skins of their own yet (their Gilded tracks carry the rest); the AIR client only has the skin sheet and the Wayfarer's XML, not the window. The Winterguard and Aurora Ranger were checked in the drawing's previews but not worn in game.
 
+### Gilded Realm Pass: two visits and summons, one Arena save
+
+- **What:** `/visit` and `/summon` allowed one trip into an instance per account; an account with this season's Gilded pass gets two. In the Arena (`DoomedBattleArena`, which sends the defeated to the Nexus) the first defeat per game is undone for a Gilded holder: full health and mana, invulnerable 3 s, "saved" line.
+- **Files:** `Shared/VisitRules.cs` (`Trips`/`Allowed`), `World.cs` (`_beenIn` now counts trips: walking in counts once, each /visit or /summon adds one), `Player.Visits.cs` (`GildedTripsFor` reads the online player's pass, else the account's saved pass), `PassTracker.IsGilded`, `Player.Death.cs` (`HandleDefeat`), a test in `VisitTests.cs`, wiki `commands.md` and `realm-pass.md`.
+- **Deploys:** world server only; nobody disconnected. No Redis changes.
+- **Not done:** not tried in game.
+
 ### Community goals sized by their own history
 
 - **Why:** Many Hands (`questers`) came up as a bonus goal at +233% though its last run fell well short. A bonus goal's size was its own scale × "heat", the pace of the goal it replaced (and of the chain before it that week), up to `early.maxHeat` 2.5, so how fast one goal went made another harder. A short bonus run that fell short could also raise its own scale, judged by its pace over a week.

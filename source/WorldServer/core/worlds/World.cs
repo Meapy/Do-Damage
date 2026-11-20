@@ -150,7 +150,14 @@ namespace WorldServer.core.worlds
 
         public bool HasBeenIn(int accountId) => _beenIn.ContainsKey(accountId);
 
-        public void MarkBeenIn(int accountId) => _beenIn[accountId] = 0;
+        // trips used: 0 never here; walking in counts one, and each /visit or /summon here another
+        // when they came before by a trip (MarkBeenIn), so a pass with two trips allows a second
+        public int TripsUsed(int accountId) => _beenIn.TryGetValue(accountId, out var n) ? n : 0;
+
+        public void MarkBeenIn(int accountId) => _beenIn.AddOrUpdate(accountId, 1, (_, n) => (byte)Math.Min(n + 1, 100));
+
+        // arriving (any way): counts a first time only, so the trip that brought them isn't counted twice
+        private void NoteEntered(int accountId) => _beenIn.TryAdd(accountId, 1);
 
         // AllowedAccess, or an invitation that hasn't run out
         public bool CanEnter(Client client)
@@ -702,7 +709,7 @@ namespace WorldServer.core.worlds
             {
                 Visited = true;
                 if ((entity as Player).Client?.Account != null)
-                    MarkBeenIn((entity as Player).Client.Account.AccountId);
+                    NoteEntered((entity as Player).Client.Account.AccountId);
                 Players.TryAdd(entity.Id, entity as Player);
                 PlayersCollision.Insert(entity, entity.X, entity.Y);
             }

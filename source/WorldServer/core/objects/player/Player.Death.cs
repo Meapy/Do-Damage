@@ -143,10 +143,25 @@ namespace WorldServer.core.objects
 
         // in a world that sends the defeated to the Nexus (arenas): the character, its gear and
         // fame stay, with no grave, death record or announcement
+        // the Gilded pass's Arena save is spent (a player object lasts one world visit, so it's once per game)
+        private bool _arenaSaved;
+
         private bool HandleDefeat(string killer)
         {
             if (!World.DefeatToNexus)
                 return false;
+            // the Gilded Realm Pass saves its holder once a game in the Arena: back on their feet, not sent out
+            if (World is worlds.impl.doomed.DoomedBattleArena && !_arenaSaved && Pass != null && Pass.IsGilded)
+            {
+                _arenaSaved = true;
+                Dead = false;
+                Health = Stats[0];
+                Mana = Stats[1];
+                ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 3000);
+                SendInfo("<Realm Pass> The Gilded pass saves you from defeat, this once.");
+                StaticLogger.Instance.Info($"{Name} was saved from defeat by {killer} in {World.IdName} by the Gilded Realm Pass");
+                return true;
+            }
             StaticLogger.Instance.Info($"{Name} was defeated by {killer} in {World.IdName} and sent to the Nexus");
             SendInfo("You were defeated in the arena and sent back to the Nexus.");
             ReconnectToNexus();

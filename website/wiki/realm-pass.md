@@ -55,6 +55,7 @@ it's on.
 Buy it from the Rewards tab for **{{v:pass_price}} gold**, once a season. It lasts until the season
 ends and gives, besides its track:
 
+- **Two trips and an Arena save**: `/visit` and `/summon` take you into any one dungeon or instance once; with the Gilded pass, twice. In the Arena, the first defeat of each game is undone: you stay on your feet at full health, invulnerable for 3 seconds.
 - **The community goals' loot, boosted**: while your pass is Gilded, the loot of every
   [community goal](community-goals.html) tier you claim is rolled {{v:pass_luck}} Overdrive level
   luckier, and rolled {{v:pass_rolls}} more time.

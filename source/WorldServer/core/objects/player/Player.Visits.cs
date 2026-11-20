@@ -52,6 +52,22 @@ namespace WorldServer.core.objects
             return p;
         }
 
+        // does this account hold the Gilded pass? Asked of the player on this world server, wherever
+        // they are on it; an account on another server is read from its saved pass
+        private static bool GildedTripsFor(World world, int accountId)
+        {
+            foreach (var w in world.GameServer.WorldManager.GetWorlds())
+                foreach (var pl in w.Players.Values)
+                    if (pl.AccountId == accountId)
+                        return pl.Pass != null && pl.Pass.IsGilded;
+            try
+            {
+                var acc = world.GameServer.Database.GetAccount(accountId);
+                return acc != null && !string.IsNullOrEmpty(acc.Pass) && Shared.pass.PassState.FromJson(acc.Pass).Gilded;
+            }
+            catch { return false; }
+        }
+
         // ... or the player with this account, wherever they are (on another world server: RemoteVisits).
         public static VisitRules.Place VisitPlace(World world, int moverAccountId)
         {
@@ -72,7 +88,11 @@ namespace WorldServer.core.objects
                 p.Kind = VisitRules.Kind.Shared;
             else
                 p.Kind = VisitRules.Kind.Instance;
-            p.BeenIn = world != null && world.HasBeenIn(moverAccountId);
+            if (world != null)
+            {
+                p.Trips = world.TripsUsed(moverAccountId);
+                p.Allowed = GildedTripsFor(world, moverAccountId) ? VisitRules.GildedTrips : VisitRules.Trips;
+            }
             p.SinglePlayer = world != null && world.MaxPlayers <= 1;
             p.Full = world != null && world.IsPlayersMax();
             return p;
