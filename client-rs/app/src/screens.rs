@@ -416,6 +416,8 @@ pub struct SkinInfo<'a> {
     pub needs_level: Option<i32>,
     /// Only given out (`<UnlockSpecial>`), never sold.
     pub special: bool,
+    /// A Realm Pass season's skin (`<PassSkin>`): only the pass gives it.
+    pub pass: bool,
     pub cost: i32,
 }
 
@@ -434,6 +436,7 @@ pub fn class_skins<'a>(data: &'a bsk_data::GameData, class: u16, list: &CharList
                 owned: list.owned_skins.contains(&d.object_type),
                 needs_level: (level > best).then_some(level),
                 special: d.xml.has("UnlockSpecial"),
+                pass: d.xml.has("PassSkin"),
                 // SkinDesc: 300 gold unless the skin says.
                 cost: d.xml.int("Cost", 300),
             }
@@ -1612,6 +1615,8 @@ impl Front {
                 None
             } else if let Some(level) = k.needs_level {
                 Some(tf!("Level {level}", level))
+            } else if k.pass {
+                Some(tr("Realm Pass").to_owned())
             } else if k.special {
                 Some(tr("Special").to_owned())
             } else {

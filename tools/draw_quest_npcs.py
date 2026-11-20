@@ -6,7 +6,7 @@ Warcaller (community goals) and the Pen Keeper (pet upgrades), two frames each.
 
 Writes `QuestNpcs16x16.png` (client/src/kabam/rotmg/assets/custom/images), 16 by 16 pixels a
 cell: cells 0-1 the Tinkerer, 2-3 the Chronicler, 4-5 the Market Broker, 6-7 the Herald, 8-9 the
-Warcaller, 10-11 the Pen Keeper (the pet pen by the Arena court). The objects (`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`,
+Warcaller, 10-11 the Pen Keeper (the pet pen by the Arena court), 12-13 the Wayfarer (the Realm Pass). The objects (`The Tinkerer`, `The Chronicler`, `Market Broker`, `The Herald`,
 `The Warcaller`, CustomObjects.xml) animate between their two. At Size 100 a 16-pixel cell draws at
 the same pixel size as the 8-pixel characters, so they stand a head taller than players. The art
 is drawn here rather than in an editor so it can be changed and redrawn; it needs Pillow.
@@ -54,6 +54,10 @@ PALETTE = {
     "T": (184, 146, 72),     # straw in shade
     "q": (88, 146, 76),      # green vest
     "Q": (58, 100, 54),      # green in shade
+    "b": (64, 104, 168),     # travelling cloak, frost blue
+    "B": (40, 64, 118),      # cloak in shade
+    "i": (140, 192, 236),    # cloak, lit
+    "a": (255, 250, 210),    # lantern, blazing
 }
 
 # The Tinkerer: a gnome tinker in a leather cap with brass goggles, an ember coat and a leather
@@ -308,6 +312,49 @@ PEN_KEEPER = [
 ]
 
 
+# The Wayfarer (the Realm Pass): a traveller in a wide-brimmed hat and a frost-blue cloak with a
+# gold clasp and a map tucked in it, a lantern of the season's light hung from his staff.
+# Frame 2: the lantern blazes and his cloak stirs.
+WAYFARER = [
+    [
+        "....oooooo......",
+        "...ohhhhhho..ooo",
+        "...ohHHHHho..oyo",
+        ".oohhgggghhoooGo",
+        "ohhhhhhhhhhhooyo",
+        "...okekkekko..j.",
+        "...oKkkkkkKo..j.",
+        "..obbbgGbbbo..j.",
+        ".obiibbbbbbboKj.",
+        ".obibbbbbbbBo.j.",
+        ".obibbbsbbbBo.j.",
+        ".obbbbbbbbbBo.j.",
+        ".oBbbbbbbbBBo.j.",
+        "..oBbbbbbbBo..j.",
+        "...ofo..ofo...j.",
+        "...off..off...o.",
+    ],
+    [
+        "....oooooo......",
+        "...ohhhhhho..ooo",
+        "...ohHHHHho..oao",
+        ".oohhgggghhoooyo",
+        "ohhhhhhhhhhhooao",
+        "...okekkekko..j.",
+        "...oKkkkkkKo..j.",
+        "..obbbgGbbbo..j.",
+        ".obiibbbbbbboKj.",
+        ".obibbbbbbbBo.j.",
+        ".obibbbsbbbBo.j.",
+        ".obbbbbbbbbBBoj.",
+        ".oBbbbbbbbbBBoj.",
+        "..oBbbbbbbBBo.j.",
+        "...ofo..ofo...j.",
+        "...off..off...o.",
+    ],
+]
+
+
 def cell(rows):
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
     assert len(rows) == CELL, len(rows)
@@ -320,7 +367,7 @@ def cell(rows):
 
 
 def main():
-    frames = TINKERER + CHRONICLER + BROKER + HERALD + WARCALLER + PEN_KEEPER
+    frames = TINKERER + CHRONICLER + BROKER + HERALD + WARCALLER + PEN_KEEPER + WAYFARER
     sheet = Image.new("RGBA", (CELL * len(frames), CELL), (0, 0, 0, 0))
     for i, rows in enumerate(frames):
         sheet.paste(cell(rows), (i * CELL, 0))

@@ -211,6 +211,48 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A Realm Pass reward (`PassData`, `PassResult`): fame (kind 0, `amount`), an item (1: its
+    /// type, how many), gold (3), a skin (4: its type, `amount` its class's type), an aura (5:
+    /// its id, `amount` its colour), a name colour (6: the same) or character slots (7); `name`
+    /// is the skin's, aura's or colour's.
+    pub struct PassReward {
+        pub kind: u8,
+        pub item: u16,
+        pub amount: i32,
+        pub name: String,
+    }
+}
+
+wire_struct! {
+    /// A tier of the Realm Pass: its free and Gilded rewards, and which we've claimed.
+    pub struct PassTier {
+        pub free: List8<PassReward>,
+        pub gilded: List8<PassReward>,
+        pub free_claimed: bool,
+        pub gilded_claimed: bool,
+    }
+}
+
+wire_struct! {
+    /// What earns pass XP (`pass::source`) and how much.
+    #[derive(Copy)]
+    pub struct PassSourceInfo {
+        pub id: u8,
+        pub amount: i32,
+    }
+}
+
+wire_struct! {
+    /// An aura or name colour of the Realm Pass: its id, name, colour, and whether we have it.
+    pub struct PassCosmetic {
+        pub id: u8,
+        pub name: String,
+        pub color: i32,
+        pub owned: bool,
+    }
+}
+
+wire_struct! {
     /// An achievement rank (`QuestsData`): its name, the points it needs, and the chat name
     /// colour it unlocks (0: none).
     pub struct QuestRankInfo {
@@ -482,6 +524,8 @@ pub mod stat {
     pub const HEIGHT: u8 = 148;
     /// A player who died and lingers at their grave as a ghost (1).
     pub const GHOST: u8 = 220;
+    /// The Realm Pass aura a player wears (its id; `auras.rs` draws it).
+    pub const AURA: u8 = 222;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

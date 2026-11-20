@@ -159,6 +159,8 @@ pub struct Particles {
     pet_line: Option<(i32, u32)>,
     /// Objects' own effects (`<Effect>`), by object id.
     emitters: HashMap<i32, Emitter>,
+    /// Where players in a skin walked (`auras.rs` leaves footprints and trails there).
+    pub trails: crate::auras::Trails,
     /// On stacked floors, our height: the floor new particles are made on.
     floor: f64,
     /// Objects thrown (`ShowEffect` 16 naming an object, the islands' barman's bottle) waiting
@@ -662,6 +664,13 @@ impl Particles {
             self.relic(&e, world, now);
         }
         self.relic_update(world, now);
+        // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`)
+        for obj in world.objects.values() {
+            if obj.stat_int(76).unwrap_or(0) != 0 {
+                self.trails.walk(obj.id, obj.x, obj.y, now);
+            }
+        }
+        self.trails.prune(now);
         let dt = dt.max(0);
         let mut spawned = Vec::new();
         let mut list = std::mem::take(&mut self.list);

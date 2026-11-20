@@ -12,6 +12,8 @@ namespace Shared.resources
         public readonly int UnlockLevel;
 
         public string ObjectId;
+        // a Realm Pass season's skin (tools/make_pass_skins.py): only the pass gives it, never sold
+        public readonly bool PassSkin;
 
         public SkinDesc(ushort type, XElement e)
         {
@@ -21,6 +23,7 @@ namespace Shared.resources
             UnlockLevel = e.GetValue<int>("UnlockLevel");
             Cost = e.GetValue("Cost", 300);
             Size = e.GetValue("Size", 100);
+            PassSkin = e.Element("PassSkin") != null;
         }
     }
 }

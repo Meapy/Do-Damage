@@ -138,6 +138,9 @@
         // what a closed vault chest costs in gold, beside its fame price (MerchandisePrice); an
         // older client ignores it and buys with fame.
         MerchandiseGoldPrice = 221,
+        // the Realm Pass aura a player wears (Shared.pass, its id; sent only when there is one),
+        // drawn round them by the Rust client (auras.rs); an older client ignores it.
+        Aura = 222,
         None = 255
     }
 }

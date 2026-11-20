@@ -81,6 +81,9 @@ namespace Shared.database.account
         public int[] ForgeShards { get => GetValue<int[]>("forgeShards") ?? new int[0]; set => SetValue("forgeShards", value); }
         // quests, daily login rewards and achievements (Shared.quests.QuestState, as JSON)
         public string Progress { get => GetValue<string>("progress"); set => SetValue("progress", value); }
+        // the Realm Pass: this season's XP and claims, and the auras and name colours owned
+        // (Shared.pass.PassState, as JSON)
+        public string Pass { get => GetValue<string>("pass"); set => SetValue("pass", value); }
         // the Discord account linked to this one (DiscordLinks, which writes them): its id and its
         // name when it was linked; null when there's none
         public string DiscordId => GetValue<string>("discordId");

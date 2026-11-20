@@ -4,6 +4,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 mod audio;
+mod auras;
 mod champions;
 mod changelog;
 mod collection;
@@ -25,6 +26,7 @@ mod forge;
 mod quests;
 mod market;
 mod particles;
+mod pass;
 mod petpen;
 mod petals;
 mod pings;
@@ -272,6 +274,9 @@ struct App {
     /// the server on opening.
     quests: quests::Quests,
     quest_acts: Vec<quests::Act>,
+    /// The Realm Pass window, its XP pills and tier banner, and what it asked of the server.
+    pass: pass::Pass,
+    pass_acts: Vec<pass::Act>,
     /// Options, Gameplay: what drinking from loot bags has done (`auto_drink`).
     auto_drunk: AutoDrink,
     /// The world (`Game::maps_entered`) the vault's search was typed in: a new one clears it.
@@ -297,6 +302,9 @@ struct App {
     /// `--quests <tab>` (tests): open the quest log at that tab (daily, weekly, monthly, login,
     /// achievements) or the Customize window (customize) once its data has come.
     quests_test: Option<String>,
+    /// `--pass <tab>` (tests): open the Realm Pass at that tab (rewards, earn, looks) once its
+    /// data has come.
+    pass_test: Option<String>,
     /// `--champions <board>` (tests): open the Hall of Champions at that board (its id or name)
     /// once in the game, wherever we stand.
     champions_test: Option<String>,
@@ -347,7 +355,7 @@ enum KeeperAct {
     Glass,
 }
 
-fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
+fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut market::Market, forge: &mut forge::Forge, forge_acts: &mut Vec<forge::Act>, quests: (&mut quests::Quests, &mut Vec<quests::Act>), pass: (&mut pass::Pass, &mut Vec<pass::Act>), community: (&mut community::Community, &mut Vec<community::Act>), keepers: (&mut collection::Collection, &mut petpen::PetPen, &mut Vec<KeeperAct>), list: Option<&bsk_net::account::CharList>, data: &bsk_data::GameData) -> bool {
     use npc::{NpcKind, Prompt, Window};
     let Some(me) = game.world.as_ref().and_then(|w| w.player()) else { return false };
     let window = match kind {
@@ -394,6 +402,13 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
                 _ => quests::Tab::Achievements,
             };
             acts.extend(log.show(Some(tab)));
+            return false;
+        }
+        // the Wayfarer: the Realm Pass
+        NpcKind::RealmPass => {
+            let (window, acts) = pass;
+            quests.0.close();
+            acts.extend(window.show(None));
             return false;
         }
         // the Warcaller: the community goals
@@ -737,7 +752,7 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         Action::Button(Button::VisitYes) => game.answer_visit(true),
         Action::Button(Button::VisitNo) => game.answer_visit(false),
         Action::Button(Button::Member(_)) => {}
-        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
+        Action::Button(Button::Page(_) | Button::Npc(_) | Button::Quests | Button::Pass | Button::Vault | Button::Zoom(_) | Button::CardTab(_) | Button::History | Button::HistoryBoss(_)) => {}
     }
     None
 }
@@ -1484,6 +1499,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.pass.reset();
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
@@ -1532,6 +1548,7 @@ impl App {
         self.game_menu = false;
         self.npcs.close();
         self.quests.reset();
+        self.pass.reset();
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
@@ -2119,6 +2136,17 @@ impl App {
             self.keys.remove(&code);
             return;
         }
+        if self.pass.open && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                if Some(code) == self.settings.key(options::Bind::Pass) {
+                    self.pass.close();
+                } else {
+                    self.pass.key(code);
+                }
+            }
+            self.keys.remove(&code);
+            return;
+        }
         if self.quests.open && matches!(self.phase, Phase::Playing(_)) {
             if pressed {
                 if Some(code) == self.settings.key(options::Bind::Quests) {
@@ -2531,6 +2559,7 @@ impl App {
                 self.forge.open = false;
                 self.vault.open = false;
                 self.quests.open = false;
+                self.pass.close();
                 self.community.open = false;
                 self.collection.open = false;
                 self.pet_pen.open = false;
@@ -2659,7 +2688,7 @@ impl App {
                         Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id, None),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
-                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                            to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                             self.keys.clear();
                         }
                         _ => {}
@@ -2712,7 +2741,13 @@ impl App {
                         self.options_ui.show();
                         self.keys.clear();
                     }
+                    Some(Bind::Pass) => {
+                        self.quests.close();
+                        self.pass_acts.extend(self.pass.show(None));
+                        self.keys.clear();
+                    }
                     Some(Bind::Quests) => {
+                        self.pass.close();
                         let tab = self.quests.best_tab();
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         self.keys.clear();
@@ -2745,7 +2780,7 @@ impl App {
                     }
                 }
                 if let Some(kind) = self.npc_test.take_if(|c| c != "Vault").and_then(|c| npc::NpcKind::of_class(&c)) {
-                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                    to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                 }
                 // --chat: once the --say lines have gone, so they don't type into it
                 if self.say.is_empty() {
@@ -2888,7 +2923,7 @@ impl App {
                 }
             }
             // The quest log: a click on a popup opens it; while open it takes the mouse.
-            if !self.quests.open && !self.options_ui.open && !self.game_menu {
+            if !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
                 let (log, acts) = (&mut self.quests, &mut self.quest_acts);
                 self.clicks.retain(|&(down, pos)| match down.then(|| log.toast_click(pos)).flatten() {
                     Some(act) => {
@@ -2919,8 +2954,30 @@ impl App {
                 log::info!("quests: {act:?}");
                 game.quest(act);
             }
+            // The Realm Pass: while open it takes the mouse.
+            let mut pass_acts = std::mem::take(&mut self.pass_acts);
+            if self.pass.open {
+                for (down, pos) in std::mem::take(&mut self.clicks) {
+                    if down {
+                        pass_acts.extend(self.pass.click(pos));
+                    }
+                }
+                self.mouse_down = false;
+            }
+            for e in std::mem::take(&mut game.pass_events) {
+                self.pass.event(e, now);
+            }
+            if self.pass.loaded() {
+                if let Some(tab) = self.pass_test.take() {
+                    self.pass.show_named(&tab);
+                }
+            }
+            for act in pass_acts {
+                log::info!("pass: {act:?}");
+                game.pass(act);
+            }
             // The community goals: a click on a banner opens them; while open they take the mouse.
-            if !self.community.open && !self.quests.open && !self.options_ui.open && !self.game_menu {
+            if !self.community.open && !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
                 let (window, acts) = (&mut self.community, &mut self.community_acts);
                 self.clicks.retain(|&(down, pos)| match down.then(|| window.banner_click(pos)).flatten() {
                     Some(act) => {
@@ -3153,7 +3210,13 @@ impl App {
                     }
                 }
                 for action in actions {
+                    if let hud::Action::Button(hud::Button::Pass) = action {
+                        self.quests.close();
+                        self.pass_acts.extend(self.pass.show(None));
+                        continue;
+                    }
                     if let hud::Action::Button(hud::Button::Quests) = action {
+                        self.pass.close();
                         let tab = self.quests.best_tab();
                         self.quest_acts.extend(self.quests.show(Some(tab)));
                         continue;
@@ -3165,7 +3228,7 @@ impl App {
                         continue;
                     }
                     if let hud::Action::Button(hud::Button::Npc(kind)) = action {
-                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
+                        to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
                         self.keys.clear();
                         continue;
                     }
@@ -3264,6 +3327,7 @@ impl App {
             || self.vault.open
             || self.glass.open
             || self.quests.open
+            || self.pass.open
             || self.community.open
             || self.npcs.window.is_some()
             || self.hud.drag.is_some();
@@ -3418,6 +3482,9 @@ impl App {
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
                         self.hud.quests_key = options::key_label(self.settings.key(options::Bind::Quests));
                         self.hud.quests_ready = self.quests.ready();
+                        self.hud.pass = self.pass.hud();
+                        self.hud.pass_key = options::key_label(self.settings.key(options::Bind::Pass));
+                        self.pass.key = self.hud.pass_key.clone();
                         self.hud.in_vault = vault::is_vault(game.map_name());
                         self.hud.interact_key = self.settings.key(options::Bind::Interact).map_or(String::new(), |k| options::key_label(Some(k)));
                         self.hud.tabs_key = self.settings.key(options::Bind::SwitchTabs).map_or(String::new(), |k| options::key_label(Some(k)));
@@ -3526,6 +3593,7 @@ impl App {
                 let inv: Vec<(u8, [f32; 4])> = p.slots.iter().filter(|s| matches!(s.kind, hud::SlotKind::Inventory(_))).map(|s| (s.index, s.rect())).collect();
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
+                self.pass.draw(&mut ui, &lay, world.player(), mouse, now);
                 // the toasts and banners wait while we die
                 if game.dying.is_none() {
                     self.quests.draw_toasts(&mut ui, &lay, now);
@@ -3537,6 +3605,8 @@ impl App {
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);
+                    let button = self.hud.pass.map(|_| lay.pass_button(self.hud.in_vault));
+                    self.pass.draw_toasts(&mut ui, &lay, button, below, now);
                 }
                 prof::mark("chat..windows");
                 hud::draw_overlay(&mut ui, &lay, world, p, &self.hud, mouse);
@@ -3557,6 +3627,7 @@ impl App {
             && !self.vault.open
             && !self.glass.open
             && !self.quests.open
+            && !self.pass.open
             && !self.quests.on_toast(mouse)
             && !self.community.open
             && !self.community.on_banner(mouse)
@@ -3927,6 +3998,17 @@ impl ApplicationHandler<UserEvent> for App {
                     self.front.wheel(notches as i32);
                 }
             }
+            WindowEvent::MouseWheel { delta, .. } if self.pass.open && matches!(self.phase, Phase::Playing(_)) => {
+                // The track moves a tier a notch.
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                self.pass.scroll(-notches as i32);
+            }
             WindowEvent::MouseWheel { delta, .. } if self.quests.open && matches!(self.phase, Phase::Playing(_)) => {
                 // The achievements scroll a row a notch.
                 let lines = match delta {
@@ -4180,6 +4262,8 @@ fn main() {
         events: Default::default(),
         quests: Default::default(),
         quest_acts: Vec::new(),
+        pass: Default::default(),
+        pass_acts: Vec::new(),
         auto_drunk: AutoDrink::default(),
         search_map: 0,
         community: Default::default(),
@@ -4196,6 +4280,7 @@ fn main() {
         npc_test: text_arg("--npc"),
         chat_test: text_arg("--chat"),
         quests_test: text_arg("--quests"),
+        pass_test: text_arg("--pass"),
         champions_test: text_arg("--champions"),
         effect_test: text_arg("--effect").and_then(|t| t.parse().ok()).map(|t| (t, i32::MIN / 2)),
         changelog: Default::default(),

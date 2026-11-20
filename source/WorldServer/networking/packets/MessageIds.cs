@@ -242,6 +242,15 @@ public enum MessageId : byte
     // to its votes (ARENA_VOTE 255): what the next fight will be while the votes are open, what a
     // fight is as it begins, an Empowered boss rising in it, and a boss rush's next boss.
     ARENA_ROUND = 170,
+    // The Realm Pass (Rust client 2.6.1, core/pass/PassTracker.cs): the client asks for the pass
+    // window's data or acts on it (PASS_ACT: 0 ask, 1 claim a tier or -1 all, 2 unlock the Gilded
+    // track at the price shown, 3 wear an aura, 4 wear a name colour, 5 open the caches); it gets
+    // the window's data (PASS_DATA), each gain of pass XP once it has asked (PASS_XP), and each
+    // act's answer (PASS_RESULT).
+    PASS_ACT = 171,
+    PASS_DATA = 172,
+    PASS_XP = 173,
+    PASS_RESULT = 174,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

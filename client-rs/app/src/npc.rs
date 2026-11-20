@@ -61,6 +61,8 @@ pub enum NpcKind {
     Herald,
     /// The Warcaller at the north point of the Nexus spawn: the community goals.
     CommunityGoals,
+    /// The Wayfarer beside him: the Realm Pass (`pass.rs`).
+    RealmPass,
     /// The Collection stand in the vault: every piece of gear the account has had.
     Collection,
     /// The Cosmic Anvil the Mysterious One leaves in the Black Between: corrupting Enthroned gear.
@@ -91,6 +93,7 @@ impl NpcKind {
             "ChampionStatue" => Self::ChampionStatue,
             "Herald" => Self::Herald,
             "CommunityGoals" => Self::CommunityGoals,
+            "RealmPass" => Self::RealmPass,
             "Collection" => Self::Collection,
             "PetPen" => Self::PetPen,
             "CosmicAnvil" => Self::CosmicAnvil,
@@ -165,6 +168,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::ChampionStatue => open(tr("A champion of the Hall"), tr("View")),
         NpcKind::Herald => open(tr("This week in the realm"), tr("View")),
         NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
+        NpcKind::RealmPass => open(tr("The season's road and its rewards"), tr("Open")),
         NpcKind::Collection => open(tr("Every piece of gear you've had"), tr("View")),
         NpcKind::PetPen => open(tr("Raise and swap your pets"), tr("Open")),
         NpcKind::ScryingGlass => open(tr("Watch adventurers out in the realm"), tr("Watch")),

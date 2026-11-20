@@ -470,6 +470,43 @@ fn arena_round_matches_arena_round_message() {
 }
 
 #[test]
+fn pass_messages_match_pass_tracker() {
+    // PassActHandler reads the kind, then the value.
+    assert_eq!(ClientMessage::from(PassAct { kind: 1, value: -1 }).to_frame(), B::default().u8(1).i32(-1).frame(171));
+    // PassRewardInfo.Write: kind, item, amount, name.
+    let reward = |b: B, kind: u8, item: u16, amount: i32, name: &str| b.u8(kind).u16(item).i32(amount).utf(name);
+    // PassDataMessage.Write
+    let mut b = B::default().i32(1_000).u8(1).utf("frostfall").utf("Frostfall").utf("frost")
+        .i32(0x8FD0FF).i32(0x12233F).i32(0xEAF7FF).i32(10).i32(20)
+        .i32(2_500).i32(1_000).i32(1_500).i32(1_000).i32(1_234).u8(1)
+        .u8(50).u8(3).u8(1).i32(0)
+        .u8(1);
+    b = reward(b.u8(1), 0, 0, 100, "");
+    b = reward(b.u8(2), 4, 0xE100, 0x030e, "Frostcrown Archmage");
+    b = reward(b, 3, 0, 100, "");
+    b = b.u8(1).u8(0);
+    b = reward(b.u8(1), 1, 0x0a1f, 2, "");
+    b = b.u8(2).u8(0).i32(150).u8(13).i32(5).i32(15);
+    b = b.u8(1).u8(2).utf("Frostcrown").i32(0x8FD0FF).u8(1).u8(2);
+    b = b.u8(0).u8(0).utf("Emberwake").utf("ember").i32(30).u8(1).u8(1);
+    let ServerMessage::PassData(d) = ServerMessage::decode(172, &b.0).unwrap() else { panic!() };
+    assert!(d.active && d.gilded && d.first_dungeon_ready);
+    assert_eq!((d.season_name.as_str(), d.xp, d.momentum, d.pace_tier, d.gold), ("Frostfall", 2_500, 50, 3, 1_234));
+    assert_eq!(d.tiers.len(), 1);
+    assert_eq!((d.tiers[0].free.len(), d.tiers[0].gilded.len(), d.tiers[0].free_claimed), (1, 2, true));
+    assert_eq!((d.tiers[0].gilded[0].kind, d.tiers[0].gilded[0].item, d.tiers[0].gilded[0].name.as_str()), (4, 0xE100, "Frostcrown Archmage"));
+    assert_eq!((d.cache[0].item, d.sources.len(), d.sources[1].amount, d.dungeon_step), (0x0a1f, 2, 5, 15));
+    assert_eq!((d.auras[0].name.as_str(), d.auras[0].owned, d.aura, d.colors.len()), ("Frostcrown", true, 2, 0));
+    assert_eq!((d.next_name.as_str(), d.next_starts_at, d.community_luck, d.community_rolls), ("Emberwake", 30, 1, 1));
+    // PassXp.Write and PassResult.Write
+    let ServerMessage::PassXp(x) = ServerMessage::decode(173, &B::default().i32(150).u8(0).i32(2_650).u8(2).u8(1).0).unwrap() else { panic!() };
+    assert_eq!((x.gained, x.source, x.xp, x.tier, x.momentum), (150, 0, 2_650, 2, true));
+    let body = reward(B::default().u8(3).u8(1).i32(1).utf("Opened!").u8(1), 3, 0, 50, "").0;
+    let ServerMessage::PassResult(r) = ServerMessage::decode(174, &body).unwrap() else { panic!() };
+    assert_eq!((r.code, r.success, r.count, r.rewards[0].amount), (3, true, 1, 50));
+}
+
+#[test]
 fn visit_messages_match_visit_answer_handler() {
     // VisitAnswerHandler reads the id, then the answer.
     assert_eq!(ClientMessage::from(VisitAnswer { id: 7, answer: 1 }).to_frame(), B::default().i32(7).u8(1).frame(126));

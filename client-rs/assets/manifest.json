@@ -3076,6 +3076,16 @@
    "dir": "down"
   },
   {
+   "name": "passSkins16",
+   "file": "kabam/rotmg/assets/custom/images/PassSkins16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3641,7 +3651,8 @@
   "kabam/rotmg/assets/custom/xmls/NexusGardenObjects.xml",
   "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml",
   "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
-  "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml"
+  "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
+  "kabam/rotmg/assets/custom/xmls/PassSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

@@ -34,6 +34,7 @@ namespace WorldServer.core.objects
         public FameCounter FameCounter { get; private set; }
         // quests, daily login rewards and achievements
         public quests.QuestTracker Quests { get; private set; }
+        public pass.PassTracker Pass { get; private set; }
         public ConcurrentQueue<InboundBuffer> IncomingMessages { get; private set; } = new ConcurrentQueue<InboundBuffer>();
         public Pet Pet { get; set; }
         public int PetId { get; set; }
@@ -141,6 +142,14 @@ namespace WorldServer.core.objects
         // the account has a character on a Legends board, as of entering this world: the legend
         // glow and its loot boost (LootBoosts.Legend)
         public bool IsLegend { get; private set; }
+
+        // the Realm Pass aura worn (StatDataType.Aura; PassTracker sets it)
+        private StatTypeValue<int> _aura;
+        public int Aura
+        {
+            get => _aura.GetValue();
+            set => _aura.SetValue(value);
+        }
 
         private StatTypeValue<int> _glow;
         public int Glow
@@ -288,6 +297,7 @@ namespace WorldServer.core.objects
             _texture2 = new StatTypeValue<int>(this, StatDataType.Texture2, character.Tex2);
             _skin = new StatTypeValue<int>(this, StatDataType.Skin, 0);
             _glow = new StatTypeValue<int>(this, StatDataType.Glow, 0);
+            _aura = new StatTypeValue<int>(this, StatDataType.Aura, 0);
             _xpBoosted = new StatTypeValue<bool>(this, StatDataType.XPBoost, character.XPBoostTime != 0, true);
             _mp = new StatTypeValue<int>(this, StatDataType.Mana, character.MP);
             _hasBackpack = new StatTypeValue<bool>(this, StatDataType.HasBackpack, character.HasBackpack, true);
@@ -416,6 +426,7 @@ namespace WorldServer.core.objects
 
             FameCounter = new FameCounter(this);
             Quests = new quests.QuestTracker(this);
+            Pass = new pass.PassTracker(this);
             InitChampion();
             FameGoal = GetFameGoal(FameCounter.ClassStats[ObjectType].BestFame);
             ExperienceGoal = GetExpGoal(Client.Character.Level);
@@ -540,6 +551,7 @@ namespace WorldServer.core.objects
                 TickSlotCooldowns(time);
                 FameCounter.Tick(time);
                 Quests?.Tick(ref time);
+                Pass?.Tick(ref time);
                 TickChampion(time.DeltaTime);
                 TickNexusAfk(time);
                 TickVisits();
@@ -672,6 +684,8 @@ namespace WorldServer.core.objects
             stats[StatDataType.WardMax] = WardMax;
             if (Ghost)
                 stats[StatDataType.Ghost] = 1;
+            if (Aura != 0)
+                stats[StatDataType.Aura] = Aura;
             stats[StatDataType.InventoryData0] = Inventory.Data[0]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData1] = Inventory.Data[1]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData2] = Inventory.Data[2]?.GetData() ?? "{}";

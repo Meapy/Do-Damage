@@ -80,6 +80,8 @@ pub struct Game {
     pub pet_pen: Option<bsk_proto::PetPen>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
+    /// The Realm Pass, for its window and the HUD's button (`pass.rs`).
+    pub pass_events: Vec<crate::pass::Event>,
     /// The community goals and their banners, for their window (`community.rs`).
     pub community_events: Vec<crate::community::Event>,
     /// The server's chat lines held back while a community claim is answered and its loot rolls
@@ -425,6 +427,7 @@ impl Game {
             collection: None,
             pet_pen: None,
             quest_events: Vec::new(),
+            pass_events: Vec::new(),
             community_events: Vec::new(),
             claim_hold: None,
             music: None,
@@ -757,6 +760,8 @@ impl Game {
                 }
                 // quests: the HUD's badge counts what waits, so ask in every world
                 self.socket.send(&bsk_proto::QuestsRequest {}.into());
+                // the Realm Pass likewise: its tier on the HUD, and every gain from now on
+                self.socket.send(&bsk_proto::PassAct { kind: crate::pass::act::REQUEST, value: 0 }.into());
                 // community goals: to say when one of their rewards waits, and for their banners
                 self.socket.send(&bsk_proto::CommunityRequest {}.into());
                 // we can show visit and summon requests, in the corner
@@ -1078,6 +1083,9 @@ impl Game {
             ServerMessage::QuestProgress(p) => self.quest_events.push(crate::quests::Event::Progress(p.changes.0.clone())),
             ServerMessage::QuestResult(r) => self.quest_events.push(crate::quests::Event::Result(r.success, r.message.clone())),
             ServerMessage::QuestNotice(n) => self.quest_events.push(crate::quests::Event::Notice(n.kind, n.title.clone(), n.text.clone())),
+            ServerMessage::PassData(d) => self.pass_events.push(crate::pass::Event::Data(Box::new(d.clone()))),
+            ServerMessage::PassXp(x) => self.pass_events.push(crate::pass::Event::Xp(x.clone())),
+            ServerMessage::PassResult(r) => self.pass_events.push(crate::pass::Event::Result(Box::new(r.clone()))),
             ServerMessage::CommunityData(d) => self.community_events.push(crate::community::Event::Data(Box::new(d.clone()))),
             ServerMessage::CommunityNotice(n) => {
                 self.community_events.push(crate::community::Event::Notice(n.kind, n.title.clone(), n.text.clone()));
@@ -1986,6 +1994,12 @@ impl Game {
             Act::Claim(kind, id) => bsk_proto::QuestClaim { kind, id }.into(),
         };
         self.send(msg);
+    }
+
+    /// Ask the Realm Pass's server side (`PassTracker.cs`).
+    pub fn pass(&mut self, act: crate::pass::Act) {
+        let (kind, value) = act.wire();
+        self.send(bsk_proto::PassAct { kind, value }.into());
     }
 
     /// Ask the community goals' server side (`CommunityGoals.cs`).

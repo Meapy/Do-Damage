@@ -38,6 +38,7 @@ import wiki_balance  # noqa: E402
 import wiki_gear  # noqa: E402
 import wiki_quests  # noqa: E402
 import wiki_community  # noqa: E402
+import wiki_pass  # noqa: E402
 import wiki_loot  # noqa: E402
 
 ROOT = wd.ROOT
@@ -63,6 +64,7 @@ COMMAND_HELP = {
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "warcaller": "To the Warcaller on the Nexus's Arena island, from anywhere: you arrive in front of him, ready to see the <a href=\"community-goals.html\">community goals</a> and claim their rewards.",
+    "pass": "Your <a href=\"realm-pass.html\">Realm Pass</a> in the chat: the season, your tier, the XP to the next and the time left (<kbd>Y</kbd> opens the pass itself).",
     "goals": "This week's <a href=\"community-goals.html\">community goals</a> in the chat: how far the realm has come, and your part. The Warcaller on the Nexus's Arena island shows them and pays their rewards.",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",
@@ -624,6 +626,28 @@ class Gen:
     def gen_community_loot(self, used):
         return self.community.loot()
 
+    # --- the Realm Pass (tools/wiki_pass.py) ---------------------------------------------------------
+    @property
+    def realm_pass(self):
+        if getattr(self, "_realm_pass", None) is None:
+            self._realm_pass = wiki_pass.Pass(self)
+        return self._realm_pass
+
+    def gen_pass_seasons(self, used):
+        return self.realm_pass.seasons()
+
+    def gen_pass_tracks(self, used):
+        return self.realm_pass.tracks()
+
+    def gen_pass_xp(self, used):
+        return self.realm_pass.xp()
+
+    def gen_pass_cache(self, used):
+        return self.realm_pass.cache()
+
+    def gen_pass_looks(self, used):
+        return self.realm_pass.looks()
+
     def gen_tier_tables(self, used):
         return self.balance.tier_tables(used)
 
@@ -658,6 +682,7 @@ class Gen:
         return {
             **self.quests.values(),
             **self.community.values(),
+            **self.realm_pass.values(),
             "forge_recipes": "{:,}".format(len(self.forge)), "forge_chains": "{:,}".format(sum(r["chain"] for r in self.forge)),
             "forge_cap": "{:,}".format(wd.Data.FORGE_TIERED_CAP), "name_change": "{:,}".format(wd.name_change_fame()),
             "nexus_afk": "%g" % wd.nexus_afk_minutes(),

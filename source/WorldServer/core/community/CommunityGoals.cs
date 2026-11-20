@@ -796,6 +796,9 @@ namespace WorldServer.core.community
             var rewards = new List<RewardDef>();
             var names = new List<string>();
             var rolled = new List<(CommunityGoalDef Def, LootEntry Entry, int Level)>();
+            // a Gilded Realm Pass: luckier rolls, and more of them
+            var (luck, more) = player.Pass?.CommunityBoost ?? (0, 0);
+            var boosted = false;
             foreach (var (rs, t) in wanted)
             {
                 // the claim is kept first: only one claim of it ever pays
@@ -804,6 +807,12 @@ namespace WorldServer.core.community
                 _db.KeyExpire(ClaimedKey(rs.Run.Key), KeepFor(rs.Run));
                 var def = rs.Run.Def;
                 var (defs, level) = Data.ClaimRewards(def, t);
+                if ((luck > 0 || more > 0) && defs.Any(r => r.Roll > 0))
+                {
+                    level += luck;
+                    defs = Boosted(defs, more);
+                    boosted = true;
+                }
                 var rolls = new List<LootEntry>();
                 rewards.AddRange(Data.Resolve(def, defs, level, Random.Shared, rolls));
                 rolled.AddRange(rolls.Select(e => (def, e, level)));
@@ -821,7 +830,8 @@ namespace WorldServer.core.community
                 // the best roll, by name, for the player; the rarest ones for everyone
                 var top = rolled.OrderByDescending(r => Data.RarityOf(r.Entry)).Select(r => r.Entry).FirstOrDefault();
                 var bestText = top != null && Data.RarityOf(top) >= 2 ? $" Best roll: {top} ({Capital(Data.Rarities[Data.RarityOf(top)])})!" : "";
-                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText, Reels(player, rolled));
+                var gilded = boosted ? " Your Gilded Realm Pass made the rolls luckier." : "";
+                Answer(true, (names.Count == 1 ? $"{names[0]}: {paid}." : $"{names.Count} rewards: {paid}.") + bestText + gilded, Reels(player, rolled));
                 foreach (var (def, e, _) in rolled.Where(r => Data.Announced(r.Entry)))
                     Broadcast(CommunityNotice.LOOT, $"{player.Name} struck it lucky!",
                         $"{Capital(Data.Rarities[Data.RarityOf(e)])} loot from \"{def.Title}\": {e}!");
@@ -829,6 +839,16 @@ namespace WorldServer.core.community
             else
                 Answer(false, "Already claimed.");
             SendData(player);
+        }
+
+        // A stage's rewards with `more` rolls added to its first roll of the loot.
+        private static List<RewardDef> Boosted(List<RewardDef> defs, int more)
+        {
+            var list = defs.ToList();
+            var i = list.FindIndex(r => r.Roll > 0);
+            if (i >= 0 && more > 0)
+                list[i] = new RewardDef { Roll = list[i].Roll + more, Fame = list[i].Fame, Item = list[i].Item, Count = list[i].Count };
+            return list;
         }
 
         // the client's reel: it scrolls REEL_LENGTH lines of the goal's loot and stops on the prize

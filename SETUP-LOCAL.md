@@ -665,6 +665,23 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Realm Pass** (2026-11-20): a monthly season pass, 1,000 gold for its Gilded track. All of
+  it is data in `Shared/resources/data/pass.json` (its `_about` says how: price, tiers, XP per
+  tier and per source, `pace` and `momentum`, the Wayfarer's Cache, auras, name colours, dated
+  seasons and the `rotation` after them); give a new season a new id, and never renumber an aura
+  or colour (accounts own them by id, and the Rust client draws auras by it). Rules in
+  `Shared/pass/` (`PassData`, `PassState`, `PassBook`; `PassBookTests`), the game side in
+  `WorldServer/core/pass/PassTracker.cs` (one per player, fed by the quest hooks; pays fame and
+  gold to the account, items to the vault's gift chest), state in the account field `pass`
+  (JSON). Messages 171-174 (`PassAct`, `PassData`, `PassXp`, `PassResult`), player stat 222
+  `Aura`, relic looks 46 (a tier) and 47 (Gilded). A Gilded pass rolls the community goals' loot
+  `community.luck` Overdrive levels luckier and `community.rolls` more times
+  (`CommunityGoals.cs`). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,
+  both `PassSkins.xml`, `<PassSkin>` naming the effect the Rust client adds; the account server
+  never sells them); the Wayfarer by `tools/draw_quest_npcs.py`, placed by `QuestGivers.cs`
+  east of the Warcaller. Rust client: `pass.rs` (the window, Y, the HUD's Pass button) and
+  `auras.rs` (auras and the skins' effects). `/pass`; admins `/passadmin xp|tier|gilded|reset|
+  time|look`. The wiki's Realm Pass page comes from the data (`tools/wiki_pass.py`).
 - **Slots and vault chests for gold, the Marketplace in gold, a bigger vault** (2026-11-19):
   character slots and vault chests cost fame doubling every 5 bought with fame (1,000 and 500 to
   start; `Shared/database/UnlockPrices.cs`, counted in the account fields `charSlotsFame` and

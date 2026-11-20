@@ -162,6 +162,7 @@ namespace WorldServer.core.quests
                 return;
             _player.ChampionCounter.Count(e);
             community.CommunityGoals.Count(_player, e);
+            _player.Pass?.Event(e);
             var notices = new List<QuestNotice>();
             var changes = Book.Apply(e, notices);
             if (changes.Count == 0)
@@ -300,6 +301,12 @@ namespace WorldServer.core.quests
                 // recorded before anything is paid, so a claim is never paid twice
                 Save();
                 Pay(result.Rewards);
+                // the Realm Pass's XP for the claim: the quest's period, the bonus's, or the daily reward
+                var period = kind == CLAIM_QUEST ? Book.Current().Where(q => q.Slot.Id == id).Select(q => q.Period).FirstOrDefault()
+                    : Enum.TryParse<QuestPeriod>(id, true, out var bp) ? bp : QuestPeriod.Daily;
+                _player.Pass?.QuestClaimed(kind, period);
+                if (kind == COLOR)
+                    _player.Pass?.ColorChosenElsewhere();
                 // the quest book counts these for the achievements itself; the community goals
                 // hear of them here
                 if (kind == CLAIM_QUEST)

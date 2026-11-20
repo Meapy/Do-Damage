@@ -40,7 +40,8 @@ namespace App.Controllers
                 var skinDesc = _core.Resources.GameData.Skins[type];
                 var classStats = _core.Database.ReadClassStats(acc);
 
-                if (skinDesc.UnlockLevel > classStats[skinDesc.PlayerClassType].BestLevel || skinDesc.Cost > acc.Credits)
+                // the Realm Pass's season skins are never sold
+                if (skinDesc.PassSkin || skinDesc.UnlockLevel > classStats[skinDesc.PlayerClassType].BestLevel || skinDesc.Cost > acc.Credits)
                 {
                     Response.CreateError("Failed to purchase skin");
                     return;

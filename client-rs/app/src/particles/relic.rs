@@ -91,7 +91,13 @@ pub mod look {
     /// The dusk running out from a splash (pos1) to where the next one lands: pos2.x tiles away
     /// at `object_type` degrees, getting there in `duration` ms.
     pub const DUSK_FLOW: u8 = 45;
-    pub const LAST: u8 = 45;
+    /// A Realm Pass tier reached (`PassTracker`): a column of the season's light (`color`)
+    /// bursting up round its player, a ring racing out, stars and sparks.
+    pub const PASS_TIER: u8 = 46;
+    /// The Realm Pass made Gilded: a crown of gold sparks wheeling round its player, gold
+    /// raining out, two rings.
+    pub const PASS_GILDED: u8 = 47;
+    pub const LAST: u8 = 47;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -584,6 +590,7 @@ impl Particles {
         let color = e.color & 0xFF_FFFF;
         // (a forcefield lasts up to 20 s)
         let ms = e.duration.clamp(0, if matches!(look, look::FORCEFIELD | look::FIELD_SEEN) { 30_000 } else { 10_000 });
+        let r = if matches!(look, look::PASS_TIER | look::PASS_GILDED) { r.max(2.0) } else { r };
         let id = e.target_object_id;
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
@@ -1006,6 +1013,52 @@ impl Particles {
                 self.dusk_splash(x, y, r, color, e.object_type.min(2) as u8, now);
             }
             // the dusk running out along the floor to the next splash
+            look::PASS_TIER => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                let pale = mix(color, 0xFFFFFF, 0.6);
+                self.decal(DecalKind::Ring, cx, cy, r, color, now, 520, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.6, 0xFFFFFF, now + 80, 380, None);
+                self.decal(DecalKind::Stars, cx, cy, 1.1, color, now, 1400, Some(id));
+                // the column: light streaming straight up out of the ground round them
+                for i in 0..36 {
+                    let a = 2.0 * PI * i as f64 / 36.0;
+                    let d = 0.25 + 0.35 * self.random();
+                    let c = [color, pale, 0xFFFFFF][i % 3];
+                    let mut p = Particle::new(cx + d * a.cos(), cy + d * a.sin(), 0.1, c, 110.0 + 70.0 * self.random(), 650, Motion::Spark)
+                        .moving(0.0, 0.0, 0.006 + 0.004 * self.random());
+                    p.delay = (i as i32 * 17) % 260;
+                    self.add(p);
+                }
+                // a spiral of sparks winding up and out
+                for i in 0..16 {
+                    let a = i as f64 * 0.8;
+                    let mut p = Particle::new(cx, cy, 0.2 + i as f64 * 0.12, pale, 120.0, 700, Motion::Spark)
+                        .moving(a.cos() * 0.0025, a.sin() * 0.0025, 0.002);
+                    p.delay = i * 30;
+                    self.add(p);
+                }
+                self.debris(cx, cy, 18, &[color, pale, 0xFFFFFF], 110.0, 3.0, 6.0, 800, 120);
+                self.aura(look::STARLIGHT, id, cx, cy, 0.9, color, now, 1600, true);
+            }
+            look::PASS_GILDED => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                const GOLD: u32 = 0xFFD24A;
+                const SHINE: u32 = 0xFFF4C0;
+                self.decal(DecalKind::Ring, cx, cy, r * 1.2, GOLD, now, 600, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.7, SHINE, now + 140, 450, None);
+                self.decal(DecalKind::Stars, cx, cy, 1.2, GOLD, now, 2200, Some(id));
+                // a crown of gold over their head, its points flaring
+                for i in 0..10 {
+                    let a = 2.0 * PI * i as f64 / 10.0;
+                    let mut p = Particle::new(cx, cy, 1.4, if i % 2 == 0 { SHINE } else { GOLD }, 150.0, 1500, Motion::Swirl { id, angle: a, speed: 0.06, rad: 0.45, out: 0.0, rise: 0.0 });
+                    p.fade = true;
+                    self.add(p);
+                }
+                // gold raining out of it, and coins of light thrown up
+                self.debris(cx, cy, 30, &[GOLD, SHINE, 0xE0A020], 120.0, 3.5, 8.0, 1100, 100);
+                self.puffs(cx, cy, 8, &[GOLD, SHINE], 220.0, 0.8, 1.5, 900, 60);
+                self.aura(look::OATH, id, cx, cy, 1.0, GOLD, now, 1800, true);
+            }
             look::DUSK_FLOW => {
                 self.dusk_on = Some((id, now));
                 let a = (e.object_type as f64).to_radians();
@@ -1690,6 +1743,8 @@ impl Particles {
             look::DUSK_THROW => (0.0, 0xFFC060FF, 1000, false),
             look::DUSK_SPLASH => (2.5, 0xFFC060FF, 0, false),
             look::DUSK_FLOW => (3.5, 0xFF9A48F0, 500, false),
+            look::PASS_TIER => (3.0, 0xFF8FD0FF, 2200, true),
+            look::PASS_GILDED => (3.0, 0xFFFFD24A, 2200, true),
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)

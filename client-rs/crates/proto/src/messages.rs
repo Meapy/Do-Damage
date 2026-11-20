@@ -303,6 +303,26 @@ messages! {
         // boss rush's next boss (2 and 3 with one round: the boss's name and type); the season, the
         // fight's first and last wave, and each round (`ArenaRoundInfo`).
         170 => ArenaRound { kind: u8, season: u8, wave: i32, last_wave: i32, rounds: List8<ArenaRoundInfo> },
+        // The Realm Pass window (after PassAct 0, and after each act): the season (empty while
+        // none runs) and our place in it, every tier's rewards and claims, the Wayfarer's Cache's
+        // possible rewards, what earns pass XP, the auras and name colours, the next season, and
+        // what a Gilded pass adds to the community goals' loot.
+        172 => PassData {
+            now: i32, active: bool, season_key: String, season_name: String, theme: String,
+            accent: i32, dark: i32, light: i32, starts_at: i32, ends_at: i32,
+            xp: i32, xp_per_tier: i32, bonus_xp: i32, price: i32, gold: i32, gilded: bool,
+            momentum: u8, pace_tier: u8, first_dungeon_ready: bool, caches_opened: i32,
+            tiers: List8<PassTier>, cache: List8<PassReward>, sources: List8<PassSourceInfo>, dungeon_step: i32,
+            auras: List8<PassCosmetic>, aura: u8, colors: List8<PassCosmetic>, color: u8,
+            next_name: String, next_theme: String, next_starts_at: i32,
+            community_luck: u8, community_rolls: u8,
+        },
+        // Pass XP gained (after PassAct 0): how much, from what (`pass::source`), the total and
+        // tier now, and whether Momentum added to it.
+        173 => PassXp { gained: i32, source: u8, xp: i32, tier: u8, momentum: bool },
+        // The answer to PassAct: a code (`pass::code`) with a tier or count, the server's English,
+        // and what it paid (a claim's rewards, or what the caches rolled).
+        174 => PassResult { code: u8, success: bool, count: i32, message: String, rewards: List8<PassReward> },
     }
 }
 
@@ -453,5 +473,10 @@ messages! {
         // 255, once in each world: we can stay at our grave as a ghost when we die (GraveInfo).
         // An older server doesn't know it.
         168 => Grave { action: u8 },
+        // The Realm Pass: 0 ask for PassData (and from then on PassXp), 1 claim a tier (its
+        // index; -1 every one waiting), 2 make the pass Gilded (the price shown, which must still
+        // be the price), 3 wear an aura (its id; 0 none), 4 wear a name colour (its id; 0 none),
+        // 5 open the Wayfarer's Caches. An older server doesn't know it.
+        171 => PassAct { kind: u8, value: i32 },
     }
 }

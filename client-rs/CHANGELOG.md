@@ -46,6 +46,13 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - Items can be sold on the Marketplace for gold as well as fame: pick Fame or Gold beside the price on the Sell tab, or `/sell <slot> <price> gold`. The Market Broker keeps 10% of a sale for gold (5% for fame), and listings show which they're priced in.
 - The vault garden is twice as big, with room for 120 vault chests.
 
+### Realm Pass
+- The Realm Pass: a new season every month, 30 tiers earned by playing as you already do (quests, the daily reward, dungeons, bosses, realms and fame), with no chores and no tier slower than the one before. Open it with Y, the new Pass button beside Quests, or the Wayfarer just north of the Nexus spawn; `/pass` tells your tier in the chat.
+- The free track rewards everyone: fame, Potions of Max, Loot Drop Potions, an Elder key, an XP booster and the season's aura at tier 30. Gild it for 1,000 gold a season for a reward at every tier: three hand-drawn skins with their own effects (the Wizard's Frostcrown Archmage, the Warrior's Winterguard and the Archer's Aurora Ranger), 300 gold back, Elder keys, Potions of Max, clovers, a character slot, a name colour and the season's grand aura. Gilding counts for the tiers you've already reached.
+- Auras are new: snow, embers or stars round your character and in your footsteps, seen by everyone. Wear them and the name colours from the pass's Looks tab.
+- Behind the season's pace, Momentum makes pass XP come 50% faster until you catch up. Past tier 30, every 1,500 XP fills a Wayfarer's Cache, and anything you reached but didn't claim is paid when the season ends.
+- While your pass is Gilded, the community goals' loot is rolled one Overdrive level luckier, and once more.
+
 ### Servers
 - Fixed a rare crash when a player disconnected that took Europe 2 down on 18 November, and if the server ever stops unexpectedly it now comes back by itself within seconds instead of staying down until someone restarts it.
 

@@ -141,6 +141,16 @@ dotnet test source\Tests
 - **Testing:** `/questadmin time <hours>`, `add <event> [n] [flags]`, `done`, `reset` (admins, on a
   test stack only).
 
+## The Realm Pass
+
+- **Rules** in `Shared/pass/` (no game code, `PassBookTests`), everything tunable in
+  `Shared/resources/data/pass.json` (its `_about`); the game side is
+  `WorldServer/core/pass/PassTracker.cs`, one per player, fed by the same hooks as the quests.
+- **State:** the `pass` field of `account.<id>` (JSON), saved after every claim and purchase
+  (before paying), every 30 s while it changes, and on leaving.
+- **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>` and
+  `look <aura> [skin id]` (admins, on a test stack only); the Rust client's `--pass <tab>`.
+
 ## Commands
 
 - In `core/commands/` (`admin/`, `player/`, `supporter/`, `doomed/`): nested classes of the

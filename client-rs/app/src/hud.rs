@@ -55,6 +55,8 @@ const GRID_PAD: (f32, f32) = (6.0, 5.0);
 const NEXUS_W: f32 = 56.0;
 /// The vault button, at the right of the Quests button.
 const VAULT_W: f32 = 40.0;
+/// The Realm Pass's button, between them while a season runs.
+const PASS_W: f32 = 64.0;
 /// The inventory and backpack tabs: two square buttons in a small box.
 const TAB: f32 = 28.0;
 const TAB_PAD: f32 = 5.0;
@@ -174,9 +176,15 @@ impl Layout {
     /// The quest log's button, beside the Nexus button.
     /// The Quests button, beside the Nexus button; narrower in the vault, where the vault
     /// window's button takes the row's end.
-    pub fn quests_button(&self, vault: bool) -> [f32; 4] {
-        let w = GRID8.0 - NEXUS_W - SLOT_GAP - if vault { VAULT_W + SLOT_GAP } else { 0.0 };
+    pub fn quests_button(&self, vault: bool, pass: bool) -> [f32; 4] {
+        let w = GRID8.0 - NEXUS_W - SLOT_GAP - if vault { VAULT_W + SLOT_GAP } else { 0.0 } - if pass { PASS_W + SLOT_GAP } else { 0.0 };
         self.col_up(GRID_X + NEXUS_W + SLOT_GAP, NEXUS_UP, w, BURGER)
+    }
+
+    /// The Realm Pass's button, at the right of the Quests button (while a season runs).
+    pub fn pass_button(&self, vault: bool) -> [f32; 4] {
+        let right = GRID8.0 - if vault { VAULT_W + SLOT_GAP } else { 0.0 };
+        self.col_up(GRID_X + right - PASS_W, NEXUS_UP, PASS_W, BURGER)
     }
 
     /// The vault window's button, at the right end of the Nexus button's row (in the vault).
@@ -818,6 +826,8 @@ pub enum Button {
     Nexus,
     /// Open the quest log.
     Quests,
+    /// Open the Realm Pass.
+    Pass,
     /// Open the vault window.
     Vault,
     Page(Page),
@@ -1061,6 +1071,9 @@ pub struct HudState {
     /// The key bound to the quest log, and how many of its rewards wait, for its button.
     pub quests_key: String,
     pub quests_ready: usize,
+    /// The Realm Pass while a season runs (its tier, what waits), and its key.
+    pub pass: Option<crate::pass::HudPass>,
+    pub pass_key: String,
     /// We're in a vault: the vault window's button shows.
     pub in_vault: bool,
     /// The key bound to Interact, for the portal's Enter button.
@@ -1267,7 +1280,10 @@ impl Panel {
             });
         }
         panel.buttons.push((Button::Nexus, lay.nexus_button()));
-        panel.buttons.push((Button::Quests, lay.quests_button(state.in_vault)));
+        panel.buttons.push((Button::Quests, lay.quests_button(state.in_vault, state.pass.is_some())));
+        if state.pass.is_some() {
+            panel.buttons.push((Button::Pass, lay.pass_button(state.in_vault)));
+        }
         if state.in_vault {
             panel.buttons.push((Button::Vault, lay.vault_button()));
         }
@@ -1796,6 +1812,25 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
                     theme::fill(ui.renderer, [br[0] - s, br[1] - s, d + 2.0 * s, d + 2.0 * s], d / 2.0 + s, 0x000000, 0.5);
                     theme::fill(ui.renderer, br, d / 2.0, color::GOLD, 1.0);
                     let t = if ready > 9 { "9+".to_owned() } else { ready.to_string() };
+                    let ts = lay.font(11.0);
+                    let tw = ui.measure(&t, ts, true);
+                    ui.label(&t, br[0] + (d - tw) / 2.0, (br[1] + d / 2.0 - ui.digit_middle(ts, true)).round(), ts, true, color::ACCENT_TEXT);
+                }
+                continue;
+            }
+            Button::Pass => {
+                // The tier in a ring filling towards the next, gold once Gilded; a badge counts
+                // what waits.
+                let Some(p) = state.pass else { continue };
+                let hover = inside(*r, mouse);
+                ui.button(*r, "", if p.ready > 0 { Kind::Primary } else { Kind::Secondary }, hover, s);
+                crate::pass::hud_crest(ui, *r, &p, s);
+                if p.ready > 0 {
+                    let d = 17.0 * s;
+                    let br = [r[0] + r[2] - d * 0.7, r[1] - d * 0.35, d, d];
+                    theme::fill(ui.renderer, [br[0] - s, br[1] - s, d + 2.0 * s, d + 2.0 * s], d / 2.0 + s, 0x000000, 0.5);
+                    theme::fill(ui.renderer, br, d / 2.0, color::GOLD, 1.0);
+                    let t = if p.ready > 9 { "9+".to_owned() } else { p.ready.to_string() };
                     let ts = lay.font(11.0);
                     let tw = ui.measure(&t, ts, true);
                     ui.label(&t, br[0] + (d - tw) / 2.0, (br[1] + d / 2.0 - ui.digit_middle(ts, true)).round(), ts, true, color::ACCENT_TEXT);
@@ -2597,6 +2632,11 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     // The Quests button, a picture now: what it is and its key.
     if let Some(Button::Quests) = panel.button_at(mouse) {
         draw_key_hint(ui, lay, tr("Quest log"), &state.quests_key, mouse);
+        return;
+    }
+    if let (Some(Button::Pass), Some(p)) = (panel.button_at(mouse), state.pass) {
+        let label = tf!("Realm Pass: tier {tier} of {tiers}", tier = p.tier, tiers = p.tiers);
+        draw_key_hint(ui, lay, &label, &state.pass_key, mouse);
         return;
     }
     if let Some(Button::Page(p)) = panel.button_at(mouse) {
