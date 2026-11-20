@@ -16,6 +16,14 @@ namespace WorldServer.core.worlds
         private World World;
         private bool Stopped;
 
+        // when this thread's loop last came round (Environment.TickCount64): the world watchdog
+        // (core/WorldWatchdog.cs) notices a world stuck in a tick, which no player can leave
+        private long _lastPass = Environment.TickCount64;
+
+        public string Name => $"{World.IdName} {World.Id}";
+        public bool IsStopped => Stopped;
+        public long SilentMs => Environment.TickCount64 - Volatile.Read(ref _lastPass);
+
         public RootWorldThread(WorldManager worldManager, World world)
         {
             WorldManager = worldManager;
@@ -44,6 +52,7 @@ namespace WorldServer.core.worlds
                 NetworkSendHandler.BeginBatch();
                 while (!Stopped)
                 {
+                    Volatile.Write(ref _lastPass, Environment.TickCount64);
                     var ioStart = watch.ElapsedMilliseconds;
                     profile.Begin();
                     // the time now, for the messages (a Pong's round trip): it was last set before the last pass

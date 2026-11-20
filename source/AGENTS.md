@@ -65,6 +65,13 @@ dotnet test source\Tests
   on socket threads (the `NetworkHandler` callbacks, `Client.Disconnect`) must never let an
   exception out: on a pool thread it ends the process without saving anyone. Touch a player's
   world state there only through `World.Post`.
+- **Stuck worlds:** `core/WorldWatchdog.cs`, on the main loop, notices a world thread whose loop
+  hasn't come round for 60 s (`BSK_WATCHDOG_SECONDS`): it logs "World watchdog", writes
+  `restart.request` (a rolling restart; players on a stuck world move at once) and saves a heap
+  dump to `build/live/dumps/` (Linux, `createdump`, the newest 2 kept, ~1.5 GB each). Read one with
+  `dotnet-dump analyze <file>` on Linux (WSL): `clrstack -all`, `syncblk`. Try it on an isolated
+  rolling stack started with `BSK_TEST_HANG_NEXUS=<seconds>`, which hangs the Nexus that long after
+  start-up (each new server too); never set it on the VPS.
 - **Realms carry over:** each Nexus realm keeps a snapshot in the Redis hash `realms`
   (`core/worlds/RealmSnapshots.cs`, `RealmManager.Snapshot.cs`) that a new server reopens;
   `/uptime` reads `worlds:upSince`. New realm state worth keeping goes in the snapshot; what it

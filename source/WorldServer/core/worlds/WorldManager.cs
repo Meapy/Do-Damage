@@ -320,6 +320,43 @@ namespace WorldServer.core.worlds
             world.OnRemovedFromWorldManager();
         }
 
+        // The watchdog runs on the main loop, which must never wait on a stuck world: these give up
+        // (nothing found) rather than wait long for the threads' lock.
+        private const int WatchdogLockMs = 500;
+
+        /// <summary>The world threads whose loop hasn't come round for this long (WorldWatchdog).</summary>
+        public List<RootWorldThread> StuckThreads(long silentMs)
+        {
+            if (!Monitor.TryEnter(Threads, WatchdogLockMs))
+                return new List<RootWorldThread>();
+            try
+            {
+                return Threads.Values.Where(t => !t.IsStopped && t.SilentMs >= silentMs).ToList();
+            }
+            finally
+            {
+                Monitor.Exit(Threads);
+            }
+        }
+
+        /// <summary>The thread a world runs on: its own, or its root's for a branch (a vault, a dungeon).</summary>
+        public RootWorldThread ThreadOf(World world)
+        {
+            if (!Monitor.TryEnter(Threads, WatchdogLockMs))
+                return null;
+            try
+            {
+                for (var w = world; w != null; w = w.ParentWorld)
+                    if (Threads.TryGetValue(w.Id, out var thread))
+                        return thread;
+                return null;
+            }
+            finally
+            {
+                Monitor.Exit(Threads);
+            }
+        }
+
         public void Dispose()
         {
             lock (Threads)

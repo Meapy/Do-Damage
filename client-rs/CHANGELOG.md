@@ -24,6 +24,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Arena
 - The players who came first in Arena Season 1, solo or in a group, can glow hot pink: pick Arena under Glow in the Customize window.
 
+### Game
+- If the Nexus (or any world) ever freezes, the server notices within a minute and moves everyone to a fresh one by itself, so nobody is left unable to get in.
+
 ## 2.6.1 (2026-11-20)
 
 ### Arena
