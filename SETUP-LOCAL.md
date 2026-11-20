@@ -730,7 +730,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Frontline, the sword classes' passive** (2026-11-18; `Player.Frontline.cs`, called from
   `Player.Projectiles.cs`, `Player.cs` `Damage` and `Player.Ground.cs`; the Rust client's
   `combat.rs` `frontline`, `frontline_class`): a class whose first slot type is 1 (swords: the
-  Warrior, Knight, Paladin and Pirate) takes `FrontlineCutPercent` (15%) off every hit after
+  Warrior, Knight, Paladin and Pirate) takes `FrontlineCutPercent` (5%, 15% until 2.6.2) off every hit after
   defense and a forcefield, rounded to the nearest point, which the client predicts for the
   numbers it shows. Weapon hits on enemies feed a `FrontlineLeech`: 1.5% of the damage, at most
   40 health a second, paid about once a second as a green "+n" (not while Sick or a ghost). A

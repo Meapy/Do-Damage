@@ -1303,7 +1303,7 @@
 "{name} has risen!": "{name} powstał!",
 "{n} Empowered slain|{n} Empowered slain": "{n} wzmocniony pokonany|{n} wzmocnionych pokonanych|{n} wzmocnionych pokonanych",
 "SEASON {n} RECORD": "REKORD SEZONU {n}",
-"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Pierwsza linia: otrzymuje 15% mniej obrażeń od każdego trafienia i leczy się o 1,5% obrażeń zadanych mieczem, do 40 zdrowia na sekundę.",
+"Frontline: takes 5% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Pierwsza linia: otrzymuje 5% mniej obrażeń od każdego trafienia i leczy się o 1,5% obrażeń zadanych mieczem, do 40 zdrowia na sekundę.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Leczenie Paladyna obejmuje też sojuszników w promieniu 4 pól.",
 "Pirate's luck: one shot in ten misses him entirely.": "Szczęście pirata: co dziesiąty pocisk całkiem go omija.",
 "Lucky!": "Farciarz!",

@@ -168,7 +168,7 @@ pub fn shielded(damage: i32, percent: i32) -> i32 {
 
 /// Frontline, the sword classes' passive (the server's `Player.Frontline`): every hit (after
 /// defense and a forcefield) loses this share, rounded to the nearest point.
-pub const FRONTLINE_CUT_PERCENT: i32 = 15;
+pub const FRONTLINE_CUT_PERCENT: i32 = 5;
 /// The weapon slot type of swords: a class whose first slot takes them is Frontline.
 pub const SWORD_SLOT: i32 = 1;
 
@@ -788,9 +788,9 @@ mod tests {
     #[test]
     fn frontline_rounds_as_the_server_does() {
         // the server's FrontlineTests
-        assert_eq!(frontline(100), 85);
-        assert_eq!(frontline(160), 136);
-        assert_eq!(frontline(10), 8);
+        assert_eq!(frontline(100), 95);
+        assert_eq!(frontline(160), 152);
+        assert_eq!(frontline(10), 9);
         assert_eq!(frontline(1), 1);
         assert_eq!(frontline(0), 0);
     }

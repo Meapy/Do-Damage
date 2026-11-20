@@ -1557,7 +1557,7 @@ impl Front {
         }
         if bsk_world::combat::frontline_class(ui.data, class) {
             text.push(None);
-            wrap(ui, tr("Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
+            wrap(ui, tr("Frontline: takes 5% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second."), color::TEXT, &mut text);
             if desc.id == "Paladin" {
                 wrap(ui, tr("The Paladin's healing also reaches allies within 4 tiles."), color::TEXT, &mut text);
             } else if desc.id == "Pirate (Doomed)" {

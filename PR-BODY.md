@@ -1,9 +1,10 @@
-Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass skins only from the pass, a [Gilded] chat title and the pass's Gilded perks tab; deploys client, servers and website (players are not disconnected)
+Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass skins only from the pass, a [Gilded] chat title and the pass's Gilded perks tab, the sword classes take 5% less damage (was 15%); deploys client, servers and website (players are not disconnected)
 
 ## For players
 
 - **Skins:** every skin was unlocked for everyone by mistake, the Realm Pass's season skins too. Each skin now costs **200 gold** (it said 300 where it showed a price at all), bought on a class's page when making a new character, once the class has reached the skin's level; the skins that said "Special" are sold the same way. Whatever skin one of your living characters is wearing stays yours, so nobody loses the look they play. The Realm Pass's skins (Frostcrown Archmage, Winterguard, Aurora Ranger) come only from claiming them on the Gilded track: a character wearing one its account never claimed goes back to its class's own look.
 - **Realm Pass:** a Gilded pass now gives a **[Gilded] title** before your name in the chat, in gold, with a soft light that runs across it every few seconds and a small glint as it leaves. The pass window has a new **Gilded perks** tab: everything a Gilded pass does besides its track (twice the `/visit` and `/summon` trips, a second chance in the Arena, luckier community goal loot, the chat title and the track itself), each card marked Active once your pass is Gilded.
+- **Classes:** Frontline, the sword classes' passive (Warrior, Knight, Paladin, Pirate), now takes **5%** off every hit instead of 15%. The sword's healing (1.5% of its damage, at most 40 health a second), the Paladin's healing of allies and the Pirate's lucky dodge are unchanged.
 
 ## Details
 
@@ -24,6 +25,12 @@ Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass s
 - 14 new lines in every `client-rs/app/lang/*.json`.
 - Redeploys: world servers and client. Players are not disconnected.
 
+### Frontline cut 15% to 5%
+
+- `Player.FrontlineCutPercent` (server, `Player.Frontline.cs`) and `FRONTLINE_CUT_PERCENT` (Rust client, `crates/world/src/combat.rs`, which predicts the damage numbers it shows) go from 15 to 5, still rounded to the nearest point. Tests updated: `FrontlineTests`, `frontline_rounds_as_the_server_does` (100 to 95, 160 to 152, 10 to 9).
+- The class card's Frontline line (`screens.rs`) says 5%, in every `lang/*.json`; `website/wiki/classes.md` and SETUP-LOCAL.md say 5%.
+- Redeploys: world servers and client. Until players update, an old client shows hits on sword classes about 10% smaller than the server deals (health comes from the server; only the floating numbers are off). Nobody is disconnected; no Redis data changes.
+
 ### Wiki
 
 - `website/wiki/realm-pass.md`: the fourth tab, the chat title, pass skins only from the track. `website/wiki/getting-started.md`: skins cost 200 gold and where to buy them.
@@ -33,6 +40,7 @@ Release 2.6.2: skins cost 200 gold (they were all free by mistake), Realm Pass s
 - `dotnet build -c Release` of `source/` succeeds.
 - `cargo test -p bsk-client -p bsk-proto` (translation checks, chat pieces with and without the Gilded title).
 - `python tools/build_wiki.py --out <scratch>` builds; the Realm Pass page shows the new tab and title.
+- Frontline at 5%: `dotnet test source\Tests --filter FrontlineTests`, `cargo test -p bsk-world frontline` and `cargo test -p bsk-client` pass; not tried in game.
 - Isolated stack (slot 3) on a copy of the PC's old data, where every account held every skin: the account server's first start logged `Skins: 5 accounts kept 12 of the 3355 skins they had`; one account kept exactly the 9 skins its living characters wore. A restart skipped it (the key was set).
 - `/account/purchaseSkin` on that stack: a pass skin refused, a plain Wizard skin bought for 200 (450 → 250 gold), buying it again refused, a skin with 150 gold refused, an unknown type refused, `totalCredits` untouched.
 - The client on that stack: the Wizard's page shows the bought skin owned, the rest at 200 gold or their level, Frostcrown Archmage as Realm Pass. After `/passadmin gilded`, a chat line shows `[Gilded] <Tester> ...` in gold; the Gilded perks tab shows five Active cards (English and German). A character saved in Frostcrown Archmage, unowned, entered in its own look and saved skin 0.

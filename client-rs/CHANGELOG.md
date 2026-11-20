@@ -20,6 +20,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Realm Pass
 - A Gilded pass gives you a gold [Gilded] title in chat, with a glint that runs across it now and then, and the pass has a new Gilded perks tab listing everything a Gilded pass does besides its rewards: twice the /visit and /summon trips, a second chance in the Arena, luckier community goal loot and the chat title.
 
+### Classes
+- The sword classes (Warrior, Knight, Paladin and Pirate) now take 5% less damage from every hit, down from 15%.
+
 ## 2.6.1 (2026-11-20)
 
 ### Arena

@@ -1303,7 +1303,7 @@
 "{name} has risen!": "{name} повстав!",
 "{n} Empowered slain|{n} Empowered slain": "{n} посилений переможений|{n} посилених переможено|{n} посилених переможено",
 "SEASON {n} RECORD": "РЕКОРД СЕЗОНУ {n}",
-"Frontline: takes 15% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Передова: отримує на 15% менше шкоди від кожного влучання і лікується на 1,5% шкоди, завданої мечем, до 40 здоров'я на секунду.",
+"Frontline: takes 5% less damage from every hit and heals 1.5% of the damage the sword deals, up to 40 health a second.": "Передова: отримує на 5% менше шкоди від кожного влучання і лікується на 1,5% шкоди, завданої мечем, до 40 здоров'я на секунду.",
 "The Paladin's healing also reaches allies within 4 tiles.": "Лікування паладина дістається й союзникам у радіусі 4 клітинок.",
 "Pirate's luck: one shot in ten misses him entirely.": "Піратська удача: кожен десятий постріл пролітає повз.",
 "Lucky!": "Пощастило!",
