@@ -24,6 +24,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Classes
 - The sword classes (Warrior, Knight, Paladin and Pirate) now take 5% less damage from every hit, down from 15%.
 
+### Arena
+- The players who came first in Arena Season 1, solo or in a group, can glow hot pink: pick Arena under Glow in the Customize window.
+
 ## 2.6.1 (2026-11-20)
 
 ### Arena

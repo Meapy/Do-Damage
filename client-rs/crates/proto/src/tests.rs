@@ -420,6 +420,11 @@ fn quest_messages_match_quest_handlers() {
     let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
     let looks = d.looks.unwrap();
     assert_eq!((looks.champion_color, looks.champion_glow, looks.legend, looks.own_glow, looks.name_from, looks.glow_from), (0xFFD24A, 0, true, 0, 1, 2));
+    assert_eq!(d.arena_first, None);
+    // then whether the account came first in an ended Arena season
+    let b = b.u8(1);
+    let ServerMessage::QuestsData(d) = ServerMessage::decode(104, &b.0).unwrap() else { panic!() };
+    assert_eq!(d.arena_first, Some(true));
     assert_eq!((d.now, d.rank, d.points, d.color_rank), (1_800_000_000, 1, 120, 255));
     assert_eq!((d.ranks[0].name.as_str(), d.ranks[0].color), ("Adventurer", 0xCD8A4E));
     assert_eq!((d.periods[0].rerolls_left, d.periods[0].bonus[0].item), (1, 0x0c69));

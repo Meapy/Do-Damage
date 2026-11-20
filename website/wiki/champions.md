@@ -51,9 +51,10 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 - **Experience** at level 20 turns into fame, so Weekly Fame's reward is more fame too.
 - **Glow and name colour:** the **Customize** window (Escape, then Customize) picks where each comes
   from. Your name: an achievement rank's colour, or the Achievements board's while you hold a place
-  there. Your glow: the Stars board's, the Legends' red (a character on a Legends board, the dead's
-  fame), your own `/glow`, or none. Left on **Automatic**, your own glow shows first, then the Stars
-  glow, then the Legends' red. A choice whose place you lose falls back to the usual order and comes
+  there. Your glow: the Stars board's, the Arena's hot pink (for the players of the #1 solo run and
+  the #1 group run of Arena Season 1, for good), the Legends' red (a character on a Legends board,
+  the dead's fame), your own `/glow`, or none. Left on **Automatic**, your own glow shows first,
+  then the Stars glow, then the Arena's hot pink, then the Legends' red. A choice whose place you lose falls back to the usual order and comes
   back with the place.
 - `/boosts` lists every reward you hold.
 

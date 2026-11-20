@@ -1,12 +1,14 @@
 ﻿using Shared;
 using Shared.database;
 using Shared.database.guild;
+using Shared.database.leaderboard;
 using Shared.database.party;
 using Shared.resources;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using WorldServer.core.net.stats;
 using WorldServer.core.objects.containers;
 using WorldServer.core.objects.inventory;
@@ -142,6 +144,8 @@ namespace WorldServer.core.objects
         // the account has a character on a Legends board, as of entering this world: the legend
         // glow and its loot boost (LootBoosts.Legend)
         public bool IsLegend { get; private set; }
+        // in the #1 solo or group run of an ended Arena season (ArenaFirsts): the hot pink glow
+        public bool IsArenaFirst { get; private set; }
 
         // the Realm Pass aura worn (StatDataType.Aura; PassTracker sets it)
         private StatTypeValue<int> _aura;
@@ -349,6 +353,12 @@ namespace WorldServer.core.objects
             _ = GameServer.Database.IsLegend(AccountId).ContinueWith(t =>
             {
                 IsLegend = t.IsCompletedSuccessfully && t.Result;
+                UpdateGlow();
+            });
+
+            _ = Task.Run(() => ArenaFirsts.Holds(GameServer.Database, AccountId)).ContinueWith(t =>
+            {
+                IsArenaFirst = t.IsCompletedSuccessfully && t.Result;
                 UpdateGlow();
             });
 
