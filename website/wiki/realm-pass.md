@@ -66,7 +66,9 @@ ends and gives, besides its track:
   [community goal](community-goals.html) tier you claim is rolled {{v:pass_luck}} Overdrive level
   luckier, and rolled {{v:pass_rolls}} more time.
 - **A title in chat**: your name in the chat wears a gold **[Gilded]** title before it, which a
-  soft glint runs across every few seconds.
+  soft glint runs across every few seconds. Rather go without? The **Hide** button on its card in
+  the pass's Gilded perks tab (or `/pass title off`) hides it, and **Show** (or `/pass title on`)
+  brings it back. Your choice is kept for later seasons.
 - A gold crown of light when you buy it, which everyone around you sees.
 
 Gold comes from the [Gold Store](../gold.html), and the Gilded track pays some

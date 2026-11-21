@@ -697,6 +697,21 @@ namespace WorldServer.core.commands.player
         }
     }
 
+    // The Discord server's invite in chat. The Rust client answers /discord itself (a window
+    // that opens the link), so this reaches only older clients and scripts.
+    internal class DiscordCommand : Command
+    {
+        public const string Invite = "https://discord.gg/YTYWTFDRCD";
+
+        public override string CommandName => "discord";
+
+        protected override bool Process(Player player, TickTime time, string args)
+        {
+            player.SendInfo("Join the Do Damage Discord: " + Invite);
+            return true;
+        }
+    }
+
     // into the Arena game the Nexus's portal leads to (DoomedWorlds.JoinArena)
     internal class ArenaCommand : Command
     {

@@ -129,6 +129,24 @@ namespace Tests
         }
 
         [Fact]
+        public void GildedTitleTurnsOffAndOnAndOutlastsTheSeason()
+        {
+            var book = Book(Launch);
+            Assert.Equal(PassCode.NotGilded, book.ShowTitle(false).Code);
+            Assert.False(book.State.HideTitle);
+            book.MarkGilded();
+            Assert.Equal(PassCode.TitleHidden, book.ShowTitle(false).Code);
+            Assert.True(PassState.FromJson(book.State.ToJson()).HideTitle);
+            // the next season keeps the choice for when the pass is Gilded again
+            var next = Book(Data.After(Launch).StartsAt, book.State);
+            Assert.False(next.State.Gilded);
+            Assert.True(next.State.HideTitle);
+            next.MarkGilded();
+            Assert.Equal(PassCode.TitleShown, next.ShowTitle(true).Code);
+            Assert.False(next.State.HideTitle);
+        }
+
+        [Fact]
         public void GildedBoostsCommunityLoot()
         {
             var book = Book(Launch);

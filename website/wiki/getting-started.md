@@ -213,15 +213,19 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
-  A skin costs **200 gold**, bought on a class's page when you make a new character (some need
-  the class at a level first); once bought it's yours on the account, and the Armoire puts it on
-  any character of that class. The [Realm Pass](realm-pass.html)'s skins come only from its
-  Gilded track.
+  A skin costs **200 gold**, bought at the Armoire (it shows every skin of your character's
+  class, its price, and puts a skin on as you buy it) or on a class's page when you make a new
+  character; some need the class at a level first. Once bought it's yours on the account, and the
+  Armoire puts it on any character of that class. The [Realm Pass](realm-pass.html)'s skins come
+  only from its Gilded track.
   Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,
   and picks someone new every 45 seconds. Press **Watch** to open it big: the arrows (or the
   Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on
   them, and beside it a chat for everyone watching: the player you watch sees what you say there,
-  and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. Players in the Nexus, a vault or a guild hall
+  and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. The corner of
+  the picture shows the gear they wear (hover an item for its details), and **Ask to join** asks
+  them to let you in where they are, as [`/visit`](commands.html) does, and into a realm too:
+  if they say Yes you go straight there. Players in the Nexus, a vault or a guild hall
   aren't shown, and `/glass off` keeps you out of it.
   The koi pond round the deck is shallow: wade across it, west, east or south, to the paths to
   the big bridges. Every ten minutes the Support Bot lets a flock of **XP ducks** onto the pond:

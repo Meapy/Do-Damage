@@ -5577,7 +5577,7 @@
 		<ExtraTooltipData>
 			<EffectInfo name="" description="Only usable once you&apos;ve been visible for 0.5 secs"/>
 		</ExtraTooltipData>
-		<Cooldown>1.5</Cooldown>
+		<Cooldown>6</Cooldown>
 		<feedPower>750</feedPower>
 		<Soulbound/>
 	</Object>

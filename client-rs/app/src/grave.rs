@@ -61,9 +61,9 @@ fn phase(t: i32, from: i32, span: i32) -> f32 {
     ((t - from) as f32 / span.max(1) as f32).clamp(0.0, 1.0)
 }
 
-/// A small hash of `i` and `salt`, 0 to 1, so each mote keeps its own path.
-fn hash(i: u32, salt: u32) -> f32 {
-    let mut h = i.wrapping_mul(0x9E37_79B9) ^ salt.wrapping_mul(0x85EB_CA6B);
+/// A small hash of `i` and `seed`, 0 to 1, so each mote keeps its own path.
+fn hash(i: u32, seed: u32) -> f32 {
+    let mut h = i.wrapping_mul(0x9E37_79B9) ^ seed.wrapping_mul(0x85EB_CA6B);
     h ^= h >> 15;
     h = h.wrapping_mul(0x2C1B_3C6D);
     h ^= h >> 12;

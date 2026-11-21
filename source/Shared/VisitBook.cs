@@ -30,6 +30,8 @@ namespace Shared
             public string TargetName;
             public int WorldId;
             public long Expires;
+            // asked from the Scrying Glass (Ask to join): a Yes may let them into a realm too
+            public bool Glass;
             // On another world server (RemoteVisits): the instance id of the server the other side
             // plays on, and the id the request has there; null when both sides play here.
             public string Server;

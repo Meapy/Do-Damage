@@ -210,14 +210,44 @@ impl Prompt {
     }
 }
 
+/// A skin on the Armoire's shelves.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ArmoireSkin {
+    /// The skin's type (0: the class's own look).
+    pub skin: u16,
+    pub lock: SkinLock,
+    /// Its price in gold.
+    pub cost: i32,
+}
+
+/// Whether the account may wear a skin, or what it takes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SkinLock {
+    Owned,
+    /// For sale, for its price in gold.
+    ForSale,
+    /// The class must reach this level first.
+    Level(i32),
+    /// Only the Realm Pass gives it.
+    Pass,
+}
+
+/// The gold the account has (`CREDITS_STAT`).
+const CREDITS: u8 = 35;
+
+/// Skins in a row of the Armoire.
+const SKIN_COLUMNS: usize = 5;
+
 /// A window an NPC opened.
 #[derive(Clone, Debug)]
 pub enum Window {
-    /// The Armoire: the class's skins (0 is the class's own look).
-    Skins { class: u16, skins: Vec<u16> },
+    /// The Armoire: the class's skins (the class's own look first), and the one being bought.
+    Skins { class: u16, skins: Vec<ArmoireSkin>, confirm: Option<ArmoireSkin> },
     Prompt { prompt: Prompt, input: String, error: Option<String>, busy: bool },
     /// Leave the guild?
     Renounce,
+    /// `/discord`: the server's invite, to open in the browser.
+    Discord,
     /// The board's text once it has come, and the text being edited.
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
     Members { list: Option<Guild>, page: usize, error: Option<String> },
@@ -235,10 +265,14 @@ pub enum Window {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Act {
     Reskin(i32),
+    /// Buy this skin and wear it (a `Reskin` for a skin the account lacks).
+    BuySkin(i32),
     ChooseName(String),
     CreateGuild(String),
     /// Leave the guild (`GuildRemove` with our own name).
     Renounce,
+    /// Open the Discord invite in the browser.
+    OpenDiscord,
     SaveBoard(String),
     ChangeRank(String, i32),
     Remove(String),
@@ -250,7 +284,10 @@ pub enum Act {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Hit {
     Close,
-    Skin(u16),
+    /// The Armoire's skin at this place.
+    Skin(usize),
+    /// Back from a question to the window behind it.
+    Back,
     Submit,
     Edit,
     Page(i32),
@@ -273,6 +310,9 @@ pub struct Npcs {
     pub reload_at: Option<i32>,
     /// The price the Guild Register sent when its window was opened.
     pub guild_price: Option<i32>,
+    /// A skin bought at the Armoire, until the character wears it (then the account owns it).
+    /// Kept when the window closes.
+    pub buying: Option<u16>,
 }
 
 /// Rows of the member list per page.
@@ -360,7 +400,8 @@ impl Npcs {
     }
 
     pub fn close(&mut self) {
-        *self = Npcs::default();
+        let buying = self.buying;
+        *self = Npcs { buying, ..Npcs::default() };
     }
 
     /// A click: inside the window it may do something; outside, it closes the window.
@@ -371,13 +412,32 @@ impl Npcs {
             return None;
         }
         let hit = self.buttons.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h)?;
-        if hit == Hit::Close || (hit == Hit::Submit && matches!(self.window, Some(Window::Renounce))) {
+        if hit == Hit::Close || (hit == Hit::Submit && matches!(self.window, Some(Window::Renounce | Window::Discord))) {
+            let act = if matches!(self.window, Some(Window::Discord)) { Act::OpenDiscord } else { Act::Renounce };
             self.close();
-            return (hit == Hit::Submit).then_some(Act::Renounce);
+            return (hit == Hit::Submit).then_some(act);
         }
         let my_rank = me.map_or(0, |m| int(m, stat::GUILD_RANK));
         match (hit, self.window.as_mut()?) {
-            (Hit::Skin(skin), _) => Some(Act::Reskin(skin as i32)),
+            (Hit::Skin(i), Window::Skins { skins, confirm, .. }) => {
+                let k = *skins.get(i)?;
+                match k.lock {
+                    SkinLock::Owned => Some(Act::Reskin(k.skin as i32)),
+                    SkinLock::ForSale => {
+                        *confirm = Some(k);
+                        None
+                    }
+                    _ => None,
+                }
+            }
+            (Hit::Back, Window::Skins { confirm, .. }) => {
+                *confirm = None;
+                None
+            }
+            (Hit::Submit, Window::Skins { confirm, .. }) => {
+                let k = confirm.take()?;
+                Some(Act::BuySkin(k.skin as i32))
+            }
             (Hit::Submit, Window::Prompt { prompt, input, busy, error }) => submit(*prompt, input, busy, error),
             (Hit::Edit, Window::Board { text, edit, .. }) => {
                 if edit.is_none() {
@@ -434,6 +494,7 @@ impl Npcs {
         let enter = matches!(code, KeyCode::Enter | KeyCode::NumpadEnter);
         match self.window.as_mut()? {
             Window::Board { edit: edit @ Some(_), .. } if code == KeyCode::Escape => *edit = None,
+            Window::Skins { confirm: confirm @ Some(_), .. } if code == KeyCode::Escape => *confirm = None,
             _ if code == KeyCode::Escape => self.close(),
             Window::Champions(view) if matches!(code, KeyCode::ArrowLeft | KeyCode::ArrowRight) => {
                 view.step(if code == KeyCode::ArrowLeft { -1 } else { 1 });
@@ -441,6 +502,10 @@ impl Npcs {
             Window::Renounce if enter => {
                 self.close();
                 return Some(Act::Renounce);
+            }
+            Window::Discord if enter => {
+                self.close();
+                return Some(Act::OpenDiscord);
             }
             Window::Prompt { prompt, input, busy, error } => {
                 if enter {
@@ -496,9 +561,11 @@ impl Npcs {
         };
         let s = lay.s;
         let (w, h) = match window {
-            Window::Skins { skins, .. } => (420.0, 120.0 + 112.0 * skins.len().div_ceil(4).max(1) as f32),
+            Window::Skins { confirm: Some(_), .. } => (380.0, 290.0),
+            Window::Skins { skins, .. } => (520.0, 120.0 + 112.0 * skins.len().div_ceil(SKIN_COLUMNS).max(1) as f32),
             Window::Prompt { .. } => (360.0, 230.0),
             Window::Renounce => (360.0, 180.0),
+            Window::Discord => (400.0, 200.0),
             Window::Board { .. } => (440.0, 400.0),
             // The guild's summary, then as tall as the list (paged past MEMBER_ROWS).
             Window::Members { list, .. } => {
@@ -531,6 +598,7 @@ impl Npcs {
             Window::Prompt { prompt: Prompt::Name, .. } => tr("Choose a name").to_owned(),
             Window::Prompt { prompt: Prompt::Guild, .. } => tr("Create a guild").to_owned(),
             Window::Renounce => tr("Leave the guild").to_owned(),
+            Window::Discord => tr("Join our Discord").to_owned(),
             Window::Board { .. } => tr("Guild board").to_owned(),
             Window::Members { list, .. } => list.as_ref().map_or(tr("Guild members").to_owned(), |l| l.name.clone()),
             Window::Potions { .. } => tr("Potion storage").to_owned(),
@@ -553,28 +621,64 @@ impl Npcs {
 
         let mut buttons = Vec::new();
         match window {
-            Window::Skins { class, skins } => {
+            Window::Skins { confirm: Some(k), .. } => {
+                let gold = me.map_or(0, |m| int(m, CREDITS));
+                if let Some(desc) = ui.data.objects.get(&k.skin) {
+                    let (t1, t2) = me.map_or((0, 0), |m| (int(m, crate::hud::stat::TEX1), int(m, crate::hud::stat::TEX2)));
+                    crate::screens::portrait(ui, desc, t1, t2, r[0] + r[2] / 2.0, body[1] + 40.0 * s, s);
+                    let title = tf!("Buy {name} for {cost} gold?", name = desc.display_id.as_str(), cost = k.cost);
+                    ui.label_fit(&title, body[0], body[1] + 92.0 * s, body[2], font(15.0), true, color::TEXT);
+                }
+                ui.label_fit(tr("Yours for good, on every character of this class."), body[0], body[1] + 118.0 * s, body[2], font(12.0), false, color::TEXT_DIM);
+                let (line, c) = if gold < k.cost { (tr("Not enough gold").to_owned(), color::DANGER) } else { (tf!("You have {gold} gold.", gold), color::GOLD) };
+                ui.label(&line, body[0], body[1] + 140.0 * s, font(12.0), true, c);
+                if gold >= k.cost {
+                    buttons.push((Hit::Submit, tr("Buy").to_owned(), Kind::Primary));
+                }
+                buttons.push((Hit::Back, tr("Back").to_owned(), Kind::Secondary));
+            }
+            Window::Skins { class, skins, confirm: None } => {
                 let current = me.map_or(0, |m| int(m, crate::hud::stat::TEXTURE)) as u16;
+                let gold = me.map_or(0, |m| int(m, CREDITS));
                 ui.label(tr("Pick a look for this character."), body[0], body[1], font(12.0), false, color::TEXT_DIM);
-                let cell = (body[2] / 4.0).floor();
-                for (i, &skin) in skins.iter().enumerate() {
-                    let cr = [body[0] + (i % 4) as f32 * cell + 3.0 * s, body[1] + 26.0 * s + (i / 4) as f32 * 112.0 * s, cell - 6.0 * s, 104.0 * s];
-                    let on = skin == current;
-                    let over = inside(cr, mouse);
+                let cell = (body[2] / SKIN_COLUMNS as f32).floor();
+                for (i, k) in skins.iter().enumerate() {
+                    let (col, row) = ((i % SKIN_COLUMNS) as f32, (i / SKIN_COLUMNS) as f32);
+                    let cr = [body[0] + col * cell + 3.0 * s, body[1] + 26.0 * s + row * 112.0 * s, cell - 6.0 * s, 104.0 * s];
+                    let on = k.skin == current;
+                    let usable = matches!(k.lock, SkinLock::Owned | SkinLock::ForSale);
+                    let over = usable && !on && inside(cr, mouse);
                     let edge = if on { color::ACCENT } else if over { color::BORDER_HI } else { color::BORDER };
                     theme::frame(ui.renderer, cr, 7.0 * s, s.max(1.0), (edge, 1.0), ((color::SLOT_TOP, 1.0), (color::SLOT_BOTTOM, 1.0)));
-                    let desc = ui.data.objects.get(if skin == 0 { class } else { &skin });
+                    let desc = ui.data.objects.get(if k.skin == 0 { class } else { &k.skin });
                     if let Some(desc) = desc {
                         let (t1, t2) = me.map_or((0, 0), |m| (int(m, crate::hud::stat::TEX1), int(m, crate::hud::stat::TEX2)));
-                        crate::screens::portrait(ui, desc, t1, t2, cr[0] + cr[2] / 2.0, cr[1] + 42.0 * s, s);
-                        let name = if skin == 0 { tr("Classic").to_owned() } else { desc.display_id.clone() };
+                        crate::screens::portrait(ui, desc, t1, t2, cr[0] + cr[2] / 2.0, cr[1] + 38.0 * s, s);
+                        if k.lock != SkinLock::Owned {
+                            // not the account's yet: the portrait dimmed
+                            theme::fill(ui.renderer, cr, 7.0 * s, 0x000000, if usable { 0.25 } else { 0.5 });
+                        }
+                        let name = if k.skin == 0 { tr("Classic").to_owned() } else { desc.display_id.clone() };
                         let ns = font(11.0);
                         let name = fit(ui, &name, ns, cr[2] - 8.0 * s);
                         let nw = ui.measure(&name, ns, true);
-                        ui.label(&name, cr[0] + (cr[2] - nw) / 2.0, cr[1] + cr[3] - 24.0 * s, ns, true, if on { color::ACCENT_HI } else { color::TEXT });
+                        ui.label(&name, cr[0] + (cr[2] - nw) / 2.0, cr[1] + cr[3] - 34.0 * s, ns, true, if on { color::ACCENT_HI } else { color::TEXT });
                     }
-                    if !on {
-                        self.buttons.push((Hit::Skin(skin), cr));
+                    // what it takes, under the name
+                    let tag = match k.lock {
+                        SkinLock::Owned => None,
+                        SkinLock::ForSale => Some((tf!("{price} gold", price = k.cost), if gold < k.cost { color::DANGER } else { color::GOLD })),
+                        SkinLock::Level(level) => Some((tf!("Level {level}", level), color::TEXT_MUTED)),
+                        SkinLock::Pass => Some((tr("Realm Pass").to_owned(), color::TEXT_MUTED)),
+                    };
+                    if let Some((tag, c)) = tag {
+                        let ts = font(10.5);
+                        let tag = fit(ui, &tag, ts, cr[2] - 8.0 * s);
+                        let tw = ui.measure(&tag, ts, true);
+                        ui.label(&tag, cr[0] + (cr[2] - tw) / 2.0, cr[1] + cr[3] - 19.0 * s, ts, true, c);
+                    }
+                    if usable && !on {
+                        self.buttons.push((Hit::Skin(i), cr));
                     }
                 }
             }
@@ -613,6 +717,12 @@ impl Npcs {
                 ui.label(&tf!("Leave {guild}?", guild = g), body[0], body[1], font(15.0), true, color::TEXT);
                 ui.label(tr("You'll need an invitation to come back."), body[0], body[1] + 26.0 * s, font(12.0), false, color::TEXT_DIM);
                 buttons.push((Hit::Submit, tr("Renounce").to_owned(), Kind::Danger));
+            }
+            Window::Discord => {
+                ui.label(crate::screens::DISCORD_INVITE, body[0], body[1], font(17.0), true, color::GOLD);
+                let line = fit(ui, tr("Updates, server status, help and trading. Open it to join."), font(12.0), body[2]);
+                ui.label(&line, body[0], body[1] + 30.0 * s, font(12.0), false, color::TEXT_DIM);
+                buttons.push((Hit::Submit, tr("Open").to_owned(), Kind::Primary));
             }
             Window::Board { text, edit, error } => {
                 let box_r = [body[0], body[1], body[2], body[3] - 50.0 * s];
@@ -1076,6 +1186,37 @@ mod tests {
         npcs.open(Window::Prompt { prompt: Prompt::Guild, input: String::new(), error: None, busy: false });
         npcs.key(KeyCode::KeyA, Some("The Order!"));
         assert_eq!(npcs.key(KeyCode::Enter, None), Some(Act::CreateGuild("The Order".into())));
+    }
+
+    #[test]
+    fn the_armoire_asks_before_buying() {
+        let skin = |skin, lock| ArmoireSkin { skin, lock, cost: 200 };
+        let skins = vec![skin(0, SkinLock::Owned), skin(1, SkinLock::Owned), skin(2, SkinLock::ForSale), skin(3, SkinLock::Level(20)), skin(4, SkinLock::Pass)];
+        let mut npcs = Npcs::default();
+        npcs.open(Window::Skins { class: 0x30e, skins, confirm: None });
+        // buttons as drawn: one per tile
+        let tile = |i: usize| [i as f32 * 100.0, 0.0, 90.0, 90.0];
+        npcs.buttons = (0..5).map(|i| (Hit::Skin(i), tile(i))).collect();
+        let at = |i: usize| (i as f64 * 100.0 + 10.0, 10.0);
+        // an owned skin goes on; one for sale asks first; locked ones do nothing
+        assert_eq!(npcs.click(at(1), None), Some(Act::Reskin(1)));
+        assert_eq!(npcs.click(at(3), None), None);
+        assert_eq!(npcs.click(at(4), None), None);
+        assert_eq!(npcs.click(at(2), None), None);
+        let Some(Window::Skins { confirm, .. }) = &npcs.window else { panic!() };
+        assert_eq!(confirm.map(|k| k.skin), Some(2));
+        // Escape goes back to the shelves, not out of the window
+        npcs.key(KeyCode::Escape, None);
+        let Some(Window::Skins { confirm, .. }) = &npcs.window else { panic!() };
+        assert!(confirm.is_none());
+        // asked again, Buy buys it
+        npcs.click(at(2), None);
+        npcs.buttons = vec![(Hit::Submit, [0.0, 200.0, 90.0, 30.0])];
+        assert_eq!(npcs.click((10.0, 210.0), None), Some(Act::BuySkin(2)));
+        // the purchase outlives the window
+        npcs.buying = Some(2);
+        npcs.close();
+        assert_eq!(npcs.buying, Some(2));
     }
 
     #[test]

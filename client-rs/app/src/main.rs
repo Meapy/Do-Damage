@@ -420,11 +420,22 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         }
         NpcKind::Reskin => {
             let class = me.object_type;
-            let mut skins = vec![0];
+            let level = me.stat_int(hud::stat::LEVEL).unwrap_or(0);
+            let worn = me.stat_int(hud::stat::TEXTURE).unwrap_or(0) as u16;
+            let mut skins = vec![npc::ArmoireSkin { skin: 0, lock: npc::SkinLock::Owned, cost: 0 }];
             if let Some(list) = list {
-                skins.extend(screens::class_skins(data, class, list).iter().filter(|k| k.owned).map(|k| k.desc.object_type));
+                skins.extend(screens::class_skins(data, class, list).iter().map(|k| {
+                    let lock = match k.needs_level {
+                        // the character's own level counts before the list hears of it
+                        _ if k.owned || k.desc.object_type == worn => npc::SkinLock::Owned,
+                        _ if k.pass => npc::SkinLock::Pass,
+                        Some(needs) if needs > level => npc::SkinLock::Level(needs),
+                        _ => npc::SkinLock::ForSale,
+                    };
+                    npc::ArmoireSkin { skin: k.desc.object_type, lock, cost: k.cost }
+                }));
             }
-            Window::Skins { class, skins }
+            Window::Skins { class, skins, confirm: None }
         }
         NpcKind::NameChanger => Window::Prompt { prompt: Prompt::Name, input: String::new(), error: None, busy: false },
         NpcKind::GuildRegister => {
@@ -462,6 +473,11 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
     false
 }
 
+/// `/discord`, which the client answers itself (`npc::Window::Discord`).
+fn is_discord(line: &str) -> bool {
+    line.trim().eq_ignore_ascii_case("/discord")
+}
+
 /// Carry out what the player did in an NPC's window. Returns a board to save, if any.
 fn npc_act(act: npc::Act, game: &mut Game, npcs: &mut npc::Npcs, now: i32) -> Option<String> {
     use npc::Act;
@@ -472,9 +488,16 @@ fn npc_act(act: npc::Act, game: &mut Game, npcs: &mut npc::Npcs, now: i32) -> Op
             game.reskin(skin);
             npcs.close();
         }
+        // the server takes the gold and puts it on (or says why not, in chat)
+        Act::BuySkin(skin) => {
+            game.reskin(skin);
+            npcs.buying = Some(skin as u16);
+            npcs.close();
+        }
         Act::ChooseName(name) => game.choose_name(&name),
         Act::CreateGuild(name) => game.create_guild(&name),
         Act::Renounce => game.guild_remove(&me),
+        Act::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
         Act::SaveBoard(board) => return Some(board),
         Act::ChangeRank(name, rank) => {
             game.change_guild_rank(&name, rank);
@@ -3254,13 +3277,23 @@ impl App {
                 self.hud.minimap_zoom = self.hud.minimap_zoom.min(hud::minimap_levels(world).len() - 1);
             }
             for line in self.chat_send.drain(..) {
-                game.say(&line);
+                // /discord stays here: the invite in a window, to open in the browser
+                if is_discord(&line) {
+                    self.npcs.open(npc::Window::Discord);
+                } else {
+                    game.say(&line);
+                }
             }
             if !self.say.is_empty()
                 && self.say_sent_in.is_none_or(|(join, at)| join != game.reconnects || now - at >= 3000)
                 && game.world.as_ref().is_some_and(|w| w.player().is_some())
             {
-                game.say(&self.say.remove(0));
+                let line = self.say.remove(0);
+                if is_discord(&line) {
+                    self.npcs.open(npc::Window::Discord);
+                } else {
+                    game.say(&line);
+                }
                 self.say_sent_in = Some((game.reconnects, now));
             }
             prof::mark("pre");
@@ -3589,6 +3622,17 @@ impl App {
                         self.npcs.guild_price = Some(price);
                     }
                 }
+                // a skin bought at the Armoire is the account's once the character wears it
+                if let (Some(skin), Some(me)) = (self.npcs.buying, world.player()) {
+                    if me.stat_int(hud::stat::TEXTURE) == Some(skin as i32) {
+                        self.npcs.buying = None;
+                        if let Some(list) = &mut self.front.list {
+                            if !list.owned_skins.contains(&skin) {
+                                list.owned_skins.push(skin);
+                            }
+                        }
+                    }
+                }
                 self.npcs.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.market.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.forge.draw(&mut ui, &lay, world.player(), mouse, now);
@@ -3603,7 +3647,7 @@ impl App {
                 self.community.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.collection.draw(&mut ui, &lay, world.player(), mouse, now);
                 self.pet_pen.draw(&mut ui, &lay, world.player(), mouse);
-                self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), mouse, now);
+                self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), world.player(), mouse, now);
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
                     self.community.draw_banners(&mut ui, &lay, below, now);

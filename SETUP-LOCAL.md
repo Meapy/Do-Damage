@@ -560,7 +560,7 @@ itself disconnects everyone once). What it would take:
 
 ## Discord
 
-The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/discord/`, the application "DiscMod", shown there as Do Damage with the crown icon) runs on the VPS as `bsk-discord` and:
+The game's Discord server is https://discord.gg/YTYWTFDRCD (since 2026-11-21; the invite is in `screens::DISCORD_INVITE`, `DiscordCommand.Invite`, `tools/discord/dodmg.py`, `tools/build_wiki.py`, the website's pages and `globalNews.json`). In game, `/discord` opens a window with the invite and an Open button (the Rust client answers it itself, `npc::Window::Discord`; older clients get the server's `DiscordCommand`, the invite in chat). Its bot (`tools/discord/`, the application "DiscMod", shown there as Do Damage with the crown icon) runs on the VPS as `bsk-discord` and:
 
 - posts each release to #updates when it goes live: the version's changelog sections, a link to the changelog page, and a ping of the **Updates** role, which members turn on or off with `/updates`;
 - keeps one message in #server-status up to date (players online, the 24-hour peak and 7 days' uptime, from `/api/app/status`, or the server list if that isn't there);
@@ -664,6 +664,13 @@ Each commit's message lists the original changes and says which range of the ful
 The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main` any more: bring in a later change of theirs by hand (`git cherry-pick` or a copy), not with `git merge`.
 
 ## Changes from upstream
+
+- **Skins sold at the Armoire** (2026-11-20): a `Reskin` for a skin the account lacks buys it
+  (`ReskinHandler`): the same rules as `/account/purchaseSkin` (not a Realm Pass skin, the class
+  at the skin's `<UnlockLevel>`, counting the character's own level, and `<Cost>` gold, 200 by
+  default) through `Database.PurchaseSkin`, then puts it on. The Rust client's Armoire (`npc.rs`)
+  lists every skin of the class with its price, level or "Realm Pass", and asks before buying.
+  Older clients only send skins they own, so nothing changes for them.
 
 - **World watchdog** (2026-11-20): on 2026-11-20 at 17:13 the live Nexus's thread stopped for good
   (0% CPU, waiting on something) while the rest of the server ran on: nobody could enter the
@@ -806,6 +813,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   in the glass (clipped by the renderer's new scissor runs) and in the big view, beside the chat.
   Older clients never send 162 (the glass only asks in the Nexus with the object in view), and an
   older server simply ignores a new client's.
+  - **Ask to join and their gear** (2026-11-20, 2.6.3): `SPECTATE` 8 asks the one shown in the big
+    view to let the viewer in (`SpectatorHub.AskToJoin` → `Player.AskToVisit(glass: true)`), the
+    `/visit` request with its box, cooldowns and `/yes`/`/no`; `VisitBook.Request.Glass` carries
+    that it came from the glass, so `VisitRules.Refusal(realm: true)` lets a Yes take them into a
+    realm too (refused when the realm is closing, full, or they're already there;
+    `VisitRules.Place.Closed`), without counting a trip. The client hides the button while the
+    glass shows the Nexus, and shows the server's reply lines (`""` and `*Error*` chat since the
+    ask) under the picture. The watched player's four equipment slots, with imprints and
+    tooltips, come from the public stats the feed already carried (`Inventory0`-`3`,
+    `InventoryData0`-`3`), drawn in a box at the picture's foot. An older server ignores 8.
 
 - **Visits between world servers** (2026-11-14; new `core/RemoteVisits.cs`, `Channel.Visit` and
   `VisitMsg` in `Shared/isc`; `Command.Visit`, `SummonCommand`, `Player.Visits.cs`,
@@ -1109,7 +1126,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     makes you invisible (the Cloak of the Planewalker, the Prism of the Bloody Surprise; not an
     Empowered boss's item with a `RelicPower`, so the Elder Cloak of the Planar Rift is kept as it
     was) is refused until you have been visible for 0.5 s (the server allows 0.4 s, for the trip). The Planewalker's 1.5 s cooldown under 5.5 s of invisibility let a Rogue
-    stay invisible for good. Their tooltips carry the rule as an `EffectInfo` line.
+    stay invisible for good. Their tooltips carry the rule as an `EffectInfo` line. Since 2.6.3 their
+    `<Cooldown>` is the invisibility plus that half second (Planewalker 6 s, Prism 3.5 s), so the
+    tooltip and the client's cooldown bar show the real wait.
   - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
     `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
     ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all
@@ -2668,6 +2687,29 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   crystals), the Marble Colossus (his rocks never die, so both Lost Halls) and Elder Malus
   (untouchable while his lieutenants are away); NM Green Dragon God Deux waits for Malphas Deux's
   death, so it only comes in the Battle for the Nexus Showdown.
+- **The Arena keeps its fights in the ring** (2026-11-20; `DoomedBattleArena` in
+  `DoomedWorlds.cs`, `World.MonsterMayStand`, `Entity.ValidateAndMove`, `MoveTo`,
+  `BehaviorDb.HauntedCemeteryGraves.cs`, `Dungeons/Admin Arena.jm`): while the gates are shut a
+  monster's move that would leave the ring's inside (`_inside`, gateways not included) doesn't
+  happen, and `MoveTo` to a spot of its own dungeon's map outside the ring is skipped (the Ghost of
+  Skuld's teleports to (24, 18) and the like took him over the walls); anything out anyway (a
+  teleport, a toss) is put back on the nearest floor each tick, where before it was taken away
+  (so its wave ended without it). Once no boss (a fight name, `HealthBarBoss` or `Quest`) or
+  monster of the fight's own pools is left and nothing more is to come, what's still about after
+  `StragglerMs` (15 s) is taken away (`ClearStragglers`): the Grave Caretaker's blue flames waited
+  where he left them once he died, holding the wave up. Those flames now hunt the players when no
+  Caretaker is within 20 tiles (state `Hunt`, in the Cemetery too), and Skuld's always-invulnerable
+  flame skulls are no longer in the Arena's monster lists (he brings his own). `/arenatest probe`
+  shuts the gates as a game does and reports what ever went outside the ring. The map (also the
+  Admin Arena's) is 8 tiles wider and taller: columns 46 and 70 and rows 50 and 74, plain floor
+  between the side rooms and the middle, each copied four times without their decorations
+  (132 × 135, was 124 × 127); monsters spawn within 22 tiles of the middle (was 18). Since
+  2026-11-21 (`ClearUntouchable`): once no boss is left (a round's boss name, `HealthBarBoss` or
+  `Quest`, nothing more to come), a monster untouchable (Invulnerable, Invincible, Stasis or
+  Paused) for `UntouchableMs` (20 s) on end is taken away, even one of the fight's own pools: the
+  Reef's Cnidarians, dealt from the tier's pool into wave 37's Cultist Hideout, stayed invulnerable
+  with no Royal to free them. They now go to `Free` when no Royal Cnidarian is within 15 tiles
+  (`BehaviorDb.CnidarianReef.cs`, in the Reef too).
 
 ## Classes, minigames and the economy
 

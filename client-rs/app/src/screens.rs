@@ -146,7 +146,7 @@ pub const TIMESPANS: [(&str, &str); 4] = [("week", mark("This week")), ("month",
 pub const RECENT: usize = 3;
 
 /// The game's Discord server: where the bot that links accounts is.
-pub const DISCORD_INVITE: &str = "discord.gg/FVhqJe8CG";
+pub const DISCORD_INVITE: &str = "discord.gg/YTYWTFDRCD";
 
 /// What the player types to the Discord bot with their code.
 fn link_command(code: &str) -> String {
@@ -2603,7 +2603,7 @@ pub fn portrait(ui: &mut Ui, desc: &ObjectDesc, tex1: i32, tex2: i32, cx: f32, c
     let Some(src) = ui.sprites.char_src(set, *index, 0, 0) else { return };
     let dye = ui.sprites.char_mask_src(set, *index, 0, 0).map(|mask| Dye { mask, tex1, tex2 });
     // Redrawn at the size it shows, so the pixels stay sharp.
-    let size = ((100.0 * s).round() as i32).max(1);
+    let size = crate::redraw::fit_char(((100.0 * s).round() as i32).max(1), src);
     let Some(img) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, dye) else { return };
     let (iw, ih) = (img.w as f32, img.h as f32);
     // The redrawn image has room for the outline above and beside it: centre the sprite.

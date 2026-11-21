@@ -281,6 +281,8 @@
 "Heals": "Geneest",
 "Heals you and allies nearby": "Geneest jou en bondgenoten in de buurt",
 "Heals {n} HP": "Geneest {n} HP",
+"Join our Discord": "Word lid van onze Discord",
+"Updates, server status, help and trading. Open it to join.": "Updates, serverstatus, hulp en handel. Open hem om lid te worden.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Jij en bondgenoten binnen {range} vakjes krijgen {time} sec lang {n}% minder schade",
 "Forcefield": "Krachtveld",
 "Ward": "Schild",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Het glas wordt helder zodra iemand vertrekt.",
 "The glass picks someone new every little while.": "Het glas kiest om de zoveel tijd iemand anders.",
 "Arrows switch · Enter chats · Esc closes": "Pijltjes: wisselen · Enter: chatten · Esc: sluiten",
+"Ask to join": "Vragen om mee te doen",
 "Watchers": "Kijkers",
 "Say something to the other watchers…": "Zeg iets tegen de andere kijkers…",
 "{name} is watching.": "{name} kijkt mee.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Gelukkigere buit bij gemeenschapsdoelen",
 "A title in chat": "Een titel in de chat",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Je naam in de chat draagt een gouden titel [Verguld] met een eigen glans.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Nu verborgen: je naam staat in de chat zonder de titel [Verguld].",
+"Show": "Tonen",
+"Hide": "Verbergen",
+"Your [Gilded] title shows in chat.": "Je titel [Verguld] staat in de chat.",
+"Your [Gilded] title is hidden in chat.": "Je titel [Verguld] is verborgen in de chat.",
+"Only a Gilded pass has the chat title.": "Alleen een vergulde pas heeft de chattitel.",
 "The Gilded track": "De vergulde baan",
 "Active": "Actief",
-"Gilded only": "Alleen verguld"
+"Gilded only": "Alleen verguld",
+"Yours for good, on every character of this class.": "Voorgoed van jou, op elk personage van deze klasse."
 }

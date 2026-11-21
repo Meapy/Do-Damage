@@ -36,14 +36,28 @@ namespace Shared
             public int Allowed;
             public bool Full;
             public bool SinglePlayer;
+            // a realm closing (Oryx is coming): no one new gets in
+            public bool Closed;
         }
 
         // Why the visitor can't join `target` there, or null when they may; with `summon`, why the
-        // summoner can't bring `target` into the summoner's own world, `p`.
-        public static string Refusal(Place p, string target, bool summon = false)
+        // summoner can't bring `target` into the summoner's own world, `p`. With `realm` (the
+        // Scrying Glass's Ask to join), a realm may be joined too: anyone may walk into one, so
+        // only a closing or full one, or being there already, stops it.
+        public static string Refusal(Place p, string target, bool summon = false, bool realm = false)
         {
             if (summon)
                 return SummonRefusal(p, target);
+            if (realm && p.Kind == Kind.Realm)
+            {
+                if (p.Same)
+                    return $"You're already with {target}.";
+                if (p.Closed)
+                    return $"{target}'s realm is closing.";
+                if (p.Full)
+                    return $"{target}'s realm is full.";
+                return null;
+            }
             switch (p.Kind)
             {
                 case Kind.Gone: return $"{target} is between worlds: try again in a moment.";

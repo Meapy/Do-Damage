@@ -281,6 +281,8 @@
 "Heals": "Heilt",
 "Heals you and allies nearby": "Heilt dich und Verbündete in der Nähe",
 "Heals {n} HP": "Heilt {n} LP",
+"Join our Discord": "Tritt unserem Discord bei",
+"Updates, server status, help and trading. Open it to join.": "Updates, Serverstatus, Hilfe und Handel. Öffne ihn, um beizutreten.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Du und Verbündete im Umkreis von {range} Feldern erleidet {n} % weniger Schaden, {time} Sek. lang",
 "Forcefield": "Kraftfeld",
 "Ward": "Schutzwall",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Das Glas klärt sich, sobald jemand aufbricht.",
 "The glass picks someone new every little while.": "Das Glas wählt immer wieder jemand Neues.",
 "Arrows switch · Enter chats · Esc closes": "Pfeile: wechseln · Enter: chatten · Esc: schließen",
+"Ask to join": "Beitreten anfragen",
 "Watchers": "Zuschauer",
 "Say something to the other watchers…": "Sag den anderen Zuschauern etwas …",
 "{name} is watching.": "{name} schaut zu.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Glücklichere Beute bei Gemeinschaftszielen",
 "A title in chat": "Ein Titel im Chat",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Dein Name im Chat trägt einen goldenen Titel [Vergoldet] mit eigenem Glanz.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Gerade verborgen: dein Name steht ohne den Titel [Vergoldet] im Chat.",
+"Show": "Zeigen",
+"Hide": "Verbergen",
+"Your [Gilded] title shows in chat.": "Dein Titel [Vergoldet] wird im Chat gezeigt.",
+"Your [Gilded] title is hidden in chat.": "Dein Titel [Vergoldet] ist im Chat verborgen.",
+"Only a Gilded pass has the chat title.": "Nur ein vergoldeter Pass hat den Chat-Titel.",
 "The Gilded track": "Die vergoldete Strecke",
 "Active": "Aktiv",
-"Gilded only": "Nur vergoldet"
+"Gilded only": "Nur vergoldet",
+"Yours for good, on every character of this class.": "Für immer deins, auf jedem Charakter dieser Klasse."
 }

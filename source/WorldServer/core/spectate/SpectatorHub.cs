@@ -55,7 +55,9 @@ namespace WorldServer.core.spectate
     /// view (SPECTATE 2) shows the same, with arrows through everyone who can be watched (3, 4), a
     /// button to stay on the one shown rather than follow the glass's picks (6, and 7 to follow again) and
     /// a chat of its own between those watching (SPECTATE_SAY, SPECTATE_CHAT), whose lines also reach
-    /// the player each speaker watches (TEXT to <c>*Glass*</c>).
+    /// the player each speaker watches (TEXT to <c>*Glass*</c>), and Ask to join (8): a /visit
+    /// request to the one shown (Player.Visits.cs), which from here reaches realms too. Their gear
+    /// is among the stats anyone may see, so the client shows it from the picture.
     ///
     /// What a viewer is sent is the watched player's view, built on that player's world thread
     /// after their own update (<see cref="Feed"/>): the tiles, objects and stats their client
@@ -254,6 +256,12 @@ namespace WorldServer.core.spectate
                     s.Picked = false;
                     SetTarget(s, _channel);
                     break;
+                case 8:
+                    // ask to join the one shown: they answer Yes or No as to a /visit
+                    if (s == null || !s.Big)
+                        return;
+                    AskToJoin(player, s.Target);
+                    return;
                 case 5:
                     if (s == null)
                         return;
@@ -266,6 +274,24 @@ namespace WorldServer.core.spectate
             }
             _nextRefresh = 0;
             Refresh(nexus);
+        }
+
+        // The glass's Ask to join: the one watched gets the /visit Yes/No box, from anywhere
+        // the glass can show them but the Nexus.
+        private void AskToJoin(Player player, int target)
+        {
+            var client = target == 0 ? null : _server.ConnectionManager.FindClient(target);
+            if (client?.Player == null || client.State == ProtocolState.Disconnected || !CanBeShown(client.Player))
+            {
+                player.SendError("They've gone from the glass.");
+                return;
+            }
+            if (client == player.Client)
+            {
+                player.SendError("That's you.");
+                return;
+            }
+            player.AskToVisit(client, glass: true);
         }
 
         private void Remove(Client client)

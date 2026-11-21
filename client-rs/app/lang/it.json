@@ -281,6 +281,8 @@
 "Heals": "Cura",
 "Heals you and allies nearby": "Cura te e gli alleati vicini",
 "Heals {n} HP": "Cura {n} PV",
+"Join our Discord": "Unisciti al nostro Discord",
+"Updates, server status, help and trading. Open it to join.": "Aggiornamenti, stato del server, aiuto e scambi. Aprilo per unirti.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Tu e gli alleati entro {range} caselle subite il {n}% di danni in meno, per {time} s",
 "Forcefield": "Campo di forza",
 "Ward": "Egida",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Lo specchio si schiarisce quando qualcuno parte.",
 "The glass picks someone new every little while.": "Lo specchio sceglie spesso qualcuno di nuovo.",
 "Arrows switch · Enter chats · Esc closes": "Frecce: cambia · Enter: chatta · Esc: chiudi",
+"Ask to join": "Chiedi di unirti",
 "Watchers": "Spettatori",
 "Say something to the other watchers…": "Scrivi qualcosa agli altri spettatori…",
 "{name} is watching.": "{name} sta guardando.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Bottino più fortunato negli obiettivi della comunità",
 "A title in chat": "Un titolo in chat",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Il tuo nome in chat porta un titolo d'oro [Dorato] con un luccichio tutto suo.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Nascosto per ora: il tuo nome appare in chat senza il titolo [Dorato].",
+"Show": "Mostra",
+"Hide": "Nascondi",
+"Your [Gilded] title shows in chat.": "Il tuo titolo [Dorato] si vede in chat.",
+"Your [Gilded] title is hidden in chat.": "Il tuo titolo [Dorato] è nascosto in chat.",
+"Only a Gilded pass has the chat title.": "Solo un pass dorato ha il titolo in chat.",
 "The Gilded track": "Il percorso dorato",
 "Active": "Attivo",
-"Gilded only": "Solo dorato"
+"Gilded only": "Solo dorato",
+"Yours for good, on every character of this class.": "Tuo per sempre, su ogni personaggio di questa classe."
 }

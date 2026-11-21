@@ -25,6 +25,14 @@ namespace WorldServer.logic.behaviors
             if (host.HasConditionEffect(ConditionEffectIndex.Paralyzed))
                 return;
 
+            // the place is in its own dungeon's map: where the world won't have monsters (out of
+            // the Arena's ring), it stays put
+            if (host.World != null && !host.World.MonsterMayStand(_x, _y))
+            {
+                Status = CycleStatus.Completed;
+                return;
+            }
+
             Status = CycleStatus.InProgress;
 
             var path = new Vector2(_x - host.X, _y - host.Y);

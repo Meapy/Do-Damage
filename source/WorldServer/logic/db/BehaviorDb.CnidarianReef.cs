@@ -285,22 +285,28 @@ namespace WorldServer.logic
         // the outer ring; a still wall around the boss; closer in; or, at the end, open to be shot down
         private static State Cnidarian() =>
             new State(
+                // with no Royal near to set it free (he fell, or in the Arena it was dealt into
+                // another dungeon's round), it's free at once rather than untouchable for good
                 new State("Orbit",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new EntityNotExistsTransition("CR Royal Cnidarian", 15, "Free"),
                     new Orbit(0.6, 10, 15, "CR Royal Cnidarian"),
                     new Shoot(3, count: 1, projectileIndex: 1, coolDown: 1000)
                 ),
                 new State("Outer",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new EntityNotExistsTransition("CR Royal Cnidarian", 15, "Free"),
                     new Orbit(0.6, 11, 15, "CR Royal Cnidarian"),
                     new Shoot(5, count: 1, projectileIndex: 1, coolDown: 700)
                 ),
                 new State("Wall",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new EntityNotExistsTransition("CR Royal Cnidarian", 15, "Free"),
                     new Orbit(1, 5, 15, "CR Royal Cnidarian")
                 ),
                 new State("Closer",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new EntityNotExistsTransition("CR Royal Cnidarian", 15, "Free"),
                     new Orbit(0.8, 8, 15, "CR Royal Cnidarian"),
                     new Shoot(5, count: 1, projectileIndex: 1, coolDown: 700)
                 ),

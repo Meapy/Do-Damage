@@ -281,6 +281,8 @@
 "Heals": "Leczy",
 "Heals you and allies nearby": "Leczy ciebie i pobliskich sojuszników",
 "Heals {n} HP": "Leczy {n} PŻ",
+"Join our Discord": "Dołącz do naszego Discorda",
+"Updates, server status, help and trading. Open it to join.": "Aktualizacje, stan serwera, pomoc i handel. Otwórz, aby dołączyć.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Ty i sojusznicy w promieniu {range} pól otrzymujecie o {n}% mniej obrażeń przez {time} s",
 "Forcefield": "Pole siłowe",
 "Ward": "Osłona",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Zwierciadło rozjaśni się, gdy ktoś wyruszy.",
 "The glass picks someone new every little while.": "Zwierciadło co chwilę wybiera kogoś innego.",
 "Arrows switch · Enter chats · Esc closes": "Strzałki: zmiana · Enter: czat · Esc: zamknij",
+"Ask to join": "Poproś o dołączenie",
 "Watchers": "Widzowie",
 "Say something to the other watchers…": "Napisz coś do innych widzów…",
 "{name} is watching.": "{name} ogląda.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Szczęśliwsze łupy z celów społeczności",
 "A title in chat": "Tytuł na czacie",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Twoje imię na czacie nosi złoty tytuł [Złota] z własnym błyskiem.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Na razie ukryty: twoje imię widać na czacie bez tytułu [Złota].",
+"Show": "Pokaż",
+"Hide": "Ukryj",
+"Your [Gilded] title shows in chat.": "Twój tytuł [Złota] widać na czacie.",
+"Your [Gilded] title is hidden in chat.": "Twój tytuł [Złota] jest ukryty na czacie.",
+"Only a Gilded pass has the chat title.": "Tylko złota przepustka ma tytuł na czacie.",
 "The Gilded track": "Złota ścieżka",
 "Active": "Aktywne",
-"Gilded only": "Tylko złota"
+"Gilded only": "Tylko złota",
+"Yours for good, on every character of this class.": "Twój na zawsze, na każdej postaci tej klasy."
 }

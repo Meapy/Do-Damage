@@ -27,7 +27,7 @@ namespace WorldServer.core.pass
     public sealed class PassTracker
     {
         // PASS_ACT's kinds
-        public const byte REQUEST = 0, CLAIM = 1, UNLOCK = 2, AURA = 3, COLOR = 4, CACHE = 5;
+        public const byte REQUEST = 0, CLAIM = 1, UNLOCK = 2, AURA = 3, COLOR = 4, CACHE = 5, TITLE = 6;
 
         // the relic looks (ShowEffect 41's pos2.y) for a tier reached and the Gilded track bought
         // (the Rust client's particles/relic.rs)
@@ -252,6 +252,26 @@ namespace WorldServer.core.pass
         // The Gilded pass of this season is bought (twice the /visit and /summon trips, one save in the Arena).
         public bool IsGilded => !Off && Book.Active && Book.State.Gilded;
 
+        // The [Gilded] title in chat: a Gilded pass whose holder hasn't turned it off.
+        public bool ShowsTitle => IsGilded && !Book.State.HideTitle;
+
+        // /pass title: shows or hides it (the window's switch is PassAct TITLE).
+        public PassClaim SetTitle(bool show)
+        {
+            if (!Connected)
+                return PassClaim.Fail(PassCode.Failed, "Not now.");
+            Refresh();
+            var result = Book.ShowTitle(show);
+            if (result.Ok)
+            {
+                Save();
+                StaticLogger.Instance.Info($"Realm Pass: {_player.Name} {Describe(TITLE, result)}");
+            }
+            if (Subscribed)
+                SendData();
+            return result;
+        }
+
         // The Gilded pass's boost to the community goals' loot (CommunityGoals.Claim).
         public (int Luck, int Rolls) CommunityBoost
         {
@@ -296,6 +316,7 @@ namespace WorldServer.core.pass
                     UNLOCK => Unlock(value),
                     AURA => Book.WearAura(value),
                     COLOR => Book.WearColor(value),
+                    TITLE => Book.ShowTitle(value != 0),
                     _ => PassClaim.Fail(PassCode.Failed, "Unknown request."),
                 };
             }
@@ -329,6 +350,7 @@ namespace WorldServer.core.pass
             CACHE => $"opened {r.Count} cache{(r.Count == 1 ? "" : "s")}",
             UNLOCK => $"bought the Gilded pass of {Book.Season.Key}",
             AURA => $"wears aura {Book.State.Aura}",
+            TITLE => Book.State.HideTitle ? "hides the Gilded title" : "shows the Gilded title",
             _ => $"wears name colour {Book.State.Color}",
         };
 
@@ -561,6 +583,7 @@ namespace WorldServer.core.pass
             msg.Color = (byte)(data.Color(book.State.Color) != null ? book.State.Color : 0);
             msg.CommunityLuck = (byte)Math.Max(0, data.Community.Luck);
             msg.CommunityRolls = (byte)Math.Max(0, data.Community.Rolls);
+            msg.ShowTitle = !book.State.HideTitle;
             var next = data.After(now);
             if (next != null)
             {

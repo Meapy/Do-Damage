@@ -12,6 +12,29 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.3 (2026-11-21)
+
+### Skins
+- The Armoire in the Nexus sells skins now: it shows every skin of your class with its price, and buying one puts it straight on. Skins that need a level or the Realm Pass show what they need.
+
+### Scrying Glass
+- The big view shows the gear of the player you're watching (hover an item to see it), and its new **Ask to join** button asks them to let you in where they are, realms too: they answer Yes or No as with `/visit`.
+
+### Arena
+- The Arena's ring is bigger, 8 tiles wider and taller. Bosses and their monsters can no longer leave the ring or go over its walls, and what a boss leaves behind (such as the Grave Caretaker's blue flames) or a monster that stays invulnerable with no boss left no longer holds up the next wave.
+
+### Items
+- The Cloak of the Planewalker's cooldown shows what it really is, 6 seconds (it said 1.5), and the Prism of the Bloody Surprise's 3.5 seconds: the time you're invisible plus the half second you must be seen before using them again. The cooldown bar now waits that long too.
+
+### Dungeons
+- The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them, and the Cnidarian Reef's jellyfish can be hit once the Royal Cnidarian is gone (in the Arena they stayed invulnerable for good).
+
+### Realm Pass
+- The Gilded pass's [Gilded] chat title can be hidden and shown again: the Hide and Show button on its card in the Gilded perks tab, or `/pass title off` and `/pass title on`. The pass's skins are no longer twice as big as they should be in the party list, the character pictures and the champions' statues, where they ran into the next row.
+
+### Game
+- `/discord` shows the invite to the Do Damage Discord with a button that opens it, and the Discord links in the game and on the website point to its new invite.
+
 ## 2.6.2 (2026-11-20)
 
 ### Skins
@@ -1354,7 +1377,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   each of the last 7 days the realm was up.
 
 ### Discord
-- Do Damage has a Discord server: https://discord.gg/FVhqJe8CG. Every update is posted in
+- Do Damage has a Discord server: https://discord.gg/YTYWTFDRCD. Every update is posted in
   #updates as soon as it's out (type `/updates` there to get pinged), #server-status shows who's
   online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel. The website and the wiki link to it at the
   top of every page.

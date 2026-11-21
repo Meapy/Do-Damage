@@ -269,7 +269,7 @@ namespace WorldServer.core.worlds.impl.doomed
         // or in a gateway is moved just inside. All of it is read from the map, so another map with
         // Oryx Doors works too. Static tile objects, so both clients' collision agrees.
         private const string GapObject = "Iinvisible NoWalk";
-        private const int SpawnRadius = 18; // monsters spawn this close to the middle
+        private const int SpawnRadius = 22; // monsters spawn this close to the middle
         private List<(IntPoint At, ushort Type)> _doors;
         private List<IntPoint> _gates;      // the gateways' tiles between and beside the doors
         private HashSet<IntPoint> _inside;  // what's inside the ring, gateways not included
@@ -316,6 +316,7 @@ namespace WorldServer.core.worlds.impl.doomed
         private ArenaProbe _probe;
         // the last round fought, for the leaderboard (where the run fell)
         private string _lastRound = "";
+        private HashSet<string> _fightNames = new HashSet<string>();
 
         public const int IroncladDefense = 12;
 
@@ -527,6 +528,18 @@ namespace WorldServer.core.worlds.impl.doomed
 
         private bool OutOfBounds(float x, float y) => !_inside.Contains(new IntPoint((int)x, (int)y));
 
+        // While the gates are shut, monsters keep inside the ring: their moves stop at its walls
+        // (Entity.ValidateAndMove), and a move to a place in their own dungeon's map that's
+        // outside it doesn't happen (MoveTo)
+        public override bool MonsterMayStand(float x, float y) => !_closed || _inside == null || !OutOfBounds(x, y);
+
+        // what got out anyway (a teleport, a toss over the wall) is put back on the nearest floor
+        private void BringBack(Enemy e)
+        {
+            var to = _floor.OrderBy(f => (f.X + 0.5f - e.X) * (f.X + 0.5f - e.X) + (f.Y + 0.5f - e.Y) * (f.Y + 0.5f - e.Y)).First();
+            e.Move(to.X + 0.5f, to.Y + 0.5f);
+        }
+
         private bool Blocks(WmapTile tile) =>
             GameServer.Resources.GameData.Tiles[tile.TileId].NoWalk ||
             tile.ObjType != 0 && tile.ObjDesc != null && (tile.ObjDesc.FullOccupy || tile.ObjDesc.OccupySquare || tile.ObjDesc.EnemyOccupySquare);
@@ -701,6 +714,12 @@ namespace WorldServer.core.worlds.impl.doomed
             var message = RoundMessage(ArenaRoundMessage.Begins, _fightFrom, Wave);
             foreach (var p in Players.Values.Where(p => _voteSubscribers.Contains(p.Id)))
                 p.Client?.SendPacket(message);
+
+            // what the fight brings of its own (ClearStragglers): its bosses and its monsters
+            _fightNames = rounds.SelectMany(r => r.AllBosses.Concat(r.MinionPool).Concat(r.TierPool)).ToHashSet();
+            _fightBosses = rounds.SelectMany(r => r.AllBosses).ToHashSet();
+            _stragglerMs = 0;
+            _untouchableMs.Clear();
 
             _golden = rounds.Any(r => r.Twist == ArenaTwist.Golden);
             LootRate = _golden ? 1 : ArenaPools.LootRate;
@@ -915,6 +934,9 @@ namespace WorldServer.core.worlds.impl.doomed
             _tested = true;
             _counting = false;
             _started = true;
+            // the gates shut as for a game, so the ring holds its monsters (MonsterMayStand)
+            if (!_closed)
+                CloseGates();
         }
 
         public Entity SpawnForProbe(string name)
@@ -1074,8 +1096,80 @@ namespace WorldServer.core.worlds.impl.doomed
                 SendVotes();
             }
             else
+            {
                 foreach (var e in Hostiles.Where(e => OutOfBounds(e.X, e.Y)).ToList())
-                    LeaveWorld(e);
+                    BringBack(e);
+                ClearStragglers(time.ElapsedMsDelta);
+            }
+        }
+
+        // Once a fight's bosses and its own monsters are dead, what they left behind (a Caretaker's
+        // blue flames, a werewolf's pups...) that's still about after StragglerMs fades away, so
+        // nothing a boss spawned can hold the next wave back.
+        public const int StragglerMs = 15000;
+        private int _stragglerMs;
+
+        private bool OfTheFight(Enemy e) =>
+            _fightNames.Contains(e.ObjectDesc.IdName) || e.ObjectDesc.HealthBarBoss || e.ObjectDesc.Quest;
+
+        // And once no boss is left, a monster that has stayed untouchable for UntouchableMs on end
+        // fades too, even one of the fight's own: one that waits for its boss to set it free (the
+        // Reef's Cnidarians round the Royal), dealt into another dungeon's round, never would be.
+        public const int UntouchableMs = 20000;
+        private readonly Dictionary<Enemy, int> _untouchableMs = new Dictionary<Enemy, int>();
+        private HashSet<string> _fightBosses = new HashSet<string>();
+
+        private bool IsBoss(Enemy e) =>
+            _fightBosses.Contains(e.ObjectDesc.IdName) || e.ObjectDesc.HealthBarBoss || e.ObjectDesc.Quest;
+
+        private static bool Untouchable(Enemy e) =>
+            e.HasConditionEffect(ConditionEffectIndex.Invulnerable) || e.HasConditionEffect(ConditionEffectIndex.Invincible)
+            || e.HasConditionEffect(ConditionEffectIndex.Stasis) || e.HasConditionEffect(ConditionEffectIndex.Paused);
+
+        private void ClearUntouchable(List<Enemy> left, int dt)
+        {
+            var bossLeft = _relay.Count > 0 || _empoweredNext != null || _empowered != null || left.Any(IsBoss);
+            foreach (var e in _untouchableMs.Keys.Where(e => e.Dead || e.World != this).ToList())
+                _untouchableMs.Remove(e);
+            var faded = false;
+            foreach (var e in left)
+            {
+                if (bossLeft || !Untouchable(e))
+                {
+                    _untouchableMs.Remove(e);
+                    continue;
+                }
+                var ms = (_untouchableMs.TryGetValue(e, out var had) ? had : 0) + dt;
+                if (ms < UntouchableMs)
+                {
+                    _untouchableMs[e] = ms;
+                    continue;
+                }
+                _untouchableMs.Remove(e);
+                LeaveWorld(e);
+                faded = true;
+            }
+            if (faded)
+                NotifyAll(0xffff00ff, "The stragglers fade away.");
+        }
+
+        private void ClearStragglers(int dt)
+        {
+            var left = Hostiles.ToList();
+            ClearUntouchable(left, dt);
+            left = Hostiles.ToList();
+            if (left.Count == 0 || _relay.Count > 0 || _empoweredNext != null || _empowered != null || left.Any(OfTheFight))
+            {
+                _stragglerMs = 0;
+                return;
+            }
+            _stragglerMs += dt;
+            if (_stragglerMs < StragglerMs)
+                return;
+            _stragglerMs = 0;
+            foreach (var e in left)
+                LeaveWorld(e);
+            NotifyAll(0xffff00ff, "The stragglers fade away.");
         }
     }
 
@@ -1096,6 +1190,8 @@ namespace WorldServer.core.worlds.impl.doomed
         private Entity _boss;
         private int _bossMax;
         private readonly List<string> _results = new List<string>();
+        // what was seen outside the ring at any moment of this boss's fight
+        private readonly HashSet<string> _wentOut = new HashSet<string>();
         public bool Done { get; private set; }
 
         // a hit for this share of a monster's max health every half second: 20 s for one without tricks
@@ -1153,6 +1249,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 }
                 _bossMax = (_boss as Enemy)?.MaxHealth ?? 0;
                 (_elapsed, _strikeIn, _invulnMs, _invulnMax, _peak) = (0, 500, 0, 0, 1);
+                _wentOut.Clear();
                 return;
             }
 
@@ -1177,9 +1274,11 @@ namespace WorldServer.core.worlds.impl.doomed
                         e.Damage(_admin, ref time, Math.Max(10, (int)(e.MaxHealth * Share)), true);
             }
             var outside = hostiles.Where(_arena.ProbeOutOfBounds).Select(e => e.ObjectDesc.IdName).Distinct().ToList();
+            _wentOut.UnionWith(outside);
+            var wentOut = _wentOut.Count > 0 ? " | went out: " + string.Join(", ", _wentOut) : "";
             if (hostiles.Count == 0)
             {
-                Report($"{_bosses[_index]} | cleared in {_elapsed / 1000.0:0.0} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak}");
+                Report($"{_bosses[_index]} | cleared in {_elapsed / 1000.0:0.0} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak}{wentOut}");
                 _boss = null;
                 _wait = 1500;
             }
@@ -1192,7 +1291,7 @@ namespace WorldServer.core.worlds.impl.doomed
                         + (e.HasConditionEffect(ConditionEffectIndex.Stasis) ? " stasis" : "") + (_arena.ProbeOutOfBounds(e) ? " OUT" : "");
                     return $"{g.Key} x{g.Count()} ({e.Health}/{e.MaxHealth}{flags})";
                 }));
-                Report($"{_bosses[_index]} | TIMEOUT {_limitMs / 1000} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak} | left: {left}" + (outside.Count > 0 ? " | out: " + string.Join(", ", outside) : ""));
+                Report($"{_bosses[_index]} | TIMEOUT {_limitMs / 1000} s | hp {_bossMax} | untouchable up to {_invulnMax / 1000.0:0.0} s | peak {_peak} | left: {left}" + (outside.Count > 0 ? " | out: " + string.Join(", ", outside) : "") + wentOut);
                 _boss = null;
                 _wait = 1500;
             }

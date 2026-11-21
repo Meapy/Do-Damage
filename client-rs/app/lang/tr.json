@@ -281,6 +281,8 @@
 "Heals": "İyileştirir",
 "Heals you and allies nearby": "Seni ve yakındaki müttefikleri iyileştirir",
 "Heals {n} HP": "{n} CP iyileştirir",
+"Join our Discord": "Discord sunucumuza katıl",
+"Updates, server status, help and trading. Open it to join.": "Güncellemeler, sunucu durumu, yardım ve takas. Katılmak için aç.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Sen ve {range} kare içindeki müttefiklerin {time} sn boyunca %{n} daha az hasar alır",
 "Forcefield": "Güç alanı",
 "Ward": "Koruma",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Biri yola çıktığında ayna berraklaşır.",
 "The glass picks someone new every little while.": "Ayna arada bir başka birini seçer.",
 "Arrows switch · Enter chats · Esc closes": "Oklar: değiştir · Enter: sohbet · Esc: kapat",
+"Ask to join": "Katılmak iste",
 "Watchers": "İzleyiciler",
 "Say something to the other watchers…": "Diğer izleyicilere bir şey yaz…",
 "{name} is watching.": "{name} izliyor.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Topluluk hedeflerinde daha şanslı ganimet",
 "A title in chat": "Sohbette bir unvan",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Sohbetteki adın kendine has parıltısıyla altın bir [Yaldızlı] unvanı taşır.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Şimdilik gizli: adın sohbette [Yaldızlı] unvanı olmadan görünür.",
+"Show": "Göster",
+"Hide": "Gizle",
+"Your [Gilded] title shows in chat.": "[Yaldızlı] unvanın sohbette görünüyor.",
+"Your [Gilded] title is hidden in chat.": "[Yaldızlı] unvanın sohbette gizli.",
+"Only a Gilded pass has the chat title.": "Sohbet unvanı yalnızca Yaldızlı biletle gelir.",
 "The Gilded track": "Yaldızlı yol",
 "Active": "Etkin",
-"Gilded only": "Yalnızca yaldızlı"
+"Gilded only": "Yalnızca yaldızlı",
+"Yours for good, on every character of this class.": "Bu sınıfın her karakterinde, kalıcı olarak senin."
 }

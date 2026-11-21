@@ -66,10 +66,11 @@ Yes. There's nothing to buy, and every shop in the game takes fame, which you ea
 
 ## Is there a Discord?
 
-Yes: [discord.gg/FVhqJe8CG](https://discord.gg/FVhqJe8CG). Every update is posted in #updates when
+Yes: [discord.gg/YTYWTFDRCD](https://discord.gg/YTYWTFDRCD). Every update is posted in #updates when
 it's out (`/updates` there gets you pinged), #server-status shows whether the game is up and who's
 on, and #help and #bug-reports are the quickest way to reach the people running the game. Its bot
-answers `/status`, `/online`, `/wiki <term>` and `/play`.
+answers `/status`, `/online`, `/wiki <term>` and `/play`. In game, `/discord` shows the invite with
+a button that opens it.
 
 ## Why link my Discord?
 
@@ -78,7 +79,7 @@ required: the main menu only reminds you.
 
 1. Sign in and choose **Link Discord** on the main menu (a guest registers first), then **Get a
    code**.
-2. In the [Do Damage Discord](https://discord.gg/FVhqJe8CG), type the command the game shows:
+2. In the [Do Damage Discord](https://discord.gg/YTYWTFDRCD), type the command the game shows:
    `/link code:` and your 6-character code. A code lasts 10 minutes and works once.
 
 The game's screen changes by itself once you're linked. In the Discord you get the **Verified**

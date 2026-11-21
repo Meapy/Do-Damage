@@ -17,7 +17,9 @@
   var index = window.WIKI_INDEX || [];
   var picked = -1;
   // the index's links are from the wiki's root; pages in gear/ and classes/ are one folder down
+  // (only ever "" or "../" steps: anything else in the attribute is not used as a link)
   var root = document.body.getAttribute("data-wiki") || "";
+  if (!/^(\.\.\/)*$/.test(root)) root = "";
 
   function words(q) {
     return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });

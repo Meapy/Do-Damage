@@ -281,6 +281,8 @@
 "Heals": "Лікує",
 "Heals you and allies nearby": "Лікує вас і союзників поруч",
 "Heals {n} HP": "Лікує {n} ОЗ",
+"Join our Discord": "Приєднуйся до нашого Discord",
+"Updates, server status, help and trading. Open it to join.": "Оновлення, стан сервера, допомога й торгівля. Відкрий, щоб приєднатися.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Ви та союзники в радіусі {range} клітинок отримуєте на {n}% менше шкоди протягом {time} с",
 "Forcefield": "Силове поле",
 "Ward": "Оберіг",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Дзеркало проясниться, коли хтось вирушить у путь.",
 "The glass picks someone new every little while.": "Дзеркало раз у раз обирає когось іншого.",
 "Arrows switch · Enter chats · Esc closes": "Стрілки: змінити · Enter: чат · Esc: закрити",
+"Ask to join": "Попросити приєднатися",
 "Watchers": "Глядачі",
 "Say something to the other watchers…": "Напишіть щось іншим глядачам…",
 "{name} is watching.": "{name} дивиться.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Щасливіша здобич у спільних цілях",
 "A title in chat": "Титул у чаті",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Ваше ім'я в чаті носить золотий титул [Золотий] зі своїм блиском.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Зараз прихований: ваше ім'я в чаті без титулу [Золотий].",
+"Show": "Показати",
+"Hide": "Сховати",
+"Your [Gilded] title shows in chat.": "Ваш титул [Золотий] видно в чаті.",
+"Your [Gilded] title is hidden in chat.": "Ваш титул [Золотий] приховано в чаті.",
+"Only a Gilded pass has the chat title.": "Титул у чаті є лише в золотого пропуску.",
 "The Gilded track": "Золота дорога",
 "Active": "Активно",
-"Gilded only": "Лише золотий"
+"Gilded only": "Лише золотий",
+"Yours for good, on every character of this class.": "Назавжди ваш, на кожному персонажі цього класу."
 }

@@ -281,6 +281,8 @@
 "Heals": "Soigne",
 "Heals you and allies nearby": "Vous soigne, vous et vos alliés proches",
 "Heals {n} HP": "Soigne {n} PV",
+"Join our Discord": "Rejoins notre Discord",
+"Updates, server status, help and trading. Open it to join.": "Mises à jour, état du serveur, aide et échanges. Ouvre-le pour nous rejoindre.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Vous et vos alliés à {range} cases subissez {n} % de dégâts en moins, pendant {time} s",
 "Forcefield": "Champ de force",
 "Ward": "Égide",
@@ -1247,6 +1249,7 @@
 "The glass clears when someone heads out.": "Le miroir s’éclaircit dès que quelqu’un part.",
 "The glass picks someone new every little while.": "Le miroir choisit régulièrement quelqu’un d’autre.",
 "Arrows switch · Enter chats · Esc closes": "Flèches : changer · Enter : discuter · Esc : fermer",
+"Ask to join": "Demander à rejoindre",
 "Watchers": "Spectateurs",
 "Say something to the other watchers…": "Dites quelque chose aux autres spectateurs…",
 "{name} is watching.": "{name} regarde.",
@@ -1440,7 +1443,14 @@
 "Luckier community goal loot": "Butin plus chanceux aux objectifs communautaires",
 "A title in chat": "Un titre dans le chat",
 "Your name in chat wears a gold [Gilded] title with a glint of its own.": "Votre nom dans le chat porte un titre doré [Doré] avec son propre éclat.",
+"Hidden for now: your name shows in chat without the [Gilded] title.": "Masqué pour l'instant : votre nom apparaît dans le chat sans le titre [Doré].",
+"Show": "Afficher",
+"Hide": "Masquer",
+"Your [Gilded] title shows in chat.": "Votre titre [Doré] s'affiche dans le chat.",
+"Your [Gilded] title is hidden in chat.": "Votre titre [Doré] est masqué dans le chat.",
+"Only a Gilded pass has the chat title.": "Seul un passe doré a le titre du chat.",
 "The Gilded track": "Le parcours doré",
 "Active": "Actif",
-"Gilded only": "Doré seulement"
+"Gilded only": "Doré seulement",
+"Yours for good, on every character of this class.": "À vous pour de bon, sur chaque personnage de cette classe."
 }
