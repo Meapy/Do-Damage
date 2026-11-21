@@ -2728,6 +2728,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   with no Royal to free them. They now go to `Free` when no Royal Cnidarian is within 15 tiles
   (`BehaviorDb.CnidarianReef.cs`, in the Reef too).
 
+- **Chat emoji brought up to date** (since 2026-11-21): the sheet (`Emotes.png`) held 880 emoji in
+  2014's Apple-style art. `tools/update_emotes.py` redrew every plain emoji cell in Google's Noto
+  Emoji art (Apache 2.0; flags from its region-flags, public domain) and appended the 1,032 emoji
+  since, with gemoji's names plus `:salute:` for `:saluting_face:`; the sheet is 256 x 1920 now
+  and `client/src/kabam/rotmg/emotes/Emotes.as` and the Rust manifest (`gen_rs_manifest.py`) list
+  1,941 emotes. Every old cell keeps its number, so every old code and shortcut is unchanged.
+  To add emoji after a future Unicode release, run `python tools\update_emotes.py --cache <folder>`
+  (it fetches gemoji's list and the PNGs; codes already in `Emotes.as` keep their cell), then
+  `python tools\gen_rs_manifest.py`.
+
 ## Classes, minigames and the economy
 
 Where the newer classes, their items and pets, the minigames, the second behaviour engine and the
