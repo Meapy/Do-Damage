@@ -7,7 +7,7 @@
     "An aura or name colour the account owns already pays 'repeatFame' fame instead. Never renumber an aura or colour: accounts own them by id (and the Rust client draws auras by it).",
     "'xp': pass XP for each thing (before Momentum). 'pace': every tier by this share of the season; behind it, XP comes 'momentum' percent faster. Past the last tier, every 'bonusXp' is a Wayfarer's Cache: a roll of 'cache' by weight.",
     "The Gilded track costs 'price' gold for the season, and is retroactive.",
-    "'community': while the pass is Gilded, the community goals' loot is rolled 'luck' Overdrive levels luckier, and every stage claimed that rolls loot rolls 'rolls' more times."
+    "'community': while the pass is Gilded, the community goals' loot is rolled 'luck' Overdrive levels luckier, and every stage claimed that rolls loot rolls 'rolls' more times. A Gilded holder can also rally one goal a run: until it ends everyone's contributions to it count 'rallyMultiplier' times, and they share its top prize whatever their place."
   ],
   "price": 1000,
   "tiers": 40,
@@ -17,7 +17,7 @@
   "momentum": 50,
   "repeatFame": 250,
   "xp": { "login": 100, "questDaily": 150, "questWeekly": 400, "questMonthly": 1000, "bonusDaily": 150, "bonusWeekly": 400, "bonusMonthly": 1000, "firstDungeon": 200, "dungeon": 25, "dungeonStep": 15, "elder": 50, "boss": 10, "oryx": 100, "realmClosed": 60, "arenaWave": 5, "famePer": 5 },
-  "community": { "luck": 1, "rolls": 1 },
+  "community": { "luck": 1, "rolls": 1, "rallyMultiplier": 2 },
   "cache": [
     {
       "weight": 20,

@@ -695,7 +695,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   tiers on top of Caches already opened. Messages 171-174 (`PassAct`, `PassData`, `PassXp`, `PassResult`), player stat 222
   `Aura`, relic looks 46 (a tier) and 47 (Gilded). A Gilded pass rolls the community goals' loot
   `community.luck` Overdrive levels luckier and `community.rolls` more times
-  (`CommunityGoals.cs`). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,
+  (`CommunityGoals.cs`), and has two more perks (2026-11-21): **rallying** a community goal,
+  and a **dungeon guide**. A rally (`COMMUNITY_BOOST` 175, `CommunityGoals.Rally`; `pass.json`'s
+  `community.rallyMultiplier`) is once per account and goal run: the account
+  goes into the Redis set `community:<run>:rallied` first, then a Lua script in the run's hash
+  (`community:<run>`) sets `boostUntil` to the run's end (the first rally's name in `boostBy`) and
+  counts `boosts`; `CommunityGoals.Count` multiplies every contribution to a
+  rallied run, in its total and in the helper's share, until then, and each refresh reads
+  `boostUntil` back so the other world server counts it too. The rallier also shares the run's
+  top prize whatever their rank (`Claimable`: rank in the top `TopCount` or rallied, with the
+  goal's minimum share). The rally travels as a section after the goals in `COMMUNITY_DATA`
+  (older clients stop before it) and as `COMMUNITY_NOTICE` kinds 6 (everyone: "X rallied the
+  realm") and 7 (the rallier's answer). The guide (`GUIDE_SUBSCRIBE` 176, `DUNGEON_GUIDE` 177,
+  `Player.Guide.cs`, `core/guide/GuidePath.cs`) runs for a Gilded player in a dungeon (not a
+  realm, the Nexus, a vault, a minigame or stacked floors): an A* over the map, eight ways with
+  no corner cutting, which crosses a door (an object filling its square) only when no other way
+  is open, from the player to the dungeon's boss, their `Quest`; it is made again when either
+  moves 3 tiles or every 6 s, and sent as every second tile (the Rust client's `guide.rs` draws
+  the trail and a chip; Options, Gameplay switches it off). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,
   both `PassSkins.xml`, `<PassSkin>` naming the effect the Rust client adds; the account server
   never sells them); the Wayfarer by `tools/draw_quest_npcs.py`, placed by `QuestGivers.cs`
   east of the Warcaller. Rust client: `pass.rs` (the window, Y, the HUD's Pass button) and

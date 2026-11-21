@@ -17,6 +17,7 @@ mod events;
 mod game;
 mod glass;
 mod grave;
+mod guide;
 mod ground;
 mod hud;
 mod i18n;
@@ -3298,6 +3299,7 @@ impl App {
             }
             prof::mark("pre");
             game.linger = self.settings.linger;
+            game.set_guide(self.settings.dungeon_guide);
             game.poll(now, data);
             prof::mark("poll");
             if reset_angle {
@@ -3486,6 +3488,9 @@ impl App {
                             hud::draw_bag_previews(&mut ui, world, &camera, lay.s);
                         }
                         game.pings.draw(&mut ui, &camera, (lay.view_w(), lay.h), self.settings.pings_from, now);
+                        if let Some(me) = world.player() {
+                            game.guide.draw(&mut ui, &camera, (me.x, me.y), &lay, now);
+                        }
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
                         // and the keys.

@@ -257,7 +257,13 @@ messages! {
         // The community goals (after CommunityRequest and each claim): the server's time and when
         // the week's goals end (Unix seconds), the tiers' names, the Overdrive levels' name, the
         // loot's rarities, and the goals running or ended lately.
-        129 => CommunityData { now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal> },
+        // After the goals (a server before the Gilded rally leaves them out): whether we hold a
+        // Gilded pass and can rally a goal, how long a rally lasts (minutes) and what it
+        // multiplies by, and each goal's rally.
+        129 => CommunityData {
+            now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal>,
+            can_rally: Option<bool>, rally_minutes: Option<u8>, rally_multiplier: Option<u8>, rallies: Option<List8<CommunityRally>>,
+        },
         // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier or Overdrive level the
         // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
         // (5).
@@ -328,6 +334,10 @@ messages! {
         // The answer to PassAct: a code (`pass::code`) with a tier or count, the server's English,
         // and what it paid (a claim's rewards, or what the caches rolled).
         174 => PassResult { code: u8, success: bool, count: i32, message: String, rewards: List8<PassReward> },
+        // The Gilded dungeon guide (after GuideSubscribe 1): the shortest walk to the dungeon's
+        // boss, as the tiles along it (every second one) with the boss's type and place and how
+        // many tiles the walk is. No points: the guide goes away.
+        177 => DungeonGuide { object_type: u16, x: f32, y: f32, length: i32, points: List16<GuidePoint> },
     }
 }
 
@@ -449,6 +459,12 @@ messages! {
         // 255: its top's prize, 254: all it has waiting); no key claims everything waiting on
         // every goal.
         130 => CommunityClaim { key: String, tier: u8 },
+        // Rally a goal by its run's key (a Gilded Realm Pass, once a run): everyone's help with it
+        // counts double for a while. Only sent to a server whose CommunityData said we can.
+        175 => CommunityBoost { key: String },
+        // Whether we can show the Gilded dungeon guide (1), or no longer want it (0): said once in
+        // each world. An older server doesn't know it.
+        176 => GuideSubscribe { on: bool },
         // How high we walk, in tiles, just before each Move in a world of stacked floors (only
         // once Layers came, so never to a server without it).
         133 => Height { z: f32 },

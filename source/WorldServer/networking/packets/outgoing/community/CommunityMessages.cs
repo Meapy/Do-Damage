@@ -24,6 +24,17 @@ namespace WorldServer.networking.packets.outgoing.community
         public ushort Best;
     }
 
+    // A goal's rally (Gilded Realm Pass): when it ends (Unix seconds, past or 0: none), who began
+    // the last one, whether we have rallied this run, and how many accounts have.
+    public sealed class CommunityRallyInfo
+    {
+        public string Key;
+        public int EndsAt;
+        public string By = "";
+        public bool Mine;
+        public byte Count;
+    }
+
     public sealed class CommunityGoalInfo
     {
         public string Key;
@@ -56,7 +67,9 @@ namespace WorldServer.networking.packets.outgoing.community
     // object it shows, its dates, this run's goal and the goal as written, the total and how many
     // helped, the share an account needs, ours and our place (0: none), each tier's total,
     // whether we've claimed it and its rewards, the same for each Overdrive level, the loot, then
-    // the top's size, prize and whether we've claimed it, and the top contributors.
+    // the top's size, prize and whether we've claimed it, and the top contributors. After the
+    // goals (older clients stop reading before it): whether we hold a Gilded pass and can rally,
+    // how long a rally lasts (minutes) and what it multiplies by, then each goal's rally.
     public class CommunityDataMessage : OutgoingMessage
     {
         public int Now;
@@ -65,6 +78,10 @@ namespace WorldServer.networking.packets.outgoing.community
         public string BonusName = "";
         public List<string> Rarities = new List<string>();
         public List<CommunityGoalInfo> Goals = new List<CommunityGoalInfo>();
+        public bool CanRally;
+        public byte RallyMinutes = 30;
+        public byte RallyMultiplier = 2;
+        public List<CommunityRallyInfo> Rallies = new List<CommunityRallyInfo>();
 
         public override MessageId MessageId => MessageId.COMMUNITY_DATA;
 
@@ -118,6 +135,18 @@ namespace WorldServer.networking.packets.outgoing.community
                     wtr.Write(amount);
                 }
             }
+            wtr.Write(CanRally);
+            wtr.Write(RallyMinutes);
+            wtr.Write(RallyMultiplier);
+            wtr.Write((byte)Rallies.Count);
+            foreach (var r in Rallies)
+            {
+                wtr.WriteUTF16(r.Key);
+                wtr.Write(r.EndsAt);
+                wtr.WriteUTF16(r.By ?? "");
+                wtr.Write(r.Mine);
+                wtr.Write(r.Count);
+            }
         }
 
         private static void WriteTiers(NetworkWriter wtr, List<CommunityTierInfo> tiers)
@@ -149,7 +178,8 @@ namespace WorldServer.networking.packets.outgoing.community
     // reading before them).
     public class CommunityNotice : OutgoingMessage
     {
-        public const byte CLAIMED = 0, REFUSED = 1, TIER = 2, COMPLETE = 3, NEW_WEEK = 4, LOOT = 5;
+        // RALLY (everyone): a Gilded holder rallied a goal; RALLIED (the answer): ours began
+        public const byte CLAIMED = 0, REFUSED = 1, TIER = 2, COMPLETE = 3, NEW_WEEK = 4, LOOT = 5, RALLY = 6, RALLIED = 7;
 
         public byte Kind;
         public string Title;

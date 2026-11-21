@@ -9,6 +9,7 @@ using Shared.community;
 using Shared.quests;
 using StackExchange.Redis;
 using WorldServer.core.objects;
+using WorldServer.core.pass;
 using WorldServer.core.quests;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl;
@@ -77,6 +78,10 @@ namespace WorldServer.core.community
         // each week's bonus goals, as last read
         private static readonly ConcurrentDictionary<DateTime, IReadOnlyList<EarlyStart>> EarlyStarts = new ConcurrentDictionary<DateTime, IReadOnlyList<EarlyStart>>();
         private const string ScaleKey = "community:scale";
+        // each run's rally (Rally) as far as this server knows: when it ends, Unix seconds. Redis
+        // has it too (`boostUntil`); the larger wins, so a rally counts here at once.
+        private static readonly ConcurrentDictionary<string, long> Rallies = new ConcurrentDictionary<string, long>();
+        private static readonly ConcurrentDictionary<string, string> RallyNames = new ConcurrentDictionary<string, string>();
 
         public sealed class RunState
         {
@@ -85,6 +90,11 @@ namespace WorldServer.core.community
             public int Goal;
             public long Total;
             public long Participants;
+            // the run's rally: when it ends (Unix seconds, past or 0 for none), who started the
+            // last one, and how many accounts have rallied this run
+            public long BoostUntil;
+            public string BoostBy = "";
+            public int Rallied;
             public List<(int Account, string Name, long Amount)> Top = new List<(int, string, long)>();
         }
 
@@ -130,6 +140,8 @@ namespace WorldServer.core.community
         private static string TotalKey(string run) => $"community:{run}";
         private static string WhoKey(string run) => $"community:{run}:who";
         private static string ClaimedKey(string run) => $"community:{run}:claimed";
+        // the accounts that rallied the run (each may once)
+        private static string RalliedKey(string run) => $"community:{run}:rallied";
         private static string WeekKey(DateTime week) => $"community:week:{week:yyyyMMdd}";
         private static string EarlyKey(DateTime week) => $"community:week:{week:yyyyMMdd}:early";
         private static TimeSpan WeekKeptFor => TimeSpan.FromDays(7 * (Data.ClaimWeeks + 6));
@@ -145,17 +157,22 @@ namespace WorldServer.core.community
             if (running.Length == 0 || e.Amount <= 0)
                 return;
             var account = player.AccountId;
-            long amount = e.Amount;
+            var now = QuestPeriods.Unix(QuestTracker.Now);
             foreach (var rs in running)
             {
                 if (!rs.Run.Def.Counts(e))
                     continue;
                 var key = rs.Run.Key;
+                // a rallied goal counts every contribution again (Rally)
+                var amount = (long)e.Amount * (Rallies.TryGetValue(key, out var until) && until > now ? RallyMultiplier : 1);
                 PendingShares.AddOrUpdate((key, account), amount, (_, v) => v + amount);
                 if (e.Occurrence == 0 || Seen.TryAdd((key, e.Occurrence), 0))
                     PendingTotals.AddOrUpdate(key, amount, (_, v) => v + amount);
             }
         }
+
+        // What a rally multiplies contributions by (pass.json's community); it lasts the run out.
+        private static int RallyMultiplier => _server == null ? 2 : Math.Max(2, PassTracker.Data(_server).Community.RallyMultiplier);
 
         // Staff testing (/goaladmin add): as if the player had done it `amount` times alone.
         public static void Add(Player player, RunState rs, long amount)
@@ -173,7 +190,8 @@ namespace WorldServer.core.community
             PendingTotals.TryRemove(key, out _);
             foreach (var k in PendingShares.Keys.Where(k => k.Run == key).ToList())
                 PendingShares.TryRemove(k, out _);
-            _db.KeyDelete(new RedisKey[] { TotalKey(key), WhoKey(key), ClaimedKey(key) });
+            _db.KeyDelete(new RedisKey[] { TotalKey(key), WhoKey(key), ClaimedKey(key), RalliedKey(key) });
+            Rallies.TryRemove(key, out _);
             RunGoals.TryRemove(key, out _);
             Settled.TryRemove(key, out _);
             Finished.TryRemove(key, out _);
@@ -367,8 +385,11 @@ namespace WorldServer.core.community
                     Run: r,
                     Total: batch.HashGetAsync(TotalKey(r.Key), "total"),
                     Count: batch.SortedSetLengthAsync(WhoKey(r.Key)),
-                    Top: batch.SortedSetRangeByRankWithScoresAsync(WhoKey(r.Key), 0, TopShown - 1, Order.Descending))).ToList();
-                tasks.AddRange(reads.SelectMany(r => new Task[] { r.Total, r.Count, r.Top }));
+                    Top: batch.SortedSetRangeByRankWithScoresAsync(WhoKey(r.Key), 0, TopShown - 1, Order.Descending),
+                    Until: batch.HashGetAsync(TotalKey(r.Key), "boostUntil"),
+                    By: batch.HashGetAsync(TotalKey(r.Key), "boostBy"),
+                    Rallied: batch.SetLengthAsync(RalliedKey(r.Key)))).ToList();
+                tasks.AddRange(reads.SelectMany(r => new Task[] { r.Total, r.Count, r.Top, r.Until, r.By, r.Rallied }));
                 batch.Execute();
                 if (!Task.WaitAll(tasks.ToArray(), TimeSpan.FromSeconds(10)))
                     Log.Warn("Community goals: Redis was slow to answer");
@@ -402,7 +423,7 @@ namespace WorldServer.core.community
                     }
 
                 var states = new List<RunState>();
-                foreach (var (run, total, count, top) in reads)
+                foreach (var (run, total, count, top, until, by, rallied) in reads)
                 {
                     var rs = new RunState
                     {
@@ -410,7 +431,17 @@ namespace WorldServer.core.community
                         Goal = RunGoals.TryGetValue(run.Key, out var fixedGoal) ? fixedGoal : run.Def.Goal,
                         Total = total.IsCompletedSuccessfully && total.Result.TryParse(out long t) ? t : 0,
                         Participants = count.IsCompletedSuccessfully ? count.Result : 0,
+                        Rallied = rallied.IsCompletedSuccessfully ? (int)rallied.Result : 0,
                     };
+                    // a rally: the later of Redis's and this server's own (just made, or not yet
+                    // written back)
+                    if (until.IsCompletedSuccessfully && until.Result.TryParse(out long u))
+                    {
+                        Rallies.AddOrUpdate(run.Key, u, (_, v) => Math.Max(v, u));
+                        if (by.IsCompletedSuccessfully)
+                            rs.BoostBy = by.Result.HasValue ? (string)by.Result : "";
+                    }
+                    rs.BoostUntil = Rallies.TryGetValue(run.Key, out var ru) ? ru : 0;
                     if (top.IsCompletedSuccessfully)
                         foreach (var e in top.Result)
                             if (int.TryParse(e.Element, out var acc))
@@ -570,7 +601,8 @@ namespace WorldServer.core.community
 
         // A player's place in each run: their share (with what's not sent yet), their rank (0 for
         // none) and the claims they've made. One trip to Redis for them all.
-        private static Dictionary<string, (long Share, int Rank, HashSet<int> Claimed)> Mine(int account, IReadOnlyList<RunState> runs)
+        // `Rallied`: the account rallied this run (Rally), so it shares the top's prize.
+        private static Dictionary<string, (long Share, int Rank, HashSet<int> Claimed, bool Rallied)> Mine(int account, IReadOnlyList<RunState> runs)
         {
             var batch = _db.CreateBatch();
             var reads = runs.Select(rs =>
@@ -580,18 +612,19 @@ namespace WorldServer.core.community
                     .Concat(Enumerable.Range(CommunityData.BONUS_TIER, Data.BonusLevels(rs.Run.Def)))
                     .Append(CommunityData.TOP_TIER)
                     .Select(t => (Tier: t, Task: batch.SetContainsAsync(ClaimedKey(key), ClaimId(account, t)))).ToList();
-                return (Key: key, Score: batch.SortedSetScoreAsync(WhoKey(key), account), Rank: batch.SortedSetRankAsync(WhoKey(key), account, Order.Descending), Tiers: tiers);
+                return (Key: key, Score: batch.SortedSetScoreAsync(WhoKey(key), account), Rank: batch.SortedSetRankAsync(WhoKey(key), account, Order.Descending), Tiers: tiers,
+                    Rallied: batch.SetContainsAsync(RalliedKey(key), account));
             }).ToList();
             batch.Execute();
-            var all = reads.SelectMany(r => new Task[] { r.Score, r.Rank }.Concat(r.Tiers.Select(t => (Task)t.Task))).ToArray();
+            var all = reads.SelectMany(r => new Task[] { r.Score, r.Rank, r.Rallied }.Concat(r.Tiers.Select(t => (Task)t.Task))).ToArray();
             Task.WaitAll(all, TimeSpan.FromSeconds(5));
-            var mine = new Dictionary<string, (long, int, HashSet<int>)>();
+            var mine = new Dictionary<string, (long, int, HashSet<int>, bool)>();
             foreach (var r in reads)
             {
                 var share = (long)(r.Score.IsCompletedSuccessfully ? r.Score.Result ?? 0 : 0) + Pending(r.Key, account);
                 var rank = r.Rank.IsCompletedSuccessfully && r.Rank.Result.HasValue ? (int)r.Rank.Result.Value + 1 : 0;
                 var claimed = r.Tiers.Where(t => t.Task.IsCompletedSuccessfully && t.Task.Result).Select(t => t.Tier).ToHashSet();
-                mine[r.Key] = (share, share > 0 ? rank : 0, claimed);
+                mine[r.Key] = (share, share > 0 ? rank : 0, claimed, r.Rallied.IsCompletedSuccessfully && r.Rallied.Result);
             }
             return mine;
         }
@@ -611,7 +644,7 @@ namespace WorldServer.core.community
 
         // Rewards waiting for the player: tiers reached that they've added enough to and not
         // claimed, and the top's prize of an ended goal they placed in.
-        private static List<(RunState Run, int Tier)> Claimable(RunState rs, (long Share, int Rank, HashSet<int> Claimed) me, DateTime now)
+        private static List<(RunState Run, int Tier)> Claimable(RunState rs, (long Share, int Rank, HashSet<int> Claimed, bool Rallied) me, DateTime now)
         {
             var list = new List<(RunState, int)>();
             var def = rs.Run.Def;
@@ -624,7 +657,8 @@ namespace WorldServer.core.community
             for (var k = 0; k < Data.BonusReached(def, rs.Goal, total); k++)
                 if (!me.Claimed.Contains(CommunityData.BONUS_TIER + k))
                     list.Add((rs, CommunityData.BONUS_TIER + k));
-            if (!rs.Run.Running(now) && def.Top.Count > 0 && me.Rank > 0 && me.Rank <= Data.TopCount && !me.Claimed.Contains(CommunityData.TOP_TIER))
+            // the top's prize: for the best contributors, and for whoever rallied the goal
+            if (!rs.Run.Running(now) && def.Top.Count > 0 && (me.Rank > 0 && me.Rank <= Data.TopCount || me.Rallied) && !me.Claimed.Contains(CommunityData.TOP_TIER))
                 list.Add((rs, CommunityData.TOP_TIER));
             return list;
         }
@@ -658,10 +692,10 @@ namespace WorldServer.core.community
             var now = QuestTracker.Now;
             var runs = _runs;
             var types = player.GameServer.Resources.GameData.IdToObjectType;
-            Dictionary<string, (long Share, int Rank, HashSet<int> Claimed)> mine;
+            Dictionary<string, (long Share, int Rank, HashSet<int> Claimed, bool Rallied)> mine;
             try
             {
-                mine = client.Account.Guest ? new Dictionary<string, (long, int, HashSet<int>)>() : Mine(player.AccountId, runs);
+                mine = client.Account.Guest ? new Dictionary<string, (long, int, HashSet<int>, bool)>() : Mine(player.AccountId, runs);
             }
             catch (Exception e)
             {
@@ -679,7 +713,7 @@ namespace WorldServer.core.community
             foreach (var rs in runs)
             {
                 var def = rs.Run.Def;
-                var me = mine.TryGetValue(rs.Run.Key, out var m) ? m : (0, 0, new HashSet<int>());
+                var me = mine.TryGetValue(rs.Run.Key, out var m) ? m : (0, 0, new HashSet<int>(), false);
                 var total = TotalOf(rs);
                 var info = new CommunityGoalInfo
                 {
@@ -720,8 +754,114 @@ namespace WorldServer.core.community
                             Best = PerTenThousand(best.TryGetValue(e, out var b) ? b : chance),
                         });
                 msg.Goals.Add(info);
+                var (until, by, rallied) = RallyOf(rs, me.Rallied);
+                msg.Rallies.Add(new CommunityRallyInfo
+                {
+                    Key = rs.Run.Key,
+                    EndsAt = (int)Math.Clamp(until, 0, int.MaxValue),
+                    By = by,
+                    Mine = me.Rallied,
+                    Count = (byte)Math.Clamp(rallied, 0, 255),
+                });
             }
+            msg.CanRally = player.Pass?.IsGilded == true;
+            // minutes a rally lasts: none, it burns until the run ends (older clients read it)
+            msg.RallyMinutes = 0;
+            msg.RallyMultiplier = (byte)Math.Clamp(RallyMultiplier, 2, 255);
             client.SendPacket(msg);
+        }
+
+        // A Gilded Realm Pass holder rallies a running goal, once a run: until the run ends
+        // everyone's contributions to it count RallyMultiplier times (Count), and the one who
+        // rallied shares the goal's top prize whatever their place (Claimable). Another rally of
+        // a run already burning changes nothing but that. Recorded in Redis before it counts, so an account
+        // rallies a run once whichever server it asks.
+        public static void Rally(Player player, string key)
+        {
+            var client = player.Client;
+            var account = client?.Account;
+            if (account == null)
+                return;
+            void Answer(bool ok, string text) =>
+                client.SendPacket(new CommunityNotice() { Kind = ok ? CommunityNotice.RALLIED : CommunityNotice.REFUSED, Title = ok ? "Rallied!" : "", Text = text });
+            if (account.Guest)
+            {
+                Answer(false, "Register your account to rally a goal.");
+                return;
+            }
+            if (player.World is TestWorld)
+            {
+                Answer(false, "Not here.");
+                return;
+            }
+            if (player.Pass?.IsGilded != true)
+            {
+                Answer(false, "Rallying a goal is for the Gilded Realm Pass.");
+                return;
+            }
+            var now = QuestTracker.Now;
+            var rs = Find(key);
+            if (rs == null || !rs.Run.Running(now))
+            {
+                Answer(false, "That goal has ended.");
+                SendData(player);
+                return;
+            }
+            if (Data.Finished(rs.Run.Def, rs.Goal, TotalOf(rs)))
+            {
+                Answer(false, "The realm has taken this goal as far as it goes.");
+                return;
+            }
+            var multiplier = RallyMultiplier;
+            try
+            {
+                if (!_db.SetAdd(RalliedKey(rs.Run.Key), player.AccountId))
+                {
+                    Answer(false, "You have rallied this goal already.");
+                    SendData(player);
+                    return;
+                }
+                _db.KeyExpire(RalliedKey(rs.Run.Key), KeepFor(rs.Run));
+                try
+                {
+                    // it burns until the run ends; the first rally's name stays
+                    var until = (long)_db.ScriptEvaluate(
+                        "local u = tonumber(redis.call('hget', KEYS[1], 'boostUntil') or '0') or 0; local end_ = tonumber(ARGV[1]); " +
+                        "if u < end_ then redis.call('hset', KEYS[1], 'boostUntil', end_); redis.call('hset', KEYS[1], 'boostBy', ARGV[2]); u = end_ end; " +
+                        "redis.call('hincrby', KEYS[1], 'boosts', 1); return u",
+                        new RedisKey[] { TotalKey(rs.Run.Key) },
+                        new RedisValue[] { QuestPeriods.Unix(rs.Run.End), player.Name });
+                    _db.KeyExpire(TotalKey(rs.Run.Key), KeepFor(rs.Run));
+                    Rallies.AddOrUpdate(rs.Run.Key, until, (_, v) => Math.Max(v, until));
+                }
+                catch
+                {
+                    // nothing was rallied: the account may try again
+                    _db.SetRemove(RalliedKey(rs.Run.Key), player.AccountId);
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Community goals: couldn't rally {rs.Run.Key} for {player.Name}: {e.Message}");
+                Answer(false, "Couldn't rally just now: try again.");
+                return;
+            }
+            Log.Info($"Community goals: {player.Name} rallied {rs.Run.Key} ({multiplier}x until it ends)");
+            Answer(true, $"Everyone's help with \"{rs.Run.Def.Title}\" counts {multiplier} times until it ends, and you share its top prize.");
+            Broadcast(CommunityNotice.RALLY, $"{player.Name} rallied the realm!",
+                $"\"{rs.Run.Def.Title}\" counts {multiplier} times until it ends. Go help!");
+            RallyNames[rs.Run.Key] = player.Name;
+            SendData(player);
+        }
+
+        // A run's rally as shown: this server's own word (a rally just made) if it's later than
+        // the last refresh's.
+        private static (long Until, string By, int Count) RallyOf(RunState rs, bool mineNow)
+        {
+            var until = Rallies.TryGetValue(rs.Run.Key, out var u) ? Math.Max(u, rs.BoostUntil) : rs.BoostUntil;
+            var by = until > rs.BoostUntil && RallyNames.TryGetValue(rs.Run.Key, out var n) ? n : rs.BoostBy ?? "";
+            return (until, by, rs.Rallied + (mineNow && until > rs.BoostUntil ? 1 : 0));
         }
 
         private static ushort PerTenThousand(double chance) => (ushort)Math.Clamp((int)Math.Round(chance * 10000), chance > 0 ? 1 : 0, 10000);

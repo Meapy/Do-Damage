@@ -1452,5 +1452,22 @@
 "The Gilded track": "Il percorso dorato",
 "Active": "Attivo",
 "Gilded only": "Solo dorato",
-"Yours for good, on every character of this class.": "Tuo per sempre, su ogni personaggio di questa classe."
+"Yours for good, on every character of this class.": "Tuo per sempre, su ogni personaggio di questa classe.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "In un dungeon, una scia di frecce ti guida per la via più breve fino al suo boss.",
+"Rallied": "Radunato",
+"Rally a community goal": "Raduna per un obiettivo",
+"Rally x{n}": "Radunare x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "Mostra la via per il boss di un dungeon (Realm Pass dorato)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "Il reame è radunato: l'aiuto di tutti conta x{n} fino alla fine.",
+"The way to the boss": "La via per il boss",
+"You rallied this goal, so you share its top prize.": "Hai radunato questo obiettivo, quindi condividi il suo premio dei migliori.",
+"Yours: you rallied it": "Tuo: l'hai radunato",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} ha radunato il reame: l'aiuto di tutti conta x{n} fino alla fine.",
+"{n} tile to the boss|{n} tiles to the boss": "{n} casella fino al boss|{n} caselle fino al boss",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Un Realm Pass dorato ti permette di radunare il reame su un obiettivo: fino alla sua fine l'aiuto di tutti conta x{n}.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Raduna il reame su questo obiettivo: fino alla sua fine l'aiuto di tutti conta x{n}, e condividi il premio dei migliori. Una volta per obiettivo.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Una volta per obiettivo, fai contare doppio l'aiuto di tutti fino alla sua fine e condividi il premio dei migliori, qualunque sia il tuo posto.",
+"x{n} · rallied by {name}": "x{n} · radunato da {name}",
+"x{n} · rallied by {name} +{more}": "x{n} · radunato da {name} +{more}",
+"x{n} · rallied": "x{n} · radunato"
 }

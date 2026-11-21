@@ -549,6 +549,7 @@ namespace WorldServer.core.objects
                 HandleOxygen(time);
                 CheckTradeTimeout(time);
                 HandleQuest(time);
+                HandleGuide(time);
                 HandleEffects(ref time);
                 HandleRegen(ref time);
                 LowHealthBoosts();

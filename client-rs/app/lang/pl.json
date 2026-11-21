@@ -1452,5 +1452,22 @@
 "The Gilded track": "Złota ścieżka",
 "Active": "Aktywne",
 "Gilded only": "Tylko złota",
-"Yours for good, on every character of this class.": "Twój na zawsze, na każdej postaci tej klasy."
+"Yours for good, on every character of this class.": "Twój na zawsze, na każdej postaci tej klasy.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "W lochu ścieżka strzałek prowadzi cię najkrótszą drogą do jego bossa.",
+"Rallied": "Zwołano",
+"Rally a community goal": "Zwołaj na cel społeczności",
+"Rally x{n}": "Zwołaj x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "Pokazuj drogę do bossa w lochu (złoty Realm Pass)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "Kraina jest zwołana: pomoc każdego liczy się x{n} do końca.",
+"The way to the boss": "Droga do bossa",
+"You rallied this goal, so you share its top prize.": "Ten cel zwołano z twojej inicjatywy, więc dzielisz jego nagrodę czołówki.",
+"Yours: you rallied it": "Twoje: z twojej inicjatywy",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} zwołuje krainę: pomoc każdego liczy się x{n} do końca.",
+"{n} tile to the boss|{n} tiles to the boss": "{n} pole do bossa|{n} pola do bossa|{n} pól do bossa",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Złoty Realm Pass pozwala zwołać wszystkich do jednego celu: do jego końca pomoc każdego liczy się x{n}.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Zwołaj wszystkich do tego celu: do jego końca pomoc każdego liczy się x{n}, a ty dzielisz nagrodę czołówki. Raz na cel.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Raz na cel: niech pomoc wszystkich przy nim liczy się podwójnie do końca celu, a ty dzielisz jego nagrodę czołówki, bez względu na miejsce.",
+"x{n} · rallied by {name}": "x{n} · zwołanie: {name}",
+"x{n} · rallied by {name} +{more}": "x{n} · zwołanie: {name} +{more}",
+"x{n} · rallied": "x{n} · zwołano"
 }

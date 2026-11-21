@@ -162,5 +162,6 @@ class Pass:
             "pass_pace": round(p.get("pace", 0.75) * 100), "pass_momentum": p.get("momentum", 50),
             "pass_repeat_fame": "{:,}".format(p.get("repeatFame", 250)),
             "pass_luck": com.get("luck", 1), "pass_rolls": com.get("rolls", 1),
+            "pass_rally_mult": com.get("rallyMultiplier", 2),
             "pass_auras": len(p.get("auras", [])), "pass_colors": len(p.get("colors", [])),
         }

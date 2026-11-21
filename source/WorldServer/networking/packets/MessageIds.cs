@@ -251,6 +251,15 @@ public enum MessageId : byte
     PASS_DATA = 172,
     PASS_XP = 173,
     PASS_RESULT = 174,
+    // Gilded Realm Pass perks (Rust client 2.6.4). COMMUNITY_BOOST rallies a community goal: for a
+    // while everyone's share of it counts double, and the one who rallied shares its top prize
+    // (CommunityGoals.Rally; the answer is a COMMUNITY_NOTICE and a fresh COMMUNITY_DATA). The
+    // dungeon guide: the client says once in each world that it can show the way (GUIDE_SUBSCRIBE,
+    // 1 on, 0 off) and a Gilded player in a dungeon gets the shortest walk to its boss every
+    // second or so (DUNGEON_GUIDE, Player.Guide.cs).
+    COMMUNITY_BOOST = 175,
+    GUIDE_SUBSCRIBE = 176,
+    DUNGEON_GUIDE = 177,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

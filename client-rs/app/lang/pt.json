@@ -1452,5 +1452,22 @@
 "The Gilded track": "A trilha dourada",
 "Active": "Ativo",
 "Gilded only": "Só dourado",
-"Yours for good, on every character of this class.": "Seu para sempre, em todos os personagens desta classe."
+"Yours for good, on every character of this class.": "Seu para sempre, em todos os personagens desta classe.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "Numa masmorra, um rastro de setas leva você pelo caminho mais curto até o boss.",
+"Rallied": "Convocado",
+"Rally a community goal": "Convocar um objetivo da comunidade",
+"Rally x{n}": "Convocar x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "Mostrar o caminho até o boss da masmorra (Realm Pass dourado)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "O reino está convocado: a ajuda de todos vale x{n} até acabar.",
+"The way to the boss": "O caminho até o boss",
+"You rallied this goal, so you share its top prize.": "Você convocou este objetivo, então divide o prêmio do top dele.",
+"Yours: you rallied it": "Seu: você convocou",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} convocou o reino: a ajuda de todos vale x{n} até acabar.",
+"{n} tile to the boss|{n} tiles to the boss": "{n} quadrado até o boss|{n} quadrados até o boss",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Um Realm Pass dourado deixa você convocar um objetivo: até ele acabar, a ajuda de todos vale x{n}.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Convoque este objetivo: até ele acabar, a ajuda de todos vale x{n}, e você divide o prêmio do top. Uma vez por objetivo.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Uma vez por objetivo, faça a ajuda de todos valer em dobro até o fim e divida o prêmio do top, seja qual for o seu lugar.",
+"x{n} · rallied by {name}": "x{n} · convocado por {name}",
+"x{n} · rallied by {name} +{more}": "x{n} · convocado por {name} +{more}",
+"x{n} · rallied": "x{n} · convocado"
 }

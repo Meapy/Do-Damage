@@ -1452,5 +1452,22 @@
 "The Gilded track": "Yaldızlı yol",
 "Active": "Etkin",
 "Gilded only": "Yalnızca yaldızlı",
-"Yours for good, on every character of this class.": "Bu sınıfın her karakterinde, kalıcı olarak senin."
+"Yours for good, on every character of this class.": "Bu sınıfın her karakterinde, kalıcı olarak senin.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "Zindanda bir ok izi seni patrona giden en kısa yoldan götürür.",
+"Rallied": "Başlatıldı",
+"Rally a community goal": "Topluluk hedefi için seferberlik",
+"Rally x{n}": "Seferberlik x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "Zindan patronuna giden yolu göster (yaldızlı Realm Pass)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "Seferberlik sürüyor: herkesin yardımı bitene kadar x{n} sayılır.",
+"The way to the boss": "Patrona giden yol",
+"You rallied this goal, so you share its top prize.": "Bu hedef için seferberliği sen başlattın, bu yüzden zirve ödülünü paylaşırsın.",
+"Yours: you rallied it": "Senin: seferberliği sen başlattın",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} seferberlik başlattı: herkesin yardımı bitene kadar x{n} sayılır.",
+"{n} tile to the boss|{n} tiles to the boss": "Patrona {n} kare",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Yaldızlı Realm Pass ile bir hedef için seferberlik başlatabilirsin: hedef bitene kadar herkesin yardımı x{n} sayılır.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Bu hedef için seferberlik başlat: hedef bitene kadar herkesin yardımı x{n} sayılır ve zirve ödülünü paylaşırsın. Hedef başına bir kez.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Hedef başına bir kez: herkesin yardımını hedef bitene kadar çift saydır ve sıran ne olursa olsun zirve ödülünü paylaş.",
+"x{n} · rallied by {name}": "x{n} · {name} başlattı",
+"x{n} · rallied by {name} +{more}": "x{n} · {name} başlattı +{more}",
+"x{n} · rallied": "x{n} · başlatıldı"
 }

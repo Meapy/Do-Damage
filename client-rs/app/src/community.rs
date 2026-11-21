@@ -16,7 +16,7 @@ use crate::hud::{Layout, SlotKind, Ui};
 use crate::i18n::{mark, tf, tn, tr};
 use crate::quests::{card, check, countdown, done_chip, glow, inside, locked, reward_row, rewards_width, LOOT_ROLL, TIER_COLORS};
 use crate::theme::{self, color, Kind};
-use bsk_proto::{CommunityData, CommunityGoal, CommunityRoll};
+use bsk_proto::{CommunityData, CommunityGoal, CommunityRally, CommunityRoll};
 use bsk_world::GameObj;
 use std::collections::HashMap;
 use winit::keyboard::KeyCode;
@@ -34,6 +34,9 @@ const REFUSED: u8 = 1;
 const COMPLETE: u8 = 3;
 const NEW_WEEK: u8 = 4;
 const LOOT: u8 = 5;
+/// A Gilded holder rallied a goal (to everyone), and our own rally's answer.
+const RALLY: u8 = 6;
+const RALLIED: u8 = 7;
 /// The client's own banner for a reward waiting (the server sends none).
 const WAITING: u8 = 200;
 
@@ -52,6 +55,8 @@ const TIER_FIRE: [u32; 4] = [color::GOLD, color::ACCENT_HI, color::ACCENT, color
 pub enum Act {
     Request,
     Claim(String, u8),
+    /// Rally the goal of this run (a Gilded Realm Pass).
+    Boost(String),
 }
 
 /// What the server said.
@@ -68,6 +73,7 @@ enum Hit {
     Close,
     Goal(String),
     Tier(String, u8),
+    Rally(String),
     All,
     /// On the reel: land the roll turning, or go on to the next.
     RollNext,
@@ -138,16 +144,32 @@ fn qualifies(g: &CommunityGoal) -> bool {
 
 /// The tiers of a goal we can claim now, its Overdrive levels (`BONUS` on), and the top's prize
 /// (`TOP`) if it's ours.
-pub fn claimable(g: &CommunityGoal) -> Vec<u8> {
+pub fn claimable(g: &CommunityGoal, rallied: bool) -> Vec<u8> {
     if !qualifies(g) {
         return Vec::new();
     }
     let mut out: Vec<u8> = g.tiers.iter().enumerate().filter(|(_, t)| g.total >= t.at && !t.claimed).map(|(i, _)| i as u8).collect();
     out.extend(g.bonus.iter().enumerate().filter(|(_, b)| g.total >= b.at && !b.claimed).map(|(k, _)| BONUS + k as u8));
-    if !g.running && g.rank > 0 && g.rank <= g.top_count as i32 && !g.top_claimed && !g.top_rewards.is_empty() {
+    // the top's prize is the best contributors', and whoever rallied the goal's
+    if !g.running && (g.rank > 0 && g.rank <= g.top_count as i32 || rallied) && !g.top_claimed && !g.top_rewards.is_empty() {
         out.push(TOP);
     }
     out
+}
+
+/// Whether we rallied this goal's run (a Gilded pass): we share its top prize.
+fn rallied(d: &CommunityData, key: &str) -> bool {
+    d.rallies.as_ref().is_some_and(|r| r.iter().any(|r| r.key == key && r.mine))
+}
+
+/// A goal's rally, if the server sent one.
+fn rally_of<'a>(d: &'a CommunityData, key: &str) -> Option<&'a CommunityRally> {
+    d.rallies.as_ref().and_then(|r| r.iter().find(|r| r.key == key))
+}
+
+/// What a goal has waiting for us (`claimable`, with our rally).
+fn waiting(d: &CommunityData, g: &CommunityGoal) -> Vec<u8> {
+    claimable(g, rallied(d, &g.key))
 }
 
 /// Tiers the server has reached on a goal.
@@ -296,7 +318,7 @@ impl Community {
         self.open = true;
         self.message = None;
         if let Some(d) = &self.data {
-            let best = d.goals.iter().find(|g| !claimable(g).is_empty()).or(d.goals.first());
+            let best = d.goals.iter().find(|g| !waiting(d, g).is_empty()).or(d.goals.first());
             self.selected = best.map(|g| g.key.clone());
         }
         self.asked = self.now;
@@ -319,12 +341,18 @@ impl Community {
 
     /// Rewards waiting to be claimed, on every goal.
     pub fn ready(&self) -> usize {
-        self.data.as_ref().map_or(0, |d| d.goals.iter().map(|g| claimable(g).len()).sum())
+        self.data.as_ref().map_or(0, |d| d.goals.iter().map(|g| waiting(d, g).len()).sum())
     }
 
     /// The server's time now, in Unix seconds.
     fn server_now(&self) -> i64 {
         self.data.as_ref().map_or(0, |d| d.now as i64 + ((self.now - self.received).max(0) / 1000) as i64)
+    }
+
+    /// Seconds a goal's rally has left (none when it isn't rallied).
+    fn rally_left(&self, d: &CommunityData, key: &str) -> Option<i64> {
+        let left = rally_of(d, key)?.ends_at as i64 - self.server_now();
+        (left > 0).then_some(left)
     }
 
     /// Asks again every few seconds while the window is open.
@@ -341,13 +369,13 @@ impl Community {
         self.now = now;
         match e {
             Event::Data(d) => {
-                log::info!("community: {} goals, {} rewards waiting", d.goals.len(), d.goals.iter().map(|g| claimable(g).len()).sum::<usize>());
+                log::info!("community: {} goals, {} rewards waiting", d.goals.len(), d.goals.iter().map(|g| waiting(&d, g).len()).sum::<usize>());
                 self.received = now;
                 // a reward that's newly ours, said once
                 let fresh: Vec<(String, String)> = d
                     .goals
                     .iter()
-                    .flat_map(|g| claimable(g).into_iter().map(move |t| (format!("{}:{t}", g.key), g.title.clone())))
+                    .flat_map(|g| waiting(&d, g).into_iter().map(move |t| (format!("{}:{t}", g.key), g.title.clone())))
                     .filter(|(id, _)| !self.said.contains(id))
                     .collect();
                 if !fresh.is_empty() && !self.open {
@@ -360,12 +388,12 @@ impl Community {
                 }
                 self.said.extend(fresh.into_iter().map(|(id, _)| id));
                 if self.selected.as_ref().is_none_or(|k| !d.goals.iter().any(|g| &g.key == k)) {
-                    self.selected = d.goals.iter().find(|g| !claimable(g).is_empty()).or(d.goals.first()).map(|g| g.key.clone());
+                    self.selected = d.goals.iter().find(|g| !waiting(&d, g).is_empty()).or(d.goals.first()).map(|g| g.key.clone());
                 }
                 self.data = Some(*d);
             }
             Event::Notice(kind, title, text) => match kind {
-                CLAIMED => self.message = Some((if title.is_empty() { text } else { format!("{title} {text}") }, false, now)),
+                CLAIMED | RALLIED => self.message = Some((if title.is_empty() { text } else { format!("{title} {text}") }, false, now)),
                 REFUSED => self.message = Some((text, true, now)),
                 _ => self.banner(kind, title, text, now),
             },
@@ -463,6 +491,7 @@ impl Community {
                 self.message = None;
             }
             Hit::Tier(key, tier) => return Some(Act::Claim(key, tier)),
+            Hit::Rally(key) => return Some(Act::Boost(key)),
             Hit::All => return Some(Act::Claim(String::new(), ALL)),
         }
         None
@@ -761,7 +790,7 @@ impl Community {
             }
             let cr = [body[0], y, lw, card_h];
             let on = self.selected.as_ref() == Some(&g.key);
-            let ready = claimable(g).len();
+            let ready = waiting(&d, g).len();
             let over = inside(cr, mouse);
             if on {
                 theme::frame(ui.renderer, cr, 8.0 * s, (1.5 * s).max(1.0), (color::ACCENT, 1.0), ((color::WARM_TOP, 0.95), (color::WARM_BOTTOM, 0.95)));
@@ -781,6 +810,12 @@ impl Community {
             let pct = format!("{}%", percent(g));
             let pc = if bonus_reached(g) > 0 { color::GOLD } else if g.total >= g.goal { color::GOOD } else { color::TEXT_DIM };
             ui.label(&pct, bar[0] + bar[2] + 8.0 * s, bar[1] - 4.0 * s, font(11.0), true, pc);
+            if self.rally_left(&d, &g.key).is_some() && g.running {
+                let chip = format!("x{}", d.rally_multiplier.unwrap_or(2));
+                let cw = ui.measure(&chip, font(11.0), true);
+                let x = cr[0] + lw - cw - 10.0 * s - if ready > 0 { 26.0 * s } else { 0.0 };
+                ui.label(&chip, x, cr[1] + 10.0 * s, font(11.0), true, color::GOLD);
+            }
             if ready > 0 {
                 let rd = 18.0 * s;
                 let br = [cr[0] + lw - rd - 8.0 * s, cr[1] + 8.0 * s, rd, rd];
@@ -839,7 +874,14 @@ impl Community {
         let levels = bonus_reached(g);
         let bonus_name = named(if d.bonus_name.is_empty() { "Overdrive" } else { d.bonus_name.as_str() });
         let bonus_name = bonus_name.as_str();
-        theme::frame(ui.renderer, p, 10.0 * s, s.max(1.0), (color::BORDER_HI, 1.0), ((color::INSET_TOP, 0.95), (color::INSET_BOTTOM, 0.95)));
+        // a rallied goal burns: a gold edge that breathes
+        let rally = rally_of(d, &g.key);
+        let rally_left = self.rally_left(d, &g.key).filter(|_| g.running);
+        if rally_left.is_some() {
+            let b = (2.0 + 2.0 * pulse) * s;
+            theme::fill(ui.renderer, [p[0] - b, p[1] - b, p[2] + 2.0 * b, p[3] + 2.0 * b], 12.0 * s + b, color::GOLD, 0.10 + 0.08 * pulse);
+        }
+        theme::frame(ui.renderer, p, 10.0 * s, s.max(1.0), (if rally_left.is_some() { color::GOLD } else { color::BORDER_HI }, 1.0), ((color::INSET_TOP, 0.95), (color::INSET_BOTTOM, 0.95)));
 
         // The hero: the goal's picture in a glow, what it is, and the count.
         let (ix, iy) = (p[0] + 52.0 * s, p[1] + 50.0 * s);
@@ -906,8 +948,60 @@ impl Community {
         };
         let when = crate::npc::fit(ui, &when, font(12.0), (right - tag_x).max(10.0 * s));
         ui.label(&when, tag_x, tag_y + 2.0 * s, font(12.0), true, color::TEXT_DIM);
-        let text = crate::npc::fit(ui, &g.text, font(13.0), p[0] + p[2] - 20.0 * s - tx);
+        // the rally (Gilded): its button, or how long it burns; the text gives it room
+        let mult = d.rally_multiplier.unwrap_or(2).max(2);
+        let can = d.can_rally.unwrap_or(false);
+        let strip = if g.running && (rally_left.is_some() || d.can_rally.is_some()) { 176.0 * s } else { 0.0 };
+        let text = crate::npc::fit(ui, &g.text, font(13.0), p[0] + p[2] - 20.0 * s - tx - strip - if strip > 0.0 { 10.0 * s } else { 0.0 });
         ui.label(&text, tx, p[1] + 70.0 * s, font(13.0), false, color::TEXT_DIM);
+        if strip > 0.0 {
+            let pill = [right - strip, p[1] + 66.0 * s, strip, 28.0 * s];
+            let mine_rally = rally.is_some_and(|r| r.mine);
+            if rally_left.filter(|_| mine_rally || !can).is_some() {
+                // burning now: its multiplier and the time left
+                theme::fill(ui.renderer, [pill[0] - 2.0 * s, pill[1] - 2.0 * s, pill[2] + 4.0 * s, pill[3] + 4.0 * s], pill[3] / 2.0 + 2.0 * s, color::GOLD, 0.18 + 0.14 * pulse);
+                theme::fill(ui.renderer, pill, pill[3] / 2.0, color::GOLD, 0.92);
+                // who rallied it (the first), and how many others have
+                let by = rally.map(|r| r.by.as_str()).filter(|b| !b.is_empty());
+                let more = rally.map_or(0, |r| r.count.saturating_sub(1));
+                let t = match by {
+                    Some(name) if more > 0 => tf!("x{n} · rallied by {name} +{more}", n = mult, name, more),
+                    Some(name) => tf!("x{n} · rallied by {name}", n = mult, name),
+                    None => tf!("x{n} · rallied", n = mult),
+                };
+                let t = crate::npc::fit(ui, &t, font(12.0), pill[2] - 34.0 * s);
+                let tw = ui.measure(&t, font(12.0), true);
+                theme::star(ui.renderer, pill[0] + 16.0 * s, pill[1] + pill[3] / 2.0, 6.0 * s, color::ACCENT_TEXT);
+                ui.label(&t, pill[0] + 28.0 * s + (pill[2] - 36.0 * s - tw) / 2.0, pill[1] + (pill[3] - font(12.0) * 1.22) / 2.0, font(12.0), true, color::ACCENT_TEXT);
+                if inside(pill, mouse) {
+                    let who = rally.map(|r| r.by.as_str()).filter(|b| !b.is_empty());
+                    self.hint = Some(match who {
+                        Some(name) => tf!("{name} rallied the realm: everyone's help counts x{n} until it ends.", name, n = mult),
+                        None => tf!("The realm is rallied: everyone's help counts x{n} until it ends.", n = mult),
+                    });
+                }
+            } else if mine_rally {
+                // ours is spent: it was this run's one, and it keeps the top's prize for us
+                done_chip(ui, pill, tr("Rallied"), s * 0.9);
+                if inside(pill, mouse) {
+                    self.hint = Some(tr("You rallied this goal, so you share its top prize.").into());
+                }
+            } else if can {
+                glow(ui, pill, pulse, s);
+                ui.button(pill, &tf!("Rally x{n}", n = mult), Kind::Primary, inside(pill, mouse), s * 0.9);
+                self.hits.push((Hit::Rally(g.key.clone()), pill));
+                if inside(pill, mouse) {
+                    self.hint = Some(tf!("Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.", n = mult));
+                }
+            } else {
+                // not Gilded: shown, so it's known
+                note(ui, pill, &tf!("Rally x{n}", n = mult), color::TEXT_MUTED, s);
+                locked(ui, [pill[0] + 4.0 * s, pill[1] + 2.0 * s, 22.0 * s, pill[3] - 4.0 * s], s * 0.7);
+                if inside(pill, mouse) {
+                    self.hint = Some(tf!("A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.", n = mult));
+                }
+            }
+        }
 
         // The bar, with each tier's marker on it, and the Overdrive track past the goal.
         let shown = self.shown_total(g, dt);
@@ -1111,7 +1205,9 @@ impl Community {
         let rw = rewards_width(ui, &g.top_rewards, k);
         reward_row(ui, &g.top_rewards, zx + (zw - rw) / 2.0 + 6.0 * k, zy + 42.0 * s, k, mouse, g.top_claimed, &mut self.hover_item);
         let zb = [zx, tr[1] + bh - 32.0 * s, zw, 24.0 * s];
-        let ours = g.rank > 0 && g.rank <= g.top_count as i32 && mine_ok;
+        let rallied_me = rallied(d, &g.key);
+        let in_top = g.rank > 0 && g.rank <= g.top_count as i32;
+        let ours = (in_top || rallied_me) && mine_ok;
         if g.top_claimed {
             done_chip(ui, zb, crate::i18n::tr("Claimed"), s * 0.85);
         } else if !g.running && ours {
@@ -1119,7 +1215,9 @@ impl Community {
             ui.button(zb, crate::i18n::tr("Claim"), Kind::Primary, inside(zb, mouse), s * 0.85);
             self.hits.push((Hit::Tier(g.key.clone(), TOP), zb));
         } else {
-            let l = if g.running && ours {
+            let l = if g.running && ours && !in_top {
+                crate::i18n::tr("Yours: you rallied it")
+            } else if g.running && ours {
                 crate::i18n::tr("You're in it: hold on!")
             } else if g.running {
                 crate::i18n::tr("Climb into the top")
@@ -1227,6 +1325,7 @@ impl Community {
             let accent = match b.kind {
                 COMPLETE => color::GOOD,
                 NEW_WEEK => color::ACCENT,
+                RALLY => color::ACCENT_HI,
                 LOOT => 0xB86BFF,
                 _ => color::GOLD,
             };
@@ -1385,6 +1484,7 @@ mod tests {
             bonus_name: "Overdrive".into(),
             rarities: vec!["common".to_owned(); 6].into(),
             goals: goals.into(),
+            ..Default::default()
         }
     }
 
@@ -1427,21 +1527,45 @@ mod tests {
     #[test]
     fn rewards_wait_for_those_who_helped() {
         // two tiers reached, one claimed
-        assert_eq!(claimable(&goal(9, 5, &[true, false, false, false], true, 1)), vec![1]);
+        assert_eq!(claimable(&goal(9, 5, &[true, false, false, false], true, 1), false), vec![1]);
         // not enough of our own: nothing, however far the realm got
-        assert!(claimable(&goal(16, 1, &[false; 4], true, 2)).is_empty());
+        assert!(claimable(&goal(16, 1, &[false; 4], true, 2), false).is_empty());
         // ended, and we're in the top: its prize too
-        assert_eq!(claimable(&goal(16, 5, &[true, true, true, false], false, 2)), vec![3, TOP]);
+        assert_eq!(claimable(&goal(16, 5, &[true, true, true, false], false, 2), false), vec![3, TOP]);
         // ended, but fourth
-        assert_eq!(claimable(&goal(4, 5, &[false; 4], false, 4)), vec![0]);
+        assert_eq!(claimable(&goal(4, 5, &[false; 4], false, 4), false), vec![0]);
         assert_eq!(reached(&goal(12, 0, &[false; 4], true, 0)), 3);
+    }
+
+    #[test]
+    fn a_rally_shares_the_top_prize() {
+        // ended, fourth place: no top prize, unless we rallied it
+        let g = goal(16, 5, &[true; 4], false, 4);
+        assert_eq!(claimable(&g, false), Vec::<u8>::new());
+        assert_eq!(claimable(&g, true), vec![TOP]);
+        // still needs our own share
+        assert!(claimable(&goal(16, 1, &[true; 4], false, 0), true).is_empty());
+        // read from the data
+        let mut d = data(vec![g.clone()]);
+        assert!(!rallied(&d, &g.key));
+        d.rallies = Some(vec![CommunityRally { key: g.key.clone(), ends_at: 1_800_000_500, by: "Tester".into(), mine: true, count: 1 }].into());
+        assert!(rallied(&d, &g.key));
+        assert_eq!(waiting(&d, &g), vec![TOP]);
+        let mut c = Community::default();
+        c.data = Some(d.clone());
+        assert_eq!(c.rally_left(&d, &g.key), Some(500));
+        c.now = 600_000;
+        assert_eq!(c.rally_left(&d, &g.key), None);
+        // our click rallies the goal it was on
+        c.hits.push((Hit::Rally(g.key.clone()), [0.0, 0.0, 10.0, 10.0]));
+        assert_eq!(c.click((5.0, 5.0)), Some(Act::Boost(g.key.clone())));
     }
 
     #[test]
     fn overdrive_goes_past_the_goal() {
         // all four tiers claimed, two levels reached past the goal: those two wait
         let g = goal(25, 5, &[true; 4], true, 1);
-        assert_eq!(claimable(&g), vec![BONUS, BONUS + 1]);
+        assert_eq!(claimable(&g, false), vec![BONUS, BONUS + 1]);
         assert_eq!((bonus_reached(&g), percent(&g), bonus_step(&g)), (2, 156, 25));
         // the track: nothing at the goal, half way at the second level's line, full at the last
         assert_eq!(overdrive_k(&g, 16.0), 0.0);

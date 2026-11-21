@@ -412,6 +412,28 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A community goal's rally (`CommunityData`, last): when it ends (Unix seconds; past or 0:
+    /// none running), who began the last one, whether we have rallied this run, and how many
+    /// accounts have.
+    pub struct CommunityRally {
+        pub key: String,
+        pub ends_at: i32,
+        pub by: String,
+        pub mine: bool,
+        pub count: u8,
+    }
+}
+
+wire_struct! {
+    /// One tile of the dungeon guide's path (`DungeonGuide`).
+    #[derive(Copy)]
+    pub struct GuidePoint {
+        pub x: u16,
+        pub y: u16,
+    }
+}
+
+wire_struct! {
     /// The Customize window's choices (`QuestsData`, last): the chat name colour and glow the
     /// Hall of Champions gives now (0: no place), whether the account is a legend (the red
     /// glow), the player's own glow (`/glow`, 0: none), and the sources chosen

@@ -591,6 +591,35 @@ fn community_messages_match_community_goals() {
 }
 
 #[test]
+fn rally_and_guide_match_server() {
+    // CommunityBoostHandler reads the run's key; GuideSubscribeHandler a bool.
+    assert_eq!(ClientMessage::from(CommunityBoost { key: "oryx@20261019".into() }).to_frame(), B::default().utf("oryx@20261019").frame(175));
+    assert_eq!(ClientMessage::from(GuideSubscribe { on: true }).to_frame(), B::default().u8(1).frame(176));
+    // CommunityDataMessage.Write after its goals: whether we can rally, the rally's minutes and
+    // multiplier, then a byte count of rallies (key, ends, who, whether ours, how many).
+    let body = B::default()
+        .i32(1_800_000_000).i32(1_800_300_000).u8(0).utf("Overdrive").u8(0).u8(0)
+        .u8(1).u8(30).u8(2)
+        .u8(1).utf("oryx@20261019").i32(1_800_001_800).utf("Tester").u8(1).u8(3)
+        .0;
+    let ServerMessage::CommunityData(d) = ServerMessage::decode(129, &body).unwrap() else { panic!() };
+    assert_eq!((d.can_rally, d.rally_minutes, d.rally_multiplier), (Some(true), Some(30), Some(2)));
+    let r = &d.rallies.as_ref().unwrap()[0];
+    assert_eq!((r.key.as_str(), r.ends_at, r.by.as_str(), r.mine, r.count), ("oryx@20261019", 1_800_001_800, "Tester", true, 3));
+    // a server before the rally stops after the goals
+    let old = B::default().i32(1_800_000_000).i32(1_800_300_000).u8(0).utf("Overdrive").u8(0).u8(0).0;
+    let ServerMessage::CommunityData(d) = ServerMessage::decode(129, &old).unwrap() else { panic!() };
+    assert_eq!((d.can_rally, d.rallies.is_none()), (None, true));
+    // DungeonGuide.Write: the boss's type and place, the walk's length, a short count of tiles.
+    let body = B::default().i16(0x0932).f32(80.5).f32(41.5).i32(52).i16(2).i16(10).i16(12).i16(14).i16(12).0;
+    let ServerMessage::DungeonGuide(g) = ServerMessage::decode(177, &body).unwrap() else { panic!() };
+    assert_eq!((g.object_type, g.x, g.y, g.length), (0x0932, 80.5, 41.5, 52));
+    assert_eq!((g.points[0].x, g.points[0].y, g.points[1].x, g.points[1].y), (10, 12, 14, 12));
+    let ServerMessage::DungeonGuide(none) = ServerMessage::decode(177, &B::default().i16(0).f32(0.0).f32(0.0).i32(0).i16(0).0).unwrap() else { panic!() };
+    assert!(none.points.is_empty());
+}
+
+#[test]
 fn layers_match_server() {
     // LayersMessage.Write: the floors' height, then each square of the floors above the map
     let body = B::default().f32(3.0).i16(1).u8(1).i16(6).i16(14).i16(0x9c05u16 as i16).0;

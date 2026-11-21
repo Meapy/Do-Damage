@@ -1452,5 +1452,22 @@
 "The Gilded track": "Die vergoldete Strecke",
 "Active": "Aktiv",
 "Gilded only": "Nur vergoldet",
-"Yours for good, on every character of this class.": "Für immer deins, auf jedem Charakter dieser Klasse."
+"Yours for good, on every character of this class.": "Für immer deins, auf jedem Charakter dieser Klasse.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "In einem Dungeon führt dich eine Pfeilspur auf dem kürzesten Weg zu seinem Boss.",
+"Rallied": "Aufgerufen",
+"Rally a community goal": "Ein Gemeinschaftsziel ausrufen",
+"Rally x{n}": "Aufruf x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "Weg zum Dungeon-Boss zeigen (vergoldeter Realm Pass)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "Das Reich ist aufgerufen: Die Hilfe aller zählt x{n}, bis es endet.",
+"The way to the boss": "Der Weg zum Boss",
+"You rallied this goal, so you share its top prize.": "Du hast dieses Ziel ausgerufen und teilst deshalb den Top-Preis.",
+"Yours: you rallied it": "Deiner: du hast es ausgerufen",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} hat das Reich aufgerufen: Die Hilfe aller zählt x{n}, bis es endet.",
+"{n} tile to the boss|{n} tiles to the boss": "{n} Feld bis zum Boss|{n} Felder bis zum Boss",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Mit einem vergoldeten Realm Pass rufst du ein Ziel aus: bis es endet, zählt die Hilfe aller x{n}.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Ruf dieses Ziel aus: bis es endet, zählt die Hilfe aller x{n}, und du teilst den Top-Preis. Einmal pro Ziel.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Einmal pro Ziel: Lass die Hilfe aller dabei bis zum Ende doppelt zählen und teile dir den Top-Preis, egal auf welchem Platz.",
+"x{n} · rallied by {name}": "x{n} · aufgerufen von {name}",
+"x{n} · rallied by {name} +{more}": "x{n} · aufgerufen von {name} +{more}",
+"x{n} · rallied": "x{n} · aufgerufen"
 }

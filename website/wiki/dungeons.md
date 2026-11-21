@@ -20,6 +20,10 @@ a realm, and to the Nexus from one opened in the Nexus or in another dungeon.
 
 Some dungeons are laid out anew for every run, from the rooms of their map: small, medium or large.
 
+With a Gilded [Realm Pass](realm-pass.html), a trail of small gold arrows in a dungeon leads you
+the shortest way to its boss, and a chip at the foot of the view counts the tiles left. It follows
+the boss as it moves and goes away once you're close. Options, Gameplay switches it off.
+
 > **About these numbers.** The list is built from the server's data each time the site updates.
 > Drop chances are the listed ones; your real chance is higher (about double when you're alone),
 > since every roll grows with your share of the damage. Difficulty is a rough guide from the

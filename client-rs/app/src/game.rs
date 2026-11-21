@@ -52,6 +52,10 @@ pub struct Game {
     /// Whether we stay at our grave when we die (Options, Gameplay); else the death goes
     /// straight on to its summary, as before. Set by the app each frame.
     pub linger: bool,
+    /// The Gilded dungeon guide (`GuideSubscribe`): whether we ask for it (Options), the way
+    /// the server last showed, and whether our world has said it knows it.
+    pub guide_on: bool,
+    pub guide: crate::guide::Guide,
     /// When a white bag last landed near us (its flash round the view, `whitebag`).
     pub white_bag_at: Option<i32>,
     /// How many worlds we've entered (each `MapInfo`): a new one clears the windows' searches.
@@ -409,6 +413,8 @@ impl Game {
             dying: None,
             grave: None,
             linger: true,
+            guide_on: true,
+            guide: crate::guide::Guide::default(),
             white_bag_at: None,
             maps_entered: 0,
             reconnects: 0,
@@ -710,6 +716,7 @@ impl Game {
                 // the last world's quest: its id is some other object here (a building, a wall),
                 // whose picture the quest arrow drew at the view's edge until a new quest came
                 self.quest = None;
+                self.guide.clear();
                 self.white_bag_at = None;
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
@@ -771,6 +778,10 @@ impl Game {
                 self.socket.send(&bsk_proto::PingMark { kind: crate::pings::HELLO, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
                 // we can stay at our grave as a ghost when we die
                 self.socket.send(&bsk_proto::Grave { action: 255 }.into());
+                // and show a Gilded pass's way to a dungeon's boss
+                if self.guide_on {
+                    self.socket.send(&bsk_proto::GuideSubscribe { on: true }.into());
+                }
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -807,6 +818,7 @@ impl Game {
         }
         match msg {
             ServerMessage::QuestObjId(q) => self.quest = Some(q.object_id),
+            ServerMessage::DungeonGuide(g) => self.guide.set(g, now),
             ServerMessage::QuestDamage(d) => {
                 let hitters = d.top.iter().map(|s| Hitter { name: s.name.clone(), class: 0, damage: s.damage, assist: 0 }).collect();
                 self.set_quest_damage(d.object_id, None, hitters, (d.mine, 0), data);
@@ -2006,6 +2018,20 @@ impl Game {
         self.send(bsk_proto::PassAct { kind, value }.into());
     }
 
+    /// The Options switch for the dungeon guide changed: tell the server, once we're in.
+    pub fn set_guide(&mut self, on: bool) {
+        if on == self.guide_on {
+            return;
+        }
+        self.guide_on = on;
+        if !on {
+            self.guide.clear();
+        }
+        if self.world.as_ref().is_some_and(|w| w.me.is_some()) {
+            self.send(bsk_proto::GuideSubscribe { on }.into());
+        }
+    }
+
     /// Ask the community goals' server side (`CommunityGoals.cs`).
     pub fn community(&mut self, act: crate::community::Act) {
         use crate::community::Act;
@@ -2018,6 +2044,7 @@ impl Game {
                 }
                 bsk_proto::CommunityClaim { key, tier }.into()
             }
+            Act::Boost(key) => bsk_proto::CommunityBoost { key }.into(),
         };
         self.send(msg);
     }

@@ -228,6 +228,7 @@ pub enum Toggle {
     AutoDrink,
     OthersDamage,
     Linger,
+    DungeonGuide,
 }
 
 /// The Visuals tab's switches: what's shown in the world, under "World"...
@@ -309,8 +310,11 @@ const GRAPHICS: [(Toggle, &str); 8] = [
 ];
 
 /// How the game plays for you.
-const GAMEPLAY: [(Toggle, &str); 2] =
-    [(Toggle::AutoDrink, mark("Drink stat potions from loot bags")), (Toggle::Linger, mark("Stay as a ghost when you die"))];
+const GAMEPLAY: [(Toggle, &str); 3] = [
+    (Toggle::AutoDrink, mark("Drink stat potions from loot bags")),
+    (Toggle::Linger, mark("Stay as a ghost when you die")),
+    (Toggle::DungeonGuide, mark("Show the way to a dungeon's boss (Gilded Realm Pass)")),
+];
 
 /// Whose speech balloons show (`Settings::bubbles`, a bit each): the Visuals tab's list.
 pub mod bubble {
@@ -409,6 +413,9 @@ pub struct Settings {
     /// Dying, stay at the grave as a ghost (watching and chatting) until Continue, on a server
     /// that keeps us (grave.rs); else straight on to the death's summary.
     pub linger: bool,
+    /// A Gilded Realm Pass shows the shortest way to a dungeon's boss as a trail of arrows
+    /// (guide.rs); off, the server isn't asked for it.
+    pub dungeon_guide: bool,
     /// A crosshair at the mouse over the world, instead of the pointer.
     pub crosshair: bool,
     /// Its style, colour and size, and the player's own (the Crosshair tab).
@@ -485,6 +492,7 @@ impl Default for Settings {
             ping_sounds: true,
             auto_drink: false,
             linger: true,
+            dungeon_guide: true,
             crosshair: true,
             crosshair_look: Look::default(),
             player_alpha: 1.0,
@@ -561,6 +569,7 @@ impl Settings {
             Toggle::PingSounds => &mut self.ping_sounds,
             Toggle::AutoDrink => &mut self.auto_drink,
             Toggle::Linger => &mut self.linger,
+            Toggle::DungeonGuide => &mut self.dungeon_guide,
             Toggle::OthersDamage => &mut self.others_damage,
         }
     }
@@ -600,6 +609,7 @@ impl Settings {
         flag("pingSounds", self.ping_sounds);
         flag("autoDrinkPotions", self.auto_drink);
         flag("lingerAtGrave", self.linger);
+        flag("dungeonGuide", self.dungeon_guide);
         flag("othersDamageNumbers", self.others_damage);
         out += &format!("speechBalloons={}
 ", self.bubbles);
@@ -691,6 +701,7 @@ impl Settings {
                 "pingSounds" => s.ping_sounds = on,
                 "autoDrinkPotions" => s.auto_drink = on,
                 "lingerAtGrave" => s.linger = on,
+                "dungeonGuide" => s.dungeon_guide = on,
                 "pingsFrom" => s.pings_from = PingsFrom::from_name(value).unwrap_or_default(),
                 "masterVolume" => s.sound.master_volume = vol().unwrap_or(s.sound.master_volume),
                 "sfxVolume" => s.sound.sfx_volume = vol().unwrap_or(s.sound.sfx_volume),
@@ -1626,6 +1637,7 @@ mod tests {
         s.pings_from = PingsFrom::Nobody;
         s.ping_sounds = false;
         s.linger = false;
+        s.dungeon_guide = false;
         let back = Settings::from_text(&s.to_text());
         assert_eq!(back, s);
         // Lines another version wrote stay, and its keys don't take a key this one gives.

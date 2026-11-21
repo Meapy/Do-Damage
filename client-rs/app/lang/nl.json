@@ -1452,5 +1452,22 @@
 "The Gilded track": "De vergulde baan",
 "Active": "Actief",
 "Gilded only": "Alleen verguld",
-"Yours for good, on every character of this class.": "Voorgoed van jou, op elk personage van deze klasse."
+"Yours for good, on every character of this class.": "Voorgoed van jou, op elk personage van deze klasse.",
+"In a dungeon, a trail of arrows leads you the shortest way to its boss.": "In een dungeon leidt een spoor van pijlen je langs de kortste weg naar de boss.",
+"Rallied": "Opgeroepen",
+"Rally a community goal": "Een gemeenschapsdoel oproepen",
+"Rally x{n}": "Oproepen x{n}",
+"Show the way to a dungeon's boss (Gilded Realm Pass)": "De weg naar de boss van een dungeon tonen (vergulde Realm Pass)",
+"The realm is rallied: everyone's help counts x{n} until it ends.": "Het rijk is opgeroepen: de hulp van iedereen telt x{n} tot het voorbij is.",
+"The way to the boss": "De weg naar de boss",
+"You rallied this goal, so you share its top prize.": "Jij hebt dit doel opgeroepen, dus je deelt in de topprijs.",
+"Yours: you rallied it": "Van jou: je hebt het opgeroepen",
+"{name} rallied the realm: everyone's help counts x{n} until it ends.": "{name} riep het rijk op: de hulp van iedereen telt x{n} tot het voorbij is.",
+"{n} tile to the boss|{n} tiles to the boss": "{n} vakje tot de boss|{n} vakjes tot de boss",
+"A Gilded Realm Pass lets you rally a goal: until it ends, everyone's help counts x{n}.": "Met een vergulde Realm Pass roep je een doel op: tot het afloopt telt de hulp van iedereen x{n}.",
+"Rally this goal: until it ends, everyone's help counts x{n}, and you share its top prize. Once a goal.": "Roep dit doel op: tot het afloopt telt de hulp van iedereen x{n}, en je deelt in de topprijs. Eén keer per doel.",
+"Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.": "Eén keer per doel: laat de hulp van iedereen tot het einde dubbel tellen en deel in de topprijs, ongeacht je plaats.",
+"x{n} · rallied by {name}": "x{n} · opgeroepen door {name}",
+"x{n} · rallied by {name} +{more}": "x{n} · opgeroepen door {name} +{more}",
+"x{n} · rallied": "x{n} · opgeroepen"
 }

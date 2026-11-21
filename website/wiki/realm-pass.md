@@ -65,6 +65,16 @@ ends and gives, besides its track:
 - **The community goals' loot, boosted**: while your pass is Gilded, the loot of every
   [community goal](community-goals.html) tier you claim is rolled {{v:pass_luck}} Overdrive level
   luckier, and rolled {{v:pass_rolls}} more time.
+- **Rally a community goal**: once on each goal, press **Rally** in the Community Goals window.
+  From then until the goal ends everyone's help with it counts
+  **x{{v:pass_rally_mult}}**, in the total and in each helper's share, and the whole realm is told.
+  The goal's card burns gold while it lasts. Rallying a goal that is already burning changes
+  nothing for the others, but still shares you its top prize.
+  You also share the goal's **top prize** whatever your place, once it ends (you still need
+  the goal's minimum share of your own).
+- **The way to the boss**: in a dungeon, a trail of small gold arrows runs along the shortest walk
+  from you to its boss (doors and barriers included), with a chip at the foot of the view saying
+  how many tiles it is. **Options**, Gameplay switches it off.
 - **A title in chat**: your name in the chat wears a gold **[Gilded]** title before it, which a
   soft glint runs across every few seconds. Rather go without? The **Hide** button on its card in
   the pass's Gilded perks tab (or `/pass title off`) hides it, and **Show** (or `/pass title on`)

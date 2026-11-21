@@ -12,6 +12,12 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Realm Pass
+- A Gilded pass can **rally** a community goal, once each: press Rally on its card and from then until it ends everyone's help with it counts double, in the total and in each helper's share. The realm is told, the goal burns gold in the window with "rallied by" the rallier's name, and you share its top prize whatever your place once it ends (with your own minimum share).
+- In a dungeon, a Gilded pass shows the way: a trail of small gold arrows runs the shortest walk to the boss, doors included, with a chip at the foot of the view counting the tiles left. Options, Gameplay switches it off.
+
 ## 2.6.3 (2026-11-21)
 
 ### Skins
