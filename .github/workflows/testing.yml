@@ -1,0 +1,90 @@
+# Puts each pull request's world server on Testing, the admin-only world server on the website
+# machine (dodmg.com), so it can be tried before it's merged: deploy/deploy.py --testing-only, a
+# rolling deploy that kicks nobody. Only the world server changes; the account server, gateway,
+# web client, website and desktop client stay as they are, and Europe 2 is never touched.
+#
+# - Opening a pull request, pushing to it, reopening it or marking it ready deploys its head.
+#   Drafts and pull requests from forks don't (a fork's run gets no secrets anyway).
+# - Closing one without merging it into main puts main back on Testing. A merge into main needs
+#   nothing here: its deploy (deploy.yml) installs main's world server on Testing too.
+# - "Run workflow" in the Actions tab deploys the branch it's run on.
+#
+# Testing plays on the live Redis (through its tunnel to the game machine), so a pull request's
+# code reaches live data there: SETUP-LOCAL.md, "Pull requests on Testing", says what to keep off
+# it. It's off until the repository variable TESTING_DEPLOY_ENABLED is "true"; the secrets live in
+# the "testing" environment.
+name: Testing
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, closed]
+  workflow_dispatch:
+
+# One Testing deploy at a time, never cancelled half way; a newer one waiting replaces an older one
+# waiting. Deploys from main and the PC wait for the VPS's own lock (/opt/bsk/deploy.lock).
+concurrency:
+  group: deploy-testing
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  testing:
+    if: >-
+      vars.TESTING_DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || (
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft &&
+        !(github.event.action == 'closed' && github.event.pull_request.merged && github.event.pull_request.base.ref == github.event.repository.default_branch)))
+    runs-on: ubuntu-24.04
+    environment: testing
+    timeout-minutes: 30
+    steps:
+      - id: what
+        env:
+          ACTION: ${{ github.event.action }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MAIN: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            echo "ref=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+            echo "label=${GITHUB_REF_NAME} (run by hand)" >> "$GITHUB_OUTPUT"
+          elif [ "$ACTION" = closed ]; then
+            echo "ref=$MAIN" >> "$GITHUB_OUTPUT"
+            echo "label=$MAIN (pull request #$NUMBER closed)" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+            echo "label=pull request #$NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.what.outputs.ref }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Set up the deploy (secrets)
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_CONFIG: ${{ secrets.VPS_CONFIG }}
+        run: python deploy/ci_setup.py
+      - name: Deploy to Testing
+        env:
+          BSK_TESTING_LABEL: ${{ steps.what.outputs.label }}
+        run: |
+          python deploy/deploy.py --testing-only
+          echo "Testing runs $BSK_TESTING_LABEL ($(git rev-parse --short=10 HEAD)). It's admin-only: pick \"Testing (admin)\" in the server list." >> "$GITHUB_STEP_SUMMARY"
+      - name: Forget the secrets
+        if: always()
+        run: rm -rf deploy/vps.local.json ~/.ssh/dodmg_deploy build/vps

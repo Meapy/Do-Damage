@@ -276,7 +276,8 @@ and the old one keeps what doesn't need speed:
   shell, whose `authorized_keys` line only allows forwarding to `127.0.0.1:6379`). Its world proxy
   trusts the game machine's gateway for players' addresses (`BSK_TRUSTED_GATEWAYS`), and that
   gateway allows Testing's address (`other_worlds`, added by deploy.py). It plays on the live
-  data: test risky changes on an isolated stack, as always.
+  data: test risky changes on an isolated stack, as always. Pull requests deploy their world
+  server to it (see "Pull requests on Testing").
 - **Server list:** admin-only servers come last, so a client with no choice saved (or a choice
   that's gone, "Europe") takes Europe 2. The account server gives a client on its own machine
   (everyone through the gateway) `127.0.0.1` only for world servers with its own address
@@ -442,7 +443,8 @@ it deployed, desktop client included.
      the VPS's own. Without a new release, the VPS's releases stay as they are.
   3. `deploy.py --status`: the services, the world server slots and the gateway slots.
 - **On a pull request** (and on `main` while deploys are off): `deploy.py --dry-run` builds the
-  whole bundle and sends nothing. `.github/workflows/ci.yml` checks pull requests and release
+  whole bundle and sends nothing. Its world server also goes on Testing (see "Pull requests on
+  Testing" below). `.github/workflows/ci.yml` checks pull requests and release
   branches besides: `cargo test`, the wasm build, `dotnet build` and `dotnet test`, the website,
   and the Docker images.
 - **Watching it:** `gh run watch --repo Meapy/Do-Damage <run id>` (`gh run list --workflow Deploy`
@@ -492,6 +494,47 @@ any branch pushed to this repository can read them. To keep the key on this PC i
 `CLIENT_UPDATE_KEY`: GitHub then deploys everything but the client, its run's summary says when
 the client changed, and `python deploy\deploy.py --client-only` from the main checkout publishes
 it and installs only the releases and the website (`deploy/remote/install-client.sh`).
+
+### Pull requests on Testing
+
+Each pull request's world server goes on **Testing**, the admin-only world server on the website
+machine (see "Two machines"), so it can be played before it's merged:
+`.github/workflows/testing.yml` runs `deploy/deploy.py --testing-only`. That builds only
+`source/WorldServer` and installs it with `install-site.sh --testing-only`, a rolling deploy of
+Testing that kicks nobody (only admins play there). Europe 2, the account server, the gateway, the
+web client, the website, the Discord bot and the desktop client stay as they are.
+
+- **When:** opening a pull request, pushing to it, reopening it or marking it ready deploys its
+  head commit. Drafts don't, nor pull requests from forks (GitHub gives a fork's run no secrets).
+  Closing one without merging it into `main` puts `main` back on Testing; a merge into `main`
+  deploys `main` everywhere, Testing included. "Run workflow" on the Testing workflow (Actions
+  tab) deploys the branch it's run on. With several pull requests open, the last one pushed is on
+  Testing. `deploy.py --status` says what Testing runs ("Testing runs: pull request #81, built
+  ..."), and so does the run's summary.
+- **Trying it:** sign in as an admin and pick "Testing (admin)" in the server list. Testing runs
+  the server half only: a pull request whose message or client change needs a new client too
+  needs that client built from its branch (`client-rs`, with `--account https://play.dodmg.com/api`).
+  Items and monsters added in XML exist on Testing only, so the released client draws them as it
+  can, and a character holding one carries it back into Europe 2, whose server doesn't know it.
+- **Live data:** Testing plays on the game's Redis (its tunnel), so a pull request's code reads and
+  writes the live database, players' accounts included. Keep changes to what's saved (new or
+  renamed Redis keys, migrations, anything that rewrites accounts or characters) off Testing until
+  they've been tried on an isolated stack (`tools/testclient/iso_stack.py`), and leave such a pull
+  request a draft. Testing's own realm snapshot is `realms:Testing`.
+- **One at a time:** Testing deploys share a concurrency group and are never cancelled half way
+  (a newer one waiting replaces an older one waiting); on the VPS they take `/opt/bsk/deploy.lock`
+  with every other deploy. A pull request's run also builds the whole bundle as a dry run
+  (`deploy.yml`) and runs CI (`ci.yml`), as before.
+- **Setting it up** (once): in Settings, Environments, create an environment named `testing`, with
+  deployment branches left open (pull requests come from any branch), and give it the secrets
+  `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS` and `VPS_CONFIG` (the same `deploy/vps.local.json`; only its
+  `website` part is used). Best with a key of its own, in `authorized_keys` on the website machine
+  only, and `VPS_KNOWN_HOSTS` holding only that machine's host key: anyone who can push a branch
+  here can change the workflow in a pull request and read this environment's secrets, so this key
+  should reach nothing but the website machine (the `production` secrets, client signing key
+  included, stay out of reach). A required reviewer on `testing` makes each deploy wait for a click.
+  Then `gh variable set TESTING_DEPLOY_ENABLED --repo Meapy/Do-Damage --body true`; `false` turns
+  it off again.
 
 ## Docker
 
@@ -665,6 +708,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
+  --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
+  server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`
+  back (see "Pull requests on Testing"). `deploy.py --status` says what Testing runs
+  (`/opt/bsk/testing.txt`).
 - **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
   (`Dungeons/The Crucible/The Crucible.jm`, 48x460, `<World id="The Crucible">` in Dungeons.xml:
   Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
