@@ -12720,6 +12720,10416 @@
     ]
    ],
    "scale": 1.0
+  },
+  {
+   "code": ":rofl:",
+   "frames": [
+    [
+     "emotes",
+     880
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":slightly_smiling_face:",
+   "frames": [
+    [
+     "emotes",
+     881
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":upside_down_face:",
+   "frames": [
+    [
+     "emotes",
+     882
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":melting_face:",
+   "frames": [
+    [
+     "emotes",
+     883
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":smiling_face_with_three_hearts:",
+   "frames": [
+    [
+     "emotes",
+     884
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":star_struck:",
+   "frames": [
+    [
+     "emotes",
+     885
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":smiling_face_with_tear:",
+   "frames": [
+    [
+     "emotes",
+     886
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zany_face:",
+   "frames": [
+    [
+     "emotes",
+     887
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":money_mouth_face:",
+   "frames": [
+    [
+     "emotes",
+     888
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hugs:",
+   "frames": [
+    [
+     "emotes",
+     889
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hand_over_mouth:",
+   "frames": [
+    [
+     "emotes",
+     890
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_open_eyes_and_hand_over_mouth:",
+   "frames": [
+    [
+     "emotes",
+     891
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_peeking_eye:",
+   "frames": [
+    [
+     "emotes",
+     892
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shushing_face:",
+   "frames": [
+    [
+     "emotes",
+     893
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":thinking:",
+   "frames": [
+    [
+     "emotes",
+     894
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":saluting_face:",
+   "frames": [
+    [
+     "emotes",
+     895
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":salute:",
+   "frames": [
+    [
+     "emotes",
+     895
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zipper_mouth_face:",
+   "frames": [
+    [
+     "emotes",
+     896
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raised_eyebrow:",
+   "frames": [
+    [
+     "emotes",
+     897
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dotted_line_face:",
+   "frames": [
+    [
+     "emotes",
+     898
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_in_clouds:",
+   "frames": [
+    [
+     "emotes",
+     899
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":roll_eyes:",
+   "frames": [
+    [
+     "emotes",
+     900
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_exhaling:",
+   "frames": [
+    [
+     "emotes",
+     901
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lying_face:",
+   "frames": [
+    [
+     "emotes",
+     902
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shaking_face:",
+   "frames": [
+    [
+     "emotes",
+     903
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":drooling_face:",
+   "frames": [
+    [
+     "emotes",
+     904
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_thermometer:",
+   "frames": [
+    [
+     "emotes",
+     905
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_head_bandage:",
+   "frames": [
+    [
+     "emotes",
+     906
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nauseated_face:",
+   "frames": [
+    [
+     "emotes",
+     907
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vomiting_face:",
+   "frames": [
+    [
+     "emotes",
+     908
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sneezing_face:",
+   "frames": [
+    [
+     "emotes",
+     909
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hot_face:",
+   "frames": [
+    [
+     "emotes",
+     910
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cold_face:",
+   "frames": [
+    [
+     "emotes",
+     911
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woozy_face:",
+   "frames": [
+    [
+     "emotes",
+     912
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_spiral_eyes:",
+   "frames": [
+    [
+     "emotes",
+     913
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":exploding_head:",
+   "frames": [
+    [
+     "emotes",
+     914
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cowboy_hat_face:",
+   "frames": [
+    [
+     "emotes",
+     915
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":partying_face:",
+   "frames": [
+    [
+     "emotes",
+     916
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":disguised_face:",
+   "frames": [
+    [
+     "emotes",
+     917
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nerd_face:",
+   "frames": [
+    [
+     "emotes",
+     918
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":monocle_face:",
+   "frames": [
+    [
+     "emotes",
+     919
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_with_diagonal_mouth:",
+   "frames": [
+    [
+     "emotes",
+     920
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":slightly_frowning_face:",
+   "frames": [
+    [
+     "emotes",
+     921
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":frowning_face:",
+   "frames": [
+    [
+     "emotes",
+     922
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pleading_face:",
+   "frames": [
+    [
+     "emotes",
+     923
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":face_holding_back_tears:",
+   "frames": [
+    [
+     "emotes",
+     924
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yawning_face:",
+   "frames": [
+    [
+     "emotes",
+     925
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cursing_face:",
+   "frames": [
+    [
+     "emotes",
+     926
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":skull_and_crossbones:",
+   "frames": [
+    [
+     "emotes",
+     927
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":clown_face:",
+   "frames": [
+    [
+     "emotes",
+     928
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":robot:",
+   "frames": [
+    [
+     "emotes",
+     929
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":heavy_heart_exclamation:",
+   "frames": [
+    [
+     "emotes",
+     930
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":heart_on_fire:",
+   "frames": [
+    [
+     "emotes",
+     931
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mending_heart:",
+   "frames": [
+    [
+     "emotes",
+     932
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pink_heart:",
+   "frames": [
+    [
+     "emotes",
+     933
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":orange_heart:",
+   "frames": [
+    [
+     "emotes",
+     934
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":light_blue_heart:",
+   "frames": [
+    [
+     "emotes",
+     935
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brown_heart:",
+   "frames": [
+    [
+     "emotes",
+     936
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":black_heart:",
+   "frames": [
+    [
+     "emotes",
+     937
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":grey_heart:",
+   "frames": [
+    [
+     "emotes",
+     938
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":white_heart:",
+   "frames": [
+    [
+     "emotes",
+     939
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hole:",
+   "frames": [
+    [
+     "emotes",
+     940
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eye_speech_bubble:",
+   "frames": [
+    [
+     "emotes",
+     941
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":left_speech_bubble:",
+   "frames": [
+    [
+     "emotes",
+     942
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":right_anger_bubble:",
+   "frames": [
+    [
+     "emotes",
+     943
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raised_back_of_hand:",
+   "frames": [
+    [
+     "emotes",
+     944
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raised_hand_with_fingers_splayed:",
+   "frames": [
+    [
+     "emotes",
+     945
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vulcan_salute:",
+   "frames": [
+    [
+     "emotes",
+     946
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rightwards_hand:",
+   "frames": [
+    [
+     "emotes",
+     947
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":leftwards_hand:",
+   "frames": [
+    [
+     "emotes",
+     948
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":palm_down_hand:",
+   "frames": [
+    [
+     "emotes",
+     949
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":palm_up_hand:",
+   "frames": [
+    [
+     "emotes",
+     950
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":leftwards_pushing_hand:",
+   "frames": [
+    [
+     "emotes",
+     951
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rightwards_pushing_hand:",
+   "frames": [
+    [
+     "emotes",
+     952
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pinched_fingers:",
+   "frames": [
+    [
+     "emotes",
+     953
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pinching_hand:",
+   "frames": [
+    [
+     "emotes",
+     954
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":crossed_fingers:",
+   "frames": [
+    [
+     "emotes",
+     955
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hand_with_index_finger_and_thumb_crossed:",
+   "frames": [
+    [
+     "emotes",
+     956
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":love_you_gesture:",
+   "frames": [
+    [
+     "emotes",
+     957
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":call_me_hand:",
+   "frames": [
+    [
+     "emotes",
+     958
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":index_pointing_at_the_viewer:",
+   "frames": [
+    [
+     "emotes",
+     959
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fist_left:",
+   "frames": [
+    [
+     "emotes",
+     960
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fist_right:",
+   "frames": [
+    [
+     "emotes",
+     961
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":heart_hands:",
+   "frames": [
+    [
+     "emotes",
+     962
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":palms_up_together:",
+   "frames": [
+    [
+     "emotes",
+     963
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":handshake:",
+   "frames": [
+    [
+     "emotes",
+     964
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":writing_hand:",
+   "frames": [
+    [
+     "emotes",
+     965
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":selfie:",
+   "frames": [
+    [
+     "emotes",
+     966
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mechanical_arm:",
+   "frames": [
+    [
+     "emotes",
+     967
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mechanical_leg:",
+   "frames": [
+    [
+     "emotes",
+     968
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":leg:",
+   "frames": [
+    [
+     "emotes",
+     969
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":foot:",
+   "frames": [
+    [
+     "emotes",
+     970
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ear_with_hearing_aid:",
+   "frames": [
+    [
+     "emotes",
+     971
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brain:",
+   "frames": [
+    [
+     "emotes",
+     972
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":anatomical_heart:",
+   "frames": [
+    [
+     "emotes",
+     973
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lungs:",
+   "frames": [
+    [
+     "emotes",
+     974
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tooth:",
+   "frames": [
+    [
+     "emotes",
+     975
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bone:",
+   "frames": [
+    [
+     "emotes",
+     976
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eye:",
+   "frames": [
+    [
+     "emotes",
+     977
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":biting_lip:",
+   "frames": [
+    [
+     "emotes",
+     978
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":child:",
+   "frames": [
+    [
+     "emotes",
+     979
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":adult:",
+   "frames": [
+    [
+     "emotes",
+     980
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blond_haired_person:",
+   "frames": [
+    [
+     "emotes",
+     981
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bearded_person:",
+   "frames": [
+    [
+     "emotes",
+     982
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_beard:",
+   "frames": [
+    [
+     "emotes",
+     983
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_beard:",
+   "frames": [
+    [
+     "emotes",
+     984
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":red_haired_man:",
+   "frames": [
+    [
+     "emotes",
+     985
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":curly_haired_man:",
+   "frames": [
+    [
+     "emotes",
+     986
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":white_haired_man:",
+   "frames": [
+    [
+     "emotes",
+     987
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bald_man:",
+   "frames": [
+    [
+     "emotes",
+     988
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":red_haired_woman:",
+   "frames": [
+    [
+     "emotes",
+     989
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_red_hair:",
+   "frames": [
+    [
+     "emotes",
+     990
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":curly_haired_woman:",
+   "frames": [
+    [
+     "emotes",
+     991
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_curly_hair:",
+   "frames": [
+    [
+     "emotes",
+     992
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":white_haired_woman:",
+   "frames": [
+    [
+     "emotes",
+     993
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_white_hair:",
+   "frames": [
+    [
+     "emotes",
+     994
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bald_woman:",
+   "frames": [
+    [
+     "emotes",
+     995
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_bald:",
+   "frames": [
+    [
+     "emotes",
+     996
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blond_haired_woman:",
+   "frames": [
+    [
+     "emotes",
+     997
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blonde_woman:",
+   "frames": [
+    [
+     "emotes",
+     997
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blond_haired_man:",
+   "frames": [
+    [
+     "emotes",
+     998
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":older_adult:",
+   "frames": [
+    [
+     "emotes",
+     999
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":frowning_person:",
+   "frames": [
+    [
+     "emotes",
+     1000
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":frowning_man:",
+   "frames": [
+    [
+     "emotes",
+     1001
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":frowning_woman:",
+   "frames": [
+    [
+     "emotes",
+     1002
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pouting_face:",
+   "frames": [
+    [
+     "emotes",
+     1003
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pouting_man:",
+   "frames": [
+    [
+     "emotes",
+     1004
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pouting_woman:",
+   "frames": [
+    [
+     "emotes",
+     1005
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":no_good_man:",
+   "frames": [
+    [
+     "emotes",
+     1006
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ng_man:",
+   "frames": [
+    [
+     "emotes",
+     1006
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":no_good_woman:",
+   "frames": [
+    [
+     "emotes",
+     1007
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ng_woman:",
+   "frames": [
+    [
+     "emotes",
+     1007
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ok_person:",
+   "frames": [
+    [
+     "emotes",
+     1008
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ok_man:",
+   "frames": [
+    [
+     "emotes",
+     1009
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tipping_hand_man:",
+   "frames": [
+    [
+     "emotes",
+     1010
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sassy_man:",
+   "frames": [
+    [
+     "emotes",
+     1010
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tipping_hand_woman:",
+   "frames": [
+    [
+     "emotes",
+     1011
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sassy_woman:",
+   "frames": [
+    [
+     "emotes",
+     1011
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raising_hand_man:",
+   "frames": [
+    [
+     "emotes",
+     1012
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raising_hand_woman:",
+   "frames": [
+    [
+     "emotes",
+     1013
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":deaf_person:",
+   "frames": [
+    [
+     "emotes",
+     1014
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":deaf_man:",
+   "frames": [
+    [
+     "emotes",
+     1015
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":deaf_woman:",
+   "frames": [
+    [
+     "emotes",
+     1016
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bowing_man:",
+   "frames": [
+    [
+     "emotes",
+     1017
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bowing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1018
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":facepalm:",
+   "frames": [
+    [
+     "emotes",
+     1019
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_facepalming:",
+   "frames": [
+    [
+     "emotes",
+     1020
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_facepalming:",
+   "frames": [
+    [
+     "emotes",
+     1021
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shrug:",
+   "frames": [
+    [
+     "emotes",
+     1022
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_shrugging:",
+   "frames": [
+    [
+     "emotes",
+     1023
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_shrugging:",
+   "frames": [
+    [
+     "emotes",
+     1024
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":health_worker:",
+   "frames": [
+    [
+     "emotes",
+     1025
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_health_worker:",
+   "frames": [
+    [
+     "emotes",
+     1026
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_health_worker:",
+   "frames": [
+    [
+     "emotes",
+     1027
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":student:",
+   "frames": [
+    [
+     "emotes",
+     1028
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_student:",
+   "frames": [
+    [
+     "emotes",
+     1029
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_student:",
+   "frames": [
+    [
+     "emotes",
+     1030
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":teacher:",
+   "frames": [
+    [
+     "emotes",
+     1031
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_teacher:",
+   "frames": [
+    [
+     "emotes",
+     1032
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_teacher:",
+   "frames": [
+    [
+     "emotes",
+     1033
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":judge:",
+   "frames": [
+    [
+     "emotes",
+     1034
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_judge:",
+   "frames": [
+    [
+     "emotes",
+     1035
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_judge:",
+   "frames": [
+    [
+     "emotes",
+     1036
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":farmer:",
+   "frames": [
+    [
+     "emotes",
+     1037
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_farmer:",
+   "frames": [
+    [
+     "emotes",
+     1038
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_farmer:",
+   "frames": [
+    [
+     "emotes",
+     1039
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cook:",
+   "frames": [
+    [
+     "emotes",
+     1040
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_cook:",
+   "frames": [
+    [
+     "emotes",
+     1041
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_cook:",
+   "frames": [
+    [
+     "emotes",
+     1042
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mechanic:",
+   "frames": [
+    [
+     "emotes",
+     1043
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_mechanic:",
+   "frames": [
+    [
+     "emotes",
+     1044
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_mechanic:",
+   "frames": [
+    [
+     "emotes",
+     1045
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":factory_worker:",
+   "frames": [
+    [
+     "emotes",
+     1046
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_factory_worker:",
+   "frames": [
+    [
+     "emotes",
+     1047
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_factory_worker:",
+   "frames": [
+    [
+     "emotes",
+     1048
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":office_worker:",
+   "frames": [
+    [
+     "emotes",
+     1049
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_office_worker:",
+   "frames": [
+    [
+     "emotes",
+     1050
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_office_worker:",
+   "frames": [
+    [
+     "emotes",
+     1051
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":scientist:",
+   "frames": [
+    [
+     "emotes",
+     1052
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_scientist:",
+   "frames": [
+    [
+     "emotes",
+     1053
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_scientist:",
+   "frames": [
+    [
+     "emotes",
+     1054
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":technologist:",
+   "frames": [
+    [
+     "emotes",
+     1055
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_technologist:",
+   "frames": [
+    [
+     "emotes",
+     1056
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_technologist:",
+   "frames": [
+    [
+     "emotes",
+     1057
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":singer:",
+   "frames": [
+    [
+     "emotes",
+     1058
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_singer:",
+   "frames": [
+    [
+     "emotes",
+     1059
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_singer:",
+   "frames": [
+    [
+     "emotes",
+     1060
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":artist:",
+   "frames": [
+    [
+     "emotes",
+     1061
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_artist:",
+   "frames": [
+    [
+     "emotes",
+     1062
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_artist:",
+   "frames": [
+    [
+     "emotes",
+     1063
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pilot:",
+   "frames": [
+    [
+     "emotes",
+     1064
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_pilot:",
+   "frames": [
+    [
+     "emotes",
+     1065
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_pilot:",
+   "frames": [
+    [
+     "emotes",
+     1066
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":astronaut:",
+   "frames": [
+    [
+     "emotes",
+     1067
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_astronaut:",
+   "frames": [
+    [
+     "emotes",
+     1068
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_astronaut:",
+   "frames": [
+    [
+     "emotes",
+     1069
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":firefighter:",
+   "frames": [
+    [
+     "emotes",
+     1070
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_firefighter:",
+   "frames": [
+    [
+     "emotes",
+     1071
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_firefighter:",
+   "frames": [
+    [
+     "emotes",
+     1072
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":policeman:",
+   "frames": [
+    [
+     "emotes",
+     1073
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":policewoman:",
+   "frames": [
+    [
+     "emotes",
+     1074
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":detective:",
+   "frames": [
+    [
+     "emotes",
+     1075
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":male_detective:",
+   "frames": [
+    [
+     "emotes",
+     1076
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":female_detective:",
+   "frames": [
+    [
+     "emotes",
+     1077
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guard:",
+   "frames": [
+    [
+     "emotes",
+     1078
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guardswoman:",
+   "frames": [
+    [
+     "emotes",
+     1079
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ninja:",
+   "frames": [
+    [
+     "emotes",
+     1080
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":construction_worker_man:",
+   "frames": [
+    [
+     "emotes",
+     1081
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":construction_worker_woman:",
+   "frames": [
+    [
+     "emotes",
+     1082
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_with_crown:",
+   "frames": [
+    [
+     "emotes",
+     1083
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":prince:",
+   "frames": [
+    [
+     "emotes",
+     1084
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_with_turban:",
+   "frames": [
+    [
+     "emotes",
+     1085
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_with_turban:",
+   "frames": [
+    [
+     "emotes",
+     1086
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_with_headscarf:",
+   "frames": [
+    [
+     "emotes",
+     1087
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_in_tuxedo:",
+   "frames": [
+    [
+     "emotes",
+     1088
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_in_tuxedo:",
+   "frames": [
+    [
+     "emotes",
+     1089
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_in_tuxedo:",
+   "frames": [
+    [
+     "emotes",
+     1090
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_with_veil:",
+   "frames": [
+    [
+     "emotes",
+     1091
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_with_veil:",
+   "frames": [
+    [
+     "emotes",
+     1092
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pregnant_woman:",
+   "frames": [
+    [
+     "emotes",
+     1093
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pregnant_man:",
+   "frames": [
+    [
+     "emotes",
+     1094
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pregnant_person:",
+   "frames": [
+    [
+     "emotes",
+     1095
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":breast_feeding:",
+   "frames": [
+    [
+     "emotes",
+     1096
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_feeding_baby:",
+   "frames": [
+    [
+     "emotes",
+     1097
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_feeding_baby:",
+   "frames": [
+    [
+     "emotes",
+     1098
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_feeding_baby:",
+   "frames": [
+    [
+     "emotes",
+     1099
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mrs_claus:",
+   "frames": [
+    [
+     "emotes",
+     1100
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mx_claus:",
+   "frames": [
+    [
+     "emotes",
+     1101
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":superhero:",
+   "frames": [
+    [
+     "emotes",
+     1102
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":superhero_man:",
+   "frames": [
+    [
+     "emotes",
+     1103
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":superhero_woman:",
+   "frames": [
+    [
+     "emotes",
+     1104
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":supervillain:",
+   "frames": [
+    [
+     "emotes",
+     1105
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":supervillain_man:",
+   "frames": [
+    [
+     "emotes",
+     1106
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":supervillain_woman:",
+   "frames": [
+    [
+     "emotes",
+     1107
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mage:",
+   "frames": [
+    [
+     "emotes",
+     1108
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mage_man:",
+   "frames": [
+    [
+     "emotes",
+     1109
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mage_woman:",
+   "frames": [
+    [
+     "emotes",
+     1110
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fairy:",
+   "frames": [
+    [
+     "emotes",
+     1111
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fairy_man:",
+   "frames": [
+    [
+     "emotes",
+     1112
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fairy_woman:",
+   "frames": [
+    [
+     "emotes",
+     1113
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vampire:",
+   "frames": [
+    [
+     "emotes",
+     1114
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vampire_man:",
+   "frames": [
+    [
+     "emotes",
+     1115
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vampire_woman:",
+   "frames": [
+    [
+     "emotes",
+     1116
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":merperson:",
+   "frames": [
+    [
+     "emotes",
+     1117
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":merman:",
+   "frames": [
+    [
+     "emotes",
+     1118
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mermaid:",
+   "frames": [
+    [
+     "emotes",
+     1119
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":elf:",
+   "frames": [
+    [
+     "emotes",
+     1120
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":elf_man:",
+   "frames": [
+    [
+     "emotes",
+     1121
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":elf_woman:",
+   "frames": [
+    [
+     "emotes",
+     1122
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":genie:",
+   "frames": [
+    [
+     "emotes",
+     1123
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":genie_man:",
+   "frames": [
+    [
+     "emotes",
+     1124
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":genie_woman:",
+   "frames": [
+    [
+     "emotes",
+     1125
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zombie:",
+   "frames": [
+    [
+     "emotes",
+     1126
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zombie_man:",
+   "frames": [
+    [
+     "emotes",
+     1127
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zombie_woman:",
+   "frames": [
+    [
+     "emotes",
+     1128
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":troll:",
+   "frames": [
+    [
+     "emotes",
+     1129
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":massage_man:",
+   "frames": [
+    [
+     "emotes",
+     1130
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":massage_woman:",
+   "frames": [
+    [
+     "emotes",
+     1131
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":haircut_man:",
+   "frames": [
+    [
+     "emotes",
+     1132
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":haircut_woman:",
+   "frames": [
+    [
+     "emotes",
+     1133
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":walking_man:",
+   "frames": [
+    [
+     "emotes",
+     1134
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":walking_woman:",
+   "frames": [
+    [
+     "emotes",
+     1135
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":standing_person:",
+   "frames": [
+    [
+     "emotes",
+     1136
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":standing_man:",
+   "frames": [
+    [
+     "emotes",
+     1137
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":standing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1138
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kneeling_person:",
+   "frames": [
+    [
+     "emotes",
+     1139
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kneeling_man:",
+   "frames": [
+    [
+     "emotes",
+     1140
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kneeling_woman:",
+   "frames": [
+    [
+     "emotes",
+     1141
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_with_probing_cane:",
+   "frames": [
+    [
+     "emotes",
+     1142
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_with_probing_cane:",
+   "frames": [
+    [
+     "emotes",
+     1143
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_with_probing_cane:",
+   "frames": [
+    [
+     "emotes",
+     1144
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_in_motorized_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1145
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_in_motorized_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1146
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_in_motorized_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1147
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_in_manual_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1148
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_in_manual_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1149
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_in_manual_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1150
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":running_man:",
+   "frames": [
+    [
+     "emotes",
+     1151
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":running_woman:",
+   "frames": [
+    [
+     "emotes",
+     1152
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_dancing:",
+   "frames": [
+    [
+     "emotes",
+     1153
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":business_suit_levitating:",
+   "frames": [
+    [
+     "emotes",
+     1154
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dancing_men:",
+   "frames": [
+    [
+     "emotes",
+     1155
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dancing_women:",
+   "frames": [
+    [
+     "emotes",
+     1156
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sauna_person:",
+   "frames": [
+    [
+     "emotes",
+     1157
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sauna_man:",
+   "frames": [
+    [
+     "emotes",
+     1158
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sauna_woman:",
+   "frames": [
+    [
+     "emotes",
+     1159
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":climbing:",
+   "frames": [
+    [
+     "emotes",
+     1160
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":climbing_man:",
+   "frames": [
+    [
+     "emotes",
+     1161
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":climbing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1162
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":person_fencing:",
+   "frames": [
+    [
+     "emotes",
+     1163
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":skier:",
+   "frames": [
+    [
+     "emotes",
+     1164
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":golfing:",
+   "frames": [
+    [
+     "emotes",
+     1165
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":golfing_man:",
+   "frames": [
+    [
+     "emotes",
+     1166
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":golfing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1167
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":surfing_man:",
+   "frames": [
+    [
+     "emotes",
+     1168
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":surfing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1169
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rowing_man:",
+   "frames": [
+    [
+     "emotes",
+     1170
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rowing_woman:",
+   "frames": [
+    [
+     "emotes",
+     1171
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":swimming_man:",
+   "frames": [
+    [
+     "emotes",
+     1172
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":swimming_woman:",
+   "frames": [
+    [
+     "emotes",
+     1173
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bouncing_ball_person:",
+   "frames": [
+    [
+     "emotes",
+     1174
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bouncing_ball_man:",
+   "frames": [
+    [
+     "emotes",
+     1175
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":basketball_man:",
+   "frames": [
+    [
+     "emotes",
+     1175
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bouncing_ball_woman:",
+   "frames": [
+    [
+     "emotes",
+     1176
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":basketball_woman:",
+   "frames": [
+    [
+     "emotes",
+     1176
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":weight_lifting:",
+   "frames": [
+    [
+     "emotes",
+     1177
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":weight_lifting_man:",
+   "frames": [
+    [
+     "emotes",
+     1178
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":weight_lifting_woman:",
+   "frames": [
+    [
+     "emotes",
+     1179
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":biking_man:",
+   "frames": [
+    [
+     "emotes",
+     1180
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":biking_woman:",
+   "frames": [
+    [
+     "emotes",
+     1181
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mountain_biking_man:",
+   "frames": [
+    [
+     "emotes",
+     1182
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mountain_biking_woman:",
+   "frames": [
+    [
+     "emotes",
+     1183
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cartwheeling:",
+   "frames": [
+    [
+     "emotes",
+     1184
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_cartwheeling:",
+   "frames": [
+    [
+     "emotes",
+     1185
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_cartwheeling:",
+   "frames": [
+    [
+     "emotes",
+     1186
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wrestling:",
+   "frames": [
+    [
+     "emotes",
+     1187
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":men_wrestling:",
+   "frames": [
+    [
+     "emotes",
+     1188
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":women_wrestling:",
+   "frames": [
+    [
+     "emotes",
+     1189
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":water_polo:",
+   "frames": [
+    [
+     "emotes",
+     1190
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_playing_water_polo:",
+   "frames": [
+    [
+     "emotes",
+     1191
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_playing_water_polo:",
+   "frames": [
+    [
+     "emotes",
+     1192
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":handball_person:",
+   "frames": [
+    [
+     "emotes",
+     1193
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_playing_handball:",
+   "frames": [
+    [
+     "emotes",
+     1194
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_playing_handball:",
+   "frames": [
+    [
+     "emotes",
+     1195
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":juggling_person:",
+   "frames": [
+    [
+     "emotes",
+     1196
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":man_juggling:",
+   "frames": [
+    [
+     "emotes",
+     1197
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":woman_juggling:",
+   "frames": [
+    [
+     "emotes",
+     1198
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lotus_position:",
+   "frames": [
+    [
+     "emotes",
+     1199
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lotus_position_man:",
+   "frames": [
+    [
+     "emotes",
+     1200
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lotus_position_woman:",
+   "frames": [
+    [
+     "emotes",
+     1201
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sleeping_bed:",
+   "frames": [
+    [
+     "emotes",
+     1202
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":people_holding_hands:",
+   "frames": [
+    [
+     "emotes",
+     1203
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couplekiss_man_woman:",
+   "frames": [
+    [
+     "emotes",
+     1204
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couplekiss_man_man:",
+   "frames": [
+    [
+     "emotes",
+     1205
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couplekiss_woman_woman:",
+   "frames": [
+    [
+     "emotes",
+     1206
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couple_with_heart_woman_man:",
+   "frames": [
+    [
+     "emotes",
+     1207
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couple_with_heart_man_man:",
+   "frames": [
+    [
+     "emotes",
+     1208
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couple_with_heart_woman_woman:",
+   "frames": [
+    [
+     "emotes",
+     1209
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_woman_boy:",
+   "frames": [
+    [
+     "emotes",
+     1210
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_woman_girl:",
+   "frames": [
+    [
+     "emotes",
+     1211
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_woman_girl_boy:",
+   "frames": [
+    [
+     "emotes",
+     1212
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_woman_boy_boy:",
+   "frames": [
+    [
+     "emotes",
+     1213
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_woman_girl_girl:",
+   "frames": [
+    [
+     "emotes",
+     1214
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_man_boy:",
+   "frames": [
+    [
+     "emotes",
+     1215
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_man_girl:",
+   "frames": [
+    [
+     "emotes",
+     1216
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_man_girl_boy:",
+   "frames": [
+    [
+     "emotes",
+     1217
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_man_boy_boy:",
+   "frames": [
+    [
+     "emotes",
+     1218
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_man_girl_girl:",
+   "frames": [
+    [
+     "emotes",
+     1219
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_woman_boy:",
+   "frames": [
+    [
+     "emotes",
+     1220
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_woman_girl:",
+   "frames": [
+    [
+     "emotes",
+     1221
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_woman_girl_boy:",
+   "frames": [
+    [
+     "emotes",
+     1222
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_woman_boy_boy:",
+   "frames": [
+    [
+     "emotes",
+     1223
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_woman_girl_girl:",
+   "frames": [
+    [
+     "emotes",
+     1224
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_boy:",
+   "frames": [
+    [
+     "emotes",
+     1225
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_boy_boy:",
+   "frames": [
+    [
+     "emotes",
+     1226
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_girl:",
+   "frames": [
+    [
+     "emotes",
+     1227
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_girl_boy:",
+   "frames": [
+    [
+     "emotes",
+     1228
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_man_girl_girl:",
+   "frames": [
+    [
+     "emotes",
+     1229
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_boy:",
+   "frames": [
+    [
+     "emotes",
+     1230
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_boy_boy:",
+   "frames": [
+    [
+     "emotes",
+     1231
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_girl:",
+   "frames": [
+    [
+     "emotes",
+     1232
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_girl_boy:",
+   "frames": [
+    [
+     "emotes",
+     1233
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":family_woman_girl_girl:",
+   "frames": [
+    [
+     "emotes",
+     1234
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":speaking_head:",
+   "frames": [
+    [
+     "emotes",
+     1235
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":people_hugging:",
+   "frames": [
+    [
+     "emotes",
+     1236
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":footprints:",
+   "frames": [
+    [
+     "emotes",
+     1237
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gorilla:",
+   "frames": [
+    [
+     "emotes",
+     1238
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":orangutan:",
+   "frames": [
+    [
+     "emotes",
+     1239
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guide_dog:",
+   "frames": [
+    [
+     "emotes",
+     1240
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":service_dog:",
+   "frames": [
+    [
+     "emotes",
+     1241
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fox_face:",
+   "frames": [
+    [
+     "emotes",
+     1242
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":raccoon:",
+   "frames": [
+    [
+     "emotes",
+     1243
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":black_cat:",
+   "frames": [
+    [
+     "emotes",
+     1244
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lion:",
+   "frames": [
+    [
+     "emotes",
+     1245
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":moose:",
+   "frames": [
+    [
+     "emotes",
+     1246
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":donkey:",
+   "frames": [
+    [
+     "emotes",
+     1247
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":unicorn:",
+   "frames": [
+    [
+     "emotes",
+     1248
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zebra:",
+   "frames": [
+    [
+     "emotes",
+     1249
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":deer:",
+   "frames": [
+    [
+     "emotes",
+     1250
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bison:",
+   "frames": [
+    [
+     "emotes",
+     1251
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":llama:",
+   "frames": [
+    [
+     "emotes",
+     1252
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":giraffe:",
+   "frames": [
+    [
+     "emotes",
+     1253
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mammoth:",
+   "frames": [
+    [
+     "emotes",
+     1254
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rhinoceros:",
+   "frames": [
+    [
+     "emotes",
+     1255
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hippopotamus:",
+   "frames": [
+    [
+     "emotes",
+     1256
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chipmunk:",
+   "frames": [
+    [
+     "emotes",
+     1257
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":beaver:",
+   "frames": [
+    [
+     "emotes",
+     1258
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hedgehog:",
+   "frames": [
+    [
+     "emotes",
+     1259
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bat:",
+   "frames": [
+    [
+     "emotes",
+     1260
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":polar_bear:",
+   "frames": [
+    [
+     "emotes",
+     1261
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sloth:",
+   "frames": [
+    [
+     "emotes",
+     1262
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":otter:",
+   "frames": [
+    [
+     "emotes",
+     1263
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":skunk:",
+   "frames": [
+    [
+     "emotes",
+     1264
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kangaroo:",
+   "frames": [
+    [
+     "emotes",
+     1265
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":badger:",
+   "frames": [
+    [
+     "emotes",
+     1266
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":turkey:",
+   "frames": [
+    [
+     "emotes",
+     1267
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dove:",
+   "frames": [
+    [
+     "emotes",
+     1268
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eagle:",
+   "frames": [
+    [
+     "emotes",
+     1269
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":duck:",
+   "frames": [
+    [
+     "emotes",
+     1270
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":swan:",
+   "frames": [
+    [
+     "emotes",
+     1271
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":owl:",
+   "frames": [
+    [
+     "emotes",
+     1272
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dodo:",
+   "frames": [
+    [
+     "emotes",
+     1273
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":feather:",
+   "frames": [
+    [
+     "emotes",
+     1274
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flamingo:",
+   "frames": [
+    [
+     "emotes",
+     1275
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":peacock:",
+   "frames": [
+    [
+     "emotes",
+     1276
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":parrot:",
+   "frames": [
+    [
+     "emotes",
+     1277
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wing:",
+   "frames": [
+    [
+     "emotes",
+     1278
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":black_bird:",
+   "frames": [
+    [
+     "emotes",
+     1279
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":goose:",
+   "frames": [
+    [
+     "emotes",
+     1280
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lizard:",
+   "frames": [
+    [
+     "emotes",
+     1281
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sauropod:",
+   "frames": [
+    [
+     "emotes",
+     1282
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":t-rex:",
+   "frames": [
+    [
+     "emotes",
+     1283
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":seal:",
+   "frames": [
+    [
+     "emotes",
+     1284
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shark:",
+   "frames": [
+    [
+     "emotes",
+     1285
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":coral:",
+   "frames": [
+    [
+     "emotes",
+     1286
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jellyfish:",
+   "frames": [
+    [
+     "emotes",
+     1287
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":butterfly:",
+   "frames": [
+    [
+     "emotes",
+     1288
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lady_beetle:",
+   "frames": [
+    [
+     "emotes",
+     1289
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cricket:",
+   "frames": [
+    [
+     "emotes",
+     1290
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cockroach:",
+   "frames": [
+    [
+     "emotes",
+     1291
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":spider:",
+   "frames": [
+    [
+     "emotes",
+     1292
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":spider_web:",
+   "frames": [
+    [
+     "emotes",
+     1293
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":scorpion:",
+   "frames": [
+    [
+     "emotes",
+     1294
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mosquito:",
+   "frames": [
+    [
+     "emotes",
+     1295
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fly:",
+   "frames": [
+    [
+     "emotes",
+     1296
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":worm:",
+   "frames": [
+    [
+     "emotes",
+     1297
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":microbe:",
+   "frames": [
+    [
+     "emotes",
+     1298
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lotus:",
+   "frames": [
+    [
+     "emotes",
+     1299
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rosette:",
+   "frames": [
+    [
+     "emotes",
+     1300
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wilted_flower:",
+   "frames": [
+    [
+     "emotes",
+     1301
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hyacinth:",
+   "frames": [
+    [
+     "emotes",
+     1302
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":potted_plant:",
+   "frames": [
+    [
+     "emotes",
+     1303
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shamrock:",
+   "frames": [
+    [
+     "emotes",
+     1304
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":empty_nest:",
+   "frames": [
+    [
+     "emotes",
+     1305
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nest_with_eggs:",
+   "frames": [
+    [
+     "emotes",
+     1306
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mango:",
+   "frames": [
+    [
+     "emotes",
+     1307
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blueberries:",
+   "frames": [
+    [
+     "emotes",
+     1308
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kiwi_fruit:",
+   "frames": [
+    [
+     "emotes",
+     1309
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":olive:",
+   "frames": [
+    [
+     "emotes",
+     1310
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":coconut:",
+   "frames": [
+    [
+     "emotes",
+     1311
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":avocado:",
+   "frames": [
+    [
+     "emotes",
+     1312
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":potato:",
+   "frames": [
+    [
+     "emotes",
+     1313
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":carrot:",
+   "frames": [
+    [
+     "emotes",
+     1314
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hot_pepper:",
+   "frames": [
+    [
+     "emotes",
+     1315
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bell_pepper:",
+   "frames": [
+    [
+     "emotes",
+     1316
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cucumber:",
+   "frames": [
+    [
+     "emotes",
+     1317
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":leafy_green:",
+   "frames": [
+    [
+     "emotes",
+     1318
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":broccoli:",
+   "frames": [
+    [
+     "emotes",
+     1319
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":garlic:",
+   "frames": [
+    [
+     "emotes",
+     1320
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":onion:",
+   "frames": [
+    [
+     "emotes",
+     1321
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":peanuts:",
+   "frames": [
+    [
+     "emotes",
+     1322
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":beans:",
+   "frames": [
+    [
+     "emotes",
+     1323
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ginger_root:",
+   "frames": [
+    [
+     "emotes",
+     1324
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pea_pod:",
+   "frames": [
+    [
+     "emotes",
+     1325
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":croissant:",
+   "frames": [
+    [
+     "emotes",
+     1326
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":baguette_bread:",
+   "frames": [
+    [
+     "emotes",
+     1327
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flatbread:",
+   "frames": [
+    [
+     "emotes",
+     1328
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pretzel:",
+   "frames": [
+    [
+     "emotes",
+     1329
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bagel:",
+   "frames": [
+    [
+     "emotes",
+     1330
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pancakes:",
+   "frames": [
+    [
+     "emotes",
+     1331
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":waffle:",
+   "frames": [
+    [
+     "emotes",
+     1332
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cheese:",
+   "frames": [
+    [
+     "emotes",
+     1333
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cut_of_meat:",
+   "frames": [
+    [
+     "emotes",
+     1334
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bacon:",
+   "frames": [
+    [
+     "emotes",
+     1335
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hotdog:",
+   "frames": [
+    [
+     "emotes",
+     1336
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sandwich:",
+   "frames": [
+    [
+     "emotes",
+     1337
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":taco:",
+   "frames": [
+    [
+     "emotes",
+     1338
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":burrito:",
+   "frames": [
+    [
+     "emotes",
+     1339
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tamale:",
+   "frames": [
+    [
+     "emotes",
+     1340
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stuffed_flatbread:",
+   "frames": [
+    [
+     "emotes",
+     1341
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":falafel:",
+   "frames": [
+    [
+     "emotes",
+     1342
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fried_egg:",
+   "frames": [
+    [
+     "emotes",
+     1343
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shallow_pan_of_food:",
+   "frames": [
+    [
+     "emotes",
+     1344
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fondue:",
+   "frames": [
+    [
+     "emotes",
+     1345
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bowl_with_spoon:",
+   "frames": [
+    [
+     "emotes",
+     1346
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":green_salad:",
+   "frames": [
+    [
+     "emotes",
+     1347
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":popcorn:",
+   "frames": [
+    [
+     "emotes",
+     1348
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":butter:",
+   "frames": [
+    [
+     "emotes",
+     1349
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":salt:",
+   "frames": [
+    [
+     "emotes",
+     1350
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":canned_food:",
+   "frames": [
+    [
+     "emotes",
+     1351
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":moon_cake:",
+   "frames": [
+    [
+     "emotes",
+     1352
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dumpling:",
+   "frames": [
+    [
+     "emotes",
+     1353
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fortune_cookie:",
+   "frames": [
+    [
+     "emotes",
+     1354
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":takeout_box:",
+   "frames": [
+    [
+     "emotes",
+     1355
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":crab:",
+   "frames": [
+    [
+     "emotes",
+     1356
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lobster:",
+   "frames": [
+    [
+     "emotes",
+     1357
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shrimp:",
+   "frames": [
+    [
+     "emotes",
+     1358
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":squid:",
+   "frames": [
+    [
+     "emotes",
+     1359
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":oyster:",
+   "frames": [
+    [
+     "emotes",
+     1360
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cupcake:",
+   "frames": [
+    [
+     "emotes",
+     1361
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pie:",
+   "frames": [
+    [
+     "emotes",
+     1362
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":milk_glass:",
+   "frames": [
+    [
+     "emotes",
+     1363
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":teapot:",
+   "frames": [
+    [
+     "emotes",
+     1364
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":champagne:",
+   "frames": [
+    [
+     "emotes",
+     1365
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":clinking_glasses:",
+   "frames": [
+    [
+     "emotes",
+     1366
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tumbler_glass:",
+   "frames": [
+    [
+     "emotes",
+     1367
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pouring_liquid:",
+   "frames": [
+    [
+     "emotes",
+     1368
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cup_with_straw:",
+   "frames": [
+    [
+     "emotes",
+     1369
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bubble_tea:",
+   "frames": [
+    [
+     "emotes",
+     1370
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":beverage_box:",
+   "frames": [
+    [
+     "emotes",
+     1371
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mate:",
+   "frames": [
+    [
+     "emotes",
+     1372
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ice_cube:",
+   "frames": [
+    [
+     "emotes",
+     1373
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chopsticks:",
+   "frames": [
+    [
+     "emotes",
+     1374
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":plate_with_cutlery:",
+   "frames": [
+    [
+     "emotes",
+     1375
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":spoon:",
+   "frames": [
+    [
+     "emotes",
+     1376
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jar:",
+   "frames": [
+    [
+     "emotes",
+     1377
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":amphora:",
+   "frames": [
+    [
+     "emotes",
+     1378
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":world_map:",
+   "frames": [
+    [
+     "emotes",
+     1379
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":compass:",
+   "frames": [
+    [
+     "emotes",
+     1380
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mountain_snow:",
+   "frames": [
+    [
+     "emotes",
+     1381
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mountain:",
+   "frames": [
+    [
+     "emotes",
+     1382
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":camping:",
+   "frames": [
+    [
+     "emotes",
+     1383
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":beach_umbrella:",
+   "frames": [
+    [
+     "emotes",
+     1384
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":desert:",
+   "frames": [
+    [
+     "emotes",
+     1385
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":desert_island:",
+   "frames": [
+    [
+     "emotes",
+     1386
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":national_park:",
+   "frames": [
+    [
+     "emotes",
+     1387
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stadium:",
+   "frames": [
+    [
+     "emotes",
+     1388
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":classical_building:",
+   "frames": [
+    [
+     "emotes",
+     1389
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":building_construction:",
+   "frames": [
+    [
+     "emotes",
+     1390
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bricks:",
+   "frames": [
+    [
+     "emotes",
+     1391
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rock:",
+   "frames": [
+    [
+     "emotes",
+     1392
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wood:",
+   "frames": [
+    [
+     "emotes",
+     1393
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hut:",
+   "frames": [
+    [
+     "emotes",
+     1394
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":houses:",
+   "frames": [
+    [
+     "emotes",
+     1395
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":derelict_house:",
+   "frames": [
+    [
+     "emotes",
+     1396
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mosque:",
+   "frames": [
+    [
+     "emotes",
+     1397
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hindu_temple:",
+   "frames": [
+    [
+     "emotes",
+     1398
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":synagogue:",
+   "frames": [
+    [
+     "emotes",
+     1399
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shinto_shrine:",
+   "frames": [
+    [
+     "emotes",
+     1400
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kaaba:",
+   "frames": [
+    [
+     "emotes",
+     1401
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":night_with_stars:",
+   "frames": [
+    [
+     "emotes",
+     1402
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cityscape:",
+   "frames": [
+    [
+     "emotes",
+     1403
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":playground_slide:",
+   "frames": [
+    [
+     "emotes",
+     1404
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pickup_truck:",
+   "frames": [
+    [
+     "emotes",
+     1405
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":racing_car:",
+   "frames": [
+    [
+     "emotes",
+     1406
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":motorcycle:",
+   "frames": [
+    [
+     "emotes",
+     1407
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":motor_scooter:",
+   "frames": [
+    [
+     "emotes",
+     1408
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":manual_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1409
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":motorized_wheelchair:",
+   "frames": [
+    [
+     "emotes",
+     1410
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":auto_rickshaw:",
+   "frames": [
+    [
+     "emotes",
+     1411
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kick_scooter:",
+   "frames": [
+    [
+     "emotes",
+     1412
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":skateboard:",
+   "frames": [
+    [
+     "emotes",
+     1413
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":roller_skate:",
+   "frames": [
+    [
+     "emotes",
+     1414
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":motorway:",
+   "frames": [
+    [
+     "emotes",
+     1415
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":railway_track:",
+   "frames": [
+    [
+     "emotes",
+     1416
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":oil_drum:",
+   "frames": [
+    [
+     "emotes",
+     1417
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wheel:",
+   "frames": [
+    [
+     "emotes",
+     1418
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stop_sign:",
+   "frames": [
+    [
+     "emotes",
+     1419
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ring_buoy:",
+   "frames": [
+    [
+     "emotes",
+     1420
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":canoe:",
+   "frames": [
+    [
+     "emotes",
+     1421
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":passenger_ship:",
+   "frames": [
+    [
+     "emotes",
+     1422
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ferry:",
+   "frames": [
+    [
+     "emotes",
+     1423
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":motor_boat:",
+   "frames": [
+    [
+     "emotes",
+     1424
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":small_airplane:",
+   "frames": [
+    [
+     "emotes",
+     1425
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flight_departure:",
+   "frames": [
+    [
+     "emotes",
+     1426
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flight_arrival:",
+   "frames": [
+    [
+     "emotes",
+     1427
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":parachute:",
+   "frames": [
+    [
+     "emotes",
+     1428
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":artificial_satellite:",
+   "frames": [
+    [
+     "emotes",
+     1429
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flying_saucer:",
+   "frames": [
+    [
+     "emotes",
+     1430
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bellhop_bell:",
+   "frames": [
+    [
+     "emotes",
+     1431
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":luggage:",
+   "frames": [
+    [
+     "emotes",
+     1432
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stopwatch:",
+   "frames": [
+    [
+     "emotes",
+     1433
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":timer_clock:",
+   "frames": [
+    [
+     "emotes",
+     1434
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mantelpiece_clock:",
+   "frames": [
+    [
+     "emotes",
+     1435
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":thermometer:",
+   "frames": [
+    [
+     "emotes",
+     1436
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ringed_planet:",
+   "frames": [
+    [
+     "emotes",
+     1437
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cloud_with_lightning_and_rain:",
+   "frames": [
+    [
+     "emotes",
+     1438
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sun_behind_small_cloud:",
+   "frames": [
+    [
+     "emotes",
+     1439
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sun_behind_large_cloud:",
+   "frames": [
+    [
+     "emotes",
+     1440
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sun_behind_rain_cloud:",
+   "frames": [
+    [
+     "emotes",
+     1441
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cloud_with_rain:",
+   "frames": [
+    [
+     "emotes",
+     1442
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cloud_with_snow:",
+   "frames": [
+    [
+     "emotes",
+     1443
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cloud_with_lightning:",
+   "frames": [
+    [
+     "emotes",
+     1444
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tornado:",
+   "frames": [
+    [
+     "emotes",
+     1445
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fog:",
+   "frames": [
+    [
+     "emotes",
+     1446
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wind_face:",
+   "frames": [
+    [
+     "emotes",
+     1447
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":open_umbrella:",
+   "frames": [
+    [
+     "emotes",
+     1448
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":parasol_on_ground:",
+   "frames": [
+    [
+     "emotes",
+     1449
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":snowman_with_snow:",
+   "frames": [
+    [
+     "emotes",
+     1450
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":comet:",
+   "frames": [
+    [
+     "emotes",
+     1451
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":firecracker:",
+   "frames": [
+    [
+     "emotes",
+     1452
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":red_envelope:",
+   "frames": [
+    [
+     "emotes",
+     1453
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":reminder_ribbon:",
+   "frames": [
+    [
+     "emotes",
+     1454
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tickets:",
+   "frames": [
+    [
+     "emotes",
+     1455
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":medal_military:",
+   "frames": [
+    [
+     "emotes",
+     1456
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":medal_sports:",
+   "frames": [
+    [
+     "emotes",
+     1457
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":1st_place_medal:",
+   "frames": [
+    [
+     "emotes",
+     1458
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":2nd_place_medal:",
+   "frames": [
+    [
+     "emotes",
+     1459
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":3rd_place_medal:",
+   "frames": [
+    [
+     "emotes",
+     1460
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":softball:",
+   "frames": [
+    [
+     "emotes",
+     1461
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":volleyball:",
+   "frames": [
+    [
+     "emotes",
+     1462
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flying_disc:",
+   "frames": [
+    [
+     "emotes",
+     1463
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cricket_game:",
+   "frames": [
+    [
+     "emotes",
+     1464
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":field_hockey:",
+   "frames": [
+    [
+     "emotes",
+     1465
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ice_hockey:",
+   "frames": [
+    [
+     "emotes",
+     1466
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lacrosse:",
+   "frames": [
+    [
+     "emotes",
+     1467
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ping_pong:",
+   "frames": [
+    [
+     "emotes",
+     1468
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":badminton:",
+   "frames": [
+    [
+     "emotes",
+     1469
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":boxing_glove:",
+   "frames": [
+    [
+     "emotes",
+     1470
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":martial_arts_uniform:",
+   "frames": [
+    [
+     "emotes",
+     1471
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":goal_net:",
+   "frames": [
+    [
+     "emotes",
+     1472
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ice_skate:",
+   "frames": [
+    [
+     "emotes",
+     1473
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":diving_mask:",
+   "frames": [
+    [
+     "emotes",
+     1474
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sled:",
+   "frames": [
+    [
+     "emotes",
+     1475
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":curling_stone:",
+   "frames": [
+    [
+     "emotes",
+     1476
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yo_yo:",
+   "frames": [
+    [
+     "emotes",
+     1477
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kite:",
+   "frames": [
+    [
+     "emotes",
+     1478
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":magic_wand:",
+   "frames": [
+    [
+     "emotes",
+     1479
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":joystick:",
+   "frames": [
+    [
+     "emotes",
+     1480
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jigsaw:",
+   "frames": [
+    [
+     "emotes",
+     1481
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":teddy_bear:",
+   "frames": [
+    [
+     "emotes",
+     1482
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pinata:",
+   "frames": [
+    [
+     "emotes",
+     1483
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mirror_ball:",
+   "frames": [
+    [
+     "emotes",
+     1484
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nesting_dolls:",
+   "frames": [
+    [
+     "emotes",
+     1485
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chess_pawn:",
+   "frames": [
+    [
+     "emotes",
+     1486
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":framed_picture:",
+   "frames": [
+    [
+     "emotes",
+     1487
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":thread:",
+   "frames": [
+    [
+     "emotes",
+     1488
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sewing_needle:",
+   "frames": [
+    [
+     "emotes",
+     1489
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yarn:",
+   "frames": [
+    [
+     "emotes",
+     1490
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":knot:",
+   "frames": [
+    [
+     "emotes",
+     1491
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dark_sunglasses:",
+   "frames": [
+    [
+     "emotes",
+     1492
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":goggles:",
+   "frames": [
+    [
+     "emotes",
+     1493
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lab_coat:",
+   "frames": [
+    [
+     "emotes",
+     1494
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":safety_vest:",
+   "frames": [
+    [
+     "emotes",
+     1495
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":scarf:",
+   "frames": [
+    [
+     "emotes",
+     1496
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gloves:",
+   "frames": [
+    [
+     "emotes",
+     1497
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":coat:",
+   "frames": [
+    [
+     "emotes",
+     1498
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":socks:",
+   "frames": [
+    [
+     "emotes",
+     1499
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sari:",
+   "frames": [
+    [
+     "emotes",
+     1500
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":one_piece_swimsuit:",
+   "frames": [
+    [
+     "emotes",
+     1501
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":swim_brief:",
+   "frames": [
+    [
+     "emotes",
+     1502
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shorts:",
+   "frames": [
+    [
+     "emotes",
+     1503
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":folding_hand_fan:",
+   "frames": [
+    [
+     "emotes",
+     1504
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shopping:",
+   "frames": [
+    [
+     "emotes",
+     1505
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":thong_sandal:",
+   "frames": [
+    [
+     "emotes",
+     1506
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":athletic_shoe:",
+   "frames": [
+    [
+     "emotes",
+     1507
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hiking_boot:",
+   "frames": [
+    [
+     "emotes",
+     1508
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flat_shoe:",
+   "frames": [
+    [
+     "emotes",
+     1509
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ballet_shoes:",
+   "frames": [
+    [
+     "emotes",
+     1510
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hair_pick:",
+   "frames": [
+    [
+     "emotes",
+     1511
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":billed_cap:",
+   "frames": [
+    [
+     "emotes",
+     1512
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":military_helmet:",
+   "frames": [
+    [
+     "emotes",
+     1513
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rescue_worker_helmet:",
+   "frames": [
+    [
+     "emotes",
+     1514
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":prayer_beads:",
+   "frames": [
+    [
+     "emotes",
+     1515
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":loud_sound:",
+   "frames": [
+    [
+     "emotes",
+     1516
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":studio_microphone:",
+   "frames": [
+    [
+     "emotes",
+     1517
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":level_slider:",
+   "frames": [
+    [
+     "emotes",
+     1518
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":control_knobs:",
+   "frames": [
+    [
+     "emotes",
+     1519
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":accordion:",
+   "frames": [
+    [
+     "emotes",
+     1520
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":banjo:",
+   "frames": [
+    [
+     "emotes",
+     1521
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":drum:",
+   "frames": [
+    [
+     "emotes",
+     1522
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":long_drum:",
+   "frames": [
+    [
+     "emotes",
+     1523
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":maracas:",
+   "frames": [
+    [
+     "emotes",
+     1524
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":flute:",
+   "frames": [
+    [
+     "emotes",
+     1525
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":low_battery:",
+   "frames": [
+    [
+     "emotes",
+     1526
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":desktop_computer:",
+   "frames": [
+    [
+     "emotes",
+     1527
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":printer:",
+   "frames": [
+    [
+     "emotes",
+     1528
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":keyboard:",
+   "frames": [
+    [
+     "emotes",
+     1529
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":computer_mouse:",
+   "frames": [
+    [
+     "emotes",
+     1530
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":trackball:",
+   "frames": [
+    [
+     "emotes",
+     1531
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":abacus:",
+   "frames": [
+    [
+     "emotes",
+     1532
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":film_strip:",
+   "frames": [
+    [
+     "emotes",
+     1533
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":film_projector:",
+   "frames": [
+    [
+     "emotes",
+     1534
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":camera_flash:",
+   "frames": [
+    [
+     "emotes",
+     1535
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":candle:",
+   "frames": [
+    [
+     "emotes",
+     1536
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":diya_lamp:",
+   "frames": [
+    [
+     "emotes",
+     1537
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":newspaper_roll:",
+   "frames": [
+    [
+     "emotes",
+     1538
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":label:",
+   "frames": [
+    [
+     "emotes",
+     1539
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":coin:",
+   "frames": [
+    [
+     "emotes",
+     1540
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":receipt:",
+   "frames": [
+    [
+     "emotes",
+     1541
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":envelope_with_arrow:",
+   "frames": [
+    [
+     "emotes",
+     1542
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ballot_box:",
+   "frames": [
+    [
+     "emotes",
+     1543
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fountain_pen:",
+   "frames": [
+    [
+     "emotes",
+     1544
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pen:",
+   "frames": [
+    [
+     "emotes",
+     1545
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":paintbrush:",
+   "frames": [
+    [
+     "emotes",
+     1546
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":crayon:",
+   "frames": [
+    [
+     "emotes",
+     1547
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":card_index_dividers:",
+   "frames": [
+    [
+     "emotes",
+     1548
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":spiral_notepad:",
+   "frames": [
+    [
+     "emotes",
+     1549
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":spiral_calendar:",
+   "frames": [
+    [
+     "emotes",
+     1550
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":paperclips:",
+   "frames": [
+    [
+     "emotes",
+     1551
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":card_file_box:",
+   "frames": [
+    [
+     "emotes",
+     1552
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":file_cabinet:",
+   "frames": [
+    [
+     "emotes",
+     1553
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wastebasket:",
+   "frames": [
+    [
+     "emotes",
+     1554
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":old_key:",
+   "frames": [
+    [
+     "emotes",
+     1555
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":axe:",
+   "frames": [
+    [
+     "emotes",
+     1556
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pick:",
+   "frames": [
+    [
+     "emotes",
+     1557
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hammer_and_pick:",
+   "frames": [
+    [
+     "emotes",
+     1558
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hammer_and_wrench:",
+   "frames": [
+    [
+     "emotes",
+     1559
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dagger:",
+   "frames": [
+    [
+     "emotes",
+     1560
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":crossed_swords:",
+   "frames": [
+    [
+     "emotes",
+     1561
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":boomerang:",
+   "frames": [
+    [
+     "emotes",
+     1562
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bow_and_arrow:",
+   "frames": [
+    [
+     "emotes",
+     1563
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shield:",
+   "frames": [
+    [
+     "emotes",
+     1564
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":carpentry_saw:",
+   "frames": [
+    [
+     "emotes",
+     1565
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":screwdriver:",
+   "frames": [
+    [
+     "emotes",
+     1566
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gear:",
+   "frames": [
+    [
+     "emotes",
+     1567
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":clamp:",
+   "frames": [
+    [
+     "emotes",
+     1568
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":balance_scale:",
+   "frames": [
+    [
+     "emotes",
+     1569
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":probing_cane:",
+   "frames": [
+    [
+     "emotes",
+     1570
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chains:",
+   "frames": [
+    [
+     "emotes",
+     1571
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hook:",
+   "frames": [
+    [
+     "emotes",
+     1572
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":toolbox:",
+   "frames": [
+    [
+     "emotes",
+     1573
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":magnet:",
+   "frames": [
+    [
+     "emotes",
+     1574
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ladder:",
+   "frames": [
+    [
+     "emotes",
+     1575
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":alembic:",
+   "frames": [
+    [
+     "emotes",
+     1576
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":test_tube:",
+   "frames": [
+    [
+     "emotes",
+     1577
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":petri_dish:",
+   "frames": [
+    [
+     "emotes",
+     1578
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dna:",
+   "frames": [
+    [
+     "emotes",
+     1579
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":drop_of_blood:",
+   "frames": [
+    [
+     "emotes",
+     1580
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":adhesive_bandage:",
+   "frames": [
+    [
+     "emotes",
+     1581
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":crutch:",
+   "frames": [
+    [
+     "emotes",
+     1582
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stethoscope:",
+   "frames": [
+    [
+     "emotes",
+     1583
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":x_ray:",
+   "frames": [
+    [
+     "emotes",
+     1584
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":elevator:",
+   "frames": [
+    [
+     "emotes",
+     1585
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mirror:",
+   "frames": [
+    [
+     "emotes",
+     1586
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":window:",
+   "frames": [
+    [
+     "emotes",
+     1587
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bed:",
+   "frames": [
+    [
+     "emotes",
+     1588
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":couch_and_lamp:",
+   "frames": [
+    [
+     "emotes",
+     1589
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chair:",
+   "frames": [
+    [
+     "emotes",
+     1590
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":plunger:",
+   "frames": [
+    [
+     "emotes",
+     1591
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mouse_trap:",
+   "frames": [
+    [
+     "emotes",
+     1592
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":razor:",
+   "frames": [
+    [
+     "emotes",
+     1593
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lotion_bottle:",
+   "frames": [
+    [
+     "emotes",
+     1594
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":safety_pin:",
+   "frames": [
+    [
+     "emotes",
+     1595
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":broom:",
+   "frames": [
+    [
+     "emotes",
+     1596
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":basket:",
+   "frames": [
+    [
+     "emotes",
+     1597
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":roll_of_paper:",
+   "frames": [
+    [
+     "emotes",
+     1598
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bucket:",
+   "frames": [
+    [
+     "emotes",
+     1599
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":soap:",
+   "frames": [
+    [
+     "emotes",
+     1600
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bubbles:",
+   "frames": [
+    [
+     "emotes",
+     1601
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":toothbrush:",
+   "frames": [
+    [
+     "emotes",
+     1602
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sponge:",
+   "frames": [
+    [
+     "emotes",
+     1603
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fire_extinguisher:",
+   "frames": [
+    [
+     "emotes",
+     1604
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":shopping_cart:",
+   "frames": [
+    [
+     "emotes",
+     1605
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":coffin:",
+   "frames": [
+    [
+     "emotes",
+     1606
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":headstone:",
+   "frames": [
+    [
+     "emotes",
+     1607
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":funeral_urn:",
+   "frames": [
+    [
+     "emotes",
+     1608
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nazar_amulet:",
+   "frames": [
+    [
+     "emotes",
+     1609
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hamsa:",
+   "frames": [
+    [
+     "emotes",
+     1610
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":placard:",
+   "frames": [
+    [
+     "emotes",
+     1611
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":identification_card:",
+   "frames": [
+    [
+     "emotes",
+     1612
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":radioactive:",
+   "frames": [
+    [
+     "emotes",
+     1613
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":biohazard:",
+   "frames": [
+    [
+     "emotes",
+     1614
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":place_of_worship:",
+   "frames": [
+    [
+     "emotes",
+     1615
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":atom_symbol:",
+   "frames": [
+    [
+     "emotes",
+     1616
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":om:",
+   "frames": [
+    [
+     "emotes",
+     1617
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":star_of_david:",
+   "frames": [
+    [
+     "emotes",
+     1618
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wheel_of_dharma:",
+   "frames": [
+    [
+     "emotes",
+     1619
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yin_yang:",
+   "frames": [
+    [
+     "emotes",
+     1620
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":latin_cross:",
+   "frames": [
+    [
+     "emotes",
+     1621
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":orthodox_cross:",
+   "frames": [
+    [
+     "emotes",
+     1622
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":star_and_crescent:",
+   "frames": [
+    [
+     "emotes",
+     1623
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":peace_symbol:",
+   "frames": [
+    [
+     "emotes",
+     1624
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":menorah:",
+   "frames": [
+    [
+     "emotes",
+     1625
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":khanda:",
+   "frames": [
+    [
+     "emotes",
+     1626
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":next_track_button:",
+   "frames": [
+    [
+     "emotes",
+     1627
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":play_or_pause_button:",
+   "frames": [
+    [
+     "emotes",
+     1628
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":previous_track_button:",
+   "frames": [
+    [
+     "emotes",
+     1629
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pause_button:",
+   "frames": [
+    [
+     "emotes",
+     1630
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":stop_button:",
+   "frames": [
+    [
+     "emotes",
+     1631
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":record_button:",
+   "frames": [
+    [
+     "emotes",
+     1632
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eject_button:",
+   "frames": [
+    [
+     "emotes",
+     1633
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wireless:",
+   "frames": [
+    [
+     "emotes",
+     1634
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":female_sign:",
+   "frames": [
+    [
+     "emotes",
+     1635
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":male_sign:",
+   "frames": [
+    [
+     "emotes",
+     1636
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":transgender_symbol:",
+   "frames": [
+    [
+     "emotes",
+     1637
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":heavy_equals_sign:",
+   "frames": [
+    [
+     "emotes",
+     1638
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":infinity:",
+   "frames": [
+    [
+     "emotes",
+     1639
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":medical_symbol:",
+   "frames": [
+    [
+     "emotes",
+     1640
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fleur_de_lis:",
+   "frames": [
+    [
+     "emotes",
+     1641
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":asterisk:",
+   "frames": [
+    [
+     "emotes",
+     1642
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":orange_circle:",
+   "frames": [
+    [
+     "emotes",
+     1643
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yellow_circle:",
+   "frames": [
+    [
+     "emotes",
+     1644
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":green_circle:",
+   "frames": [
+    [
+     "emotes",
+     1645
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":purple_circle:",
+   "frames": [
+    [
+     "emotes",
+     1646
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brown_circle:",
+   "frames": [
+    [
+     "emotes",
+     1647
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":red_square:",
+   "frames": [
+    [
+     "emotes",
+     1648
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":orange_square:",
+   "frames": [
+    [
+     "emotes",
+     1649
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yellow_square:",
+   "frames": [
+    [
+     "emotes",
+     1650
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":green_square:",
+   "frames": [
+    [
+     "emotes",
+     1651
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":blue_square:",
+   "frames": [
+    [
+     "emotes",
+     1652
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":purple_square:",
+   "frames": [
+    [
+     "emotes",
+     1653
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brown_square:",
+   "frames": [
+    [
+     "emotes",
+     1654
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":black_large_square:",
+   "frames": [
+    [
+     "emotes",
+     1655
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":black_flag:",
+   "frames": [
+    [
+     "emotes",
+     1656
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":white_flag:",
+   "frames": [
+    [
+     "emotes",
+     1657
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rainbow_flag:",
+   "frames": [
+    [
+     "emotes",
+     1658
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":transgender_flag:",
+   "frames": [
+    [
+     "emotes",
+     1659
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pirate_flag:",
+   "frames": [
+    [
+     "emotes",
+     1660
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ascension_island:",
+   "frames": [
+    [
+     "emotes",
+     1661
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":andorra:",
+   "frames": [
+    [
+     "emotes",
+     1662
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":united_arab_emirates:",
+   "frames": [
+    [
+     "emotes",
+     1663
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":afghanistan:",
+   "frames": [
+    [
+     "emotes",
+     1664
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":antigua_barbuda:",
+   "frames": [
+    [
+     "emotes",
+     1665
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":anguilla:",
+   "frames": [
+    [
+     "emotes",
+     1666
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":albania:",
+   "frames": [
+    [
+     "emotes",
+     1667
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":armenia:",
+   "frames": [
+    [
+     "emotes",
+     1668
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":angola:",
+   "frames": [
+    [
+     "emotes",
+     1669
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":antarctica:",
+   "frames": [
+    [
+     "emotes",
+     1670
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":argentina:",
+   "frames": [
+    [
+     "emotes",
+     1671
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":american_samoa:",
+   "frames": [
+    [
+     "emotes",
+     1672
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":austria:",
+   "frames": [
+    [
+     "emotes",
+     1673
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":australia:",
+   "frames": [
+    [
+     "emotes",
+     1674
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":aruba:",
+   "frames": [
+    [
+     "emotes",
+     1675
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":aland_islands:",
+   "frames": [
+    [
+     "emotes",
+     1676
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":azerbaijan:",
+   "frames": [
+    [
+     "emotes",
+     1677
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bosnia_herzegovina:",
+   "frames": [
+    [
+     "emotes",
+     1678
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":barbados:",
+   "frames": [
+    [
+     "emotes",
+     1679
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bangladesh:",
+   "frames": [
+    [
+     "emotes",
+     1680
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":belgium:",
+   "frames": [
+    [
+     "emotes",
+     1681
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":burkina_faso:",
+   "frames": [
+    [
+     "emotes",
+     1682
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bulgaria:",
+   "frames": [
+    [
+     "emotes",
+     1683
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bahrain:",
+   "frames": [
+    [
+     "emotes",
+     1684
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":burundi:",
+   "frames": [
+    [
+     "emotes",
+     1685
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":benin:",
+   "frames": [
+    [
+     "emotes",
+     1686
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_barthelemy:",
+   "frames": [
+    [
+     "emotes",
+     1687
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bermuda:",
+   "frames": [
+    [
+     "emotes",
+     1688
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brunei:",
+   "frames": [
+    [
+     "emotes",
+     1689
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bolivia:",
+   "frames": [
+    [
+     "emotes",
+     1690
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":caribbean_netherlands:",
+   "frames": [
+    [
+     "emotes",
+     1691
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":brazil:",
+   "frames": [
+    [
+     "emotes",
+     1692
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bahamas:",
+   "frames": [
+    [
+     "emotes",
+     1693
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bhutan:",
+   "frames": [
+    [
+     "emotes",
+     1694
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":bouvet_island:",
+   "frames": [
+    [
+     "emotes",
+     1695
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":botswana:",
+   "frames": [
+    [
+     "emotes",
+     1696
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":belarus:",
+   "frames": [
+    [
+     "emotes",
+     1697
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":belize:",
+   "frames": [
+    [
+     "emotes",
+     1698
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":canada:",
+   "frames": [
+    [
+     "emotes",
+     1699
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cocos_islands:",
+   "frames": [
+    [
+     "emotes",
+     1700
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":congo_kinshasa:",
+   "frames": [
+    [
+     "emotes",
+     1701
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":central_african_republic:",
+   "frames": [
+    [
+     "emotes",
+     1702
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":congo_brazzaville:",
+   "frames": [
+    [
+     "emotes",
+     1703
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":switzerland:",
+   "frames": [
+    [
+     "emotes",
+     1704
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cote_divoire:",
+   "frames": [
+    [
+     "emotes",
+     1705
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cook_islands:",
+   "frames": [
+    [
+     "emotes",
+     1706
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chile:",
+   "frames": [
+    [
+     "emotes",
+     1707
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cameroon:",
+   "frames": [
+    [
+     "emotes",
+     1708
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":colombia:",
+   "frames": [
+    [
+     "emotes",
+     1709
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":clipperton_island:",
+   "frames": [
+    [
+     "emotes",
+     1710
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":costa_rica:",
+   "frames": [
+    [
+     "emotes",
+     1711
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cuba:",
+   "frames": [
+    [
+     "emotes",
+     1712
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cape_verde:",
+   "frames": [
+    [
+     "emotes",
+     1713
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":curacao:",
+   "frames": [
+    [
+     "emotes",
+     1714
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":christmas_island:",
+   "frames": [
+    [
+     "emotes",
+     1715
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cyprus:",
+   "frames": [
+    [
+     "emotes",
+     1716
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":czech_republic:",
+   "frames": [
+    [
+     "emotes",
+     1717
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":diego_garcia:",
+   "frames": [
+    [
+     "emotes",
+     1718
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":djibouti:",
+   "frames": [
+    [
+     "emotes",
+     1719
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":denmark:",
+   "frames": [
+    [
+     "emotes",
+     1720
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dominica:",
+   "frames": [
+    [
+     "emotes",
+     1721
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":dominican_republic:",
+   "frames": [
+    [
+     "emotes",
+     1722
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":algeria:",
+   "frames": [
+    [
+     "emotes",
+     1723
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ceuta_melilla:",
+   "frames": [
+    [
+     "emotes",
+     1724
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ecuador:",
+   "frames": [
+    [
+     "emotes",
+     1725
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":estonia:",
+   "frames": [
+    [
+     "emotes",
+     1726
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":egypt:",
+   "frames": [
+    [
+     "emotes",
+     1727
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":western_sahara:",
+   "frames": [
+    [
+     "emotes",
+     1728
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eritrea:",
+   "frames": [
+    [
+     "emotes",
+     1729
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ethiopia:",
+   "frames": [
+    [
+     "emotes",
+     1730
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":eu:",
+   "frames": [
+    [
+     "emotes",
+     1731
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":european_union:",
+   "frames": [
+    [
+     "emotes",
+     1731
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":finland:",
+   "frames": [
+    [
+     "emotes",
+     1732
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":fiji:",
+   "frames": [
+    [
+     "emotes",
+     1733
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":falkland_islands:",
+   "frames": [
+    [
+     "emotes",
+     1734
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":micronesia:",
+   "frames": [
+    [
+     "emotes",
+     1735
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":faroe_islands:",
+   "frames": [
+    [
+     "emotes",
+     1736
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gabon:",
+   "frames": [
+    [
+     "emotes",
+     1737
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":grenada:",
+   "frames": [
+    [
+     "emotes",
+     1738
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":georgia:",
+   "frames": [
+    [
+     "emotes",
+     1739
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":french_guiana:",
+   "frames": [
+    [
+     "emotes",
+     1740
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guernsey:",
+   "frames": [
+    [
+     "emotes",
+     1741
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ghana:",
+   "frames": [
+    [
+     "emotes",
+     1742
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gibraltar:",
+   "frames": [
+    [
+     "emotes",
+     1743
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":greenland:",
+   "frames": [
+    [
+     "emotes",
+     1744
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":gambia:",
+   "frames": [
+    [
+     "emotes",
+     1745
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guinea:",
+   "frames": [
+    [
+     "emotes",
+     1746
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guadeloupe:",
+   "frames": [
+    [
+     "emotes",
+     1747
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":equatorial_guinea:",
+   "frames": [
+    [
+     "emotes",
+     1748
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":greece:",
+   "frames": [
+    [
+     "emotes",
+     1749
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":south_georgia_south_sandwich_islands:",
+   "frames": [
+    [
+     "emotes",
+     1750
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guatemala:",
+   "frames": [
+    [
+     "emotes",
+     1751
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guam:",
+   "frames": [
+    [
+     "emotes",
+     1752
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guinea_bissau:",
+   "frames": [
+    [
+     "emotes",
+     1753
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":guyana:",
+   "frames": [
+    [
+     "emotes",
+     1754
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hong_kong:",
+   "frames": [
+    [
+     "emotes",
+     1755
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":heard_mcdonald_islands:",
+   "frames": [
+    [
+     "emotes",
+     1756
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":honduras:",
+   "frames": [
+    [
+     "emotes",
+     1757
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":croatia:",
+   "frames": [
+    [
+     "emotes",
+     1758
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":haiti:",
+   "frames": [
+    [
+     "emotes",
+     1759
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":hungary:",
+   "frames": [
+    [
+     "emotes",
+     1760
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":canary_islands:",
+   "frames": [
+    [
+     "emotes",
+     1761
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":indonesia:",
+   "frames": [
+    [
+     "emotes",
+     1762
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ireland:",
+   "frames": [
+    [
+     "emotes",
+     1763
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":israel:",
+   "frames": [
+    [
+     "emotes",
+     1764
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":isle_of_man:",
+   "frames": [
+    [
+     "emotes",
+     1765
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":india:",
+   "frames": [
+    [
+     "emotes",
+     1766
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":british_indian_ocean_territory:",
+   "frames": [
+    [
+     "emotes",
+     1767
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":iraq:",
+   "frames": [
+    [
+     "emotes",
+     1768
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":iran:",
+   "frames": [
+    [
+     "emotes",
+     1769
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":iceland:",
+   "frames": [
+    [
+     "emotes",
+     1770
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jersey:",
+   "frames": [
+    [
+     "emotes",
+     1771
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jamaica:",
+   "frames": [
+    [
+     "emotes",
+     1772
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":jordan:",
+   "frames": [
+    [
+     "emotes",
+     1773
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kenya:",
+   "frames": [
+    [
+     "emotes",
+     1774
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kyrgyzstan:",
+   "frames": [
+    [
+     "emotes",
+     1775
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cambodia:",
+   "frames": [
+    [
+     "emotes",
+     1776
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kiribati:",
+   "frames": [
+    [
+     "emotes",
+     1777
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":comoros:",
+   "frames": [
+    [
+     "emotes",
+     1778
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_kitts_nevis:",
+   "frames": [
+    [
+     "emotes",
+     1779
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":north_korea:",
+   "frames": [
+    [
+     "emotes",
+     1780
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kuwait:",
+   "frames": [
+    [
+     "emotes",
+     1781
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":cayman_islands:",
+   "frames": [
+    [
+     "emotes",
+     1782
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kazakhstan:",
+   "frames": [
+    [
+     "emotes",
+     1783
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":laos:",
+   "frames": [
+    [
+     "emotes",
+     1784
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lebanon:",
+   "frames": [
+    [
+     "emotes",
+     1785
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_lucia:",
+   "frames": [
+    [
+     "emotes",
+     1786
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":liechtenstein:",
+   "frames": [
+    [
+     "emotes",
+     1787
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sri_lanka:",
+   "frames": [
+    [
+     "emotes",
+     1788
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":liberia:",
+   "frames": [
+    [
+     "emotes",
+     1789
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lesotho:",
+   "frames": [
+    [
+     "emotes",
+     1790
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":lithuania:",
+   "frames": [
+    [
+     "emotes",
+     1791
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":luxembourg:",
+   "frames": [
+    [
+     "emotes",
+     1792
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":latvia:",
+   "frames": [
+    [
+     "emotes",
+     1793
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":libya:",
+   "frames": [
+    [
+     "emotes",
+     1794
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":morocco:",
+   "frames": [
+    [
+     "emotes",
+     1795
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":monaco:",
+   "frames": [
+    [
+     "emotes",
+     1796
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":moldova:",
+   "frames": [
+    [
+     "emotes",
+     1797
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":montenegro:",
+   "frames": [
+    [
+     "emotes",
+     1798
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_martin:",
+   "frames": [
+    [
+     "emotes",
+     1799
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":madagascar:",
+   "frames": [
+    [
+     "emotes",
+     1800
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":marshall_islands:",
+   "frames": [
+    [
+     "emotes",
+     1801
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":macedonia:",
+   "frames": [
+    [
+     "emotes",
+     1802
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mali:",
+   "frames": [
+    [
+     "emotes",
+     1803
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":myanmar:",
+   "frames": [
+    [
+     "emotes",
+     1804
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mongolia:",
+   "frames": [
+    [
+     "emotes",
+     1805
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":macau:",
+   "frames": [
+    [
+     "emotes",
+     1806
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":northern_mariana_islands:",
+   "frames": [
+    [
+     "emotes",
+     1807
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":martinique:",
+   "frames": [
+    [
+     "emotes",
+     1808
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mauritania:",
+   "frames": [
+    [
+     "emotes",
+     1809
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":montserrat:",
+   "frames": [
+    [
+     "emotes",
+     1810
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":malta:",
+   "frames": [
+    [
+     "emotes",
+     1811
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mauritius:",
+   "frames": [
+    [
+     "emotes",
+     1812
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":maldives:",
+   "frames": [
+    [
+     "emotes",
+     1813
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":malawi:",
+   "frames": [
+    [
+     "emotes",
+     1814
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mexico:",
+   "frames": [
+    [
+     "emotes",
+     1815
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":malaysia:",
+   "frames": [
+    [
+     "emotes",
+     1816
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mozambique:",
+   "frames": [
+    [
+     "emotes",
+     1817
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":namibia:",
+   "frames": [
+    [
+     "emotes",
+     1818
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":new_caledonia:",
+   "frames": [
+    [
+     "emotes",
+     1819
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":niger:",
+   "frames": [
+    [
+     "emotes",
+     1820
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":norfolk_island:",
+   "frames": [
+    [
+     "emotes",
+     1821
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nigeria:",
+   "frames": [
+    [
+     "emotes",
+     1822
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nicaragua:",
+   "frames": [
+    [
+     "emotes",
+     1823
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":netherlands:",
+   "frames": [
+    [
+     "emotes",
+     1824
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":norway:",
+   "frames": [
+    [
+     "emotes",
+     1825
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nepal:",
+   "frames": [
+    [
+     "emotes",
+     1826
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":nauru:",
+   "frames": [
+    [
+     "emotes",
+     1827
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":niue:",
+   "frames": [
+    [
+     "emotes",
+     1828
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":new_zealand:",
+   "frames": [
+    [
+     "emotes",
+     1829
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":oman:",
+   "frames": [
+    [
+     "emotes",
+     1830
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":panama:",
+   "frames": [
+    [
+     "emotes",
+     1831
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":peru:",
+   "frames": [
+    [
+     "emotes",
+     1832
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":french_polynesia:",
+   "frames": [
+    [
+     "emotes",
+     1833
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":papua_new_guinea:",
+   "frames": [
+    [
+     "emotes",
+     1834
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":philippines:",
+   "frames": [
+    [
+     "emotes",
+     1835
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pakistan:",
+   "frames": [
+    [
+     "emotes",
+     1836
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":poland:",
+   "frames": [
+    [
+     "emotes",
+     1837
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_pierre_miquelon:",
+   "frames": [
+    [
+     "emotes",
+     1838
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":pitcairn_islands:",
+   "frames": [
+    [
+     "emotes",
+     1839
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":puerto_rico:",
+   "frames": [
+    [
+     "emotes",
+     1840
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":palestinian_territories:",
+   "frames": [
+    [
+     "emotes",
+     1841
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":portugal:",
+   "frames": [
+    [
+     "emotes",
+     1842
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":palau:",
+   "frames": [
+    [
+     "emotes",
+     1843
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":paraguay:",
+   "frames": [
+    [
+     "emotes",
+     1844
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":qatar:",
+   "frames": [
+    [
+     "emotes",
+     1845
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":reunion:",
+   "frames": [
+    [
+     "emotes",
+     1846
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":romania:",
+   "frames": [
+    [
+     "emotes",
+     1847
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":serbia:",
+   "frames": [
+    [
+     "emotes",
+     1848
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":rwanda:",
+   "frames": [
+    [
+     "emotes",
+     1849
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":saudi_arabia:",
+   "frames": [
+    [
+     "emotes",
+     1850
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":solomon_islands:",
+   "frames": [
+    [
+     "emotes",
+     1851
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":seychelles:",
+   "frames": [
+    [
+     "emotes",
+     1852
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sudan:",
+   "frames": [
+    [
+     "emotes",
+     1853
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sweden:",
+   "frames": [
+    [
+     "emotes",
+     1854
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":singapore:",
+   "frames": [
+    [
+     "emotes",
+     1855
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_helena:",
+   "frames": [
+    [
+     "emotes",
+     1856
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":slovenia:",
+   "frames": [
+    [
+     "emotes",
+     1857
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":svalbard_jan_mayen:",
+   "frames": [
+    [
+     "emotes",
+     1858
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":slovakia:",
+   "frames": [
+    [
+     "emotes",
+     1859
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sierra_leone:",
+   "frames": [
+    [
+     "emotes",
+     1860
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":san_marino:",
+   "frames": [
+    [
+     "emotes",
+     1861
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":senegal:",
+   "frames": [
+    [
+     "emotes",
+     1862
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":somalia:",
+   "frames": [
+    [
+     "emotes",
+     1863
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":suriname:",
+   "frames": [
+    [
+     "emotes",
+     1864
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":south_sudan:",
+   "frames": [
+    [
+     "emotes",
+     1865
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sao_tome_principe:",
+   "frames": [
+    [
+     "emotes",
+     1866
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":el_salvador:",
+   "frames": [
+    [
+     "emotes",
+     1867
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":sint_maarten:",
+   "frames": [
+    [
+     "emotes",
+     1868
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":syria:",
+   "frames": [
+    [
+     "emotes",
+     1869
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":swaziland:",
+   "frames": [
+    [
+     "emotes",
+     1870
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tristan_da_cunha:",
+   "frames": [
+    [
+     "emotes",
+     1871
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":turks_caicos_islands:",
+   "frames": [
+    [
+     "emotes",
+     1872
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":chad:",
+   "frames": [
+    [
+     "emotes",
+     1873
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":french_southern_territories:",
+   "frames": [
+    [
+     "emotes",
+     1874
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":togo:",
+   "frames": [
+    [
+     "emotes",
+     1875
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":thailand:",
+   "frames": [
+    [
+     "emotes",
+     1876
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tajikistan:",
+   "frames": [
+    [
+     "emotes",
+     1877
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tokelau:",
+   "frames": [
+    [
+     "emotes",
+     1878
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":timor_leste:",
+   "frames": [
+    [
+     "emotes",
+     1879
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":turkmenistan:",
+   "frames": [
+    [
+     "emotes",
+     1880
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tunisia:",
+   "frames": [
+    [
+     "emotes",
+     1881
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tonga:",
+   "frames": [
+    [
+     "emotes",
+     1882
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tr:",
+   "frames": [
+    [
+     "emotes",
+     1883
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":trinidad_tobago:",
+   "frames": [
+    [
+     "emotes",
+     1884
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tuvalu:",
+   "frames": [
+    [
+     "emotes",
+     1885
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":taiwan:",
+   "frames": [
+    [
+     "emotes",
+     1886
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":tanzania:",
+   "frames": [
+    [
+     "emotes",
+     1887
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":ukraine:",
+   "frames": [
+    [
+     "emotes",
+     1888
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":uganda:",
+   "frames": [
+    [
+     "emotes",
+     1889
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":us_outlying_islands:",
+   "frames": [
+    [
+     "emotes",
+     1890
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":united_nations:",
+   "frames": [
+    [
+     "emotes",
+     1891
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":uruguay:",
+   "frames": [
+    [
+     "emotes",
+     1892
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":uzbekistan:",
+   "frames": [
+    [
+     "emotes",
+     1893
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vatican_city:",
+   "frames": [
+    [
+     "emotes",
+     1894
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":st_vincent_grenadines:",
+   "frames": [
+    [
+     "emotes",
+     1895
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":venezuela:",
+   "frames": [
+    [
+     "emotes",
+     1896
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":british_virgin_islands:",
+   "frames": [
+    [
+     "emotes",
+     1897
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":us_virgin_islands:",
+   "frames": [
+    [
+     "emotes",
+     1898
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vietnam:",
+   "frames": [
+    [
+     "emotes",
+     1899
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":vanuatu:",
+   "frames": [
+    [
+     "emotes",
+     1900
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wallis_futuna:",
+   "frames": [
+    [
+     "emotes",
+     1901
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":samoa:",
+   "frames": [
+    [
+     "emotes",
+     1902
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":kosovo:",
+   "frames": [
+    [
+     "emotes",
+     1903
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":yemen:",
+   "frames": [
+    [
+     "emotes",
+     1904
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":mayotte:",
+   "frames": [
+    [
+     "emotes",
+     1905
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":south_africa:",
+   "frames": [
+    [
+     "emotes",
+     1906
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zambia:",
+   "frames": [
+    [
+     "emotes",
+     1907
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":zimbabwe:",
+   "frames": [
+    [
+     "emotes",
+     1908
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":england:",
+   "frames": [
+    [
+     "emotes",
+     1909
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":scotland:",
+   "frames": [
+    [
+     "emotes",
+     1910
+    ]
+   ],
+   "scale": 1.0
+  },
+  {
+   "code": ":wales:",
+   "frames": [
+    [
+     "emotes",
+     1911
+    ]
+   ],
+   "scale": 1.0
   }
  ]
 }
