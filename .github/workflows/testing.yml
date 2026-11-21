@@ -8,6 +8,7 @@
 # - Closing one without merging it into main puts main back on Testing. A merge into main needs
 #   nothing here: its deploy (deploy.yml) installs main's world server on Testing too.
 # - "Run workflow" in the Actions tab deploys the branch it's run on.
+# - Each deploy also builds that commit's desktop client, as the run's artifact (the client job).
 #
 # Testing plays on the live Redis (through its tunnel to the game machine), so a pull request's
 # code reaches live data there: SETUP-LOCAL.md, "Pull requests on Testing", says what to keep off
@@ -88,3 +89,40 @@ jobs:
       - name: Forget the secrets
         if: always()
         run: rm -rf deploy/vps.local.json ~/.ssh/dodmg_deploy build/vps
+
+  # The desktop client from the same commit, to play Testing with: the run's artifact. Unsigned
+  # (no secrets here), so it never updates itself and no player's client takes it. It signs in at
+  # TESTING_CLIENT_ACCOUNT, by default the account server's plain port, whose clients reach world
+  # servers over TCP rather than through the gateway.
+  client:
+    if: >-
+      vars.TESTING_DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || (
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        !github.event.pull_request.draft && github.event.action != 'closed'))
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: client-rs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the client
+        env:
+          ACCOUNT: ${{ vars.TESTING_CLIENT_ACCOUNT || 'http://play.dodmg.com:8080' }}
+        run: python tools/build_client_rs.py --account "$ACCOUNT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Do-Damage-testing-${{ github.event.pull_request.number && format('pr{0}', github.event.pull_request.number) || format('run{0}', github.run_number) }}
+          path: build/client-rs/native
+          retention-days: 14
+      - name: Where it is
+        env:
+          ACCOUNT: ${{ vars.TESTING_CLIENT_ACCOUNT || 'http://play.dodmg.com:8080' }}
+        run: |
+          echo "The desktop client from $(git rev-parse --short=10 HEAD) is this run's artifact (Artifacts, below):" \
+               "unzip it, start betterskillys.exe, sign in as an admin and pick \"Testing (admin)\". It signs in at $ACCOUNT." >> "$GITHUB_STEP_SUMMARY"

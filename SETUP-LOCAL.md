@@ -511,12 +511,20 @@ web client, the website, the Discord bot and the desktop client stay as they are
   tab) deploys the branch it's run on. With several pull requests open, the last one pushed is on
   Testing. `deploy.py --status` says what Testing runs ("Testing runs: pull request #81, built
   ..."), and so does the run's summary.
-- **Trying it:** sign in as an admin (the `admin` flag or rank 6) and pick "Testing (admin)" in
-  the server list. Testing runs
-  the server half only: a pull request whose message or client change needs a new client too
-  needs that client built from its branch (`client-rs`, with `--account https://play.dodmg.com/api`).
-  Items and monsters added in XML exist on Testing only, so the released client draws them as it
-  can, and a character holding one carries it back into Europe 2, whose server doesn't know it.
+- **Trying it:** each run also builds that commit's desktop client (the `client` job, on
+  Windows): open the run (the pull request's checks, "Testing"), download the
+  `Do-Damage-testing-pr<number>` artifact under Artifacts, unzip it and start `betterskillys.exe`,
+  then sign in as an admin (the `admin` flag or rank 6) and pick "Testing (admin)" in the server
+  list. It has the pull request's client changes (new messages, art, XML), so both halves are
+  tried together. It isn't signed (the job has no secrets), so it never updates itself and no
+  player's client takes it; the artifact is kept 14 days. It signs in at
+  `TESTING_CLIENT_ACCOUNT` (a repository variable), by default `http://play.dodmg.com:8080`: the
+  account server's plain port, whose clients play over TCP, straight to Testing (the password
+  goes unencrypted, as with the oldest clients). Once 2.6.4's gateway is live, set it to
+  `https://play.dodmg.com/api` to go through the gateway over https instead. The released client
+  reaches Testing too (from 2.6.4), but with the server half only: items and monsters a pull
+  request adds are drawn as it can. A character holding one carries it back into Europe 2, whose
+  server doesn't know it.
 - **Live data:** Testing plays on the game's Redis (its tunnel), so a pull request's code reads and
   writes the live database, players' accounts included. Keep changes to what's saved (new or
   renamed Redis keys, migrations, anything that rewrites accounts or characters) off Testing until
