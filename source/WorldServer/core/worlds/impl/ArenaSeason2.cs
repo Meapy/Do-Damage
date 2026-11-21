@@ -238,7 +238,7 @@ namespace WorldServer.core.worlds.impl
             E("The Ice Cave", 3, ["ic Esben the Unwilling"], ["Big Yeti", "Mini Yeti", "Snow Bat Mama", "ic shielded king"]),
             E("The Cursed Library", 3, ["Library Avalon the Archivist"], ["Library Deholder", "Library Eye of the Edified", "Library Lips of the Lost", "Library Hand of the Helpless", "Library Headless Specter", "Library Soulless Scholar"]),
             E("The Haunted Graves", 3, ["Arena Grave Caretaker"], ["Arena Risen Brawler", "Arena Risen Warrior", "Arena Risen Mage", "Arena Risen Archer"]),
-            E("Skuld's Crypt", 3, ["Ghost of Skuld"], ["Zombie Hulk", "Classic Ghost", "Werewolf", "Flying Flame Skull"]),
+            E("Skuld's Crypt", 3, ["Ghost of Skuld"], ["Zombie Hulk", "Classic Ghost", "Werewolf"]),
             E("The Sphinx's Court", 3, ["Grand Sphinx"], ["Horrid Reaper", "Jackal Warrior", "Jackal Veteran", "Lion Archer"]),
             E("The Beach Bash", 3, ["Masked Party God"], Godlands),
             E("The Ocean Trench", 3, ["Thessal the Mermaid Goddess"], ["Fishman", "Sea Mare", "Giant Squid", "Sea Horse", "Fishman Warrior"]),
@@ -277,7 +277,7 @@ namespace WorldServer.core.worlds.impl
             E("The Elder Tomb", 5, ["Elder Tomb Defender", "Elder Tomb Support", "Elder Tomb Attacker"], ElderTombGuard),
             E("The Cnidarian Reef", 5, ["CR Royal Cnidarian"], ["CR Blue Cnidarian", "CR Green Cnidarian", "CR Pink Cnidarian", "CR Gold Cnidarian"]),
             E("The Lost Sentry", 5, ["LH Lost Sentry"], ["Elder LH Oryx Admiral", "Elder LH Oryx Armorbearer", "Elder LH Oryx Swordsman"]),
-            E("The Elder Graveyard", 5, ["Elder Ghost of Skuld"], ["Elder Zombie Hulk", "Elder Werewolf", "Elder Classic Ghost", "Elder Flying Flame Skull"]),
+            E("The Elder Graveyard", 5, ["Elder Ghost of Skuld"], ["Elder Zombie Hulk", "Elder Werewolf", "Elder Classic Ghost"]),
             E("The Doorwarden", 5, ["md Janus the Doorwarden"], OryxGuard),
 
             // 6: legends

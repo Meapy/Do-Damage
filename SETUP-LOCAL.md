@@ -2685,6 +2685,23 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   crystals), the Marble Colossus (his rocks never die, so both Lost Halls) and Elder Malus
   (untouchable while his lieutenants are away); NM Green Dragon God Deux waits for Malphas Deux's
   death, so it only comes in the Battle for the Nexus Showdown.
+- **The Arena keeps its fights in the ring** (2026-11-20; `DoomedBattleArena` in
+  `DoomedWorlds.cs`, `World.MonsterMayStand`, `Entity.ValidateAndMove`, `MoveTo`,
+  `BehaviorDb.HauntedCemeteryGraves.cs`, `Dungeons/Admin Arena.jm`): while the gates are shut a
+  monster's move that would leave the ring's inside (`_inside`, gateways not included) doesn't
+  happen, and `MoveTo` to a spot of its own dungeon's map outside the ring is skipped (the Ghost of
+  Skuld's teleports to (24, 18) and the like took him over the walls); anything out anyway (a
+  teleport, a toss) is put back on the nearest floor each tick, where before it was taken away
+  (so its wave ended without it). Once no boss (a fight name, `HealthBarBoss` or `Quest`) or
+  monster of the fight's own pools is left and nothing more is to come, what's still about after
+  `StragglerMs` (15 s) is taken away (`ClearStragglers`): the Grave Caretaker's blue flames waited
+  where he left them once he died, holding the wave up. Those flames now hunt the players when no
+  Caretaker is within 20 tiles (state `Hunt`, in the Cemetery too), and Skuld's always-invulnerable
+  flame skulls are no longer in the Arena's monster lists (he brings his own). `/arenatest probe`
+  shuts the gates as a game does and reports what ever went outside the ring. The map (also the
+  Admin Arena's) is 8 tiles wider and taller: columns 46 and 70 and rows 50 and 74, plain floor
+  between the side rooms and the middle, each copied four times without their decorations
+  (132 × 135, was 124 × 127); monsters spawn within 22 tiles of the middle (was 18).
 
 ## Classes, minigames and the economy
 

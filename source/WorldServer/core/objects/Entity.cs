@@ -553,6 +553,10 @@ namespace WorldServer.core.objects
         {
             var pos = new FPoint();
             ResolveNewLocation(x, y, pos);
+            // a monster stays where its world allows (the Arena's ring), unless it's already out
+            // (the world brings it back)
+            if (this is Enemy && World != null && !World.MonsterMayStand(pos.X, pos.Y) && World.MonsterMayStand(X, Y))
+                return;
             Move(pos.X, pos.Y);
             // up or down a stair, on stacked floors
             if (World?.Levels != null)

@@ -477,7 +477,19 @@ namespace WorldServer.logic
                         new Orbit(speed: 1.6, radius: 1.5, acquireRange: 15, target: N("Arena Grave Caretaker")),
                         // (round the Elder Caretaker raised again too, core/resurrection)
                         elder ? new Orbit(speed: 1.6, radius: 1.5, acquireRange: 15, target: "Empowered Elder Arena Grave Caretaker") : null,
-                        new PlayerWithinTransition(dist: 3, targetState: "AttackPlayer", seeInvis: true)
+                        new PlayerWithinTransition(dist: 3, targetState: "AttackPlayer", seeInvis: true),
+                        // its Caretaker gone, it seeks the players out rather than waiting
+                        // where he left it (in the Arena, it held the next wave back)
+                        elder
+                            ? new EntitiesNotExistsTransition(20, "Hunt", N("Arena Grave Caretaker"), "Empowered Elder Arena Grave Caretaker")
+                            : new EntitiesNotExistsTransition(20, "Hunt", N("Arena Grave Caretaker"))
+                    ),
+                    new State("Hunt",
+                        new Prioritize(
+                            new Follow(speed: 1, acquireRange: 30, range: 0.5),
+                            new Wander(speed: 0.5)
+                        ),
+                        new PlayerWithinTransition(dist: 1, targetState: "Explode", seeInvis: true)
                     ),
                     new State("AttackPlayer",
                         new Charge(speed: 4.1, range: 9),

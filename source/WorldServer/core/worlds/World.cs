@@ -598,6 +598,10 @@ namespace WorldServer.core.worlds
             return level < 0 ? z : SurfaceOf(level, Levels[level][(int)x, (int)y]);
         }
 
+        /// <summary>Whether a monster may stand at (x, y): the Arena keeps its fights inside its
+        /// ring (DoomedBattleArena); anywhere else, wherever its movement takes it.</summary>
+        public virtual bool MonsterMayStand(float x, float y) => true;
+
         /// <summary>IsPassable for a player at height z.</summary>
         public bool IsPassableAt(double x, double y, float z)
         {

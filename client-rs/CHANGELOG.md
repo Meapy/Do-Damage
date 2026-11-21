@@ -20,6 +20,12 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Scrying Glass
 - The big view shows the gear of the player you're watching (hover an item to see it), and its new **Ask to join** button asks them to let you in where they are, realms too: they answer Yes or No as with `/visit`.
 
+### Arena
+- The Arena's ring is bigger, 8 tiles wider and taller. Bosses and their monsters can no longer leave the ring or go over its walls, and what a boss leaves behind (such as the Grave Caretaker's blue flames) no longer holds up the next wave.
+
+### Dungeons
+- The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them.
+
 ## 2.6.2 (2026-11-20)
 
 ### Skins

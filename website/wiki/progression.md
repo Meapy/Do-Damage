@@ -254,7 +254,10 @@ boss rising and a boss rush's next boss get banners of their own.
   for help, shields or rage.
 - **The ring:** you arrive in the forest outside a walled ring and walk in through one of its four
   gateways while the countdown runs. When the game starts the gates shut, and anyone still outside
-  or in a gateway is moved just inside. Mind the lava inside the walls.
+  or in a gateway is moved just inside. Mind the lava inside the walls. Once the gates are shut,
+  monsters stay inside the ring too: none can cross its walls, and one that gets out anyway is put
+  back on the nearest floor. Once a wave's bosses and its own monsters are dead, whatever they
+  summoned that's still about 15 seconds later fades away, so the next wave isn't held up.
 - **Where:** the **Arena** portal, a sand pit sunk into the floor of the Nexus's shrine of the
   realm portals (north-west of the spawn, west of Realm 2's vortex), or `/arena` from anywhere: both lead
   to the same game. Everyone who goes in before a game's countdown ends plays that game. Once a
