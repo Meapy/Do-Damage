@@ -146,7 +146,7 @@ pub const TIMESPANS: [(&str, &str); 4] = [("week", mark("This week")), ("month",
 pub const RECENT: usize = 3;
 
 /// The game's Discord server: where the bot that links accounts is.
-pub const DISCORD_INVITE: &str = "discord.gg/FVhqJe8CG";
+pub const DISCORD_INVITE: &str = "discord.gg/YTYWTFDRCD";
 
 /// What the player types to the Discord bot with their code.
 fn link_command(code: &str) -> String {

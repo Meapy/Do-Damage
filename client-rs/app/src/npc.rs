@@ -246,6 +246,8 @@ pub enum Window {
     Prompt { prompt: Prompt, input: String, error: Option<String>, busy: bool },
     /// Leave the guild?
     Renounce,
+    /// `/discord`: the server's invite, to open in the browser.
+    Discord,
     /// The board's text once it has come, and the text being edited.
     Board { text: Option<String>, edit: Option<String>, error: Option<String> },
     Members { list: Option<Guild>, page: usize, error: Option<String> },
@@ -269,6 +271,8 @@ pub enum Act {
     CreateGuild(String),
     /// Leave the guild (`GuildRemove` with our own name).
     Renounce,
+    /// Open the Discord invite in the browser.
+    OpenDiscord,
     SaveBoard(String),
     ChangeRank(String, i32),
     Remove(String),
@@ -408,9 +412,10 @@ impl Npcs {
             return None;
         }
         let hit = self.buttons.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h)?;
-        if hit == Hit::Close || (hit == Hit::Submit && matches!(self.window, Some(Window::Renounce))) {
+        if hit == Hit::Close || (hit == Hit::Submit && matches!(self.window, Some(Window::Renounce | Window::Discord))) {
+            let act = if matches!(self.window, Some(Window::Discord)) { Act::OpenDiscord } else { Act::Renounce };
             self.close();
-            return (hit == Hit::Submit).then_some(Act::Renounce);
+            return (hit == Hit::Submit).then_some(act);
         }
         let my_rank = me.map_or(0, |m| int(m, stat::GUILD_RANK));
         match (hit, self.window.as_mut()?) {
@@ -498,6 +503,10 @@ impl Npcs {
                 self.close();
                 return Some(Act::Renounce);
             }
+            Window::Discord if enter => {
+                self.close();
+                return Some(Act::OpenDiscord);
+            }
             Window::Prompt { prompt, input, busy, error } => {
                 if enter {
                     return submit(*prompt, input, busy, error);
@@ -556,6 +565,7 @@ impl Npcs {
             Window::Skins { skins, .. } => (520.0, 120.0 + 112.0 * skins.len().div_ceil(SKIN_COLUMNS).max(1) as f32),
             Window::Prompt { .. } => (360.0, 230.0),
             Window::Renounce => (360.0, 180.0),
+            Window::Discord => (400.0, 200.0),
             Window::Board { .. } => (440.0, 400.0),
             // The guild's summary, then as tall as the list (paged past MEMBER_ROWS).
             Window::Members { list, .. } => {
@@ -588,6 +598,7 @@ impl Npcs {
             Window::Prompt { prompt: Prompt::Name, .. } => tr("Choose a name").to_owned(),
             Window::Prompt { prompt: Prompt::Guild, .. } => tr("Create a guild").to_owned(),
             Window::Renounce => tr("Leave the guild").to_owned(),
+            Window::Discord => tr("Join our Discord").to_owned(),
             Window::Board { .. } => tr("Guild board").to_owned(),
             Window::Members { list, .. } => list.as_ref().map_or(tr("Guild members").to_owned(), |l| l.name.clone()),
             Window::Potions { .. } => tr("Potion storage").to_owned(),
@@ -706,6 +717,12 @@ impl Npcs {
                 ui.label(&tf!("Leave {guild}?", guild = g), body[0], body[1], font(15.0), true, color::TEXT);
                 ui.label(tr("You'll need an invitation to come back."), body[0], body[1] + 26.0 * s, font(12.0), false, color::TEXT_DIM);
                 buttons.push((Hit::Submit, tr("Renounce").to_owned(), Kind::Danger));
+            }
+            Window::Discord => {
+                ui.label(crate::screens::DISCORD_INVITE, body[0], body[1], font(17.0), true, color::GOLD);
+                let line = fit(ui, tr("Updates, server status, help and trading. Open it to join."), font(12.0), body[2]);
+                ui.label(&line, body[0], body[1] + 30.0 * s, font(12.0), false, color::TEXT_DIM);
+                buttons.push((Hit::Submit, tr("Open").to_owned(), Kind::Primary));
             }
             Window::Board { text, edit, error } => {
                 let box_r = [body[0], body[1], body[2], body[3] - 50.0 * s];

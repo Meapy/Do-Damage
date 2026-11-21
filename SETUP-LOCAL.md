@@ -560,7 +560,7 @@ itself disconnects everyone once). What it would take:
 
 ## Discord
 
-The game's Discord server is https://discord.gg/FVhqJe8CG. Its bot (`tools/discord/`, the application "DiscMod", shown there as Do Damage with the crown icon) runs on the VPS as `bsk-discord` and:
+The game's Discord server is https://discord.gg/YTYWTFDRCD (since 2026-11-21; the invite is in `screens::DISCORD_INVITE`, `DiscordCommand.Invite`, `tools/discord/dodmg.py`, `tools/build_wiki.py`, the website's pages and `globalNews.json`). In game, `/discord` opens a window with the invite and an Open button (the Rust client answers it itself, `npc::Window::Discord`; older clients get the server's `DiscordCommand`, the invite in chat). Its bot (`tools/discord/`, the application "DiscMod", shown there as Do Damage with the crown icon) runs on the VPS as `bsk-discord` and:
 
 - posts each release to #updates when it goes live: the version's changelog sections, a link to the changelog page, and a ping of the **Updates** role, which members turn on or off with `/updates`;
 - keeps one message in #server-status up to date (players online, the 24-hour peak and 7 days' uptime, from `/api/app/status`, or the server list if that isn't there);
@@ -2703,7 +2703,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   shuts the gates as a game does and reports what ever went outside the ring. The map (also the
   Admin Arena's) is 8 tiles wider and taller: columns 46 and 70 and rows 50 and 74, plain floor
   between the side rooms and the middle, each copied four times without their decorations
-  (132 × 135, was 124 × 127); monsters spawn within 22 tiles of the middle (was 18).
+  (132 × 135, was 124 × 127); monsters spawn within 22 tiles of the middle (was 18). Since
+  2026-11-21 (`ClearUntouchable`): once no boss is left (a round's boss name, `HealthBarBoss` or
+  `Quest`, nothing more to come), a monster untouchable (Invulnerable, Invincible, Stasis or
+  Paused) for `UntouchableMs` (20 s) on end is taken away, even one of the fight's own pools: the
+  Reef's Cnidarians, dealt from the tier's pool into wave 37's Cultist Hideout, stayed invulnerable
+  with no Royal to free them. They now go to `Free` when no Royal Cnidarian is within 15 tiles
+  (`BehaviorDb.CnidarianReef.cs`, in the Reef too).
 
 ## Classes, minigames and the economy
 

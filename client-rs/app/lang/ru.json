@@ -281,6 +281,8 @@
 "Heals": "Лечит",
 "Heals you and allies nearby": "Лечит вас и союзников рядом",
 "Heals {n} HP": "Лечит {n} ОЗ",
+"Join our Discord": "Присоединяйся к нашему Discord",
+"Updates, server status, help and trading. Open it to join.": "Обновления, статус сервера, помощь и торговля. Открой, чтобы присоединиться.",
 "You and allies within {range} sqrs take {n}% less damage, for {time} secs": "Вы и союзники в радиусе {range} клеток получаете на {n}% меньше урона в течение {time} с",
 "Forcefield": "Силовое поле",
 "Ward": "Оберег",

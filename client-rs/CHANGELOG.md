@@ -21,13 +21,16 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The big view shows the gear of the player you're watching (hover an item to see it), and its new **Ask to join** button asks them to let you in where they are, realms too: they answer Yes or No as with `/visit`.
 
 ### Arena
-- The Arena's ring is bigger, 8 tiles wider and taller. Bosses and their monsters can no longer leave the ring or go over its walls, and what a boss leaves behind (such as the Grave Caretaker's blue flames) no longer holds up the next wave.
+- The Arena's ring is bigger, 8 tiles wider and taller. Bosses and their monsters can no longer leave the ring or go over its walls, and what a boss leaves behind (such as the Grave Caretaker's blue flames) or a monster that stays invulnerable with no boss left no longer holds up the next wave.
 
 ### Items
 - The Cloak of the Planewalker's cooldown shows what it really is, 6 seconds (it said 1.5), and the Prism of the Bloody Surprise's 3.5 seconds: the time you're invisible plus the half second you must be seen before using them again. The cooldown bar now waits that long too.
 
 ### Dungeons
-- The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them.
+- The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them, and the Cnidarian Reef's jellyfish can be hit once the Royal Cnidarian is gone (in the Arena they stayed invulnerable for good).
+
+### Game
+- `/discord` shows the invite to the Do Damage Discord with a button that opens it, and the Discord links in the game and on the website point to its new invite.
 
 ## 2.6.2 (2026-11-20)
 
@@ -1371,7 +1374,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
   each of the last 7 days the realm was up.
 
 ### Discord
-- Do Damage has a Discord server: https://discord.gg/FVhqJe8CG. Every update is posted in
+- Do Damage has a Discord server: https://discord.gg/YTYWTFDRCD. Every update is posted in
   #updates as soon as it's out (type `/updates` there to get pinged), #server-status shows who's
   online, and `/status`, `/online`, `/wiki` and `/play` answer in any channel. The website and the wiki link to it at the
   top of every page.

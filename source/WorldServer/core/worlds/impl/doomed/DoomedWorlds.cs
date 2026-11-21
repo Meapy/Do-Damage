@@ -717,7 +717,9 @@ namespace WorldServer.core.worlds.impl.doomed
 
             // what the fight brings of its own (ClearStragglers): its bosses and its monsters
             _fightNames = rounds.SelectMany(r => r.AllBosses.Concat(r.MinionPool).Concat(r.TierPool)).ToHashSet();
+            _fightBosses = rounds.SelectMany(r => r.AllBosses).ToHashSet();
             _stragglerMs = 0;
+            _untouchableMs.Clear();
 
             _golden = rounds.Any(r => r.Twist == ArenaTwist.Golden);
             LootRate = _golden ? 1 : ArenaPools.LootRate;
@@ -1110,9 +1112,52 @@ namespace WorldServer.core.worlds.impl.doomed
         private bool OfTheFight(Enemy e) =>
             _fightNames.Contains(e.ObjectDesc.IdName) || e.ObjectDesc.HealthBarBoss || e.ObjectDesc.Quest;
 
+        // And once no boss is left, a monster that has stayed untouchable for UntouchableMs on end
+        // fades too, even one of the fight's own: one that waits for its boss to set it free (the
+        // Reef's Cnidarians round the Royal), dealt into another dungeon's round, never would be.
+        public const int UntouchableMs = 20000;
+        private readonly Dictionary<Enemy, int> _untouchableMs = new Dictionary<Enemy, int>();
+        private HashSet<string> _fightBosses = new HashSet<string>();
+
+        private bool IsBoss(Enemy e) =>
+            _fightBosses.Contains(e.ObjectDesc.IdName) || e.ObjectDesc.HealthBarBoss || e.ObjectDesc.Quest;
+
+        private static bool Untouchable(Enemy e) =>
+            e.HasConditionEffect(ConditionEffectIndex.Invulnerable) || e.HasConditionEffect(ConditionEffectIndex.Invincible)
+            || e.HasConditionEffect(ConditionEffectIndex.Stasis) || e.HasConditionEffect(ConditionEffectIndex.Paused);
+
+        private void ClearUntouchable(List<Enemy> left, int dt)
+        {
+            var bossLeft = _relay.Count > 0 || _empoweredNext != null || _empowered != null || left.Any(IsBoss);
+            foreach (var e in _untouchableMs.Keys.Where(e => e.Dead || e.World != this).ToList())
+                _untouchableMs.Remove(e);
+            var faded = false;
+            foreach (var e in left)
+            {
+                if (bossLeft || !Untouchable(e))
+                {
+                    _untouchableMs.Remove(e);
+                    continue;
+                }
+                var ms = (_untouchableMs.TryGetValue(e, out var had) ? had : 0) + dt;
+                if (ms < UntouchableMs)
+                {
+                    _untouchableMs[e] = ms;
+                    continue;
+                }
+                _untouchableMs.Remove(e);
+                LeaveWorld(e);
+                faded = true;
+            }
+            if (faded)
+                NotifyAll(0xffff00ff, "The stragglers fade away.");
+        }
+
         private void ClearStragglers(int dt)
         {
             var left = Hostiles.ToList();
+            ClearUntouchable(left, dt);
+            left = Hostiles.ToList();
             if (left.Count == 0 || _relay.Count > 0 || _empoweredNext != null || _empowered != null || left.Any(OfTheFight))
             {
                 _stragglerMs = 0;

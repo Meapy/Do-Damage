@@ -473,6 +473,11 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
     false
 }
 
+/// `/discord`, which the client answers itself (`npc::Window::Discord`).
+fn is_discord(line: &str) -> bool {
+    line.trim().eq_ignore_ascii_case("/discord")
+}
+
 /// Carry out what the player did in an NPC's window. Returns a board to save, if any.
 fn npc_act(act: npc::Act, game: &mut Game, npcs: &mut npc::Npcs, now: i32) -> Option<String> {
     use npc::Act;
@@ -492,6 +497,7 @@ fn npc_act(act: npc::Act, game: &mut Game, npcs: &mut npc::Npcs, now: i32) -> Op
         Act::ChooseName(name) => game.choose_name(&name),
         Act::CreateGuild(name) => game.create_guild(&name),
         Act::Renounce => game.guild_remove(&me),
+        Act::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
         Act::SaveBoard(board) => return Some(board),
         Act::ChangeRank(name, rank) => {
             game.change_guild_rank(&name, rank);
@@ -3271,13 +3277,23 @@ impl App {
                 self.hud.minimap_zoom = self.hud.minimap_zoom.min(hud::minimap_levels(world).len() - 1);
             }
             for line in self.chat_send.drain(..) {
-                game.say(&line);
+                // /discord stays here: the invite in a window, to open in the browser
+                if is_discord(&line) {
+                    self.npcs.open(npc::Window::Discord);
+                } else {
+                    game.say(&line);
+                }
             }
             if !self.say.is_empty()
                 && self.say_sent_in.is_none_or(|(join, at)| join != game.reconnects || now - at >= 3000)
                 && game.world.as_ref().is_some_and(|w| w.player().is_some())
             {
-                game.say(&self.say.remove(0));
+                let line = self.say.remove(0);
+                if is_discord(&line) {
+                    self.npcs.open(npc::Window::Discord);
+                } else {
+                    game.say(&line);
+                }
                 self.say_sent_in = Some((game.reconnects, now));
             }
             prof::mark("pre");

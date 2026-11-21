@@ -49,6 +49,7 @@ SRC = os.path.join(ROOT, "website", "wiki")
 COMMAND_HELP = {
     "commands": "Lists every command you can use.",
     "wiki": "Sends you a link to the <a href=\"https://www.dodmg.com/wiki\">Do Damage wiki</a>.",
+    "discord": "Shows the invite to the <a href=\"https://discord.gg/YTYWTFDRCD\">Do Damage Discord</a>, with a button that opens it so you can join.",
     "nexus": "Back to the Nexus from anywhere (the <kbd>R</kbd> key does the same).",
     "realm": "Into Realm 2, the one its Nexus portal leads to, from anywhere (as <code>/realm2</code>). See <a href=\"realm-2.html\">Realm 2</a>.",
     "realm2": "Into Realm 2, the one its Nexus portal leads to, from anywhere. See <a href=\"realm-2.html\">Realm 2</a>.",
@@ -1380,7 +1381,7 @@ TEMPLATE = """<!doctype html>
       <a href="{home}" aria-current="page">Wiki</a>
       <a href="{site}gold.html">Gold</a>
       <a href="{site}changelog.html">Changelog</a>
-      <a href="https://discord.gg/FVhqJe8CG">Discord</a>
+      <a href="https://discord.gg/YTYWTFDRCD">Discord</a>
     </nav>
     <a class="bar-link" href="{home}" aria-current="page">Wiki</a>
     <a class="pill-play" href="{site}play/">Play now</a>
