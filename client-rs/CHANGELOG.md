@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.3 (2026-11-21)
 
 ### Skins
 - The Armoire in the Nexus sells skins now: it shows every skin of your class with its price, and buying one puts it straight on. Skins that need a level or the Realm Pass show what they need.
