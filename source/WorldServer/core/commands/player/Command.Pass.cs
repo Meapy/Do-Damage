@@ -8,7 +8,8 @@ namespace WorldServer.core.commands
 {
     public abstract partial class Command
     {
-        // The Realm Pass in the chat (the pass window, Y or the Wayfarer, claims it).
+        // The Realm Pass in the chat (the pass window, Y or the Wayfarer, claims it); /pass title
+        // [on|off] shows or hides the Gilded pass's [Gilded] chat title.
         internal class PassCommand : Command
         {
             public override RankingType RankRequirement => RankingType.Regular;
@@ -23,6 +24,14 @@ namespace WorldServer.core.commands
                 if (!book.Active)
                 {
                     player.SendInfo("<Realm Pass> No season is running.");
+                    return true;
+                }
+                var words = (args ?? "").Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length > 0 && words[0] == "title")
+                {
+                    // "on" or "off", or the other way from now
+                    var show = words.Length > 1 ? words[1] is "on" or "show" or "1" : book.State.HideTitle;
+                    player.SendInfo($"<Realm Pass> {pass.SetTitle(show).Message}");
                     return true;
                 }
                 var left = book.Season.EndsAt - QuestTracker.Now;

@@ -29,6 +29,7 @@ pub mod act {
     pub const AURA: u8 = 3;
     pub const COLOR: u8 = 4;
     pub const CACHE: u8 = 5;
+    pub const TITLE: u8 = 6;
 }
 
 /// `PassReward` kinds (`PassRewardInfo.Kind*`).
@@ -52,6 +53,8 @@ mod code {
     pub const AURA_OFF: u8 = 5;
     pub const COLOR_WORN: u8 = 6;
     pub const COLOR_OFF: u8 = 7;
+    pub const TITLE_SHOWN: u8 = 8;
+    pub const TITLE_HIDDEN: u8 = 9;
     pub const NO_SEASON: u8 = 20;
     pub const GUEST: u8 = 21;
     pub const NOT_REACHED: u8 = 22;
@@ -62,6 +65,7 @@ mod code {
     pub const PRICE_CHANGED: u8 = 27;
     pub const NOT_OWNED: u8 = 28;
     pub const NO_CACHE: u8 = 29;
+    pub const NOT_GILDED: u8 = 33;
 }
 
 /// What earns pass XP (`PassSource`), named for the window and the pills.
@@ -110,6 +114,8 @@ pub enum Act {
     Aura(u8),
     Color(u8),
     Caches,
+    /// The Gilded chat title shown (true) or hidden.
+    Title(bool),
 }
 
 impl Act {
@@ -122,6 +128,7 @@ impl Act {
             Act::Aura(id) => (act::AURA, id as i32),
             Act::Color(id) => (act::COLOR, id as i32),
             Act::Caches => (act::CACHE, 0),
+            Act::Title(show) => (act::TITLE, show as i32),
         }
     }
 }
@@ -179,6 +186,8 @@ enum Hit {
     Jump(usize),
     Aura(u8),
     Color(u8),
+    /// The Gilded chat title's switch.
+    Title,
     Dismiss,
 }
 
@@ -434,6 +443,9 @@ impl Pass {
             code::PRICE_CHANGED => tr("The price has changed: have another look.").into(),
             code::NOT_OWNED => tr("You don't have that yet.").into(),
             code::NO_CACHE => tr("No Wayfarer's Cache to open yet.").into(),
+            code::TITLE_SHOWN => tr("Your [Gilded] title shows in chat.").into(),
+            code::TITLE_HIDDEN => tr("Your [Gilded] title is hidden in chat.").into(),
+            code::NOT_GILDED => tr("Only a Gilded pass has the chat title.").into(),
             _ => r.message.clone(),
         }
     }
@@ -468,6 +480,7 @@ impl Pass {
             }
             Hit::Aura(id) => return Some(Act::Aura(id)),
             Hit::Color(id) => return Some(Act::Color(id)),
+            Hit::Title => return d.and_then(|d| d.show_title).map(|shown| Act::Title(!shown)),
             Hit::Dismiss => self.reveal = None,
         }
         None
@@ -557,7 +570,7 @@ impl Pass {
                 Tab::Rewards => self.draw_track(ui, &d, body, s, mouse, now),
                 Tab::Earn => self.draw_earn(ui, &d, body, s),
                 Tab::Looks => self.draw_looks(ui, &d, me, body, s, mouse, now),
-                Tab::Perks => self.draw_perks(ui, &d, body, s, now),
+                Tab::Perks => self.draw_perks(ui, &d, body, s, mouse, now),
             }
         }
         let foot_y = r[1] + r[3] - 32.0 * s;
@@ -1060,7 +1073,7 @@ impl Pass {
 
     /// What the Gilded pass does while it's held, beside its track's rewards: a card each, lit
     /// once the pass is Gilded.
-    fn draw_perks(&mut self, ui: &mut Ui, d: &PassData, body: [f32; 4], s: f32, now: i32) {
+    fn draw_perks(&mut self, ui: &mut Ui, d: &PassData, body: [f32; 4], s: f32, mouse: (f64, f64), now: i32) {
         let font = |size: f32| (size * s).round().max(9.0);
         ui.label(tr("What the Gilded pass gives"), body[0], body[1], font(16.0), true, color::GOLD);
         let sub = if d.gilded {
@@ -1079,7 +1092,14 @@ impl Pass {
         if d.community_luck > 0 || d.community_rolls > 0 {
             perks.push((2, tr("Luckier community goal loot"), tr("A Gilded pass makes each stage's loot luckier, with an extra roll.").to_owned()));
         }
-        perks.push((3, tr("A title in chat"), tr("Your name in chat wears a gold [Gilded] title with a glint of its own.").to_owned()));
+        // the title can be hidden (a server from 2.6.3 says whether it is)
+        let hidden = d.gilded && d.show_title == Some(false);
+        let title_text = if hidden {
+            tr("Hidden for now: your name shows in chat without the [Gilded] title.")
+        } else {
+            tr("Your name in chat wears a gold [Gilded] title with a glint of its own.")
+        };
+        perks.push((3, tr("A title in chat"), title_text.to_owned()));
         perks.push((4, tr("The Gilded track"), tr("Every Gilded reward you've passed is waiting on the track.").to_owned()));
 
         let cols = if body[2] > 640.0 * s { 2 } else { 1 };
@@ -1110,10 +1130,21 @@ impl Pass {
                 3 => ui_icon(ui, crate::hud::ui_icon::BANNER, ix, iy, 26.0 * s),
                 _ => ui_icon(ui, crate::hud::ui_icon::CROWN, ix, iy, 26.0 * s),
             }
-            // the state, top right: on, or what turns it on
-            let (state, sc) = if lit { (tr("Active"), color::GOOD) } else { (tr("Gilded only"), color::TEXT_MUTED) };
-            let sw = ui.measure(state, font(11.0), true);
-            ui.label(state, r[0] + r[2] - sw - 12.0 * s, r[1] + 10.0 * s, font(11.0), true, sc);
+            // the state, top right: on, or what turns it on; the chat title's a switch to hide or
+            // show it
+            let sw = if lit && *icon == 3 && d.show_title.is_some() {
+                let label = if hidden { tr("Show") } else { tr("Hide") };
+                let bw = ui.measure(label, font(11.0), true) + 24.0 * s;
+                let b = [r[0] + r[2] - bw - 8.0 * s, r[1] + 6.0 * s, bw, 22.0 * s];
+                ui.button(b, label, if hidden { Kind::Primary } else { Kind::Secondary }, inside(b, mouse), s);
+                self.hits.push((Hit::Title, b));
+                bw - 4.0 * s
+            } else {
+                let (state, sc) = if lit { (tr("Active"), color::GOOD) } else { (tr("Gilded only"), color::TEXT_MUTED) };
+                let sw = ui.measure(state, font(11.0), true);
+                ui.label(state, r[0] + r[2] - sw - 12.0 * s, r[1] + 10.0 * s, font(11.0), true, sc);
+                sw
+            };
             let tx = r[0] + 54.0 * s;
             ui.label_fit(title, tx, r[1] + 10.0 * s, r[2] - (tx - r[0]) - sw - 24.0 * s, font(14.0), true, if lit { GILD_LIGHT } else { color::TEXT });
             let lines = crate::npc::wrap(ui, text, font(12.0), r[2] - (tx - r[0]) - 12.0 * s);
@@ -1845,5 +1876,14 @@ mod tests {
         p.hits = vec![(Hit::Claim(3), [20.0, 0.0, 10.0, 10.0])];
         assert_eq!(p.click((25.0, 5.0)), Some(Act::Claim(3)));
         assert_eq!(Tab::named("looks"), Some(Tab::Looks));
+        // the Gilded chat title's switch asks for the other state; an older server has none
+        assert_eq!(Act::Title(false).wire(), (act::TITLE, 0));
+        p.hits = vec![(Hit::Title, [0.0, 0.0, 10.0, 10.0])];
+        assert_eq!(p.click((5.0, 5.0)), None);
+        let mut d = data(5_000, true);
+        d.show_title = Some(true);
+        p.event(Event::Data(Box::new(d)), 0);
+        p.hits = vec![(Hit::Title, [0.0, 0.0, 10.0, 10.0])];
+        assert_eq!(p.click((5.0, 5.0)), Some(Act::Title(false)));
     }
 }

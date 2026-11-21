@@ -248,7 +248,7 @@ namespace WorldServer.core.miscfile
                 Txt = text,
                 NameColor = nameColor,
                 TextColor = textColor,
-                Title = player.Pass != null && player.Pass.IsGilded ? Text.TitleGilded : (byte)0
+                Title = player.Pass != null && player.Pass.ShowsTitle ? Text.TitleGilded : (byte)0
             };
 
             // a player who is leaving has no account any more: skip them

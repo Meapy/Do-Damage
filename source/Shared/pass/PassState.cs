@@ -28,6 +28,8 @@ namespace Shared.pass
         [JsonProperty("color")] public int Color { get; set; }
         // seasons whose Gilded track the account had (for the record and the Wayfarer's greetings)
         [JsonProperty("past")] public List<string> GildedSeasons { get; set; } = new List<string>();
+        // the Gilded pass's [Gilded] chat title turned off (kept from season to season)
+        [JsonProperty("notitle")] public bool HideTitle { get; set; }
 
         public bool FreeTaken(int tier) => (FreeClaimed & (1L << tier)) != 0;
         public bool GildedTaken(int tier) => (GildedClaimed & (1L << tier)) != 0;

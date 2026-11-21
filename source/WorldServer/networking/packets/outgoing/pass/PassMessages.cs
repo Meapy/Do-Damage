@@ -74,6 +74,8 @@ namespace WorldServer.networking.packets.outgoing.pass
         public int NextStartsAt;
         // what a Gilded pass adds to the community goals' loot: Overdrive levels of luck, rolls a stage
         public byte CommunityLuck, CommunityRolls;
+        // the [Gilded] chat title shown (PassAct 6 turns it on and off; older clients leave it unread)
+        public bool ShowTitle = true;
 
         public override MessageId MessageId => MessageId.PASS_DATA;
 
@@ -124,6 +126,7 @@ namespace WorldServer.networking.packets.outgoing.pass
             wtr.Write(NextStartsAt);
             wtr.Write(CommunityLuck);
             wtr.Write(CommunityRolls);
+            wtr.Write(ShowTitle);
         }
 
         private static void WriteCosmetics(NetworkWriter wtr, List<PassCosmeticInfo> list)

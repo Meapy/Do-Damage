@@ -18,9 +18,9 @@ namespace Shared.pass
     // count; Message is the English for anything else.
     public enum PassCode : byte
     {
-        Claimed = 0, ClaimedAll = 1, Unlocked = 2, CacheOpened = 3, AuraWorn = 4, AuraOff = 5, ColorWorn = 6, ColorOff = 7,
+        Claimed = 0, ClaimedAll = 1, Unlocked = 2, CacheOpened = 3, AuraWorn = 4, AuraOff = 5, ColorWorn = 6, ColorOff = 7, TitleShown = 8, TitleHidden = 9,
         NoSeason = 20, Guest = 21, NotReached = 22, AlreadyClaimed = 23, NothingToClaim = 24, NotEnoughGold = 25,
-        AlreadyGilded = 26, PriceChanged = 27, NotOwned = 28, NoCache = 29, Failed = 30, NotHere = 31, Busy = 32,
+        AlreadyGilded = 26, PriceChanged = 27, NotOwned = 28, NoCache = 29, Failed = 30, NotHere = 31, Busy = 32, NotGilded = 33,
     }
 
     public sealed class PassClaim
@@ -347,6 +347,17 @@ namespace Shared.pass
                 return PassClaim.Fail(PassCode.NotOwned, "You don't have that name colour.");
             State.Color = id;
             return new PassClaim { Ok = true, Code = PassCode.ColorWorn, Count = id, Message = $"Your name shows in {Data.Color(id).Name}." };
+        }
+
+        // The Gilded pass's [Gilded] title in chat, shown or hidden (only while the pass is Gilded).
+        public PassClaim ShowTitle(bool show)
+        {
+            if (!Active || !State.Gilded)
+                return PassClaim.Fail(PassCode.NotGilded, "Only a Gilded pass has the chat title.");
+            State.HideTitle = !show;
+            return show
+                ? new PassClaim { Ok = true, Code = PassCode.TitleShown, Message = "Your [Gilded] title shows in chat." }
+                : new PassClaim { Ok = true, Code = PassCode.TitleHidden, Message = "Your [Gilded] title is hidden in chat." };
         }
 
         // The community goals' loot while the pass is Gilded: Overdrive levels of luck, and rolls more.

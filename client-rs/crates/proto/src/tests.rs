@@ -503,6 +503,10 @@ fn pass_messages_match_pass_tracker() {
     assert_eq!((d.cache[0].item, d.sources.len(), d.sources[1].amount, d.dungeon_step), (0x0a1f, 2, 5, 15));
     assert_eq!((d.auras[0].name.as_str(), d.auras[0].owned, d.aura, d.colors.len()), ("Frostcrown", true, 2, 0));
     assert_eq!((d.next_name.as_str(), d.next_starts_at, d.community_luck, d.community_rolls), ("Emberwake", 30, 1, 1));
+    // an older server stops there; a newer one says whether the Gilded chat title shows
+    assert_eq!(d.show_title, None);
+    let ServerMessage::PassData(d) = ServerMessage::decode(172, &B(b.0.clone()).u8(0).0).unwrap() else { panic!() };
+    assert_eq!(d.show_title, Some(false));
     // PassXp.Write and PassResult.Write
     let ServerMessage::PassXp(x) = ServerMessage::decode(173, &B::default().i32(150).u8(0).i32(2_650).u8(2).u8(1).0).unwrap() else { panic!() };
     assert_eq!((x.gained, x.source, x.xp, x.tier, x.momentum), (150, 0, 2_650, 2, true));

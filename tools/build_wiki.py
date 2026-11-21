@@ -65,7 +65,7 @@ COMMAND_HELP = {
     "forge": "To the Divine Forge in the Nexus, from anywhere: you arrive in front of it, ready to forge or sell.",
     "quests": "Your quests, today's reward and your achievements in the chat (the <kbd>J</kbd> key opens the quest log, where you claim them).",
     "warcaller": "To the Warcaller on the Nexus's Arena island, from anywhere: you arrive in front of him, ready to see the <a href=\"community-goals.html\">community goals</a> and claim their rewards.",
-    "pass": "Your <a href=\"realm-pass.html\">Realm Pass</a> in the chat: the season, your tier, the XP to the next and the time left (<kbd>Y</kbd> opens the pass itself).",
+    "pass": "Your <a href=\"realm-pass.html\">Realm Pass</a> in the chat: the season, your tier, the XP to the next and the time left (<kbd>Y</kbd> opens the pass itself). <code>/pass title off</code> hides a Gilded pass's [Gilded] chat title, <code>/pass title on</code> shows it again.",
     "goals": "This week's <a href=\"community-goals.html\">community goals</a> in the chat: how far the realm has come, and your part. The Warcaller on the Nexus's Arena island shows them and pays their rewards.",
     "champions": "The Hall of Champions in the chat: every board's top three and your own places and rewards. The Champions Monument in the Nexus's east ward shows it all.",
     "market": "To the Market Broker in the Nexus's market square, from anywhere: the <a href=\"marketplace.html\">Marketplace</a>, where players sell to each other for fame.",

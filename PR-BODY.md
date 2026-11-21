@@ -1,4 +1,4 @@
-Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, a bigger Arena that keeps its bosses in the ring and never sticks on an invulnerable monster, /discord and the new Discord invite; deploys client, world servers, account server, website and the Discord bot (players are not disconnected)
+Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, a bigger Arena that keeps its bosses in the ring and never sticks on an invulnerable monster, /discord and the new Discord invite, the Gilded chat title can be hidden; deploys client, world servers, account server, website and the Discord bot (players are not disconnected)
 
 ## For players
 
@@ -9,6 +9,7 @@ Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, 
 - **Items:** the **Cloak of the Planewalker**'s tooltip said its cooldown was 1.5 seconds, but since 2.6.1 it can't be used again until you've been seen for half a second after its 5.5 seconds of invisibility: 6 seconds in all. Its cooldown is now **6 seconds**, so the tooltip, the wiki and the ability's cooldown bar say so, instead of the bar filling at 1.5 s and the cloak then buzzing an error. The **Prism of the Bloody Surprise** (3 s invisible) now has a **3.5 second** cooldown for the same reason (it had none of its own, so 0.5 s).
 - **Arena:** a wave no longer sticks on a monster that can't be hurt. At wave 37 (the Cultist Hideout) a Green Cnidarian, dealt in from the Cnidarian Reef, stayed invulnerable for good: the Reef's jellyfish wait for the Royal Cnidarian to set them free. They now break free when no Royal is near (in the Reef too, if he falls first), and once a wave has no boss left, any monster that has stayed untouchable for 20 seconds fades away.
 - **Game:** **`/discord`** shows the invite to the Do Damage Discord in a window with an **Open** button that opens it in your browser (older clients get the link in chat), and every Discord link (the client's Discord button and account-linking steps, the website, the wiki, the news) points to the new invite, discord.gg/YTYWTFDRCD.
+- **Realm Pass:** a Gilded pass's gold **[Gilded]** title in chat can now be turned off and on: the "A title in chat" card in the pass's **Gilded perks** tab has a **Hide** button (then **Show**, its text saying the title is hidden for now), and `/pass title off`, `/pass title on` (or plain `/pass title` to switch) do the same from chat. The choice is kept from season to season; without a Gilded pass there's nothing to hide.
 
 ## Details
 
@@ -63,6 +64,13 @@ Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, 
 - **Left as they are (false positives):** account ids in log lines ("cleartext storage of sensitive information": an account id isn't a secret), the gateway's plain-http requests to the account server on the same machine, `deploy.py` writing the Discord bot's `discord.env` (the deploy's job), and `bot.py`'s `--dry-run`/`--try` printing a made-up or test-account password. Each wants dismissing in GitHub's Security tab.
 - **Deploys:** account server, website and client; nobody is disconnected; no Redis changes. Nothing players can notice.
 
+### Hiding the Gilded chat title
+
+- **What:** the pass state keeps `HideTitle` (`"notitle"` in the account's `pass` JSON, `PassState.cs`), kept when a new season starts. `PassBook.ShowTitle` sets it, only while the pass is Gilded (`PassCode.TitleShown` 8, `TitleHidden` 9, `NotGilded` 33). `PassTracker`: `ShowsTitle` (Gilded and not hidden) is what `ChatManager.Say` now asks for the `Text` title; `PassAct` 6 (`TITLE`, value 1 show, 0 hide) is the window's switch; `SetTitle` serves `/pass title [on|off]` (`Command.Pass.cs`), apart from `Act` so the window's 150 ms limit can't swallow it. `PassData` ends with `ShowTitle` (bool).
+- **Client:** `crates/proto` reads `show_title: Option<bool>` at the end of `PassData`; `pass.rs` has `Act::Title`, the Hide/Show button on the title card (only when the pass is Gilded and the server says), and the three result texts. Six new lines, translated in every `client-rs/app/lang/*.json`.
+- **Docs:** CHANGELOG (Realm Pass), `website/wiki/realm-pass.md`, the `/pass` line in `tools/build_wiki.py`'s command help.
+- **Deploys:** client and world server. Nobody is disconnected. Redis: a new optional field in the `pass` JSON, nothing migrated (missing means shown). An older client has no button but `/pass title` works for it; a newer client on an older server shows the card as before.
+
 ## Checks
 
 - Scrying Glass: `dotnet build` of the solution; `dotnet test --filter Visit` (35, with a new `TheGlassReachesRealmsButNotTheRest`); `cargo test -p bsk-client` (110 with the i18n checks). Isolated stack (slot 2), two new accounts: a bot (`bsk-bot --say /realm2 --visit-answer yes`) in Realm 2, the client in the Nexus with `--npc ScryingGlass`. The big view showed the bot's Level 20 Wizard with its Energy Staff and robe in the gear box, and hovering the staff showed its tooltip. Clicking Ask to join: the bot logged the visit request "into Maelstrom", answered Yes, and the client's chat said "Asked Targetabc…" then "Targetabc let you in." and it arrived in Realm 2. With `--visit-answer no`: "Targetabc didn't let you in." showed in red under the picture.
@@ -76,3 +84,4 @@ Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, 
 - `/discord`: `cargo test -p bsk-client` (111, with the i18n checks). On the isolated stack the client with `--say "/discord"` showed the window ("Join our Discord", discord.gg/YTYWTFDRCD, Open). The Open button's browser launch wasn't clicked in the test. The wiki builds with `/discord` in its command list.
 
 - Code scanning: `dotnet build` of the account server; `cargo test -p bsk-client grave` (2 passed); `node --check website/wiki/wiki.js`. The alerts close on GitHub's next scan of `main`.
+- Gilded title: `dotnet test --filter PassBook` (12, with a new `GildedTitleTurnsOffAndOnAndOutlastsTheSeason`); `cargo test -p bsk-proto` and `-p bsk-client` (111, with the i18n checks). Isolated stack (slot 1), Tester made admin there, `/passadmin gilded`, `--pass perks`: the title card showed **Hide**; `/pass title off` turned it to **Show** with "Hidden for now..." and "hello hidden" came in chat as a plain `<Tester>`; `/pass title` switched it back and "hello shown" came as `[Gilded] <Tester>`, the open window's button following each time; clicking Show sent the switch (logged "shows the Gilded title"). Not looked at in German or Russian.
