@@ -511,7 +511,8 @@ web client, the website, the Discord bot and the desktop client stay as they are
   tab) deploys the branch it's run on. With several pull requests open, the last one pushed is on
   Testing. `deploy.py --status` says what Testing runs ("Testing runs: pull request #81, built
   ..."), and so does the run's summary.
-- **Trying it:** sign in as an admin and pick "Testing (admin)" in the server list. Testing runs
+- **Trying it:** sign in as an admin (the `admin` flag or rank 6) and pick "Testing (admin)" in
+  the server list. Testing runs
   the server half only: a pull request whose message or client change needs a new client too
   needs that client built from its branch (`client-rs`, with `--account https://play.dodmg.com/api`).
   Items and monsters added in XML exist on Testing only, so the released client draws them as it
@@ -715,7 +716,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (`/opt/bsk/testing.txt`). The gateway sends a bridge straight to a world server slot only when
   its target is this machine's own proxy (a loopback host); before, any target on port 2051 was,
   so browser and https players picking Testing landed on Europe 2 (`client-rs/gateway/src/world.rs`,
-  `is_local_proxy`).
+  `is_local_proxy`). Testing lets in rank 6 as well as the `admin` flag (`DbAccount.IsAdmin`, in
+  `HelloHandler` and `MessageHandlers.IsEnabledOrAdminOnly`).
 - **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
   (`Dungeons/The Crucible/The Crucible.jm`, 48x460, `<World id="The Crucible">` in Dungeons.xml:
   Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
