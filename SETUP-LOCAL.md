@@ -712,7 +712,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
   server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`
   back (see "Pull requests on Testing"). `deploy.py --status` says what Testing runs
-  (`/opt/bsk/testing.txt`).
+  (`/opt/bsk/testing.txt`). The gateway sends a bridge straight to a world server slot only when
+  its target is this machine's own proxy (a loopback host); before, any target on port 2051 was,
+  so browser and https players picking Testing landed on Europe 2 (`client-rs/gateway/src/world.rs`,
+  `is_local_proxy`).
 - **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
   (`Dungeons/The Crucible/The Crucible.jm`, 48x460, `<World id="The Crucible">` in Dungeons.xml:
   Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by

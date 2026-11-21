@@ -54,10 +54,9 @@ impl Router {
         cached.1.clone()
     }
 
-    /// Whether `target` (the address a bridge would connect to) is the proxy's own port.
+    /// Whether `target` (the address a bridge would connect to) is this machine's own world proxy.
     pub fn is_proxy(&self, target: &str) -> bool {
-        let st = self.state();
-        st.front_port != 0 && target.rsplit_once(':').and_then(|(_, p)| p.parse::<u16>().ok()) == Some(st.front_port)
+        is_local_proxy(&self.state(), target)
     }
 
     /// A connection to the world server for a Hello with this game id (or another first message,
@@ -95,6 +94,17 @@ fn parse_state(text: &str) -> Option<WorldState> {
         active: v.get("active")?.as_str()?.to_owned(),
         ports,
     })
+}
+
+/// Whether `target` is the proxy's port on this machine. Only a loopback host counts: another
+/// machine's world server on the same port (Testing, 169.58.244.146:2051, beside Europe 2's
+/// 127.0.0.1:2051) is its own, so its connections go there rather than to a slot here.
+fn is_local_proxy(st: &WorldState, target: &str) -> bool {
+    let Some((host, port)) = target.rsplit_once(':') else { return false };
+    let host = host.trim_start_matches('[').trim_end_matches(']');
+    let local = host.eq_ignore_ascii_case("localhost")
+        || host.parse::<std::net::IpAddr>().is_ok_and(|ip| ip.is_loopback());
+    st.front_port != 0 && local && port.parse::<u16>().ok() == Some(st.front_port)
 }
 
 /// The slot a Hello with this game id goes to.
@@ -166,6 +176,19 @@ mod tests {
         assert_eq!(route(&st, Some(2_000_001)), "b");
         assert_eq!(route(&st, Some(3_000_000)), "b");
         assert_eq!(route(&st, None), "b");
+    }
+
+    #[test]
+    fn only_this_machines_proxy_is_routed() {
+        let st = state();
+        assert!(is_local_proxy(&st, "127.0.0.1:2051"));
+        assert!(is_local_proxy(&st, "localhost:2051"));
+        assert!(is_local_proxy(&st, "[::1]:2051"));
+        // another machine's world server on the same port (Testing) is connected to as it is
+        assert!(!is_local_proxy(&st, "169.58.244.146:2051"));
+        assert!(!is_local_proxy(&st, "play.dodmg.com:2051"));
+        assert!(!is_local_proxy(&st, "127.0.0.1:2052"));
+        assert!(!is_local_proxy(&WorldState::default(), "127.0.0.1:2051"));
     }
 
     #[test]
