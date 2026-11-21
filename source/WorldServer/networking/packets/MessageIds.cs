@@ -260,6 +260,9 @@ public enum MessageId : byte
     COMMUNITY_BOOST = 175,
     GUIDE_SUBSCRIBE = 176,
     DUNGEON_GUIDE = 177,
+    // The Crucible's climb (Rust client 2.6.4, CrucibleWorld.cs): lobby countdowns, ascents,
+    // champions arriving, their phases, floors cleared and the victory, for its banners and sky.
+    CRUCIBLE = 175,
     // From the world proxy (tools/world_proxy.py), before the client's first message: the
     // client's address. Only taken on a connection from this PC; clients never send it.
     PROXY_INFO = 250

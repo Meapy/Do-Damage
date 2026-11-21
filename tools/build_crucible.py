@@ -1,0 +1,780 @@
+"""Builds the Crucible, the boss-only tower over the Arena: five floors floating one above another in
+an ember-lit sky, each with a champion of its own, climbed in one run.
+
+    python tools/build_crucible.py [--preview <folder>]
+
+The map, from south to north (the tower is climbed northwards; each floor is 70 tiles from the
+next, out of sight of it):
+
+- the Threshold: a small round landing with four braziers, where players arrive (Spawn region)
+  and wait for the climb to begin;
+- I, the Iron Bastion: an octagon of iron flagstones round eight iron pillars (Ferrogrim);
+- II, the Drowned Sanctum: a disc of sea-glass mosaic, a ring of shallows, five coral isles that
+  stay dry when the tide comes in, coral spires (Nerissa);
+- III, the Ember Foundry: a rounded square of iron plate with braziers at its corners (Pyrrhax);
+- IV, the Clockwork Orrery: a clock face, its twelve numerals round the rim, orrery pylons
+  (Chronarch);
+- V, the Apex: a marble disc inlaid with an eight-pointed sigil, four obelisks banded in the
+  floors' colours (Vaelith, the Crucible Sovereign).
+
+Between them is open sky: no ground at all, so the Rust client draws its Crucible sky there
+(`<Background>9</Background>`, cruciblesky.rs) and hangs rock under the floors' edges (islands.rs,
+with the `Crucible Underside` grounds). An invisible Heart stands at each floor's centre: the
+champions order it to change the floor (BehaviorDb.Crucible.cs), so all of it is centred on the
+floor and comes and goes with its states. The run itself (the climb, the champions' arrivals, the
+ascents between floors) is CrucibleWorld.cs, which reads each floor's centre from its Heart.
+
+Outputs (generated, don't edit):
+- the map, source/Shared/resources/worlds/Dungeons/The Crucible/The Crucible.jm;
+- CrucibleGrounds.xml and CrucibleObjects.xml, in source/Shared/resources/xml/custom and the
+  client's custom/xmls;
+- the sheets Crucible8x8.png, Crucible16x16.png, CrucibleChars16x16.png and
+  CrucibleChars32x32.png in the client's custom/images (registered for the Rust client by
+  tools/gen_rs_manifest.py).
+The art is drawn by tools/crucible/bosses.py (the champions, 32x32) and small.py (everything
+else). Type codes are kept stable in tools/crucible/types.json (0xC600-0xC7FF). Needs Pillow.
+"""
+import base64
+import json
+import math
+import os
+import sys
+import xml.etree.ElementTree as ET
+import zlib
+
+from PIL import Image
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from crucible import bosses, small  # noqa: E402
+from black_between.bosses import spectral  # noqa: E402
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
+CLIENT = os.path.join(ROOT, "client", "src", "kabam", "rotmg", "assets")
+IMAGES = os.path.join(CLIENT, "custom", "images")
+OUT_MAP = os.path.join(ROOT, "source", "Shared", "resources", "worlds", "Dungeons", "The Crucible", "The Crucible.jm")
+OUT_XML = {
+    "grounds": [os.path.join(XML_DIR, "custom", "CrucibleGrounds.xml"),
+                os.path.join(CLIENT, "custom", "xmls", "CrucibleGrounds.xml")],
+    "objects": [os.path.join(XML_DIR, "custom", "CrucibleObjects.xml"),
+                os.path.join(CLIENT, "custom", "xmls", "CrucibleObjects.xml")],
+}
+TYPES = os.path.join(ROOT, "tools", "crucible", "types.json")
+GROUND_TYPES = (0xC600, 0xC640)
+OBJECT_TYPES = (0xC640, 0xC800)
+SHEET8 = ("crucible8x8", "Crucible8x8.png")
+SHEET16 = ("crucible16x16", "Crucible16x16.png")
+CHARS16 = ("crucibleChars16x16", "CrucibleChars16x16.png")
+CHARS32 = ("crucibleChars32x32", "CrucibleChars32x32.png")
+
+
+# ------------------------------------------------------------------------------------------------
+# types and sheets (as tools/build_black_between.py)
+
+class Types:
+    def __init__(self):
+        self.types = json.load(open(TYPES)) if os.path.exists(TYPES) else {}
+
+    def get(self, key, span):
+        if key not in self.types:
+            used = {int(v, 16) for v in self.types.values()}
+            self.types[key] = "0x%04X" % next(t for t in range(*span) if t not in used)
+        return self.types[key]
+
+    def save(self):
+        with open(TYPES, "w", newline="\n") as f:
+            json.dump(self.types, f, indent=1, sort_keys=True)
+            f.write("\n")
+
+
+class Grid:
+    def __init__(self, cell, cols):
+        self.cell, self.cols, self.cells = cell, cols, []
+
+    def add(self, img):
+        assert img.size[0] <= self.cell and img.size[1] <= self.cell, img.size
+        self.cells.append(img)
+        return len(self.cells) - 1
+
+    def write(self, path):
+        rows = max(1, (len(self.cells) + self.cols - 1) // self.cols)
+        sheet = Image.new("RGBA", (self.cols * self.cell, rows * self.cell), (0, 0, 0, 0))
+        for i, img in enumerate(self.cells):
+            ox = (i % self.cols) * self.cell + (self.cell - img.size[0]) // 2
+            oy = (i // self.cols) * self.cell + (self.cell - img.size[1])
+            sheet.paste(img, (ox, oy))
+        sheet.save(path)
+
+
+class Chars:
+    """A character sheet: a row of seven cells each (stand, walk 1, walk 2, unused, attack 1,
+    attack 2, the attack's second cell)."""
+
+    def __init__(self, size):
+        self.size, self.rows = size, []
+
+    def add(self, frames, attack):
+        f = list(frames) + [frames[0]] * (3 - len(frames))
+        self.rows.append([f[0], f[1], f[2], f[0], f[1], attack])
+        return len(self.rows) - 1
+
+    def write(self, path):
+        s = self.size
+        sheet = Image.new("RGBA", (s * 7, s * max(1, len(self.rows))), (0, 0, 0, 0))
+        for r, frames in enumerate(self.rows):
+            for i, img in enumerate(frames):
+                sheet.paste(img, (i * s, r * s))
+        sheet.save(path)
+
+
+def sub(parent, tag, text=None, **attrs):
+    e = ET.SubElement(parent, tag, {k.rstrip("_"): str(v) for k, v in attrs.items()})
+    if text is not None:
+        e.text = str(text)
+    return e
+
+
+def texture(parent, file, index, tag="Texture"):
+    t = sub(parent, tag)
+    sub(t, "File", file)
+    sub(t, "Index", index if tag == "AnimatedTexture" else "0x%02x" % index)
+    return t
+
+
+def foe(pid, obj, damage, speed, life, size=100, effects=(), amplitude=None, frequency=None, piercing=False):
+    """An enemy's shot: it goes on through whoever it hits (MultiHit), so each player has to dodge it."""
+    p = ET.Element("Projectile", {"id": str(pid)})
+    sub(p, "ObjectId", obj)
+    sub(p, "Damage", damage)
+    sub(p, "Speed", speed)
+    sub(p, "LifetimeMS", life)
+    sub(p, "Size", size)
+    if amplitude is not None:
+        sub(p, "Amplitude", amplitude)
+        sub(p, "Frequency", frequency)
+    sub(p, "MultiHit")
+    if piercing:
+        sub(p, "ArmorPiercing")
+    for effect, duration in effects:
+        sub(p, "ConditionEffect", effect, duration=duration)
+    return p
+
+
+# ------------------------------------------------------------------------------------------------
+# grounds: name -> (minimap colour, extras); the art is small.TILES
+
+FLOW = ("Flow", {"dx": ".35"})
+WAVE = ("Wave", {"dx": "0.3", "dy": "0.3"})
+GROUNDS = {
+    "Threshold Stone": ("0x3A3640", {}),
+    "Threshold Rim": ("0x4E4858", {}),
+    "Bastion Flagstone": ("0x3C414C", {}),
+    "Bastion Rim": ("0x565E6E", {}),
+    "Bastion Inlay": ("0x6A3A1A", {}),
+    "Grinding Blade": ("0xC4482C", {"MinDamage": 110, "MaxDamage": 140}),
+    "Molten Grate": ("0xD8600E", {"MinDamage": 130, "MaxDamage": 160}),
+    "Sanctum Mosaic": ("0x1F5A60", {}),
+    "Sanctum Rim": ("0x2C6A6A", {}),
+    "Coral Isle": ("0x7A4A5A", {}),
+    "Sanctum Shallows": ("0x2E96A2", {"Animate": WAVE}),
+    # the flood: deep water slows you and grinds at you; the surge hits hard
+    "Deep Tide": ("0x0E4466", {"Speed": 0.55, "Sink": None, "MinDamage": 40, "MaxDamage": 60, "Animate": FLOW}),
+    "Surging Tide": ("0x5AC8E0", {"MinDamage": 150, "MaxDamage": 180, "Animate": FLOW}),
+    "Foundry Plate": ("0x2E2624", {}),
+    "Foundry Rim": ("0x4A3A30", {}),
+    "Forge Lava": ("0xFF6A14", {"MinDamage": 160, "MaxDamage": 200, "Animate": WAVE}),
+    "Cooling Slag": ("0x4A2418", {}),
+    "Orrery Dial": ("0x3A3248", {}),
+    "Orrery Rim": ("0x7A4E18", {}),
+    "Dial Numeral": ("0xC08A30", {}),
+    "Chime Light": ("0xF2D282", {"MinDamage": 140, "MaxDamage": 170}),
+    "Hour Hand": ("0xB01818", {"MinDamage": 150, "MaxDamage": 180}),
+    "Apex Marble": ("0xC8C4D4", {}),
+    "Apex Rim": ("0xD8A428", {}),
+    "Apex Sigil": ("0xFFE68A", {}),
+    "Sovereign Flame": ("0xFFD04A", {"MinDamage": 170, "MaxDamage": 210, "Animate": WAVE}),
+    # where something is about to come up through the floor, or the floor is about to fall away:
+    # harmless, a warning
+    "Crumbling Floor": ("0x3A3036", {}),
+    "Crucible Warning": ("0x8A4A1E", {}),
+    "Crucible Underside Rock": ("0x2A2230", {}),
+    "Crucible Underside Rim": ("0x4A3E50", {}),
+}
+# the warning's art: the floor glowing ember-orange in stripes, harmless
+small.TILES["Crucible Warning"] = (small.pattern(["#5a2a14", "#8a4a1e", "#c86a24"], lambda x, y, s: (x + y + s) % 3), 2)
+
+
+def grounds(types, sheet):
+    art = small.tiles()
+    out = []
+    for name, (colour, extra) in GROUNDS.items():
+        e = ET.Element("Ground", {"type": types.get(name, GROUND_TYPES), "id": name})
+        rt = sub(e, "RandomTexture")
+        for img in art[name]:
+            texture(rt, SHEET8[0], sheet.add(img))
+        for k, v in extra.items():
+            if k == "Animate":
+                sub(e, "Animate", v[0], **v[1])
+            elif v is None:
+                sub(e, k)
+            else:
+                sub(e, k, v)
+        sub(e, "Color", colour)
+        out.append(e)
+    return out
+
+
+# ------------------------------------------------------------------------------------------------
+# objects
+
+# The champions (32x32, BehaviorDb.Crucible.cs): name -> (art, size, health, defence, alt textures,
+# [projectiles]). Health and defence here are the base: BossStats sets them in the fight.
+ARMOR_BROKEN = ("Armor Broken", 2)
+CHAMPIONS = {
+    "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 150000, 60, ["Ferrogrim, Iron Tempest"], [
+        foe(0, "Iron Shard", 140, 80, 2200),
+        foe(1, "Hammer Wave", 190, 55, 3000, 160, effects=[ARMOR_BROKEN]),
+        foe(2, "Iron Shard", 120, 60, 2600),
+        foe(3, "Hammer Wave", 160, 70, 2400, 140),
+    ]),
+    "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 180000, 50, ["Nerissa, Maelstrom"], [
+        foe(0, "Trident Bolt", 160, 95, 2200),
+        foe(1, "Tide Orb", 140, 50, 3600, 120, effects=[("Slowed", 1.5)], amplitude=1.0, frequency=0.6),
+        foe(2, "Bubble", 110, 40, 4000, 110, effects=[("Slowed", 1)]),
+        foe(3, "Trident Bolt", 150, 120, 1800),
+    ]),
+    "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 210000, 70, ["Pyrrhax, Molten Core"], [
+        foe(0, "Magma Ball", 200, 60, 2800, 150),
+        foe(1, "Cinder", 140, 100, 1800),
+        foe(2, "Cinder", 130, 70, 2400),
+        foe(3, "Magma Ball", 160, 45, 3600, 120),
+    ]),
+    "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 240000, 80, ["Chronarch, Reversal"], [
+        foe(0, "Gear Shot", 140, 60, 3000, 110),
+        foe(1, "Hand Blade", 170, 110, 2000),
+        foe(2, "Chrono Orb", 150, 45, 4000, 120, effects=[("Slowed", 2)]),
+        foe(3, "Gear Shot", 130, 75, 2600),
+    ]),
+    "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 360000, 90,
+                                        ["Vaelith, Ascendant", "Vaelith, Unbound"], [
+        foe(0, "Sovereign Lance", 200, 120, 2200),
+        foe(1, "Flame Feather", 160, 70, 3000, 110, amplitude=1.2, frequency=0.5),
+        foe(2, "Sovereign Star", 150, 60, 3400),
+        foe(3, "Void Ember", 190, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN]),
+        foe(4, "Flame Feather", 170, 130, 1600),
+    ]),
+}
+# copies that fight beside a champion: name -> (art, size, [projectiles])
+ECHOES = {
+    # Chronarch's echoes in his Time Fracture: him to the life, but untouchable
+    "Hour Echo": ("Hour Echo", 115, [foe(0, "Hand Blade", 150, 100, 2000), foe(1, "Gear Shot", 120, 60, 2600)]),
+    # the fallen champions' ghosts on the Apex
+    "Echo of Ferrogrim": ("Echo of Ferrogrim", 110, [foe(0, "Hammer Wave", 170, 55, 3000, 150)]),
+    "Echo of Nerissa": ("Echo of Nerissa", 110, [foe(0, "Tide Orb", 150, 50, 3600, 120, effects=[("Slowed", 1)])]),
+    "Echo of Pyrrhax": ("Echo of Pyrrhax", 110, [foe(0, "Magma Ball", 170, 55, 3000, 140)]),
+    "Echo of Chronarch": ("Echo of Chronarch", 110, [foe(0, "Chrono Orb", 150, 45, 4000, 120, effects=[("Slowed", 1.5)])]),
+}
+# minions (16x16): name -> (health, defence, size, static, [projectiles])
+MINIONS = {
+    "Iron Sentinel": (9000, 40, 110, True, [foe(0, "Iron Shard", 110, 70, 2400)]),
+    "Bastion Banner": (6000, 30, 120, True, [foe(0, "Iron Shard", 90, 50, 2000)]),
+    "Riptide Eel": (4000, 20, 100, False, [foe(0, "Bubble", 100, 60, 1600, effects=[("Slowed", 1)])]),
+    "Molten Golem": (7000, 30, 110, False, [foe(0, "Cinder", 110, 80, 1400)]),
+    "Clockwork Sentry": (5000, 35, 100, False, [foe(0, "Gear Shot", 110, 70, 2000)]),
+}
+IMMUNE = ("StunImmune", "ParalyzeImmune", "PetrifyImmune", "SlowedImmune", "DazedImmune")
+# who sounds like whom (existing sounds)
+SOUNDS = {
+    "Ferrogrim, the Iron Warden": "monster/golems_hit", "Nerissa, the Tidecaller": "monster/snake_queen_hit",
+    "Pyrrhax, the Forge Tyrant": "monster/demons_hit", "Chronarch, the Hour Thief": "monster/golems_hit",
+    "Vaelith, the Crucible Sovereign": "monster/ghost_god_hit",
+}
+# the floors' Hearts (invisible): the champions order them to change the floor
+HEARTS = ["Bastion Heart", "Sanctum Heart", "Foundry Heart", "Orrery Heart", "Apex Heart"]
+# scenery: name -> (art frames, size, blocks)
+SCENERY = {
+    "Bastion Pillar": ([small.pillar("iron", f) for f in range(2)], 140, True),
+    "Coral Spire": ([small.pillar("coral", f) for f in range(3)], 130, True),
+    "Foundry Brazier": ([small.pillar("forge", f) for f in range(4)], 130, True),
+    "Orrery Pylon": ([small.pillar("orrery", f) for f in range(4)], 130, True),
+    "Apex Obelisk": ([small.pillar("apex", f) for f in range(2)], 150, True),
+    "Threshold Brazier": ([small.brazier(f) for f in range(3)], 120, True),
+}
+
+
+# the white bags (1% each from the champion of their floor): name -> what the item is. The
+# numbers in the tooltips are the server's (Player.CruciblePowers.cs, and the turret's slam in
+# BehaviorDb.Crucible.cs): change both together. "activate": the item's own <Activate>s (text,
+# attributes); "power": its <RelicPower>; "stats": (stat, amount) on equip
+WHITES = {
+    "Ferrogrim's Bastion Turret": dict(
+        slot=32, sound="spell/light_heal", mp=150, cooldown=0, power="BastionTurret",
+        stats=[(0, 60), (3, 60), (21, 6), (28, 4)],
+        activate=[("BuildTower", dict(objectId="Bastion Turret", duration=20))],
+        description="Ferrogrim's own sentinel, folded down for a Mechanic to raise. It fires three iron shards at a "
+                    "time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor "
+                    "broken, and allies beside it are Armored while it holds.",
+        info=[("Turret", "20 secs: 3 shards of 160 every 0.7 secs, to 10 sqrs"),
+              ("Slam", "every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored")]),
+    "Nerissa's Tidepearl": dict(
+        slot=30, sound="spell/fire_spray", mp=100, cooldown=0, power="Tidepearl",
+        stats=[(0, 60), (3, 60), (26, 8), (27, 4)],
+        activate=[("PearlAbility", dict(amount=200, objectId="Tidal Substitute"))],
+        description="A pearl of the Drowned Sanctum's sea. It calls up a substitute that hurls five of Nerissa's "
+                    "tridents and heals you, and the tide answers: three waves roll out from you, each striking "
+                    "your enemies and washing over your allies.",
+        info=[("Substitute", "5 tridents of 230; heals you 200"),
+              ("Tide", "3 waves, 0.45 secs apart, to 5.5 sqrs: 220 to enemies, heals allies 60")]),
+    "Pyrrhax's Meteor Mortar": dict(
+        slot=5005, sound="weapon/cannon_shot", mp=120, cooldown=0, power="MeteorMortar",
+        stats=[(0, 60), (3, 60), (20, 4), (28, 6)],
+        activate=[],
+        description="The Forge Tyrant's mortar. Its shell arcs to where you aim and bursts in a crater of slag, and "
+                    "the sky follows it down: four meteors fall round the crater, while the slag burns on in it.",
+        info=[("Shell", "to 9 sqrs: 750 to 3 sqrs, paralyzed for 1.5 secs"),
+              ("Meteors", "4 round it, each 280 to 1.6 sqrs"),
+              ("Slag", "90 every 0.5 secs to 2.5 sqrs, for 3 secs")]),
+    "Chronarch's Coat of Stolen Hours": dict(
+        slot=37, sound="spell/fire_nova", mp=110, cooldown=0, power="StolenHours",
+        stats=[(0, 60), (3, 60), (26, 4), (22, 4)],
+        activate=[("ConditionEffectAura", dict(effect="Armored", duration=5, range=8)),
+                  ("ConditionEffectSelf", dict(effect="Damaging", duration=5)),
+                  ("StatBoostSelf", dict(stat=20, amount=10, duration=6))],
+        description="The Hour Thief's coat, its clock still running. Time stops round you: your enemies slow, you "
+                    "quicken, and the clock's hand sweeps twice round you, cutting all it passes.",
+        info=[("Stolen Hours", "enemies within 6 sqrs slowed and you Speedy for 3 secs"),
+              ("Clock Hand", "2 sweeps of 0.8 secs, 320 to each enemy within 6 sqrs a sweep")]),
+    "Vaelith's Final Aria": dict(
+        slot=28, sound="spell/major_heal", mp=120, cooldown=6, power="FinalAria",
+        stats=[(0, 60), (3, 60), (20, 5), (28, 5)],
+        activate=[("ConditionEffectAura", dict(duration=7, effect="Inspired", range=8))],
+        description="The Sovereign's own lute, strung with the light of the Apex. Its chord inspires your allies, "
+                    "and the aria rings on: four verses, each a wider ring of light from you, harder than the last, "
+                    "and the last a crescendo that breaks armor and drives allies into a fury.",
+        info=[("Party Effect", "Inspired within 8 sqrs for 7 secs"),
+              ("Verses", "4, every 0.6 secs, following you: 250 to 6 sqrs, 320 to 7, 400 to 8"),
+              ("Crescendo", "700 to 9 sqrs, armor broken for 3 secs; allies within 9 sqrs berserk for 3 secs")]),
+}
+
+# the white bags' allies: the turret (Ferrogrim's sentinel) and the pearl's substitute (unseen)
+ALLIES = {
+    "Bastion Turret": dict(sentinel=True, shot=("Iron Shard", 160, 120, 800, False)),
+    "Tidal Substitute": dict(sentinel=False, shot=("Trident Bolt", 230, 160, 800, True)),
+}
+
+
+def projectile(types, sheet, name, img):
+    e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+    sub(e, "Class", "Projectile")
+    texture(e, SHEET8[0], sheet.add(img))
+    if name in ("Gear Shot", "Sovereign Star"):
+        sub(e, "Rotation", 60)  # they spin as they fly
+    return e
+
+
+def animated(e, sheet, file, frames, time):
+    first = sheet.add(frames[0])
+    texture(e, file, first)
+    anim = sub(e, "Animation", prob="1.0")
+    for idx in [first] + [sheet.add(f) for f in frames[1:]]:
+        texture(sub(anim, "Frame", time=str(time)), file, idx)
+
+
+def objects(types, s8, s16, c16, c32):
+    out = []
+    for name, img in small.shots().items():
+        out.append(projectile(types, s8, name, img))
+
+    sprites = bosses.all_sprites()
+    sprites.update(bosses.echoes(sprites))
+    sprites["Hour Echo"] = [spectral(f, (255, 220, 140)) for f in sprites["Chronarch, the Hour Thief"]]
+    rows = {}
+
+    def row(art):
+        if art not in rows:
+            fr = sprites[art]
+            rows[art] = c32.add(fr[:3], fr[3])
+        return rows[art]
+
+    for name, (art, size, hp, defense, alts, shots) in CHAMPIONS.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Character")
+        sub(e, "Enemy")
+        texture(e, CHARS32[0], row(art), "AnimatedTexture")
+        for k, alt in enumerate(alts, start=1):
+            texture(sub(e, "AltTexture", id=k), CHARS32[0], row(alt), "AnimatedTexture")
+        hit = SOUNDS.get(name, "monster/ghost_god_hit")
+        sub(e, "HitSound", hit)
+        sub(e, "DeathSound", hit.replace("_hit", "_death"))
+        sub(e, "Size", size)
+        sub(e, "MaxHitPoints", hp)
+        sub(e, "Defense", defense)
+        sub(e, "Quest")
+        sub(e, "HealthBarBoss")
+        sub(e, "Level", 20)
+        sub(e, "God")
+        sub(e, "ShowName")
+        sub(e, "NoArticle")
+        sub(e, "StasisImmune")
+        for flag in IMMUNE:
+            sub(e, flag)
+        for p in shots:
+            e.append(p)
+        out.append(e)
+
+    for name, (art, size, shots) in ECHOES.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Character")
+        sub(e, "Enemy")
+        texture(e, CHARS32[0], row(art), "AnimatedTexture")
+        sub(e, "HitSound", "monster/ghost_god_hit")
+        sub(e, "DeathSound", "monster/ghost_god_death")
+        sub(e, "Size", size)
+        sub(e, "MaxHitPoints", 100000)
+        sub(e, "Defense", 0)
+        sub(e, "StasisImmune")
+        for flag in IMMUNE:
+            sub(e, flag)
+        sub(e, "XpMult", 0)
+        for p in shots:
+            e.append(p)
+        out.append(e)
+
+    art = small.minions()
+    minion_rows = {}
+    for name, (hp, defense, size, static, shots) in MINIONS.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Character")
+        sub(e, "Enemy")
+        frames, attack = art[name]
+        minion_rows[name] = c16.add(frames, attack)
+        texture(e, CHARS16[0], minion_rows[name], "AnimatedTexture")
+        sub(e, "HitSound", "monster/golems_hit" if static else "monster/greater_pit_snakes_hit")
+        sub(e, "DeathSound", "monster/golems_death" if static else "monster/greater_pit_snakes_death")
+        sub(e, "Size", size)
+        sub(e, "MaxHitPoints", hp)
+        sub(e, "Defense", defense)
+        sub(e, "StasisImmune")
+        # a turret stays put by its behaviour, not by <Static/>: the server's area damage (World.AOE,
+        # /smite, the abilities') skips a Static enemy
+        if static:
+            sub(e, "StunImmune")
+            sub(e, "ParalyzeImmune")
+        sub(e, "XpMult", 0.5)
+        for p in shots:
+            e.append(p)
+        out.append(e)
+
+    for name, (frames, size, blocks) in SCENERY.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "GameObject")
+        animated(e, s16, SHEET16[0], frames, 0.35)
+        sub(e, "Size", size)
+        sub(e, "Static")
+        if blocks:
+            sub(e, "OccupySquare")
+            sub(e, "EnemyOccupySquare")
+        out.append(e)
+
+    # the white bags: each its class's ability (WHITES), what it does beyond its numbers its
+    # <RelicPower> (Player.CruciblePowers.cs)
+    for name, w in WHITES.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Equipment")
+        sub(e, "Item")
+        texture(e, SHEET8[0], s8.add(small.item_icon(name)))
+        sub(e, "SlotType", w["slot"])
+        sub(e, "Description", w["description"])
+        extra = sub(e, "ExtraTooltipData")
+        for k, v in w["info"]:
+            sub(extra, "EffectInfo", name=k, description=v)
+        sub(e, "Sound", w["sound"])
+        sub(e, "Usable")
+        for text, attrs in w["activate"]:
+            sub(e, "Activate", text, **attrs)
+        for stat, amount in w["stats"]:
+            sub(e, "ActivateOnEquip", "IncrementStat", stat=stat, amount=amount)
+        sub(e, "MpCost", w["mp"])
+        if w["cooldown"]:
+            sub(e, "Cooldown", w["cooldown"])
+        sub(e, "RelicPower", w["power"])
+        sub(e, "BagType", 6)
+        sub(e, "FameBonus", 6)
+        sub(e, "Soulbound")
+        out.append(e)
+    for name, a in ALLIES.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Character")
+        if a["sentinel"]:
+            texture(e, CHARS16[0], minion_rows["Iron Sentinel"], "AnimatedTexture")
+            sub(e, "Size", 90)
+        else:
+            texture(e, "invisible", 0)
+        shot, damage, speed, life, multi = a["shot"]
+        pr = sub(e, "Projectile", id="0")
+        sub(pr, "ObjectId", shot)
+        sub(pr, "Speed", speed)
+        sub(pr, "Damage", damage)
+        sub(pr, "LifetimeMS", life)
+        if multi:
+            sub(pr, "MultiHit")
+            sub(pr, "PassesCover")
+        sub(e, "NoMiniMap")
+        out.append(e)
+
+    # Ferrogrim's grates, risen from the floor in his Lockdown: walls (BehaviorDb.Crucible.cs)
+    e = ET.Element("Object", {"type": types.get("Bastion Grate", OBJECT_TYPES), "id": "Bastion Grate"})
+    sub(e, "Class", "GameObject")
+    animated(e, s16, SHEET16[0], [small.grate(f) for f in range(3)], 0.2)
+    sub(e, "Size", 100)
+    sub(e, "ShadowSize", 0)
+    sub(e, "Static")
+    sub(e, "OccupySquare")
+    sub(e, "FullOccupy")
+    sub(e, "EnemyOccupySquare")
+    out.append(e)
+
+    # the way up, at a cleared floor's centre (CrucibleWorld): harmless, turning
+    e = ET.Element("Object", {"type": types.get("Ascension Sigil", OBJECT_TYPES), "id": "Ascension Sigil"})
+    sub(e, "Class", "GameObject")
+    animated(e, s16, SHEET16[0], [small.sigil(f) for f in range(4)], 0.12)
+    sub(e, "Size", 320)
+    sub(e, "ShadowSize", 0)
+    sub(e, "DrawOnGround")
+    sub(e, "NoMiniMap")
+    out.append(e)
+
+    # the portal in the Nexus, beside the Arena's (DoomedWorlds.NexusPortals)
+    e = ET.Element("Object", {"type": types.get("Crucible Portal", OBJECT_TYPES), "id": "Crucible Portal"})
+    sub(e, "DisplayId", "The Crucible")
+    sub(e, "Class", "Portal")
+    sub(e, "IntergamePortal")
+    sub(e, "DungeonName", "The Crucible")
+    animated(e, s16, SHEET16[0], [small.portal(f) for f in range(6)], 0.1)
+    sub(e, "Size", 160)
+    sub(e, "ShadowSize", 0)
+    out.append(e)
+
+    for name in HEARTS:
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "GameObject")
+        texture(e, "invisible", 0)
+        sub(e, "NoMiniMap")
+        sub(e, "ShadowSize", 0)
+        sub(e, "Size", 0)
+        out.append(e)
+    return out
+
+
+# ------------------------------------------------------------------------------------------------
+# the map
+
+W, H = 48, 460
+CX = 24
+# (heart, centre row, radius, shape, floor, rim)
+THRESHOLD = (CX, 440, 8)
+FLOORS = [
+    ("Bastion Heart", 370, 14, "octagon", "Bastion Flagstone", "Bastion Rim"),
+    ("Sanctum Heart", 300, 15, "circle", "Sanctum Mosaic", "Sanctum Rim"),
+    ("Foundry Heart", 230, 15, "square", "Foundry Plate", "Foundry Rim"),
+    ("Orrery Heart", 160, 15, "circle", "Orrery Dial", "Orrery Rim"),
+    ("Apex Heart", 88, 16, "circle", "Apex Marble", "Apex Rim"),
+]
+
+
+class Map:
+    def __init__(self):
+        self.ground = [[None] * W for _ in range(H)]
+        self.obj = [[None] * W for _ in range(H)]
+        self.region = [[None] * W for _ in range(H)]
+
+    def place(self, x, y, name):
+        assert self.ground[y][x] is not None and self.obj[y][x] is None, (name, x, y)
+        self.obj[y][x] = name
+
+
+def inside(shape, dx, dy, r):
+    if shape == "circle":
+        return math.hypot(dx, dy) <= r + 0.3
+    if shape == "octagon":
+        return max(abs(dx), abs(dy)) <= r and abs(dx) + abs(dy) <= r * 1.42
+    # a square with its corners rounded off
+    return max(abs(dx), abs(dy)) <= r and math.hypot(dx, dy) <= r * 1.22
+
+
+def disc(m, cy, r, shape, floor, rim):
+    for y in range(cy - r - 1, cy + r + 2):
+        for x in range(CX - r - 1, CX + r + 2):
+            dx, dy = x - CX, y - cy
+            if not inside(shape, dx, dy, r):
+                continue
+            edge = any(not inside(shape, dx + ex, dy + ey, r) for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            m.ground[y][x] = rim if edge else floor
+
+
+def ring_points(cy, radius, count, offset=0.0):
+    pts = []
+    for k in range(count):
+        a = 2 * math.pi * k / count + offset
+        pts.append((round(CX + math.cos(a) * radius), round(cy + math.sin(a) * radius)))
+    return pts
+
+
+def build_map():
+    m = Map()
+    # the Threshold
+    tx, ty, tr = THRESHOLD
+    disc(m, ty, tr, "circle", "Threshold Stone", "Threshold Rim")
+    for y in range(ty - 3, ty + 4):
+        for x in range(tx - 3, tx + 4):
+            if math.hypot(x - tx, y - ty) <= 3.2:
+                m.region[y][x] = "Spawn"
+    for (x, y) in ring_points(ty, 6, 4, math.pi / 4):
+        m.place(x, y, "Threshold Brazier")
+
+    for (heart, cy, r, shape, floor, rim) in FLOORS:
+        disc(m, cy, r, shape, floor, rim)
+        if heart == "Bastion Heart":
+            # an inlaid square of ember-bronze round the middle, and eight iron pillars
+            for y in range(cy - 6, cy + 7):
+                for x in range(CX - 6, CX + 7):
+                    if max(abs(x - CX), abs(y - cy)) == 6:
+                        m.ground[y][x] = "Bastion Inlay"
+            for (x, y) in ring_points(cy, 10, 8, math.pi / 8):
+                m.place(x, y, "Bastion Pillar")
+        elif heart == "Sanctum Heart":
+            for y in range(cy - r, cy + r + 1):
+                for x in range(CX - r, CX + r + 1):
+                    d = math.hypot(x - CX, y - cy)
+                    if 6.5 <= d <= 7.5 and m.ground[y][x] == floor:
+                        m.ground[y][x] = "Sanctum Shallows"
+            # five coral isles: the middle and four round it (dry when the tide rises)
+            for (ix, iy, ir) in [(CX, cy, 2.6)] + [(x, y, 2.2) for (x, y) in ring_points(cy, 10, 4, math.pi / 4)]:
+                for y in range(int(iy - 3), int(iy + 4)):
+                    for x in range(int(ix - 3), int(ix + 4)):
+                        if math.hypot(x - ix, y - iy) <= ir and m.ground[y][x] is not None:
+                            m.ground[y][x] = "Coral Isle"
+            for (x, y) in ring_points(cy, 12, 4, 0):
+                m.place(x, y, "Coral Spire")
+        elif heart == "Foundry Heart":
+            for y in range(cy - r, cy + r + 1):
+                for x in range(CX - r, CX + r + 1):
+                    dx, dy = x - CX, y - cy
+                    if m.ground[y][x] == floor and (abs(dx) == abs(dy)) and 3 <= abs(dx) <= 9:
+                        m.ground[y][x] = "Cooling Slag"
+            for (x, y) in ring_points(cy, 12, 4, math.pi / 4):
+                m.place(x, y, "Foundry Brazier")
+        elif heart == "Orrery Heart":
+            for (x, y) in ring_points(cy, r - 2, 12, -math.pi / 2):
+                m.ground[y][x] = "Dial Numeral"
+            for y in range(cy - 6, cy + 7):
+                for x in range(CX - 6, CX + 7):
+                    if abs(math.hypot(x - CX, y - cy) - 5) < 0.5:
+                        m.ground[y][x] = "Orrery Rim"
+            for (x, y) in ring_points(cy, 11, 4, math.pi / 4):
+                m.place(x, y, "Orrery Pylon")
+        else:
+            # an eight-pointed star of gold inlaid round the middle
+            for y in range(cy - r, cy + r + 1):
+                for x in range(CX - r, CX + r + 1):
+                    dx, dy = x - CX, y - cy
+                    d = math.hypot(dx, dy)
+                    if d < 1 or d > 9 or m.ground[y][x] != floor:
+                        continue
+                    a = math.atan2(dy, dx)
+                    spike = 9 * (0.45 + 0.55 * abs(math.cos(4 * a)) ** 6)
+                    if abs(d - spike) < 0.7 or abs(d - 4) < 0.45:
+                        m.ground[y][x] = "Apex Sigil"
+            for (x, y) in ring_points(cy, 13, 4, math.pi / 4):
+                m.place(x, y, "Apex Obelisk")
+        m.place(CX, cy, heart)
+    return m
+
+
+def save_map(m):
+    entries, index, out = [], {}, bytearray()
+    for y in range(H):
+        for x in range(W):
+            t = {"ground": m.ground[y][x]} if m.ground[y][x] else {}
+            if m.obj[y][x]:
+                t["objs"] = [{"id": m.obj[y][x]}]
+            if m.region[y][x]:
+                t["regions"] = [{"id": m.region[y][x]}]
+            key = json.dumps(t, sort_keys=True)
+            if key not in index:
+                index[key] = len(entries)
+                entries.append(t)
+            i = index[key]
+            out += bytes((i >> 8, i & 0xff))
+    jm = {"width": W, "height": H, "dict": entries,
+          "data": base64.b64encode(zlib.compress(bytes(out), 9)).decode("ascii")}
+    os.makedirs(os.path.dirname(OUT_MAP), exist_ok=True)
+    with open(OUT_MAP, "w", encoding="utf-8", newline="") as f:
+        json.dump(jm, f, separators=(",", ":"))
+
+
+def write_xml(paths, root_tag, elements, comment):
+    root = ET.Element(root_tag)
+    for e in elements:
+        root.append(e)
+    ET.indent(root, "\t")
+    text = "<!-- %s -->\n%s\n" % (comment, ET.tostring(root, encoding="unicode"))
+    for path in paths:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+
+
+def preview(m, out):
+    """Each floor at 8 pixels a tile in its own ground's colours, and the sheets enlarged."""
+    os.makedirs(out, exist_ok=True)
+    colours = {name: int(c, 16) for name, (c, _) in GROUNDS.items()}
+    img = Image.new("RGB", (W * 8, H * 8), (20, 14, 24))
+    for y in range(H):
+        for x in range(W):
+            g = m.ground[y][x]
+            if g:
+                c = colours[g]
+                img.paste(((c >> 16) & 255, (c >> 8) & 255, c & 255), (x * 8, y * 8, x * 8 + 8, y * 8 + 8))
+            if m.obj[y][x]:
+                img.paste((255, 210, 74), (x * 8 + 2, y * 8 + 2, x * 8 + 6, y * 8 + 6))
+    img.save(os.path.join(out, "crucible_map.png"))
+    for fname in (SHEET8[1], SHEET16[1], CHARS16[1], CHARS32[1]):
+        sheet = Image.open(os.path.join(IMAGES, fname))
+        k = 6 if "8x8" in fname else 4
+        bg = Image.new("RGBA", sheet.size, (40, 36, 56, 255))
+        bg.alpha_composite(sheet)
+        bg.resize((sheet.size[0] * k, sheet.size[1] * k), Image.NEAREST).save(os.path.join(out, fname))
+
+
+def main():
+    types = Types()
+    s8, s16 = Grid(8, 16), Grid(16, 8)
+    c16, c32 = Chars(16), Chars(32)
+    m = build_map()
+    g = grounds(types, s8)
+    o = objects(types, s8, s16, c16, c32)
+    os.makedirs(IMAGES, exist_ok=True)
+    s8.write(os.path.join(IMAGES, SHEET8[1]))
+    s16.write(os.path.join(IMAGES, SHEET16[1]))
+    c16.write(os.path.join(IMAGES, CHARS16[1]))
+    c32.write(os.path.join(IMAGES, CHARS32[1]))
+    write_xml(OUT_XML["grounds"], "GroundTypes", g,
+              "Generated by tools/build_crucible.py: the Crucible's floors. Do not edit.")
+    write_xml(OUT_XML["objects"], "Objects", o,
+              "Generated by tools/build_crucible.py: the Crucible's champions, minions, scenery, "
+              "portal, hearts and shots. Do not edit.")
+    save_map(m)
+    types.save()
+    known = {e.get("id") for e in g + o} | {None}
+    used = {t for row in m.ground for t in row} | {t for row in m.obj for t in row if t}
+    assert used <= known, used - known
+    print("wrote %s (%dx%d), %d grounds, %d objects" % (OUT_MAP, W, H, len(g), len(o)))
+    if "--preview" in sys.argv:
+        out = sys.argv[sys.argv.index("--preview") + 1]
+        preview(m, out)
+        print("preview in", out)
+
+
+if __name__ == "__main__":
+    main()

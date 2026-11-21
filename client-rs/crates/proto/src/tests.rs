@@ -475,6 +475,14 @@ fn arena_round_matches_arena_round_message() {
 }
 
 #[test]
+fn crucible_matches_crucible_message() {
+    // CrucibleMessage.Write: kind, floor, cue, champion type, seconds, text.
+    let body = B::default().u8(3).u8(2).u8(6).u16(0xc650).i32(95).utf("Rising Tide").0;
+    let ServerMessage::Crucible(c) = ServerMessage::decode(175, &body).unwrap() else { panic!() };
+    assert_eq!((c.kind, c.floor, c.cue, c.champion, c.seconds, c.text.as_str()), (3, 2, 6, 0xc650, 95, "Rising Tide"));
+}
+
+#[test]
 fn pass_messages_match_pass_tracker() {
     // PassActHandler reads the kind, then the value.
     assert_eq!(ClientMessage::from(PassAct { kind: 1, value: -1 }).to_frame(), B::default().u8(1).i32(-1).frame(171));

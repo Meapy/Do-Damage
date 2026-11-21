@@ -11,6 +11,8 @@ mod collection;
 mod community;
 mod connected;
 mod crosshair;
+mod crucible;
+mod cruciblesky;
 mod death;
 mod emotes;
 mod events;
@@ -3329,6 +3331,7 @@ impl App {
             game.particles.realize(sprites, data);
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
+                game.particles.champion_auras(world, data, dt);
                 game.particles.trails(world, data, dt);
             }
             jitter = game.particles.jitter(now);
@@ -3458,6 +3461,7 @@ impl App {
                         });
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha, inset: None, glass: Some(&glass_draw) };
                         prof::mark("pre-world");
+                        ground.crucible_sky.state = game.crucible.as_ref().map(|c| c.sky(now)).unwrap_or((0, None));
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else
@@ -3569,6 +3573,10 @@ impl App {
                 }
                 if let Some(banner) = &game.arena_banner {
                     hud::draw_arena_banner(&mut ui, &lay, banner, now);
+                }
+                // the Crucible's tracker and its moments (crucible.rs)
+                if let Some(climb) = &game.crucible {
+                    climb.draw(&mut ui, &lay, now);
                 }
                 if let Some(visit) = &game.visit {
                     hud::draw_visit(&mut ui, &lay, visit, now, mouse);

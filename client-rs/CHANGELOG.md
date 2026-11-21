@@ -14,6 +14,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Crucible
+- **The Crucible** is open: a tower of nothing but bosses, over the Arena. Climb its five floors (up to six together) against five new champions, Ferrogrim, Nerissa, Pyrrhax, Chronarch and Vaelith, each fighting in phases while the floor changes under you: sweeping blades, a rising tide, lava veins, a striking clock, and a last floor that calls back the four before it. Its portal is beside the Arena's in the Nexus, or type `/crucible`.
+- It opens once you reach round 50 in the Arena, or with a Gilded Realm Pass, for one climb a day (two with the Pass). It has its own music, sky, title cards and leaderboard (`/crucible status`). There's no fame for a climb: the champions' loot is the reward.
+- Each champion has a 1% white bag: Ferrogrim's Bastion Turret (Mechanic), Nerissa's Tidepearl (Druid), Pyrrhax's Meteor Mortar (Pirate), Chronarch's Coat of Stolen Hours (Blademaster) and Vaelith's Final Aria (Bard), each with an ability of its own.
+
 ### Realm Pass
 - A Gilded pass can **rally** a community goal, once each: press Rally on its card and from then until it ends everyone's help with it counts double, in the total and in each helper's share. The realm is told, the goal burns gold in the window with "rallied by" the rallier's name, and you share its top prize whatever your place once it ends (with your own minimum share).
 - In a dungeon, a Gilded pass shows the way: a trail of small gold arrows runs the shortest walk to the boss, doors included, with a chip at the foot of the view counting the tiles left. Options, Gameplay switches it off.

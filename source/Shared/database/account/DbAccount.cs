@@ -29,6 +29,12 @@ namespace Shared.database.account
         public ushort[] Collection { get => GetValue<ushort[]>("collection"); set => SetValue("collection", value); }
         // the Shards of the Mad God the Pen Keeper keeps for the account (WorldServer Player.PetPen.cs)
         public int PenShards { get => GetValue<int>("penShards"); set => SetValue("penShards", value); }
+        // the furthest Arena round the account has reached in any season (DoomedBattleArena, or the
+        // leaderboards' runs: CrucibleAccess), for the Crucible's door (Shared.crucible.CrucibleRules)
+        public int ArenaBest { get => GetValue<int>("arenaBest"); set => SetValue("arenaBest", value); }
+        // the Crucible's daily climbs: the UTC day (CrucibleRules.Day) the account last began one, and how many it began that day
+        public int CrucibleDay { get => GetValue<int>("crucibleDay"); set => SetValue("crucibleDay", value); }
+        public int CrucibleClimbs { get => GetValue<int>("crucibleClimbs"); set => SetValue("crucibleClimbs", value); }
         public int GlowColor { get => GetValue<int>("glow"); set => SetValue("glow", value); }
         // where the glow and the chat name colour come from (Shared.champions.LookChoice)
         public int GlowFrom { get => GetValue<int>("glowFrom"); set => SetValue("glowFrom", value); }

@@ -382,6 +382,7 @@ namespace WorldServer.core.objects
                         AbilityBoosts();
                         RelicAbility(pos, ref time);
                         BetweenAbility(pos, ref time);
+                        CrucibleAbility(pos, ref time);
                     }
                 }
             }

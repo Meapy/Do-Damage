@@ -390,6 +390,24 @@
 		</Music>
 		<Dungeon/>
 	</World>
+	<!-- the Crucible, the boss-only tower over the Arena; built by tools/build_crucible.py, run by
+	     CrucibleWorld.cs -->
+	<World id="The Crucible">
+		<Width>48</Width>
+		<Height>460</Height>
+		<MapJM>Dungeons/The Crucible/The Crucible.jm</MapJM>
+		<!-- the Rust client's ember sky (cruciblesky.rs SKY_CRUCIBLE) and the floors' undersides -->
+		<Background>9</Background>
+		<VisibilityType>1</VisibilityType>
+		<!-- each floor whole in view (they are 70 tiles apart, out of sight of each other) -->
+		<MinSightRadius>24</MinSightRadius>
+		<Capacity>6</Capacity>
+		<DefeatToNexus/>
+		<Music>
+			<Track>the_crucible</Track>
+		</Music>
+		<Dungeon/>
+	</World>
 	<!-- Oryx 3; built by tools/build_oryx_sanctuary.py -->
 	<World id="Oryx's Sanctuary">
 		<Width>80</Width>

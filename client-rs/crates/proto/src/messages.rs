@@ -334,6 +334,12 @@ messages! {
         // The answer to PassAct: a code (`pass::code`) with a tier or count, the server's English,
         // and what it paid (a claim's rewards, or what the caches rolled).
         174 => PassResult { code: u8, success: bool, count: i32, message: String, rewards: List8<PassReward> },
+        // The Crucible's climb (`CrucibleMessage`): kind (`crucible::kind`: 0 the Threshold's
+        // countdown, 1 an ascent begins, 2 a floor's champion arrives, 3 a phase, 4 a floor cleared,
+        // 5 the rest before the next ascent, 6 the victory, 7 where the climb is, on arriving), the
+        // floor (0 the Threshold), the phase (`crucible::cue_name`), the champion's type, seconds
+        // (a countdown, a floor's or the climb's time) and the server's English.
+        175 => Crucible { kind: u8, floor: u8, cue: u8, champion: u16, seconds: i32, text: String },
         // The Gilded dungeon guide (after GuideSubscribe 1): the shortest walk to the dungeon's
         // boss, as the tiles along it (every second one) with the boss's type and place and how
         // many tiles the walk is. No points: the guide goes away.

@@ -1304,6 +1304,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             ground.void_sky.draw(renderer, &cam, scene.time);
             Some(&crate::islands::VOID)
         }
+        crate::cruciblesky::SKY_CRUCIBLE => {
+            ground.crucible_sky.draw(renderer, &cam, scene.time);
+            Some(&crate::islands::CRUCIBLE)
+        }
         _ => None,
     };
     if let Some(style) = islands {

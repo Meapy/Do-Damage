@@ -59,6 +59,7 @@ COMMAND_HELP = {
     "guildinfo": "Your guild at a glance: its hall, guild fame, places on the guild boards, vault and the next hall (or <code>/ginfo</code>).",
     "guildvault": "The guild vault's log: who put in or took out what, the newest first: <code>/gvault [count]</code>.",
     "arena": "Into the Arena's next game, the one its Nexus portal leads to.",
+    "crucible": "Into the Crucible, the boss-only tower over the Arena (round 50 of the Arena or a Gilded Realm Pass; one climb a day, two with the Pass). <code>/crucible status</code>: whether it's open to you, your climbs left today and the best climbs. See <a href=\"crucible.html\">The Crucible</a>.",
     "gear": "Free starter gear for your class, and a couple of boosters. See below for its limits.",
     "shop": "Opens a shop: weapons, abilities, armor, rings, consumables, keys and pets for fame, and the gold shops (elderkeys for the Elder dungeons' keys). With no name it lists the shops.",
     "sellfame": "Selling items for fame is now done at the Divine Forge in the Nexus; this points you to it.",

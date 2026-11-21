@@ -32,6 +32,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 case "Zombies Minigame": return new DoomedZombieGame(gameServer, id, resource, parent);
                 case "Sheep Herding Minigame": return new DoomedHerding(gameServer, id, resource, parent);
                 case "Shop": return new DoomedShop(gameServer, id, resource, parent);
+                case Shared.crucible.CrucibleRules.WorldName: return new crucible.CrucibleWorld(gameServer, id, resource, parent);
                 default: return null;
             }
         }
@@ -58,6 +59,28 @@ namespace WorldServer.core.worlds.impl.doomed
                 var (px, py, pz) = nexus.Marker(marker) ?? (x, y, 0f);
                 if (nexus.IsPassable(px, py, true))
                     nexus.CreateNewEntity(portal, px, py, nexus.Levels == null ? (float?)null : pz);
+                if (portal == ArenaPortal)
+                    AddCruciblePortal(nexus, px, py, pz);
+            }
+        }
+
+        // the Crucible's portal (Shared.crucible.CrucibleRules), beside the Arena's: the nearest
+        // open square a few tiles from it with nothing standing round it
+        private static void AddCruciblePortal(World nexus, float ax, float ay, float az)
+        {
+            var offsets = new[] { (3, 0), (-3, 0), (0, 3), (0, -3), (3, 2), (-3, 2), (3, -2), (-3, -2), (4, 0), (-4, 0), (0, 4), (2, 3), (-2, 3) };
+            foreach (var (dx, dy) in offsets)
+            {
+                var (x, y) = ((int)ax + dx, (int)ay + dy);
+                var clear = true;
+                for (var oy = -1; oy <= 1 && clear; oy++)
+                    for (var ox = -1; ox <= 1 && clear; ox++)
+                        clear = nexus.Map.Contains(x + ox, y + oy) && nexus.IsPassable(x + ox + 0.5, y + oy + 0.5, true)
+                            && nexus.Map[x + ox, y + oy].ObjType == 0;
+                if (!clear)
+                    continue;
+                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, x + 0.5f, y + 0.5f, nexus.Levels == null ? (float?)null : az);
+                return;
             }
         }
 
@@ -711,6 +734,10 @@ namespace WorldServer.core.worlds.impl.doomed
             }
             foreach (var p in Players.Values)
                 SendWaveInfo(p);
+            // the furthest round each has reached, for the Crucible's door (not in an admin's test)
+            if (!_tested)
+                foreach (var p in Players.Values)
+                    crucible.CrucibleAccess.Reached(p, Wave);
             var message = RoundMessage(ArenaRoundMessage.Begins, _fightFrom, Wave);
             foreach (var p in Players.Values.Where(p => _voteSubscribers.Contains(p.Id)))
                 p.Client?.SendPacket(message);

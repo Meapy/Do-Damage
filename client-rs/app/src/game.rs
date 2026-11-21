@@ -122,6 +122,8 @@ pub struct Game {
     /// The Arena's rounds (`ArenaRound`, Season 2): the fight running, what the next one will be
     /// (while the votes are open), and the banner shown over the world (the message, and when).
     pub arena_fight: Option<bsk_proto::ArenaRound>,
+    /// The Crucible's climb, once its first message comes in this world (`crucible.rs`).
+    pub crucible: Option<crate::crucible::Climb>,
     pub arena_next: Option<bsk_proto::ArenaRound>,
     pub arena_banner: Option<(bsk_proto::ArenaRound, i32)>,
     /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
@@ -449,6 +451,7 @@ impl Game {
             arena_fight: None,
             arena_next: None,
             arena_banner: None,
+            crucible: None,
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
@@ -733,6 +736,7 @@ impl Game {
                 self.arena_asked = false;
                 self.arena_fight = None;
                 self.arena_next = None;
+                self.crucible = None;
                 self.arena_banner = None;
                 self.pings.clear();
                 self.show_displays = info.show_displays;
@@ -1167,6 +1171,15 @@ impl Game {
                     self.arena_next = None;
                 }
                 self.arena_votes = Some(v.clone());
+            }
+            ServerMessage::Crucible(c) => {
+                // a phase begun: its burst round the champion (particles/relic.rs)
+                if c.kind == crate::crucible::kind::CUE {
+                    if let Some(world) = &self.world {
+                        self.particles.champion_cue(c.cue, c.champion, world, now);
+                    }
+                }
+                self.crucible.get_or_insert_with(Default::default).on_message(c, now);
             }
             ServerMessage::ArenaRound(r) => match r.kind {
                 // what the next fight will be
