@@ -64,24 +64,41 @@ namespace WorldServer.core.worlds.impl.doomed
             }
         }
 
-        // the Crucible's portal (Shared.crucible.CrucibleRules), beside the Arena's: the nearest
-        // open square a few tiles from it with nothing standing round it
+        // the Crucible's portal (Shared.crucible.CrucibleRules), sunk into the floor four tiles
+        // across as the Arena's pit is: on the map's Crucible_Portal tile (the islands' shrine,
+        // across Realm 2's vortex from the Arena's pit), else across the vortex from the Arena's, else
+        // the nearest open floor a pit's width clear of it
         private static void AddCruciblePortal(World nexus, float ax, float ay, float az)
         {
-            var offsets = new[] { (3, 0), (-3, 0), (0, 3), (0, -3), (3, 2), (-3, 2), (3, -2), (-3, -2), (4, 0), (-4, 0), (0, 4), (2, 3), (-2, 3) };
-            foreach (var (dx, dy) in offsets)
+            var z = nexus.Levels == null ? (float?)null : az;
+            if (nexus.Marker(TileRegion.Crucible_Portal) is { } at)
             {
-                var (x, y) = ((int)ax + dx, (int)ay + dy);
-                var clear = true;
-                for (var oy = -1; oy <= 1 && clear; oy++)
-                    for (var ox = -1; ox <= 1 && clear; ox++)
-                        clear = nexus.Map.Contains(x + ox, y + oy) && nexus.IsPassable(x + ox + 0.5, y + oy + 0.5, true)
-                            && nexus.Map[x + ox, y + oy].ObjType == 0;
-                if (!clear)
-                    continue;
-                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, x + 0.5f, y + 0.5f, nexus.Levels == null ? (float?)null : az);
+                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, at.X, at.Y, nexus.Levels == null ? (float?)null : at.Z);
                 return;
             }
+            var spots = new List<(int, int)>();
+            if (nexus.Marker(TileRegion.Realm2_Portal) is { } v)
+                spots.Add(((int)(2 * v.X - ax), (int)(2 * v.Y - ay)));
+            foreach (var (dx, dy) in new[] { (5, 0), (-5, 0), (0, 5), (0, -5), (5, 2), (-5, 2), (5, -2), (-5, -2), (6, 0), (-6, 0), (0, 6), (0, -6) })
+                spots.Add(((int)ax + dx, (int)ay + dy));
+            foreach (var (x, y) in spots)
+            {
+                if (!PitClear(nexus, x, y))
+                    continue;
+                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, x + 0.5f, y + 0.5f, z);
+                return;
+            }
+        }
+
+        // five by five squares of open floor round (x, y), with nothing standing on them
+        private static bool PitClear(World nexus, int x, int y)
+        {
+            for (var oy = -2; oy <= 2; oy++)
+                for (var ox = -2; ox <= 2; ox++)
+                    if (!nexus.Map.Contains(x + ox, y + oy) || !nexus.IsPassable(x + ox + 0.5, y + oy + 0.5, true)
+                        || nexus.Map[x + ox, y + oy].ObjType != 0)
+                        return false;
+            return true;
         }
 
         // A portal keeps the world it opened; once that minigame has started or closed, it opens a new one.

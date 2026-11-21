@@ -40,6 +40,7 @@ RS_ONLY_SETS = [
     # the Crucible's floors, shots, scenery, portal and sigil (tools/build_crucible.py)
     ("crucible8x8", "kabam/rotmg/assets/custom/images/Crucible8x8.png", 8, 8),
     ("crucible16x16", "kabam/rotmg/assets/custom/images/Crucible16x16.png", 16, 16),
+    ("crucible32x32", "kabam/rotmg/assets/custom/images/Crucible32x32.png", 32, 32),
     # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
     ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),

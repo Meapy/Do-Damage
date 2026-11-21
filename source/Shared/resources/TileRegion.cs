@@ -94,6 +94,9 @@
         // the pet pen east of the Arena court (PetPen): the Pen Keeper's spot, and the pen's floor,
         // where pets wander
         Nexus_Pen_Keeper,
-        Nexus_Pet_Pen
+        Nexus_Pet_Pen,
+        // the Crucible's portal (DoomedWorlds.AddCruciblePortal), across Realm 2's vortex from the
+        // Arena's pit
+        Crucible_Portal
     }
 }

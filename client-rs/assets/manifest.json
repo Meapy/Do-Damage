@@ -1298,6 +1298,12 @@
    "h": 16
   },
   {
+   "name": "crucible32x32",
+   "file": "kabam/rotmg/assets/custom/images/Crucible32x32.png",
+   "w": 32,
+   "h": 32
+  },
+  {
    "name": "customAssets32x32",
    "file": "kabam/rotmg/assets/custom/images/CustomAssets32x32.png",
    "w": 32,

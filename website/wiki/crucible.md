@@ -18,7 +18,8 @@ lava runs through the cracks, the clock strikes. Beat all five and the Crucible 
   out count too.
 - **How often:** **one climb a day**, or **two** with a Gilded Realm Pass. A new day starts at
   00:00 UTC. A climb counts once it begins, so walking into the lobby and leaving costs nothing.
-- **Where:** its portal stands in the Nexus beside the Arena's. You can also type `/crucible` from
+- **Where:** its portal is sunk into the floor of the Nexus's shrine, across Realm 2's vortex
+  from the Arena's pit. You can also type `/crucible` from
   anywhere. `/crucible status` tells you whether it's open to you, how many climbs you have left
   today and the three best climbs.
 
@@ -33,12 +34,20 @@ the lobby can say **GO** to start it sooner. Once it begins, nobody else can joi
 4. When it falls, you are healed and safe for **20 seconds**. The **Ascension Sigil** turns in the
    middle (say GO to go on sooner). Then the floor's edge breaks away into the sky and up you go.
 
+Your pet climbs with you, and so do allies you've summoned (a turret, a pet from an item): they
+come up to each floor beside you.
+
 Falling in the Crucible doesn't kill you: you're sent back to the Nexus, and the others climb on
 without you. There is no fame for a climb. The reward is the champions' loot.
 
 ## The champions
 
+Every floor has a shape of its own, and each champion's aura grows as you wear it down: more of
+its floor joins in once a third of its health is gone, and more again at two thirds.
+
 ### I. The Iron Bastion: Ferrogrim, the Iron Warden
+
+A star fort: a square keep with a round bastion at each corner and a gate in each side.
 
 A horned juggernaut in riveted iron, a furnace burning in his chest, a tower shield and a molten
 hammer.
@@ -52,6 +61,8 @@ hammer.
 
 ### II. The Drowned Sanctum: Nerissa, the Tidecaller
 
+An atoll with a ragged coast and tide pools, five coral isles across it.
+
 A sea-queen with a serpent's tail, a coral crown and a golden trident.
 
 - **Tidal Lanes:** bands of surging tide sweep across the floor. Step through the gaps.
@@ -61,6 +72,8 @@ A sea-queen with a serpent's tail, a coral crown and a golden trident.
 - **Maelstrom** (33%): everything at once, with the sea round her whipped into a storm.
 
 ### III. The Ember Foundry: Pyrrhax, the Forge Tyrant
+
+A forge hall in a cross, four arms out from a square crucible, slag channels down the arms.
 
 A horned demon of rock and fire with wings of ash and a hammer of lava.
 
@@ -73,6 +86,8 @@ A horned demon of rock and fire with wings of ash and a hammer of lava.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
+Three rings over open sky, joined by spokes: watch where you step when the clock strikes.
+
 A hooded thief of time with a clock for a face and an hourglass for a heart. Four arms carry
 blades made of a clock's hands, and an orrery's ring wheels round him.
 
@@ -84,6 +99,8 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
   together.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
+
+A star of marble with eight points, the tower's sigil inlaid in gold.
 
 The tower's maker: a crowned champion in white and gold with wings of fire and a ring of gold
 set with the four floors' gems.

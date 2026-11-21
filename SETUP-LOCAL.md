@@ -730,7 +730,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (`Dungeons/The Crucible/The Crucible.jm`, 48x460, `<World id="The Crucible">` in Dungeons.xml:
   Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
   `tools/build_crucible.py` (the map, `CrucibleGrounds.xml` and `CrucibleObjects.xml` in both
-  copies, the sheets `Crucible8x8`, `Crucible16x16`, `CrucibleChars16x16`, `CrucibleChars32x32`;
+  copies, the sheets `Crucible8x8`, `Crucible16x16`, `Crucible32x32`, `CrucibleChars16x16`, `CrucibleChars32x32`;
   art in `tools/crucible/bosses.py` and `small.py`, type numbers kept in `tools/crucible/types.json`,
   0xC600-0xC7FF) and `tools/crucible/sound.py` (the music; needs numpy). Rules in
   `Shared/crucible/CrucibleRules.cs`: open at Arena round 50 (`DbAccount.arenaBest`, kept as rounds
@@ -740,15 +740,21 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   each floor's invisible Heart changes its floor (`logic/behaviors/Crucible.cs`: `CrucibleFloor` and
   its painters, `Rampart`, `Crumble`, `Transmute`), ordered by its champion
   (`BehaviorDb.Crucible.cs`); the ground is put back from a snapshot whenever a floor is quiet. Its
-  portal is placed beside the Arena's (`DoomedWorlds.AddCruciblePortal`), `UsePortalHandler` turns
+  portal (sunk into the floor, four tiles across, `Crucible32x32.png`) stands on the islands' `Crucible
+  Portal` tile (`TileRegion.Crucible_Portal`, `build_nexus_islands.py` `CRUCIBLE_PIT`, across Realm 2's
+  vortex from the Arena's pit; elsewhere across the vortex from the Arena's portal, else the nearest
+  clear floor: `DoomedWorlds.AddCruciblePortal`), `UsePortalHandler` turns
   away those it's closed to, `/crucible` (`Command.Crucible.cs`: `status`; admins `floor <n>` and
   `equip <item>`). Message `CRUCIBLE` (175) drives the Rust client's tracker, title cards, phase
   banners and victory (`crucible.rs`) and its sky (`cruciblesky.rs`); climbs that clear a floor go
   on the Redis sorted set `crucible.runs` (`DbCrucibleRuns`). No fame is paid. The champions'
   white bags (1% each) are ability items with a `<RelicPower>` (`Player.CruciblePowers.cs`, the
   turret's slam `AllyBastionSlam`), drawn by the Rust client's looks 48-53 (`particles/relic.rs`),
-  which also gives each champion its own aura and each phase a burst (`champion_auras`,
-  `champion_cue`). Tests: `CrucibleTests`.
+  which also gives each champion its own aura, building with the health it has lost, each phase a
+  burst and the portal its embers (`champion_auras`, `champion_cue`). Each floor has a shape of its
+  own (`SHAPES` in the script, within 17 squares of its middle: `FloorReach`). A climber's pet and
+  allies (enemies with their `AllyOwnerId`) come up with them and a floor's reset leaves them
+  (`CrucibleWorld.BringAllies`). Tests: `CrucibleTests`.
 
 - **Skins sold at the Armoire** (2026-11-20): a `Reskin` for a skin the account lacks buys it
   (`ReskinHandler`): the same rules as `/account/purchaseSkin` (not a Realm Pass skin, the class

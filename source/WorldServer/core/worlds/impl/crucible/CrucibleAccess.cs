@@ -144,7 +144,7 @@ namespace WorldServer.core.worlds.impl.crucible
             _ = acc.FlushAsync();
             if (was < CrucibleRules.UnlockRound && round >= CrucibleRules.UnlockRound)
             {
-                player.SendInfo($"Round {CrucibleRules.UnlockRound}! The Crucible opens to you: its portal stands beside the Arena's in the Nexus.");
+                player.SendInfo($"Round {CrucibleRules.UnlockRound}! The Crucible opens to you: its portal stands across Realm 2's vortex from the Arena's in the Nexus.");
                 doomed.DoomedWorlds.Notify(player, 0xFFFFB03A, "The Crucible awaits");
             }
         }

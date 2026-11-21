@@ -204,7 +204,7 @@ namespace WorldServer.core.worlds.impl.crucible
                     if (!_counting)
                     {
                         _counting = true;
-                        GameServer.ChatManager.Arena("A climb of the Crucible begins in one minute. Its portal stands beside the Arena's.");
+                        GameServer.ChatManager.Arena("A climb of the Crucible begins in one minute. Its portal stands across Realm 2's vortex from the Arena's.");
                         Countdown(LobbySeconds, s => Send(new CrucibleMessage { Kind = CrucibleMessage.Lobby, Seconds = s }), Begin);
                     }
                     break;
@@ -260,6 +260,26 @@ namespace WorldServer.core.worlds.impl.crucible
                 if (!IsPassable(at.X, at.Y))
                     at = new Position(h.Centre.X, h.Centre.Y + 8);
                 players[i].TeleportPosition(time, at, true);
+                BringAllies(players[i], at);
+            }
+        }
+
+        // a climber's pet and allies (pets from an item, turrets, decoys: enemies with their
+        // AllyOwnerId) come up with them, round where they land, instead of staying on the floor
+        // below (where its reset would take them)
+        private void BringAllies(Player owner, Position at)
+        {
+            var allies = Enemies.Values.Where(e => e.AllyOwnerId == owner.Id).Cast<Entity>().ToList();
+            if (owner.Pet?.World == this)
+                allies.Add(owner.Pet);
+            for (var i = 0; i < allies.Count; i++)
+            {
+                var a = i * 2 * Math.PI / Math.Max(1, allies.Count) + Math.PI / 2;
+                var x = at.X + (float)Math.Cos(a) * 1.2f;
+                var y = at.Y + (float)Math.Sin(a) * 1.2f;
+                if (!IsPassable(x, y))
+                    (x, y) = (at.X, at.Y);
+                allies[i].Move(x, y);
             }
         }
 
@@ -397,12 +417,15 @@ namespace WorldServer.core.worlds.impl.crucible
                     h.Heart.TickState(_time); // now, not next tick: the floor comes back before anyone moves
                 }
             }
-            foreach (var e in Enemies.Values.Where(e => e.DistTo(h.Centre.X, h.Centre.Y) < 26).ToList())
+            // (but not a climber's own allies: their pets and turrets stay with them)
+            foreach (var e in Enemies.Values.Where(e => e.DistTo(h.Centre.X, h.Centre.Y) < 26 && !Climbing(e.AllyOwnerId)).ToList())
                 LeaveWorld(e);
             if (!clearOnly)
                 RestoreBroken();
             RestorePristine(floor);
         }
+
+        private bool Climbing(int allyOwnerId) => allyOwnerId != -1 && Players.ContainsKey(allyOwnerId);
 
         private static State Find(State state, string name) =>
             state.Name == name ? state : state.States.Select(s => Find(s, name)).FirstOrDefault(s => s != null);

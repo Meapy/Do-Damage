@@ -8,14 +8,23 @@ next, out of sight of it):
 
 - the Threshold: a small round landing with four braziers, where players arrive (Spawn region)
   and wait for the climb to begin;
-- I, the Iron Bastion: an octagon of iron flagstones round eight iron pillars (Ferrogrim);
-- II, the Drowned Sanctum: a disc of sea-glass mosaic, a ring of shallows, five coral isles that
-  stay dry when the tide comes in, coral spires (Nerissa);
-- III, the Ember Foundry: a rounded square of iron plate with braziers at its corners (Pyrrhax);
-- IV, the Clockwork Orrery: a clock face, its twelve numerals round the rim, orrery pylons
-  (Chronarch);
-- V, the Apex: a marble disc inlaid with an eight-pointed sigil, four obelisks banded in the
-  floors' colours (Vaelith, the Crucible Sovereign).
+- I, the Iron Bastion: a star fort of iron flagstones, a square keep with a round bastion at
+  each corner (an iron pillar in each) and a gate notched into each side, a square of
+  ember-bronze inlaid round its middle (Ferrogrim);
+- II, the Drowned Sanctum: an atoll of sea-glass mosaic with a ragged coast, tide pools of
+  shallows across it, five coral isles that stay dry when the tide comes in (the middle one and
+  four at (+-7, +-7): her Flood keeps those), coral spires along its shore (Nerissa);
+- III, the Ember Foundry: a forge hall in a cross, four arms of iron plate out from a square
+  crucible, slag channels down the arms and braziers at their ends; when its rim crumbles the
+  arms fall away (Pyrrhax);
+- IV, the Clockwork Orrery: three rings with open sky between them, joined by spokes, a hub, a
+  middle ring and the dial with its twelve numerals, orrery pylons on the spokes (Chronarch);
+- V, the Apex: a star of marble with eight points, inlaid with the tower's sigil, four
+  obelisks banded in the floors' colours on four of its points (Vaelith, the Crucible Sovereign).
+
+No floor reaches further than 17 squares from its middle (CrucibleWorld.FloorReach, the snapshot
+it puts the floor back from); the floor painters (logic/behaviors/Crucible.cs) only repaint
+ground that can be walked on and leave what stands on it, so the floors' holes and pillars stay.
 
 Between them is open sky: no ground at all, so the Rust client draws its Crucible sky there
 (`<Background>9</Background>`, cruciblesky.rs) and hangs rock under the floors' edges (islands.rs,
@@ -28,7 +37,7 @@ Outputs (generated, don't edit):
 - the map, source/Shared/resources/worlds/Dungeons/The Crucible/The Crucible.jm;
 - CrucibleGrounds.xml and CrucibleObjects.xml, in source/Shared/resources/xml/custom and the
   client's custom/xmls;
-- the sheets Crucible8x8.png, Crucible16x16.png, CrucibleChars16x16.png and
+- the sheets Crucible8x8.png, Crucible16x16.png, Crucible32x32.png, CrucibleChars16x16.png and
   CrucibleChars32x32.png in the client's custom/images (registered for the Rust client by
   tools/gen_rs_manifest.py).
 The art is drawn by tools/crucible/bosses.py (the champions, 32x32) and small.py (everything
@@ -64,6 +73,7 @@ GROUND_TYPES = (0xC600, 0xC640)
 OBJECT_TYPES = (0xC640, 0xC800)
 SHEET8 = ("crucible8x8", "Crucible8x8.png")
 SHEET16 = ("crucible16x16", "Crucible16x16.png")
+SHEET32 = ("crucible32x32", "Crucible32x32.png")
 CHARS16 = ("crucibleChars16x16", "CrucibleChars16x16.png")
 CHARS32 = ("crucibleChars32x32", "CrucibleChars32x32.png")
 
@@ -380,7 +390,7 @@ def animated(e, sheet, file, frames, time):
         texture(sub(anim, "Frame", time=str(time)), file, idx)
 
 
-def objects(types, s8, s16, c16, c32):
+def objects(types, s8, s16, s32, c16, c32):
     out = []
     for name, img in small.shots().items():
         out.append(projectile(types, s8, name, img))
@@ -544,14 +554,19 @@ def objects(types, s8, s16, c16, c32):
     sub(e, "NoMiniMap")
     out.append(e)
 
-    # the portal in the Nexus, beside the Arena's (DoomedWorlds.NexusPortals)
+    # the portal in the Nexus, across Realm 2's vortex from the Arena's pit
+    # (DoomedWorlds.AddCruciblePortal): sunk into the floor as the Nexus's other portals are, four
+    # tiles across, its name under it; the Rust client adds its embers (relic.rs `champion_auras`)
     e = ET.Element("Object", {"type": types.get("Crucible Portal", OBJECT_TYPES), "id": "Crucible Portal"})
     sub(e, "DisplayId", "The Crucible")
     sub(e, "Class", "Portal")
     sub(e, "IntergamePortal")
     sub(e, "DungeonName", "The Crucible")
-    animated(e, s16, SHEET16[0], [small.portal(f) for f in range(6)], 0.1)
-    sub(e, "Size", 160)
+    sub(e, "ShowName")
+    animated(e, s32, SHEET32[0], [small.portal(f) for f in range(small.PORTAL_FRAMES)], 0.11)
+    sub(e, "Size", 100)
+    sub(e, "DrawOnGround")
+    sub(e, "GroundSize", 4)
     sub(e, "ShadowSize", 0)
     out.append(e)
 
@@ -571,15 +586,69 @@ def objects(types, s8, s16, c16, c32):
 
 W, H = 48, 460
 CX = 24
-# (heart, centre row, radius, shape, floor, rim)
+# (heart, centre row, reach, shape, floor, rim): each floor's shape is `SHAPES[shape]`, true for
+# the squares (dx, dy) from its middle that are floor
 THRESHOLD = (CX, 440, 8)
 FLOORS = [
-    ("Bastion Heart", 370, 14, "octagon", "Bastion Flagstone", "Bastion Rim"),
-    ("Sanctum Heart", 300, 15, "circle", "Sanctum Mosaic", "Sanctum Rim"),
-    ("Foundry Heart", 230, 15, "square", "Foundry Plate", "Foundry Rim"),
-    ("Orrery Heart", 160, 15, "circle", "Orrery Dial", "Orrery Rim"),
-    ("Apex Heart", 88, 16, "circle", "Apex Marble", "Apex Rim"),
+    ("Bastion Heart", 370, 17, "fort", "Bastion Flagstone", "Bastion Rim"),
+    ("Sanctum Heart", 300, 17, "atoll", "Sanctum Mosaic", "Sanctum Rim"),
+    ("Foundry Heart", 230, 17, "cross", "Foundry Plate", "Foundry Rim"),
+    ("Orrery Heart", 160, 17, "orrery", "Orrery Dial", "Orrery Rim"),
+    ("Apex Heart", 88, 17, "star", "Apex Marble", "Apex Rim"),
 ]
+
+
+def _fort(dx, dy):
+    # a square keep, a round bastion at each corner, a gate notched into the middle of each side
+    ax, ay = abs(dx), abs(dy)
+    if math.hypot(ax - 11, ay - 11) <= 4.6:
+        return True
+    if max(ax, ay) > 11.5:
+        return False
+    gate = min(ax, ay) <= 1.5 and max(ax, ay) >= 10
+    return not gate
+
+
+def _atoll(dx, dy):
+    # a disc whose coast wanders in and out
+    r, a = math.hypot(dx, dy), math.atan2(dy, dx)
+    coast = 14.2 + 1.5 * math.sin(3 * a + 0.6) + 1.0 * math.sin(5 * a + 2.1) + 0.6 * math.sin(9 * a)
+    return r <= min(16.6, coast)
+
+
+def _cross(dx, dy):
+    # a square crucible in the middle, four arms out of it, their ends rounded
+    ax, ay = abs(dx), abs(dy)
+    if max(ax, ay) <= 8.5:
+        return True
+    arm = (ax <= 4.5 and ay <= 15.5) or (ay <= 4.5 and ax <= 15.5)
+    if not arm:
+        return False
+    far = max(ax, ay)
+    return far <= 12.5 or math.hypot(min(ax, ay), far - 12.5) <= 4.6
+
+
+def _orrery(dx, dy):
+    # a hub, a middle ring and the dial, sky between them, joined by spokes (four inside, six out)
+    r, a = math.hypot(dx, dy), math.atan2(dy, dx)
+    if r > 15.5:
+        return False
+    gap1, gap2 = 5.6 <= r <= 7.2, 11.2 <= r <= 12.6
+    if not gap1 and not gap2:
+        return True
+    step = math.pi / 2 if gap1 else math.pi / 3
+    off = math.pi / 4 if gap1 else 0.0
+    k = (a - off) / step
+    return abs(k - round(k)) * step * r <= 1.6
+
+
+def _star(dx, dy):
+    # eight points of marble round a disc
+    r, a = math.hypot(dx, dy), math.atan2(dy, dx)
+    return r <= 10.6 + 5.8 * abs(math.cos(4 * a)) ** 3
+
+
+SHAPES = {"fort": _fort, "atoll": _atoll, "cross": _cross, "orrery": _orrery, "star": _star}
 
 
 class Map:
@@ -603,6 +672,21 @@ def inside(shape, dx, dy, r):
 
 
 def disc(m, cy, r, shape, floor, rim):
+    if shape in SHAPES:
+        fn = SHAPES[shape]
+        for y in range(cy - r, cy + r + 1):
+            for x in range(CX - r, CX + r + 1):
+                dx, dy = x - CX, y - cy
+                if not fn(dx, dy):
+                    continue
+                assert max(abs(dx), abs(dy)) <= 17, (shape, dx, dy)
+                edge = any(not fn(dx + ex, dy + ey) for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                # the orrery's rings edged only on the outside (its rim stands up: on every ring
+                # it walled the floor into a maze)
+                if shape == "orrery" and math.hypot(dx, dy) < 14.5:
+                    edge = False
+                m.ground[y][x] = rim if edge else floor
+        return
     for y in range(cy - r - 1, cy + r + 2):
         for x in range(CX - r - 1, CX + r + 2):
             dx, dy = x - CX, y - cy
@@ -635,57 +719,89 @@ def build_map():
     for (heart, cy, r, shape, floor, rim) in FLOORS:
         disc(m, cy, r, shape, floor, rim)
         if heart == "Bastion Heart":
-            # an inlaid square of ember-bronze round the middle, and eight iron pillars
+            # an inlaid square of ember-bronze round the middle, the keep's corners marked with it,
+            # an iron pillar in each bastion and either side of each gate
             for y in range(cy - 6, cy + 7):
                 for x in range(CX - 6, CX + 7):
                     if max(abs(x - CX), abs(y - cy)) == 6:
                         m.ground[y][x] = "Bastion Inlay"
-            for (x, y) in ring_points(cy, 10, 8, math.pi / 8):
-                m.place(x, y, "Bastion Pillar")
+            for sx in (-1, 1):
+                for sy in (-1, 1):
+                    for k in range(3):
+                        m.ground[cy + sy * (9 - k)][CX + sx * 9] = "Bastion Inlay"
+                        m.ground[cy + sy * 9][CX + sx * (9 - k)] = "Bastion Inlay"
+                    m.place(CX + sx * 12, cy + sy * 12, "Bastion Pillar")
+            for (gx, gy) in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                for side in (-1, 1):
+                    m.place(CX + gx * 10 + gy * 3 * side, cy + gy * 10 + gx * 3 * side, "Bastion Pillar")
         elif heart == "Sanctum Heart":
+            # tide pools of shallows across the atoll, its coast washed with them too
             for y in range(cy - r, cy + r + 1):
                 for x in range(CX - r, CX + r + 1):
-                    d = math.hypot(x - CX, y - cy)
-                    if 6.5 <= d <= 7.5 and m.ground[y][x] == floor:
+                    if m.ground[y][x] != floor:
+                        continue
+                    dx, dy = x - CX, y - cy
+                    pool = (math.sin(dx * 0.7 + 1.3) + math.sin(dy * 0.8 - 0.4) + math.sin((dx + dy) * 0.45)) > 1.55
+                    if pool and math.hypot(dx, dy) > 4:
                         m.ground[y][x] = "Sanctum Shallows"
-            # five coral isles: the middle and four round it (dry when the tide rises)
-            for (ix, iy, ir) in [(CX, cy, 2.6)] + [(x, y, 2.2) for (x, y) in ring_points(cy, 10, 4, math.pi / 4)]:
+            # five coral isles: the middle and four at (+-7, +-7) (dry when the tide rises: her Flood)
+            for (ix, iy, ir) in [(CX, cy, 2.6)] + [(CX + sx * 7, cy + sy * 7, 2.2) for sx in (-1, 1) for sy in (-1, 1)]:
                 for y in range(int(iy - 3), int(iy + 4)):
                     for x in range(int(ix - 3), int(ix + 4)):
                         if math.hypot(x - ix, y - iy) <= ir and m.ground[y][x] is not None:
                             m.ground[y][x] = "Coral Isle"
-            for (x, y) in ring_points(cy, 12, 4, 0):
-                m.place(x, y, "Coral Spire")
+            # coral spires along the shore, where the coast reaches out
+            for k in range(7):
+                a = 2 * math.pi * k / 7 + 0.35
+                for d in (13, 12, 11):
+                    x, y = round(CX + math.cos(a) * d), round(cy + math.sin(a) * d)
+                    if m.ground[y][x] in (floor, "Sanctum Shallows") and m.obj[y][x] is None:
+                        m.place(x, y, "Coral Spire")
+                        break
         elif heart == "Foundry Heart":
+            # slag channels down the middle of each arm and the crucible's diagonals, braziers at
+            # the arms' ends and the crucible's corners
             for y in range(cy - r, cy + r + 1):
                 for x in range(CX - r, CX + r + 1):
                     dx, dy = x - CX, y - cy
-                    if m.ground[y][x] == floor and (abs(dx) == abs(dy)) and 3 <= abs(dx) <= 9:
+                    if m.ground[y][x] != floor:
+                        continue
+                    channel = (dx == 0 and 10 <= abs(dy) <= 14) or (dy == 0 and 10 <= abs(dx) <= 14)
+                    diag = abs(dx) == abs(dy) and 3 <= abs(dx) <= 7
+                    if channel or diag:
                         m.ground[y][x] = "Cooling Slag"
-            for (x, y) in ring_points(cy, 12, 4, math.pi / 4):
-                m.place(x, y, "Foundry Brazier")
+            for (x, y) in ring_points(cy, 14, 4, 0):
+                for side in (-1, 1):
+                    bx, by = (x + side * 3, y) if x == CX else (x, y + side * 3)
+                    m.place(bx, by, "Foundry Brazier")
+            for sx in (-1, 1):
+                for sy in (-1, 1):
+                    m.place(CX + sx * 7, cy + sy * 7, "Foundry Brazier")
         elif heart == "Orrery Heart":
-            for (x, y) in ring_points(cy, r - 2, 12, -math.pi / 2):
+            # the dial's twelve numerals, a ring of them round the hub, pylons where the spokes cross the
+            # sky (beside them, so the way stays open)
+            for (x, y) in ring_points(cy, 14, 12, -math.pi / 2):
                 m.ground[y][x] = "Dial Numeral"
-            for y in range(cy - 6, cy + 7):
-                for x in range(CX - 6, CX + 7):
-                    if abs(math.hypot(x - CX, y - cy) - 5) < 0.5:
-                        m.ground[y][x] = "Orrery Rim"
-            for (x, y) in ring_points(cy, 11, 4, math.pi / 4):
+            for y in range(cy - 5, cy + 6):
+                for x in range(CX - 5, CX + 6):
+                    if abs(math.hypot(x - CX, y - cy) - 4) < 0.5:
+                        m.ground[y][x] = "Dial Numeral"
+            for (x, y) in ring_points(cy, 9.2, 4, math.pi / 4):
                 m.place(x, y, "Orrery Pylon")
         else:
-            # an eight-pointed star of gold inlaid round the middle
+            # the tower's sigil inlaid in gold round the middle, out along each point
             for y in range(cy - r, cy + r + 1):
                 for x in range(CX - r, CX + r + 1):
                     dx, dy = x - CX, y - cy
                     d = math.hypot(dx, dy)
-                    if d < 1 or d > 9 or m.ground[y][x] != floor:
+                    if d < 1 or d > 14 or m.ground[y][x] != floor:
                         continue
                     a = math.atan2(dy, dx)
                     spike = 9 * (0.45 + 0.55 * abs(math.cos(4 * a)) ** 6)
-                    if abs(d - spike) < 0.7 or abs(d - 4) < 0.45:
+                    point = abs(math.sin(4 * a)) * d < 0.6 and d > 9.5
+                    if abs(d - spike) < 0.7 or abs(d - 4) < 0.45 or point:
                         m.ground[y][x] = "Apex Sigil"
-            for (x, y) in ring_points(cy, 13, 4, math.pi / 4):
+            for (x, y) in ring_points(cy, 14, 4, math.pi / 4):
                 m.place(x, y, "Apex Obelisk")
         m.place(CX, cy, heart)
     return m
@@ -749,14 +865,15 @@ def preview(m, out):
 
 def main():
     types = Types()
-    s8, s16 = Grid(8, 16), Grid(16, 8)
+    s8, s16, s32 = Grid(8, 16), Grid(16, 8), Grid(32, 8)
     c16, c32 = Chars(16), Chars(32)
     m = build_map()
     g = grounds(types, s8)
-    o = objects(types, s8, s16, c16, c32)
+    o = objects(types, s8, s16, s32, c16, c32)
     os.makedirs(IMAGES, exist_ok=True)
     s8.write(os.path.join(IMAGES, SHEET8[1]))
     s16.write(os.path.join(IMAGES, SHEET16[1]))
+    s32.write(os.path.join(IMAGES, SHEET32[1]))
     c16.write(os.path.join(IMAGES, CHARS16[1]))
     c32.write(os.path.join(IMAGES, CHARS32[1]))
     write_xml(OUT_XML["grounds"], "GroundTypes", g,

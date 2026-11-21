@@ -1,7 +1,7 @@
 """The Crucible's smaller art (tools/build_crucible.py puts it on its sheets): the floor of each of
 the tower's floors (8x8 tiles, several variants each), its minions (16x16), what stands on its
-floors (pillars, walls, braziers, coral, pylons, obelisks; 16x16), the portal and the ascension
-sigil (16x16, animated), and the shots (8x8, pointing right).
+floors (pillars, walls, braziers, coral, pylons, obelisks; 16x16), the ascension sigil (16x16,
+animated), the portal (32x32, animated), and the shots (8x8, pointing right).
 
 Light from the upper left, as on the game's other sprites; the client draws the black outline
 round characters and shots."""
@@ -313,30 +313,93 @@ def brazier(frame=0):
     return cv.img
 
 
+def _mix(a, b, t):
+    t = max(0.0, min(1.0, t))
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+def _ramp(cols, t):
+    """A colour along a ramp of colours, t from 0 to 1."""
+    t = max(0.0, min(0.999, t)) * (len(cols) - 1)
+    i = int(t)
+    return _mix(cols[i], cols[i + 1], t - i)
+
+
+PORTAL_FRAMES = 8
+_FIRE = [(40, 6, 4), (110, 16, 6), (200, 52, 10), (255, 140, 30), (255, 214, 110), (255, 248, 220)]
+_RIM = [(18, 14, 16), (40, 32, 34), (70, 56, 54), (104, 86, 78), (150, 128, 110)]
+_GEMS = [(164, 175, 192), (70, 194, 180), (255, 154, 36), (74, 240, 255)]
+
+
 def portal(frame=0):
-    """The Crucible Portal: a ring of the tower's gold, a vortex of fire turning up within it, the
-    four floors' colours glinting round the rim."""
-    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-    for y in range(16):
-        for x in range(16):
-            dx, dy = x - 7.5, y - 7.5
+    """The Crucible Portal, sunk into the Nexus's floor across Realm 2's vortex from the Arena's pit (32x32, four tiles
+    across, drawn flat): a crucible's iron lip chased with gold, a gem of each of the four floors
+    at its quarters lighting in turn; inside it a channel of molten gold running round, a ring of
+    the tower's runes turning the other way, and a vortex of fire spiralling down to a white-hot
+    heart. Eight frames."""
+    s = 32
+    c = (s - 1) / 2
+    img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    turn = frame / PORTAL_FRAMES * 2 * math.pi
+    lit = (frame // 2) % 4
+    for y in range(s):
+        for x in range(s):
+            dx, dy = x - c, y - c
             r = math.hypot(dx, dy)
-            if r > 7.6:
+            if r > 15.6:
                 continue
             ang = math.atan2(dy, dx)
-            if r > 6.3:
-                k = int(((ang + math.pi) / (2 * math.pi)) * 16 + frame) % 16
-                put(img, x, y, SIGILS[k // 4] if k % 4 == 0 else (GOLD[3] if math.cos(ang + 2.3) > 0 else GOLD[1]))
-                continue
-            arm = math.sin(ang * 3 - r * 1.1 + frame * math.pi / 3)
-            if r < 1.6:
-                put(img, x, y, "#ffffff")
-            elif arm > 0.5:
-                put(img, x, y, FLAME[3] if (x + y + frame) % 2 else FLAME[2])
-            elif arm > -0.2:
-                put(img, x, y, FLAME[1])
+            light = -(dx + dy) / (r + 1e-9)          # lit from the upper left
+            if r > 13.0:
+                # the iron lip, bevelled, a line of gold set in it
+                t = 0.45 + 0.3 * light * (1 if r > 14.2 else -1) - (0.25 if r > 15.0 else 0)
+                col = _ramp(_RIM, t)
+                if 13.9 < r < 14.6 and int((ang + math.pi) / (2 * math.pi) * 48) % 6:
+                    col = _ramp([GOLD[1], GOLD[2], GOLD[3]], 0.5 + 0.5 * light)
+                put(img, x, y, col)
+            elif r > 11.6:
+                # the channel of molten gold, running round
+                wave = math.sin(ang * 6 - turn * 3 + r)
+                put(img, x, y, _ramp(_FIRE, 0.62 + 0.2 * wave + (0.1 if r < 12.3 else 0)))
+            elif r > 9.4:
+                # the basin's dark stone and the tower's runes in it, turning back
+                rune = math.cos((ang + turn / 2) * 10)
+                if rune > 0.82 and 9.9 < r < 11.1:
+                    put(img, x, y, _ramp([GOLD[1], GOLD[3], (255, 250, 220)], 0.4 + 0.6 * (rune - 0.82) / 0.18))
+                else:
+                    put(img, x, y, _ramp(_RIM, 0.12 + 0.12 * (11.6 - r) / 2 - 0.08 * light))
             else:
-                put(img, x, y, "#3a0a04")
+                # the vortex: two arms of fire spiralling down to the heart
+                arm = math.sin(2 * ang + r * 0.95 - turn * 2)
+                heat = 1 - r / 9.4
+                t = 0.18 + 0.55 * heat + 0.28 * arm
+                if r < 2.4:
+                    t = 0.92 + 0.08 * math.cos(turn * 2)
+                put(img, x, y, _ramp(_FIRE, t))
+    # the four floors' gems at the quarters, in gold settings, lighting one after another
+    for k in range(4):
+        a = -math.pi / 2 + k * math.pi / 2
+        gx, gy = c + math.cos(a) * 13.3, c + math.sin(a) * 13.3
+        if k == lit:
+            for (px_, py_) in ell_mask(gx + 0.5, gy + 0.5, 3.4, 3.4):
+                old = img.getpixel((int(px_), int(py_))) if 0 <= px_ < s and 0 <= py_ < s else (0, 0, 0, 0)
+                if old[3]:
+                    put(img, px_, py_, _mix(old[:3], _GEMS[k], 0.45))
+        for (px_, py_) in ell_mask(gx + 0.5, gy + 0.5, 2.3, 2.3):
+            put(img, px_, py_, GOLD[1] if (px_ - gx) + (py_ - gy) > 0 else GOLD[3])
+        gem = _GEMS[k]
+        bright = k == lit
+        for (px_, py_) in ell_mask(gx + 0.5, gy + 0.5, 1.5, 1.5):
+            up = (px_ - gx) + (py_ - gy) < 0
+            put(img, px_, py_, _mix(gem, (255, 255, 255), 0.55 if bright and up else (0.15 if up else 0)) if bright
+                else _mix(gem, (0, 0, 0), 0.25 if up else 0.5))
+        if bright:
+            put(img, int(round(gx)) - 1, int(round(gy)) - 1, (255, 255, 255))
+    # sparks whirling over the vortex
+    for k in range(6):
+        a = turn * 1.5 + k * math.pi / 3
+        rr = 3.5 + (k % 3) * 2
+        put(img, int(round(c + math.cos(a) * rr)), int(round(c + math.sin(a) * rr)), (255, 250, 230))
     return img
 
 
