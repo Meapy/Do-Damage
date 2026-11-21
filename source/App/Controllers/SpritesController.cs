@@ -211,7 +211,7 @@ namespace App.Controllers
                 return;
             }
             ApprovedChanged();
-            _core.Logger.Info($"Sprite {id} {verdict} by <{admin.Name}-{admin.AccountId}>");
+            _core.Logger.Info($"Sprite {id} {verdict} by <{admin.Name}-{admin.AccountId}>".ForLog());
             var sub = SpriteSubmissions.Get(_core.Database.Conn, id);
             Response.CreateXml(Element(sub).ToString());
         }

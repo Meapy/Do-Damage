@@ -67,7 +67,7 @@ namespace App.Controllers
             switch (status)
             {
                 case DiscordLinkStatus.OK:
-                    _core.Logger.Info($"Discord {discordId} linked to <{acc.Name}-{acc.AccountId}>{(rewarded ? ", with the first link's reward" : "")}");
+                    _core.Logger.Info($"Discord {discordId} linked to <{acc.Name}-{acc.AccountId}>{(rewarded ? ", with the first link's reward" : "")}".ForLog());
                     Response.CreateXml(new XElement("Linked",
                         new XElement("Name", acc.Name),
                         rewarded ? new XElement("Reward", DiscordLinks.RewardItem) : null).ToString());
@@ -100,7 +100,7 @@ namespace App.Controllers
                 Response.CreateError("Not linked");
                 return;
             }
-            _core.Logger.Info($"Discord {discordId} unlinked from <{acc.Name}-{acc.AccountId}>");
+            _core.Logger.Info($"Discord {discordId} unlinked from <{acc.Name}-{acc.AccountId}>".ForLog());
             Response.CreateXml(new XElement("Unlinked", new XElement("Name", acc.Name)).ToString());
         }
 
@@ -170,7 +170,7 @@ namespace App.Controllers
                 Response.CreateError("Too soon");
                 return;
             }
-            _core.Logger.Info($"Password reset for <{acc.Name}-{acc.AccountId}> by Discord {discordId}");
+            _core.Logger.Info($"Password reset for <{acc.Name}-{acc.AccountId}> by Discord {discordId}".ForLog());
             Response.CreateXml(new XElement("Reset",
                 new XElement("Name", acc.Name),
                 new XElement("Email", acc.UUID),

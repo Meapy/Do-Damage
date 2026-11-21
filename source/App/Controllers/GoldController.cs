@@ -194,7 +194,7 @@ namespace App.Controllers
             }
             catch (Exception e) when (e is System.Net.Http.HttpRequestException || e is TaskCanceledException)
             {
-                _core.Logger.Error($"Gold: capturing {orderId} failed: {e.Message}");
+                _core.Logger.Error($"Gold: capturing {orderId} failed: {e.Message}".ForLog());
                 return Error("PayPal couldn't be reached. If you paid, your gold arrives by itself within minutes.", 502);
             }
         }
@@ -228,7 +228,7 @@ namespace App.Controllers
             }
             catch (PayPal.PayPalException e)
             {
-                _core.Logger.Warn($"Gold: PayPal on order {order.OrderId}: {e.Issue} {e.Message}");
+                _core.Logger.Warn($"Gold: PayPal on order {order.OrderId}: {e.Issue} {e.Message}".ForLog());
                 if (e.Issue == "INSTRUMENT_DECLINED")
                     return new Outcome { Status = "declined", Message = "PayPal declined that payment method: choose another one." };
                 return new Outcome { Status = "failed", Message = "PayPal didn't take the payment: " + e.Message };
@@ -238,7 +238,7 @@ namespace App.Controllers
             var expected = order.AccountId + ":" + order.Pack;
             if (c.OrderId != order.OrderId || c.CustomId != expected || !PayPal.SameAmount(c.Amount, order.Price) || c.Currency != order.Currency)
             {
-                _core.Logger.Error($"Gold: order {order.OrderId} doesn't match PayPal's: {c.CustomId} {c.Amount} {c.Currency}, expected {expected} {order.Price} {order.Currency}");
+                _core.Logger.Error($"Gold: order {order.OrderId} doesn't match PayPal's: {c.CustomId} {c.Amount} {c.Currency}, expected {expected} {order.Price} {order.Currency}".ForLog());
                 return new Outcome { Status = "failed", Message = "That payment doesn't match the order: nothing was paid in. Contact us on Discord." };
             }
 
@@ -248,7 +248,7 @@ namespace App.Controllers
                 switch (r)
                 {
                     case GoldStore.CreditResult.Credited:
-                        _core.Logger.Info($"Gold: paid {order.Gold} gold into account {order.AccountId} (order {order.OrderId}, capture {c.CaptureId}, {order.Price} {order.Currency})");
+                        _core.Logger.Info($"Gold: paid {order.Gold} gold into account {order.AccountId} (order {order.OrderId}, capture {c.CaptureId}, {order.Price} {order.Currency})".ForLog());
                         _core.ISManager.Publish(Channel.Gold, new GoldMsg { AccountId = order.AccountId, Gold = order.Gold });
                         return new Outcome { Status = "credited", Balance = balance };
                     case GoldStore.CreditResult.AlreadyCredited:
@@ -256,14 +256,14 @@ namespace App.Controllers
                     case GoldStore.CreditResult.Refunded:
                         return new Outcome { Status = "failed", Message = "This order was refunded." };
                     default:
-                        _core.Logger.Error($"Gold: order {order.OrderId} was paid but couldn't be credited ({r})");
+                        _core.Logger.Error($"Gold: order {order.OrderId} was paid but couldn't be credited ({r})".ForLog());
                         return new Outcome { Status = "failed", Message = "Paid, but the gold couldn't be added: contact us on Discord with your order id." };
                 }
             }
             if (c.CaptureStatus == "PENDING")
             {
                 GoldStore.MarkPending(db, order.OrderId, c.CaptureId);
-                _core.Logger.Info($"Gold: order {order.OrderId} is pending at PayPal (capture {c.CaptureId})");
+                _core.Logger.Info($"Gold: order {order.OrderId} is pending at PayPal (capture {c.CaptureId})".ForLog());
                 return new Outcome { Status = "pending", Balance = GoldStore.Balance(db, order.AccountId),
                     Message = "PayPal is still processing the payment: your gold arrives by itself once it clears." };
             }
@@ -315,7 +315,7 @@ namespace App.Controllers
             catch (Exception e) when (e is PayPal.PayPalException || e is System.Net.Http.HttpRequestException || e is TaskCanceledException)
             {
                 // PayPal sends it again later when it isn't answered with 2xx
-                _core.Logger.Warn($"Gold: webhook {type} not handled yet: {e.Message}");
+                _core.Logger.Warn($"Gold: webhook {type} not handled yet: {e.Message}".ForLog());
                 return StatusCode(503);
             }
             return Ok();
@@ -327,7 +327,7 @@ namespace App.Controllers
             if (order == null)
                 return; // not the store's (another sale on the same PayPal account), or long expired
             var outcome = await Settle(order, capture);
-            _core.Logger.Info($"Gold: webhook settled order {orderId}: {outcome.Status}");
+            _core.Logger.Info($"Gold: webhook settled order {orderId}: {outcome.Status}".ForLog());
         }
 
         private static string CaptureOfRefund(JObject refund)
@@ -345,7 +345,7 @@ namespace App.Controllers
             if (status != "REFUNDED" && status != "REVERSED")
             {
                 if (status == "PARTIALLY_REFUNDED")
-                    _core.Logger.Warn($"Gold: capture {captureId} was partly refunded: the gold stays, decide by hand");
+                    _core.Logger.Warn($"Gold: capture {captureId} was partly refunded: the gold stays, decide by hand".ForLog());
                 return;
             }
             var orderId = GoldStore.TakeBack(_core.Database.Conn, captureId, status.ToLowerInvariant(), DateTime.UtcNow, out var taken, out var accountId);
