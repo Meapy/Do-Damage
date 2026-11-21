@@ -73,7 +73,8 @@ A horned demon of rock and fire with wings of ash and a hammer of lava.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
-A brass automaton with a clock for a heart, four arms and a pendulum.
+A hooded thief of time with a clock for a face and an hourglass for a heart. Four arms carry
+blades made of a clock's hands, and an orrery's ring wheels round him.
 
 - **Hour Hands:** an hour hand and a minute hand sweep the floor, the minute hand faster.
 - **Midnight Chime** (70%): the clock's hours light up in turn, half the floor at a time. Stand
@@ -84,7 +85,8 @@ A brass automaton with a clock for a heart, four arms and a pendulum.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
-The tower's maker: a champion in white and gold with wings of flame.
+The tower's maker: a crowned champion in white and gold with wings of fire and a ring of gold
+set with the four floors' gems.
 
 - **Sovereign's Decree:** stars fall on each of you.
 - **The Echoes** (80%, 65%, 50%, 35%): one by one he raises the ghosts of the four champions

@@ -5,9 +5,10 @@ for each floor of the tower:
   the forge's glow in his visor;
 - Nerissa, the Tidecaller: a sea-queen with a serpent's tail, a coral crown and a golden trident;
 - Pyrrhax, the Forge Tyrant: a horned demon of obsidian split by molten veins, a hammer of lava;
-- Chronarch, the Hour Thief: a brass automaton with a clock for a heart, four arms and a pendulum;
+- Chronarch, the Hour Thief: a hooded thief of time, a clock for a face, an hourglass for a heart,
+  four arms with blades made of a clock's hands, an orrery's ring wheeling round him;
 - Vaelith, the Crucible Sovereign: the tower's maker, a champion in white and gold with wings of
-  flame and a halo of the four floors' colours.
+  flame, a crown and a ring of gold set with the four floors' gems.
 
 Drawn as the Black Between's are (tools/black_between/bosses.py, whose helpers these use): shapes
 shaded from the upper left, hand-placed details, no outline of their own (the client draws it)."""
@@ -177,69 +178,107 @@ GOLD = R("#5a3a0a", "#9a6a14", "#d8a428", "#ffe68a")
 FOAM = "#e8fbff"
 
 
+PEARL = "#fff4ec"
+WAVE = R("#0a3a4a", "#12627a", "#2a9ab0", "#7ad8e0")
+
+
 def nerissa(frame=0, cast=False, maelstrom=False):
+    """A sea-queen rising out of a cresting wave: a serpent's tail in an S, banded and scaled, a
+    fin of coral at its tip; long dark hair streaming and moving with the sea; a crown of coral set
+    with pearls, eyes lit with sea-light, a golden trident. The wave's foam breaks (frame). In her
+    Maelstrom her hair whips up round her, her eyes burn white and a spiral of water turns round
+    her."""
     cv = Canvas()
-    sway = (-1, 0, 1)[frame % 3]
-    if maelstrom:  # a ring of water turning round her
-        for k in range(18):
-            a = math.radians(k * 20 + frame * 20)
-            x, y = 16 + math.cos(a) * 14, 18 + math.sin(a) * 9
-            cv.px(x, y, SCALE[3] if k % 3 else FOAM, 220)
-            cv.px(x + 1, y, SCALE[2], 150)
-    # the tail: a coil at the bottom, its tip curling out to the right
-    coil = ell_mask(15, 26, 9, 4.6)
-    cv.shade(coil, SCALE, grad=lambda x, y: 2 if y < 25 else 1)
-    inner = ell_mask(15, 27, 5.5, 2.2)
-    cv.shade(inner, SCALE_BELLY)
-    tip = poly_mask([(22, 24), (27 + sway, 21), (31, 17 + sway), (29, 22), (25, 27)])
-    cv.shade(tip, SCALE)
-    for (x, y) in ((29 + sway, 17), (30 + sway, 16), (28 + sway, 18)):  # a fin at its tip
-        cv.px(x, y, CORAL[2])
-    for (x, y) in coil:
-        if (x * 3 + y * 5) % 7 == 0 and (x, y) not in inner:
-            cv.px(x, y, SCALE[3])
-    # the long hair, streaming back to the left
-    cv.shade(poly_mask([(12, 3), (19, 4), (18, 10), (14, 16 + sway), (8, 21), (5, 18 - sway), (8, 12), (10, 6)]), HAIR)
-    for (x, y) in ((9, 12), (8, 15), (7, 18), (11, 9)):
-        cv.px(x, y, HAIR[3])
-    # torso
-    cv.shade(poly_mask([(13, 11), (19, 11), (20, 17), (19, 22), (13, 22), (12, 17)]), SKIN, grad=lambda x, y: 2 if x < 16 else 1)
-    cv.shade(poly_mask([(13, 13), (19, 13), (19, 16), (16, 17), (13, 16)]), CORAL)  # shell top
-    cv.px(14, 14, CORAL[3]); cv.px(18, 14, CORAL[3])
-    for x in range(13, 20):  # a band of gold at the waist
+    f = frame % 3
+    sway = (-1, 0, 1)[f]
+    eye = "#ffffff" if maelstrom else "#7af8ff"
+    if maelstrom:
+        # the spiral of water turning round her, behind her
+        for k in range(26):
+            a = math.radians(k * 14 + f * 24)
+            r = 10 + k * 0.18
+            x, y = 16 + math.cos(a) * r * 1.35, 17 + math.sin(a) * r * 0.8
+            cv.px(x, y, (FOAM, SCALE[3], WAVE[2])[k % 3], 230 - k * 4)
+    # the wave she rises from: a crest curling in from the left, foam breaking along its lip
+    wave = ell_mask(15.5, 28, 15, 4.2) | poly_mask([(1, 28), (3, 23), (8, 21), (12, 24), (6, 26)])
+    cv.shade(wave, WAVE, grad=lambda x, y: 2 if y < 26 else 1, rim=False)
+    curl = poly_mask([(0, 25), (2, 20), (6, 18), (9, 19), (8, 21), (5, 21), (3, 23)])
+    cv.shade(curl, WAVE, grad=lambda x, y: 3 if y < 20 else 2, rim=False)
+    for (x, y) in wave:
+        if (x, y - 1) not in wave and (x + f) % 4 != 0:
+            cv.px(x, y, FOAM if (x + f) % 3 else "#ffffff")
+            cv.px(x, y + 1, WAVE[3], 200)
+    for (x, y) in ((2, 19), (5, 17), (7, 18), (1, 21)):
+        cv.px(x, y + (f == 1), FOAM)
+    # the long hair, streaming back to the left (up round her in the Maelstrom)
+    if maelstrom:
+        hair = poly_mask([(12, 4), (19, 4), (22, 1 - sway), (24, 6), (20, 10), (14, 12), (8, 10), (6, 2 + sway), (10, 3)])
+    else:
+        hair = poly_mask([(12, 3), (19, 4), (19, 10), (15, 16 + sway), (10, 21), (5, 20 - sway), (4, 15), (7, 10), (9, 5)])
+    cv.shade(hair, HAIR, grad=lambda x, y: 2 if x > 11 else 1)
+    for (x, y) in ((8, 9), (7, 13), (6, 17), (10, 6), (11, 14)):
+        if (x, y) in hair:
+            cv.px(x, y + (f == 2), HAIR[3])
+    # the torso, a shell bodice, a string of pearls, a band of gold at the waist
+    torso = poly_mask([(13, 11), (19, 11), (20, 16), (19, 22), (13, 22), (12, 16)])
+    cv.shade(torso, SKIN, grad=lambda x, y: 2 if x < 16 else 1)
+    cv.shade(poly_mask([(13, 14), (19, 14), (19, 17), (16, 18), (13, 17)]), CORAL)
+    for (x, y) in ((14, 15), (18, 15)):
+        cv.px(x, y, CORAL[3])
+    for x in range(13, 20):
+        cv.px(x, 12 + (1 if x in (15, 16, 17) else 0), PEARL if x % 2 else SCALE_BELLY[3])
+    for x in range(13, 20):
         cv.px(x, 21, GOLD[2] if x % 2 else GOLD[3])
-    # head and face
+    cv.px(16, 22, SCALE[3])
+    # head: a face lit by its eyes, fins for ears
     cv.shade(ell_mask(16, 7.5, 3.3, 3.6), SKIN)
-    cv.px(15, 7, "#0a1430"); cv.px(18, 7, "#0a1430")
-    cv.px(15, 6, "#ffffff"); cv.px(18, 6, "#ffffff")
-    cv.px(17, 9, CORAL[1])
-    for (x, y) in ((13, 6), (12, 7), (20, 6), (21, 7)):  # fin ears
+    for x in (15, 18):
+        cv.px(x, 7, eye); cv.px(x, 8, SCALE[2])
+    cv.px(17, 10, CORAL[1])
+    for (x, y) in ((12, 6), (11, 7), (12, 8), (20, 6), (21, 7), (20, 8)):
         cv.px(x, y, SCALE[3])
-    # the coral crown
-    for (x, top) in ((13, 1), (15, 0), (17, 1), (19, 0), (21, 2)):
-        line(cv, x, 4, x - 0.5, top, CORAL[2])
-        cv.px(x - 0.5, top, CORAL[3])
-    for x in range(13, 21):
+    # the crown: branches of coral, a pearl at the front
+    for (x, top) in ((13, 1), (14.5, -1), (16, 0), (17.5, -1), (19, 1)):
+        line(cv, round(x), 4, round(x), top + 1, CORAL[2])
+        cv.px(round(x), top + 1, CORAL[3])
+    for x in range(13, 20):
         cv.px(x, 4, CORAL[1])
-    # arms and the trident
-    tx = 25 if not cast else 24
-    top = 1 if not cast else 0
-    thick(cv, 19, 13, 24, 15 if not cast else 9, 2, SKIN)
+    cv.px(16, 3, PEARL); cv.px(16, 2, "#ffffff")
+    # her left arm, the sea gathering in her hand
     thick(cv, 13, 13, 9, 18, 2, SKIN)
+    orb(cv, 8, 19, 2.6 if cast else 1.6, SCALE, glow=SCALE[3])
+    if cast:
+        for k in range(6):
+            a = math.radians(k * 60 + f * 30)
+            cv.px(8 + math.cos(a) * 4, 19 + math.sin(a) * 3, FOAM, 220)
+    # the trident in her right, its tines lit
+    tx, top = (25, 0) if cast else (24, 2)
+    thick(cv, 19, 13, tx - 1, 15 if not cast else 9, 2, SKIN)
     line(cv, tx, top + 3, tx, 30, GOLD[2])
     line(cv, tx + 1, top + 4, tx + 1, 30, GOLD[1])
     for dx in (-3, 0, 3):
         line(cv, tx + dx, top, tx + dx, top + 3, GOLD[3])
+        cv.px(tx + dx, top - 1, "#bff4ff" if not cast else "#ffffff")
     line(cv, tx - 3, top + 3, tx + 3, top + 3, GOLD[2])
-    if cast:  # the trident's tips flare with sea-light, and water gathers in her other hand
+    cv.px(tx, top + 5, SCALE[3])
+    if cast:
         for dx in (-3, 0, 3):
             sparkle(cv, tx + dx, top, SCALE[3])
-        orb(cv, 8, 19, 2.6, SCALE, glow=SCALE[3])
-    else:
-        orb(cv, 8.5, 19, 1.6, SCALE, glow=SCALE[3])
-    # droplets
-    for (x, y) in ((4, 26 + frame % 2), (28, 29), (2, 14 + sway)):
-        cv.px(x, y, FOAM, 200)
+    # the tail: out of the wave in an S, scaled, a pale band down its belly
+    tail = [(12, 27), (16, 25), (20, 27), (24, 27), (27, 24 + sway), (28, 20 + sway)]
+    for (a, b) in zip(tail, tail[1:]):
+        thick(cv, a[0], a[1], b[0], b[1], 4.6 - tail.index(a) * 0.55, SCALE)
+    for i, (x, y) in enumerate(tail[:-1]):
+        cv.px(x, y + 1, SCALE_BELLY[2]); cv.px(x + 1, y + 1, SCALE_BELLY[3])
+        cv.px(x - 1, y - 1, SCALE[3])
+    # the fin at its tip, coral, see-through at its edge
+    fin = poly_mask([(27, 21 + sway), (31, 14 + sway), (31, 20 + sway), (29, 23 + sway)])
+    cv.shade(fin, CORAL, rim=False)
+    for k in range(3):
+        line(cv, 28, 21 + sway, 31, 15 + k * 2 + sway, CORAL[3], 200)
+    # droplets thrown up off the wave
+    for k, (x, y) in enumerate(((3, 14), (28, 27), (10, 26), (22, 19))):
+        cv.px(x, y - (f + k) % 2, FOAM, 210)
     return cv.img
 
 
@@ -383,58 +422,136 @@ def cog(cv, x, y, r, ramp, teeth=6, turn=0.0):
     cv.shade(m, ramp)
 
 
+CLOAK = R("#0e0a22", "#1e1640", "#33286a", "#54469a")
+CLOAK_REV = R("#220a1e", "#40163a", "#6a2862", "#9a4690")
+SAND = R("#7a5418", "#c08a30", "#f2c860", "#fff0b0")
+
+
 def chronarch(frame=0, cast=False, reversal=False):
+    """A thief of time: a hooded cloak of night over a brass frame, a clock for a face, an hourglass
+    for a heart, its sand running (frame). Four arms: the upper pair carry blades made of a clock's
+    hands, the lower pair turn gears. An orrery's ring wheels round him, its little worlds circling
+    (frame), and a pendulum swings under his hem. In his Reversal the cloak and light turn magenta,
+    the sand runs up and the clock runs backwards."""
     cv = Canvas()
-    lens = LENS if not reversal else "#ff4ad8"
-    swing = (-3, 0, 3)[frame % 3]
-    # the pendulum he floats on
-    line(cv, 16, 22, 16 + swing, 29, BRASS[1])
-    cv.shade(ell_mask(16 + swing, 29.5, 2.4, 2), BRASS)
-    # floating gears about him
-    cog(cv, 4, 25, 2.4, BRASS, turn=frame * 0.5)
-    cog(cv, 28, 26, 2, STEEL, teeth=5, turn=-frame * 0.6)
-    # body: a cabinet of brass
-    cv.shade(poly_mask([(9, 9), (23, 9), (24, 20), (20, 23), (12, 23), (8, 20)]), BRASS, grad=lambda x, y: 2 if x < 14 else 1)
-    # the dial: a clock for a heart, its hands turning frame to frame
-    cv.shade(ell_mask(16, 15.5, 5.6, 5.6), DIAL)
-    glow_ring(cv, 16, 15.5, 5.6, BRASS[2], 255)
-    for k in range(12):
-        a = k * math.pi / 6
-        cv.px(16 + math.cos(a) * 4.6, 15.5 + math.sin(a) * 4.6, BRASS[0] if k % 3 else "#000000")
-    hour = (-math.pi / 2 + frame * math.pi / 6) * (-1 if reversal else 1)
-    minute = (-math.pi / 2 + frame * 2 * math.pi / 3) * (-1 if reversal else 1)
-    line(cv, 16, 15.5, 16 + math.cos(hour) * 2.6, 15.5 + math.sin(hour) * 2.6, "#1a1a1a")
-    line(cv, 16, 15.5, 16 + math.cos(minute) * 4, 15.5 + math.sin(minute) * 4, "#b01818" if not reversal else "#1858d8")
-    cv.px(16, 15, BRASS[3])
-    # head: a dome with one great lens
-    cv.shade(ell_mask(16, 5.5, 4, 3.8), BRASS)
-    cv.shade(rect_mask(13, 8, 19, 9), STEEL)
-    cv.shade(ell_mask(16, 5.5, 1.9, 1.9), STEEL)
-    cv.px(16, 5, lens); cv.px(15, 5, lens); cv.px(16, 6, lens); cv.px(15, 4, "#ffffff")
-    line(cv, 16, 1, 16, 0, BRASS[3])
-    cv.px(16, 0, lens)
-    # four arms, the upper pair holding a clock-hand blade each
-    up = -3 if cast else 0
-    thick(cv, 9, 11, 4, 7 + up, 2, STEEL)
-    thick(cv, 23, 11, 28, 7 + up, 2, STEEL)
-    thick(cv, 4, 7 + up, 2, 1 + up, 1.6, BRASS)
-    thick(cv, 28, 7 + up, 30, 1 + up, 1.6, BRASS)
-    cv.px(2, 1 + up, BRASS[3]); cv.px(30, 1 + up, BRASS[3])
-    thick(cv, 9, 18, 5, 21, 2, STEEL)
-    thick(cv, 23, 18, 27, 21, 2, STEEL)
-    cog(cv, 5, 21, 1.4, BRASS, teeth=4)
-    cog(cv, 27, 21, 1.4, BRASS, teeth=4)
+    f = frame % 3
+    back = -1 if reversal else 1
+    light = "#ff4ad8" if reversal else LENS
+    cloak = CLOAK_REV if reversal else CLOAK
+    bob = (0, -1, 0)[f]
+    # the orrery's ring behind him, tilted, and its little worlds
+    ring = [(16 + math.cos(math.radians(a)) * 14, 18 + math.sin(math.radians(a)) * 3.4 - math.cos(math.radians(a)) * 1.5)
+            for a in range(0, 360, 7)]
+    for i, (x, y) in enumerate(ring):
+        if y < 18.5 - (x - 16) * 0.1:
+            cv.px(x, y, BRASS[1], 150)
+    worlds = ((0, LAVA, 1.2), (120, SCALE, 1.0), (240, IRON, 0.9))
+    for (a0, col, r) in worlds:
+        a = math.radians(a0 + f * 40 * back)
+        wx, wy = 16 + math.cos(a) * 14, 18 + math.sin(a) * 3.4 - math.cos(a) * 1.5
+        if math.sin(a) < 0:
+            cv.shade(ell_mask(wx, wy, r, r), col, rim=False)
+    # the great gear turning behind his hood, like a halo
+    cog(cv, 16, 7 + bob, 6.2, R("#120c06", "#2a1c0a", "#4a3414", "#6a4c1c"), teeth=10, turn=f * 0.21 * back)
+    # the pendulum under his hem
+    sw = (-3, 0, 3)[f] * back
+    line(cv, 16, 24, 16 + sw, 29, BRASS[2])
+    cv.shade(ell_mask(16 + sw, 29.5, 2.2, 1.9), BRASS)
+    cv.px(15 + sw, 29, BRASS[3]); cv.px(16 + sw, 30, light)
+    # the cloak: a hood and a long cloak, its hem torn into points that drift
+    body = poly_mask([(11, 4 + bob), (21, 4 + bob), (23, 12), (25, 20), (26, 26), (6, 26), (7, 20), (9, 12)])
+    cv.shade(body, cloak, grad=lambda x, y: 2 if x < 14 else 1)
+    for k, hx in enumerate(range(6, 27, 3)):
+        d = (k + f) % 3
+        cv.shade(poly_mask([(hx, 25), (hx + 3, 25), (hx + 1.5, 28 + d)]), cloak, grad=lambda x, y: 1, rim=False)
+    # stars in the cloak's folds
+    for k, (x, y) in enumerate(((9, 20), (23, 18), (11, 24), (21, 23), (8, 15), (24, 25))):
+        if (k + f) % 3:
+            cv.px(x, y, cloak[3] if k % 2 else "#ffffff", 160 + 30 * ((k + f) % 3))
+    # the hourglass heart: two bulbs of glass, the sand running from one to the other
+    glass = poly_mask([(13, 12), (19, 12), (16.5, 17), (19, 22), (13, 22), (15.5, 17)])
+    for (x, y) in glass:
+        cv.px(x, y, "#5a7a9a" if not reversal else "#8a5a9a", 200)
+    for y in range(12, 22):
+        cv.px(13, y, BRASS[1]); cv.px(19, y, BRASS[0])
+    cv.px(14, 13, "#ffffff", 200); cv.px(14, 19, "#ffffff", 160)
+    level = (1, 2, 3)[f]
+    top_y, bot_y = (14 + level, 21 - level) if not reversal else (17 - level, 18 + level)
+    for (x, y) in glass:
+        if (y < 17 and y >= top_y and not reversal) or (y > 17 and y >= bot_y and not reversal) or \
+           (reversal and ((y < 17 and y <= top_y) or (y > 17 and y <= bot_y))):
+            cv.px(x, y, SAND[2] if (x + y) % 3 else SAND[3])
+    for y in range(16, 19):
+        cv.px(16, y + (f % 2 if not reversal else -(f % 2)), SAND[3])
+    for x in range(12, 21):
+        cv.px(x, 11, BRASS[2 if x < 17 else 1]); cv.px(x, 22, BRASS[2 if x < 17 else 1])
+    cv.px(12, 11, BRASS[3]); cv.px(20, 22, BRASS[0])
+    # the hood, deep, and the clock in it for a face
+    hood = poly_mask([(11.5, 3 + bob), (16, -0.5 + bob), (20.5, 3 + bob), (22, 9 + bob), (19, 12), (13, 12), (10, 9 + bob)])
+    cv.shade(hood, cloak, grad=lambda x, y: 3 if x < 14 and y < 6 else 2)
+    face = ell_mask(16, 6.8 + bob, 3.4, 3.4)
+    for (x, y) in face:
+        cv.px(x, y, "#05040c")
+    cv.shade(ell_mask(16, 6.8 + bob, 2.8, 2.8), DIAL, rim=False)
+    glow_ring(cv, 16, 6.8 + bob, 2.8, light, 120)
+    for k in range(4):
+        a = k * math.pi / 2
+        cv.px(16 + math.cos(a) * 2.3, 6.8 + bob + math.sin(a) * 2.3, BRASS[0])
+    hour = -math.pi / 2 + f * math.pi / 3 * back
+    minute = -math.pi / 2 + f * 2 * math.pi / 3 * back
+    line(cv, 16, 7 + bob, 16 + math.cos(hour) * 1.5, 7 + bob + math.sin(hour) * 1.5, "#1a1a1a")
+    line(cv, 16, 7 + bob, 16 + math.cos(minute) * 2.4, 7 + bob + math.sin(minute) * 2.4, "#b01818" if not reversal else "#7a14d8")
+    # two eyes lit in the dial
+    cv.px(15, 6 + bob, light); cv.px(17, 6 + bob, light)
+    cv.px(16, 7 + bob, BRASS[3])
+    # four arms: brass, jointed
+    up = -4 if cast else 0
+    for d in (-1, 1):
+        sx = 16 + d * 6
+        ex, ey = 16 + d * 10, 9 + up
+        thick(cv, sx, 12, ex, ey, 2, STEEL)
+        cv.shade(ell_mask(sx, 12, 1.5, 1.5), BRASS)
+        cv.shade(ell_mask(ex, ey, 1.3, 1.3), BRASS)
+        # the blade: a clock's minute hand, long, with an arrowhead and a counterweight ring
+        if cast:
+            tx, ty = 16 + d * 3, -0.5
+        else:
+            tx, ty = 16 + d * 13, -1 + (f == 1)
+        bx, by = ex - (tx - ex) * 0.3, ey - (ty - ey) * 0.3
+        thick(cv, bx, by, tx, ty, 1.7, BRASS)
+        line(cv, bx + (tx - bx) * 0.3, by + (ty - by) * 0.3, tx, ty, BRASS[3], 140)
+        cv.px(bx, by, BRASS[3]); glow_ring(cv, bx, by, 0.8, BRASS[2], 220)
+        a = math.atan2(ty - by, tx - bx)
+        for s in (-1, 1):
+            cv.px(tx - math.cos(a) * 2 + math.cos(a + s * math.pi / 2) * 1.2,
+                  ty - math.sin(a) * 2 + math.sin(a + s * math.pi / 2) * 1.2, BRASS[3])
+        cv.px(tx, ty, light)
+        # the lower arm, its hand cradling the hourglass
+        thick(cv, 16 + d * 7, 15, 16 + d * 5, 19, 1.6, STEEL)
+        cv.shade(ell_mask(16 + d * 4.6, 19.5, 1.2, 1.2), BRASS)
     if cast:
-        for (x, y) in ((2, -1), (30, -1), (1, 0), (31, 0)):
-            sparkle(cv, x, y + 2, lens)
-        glow_ring(cv, 16, 15.5, 6.6, lens, 140)
+        # the blades crossed overhead, time cracking where they meet
+        sparkle(cv, 16, 0, light)
+        for k in range(8):
+            a = math.radians(k * 45 + f * 20)
+            cv.px(16 + math.cos(a) * 4, 1 + math.sin(a) * 2.5, light, 200)
+        glow_ring(cv, 16, 17, 6.5, light, 110)
+    # the near half of the ring, in front of him, and the worlds on it
+    for i, (x, y) in enumerate(ring):
+        if not (y < 17.5 - (x - 16) * 0.14):
+            cv.px(x, y, BRASS[2 + (i % 4 == 0)], 190)
+    for (a0, col, r) in worlds:
+        a = math.radians(a0 + f * 40 * back)
+        wx, wy = 16 + math.cos(a) * 14, 18 + math.sin(a) * 3.4 - math.cos(a) * 1.5
+        if math.sin(a) >= 0:
+            cv.shade(ell_mask(wx, wy, r + 0.3, r + 0.3), col)
     return cv.img
 
 
 # =================================================================================================
 # Vaelith, the Crucible Sovereign
 
-PLATE = R("#6e6a80", "#b4b0c4", "#e6e2f0", "#ffffff")
+PLATE = R("#4a4660", "#8e8aa6", "#d0ccdf", "#ffffff")
 TRIM = GOLD
 FLAME = R("#7a1a06", "#d8500e", "#ffa024", "#fff0a0")
 FLAME_FAR = R("#4a1004", "#962e08", "#d8661a", "#ffbe5a")
@@ -444,57 +561,140 @@ CAPE = R("#3a0614", "#6e0e26", "#a01a36", "#d03a52")
 SIGILS = ("#a4afc0", "#46c2b4", "#ff9a24", "#4af0ff")
 
 
-def vaelith(frame=0, cast=False, ascended=False, unbound=False):
-    cv = Canvas()
-    flap = (-5, 0, 4)[frame % 3] if not cast else -8
-    fl, ff = (VOID_FLAME, VOID_FAR) if unbound else (FLAME, FLAME_FAR)
-    big = 2 if ascended or unbound else 0
-    wing(cv, [(19, 12), (24, 6), (30, 1)], 70, -15, 10 + big, 8 + big, ff, ff, n=8, flap=-flap * .6)
-    wing(cv, [(13, 12), (8, 5), (1, 0)], 100, 205, 12 + big, 9 + big, fl, fl, n=10, tip=frame, tipcol=fl[3], flap=flap)
-    # cape
-    cv.shade(poly_mask([(12, 12), (20, 12), (23, 30), (16, 28), (9, 30)]), CAPE, grad=lambda x, y: 2 if x < 15 else 1)
-    # legs
-    for lx in (12, 17):
-        cv.shade(rect_mask(lx, 22, lx + 2, 30), PLATE)
-        cv.px(lx + 1, 26, TRIM[2])
-    # body
-    cv.shade(poly_mask([(11, 11), (21, 11), (21, 18), (19, 23), (13, 23), (11, 18)]), PLATE, grad=lambda x, y: 2 if x < 16 else 1)
-    for (x, y) in ((16, 13), (15, 14), (16, 14), (17, 14), (16, 15), (16, 16)):
-        cv.px(x, y, TRIM[2] if not unbound else VOID_FLAME[2])
-    for x in range(11, 22):
-        cv.px(x, 19, TRIM[2] if x % 2 else TRIM[3])
-    for sx in (11, 21):
-        cv.shade(ell_mask(sx, 11.5, 2.6, 2), PLATE)
-        cv.px(sx, 10, TRIM[3])
-    # head: an open helm, a face of light
-    cv.shade(ell_mask(16, 6.5, 3.2, 3.6), PLATE)
-    cv.shade(rect_mask(15, 6, 17, 8), R("#e8b890", "#f4d0b0", "#ffe6cc", "#fff4e8"))
-    eye = "#ffe68a" if not unbound else "#e040ff"
-    cv.px(15, 6, eye); cv.px(17, 6, eye)
-    # the halo of the four floors, crowned (broken, when unbound)
-    for k in range(16):
-        a = math.radians(k * 22.5 + frame * 8)
-        if unbound and k in (3, 4, 11):
-            continue
-        x, y = 16 + math.cos(a) * 5.2, 2.2 + math.sin(a) * 1.6
-        cv.px(x, y, SIGILS[k % 4] if not unbound else VOID_FLAME[2 + k % 2])
-    # the glaive of white flame in his right hand
-    if cast:
-        line(cv, 22, 14, 29, 2, TRIM[1])
-        for (x, y) in ((29, 2), (30, 1), (28, 1), (30, 3), (31, 0)):
-            cv.px(x, y, fl[3])
-        sparkle(cv, 30, 1, fl[2])
-        orb(cv, 9, 16, 2.4, fl, glow=fl[2])
+def flame_wing(cv, d, f, ramp, far, spread):
+    """A wing of fire from the shoulder, its feathers flames, their tips flickering white-hot (frame)
+    and embers lifting off it; spread raises it."""
+    if d < 0:
+        arm = [(13, 12), (8, 6 - spread * 0.15), (1, 1 - spread * 0.2)]
+        wing(cv, arm, 100 + spread, 200 + spread * 0.5, 11 + spread * 0.15, 8, ramp, far, n=9, tip=f, tipcol=ramp[3], flap=0)
     else:
-        line(cv, 24, 4, 24, 30, TRIM[1])
-        line(cv, 25, 5, 25, 30, TRIM[2])
-        blade = poly_mask([(23, 0), (26, 0), (27, 3), (24.5, 8), (22, 3)])
-        cv.shade(blade, R("#c8c4e0", "#f0eefa", "#ffffff", "#ffffff") if not unbound else VOID_FLAME)
-        cv.px(24, 2, fl[2])
-        thick(cv, 21, 13, 24, 15, 2, PLATE)
-        thick(cv, 11, 13, 9, 18, 2, PLATE)
+        arm = [(19, 12), (24, 6 - spread * 0.15), (31, 1 - spread * 0.2)]
+        wing(cv, arm, 80 - spread, -20 - spread * 0.5, 11 + spread * 0.15, 8, ramp, far, n=9, tip=f + 1, tipcol=ramp[3], flap=0)
+    for k in range(3):
+        cv.px(16 + d * (9 + k * 5), 21 - k * 5 - ((f + k) % 3), ramp[3], 210)
+
+
+def vaelith(frame=0, cast=False, ascended=False, unbound=False):
+    """The tower's maker: a sovereign in white plate chased with gold, a crimson cape, wings of fire
+    and a ring of gold behind him set with the four floors' gems, a crown, a visor burning gold, a
+    glaive of white flame. The wings flicker (frame). Ascendant, the wings spread wider, the ring
+    blazes and the four gems leave it to circle him. Unbound, the fire turns to the void, the plate
+    cracks with violet light, the ring breaks and the cape tears."""
+    cv = Canvas()
+    f = frame % 3
+    fl, ff = (VOID_FLAME, VOID_FAR) if unbound else (FLAME, FLAME_FAR)
+    eye = "#e040ff" if unbound else "#ffe68a"
+    bob = (0, -1, 0)[f]
+    spread = (10 if ascended or unbound else 0) + (12 if cast else (0, 4, -3)[f])
+    # the great ring behind him, gold, the four floors' gems set in it (broken, unbound)
+    for k in range(40):
+        a = math.radians(k * 9)
+        if unbound and (k % 10) in (2, 3, 7):
+            continue
+        x, y = 16 + math.cos(a) * 9, 9 + bob + math.sin(a) * 9
+        cv.px(x, y, TRIM[2 + (k % 5 == 0)] if not unbound else VOID_FAR[2], 220 if not ascended else 255)
+        if ascended:
+            cv.px(16 + math.cos(a) * 10, 9 + bob + math.sin(a) * 10, fl[2], 90)
+    if not ascended and not unbound:
+        for k, col in enumerate(SIGILS):
+            a = math.radians(-135 + k * 90)
+            gx, gy = 16 + math.cos(a) * 9, 9 + bob + math.sin(a) * 9
+            cv.shade(ell_mask(gx, gy, 1.2, 1.2), R(col, col, col, "#ffffff"))
+    # the wings of fire
+    for d in (-1, 1):
+        flame_wing(cv, d, f + (d > 0), fl, ff, spread)
+    # the cape, falling behind him to the ground, torn when unbound
+    cape = poly_mask([(11, 11), (21, 11), (24, 29), (16, 30), (8, 29)])
+    cv.shade(cape, CAPE if not unbound else R("#1a0420", "#34082e", "#5a1040", "#7a1a50"), grad=lambda x, y: 2 if x < 13 else 1)
+    if unbound:
+        for (x, y) in ((10, 29), (13, 28), (19, 29), (22, 28), (16, 29), (9, 27)):
+            cv.px(x, y, (0, 0, 0), 0)
+            cv.img.putpixel((x, y), (0, 0, 0, 0))
+    # greaves, under a skirt of plates
+    for lx in (12, 17):
+        cv.shade(rect_mask(lx, 23, lx + 2, 29), PLATE, grad=lambda x, y: 2 if x == lx else 1)
+        cv.px(lx + 1, 25, TRIM[2]); cv.shade(rect_mask(lx - 1, 29, lx + 3, 30), PLATE)
+    skirt = poly_mask([(12, 18), (20, 18), (22, 25), (10, 25)])
+    cv.shade(skirt, PLATE, grad=lambda x, y: 2 if x < 16 else 1)
+    for x in range(10, 23):
+        cv.px(x, 24, TRIM[2] if x % 2 else TRIM[1])
+    for x in (13, 16, 19):
+        line(cv, x, 19, x - (16 - x) * 0.2, 23, PLATE[1])
+    # the breastplate: gold chased round a sun of the four floors
+    body = poly_mask([(12, 11 + bob), (20, 11 + bob), (20, 16), (18.5, 19), (13.5, 19), (12, 16)])
+    cv.shade(body, PLATE, grad=lambda x, y: 2 if x < 14 else 1)
+    for (x, y) in ((16, 13), (15, 14), (17, 14), (16, 15), (14, 14), (18, 14), (16, 12), (16, 16)):
+        cv.px(x, y + bob * (y < 14), TRIM[2] if (x + y) % 2 else TRIM[3])
+    cv.px(16, 14, fl[3] if not unbound else VOID_FLAME[3])
+    for x in range(12, 21):
+        cv.px(x, 18, TRIM[2] if x % 2 else TRIM[3])
+    if unbound:
+        # the plate cracked, violet light in it
+        for (x, y) in ((12, 13), (13, 14), (13, 15), (14, 16), (19, 12), (19, 13), (18, 14), (20, 16), (19, 17)):
+            cv.px(x, y, VOID_FLAME[2 + (x + f) % 2])
+    # pauldrons, layered, edged in gold
+    for d in (-1, 1):
+        px_ = 16 + d * 5
+        cv.shade(ell_mask(px_, 11.5 + bob, 2.8, 2.2), PLATE, grad=lambda x, y: 2 if y < 11 else 1)
+        cv.shade(ell_mask(px_ + d * 0.8, 13.5 + bob, 2, 1.4), PLATE, grad=lambda x, y: 1)
+        for k in range(-1, 2):
+            cv.px(px_ + k, 13 + bob + abs(k) * 0.3, TRIM[2])
+        cv.px(px_ - d, 10 + bob, "#ffffff")
+    # the helm: a crowned great helm, a burning visor
+    helm = poly_mask([(13.5, 3 + bob), (18.5, 3 + bob), (19.5, 7 + bob), (18, 10.5 + bob), (16, 11.5 + bob), (14, 10.5 + bob), (12.5, 7 + bob)])
+    cv.shade(helm, PLATE, grad=lambda x, y: 2 if x < 18 else 1)
+    for x in range(14, 19):
+        cv.px(x, 6 + bob, eye if x != 16 else PLATE[0])
+    for y in range(7, 10):
+        cv.px(16, y + bob, eye if y == 7 else PLATE[0])
+    cv.px(14, 6 + bob, "#ffffff"); cv.px(18, 6 + bob, "#ffffff")
+    for (x, y) in ((13, 5), (19, 5), (12, 4), (20, 4)):
+        cv.px(x, y + bob, TRIM[2])
+    # the crown: five points of gold, each with a floor's gem (and the Apex's white)
+    for k, x in enumerate((13.5, 15, 16, 17, 18.5)):
+        h = (2, 3, 4, 3, 2)[k]
+        line(cv, round(x), 3 + bob, round(x), 3 + bob - h, TRIM[2])
+        cv.px(round(x), 3 + bob - h, (SIGILS[0], SIGILS[1], "#ffffff", SIGILS[2], SIGILS[3])[k])
+    for x in range(14, 19):
+        cv.px(x, 3 + bob, TRIM[3] if x % 2 else TRIM[2])
     if ascended:
-        glow_ring(cv, 16, 16, 13, fl[2], 50)
+        # the four gems off the ring, circling him
+        for k, col in enumerate(SIGILS):
+            a = math.radians(k * 90 + f * 30)
+            gx, gy = 16 + math.cos(a) * 13.5, 17 + math.sin(a) * 5
+            if math.sin(a) > -0.2:
+                orb(cv, gx, gy, 1.2, R(col, col, col, "#ffffff"), glow=col)
+            else:
+                cv.px(gx, gy, col, 160)
+    # the glaive of white flame
+    blade_r = R("#c8c4e0", "#f0eefa", "#ffffff", "#ffffff") if not unbound else VOID_FLAME
+    if cast:
+        # raised high in his right hand, fire pouring off the blade; the left hand calls fire
+        thick(cv, 21, 13 + bob, 25, 6, 2, PLATE)
+        line(cv, 26, 14, 26, 0, TRIM[1])
+        line(cv, 27, 14, 27, 1, TRIM[2])
+        cv.shade(poly_mask([(25, -1), (29, -1), (28, 3), (26.5, 6), (25, 3)]), blade_r)
+        sparkle(cv, 27, 1, fl[2], big=True)
+        for k in range(4):
+            cv.px(24 - k, 2 + k * 2 + f % 2, fl[3 - k % 2], 220 - k * 30)
+        thick(cv, 11, 13 + bob, 8, 18, 2, PLATE)
+        orb(cv, 7, 19, 2.6, fl, glow=fl[2])
+    else:
+        # held upright at his side, its blade a tongue of white flame
+        line(cv, 25, 5, 25, 30, TRIM[1])
+        line(cv, 26, 6, 26, 30, TRIM[2])
+        cv.shade(poly_mask([(24, 0), (27.5, 0), (28, 3), (25.5, 8), (23, 3)]), blade_r)
+        cv.px(25, 2 + f % 2, fl[2]); cv.px(26, 4, fl[3])
+        for x in (24, 27):
+            cv.px(x, 8, TRIM[3])
+        thick(cv, 21, 13 + bob, 24, 16, 2, PLATE)
+        cv.shade(ell_mask(25, 16.5, 1.5, 1.5), TRIM)
+        thick(cv, 11, 13 + bob, 9, 19, 2, PLATE)
+        cv.shade(ell_mask(9, 19.5, 1.5, 1.5), PLATE)
+    if unbound:
+        # shards of the broken ring drifting
+        for k, (x, y) in enumerate(((4, 4), (28, 9), (6, 16), (3, 24), (29, 22))):
+            cv.px(x + (f + k) % 2, y - (f + k) % 3, TRIM[2] if k % 2 else VOID_FLAME[3], 230)
     return cv.img
 
 
