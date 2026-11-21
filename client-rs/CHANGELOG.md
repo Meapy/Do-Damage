@@ -23,6 +23,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Arena
 - The Arena's ring is bigger, 8 tiles wider and taller. Bosses and their monsters can no longer leave the ring or go over its walls, and what a boss leaves behind (such as the Grave Caretaker's blue flames) no longer holds up the next wave.
 
+### Items
+- The Cloak of the Planewalker's cooldown shows what it really is, 6 seconds (it said 1.5), and the Prism of the Bloody Surprise's 3.5 seconds: the time you're invisible plus the half second you must be seen before using them again. The cooldown bar now waits that long too.
+
 ### Dungeons
 - The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them.
 

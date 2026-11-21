@@ -6,6 +6,7 @@ Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, 
 - **Scrying Glass:** the big view now shows the gear of the player you're watching, in the picture's corner under their level and class (hover an item for its tooltip, imprints and all). Its new **Ask to join** button sends them the `/visit` request: they get the Yes/No box, and a Yes takes you straight to them, into a realm too (which `/visit` itself doesn't reach). The reply ("Asked…", "didn't let you in", a cooldown) shows under the picture.
 - **Arena:** the ring is **8 tiles wider and taller**, the extra room between its four side rooms and the middle, and monsters spawn a little further out (within 22 tiles of the middle, was 18). Once the gates shut, **bosses and their monsters stay inside the ring**: none can cross its walls, and one that gets out anyway (a teleport, a toss) is put back on the nearest floor. Before, the Ghost of Skuld's teleports took him to spots of his own crypt's map, over the walls, and anything outside the ring was quietly taken away, so a wave could end without its boss dying. Once a wave's bosses and its own monsters are dead, whatever they summoned that's still about 15 seconds later fades away ("The stragglers fade away."), so nothing a boss leaves behind holds up the next wave. Skuld's invulnerable flaming skulls no longer come as monsters of their own in the Graveyard rounds (Skuld still throws his).
 - **Dungeons:** the Grave Caretaker's blue flames come after the players once he falls, instead of waiting where he left them. In the Arena, those left behind stood still out of reach and held the next wave up.
+- **Items:** the **Cloak of the Planewalker**'s tooltip said its cooldown was 1.5 seconds, but since 2.6.1 it can't be used again until you've been seen for half a second after its 5.5 seconds of invisibility: 6 seconds in all. Its cooldown is now **6 seconds**, so the tooltip, the wiki and the ability's cooldown bar say so, instead of the bar filling at 1.5 s and the cloak then buzzing an error. The **Prism of the Bloody Surprise** (3 s invisible) now has a **3.5 second** cooldown for the same reason (it had none of its own, so 0.5 s).
 
 ## Details
 
@@ -33,6 +34,13 @@ Release 2.6.3: skins sold at the Armoire, Scrying Glass's Ask to join and gear, 
 - **Map:** `source/Shared/resources/worlds/Dungeons/Admin Arena.jm` (the Arena's and the Admin Arena's): columns 46 and 70 and rows 50 and 74 (plain floor, symmetric about the middle at 58, 62) each copied four times, the copies keeping the ring's walls but none of the trees, rocks or other decorations; 124 × 127 to 132 × 135. The doors, gateways, middle and chests are all read from the map, so they follow.
 - **Docs:** CHANGELOG (Arena, Dungeons), `website/wiki/progression.md` (The ring), `website/wiki/dungeons.md` (the Cemetery), SETUP-LOCAL ("The Arena keeps its fights in the ring").
 - **Deploys:** world server (and the website for the wiki). Nobody is disconnected; no Redis changes; no client change. An Arena game running when the world server rolls keeps the old map until it ends.
+
+### Plane walk cooldowns tell the truth
+
+- **Why:** a player's screenshot: the Cloak of the Planewalker still showed "Cooldown: 1.5 secs" after 2.6.1's rule that a plane walk needs 0.5 s of being seen (`Player.UseItem.cs` `PlaneWalks`), which makes the real wait 5.5 + 0.5 = 6 s. The client starts its cooldown bar from `<Cooldown>`, so the bar was ready at 1.5 s and the key only buzzed until 6 s.
+- **Content:** `<Cooldown>` 1.5 to 6 on the Cloak of the Planewalker (`source/Shared/resources/xml/prod/EmbeddedData_EquipCXML.xml`), a new `<Cooldown>3.5</Cooldown>` on the Prism of the Bloody Surprise (`source/Shared/resources/xml/custom/DoomedRealms.xml`); the AIR client's copies kept in step. The visibility rule and its tooltip line stay (it still matters after invisibility from elsewhere). The Elder Cloak of the Planar Rift is left as it was, as before. The comment in `Player.UseItem.cs` updated.
+- **Docs:** CHANGELOG (Items), SETUP-LOCAL ("Plane walks wait until you've been seen"). The wiki's gear pages take the cooldown from the XML (checked: "Cooldown 6s").
+- **Deploys:** world server (it serves the XML to the client) and the website for the wiki. Nobody is disconnected; no Redis changes; no code change in the client.
 
 ## Checks
 

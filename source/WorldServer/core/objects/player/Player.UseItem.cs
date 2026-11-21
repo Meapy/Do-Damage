@@ -219,8 +219,9 @@ namespace WorldServer.core.objects
             }
 
             // a plane walk (a teleport that makes you invisible) only once you've been seen for half a
-            // second: the Planewalker's cooldown (1.5 s) is shorter than its invisibility (5.5 s), so
-            // it could be used again and again without ever showing; a little slack for the trip
+            // second: the Planewalker's cooldown was shorter than its invisibility, so it could be used
+            // again and again without ever showing (its <Cooldown> now covers both, 6 s, but invisibility
+            // from elsewhere still counts); a little slack for the trip
             if (slot == 1 && entity == this && PlaneWalks(item)
                 && Environment.TickCount64 - _lastInvisibleAt < VisibleBeforeInvisibleMs - VisibleSlackMs)
             {

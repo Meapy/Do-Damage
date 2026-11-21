@@ -1126,7 +1126,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
     makes you invisible (the Cloak of the Planewalker, the Prism of the Bloody Surprise; not an
     Empowered boss's item with a `RelicPower`, so the Elder Cloak of the Planar Rift is kept as it
     was) is refused until you have been visible for 0.5 s (the server allows 0.4 s, for the trip). The Planewalker's 1.5 s cooldown under 5.5 s of invisibility let a Rogue
-    stay invisible for good. Their tooltips carry the rule as an `EffectInfo` line.
+    stay invisible for good. Their tooltips carry the rule as an `EffectInfo` line. Since 2.6.3 their
+    `<Cooldown>` is the invisibility plus that half second (Planewalker 6 s, Prism 3.5 s), so the
+    tooltip and the client's cooldown bar show the real wait.
   - **Imprint borders** (`hud::draw_imprint_marks`, now taking the slot's rectangle,
     `imprint_border`; `theme::split_ring`, `part_of`): the gold-edged squares became a rounded
     ring round the slot, gold, then a band of each imprint's colour, gold between them: 1 all

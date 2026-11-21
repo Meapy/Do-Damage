@@ -972,6 +972,7 @@
 		<Activate duration="8">Decoy</Activate>
 		<Activate maxDistance="30">Teleport</Activate>
 		<Activate effect="Invisible" duration="3">ConditionEffectSelf</Activate>
+		<Cooldown>3.5</Cooldown>
 		<ExtraTooltipData>
 			<EffectInfo name="" description="Only usable once you&apos;ve been visible for 0.5 secs"/>
 		</ExtraTooltipData>
