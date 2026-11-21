@@ -9,6 +9,13 @@ use image::{GenericImageView, Rgba, RgbaImage};
 /// `TextureRedrawer.magic`: padding left, right and above the sprite, for the outline.
 pub const PAD: u32 = 12;
 
+/// `size` for a character's picture that's laid out for an 8-pixel sprite: a bigger sprite (the
+/// Realm Pass's 16-pixel skins) is drawn smaller, so it fills the same box.
+pub fn fit_char(size: i32, src: crate::sprites::SrcRect) -> i32 {
+    let side = i32::from(src.w.max(src.h)).max(8);
+    (size * 8 / side).max(1)
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Key {
     src: SrcRect,

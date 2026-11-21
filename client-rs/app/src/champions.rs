@@ -515,7 +515,7 @@ fn figure(ui: &mut Ui, e: &ChampionEntry, px: f32, feet: f32, k: f32, size: i32)
     let src = ui.sprites.char_src(set, *index, 2, 0).or_else(|| ui.sprites.char_src(set, *index, 0, 0))?;
     let mask = ui.sprites.char_mask_src(set, *index, 2, 0).or_else(|| ui.sprites.char_mask_src(set, *index, 0, 0));
     let dye = mask.map(|mask| crate::redraw::Dye { mask, tex1: e.tex1, tex2: e.tex2 });
-    let img = ui.redrawer.get_glowing(ui.sprites, ui.renderer, src, false, size, dye, GOLD)?;
+    let img = ui.redrawer.get_glowing(ui.sprites, ui.renderer, src, false, crate::redraw::fit_char(size, src), dye, GOLD)?;
     let (w, h) = (img.w as f32 * k, img.h as f32 * k);
     ui.renderer.sprite(img.rect, Quad::rect((px - w / 2.0).round(), (feet - h).round(), w, h), Tint::NONE);
     // the canvas has room for the outline above the sprite: the head is lower than its top

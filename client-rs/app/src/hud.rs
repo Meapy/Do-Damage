@@ -2344,6 +2344,7 @@ fn draw_character(ui: &mut Ui, me: &GameObj, cx: f32, cy: f32, size: i32) {
         tex2: me.stat_int(stat::TEX2).unwrap_or(0),
     });
     // Redrawn at the size it shows, centred on the sprite (see `item_icon`).
+    let size = crate::redraw::fit_char(size, src);
     let Some(icon) = ui.redrawer.get(ui.sprites, ui.renderer, src, false, size, dye) else { return };
     let (w, h) = (icon.w as f32, icon.h as f32);
     let lift = (crate::redraw::PAD as f32 - 1.0) / 2.0;

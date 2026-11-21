@@ -30,7 +30,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - The Grave Caretaker's blue flames come after you once he falls, instead of waiting where he left them, and the Cnidarian Reef's jellyfish can be hit once the Royal Cnidarian is gone (in the Arena they stayed invulnerable for good).
 
 ### Realm Pass
-- The Gilded pass's [Gilded] chat title can be hidden and shown again: the Hide and Show button on its card in the Gilded perks tab, or `/pass title off` and `/pass title on`.
+- The Gilded pass's [Gilded] chat title can be hidden and shown again: the Hide and Show button on its card in the Gilded perks tab, or `/pass title off` and `/pass title on`. The pass's skins are no longer twice as big as they should be in the party list, the character pictures and the champions' statues, where they ran into the next row.
 
 ### Game
 - `/discord` shows the invite to the Do Damage Discord with a button that opens it, and the Discord links in the game and on the website point to its new invite.
