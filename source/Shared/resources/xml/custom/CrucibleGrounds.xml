@@ -104,8 +104,8 @@
 				<Index>0x12</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>110</MinDamage>
-		<MaxDamage>140</MaxDamage>
+		<MinDamage>55</MinDamage>
+		<MaxDamage>70</MaxDamage>
 		<Color>0xC4482C</Color>
 	</Ground>
 	<Ground type="0xC606" id="Molten Grate">
@@ -119,8 +119,8 @@
 				<Index>0x14</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>130</MinDamage>
-		<MaxDamage>160</MaxDamage>
+		<MinDamage>65</MinDamage>
+		<MaxDamage>80</MaxDamage>
 		<Color>0xD8600E</Color>
 	</Ground>
 	<Ground type="0xC607" id="Sanctum Mosaic">
@@ -217,8 +217,8 @@
 		</RandomTexture>
 		<Speed>0.55</Speed>
 		<Sink />
-		<MinDamage>40</MinDamage>
-		<MaxDamage>60</MaxDamage>
+		<MinDamage>20</MinDamage>
+		<MaxDamage>30</MaxDamage>
 		<Animate dx=".35">Flow</Animate>
 		<Color>0x0E4466</Color>
 	</Ground>
@@ -383,8 +383,8 @@
 				<Index>0x41</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>140</MinDamage>
-		<MaxDamage>170</MaxDamage>
+		<MinDamage>70</MinDamage>
+		<MaxDamage>85</MaxDamage>
 		<Color>0xF2D282</Color>
 	</Ground>
 	<Ground type="0xC615" id="Hour Hand">
@@ -402,8 +402,8 @@
 				<Index>0x44</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>150</MinDamage>
-		<MaxDamage>180</MaxDamage>
+		<MinDamage>75</MinDamage>
+		<MaxDamage>90</MaxDamage>
 		<Color>0xB01818</Color>
 	</Ground>
 	<Ground type="0xC616" id="Apex Marble">
@@ -472,8 +472,8 @@
 				<Index>0x50</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>170</MinDamage>
-		<MaxDamage>210</MaxDamage>
+		<MinDamage>85</MinDamage>
+		<MaxDamage>105</MaxDamage>
 		<Animate dx="0.3" dy="0.3">Wave</Animate>
 		<Color>0xFFD04A</Color>
 	</Ground>
