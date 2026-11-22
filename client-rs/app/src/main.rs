@@ -198,6 +198,8 @@ struct App {
     teller: usize,
     /// Clickable names and help links in the chat, as last drawn.
     chat_clicks: Vec<hud::ChatClick>,
+    /// Where the HUD's Buy gold "+" was drawn last frame, for clicks.
+    buy_gold: Option<[f32; 4]>,
     /// `--say <text>` (desktop tests): lines still to send, one per world we join (see `say_arg`).
     say: Vec<String>,
     /// The join (`reconnects`) the last --say line went out in, and when.
@@ -1480,6 +1482,7 @@ impl App {
                 self.front.message = None;
             }
             Action::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
+            Action::OpenGoldStore => login::open_link(screens::GOLD_STORE),
             Action::SpriteEditor => {
                 self.sprite_editor.open();
                 self.front.show(screens::Screen::Sprites);
@@ -2674,6 +2677,7 @@ impl App {
                     self.game_menu = false;
                     self.changelog.show();
                 }
+                Some(screens::MenuChoice::GoldStore) => login::open_link(screens::GOLD_STORE),
                 Some(screens::MenuChoice::Home) => {
                     self.leave_game(None);
                     return;
@@ -3198,6 +3202,14 @@ impl App {
                             continue;
                         }
                     }
+                    // The "+" beside the gold: the Gold Store, on the website.
+                    if self.buy_gold.is_some_and(|r| hud::inside(r, pos)) {
+                        if down {
+                            login::open_link(screens::GOLD_STORE);
+                        }
+                        self.mouse_down = false;
+                        continue;
+                    }
                     // Chat names open their menu or a whisper; a help link sends /visit at once.
                     let (px, py) = (pos.0 as f32, pos.1 as f32);
                     let click = self.chat_clicks.iter().find(|click| {
@@ -3560,13 +3572,14 @@ impl App {
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
                 self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_channel, (self.mouse.0 as f32, self.mouse.1 as f32), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.buy_gold = None;
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
                         Some(ms) => format!("{:.0} fps  ·  {ms} ms", self.fps_shown),
                         None => format!("{:.0} fps", self.fps_shown),
                     });
-                    hud::draw_credits(&mut ui, &lay, p, game.show_displays && game.arena.is_none(), fps.as_deref());
+                    self.buy_gold = Some(hud::draw_credits(&mut ui, &lay, p, game.show_displays && game.arena.is_none(), fps.as_deref(), mouse));
                 }
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
@@ -4286,6 +4299,7 @@ fn main() {
         chat_log: Vec::new(),
         teller: 0,
         chat_clicks: Vec::new(),
+        buy_gold: None,
         chat_send: Vec::new(),
         say: say_lines(),
         say_sent_in: None,

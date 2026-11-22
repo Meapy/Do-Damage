@@ -45,6 +45,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Vault
 - Your vault has 42 gift chests, up from 26. Gifts that don't fit wait their turn: an emptied gift chest fills straight up with the next ones, and the vault window shows them all, the waiting ones under **Waiting gifts**.
 
+### Game
+- A **Gold Store** button opens the gold store on the website: the little gold **+** beside your gold (in the game and on the character screen), and **Gold Store** on the main menu and the Escape menu.
+
 ## 2.6.3 (2026-11-21)
 
 ### Skins

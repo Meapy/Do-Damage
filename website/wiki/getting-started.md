@@ -39,7 +39,9 @@ cost {{v:slot_cost}} or {{v:slot_gold}} gold on the character screen; more vault
 {{v:vault_chest_price}} fame or {{v:vault_gold}} gold in the vault (see
 [Items](items.html#your-vault)). The fame price doubles every {{v:unlock_doubles}} slots (or
 chests) you buy with fame; the gold price never changes, and buying with gold doesn't raise the
-fame price.
+fame price. Gold is bought in the [Gold Store](../gold.html): the gold **+** beside your gold (in
+the game and on the character screen) and the **Gold Store** button on the main menu and the
+Escape menu open it in your browser.
 
 ## Choosing a class
 
@@ -176,7 +178,7 @@ summary instead.
 The world fills the window, with one bar down the right:
 
 - **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
-  beside the minimap. On it, your quest is a red box, realm events orange, and players yellow
+  beside the minimap (the gold **+** opens the Gold Store). On it, your quest is a red box, realm events orange, and players yellow
   over everything; a realm you go back to keeps the map you'd uncovered. In the Nexus it also shows
   its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
   ringed gold for those you talk to and violet for portals, even before you've been there, at the

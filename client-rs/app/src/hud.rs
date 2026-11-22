@@ -4582,8 +4582,9 @@ pub fn draw_chat(
 /// `CreditDisplay`: your gold and fame, each before its icon, beside the minimap (no box),
 /// under your rank and its star (`GameSprite.rankText_`) in maps that show it, and the frame
 /// rate (`fps`) at the foot when it's on. Each count is centred on its icon by the middle of
-/// its digits.
-pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fps: Option<&str>) {
+/// its digits. A small gold "+" before the gold opens the Gold Store on the website; returns
+/// where it is, for clicks.
+pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fps: Option<&str>, mouse: (f64, f64)) -> [f32; 4] {
     let s = lay.s;
     let size = lay.font(16.0);
     let fps_size = lay.font(12.0);
@@ -4597,6 +4598,9 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fp
     for v in [rank.unwrap_or(0), gold, fame] {
         inner = inner.max(ui.measure(&v.to_string(), size, true) + 24.0 * s);
     }
+    // the gold's row also holds the "+"
+    let plus = (17.0 * s).round();
+    inner = inner.max(ui.measure(&gold.to_string(), size, true) + 24.0 * s + plus + 6.0 * s);
     if let Some(t) = fps {
         inner = inner.max(ui.measure(t, fps_size, true));
     }
@@ -4623,14 +4627,47 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fp
         cy += row_h;
     }
     // lofiObj3's coin and fame icons.
+    let mut buy = [0.0; 4];
     for (value, icon) in [(gold, 225), (fame, 224)] {
         ui.tile_icon("lofiObj3", icon, 40, icon_x, cy, s);
         count(ui, value, cy, 0xFFFFFF);
+        if icon == 225 {
+            let tw = ui.measure(&value.to_string(), size, true);
+            buy = [(right - 24.0 * s - tw - 6.0 * s - plus).round(), (cy - plus / 2.0).round(), plus, plus];
+        }
         cy += row_h;
     }
     if let Some(t) = fps {
         let tw = ui.measure(t, fps_size, true);
         ui.label(t, right - tw, cy - row_h / 2.0, fps_size, true, 0xB0FFB0);
+    }
+    draw_buy_gold(ui, buy, s, inside(buy, mouse));
+    buy
+}
+
+/// The HUD's Buy gold button: a gold chip with a dark "+", brighter under the mouse, which then
+/// says what it does to its left. Also the character list's, beside the gold there.
+pub(crate) fn draw_buy_gold(ui: &mut Ui, r: [f32; 4], s: f32, hover: bool) {
+    let radius = 4.0 * s;
+    let base = if hover { theme::shade(color::GOLD, 0.18) } else { color::GOLD };
+    if hover {
+        theme::fill(ui.renderer, [r[0] - 2.0 * s, r[1] - 2.0 * s, r[2] + 4.0 * s, r[3] + 4.0 * s], radius + 2.0 * s, color::GOLD, 0.25);
+    }
+    theme::shadow(ui.renderer, r, radius, 2.0 * s, 0.4);
+    theme::rounded(ui.renderer, r, radius, (theme::shade(base, 0.2), 1.0), (theme::shade(base, -0.22), 1.0));
+    theme::fill(ui.renderer, [r[0] + radius * 0.6, r[1] + s.max(1.0), r[2] - radius * 1.2, s.max(1.0)], 0.0, 0xFFFFFF, 0.35);
+    // the "+", drawn so it sits exactly in the middle
+    let (cx, cy) = (r[0] + r[2] / 2.0, r[1] + r[3] / 2.0);
+    let (arm, thick) = ((r[2] * 0.3).round(), (2.0 * s).round().max(2.0));
+    ui.rect((cx - arm).round(), (cy - thick / 2.0).round(), 2.0 * arm, thick, color::ACCENT_TEXT, 1.0);
+    ui.rect((cx - thick / 2.0).round(), (cy - arm).round(), thick, 2.0 * arm, color::ACCENT_TEXT, 1.0);
+    if hover {
+        let label = tr("Buy gold");
+        let ts = (13.0 * s).round().max(9.0);
+        let (tw, pad) = (ui.measure(label, ts, true), 6.0 * s);
+        let tip = [(r[0] - 6.0 * s - tw - 2.0 * pad).round(), (cy - (ts * 1.22 + 6.0 * s) / 2.0).round(), (tw + 2.0 * pad).round(), (ts * 1.22 + 6.0 * s).round()];
+        theme::frame(ui.renderer, tip, 4.0 * s, s.max(1.0), (color::GOLD, 0.8), ((color::PANEL_TOP, 0.96), (color::PANEL_BOTTOM, 0.96)));
+        ui.label(label, tip[0] + pad, tip[1] + 3.0 * s, ts, true, color::GOLD);
     }
 }
 

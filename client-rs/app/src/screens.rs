@@ -148,6 +148,9 @@ pub const RECENT: usize = 3;
 /// The game's Discord server: where the bot that links accounts is.
 pub const DISCORD_INVITE: &str = "discord.gg/YTYWTFDRCD";
 
+/// The website's Gold Store, where gold is bought (website/gold.html).
+pub const GOLD_STORE: &str = "https://dodmg.com/gold.html";
+
 /// What the player types to the Discord bot with their code.
 fn link_command(code: &str) -> String {
     format!("/link code:{code}")
@@ -212,6 +215,8 @@ enum Target {
     ToOptions,
     ToSprites,
     Quit,
+    /// Open the Gold Store on the website (Home's button, the "+" beside the gold).
+    GoldStore,
     /// The Discord screen, and its buttons: ask for a code, copy the command, open the Discord
     /// server, unlink.
     ToDiscord,
@@ -253,6 +258,8 @@ pub enum Action {
     DiscordUnlink,
     /// Open the game's Discord server in the browser.
     OpenDiscord,
+    /// Open the Gold Store in the browser.
+    OpenGoldStore,
     /// Open the Sprite Editor.
     SpriteEditor,
     /// Close the game.
@@ -779,6 +786,7 @@ impl Front {
             }
             Target::Logout => return Some(Action::Logout),
             Target::Changelog => return Some(Action::Changelog),
+            Target::GoldStore => return Some(Action::OpenGoldStore),
             // Signed in (or a guest): the characters; else play as a guest.
             Target::Play => {
                 self.message = None;
@@ -864,7 +872,11 @@ impl Front {
     }
 
     fn button(&mut self, ui: &mut Ui, target: Target, r: [f32; 4], label: &str, kind: Kind, s: f32, mouse: (f64, f64)) {
-        ui.button(r, label, kind, inside(r, mouse), s);
+        if kind == Kind::Gold {
+            ui.button_gold(r, label, inside(r, mouse), s);
+        } else {
+            ui.button(r, label, kind, inside(r, mouse), s);
+        }
         self.targets.push((target, r));
     }
 
@@ -1023,7 +1035,8 @@ impl Front {
         self.button(ui, Target::ToOptions, [x, y, half, bh], tr("Options"), Kind::Secondary, s, mouse);
         self.button(ui, Target::Changelog, [x + half + gap, y, half, bh], tr("Changelog"), Kind::Secondary, s, mouse);
         y += bh + gap;
-        self.button(ui, Target::ToSprites, [x, y, bw, bh], tr("Sprite Editor"), Kind::Secondary, s, mouse);
+        self.button(ui, Target::ToSprites, [x, y, half, bh], tr("Sprite Editor"), Kind::Secondary, s, mouse);
+        self.button(ui, Target::GoldStore, [x + half + gap, y, half, bh], tr("Gold Store"), Kind::Gold, s, mouse);
         y += bh + gap;
         // A browser tab is closed by the browser.
         if cfg!(not(target_arch = "wasm32")) {
@@ -1159,6 +1172,14 @@ impl Front {
             ui.label(&v, w - pad - vw, y, money, true, c);
             ui.label(label, w - pad - vw - 6.0 * s - lw, y + (money - size) * 0.6, size, false, color::TEXT_DIM);
             money_w = money_w.max(vw + 6.0 * s + lw);
+            // the gold's "+": buy more on the website
+            if i == 1 {
+                let side = (17.0 * s).round();
+                let r = [(w - pad - vw - 6.0 * s - lw - 8.0 * s - side).round(), (y + money * 0.62 - side / 2.0).round(), side, side];
+                crate::hud::draw_buy_gold(ui, r, s, inside(r, mouse) && self.confirm.is_none());
+                self.targets.push((Target::GoldStore, r));
+                money_w = money_w.max(vw + 6.0 * s + lw + 8.0 * s + side);
+            }
         }
         let bw = 104.0 * s;
         let right = w - pad - money_w - 22.0 * s;
@@ -2621,6 +2642,8 @@ pub enum MenuChoice {
     /// The Customize window: chat name colour and glow.
     Customize,
     Changelog,
+    /// The Gold Store, on the website.
+    GoldStore,
     /// Out of the game, to the main menu (the character list).
     Home,
     Logout,
@@ -2630,7 +2653,7 @@ pub enum MenuChoice {
 pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(MenuChoice, [f32; 4])> {
     let s = scale(w, h);
     ui.rect(0.0, 0.0, w, h, 0x000000, 0.5);
-    let r = [(w - 320.0 * s) / 2.0, (h - 474.0 * s) / 2.0, 320.0 * s, 474.0 * s];
+    let r = [(w - 320.0 * s) / 2.0, (h - 528.0 * s) / 2.0, 320.0 * s, 528.0 * s];
     theme::panel(ui.renderer, r, s);
     let size = (22.0 * s).round();
     let tw = ui.measure(tr("Paused"), size, true);
@@ -2646,6 +2669,7 @@ pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(Me
         (MenuChoice::Options, tr("Options"), Kind::Secondary),
         (MenuChoice::Customize, tr("Customize"), Kind::Secondary),
         (MenuChoice::Changelog, tr("Changelog"), Kind::Secondary),
+        (MenuChoice::GoldStore, tr("Gold Store"), Kind::Gold),
         (MenuChoice::Home, tr("Return home"), Kind::Secondary),
         (MenuChoice::Logout, tr("Log out"), Kind::Danger),
     ]
@@ -2653,7 +2677,11 @@ pub fn draw_game_menu(ui: &mut Ui, w: f32, h: f32, mouse: (f64, f64)) -> Vec<(Me
     .enumerate()
     {
         let b = [r[0] + 30.0 * s, r[1] + 80.0 * s + i as f32 * 54.0 * s, r[2] - 60.0 * s, 42.0 * s];
-        ui.button(b, label, kind, inside(b, mouse), s);
+        if kind == Kind::Gold {
+            ui.button_gold(b, label, inside(b, mouse), s);
+        } else {
+            ui.button(b, label, kind, inside(b, mouse), s);
+        }
         out.push((choice, b));
     }
     out

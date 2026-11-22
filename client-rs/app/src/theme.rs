@@ -191,6 +191,8 @@ pub enum Kind {
     Secondary,
     /// Red, for what can't be undone.
     Danger,
+    /// Gold, for the Gold Store.
+    Gold,
 }
 
 impl Ui<'_> {
@@ -201,6 +203,7 @@ impl Ui<'_> {
             Kind::Primary => (color::ACCENT, color::ACCENT_TEXT),
             Kind::Secondary => (color::SECONDARY, color::TEXT),
             Kind::Danger => (color::DANGER, 0xFFFFFF),
+            Kind::Gold => (color::GOLD, color::ACCENT_TEXT),
         };
         let base = if hover { shade(base, 0.15) } else { base };
         shadow(self.renderer, r, radius, 4.0 * s, 0.35);
@@ -211,6 +214,19 @@ impl Ui<'_> {
         let ty = r[1] + (r[3] - size * 1.22) / 2.0;
         // Dark text on gold reads better without the glow; draw it twice for weight.
         self.label(label, r[0] + (r[2] - tw) / 2.0, ty, size, true, text);
+    }
+
+    /// The Gold Store's gold button: the HUD's coin (lofiObj3's 225) before the label.
+    pub fn button_gold(&mut self, r: [f32; 4], label: &str, hover: bool, s: f32) {
+        self.button(r, "", Kind::Gold, hover, s);
+        let icon = 22.0 * s;
+        let gap = 6.0 * s;
+        let size = self.fit_size(label, r[2] - 12.0 * s - icon - gap, (15.0 * s).round().max(10.0), true);
+        let tw = self.measure(label, size, true);
+        let x = r[0] + (r[2] - tw - icon - gap) / 2.0;
+        self.tile_icon("lofiObj3", 225, 40, x + icon / 2.0, r[1] + r[3] / 2.0, s);
+        let ty = r[1] + (r[3] - size * 1.22) / 2.0;
+        self.label(label, x + icon + gap, ty, size, true, color::ACCENT_TEXT);
     }
 
     /// A button with its key after the label, on a small keycap (Enter, an NPC's button): the key
@@ -225,6 +241,7 @@ impl Ui<'_> {
             Kind::Primary => color::ACCENT_TEXT,
             Kind::Secondary => color::TEXT,
             Kind::Danger => 0xFFFFFF,
+            Kind::Gold => color::ACCENT_TEXT,
         };
         let ks = (12.0 * s).round().max(9.0);
         let kw = self.measure(key, ks, true);
