@@ -8,7 +8,7 @@ next, out of sight of it):
 
 - the Threshold: a small round landing with four braziers, where players arrive (Spawn region)
   and wait for the climb to begin;
-- I, the Iron Bastion: a star fort of iron flagstones, a square keep with a round bastion at
+- I, the Iron Bastion: a keep of iron flagstones, square with a round bastion at
   each corner (an iron pillar in each) and a gate notched into each side, a square of
   ember-bronze inlaid round its middle (Ferrogrim);
 - II, the Drowned Sanctum: an atoll of sea-glass mosaic with a ragged coast, tide pools of
@@ -21,7 +21,7 @@ next, out of sight of it):
   middle ring and the dial with its twelve numerals, orrery pylons on the spokes (Chronarch);
 - V, the Apex: the biggest floor (reach 23), a star of marble with eight points, inlaid with the
   tower's sigil, four obelisks banded in the floors' colours on four of its points (Vaelith, the
-  Crucible Sovereign, who reshapes it through his fight: ApexForms in logic/behaviors/Crucible.cs,
+  Crucible Sovereign, who reshapes it through his fight: ArenaForms in logic/behaviors/CrucibleArenas.cs,
   its last form in the Unbound grounds made here).
 
 Between each floor and the next a way up winds through the sky (WAYS), from one's northern edge
@@ -218,7 +218,7 @@ GROUNDS = {
     # harmless, a warning
     "Crumbling Floor": ("0x3A3036", {}),
     "Crucible Warning": ("0x8A4A1E", {}),
-    # Vaelith's last form for the Apex (ApexForm, Unbound): marble of the void, veined in violet
+    # Vaelith's last form for the Apex (ArenaForm, Unbound): marble of the void, veined in violet
     "Unbound Marble": ("0x2A1846", {}),
     "Unbound Rim": ("0x5A2A8A", {}),
     "Crucible Underside Rock": ("0x2A2230", {}),
@@ -748,7 +748,7 @@ def _orrery(dx, dy):
 
 
 def _star(dx, dy):
-    # eight points of marble round a disc (the biggest floor: Vaelith reshapes it, ApexForm)
+    # eight points of marble round a disc (the biggest floor: Vaelith reshapes it, ArenaForm)
     r, a = math.hypot(dx, dy), math.atan2(dy, dx)
     return r <= 15.0 + 8.0 * abs(math.cos(4 * a)) ** 3
 

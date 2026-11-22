@@ -1083,12 +1083,14 @@ impl Particles {
         Some(Image { frames, standing: true })
     }
 
-    /// The camera's shake after an Earthquake: a quarter of a tile within a fifth of a second,
-    /// settling over `JITTER_MS`, then still. (`Camera.update` built it up to half a tile over ten
-    /// seconds and never stopped it until the world changed.) Another Earthquake starts it again.
+    /// The camera's shake after an Earthquake: a rumble of under a tenth of a tile, smooth rather
+    /// than a new jolt each frame, within a fifth of a second, settling over `JITTER_MS`, then
+    /// still. (`Camera.update` built it up to half a tile over ten seconds and never stopped it
+    /// until the world changed; a quarter of a tile at random each frame was still too much.)
+    /// Another Earthquake starts it again.
     pub fn jitter(&mut self, now: i32) -> (f64, f64) {
-        const JITTER_MS: i32 = 2500;
-        const RISE_MS: f64 = 200.0;
+        const JITTER_MS: i32 = 1300;
+        const RISE_MS: f64 = 150.0;
         let Some(since) = self.jitter_since else { return (0.0, 0.0) };
         let t = now - since;
         if t >= JITTER_MS || t < 0 {
@@ -1097,8 +1099,9 @@ impl Particles {
         }
         let t = t as f64;
         let k = if t < RISE_MS { t / RISE_MS } else { 1.0 - (t - RISE_MS) / (JITTER_MS as f64 - RISE_MS) };
-        let j = 0.25 * k;
-        (self.pm(j), self.pm(j))
+        let j = 0.09 * k;
+        let secs = t / 1000.0;
+        (j * (secs * std::f64::consts::TAU * 11.0).sin(), j * (secs * std::f64::consts::TAU * 8.0 + 1.3).sin())
     }
 
     /// `FlashDescription.apply`: the tint an object wears now, if it flashes.
@@ -1496,10 +1499,10 @@ mod tests {
         let world = World::new(10, 10, "test", 1);
         let mut p = Particles::default();
         p.show_effect(&effect(14, 0, (0.0, 0.0), (0.0, 0.0)), &world, 1000);
-        let (jx, jy) = p.jitter(2000);
-        assert!(jx.abs() <= 0.25 && jy.abs() <= 0.25);
-        // it stops after a couple of seconds, and a new one starts it again
-        assert_eq!(p.jitter(3500), (0.0, 0.0));
+        let (jx, jy) = p.jitter(1600);
+        assert!(jx.abs() <= 0.09 && jy.abs() <= 0.09 && (jx, jy) != (0.0, 0.0));
+        // it stops after a second or so, and a new one starts it again
+        assert_eq!(p.jitter(2400), (0.0, 0.0));
         assert_eq!(p.jitter(21_000), (0.0, 0.0));
         p.show_effect(&effect(14, 0, (0.0, 0.0), (0.0, 0.0)), &world, 22_000);
         assert!(p.jitter_since.is_some());

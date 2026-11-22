@@ -84,37 +84,37 @@ namespace Tests
             }
         }
 
-        // Vaelith's Apex reshapes itself (ApexForms): each form's ground and pillars are in the game,
-        // it stays within the Apex's reach, and everything that isn't only to be looked at is one
-        // piece, so nobody is ever cut off (the orrery's at every moment of its turning)
+        public static IEnumerable<object[]> ArenaFormMoments() =>
+            WorldServer.logic.behaviors.ArenaForms.All.SelectMany(f => WorldServer.logic.behaviors.ArenaForms.Turning.Contains(f)
+                ? new[] { 0, 7300, 23900, 41700, 66100 }.Select(ms => new object[] { f, ms })
+                : new[] { new object[] { f, 0 } });
+
+        // Every floor reshapes itself through its champion's fight (ArenaForms): each form's ground
+        // and pillars are in the game, it stays within the floor's reach, and everything that isn't
+        // only to be looked at is one piece, so nobody is ever cut off (those that turn, at moments
+        // of their turning)
         [Theory]
-        [InlineData("fort", 0)]
-        [InlineData("isles", 0)]
-        [InlineData("cross", 0)]
-        [InlineData("orrery", 0)]
-        [InlineData("orrery", 7300)]
-        [InlineData("orrery", 23900)]
-        [InlineData("shards", 0)]
-        [InlineData("halo", 0)]
-        public void EveryApexFormIsWholeAndInTheGame(string form, int ms)
+        [MemberData(nameof(ArenaFormMoments))]
+        public void EveryArenaFormIsWholeAndInTheGame(string form, int ms)
         {
             var (data, _) = Game.Value;
             const int reach = 25;
+            var layout = WorldServer.logic.behaviors.ArenaForms.Layout(form, ms, reach, out var dropped);
+            Assert.True(dropped <= 8, $"{form} at {ms} ms: {dropped} squares can't be walked to");
             var floor = new HashSet<(int, int)>();
             var picture = new System.Text.StringBuilder();
             for (var dy = -reach; dy <= reach; dy++)
             {
                 for (var dx = -reach; dx <= reach; dx++)
                 {
-                    var look = WorldServer.logic.behaviors.ApexForms.Want(form, dx, dy, ms);
-                    if (look.Ground == null)
+                    if (!layout.TryGetValue((dx, dy), out var look))
                     {
                         picture.Append(' ');
                         continue;
                     }
                     Assert.True(data.IdToTileType.ContainsKey(look.Ground), $"{form}: no ground {look.Ground}");
                     Assert.True(look.Obj == null || data.IdToObjectType.ContainsKey(look.Obj), $"{form}: no object {look.Obj}");
-                    Assert.True(Math.Max(Math.Abs(dx), Math.Abs(dy)) <= 22, $"{form}: ({dx}, {dy}) is past the Apex");
+                    Assert.True(Math.Max(Math.Abs(dx), Math.Abs(dy)) <= 22, $"{form}: ({dx}, {dy}) is past the floor's reach");
                     picture.Append(look.Obj != null ? 'P' : look.Decor ? '+' : look.Ground[0]);
                     if (!look.Decor && look.Obj == null)
                         floor.Add((dx, dy));
@@ -145,6 +145,8 @@ namespace Tests
             {
                 var heart = db.Definitions[data.IdToObjectType[f.Heart]].Item1;
                 var names = All(heart).Select(s => s.Name).ToHashSet();
+                foreach (var formed in WorldServer.logic.behaviors.ArenaForms.ByHeart[f.Heart].Keys)
+                    Assert.True(names.Contains(formed), $"{f.Heart} has a form for {formed}, a state it hasn't");
                 var champion = db.Definitions[data.IdToObjectType[f.Champion]].Item1;
                 foreach (var state in All(champion))
                     foreach (var order in state.Behaviors.Where(b => b.GetType().Name == "Order"))

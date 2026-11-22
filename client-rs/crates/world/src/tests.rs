@@ -433,6 +433,25 @@ fn ground_gone_into_the_void_cant_be_walked_on() {
 }
 
 #[test]
+fn ground_falling_away_round_us_never_leaves_us_stuck() {
+    // standing in the north-west corner of our square, the squares west, north and north-west of
+    // it fall into the sky (a Crucible floor reshaping): each step south or east was refused, as
+    // the squares beside our corner stop us there, and only an exact diagonal got out
+    let d = data();
+    let mut w = world(&d);
+    w.apply_goto(2, 5.2, 5.2, 0, &d);
+    for (x, y) in [(4, 5), (5, 4), (4, 4)] {
+        w.set_tile(x, y, NO_TILE);
+    }
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 300);
+    assert!(y > 5.5, "walked south out of the corner: {y}");
+    // but never off our square into the sky: north and west stop at its edges
+    let (x, y) = walk(&mut w, &d, -1.0, -1.0, 1000);
+    assert!(x >= 5.0 && y >= 5.0, "({x}, {y})");
+    assert_eq!((w.tile(x as i32, y as i32)), Some(FLOOR));
+}
+
+#[test]
 fn a_monsters_multi_hit_shot_goes_on_through_another_player() {
     // as the Black Between's shots: a player standing in front doesn't take the hit for us
     let mut d = data();

@@ -800,11 +800,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   floor); the Rust client's `crucible_ground` (`particles/relic.rs`) throws light up into ground
   built near us and breaks ground that falls into pieces. Admins' `/crucible floor <n>` still
   jumps (the floor built at once). The Apex is the biggest floor (reach 23, `FloorReach` 25) and
-  reshapes itself through Vaelith's fight (`ApexForm` and `ApexForms` in `logic/behaviors/Crucible.cs`,
-  on the Apex Heart's `Fight` state: a form for each of its states, the change spreading out from the
+  reshapes itself through Vaelith's fight, as every floor does through its champion's
+  (`ArenaForm` and `ArenaForms` in `logic/behaviors/CrucibleArenas.cs`, on each Heart's `Fight`
+  state: a form for each of its states, the change spreading out from the
   middle, ground that goes cracking first, pillars rising and falling with their squares, anyone on
-  fallen ground thrown onto the nearest that stays; the orrery's spokes turn; the map's Apex back
-  when the fight ends; `CrucibleTests.EveryApexFormIsWholeAndInTheGame` prints each). Its champions'
+  fallen ground or cut off from the rest thrown onto the nearest of it, anyone in a corner the
+  clients won't step out of set in the middle of their square; turning forms move on; the map's
+  floor back when the fight ends; `CrucibleTests.EveryArenaFormIsWholeAndInTheGame` prints each).
+  `Crucible.Shake` shakes a world at most every 4 s. Its champions'
   health grows half as fast with players as elsewhere (`GroupScaling`, as the Black Between). The
   Rust client asks before entering the Crucible Portal (`Game::enter_portal`, `crucible::draw_ask`).
   Shots fly over squares with no ground in this sky (`Background`

@@ -45,19 +45,23 @@ namespace WorldServer.logic
             .Init("Bastion Heart",
                 new State(
                     new State("Idle"),
-                    new State("Hammerfall", new FloorWave("Molten Grate", 13.5, 7, 2, 70, everyMs: 2400)),
-                    new State("Lockdown",
-                        new Rampart("Bastion Grate", 13.5, (dx, dy) => (dx == 0 || dy == 0) && Math.Abs(dx) + Math.Abs(dy) >= 3),
-                        new SpawnRing("Iron Sentinel", 4, 8, 45, aroundSpawn: true),
-                        new RemoveEntitiesOnExit(20, "Iron Sentinel")
-                    ),
-                    new State("Blades", new SweepingArms("Grinding Blade", 3, 3, 13.5, 1.6, 26)),
-                    new State("Blades Wave", new FloorLayers(
-                        new SweepingArms("Grinding Blade", 3, 3, 13.5, 1.6, 26, warnMs: 0),
-                        new FloorWave("Molten Grate", 13.5, 7, 2, 70, everyMs: 3000))),
-                    new State("Tempest", new FloorLayers(
-                        new FloorWave("Molten Grate", 13.5, 6, 3, 60, everyMs: 3200),
-                        new SweepingArms("Grinding Blade", 4, 3, 13.5, 1.5, -34)))
+                    new State("Fight",
+                        new ArenaForm(),
+                        new State("Hammerfall", new FloorWave("Molten Grate", 13.5, 7, 2, 70, everyMs: 2400)),
+                        new State("Lockdown",
+                            // the drawbridges raised: nobody reaches him on his dais
+                            new Rampart("Bastion Grate", 13.5, (dx, dy) => Math.Min(Math.Abs(dx), Math.Abs(dy)) <= 1 && Math.Max(Math.Abs(dx), Math.Abs(dy)) is >= 6 and <= 9),
+                            new SpawnRing("Iron Sentinel", 4, 14, 45, aroundSpawn: true),
+                            new RemoveEntitiesOnExit(20, "Iron Sentinel")
+                        ),
+                        new State("Blades", new SweepingArms("Grinding Blade", 3, 3, 15.5, 1.6, 26)),
+                        new State("Blades Wave", new FloorLayers(
+                            new SweepingArms("Grinding Blade", 3, 3, 15.5, 1.6, 26, warnMs: 0),
+                            new FloorWave("Molten Grate", 15.5, 7, 2, 70, everyMs: 3000))),
+                        new State("Tempest", new FloorLayers(
+                            new FloorWave("Molten Grate", 19, 6, 3, 60, everyMs: 3200),
+                            new SweepingArms("Grinding Blade", 4, 3, 17, 1.5, -34)))
+                    )
                 )
             )
             .Init("Ferrogrim, the Iron Warden",
@@ -138,7 +142,7 @@ namespace WorldServer.logic
                     new State("Tempest",
                         new SetAltTexture(1),
                         new Order(40, "Bastion Heart", "Tempest"),
-                        new SpawnRing("Bastion Banner", 3, 6, 90, aroundSpawn: true),
+                        new SpawnRing("Bastion Banner", 4, 17, 45, aroundSpawn: true), // on the star fort's bastions
                         new Prioritize(new StayCloseToSpawn(0.5, 6), new Follow(0.45, CrucibleSight, 2)),
                         // the whirling hammer throws its waves out in a turning spiral
                         new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 17, projectileIndex: 3, coolDown: 420),
@@ -200,17 +204,19 @@ namespace WorldServer.logic
             .Init("Sanctum Heart",
                 new State(
                     new State("Idle"),
-                    new State("Lanes", new TideSweep("Surging Tide", 15, 2.5, 7.5, 3, 2.4, everyMs: 4200)),
-                    new State("Flood",
-                        new Flood("Deep Tide", 15, (dx, dy) => Math.Sqrt(dx * dx + dy * dy) <= 2.8
-                            || Math.Sqrt((Math.Abs(dx) - 7) * (Math.Abs(dx) - 7) + (Math.Abs(dy) - 7) * (Math.Abs(dy) - 7)) <= 2.4),
-                        new SpawnRing("Riptide Eel", 4, 11, 0, aroundSpawn: true),
-                        new RemoveEntitiesOnExit(25, "Riptide Eel")
-                    ),
-                    new State("Whirlpool", new SweepingArms("Surging Tide", 3, 3, 15, 1.7, 30, curve: 14)),
-                    new State("Maelstrom", new FloorLayers(
-                        new SweepingArms("Surging Tide", 3, 3, 15, 1.6, -36, curve: -16),
-                        new TideSweep("Surging Tide", 15, 2, 8, 3, 2.6, everyMs: 6000)))
+                    new State("Fight",
+                        new ArenaForm(),
+                        new State("Lanes", new TideSweep("Surging Tide", 15, 2.5, 7.5, 3, 2.4, everyMs: 4200)),
+                        // the wheel's ring and channels are the deep sea (ArenaForms), the eels in it
+                        new State("Flood",
+                            new SpawnRing("Riptide Eel", 4, 12.5, 0, aroundSpawn: true),
+                            new RemoveEntitiesOnExit(25, "Riptide Eel")
+                        ),
+                        new State("Whirlpool", new SweepingArms("Surging Tide", 3, 3, 17, 1.7, 30, curve: 14)),
+                        new State("Maelstrom", new FloorLayers(
+                            new SweepingArms("Surging Tide", 3, 3, 16.5, 1.6, -36, curve: -16),
+                            new TideSweep("Surging Tide", 16.5, 2, 8, 3, 2.6, everyMs: 6000)))
+                    )
                 )
             )
             .Init("Nerissa, the Tidecaller",
@@ -310,17 +316,21 @@ namespace WorldServer.logic
             .Init("Foundry Heart",
                 new State(
                     new State("Idle"),
-                    new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 3, 13, 15, everyMs: 3400)),
-                    new State("Meteors",
-                        new LavaVeins("Forge Lava", "Cooling Slag", 2, 10, 15, everyMs: 5000),
-                        new Starfall(Starfall.Area.Scatter, 14, 2.2, 340, 420, perVolley: 2, color: LavaGlow)
-                    ),
-                    new State("Broken",
-                        new Crumble(8, 16, fallMs: 5000, warnMs: 1600),
-                        new State("Pour"),
-                        new State("Molten",
-                            new LavaVeins("Forge Lava", "Cooling Slag", 3, 7, 8, everyMs: 3000, burnMs: 2200),
-                            new Starfall(Starfall.Area.Players, CrucibleSight, 1.8, 300, 2400, color: LavaGlow)
+                    new State("Fight",
+                        new ArenaForm(),
+                        new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 3, 13, 15, everyMs: 3400)),
+                        new State("Meteors",
+                            new LavaVeins("Forge Lava", "Cooling Slag", 2, 10, 15, everyMs: 5000),
+                            new Starfall(Starfall.Area.Scatter, 15, 2.2, 340, 420, perVolley: 2, color: LavaGlow)
+                        ),
+                        new State("Hammer", new LavaVeins("Forge Lava", "Cooling Slag", 3, 15, 19, everyMs: 3400)),
+                        // the forge falls away but for its crucible (ArenaForms)
+                        new State("Broken",
+                            new State("Pour"),
+                            new State("Molten",
+                                new LavaVeins("Forge Lava", "Cooling Slag", 3, 7, 9, everyMs: 3000, burnMs: 2200),
+                                new Starfall(Starfall.Area.Players, CrucibleSight, 1.8, 300, 2400, color: LavaGlow)
+                            )
                         )
                     )
                 )
@@ -355,7 +365,7 @@ namespace WorldServer.logic
                     ),
                     new State("Hammer",
                         new HpLessTransition(0.35, "Pour"),
-                        new Order(40, "Foundry Heart", "Veins"),
+                        new Order(40, "Foundry Heart", "Hammer"),
                         new Prioritize(new StayCloseToSpawn(0.7, 8), new Follow(0.6, CrucibleSight, 4)),
                         ForgeKit(0.85),
                         new LeapStrike(CrucibleSight, 3, 350, 1400, 6000, 2, 16),
@@ -419,17 +429,23 @@ namespace WorldServer.logic
             .Init("Orrery Heart",
                 new State(
                     new State("Idle"),
-                    new State("Hands", new FloorLayers(
-                        new SweepingArms("Hour Hand", 1, 2.5, 14.5, 2.4, 14),
-                        new SweepingArms("Hour Hand", 1, 2.5, 14.5, 1.4, 42))),
-                    new State("Chime", new SectorChime("Chime Light", 12, 3, 14.5, new[]
-                    {
-                        "101010101010", "010101010101", "110011001100", "001100110011", "111000111000", "000111000111",
-                    })),
-                    new State("Reversal", new FloorLayers(
-                        new SectorChime("Chime Light", 12, 3, 14.5, null, warnMs: 1300, litMs: 1100, gapMs: 1400),
-                        new SweepingArms("Hour Hand", 1, 2.5, 14.5, 2.2, -22, warnMs: 0),
-                        new SweepingArms("Hour Hand", 1, 2.5, 14.5, 1.3, -60, warnMs: 0)))
+                    new State("Fight",
+                        new ArenaForm(),
+                        new State("Hands", new FloorLayers(
+                            new SweepingArms("Hour Hand", 1, 2.5, 14.5, 2.4, 14),
+                            new SweepingArms("Hour Hand", 1, 2.5, 14.5, 1.4, 42))),
+                        new State("Chime", new SectorChime("Chime Light", 12, 3, 15.8, new[]
+                        {
+                            "101010101010", "010101010101", "110011001100", "001100110011", "111000111000", "000111000111",
+                        })),
+                        new State("Fracture", new FloorLayers(
+                            new SweepingArms("Hour Hand", 1, 2.5, 19, 2.4, 14),
+                            new SweepingArms("Hour Hand", 1, 2.5, 19, 1.4, 42))),
+                        new State("Reversal", new FloorLayers(
+                            new SectorChime("Chime Light", 12, 3, 17.5, null, warnMs: 1300, litMs: 1100, gapMs: 1400),
+                            new SweepingArms("Hour Hand", 1, 2.5, 17.5, 2.2, -22, warnMs: 0),
+                            new SweepingArms("Hour Hand", 1, 2.5, 17.5, 1.3, -60, warnMs: 0)))
+                    )
                 )
             )
             .Init("Chronarch, the Hour Thief",
@@ -462,8 +478,8 @@ namespace WorldServer.logic
                     new State("Fracture",
                         new HpLessTransition(0.35, "Reversal Rise"),
                         new CrucibleCue(15, shake: true),
-                        new Order(40, "Orrery Heart", "Hands"),
-                        new SpawnRing("Hour Echo", 2, 8, 0, aroundSpawn: true),
+                        new Order(40, "Orrery Heart", "Fracture"),
+                        new SpawnRing("Hour Echo", 2, 8, 90, aroundSpawn: true), // in the hourglass's bulbs
                         new RemoveEntitiesOnExit(40, "Hour Echo"),
                         new Taunt(true, "Which of me is now? All of us.") { Bubble = false },
                         new State("Fracture Fight",
@@ -541,7 +557,7 @@ namespace WorldServer.logic
                 new State(
                     new State("Idle"),
                     new State("Fight",
-                        new ApexForm(),
+                        new ArenaForm(reach: 25, spreadMs: 2600, moveFoes: false), // Vaelith hovers over the void
                         new State("Decree",
                             new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 2600, color: SovereignGlow)
                         ),
