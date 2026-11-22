@@ -42,9 +42,15 @@ namespace WorldServer.core.net.handlers
                 items.AddRange(vault.All().Where(i => i.Chest >= live.Count).Select(i => ((ushort)i.Chest, (byte)i.Slot, i.Type, i.Data?.Imprints)));
 
             // The gift chests after them: in the vault the ones still holding something (you can
-            // only take from them, InvSwapHandler.ValidateEntities), elsewhere the account's gifts
-            // eight to a chest, as the vault lays them out.
+            // only take from them, InvSwapHandler.ValidateEntities), then the gifts waiting for room
+            // in them, which come out as gift chests are emptied (VaultWorld.Refill); elsewhere the
+            // account's gifts. Gifts without a chest go eight to a chest with no object id.
+            ushort[] waiting;
             if (player.World is VaultWorld own && own.AccountId == player.AccountId)
+            {
+                // a chest just emptied takes its next gifts now, not at the next tick
+                foreach (var g in own.GiftChests.Where(g => g.World == own && g.Inventory.All(i => i == null)))
+                    own.Refill(g);
                 foreach (var g in own.GiftChests.Where(g => g.World == own && g.Inventory.Any(i => i != null)))
                 {
                     var c = chests.Count;
@@ -53,16 +59,18 @@ namespace WorldServer.core.net.handlers
                         if (g.Inventory[s] != null)
                             items.Add(((ushort)c, (byte)s, g.Inventory[s].ObjectType, null));
                 }
+                waiting = own.WaitingGifts().ToArray();
+            }
             else
             {
                 player.Client.Account.Reload("gifts");
-                var gifts = player.Client.Account.Gifts;
-                for (var i = 0; i < gifts.Length; i++)
-                {
-                    if (i % 8 == 0)
-                        chests.Add((-1, -1f, -1f, true));
-                    items.Add(((ushort)(chests.Count - 1), (byte)(i % 8), gifts[i], null));
-                }
+                waiting = player.Client.Account.Gifts;
+            }
+            for (var i = 0; i < waiting.Length; i++)
+            {
+                if (i % 8 == 0)
+                    chests.Add((-1, -1f, -1f, true));
+                items.Add(((ushort)(chests.Count - 1), (byte)(i % 8), waiting[i], null));
             }
             client.SendPacket(new VaultContents() { Chests = chests.ToArray(), Items = items.ToArray() });
         }

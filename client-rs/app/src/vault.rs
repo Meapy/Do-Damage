@@ -9,7 +9,8 @@
 //! Moves are ordinary `InvSwap`s to the chests' object ids, which the server allows from anywhere
 //! in the vault for its owner's own chests (`InvSwapHandler.OwnVaultSwap`). A search box dims what
 //! doesn't match and hides chests with no match. The gift chests follow the vault chests: items
-//! only come out of them, into an empty inventory slot. The items can also be laid out as one grid sorted
+//! only come out of them, into an empty inventory slot. Gifts past the gift chests' room come last,
+//! shown but not taken until a gift chest is emptied (the server then fills it with them). The items can also be laid out as one grid sorted
 //! by type, tier or name, each marked with its chest's number. A right-click marks an item's chest
 //! in the world (`draw_marker`).
 
@@ -272,22 +273,52 @@ impl Vault {
         matches!(p, Place::Chest(c, _) if self.chests.get(c).is_some_and(|c| c.gift))
     }
 
-    /// A chest's name: "Chest 3", or "Gift chest 1" (the gift chests come after the vault's).
-    fn name(&self, c: usize) -> String {
-        let vault = self.chests.iter().filter(|c| !c.gift).count();
-        if c >= vault { tf!("Gift chest {n}", n = c - vault + 1) } else { tf!("Chest {n}", n = c + 1) }
+    /// Whether a chest holds gifts waiting for room in our own vault's gift chests: one the server
+    /// gave no object for, while the others have theirs.
+    fn waiting(&self, c: usize) -> bool {
+        self.movable() && self.chests.get(c).is_some_and(|c| c.gift && c.pos.is_none())
     }
 
-    /// A chest's mark on the sorted grid's items: its number, or G and its number.
+    /// A chest's name: "Chest 3", "Gift chest 1" (the gift chests come after the vault's), or
+    /// "Waiting gifts 1" (after the gift chests).
+    fn name(&self, c: usize) -> String {
+        let vault = self.chests.iter().filter(|c| !c.gift).count();
+        if self.waiting(c) {
+            let first = (0..self.chests.len()).find(|&k| self.waiting(k)).unwrap_or(c);
+            tf!("Waiting gifts {n}", n = c - first + 1)
+        } else if c >= vault {
+            tf!("Gift chest {n}", n = c - vault + 1)
+        } else {
+            tf!("Chest {n}", n = c + 1)
+        }
+    }
+
+    /// A chest's mark on the sorted grid's items: its number, G and its number, or W and its
+    /// number for waiting gifts.
     fn badge(&self, c: usize) -> String {
         let vault = self.chests.iter().filter(|c| !c.gift).count();
-        if c >= vault { format!("G{}", c - vault + 1) } else { (c + 1).to_string() }
+        if self.waiting(c) {
+            let first = (0..self.chests.len()).find(|&k| self.waiting(k)).unwrap_or(c);
+            format!("W{}", c - first + 1)
+        } else if c >= vault {
+            format!("G{}", c - vault + 1)
+        } else {
+            (c + 1).to_string()
+        }
+    }
+
+    fn waiting_place(&self, p: Place) -> bool {
+        matches!(p, Place::Chest(c, _) if self.waiting(c))
     }
 
     /// Swaps two slots: on the server, and here until its answer comes. A gift chest only gives,
     /// into an empty inventory slot.
     fn swap(&mut self, a: Place, b: Place) -> Vec<Act> {
         let (Some((ida, ia)), Some((idb, ib))) = (self.at(a), self.at(b)) else { return Vec::new() };
+        if a != b && (self.waiting_place(a) || self.waiting_place(b)) {
+            self.message = Some(tr("These gifts wait for room: empty a gift chest to bring them out.").into());
+            return Vec::new();
+        }
         if a == b || (ia < 0 && ib < 0) || ida < 0 || idb < 0 {
             return Vec::new();
         }
@@ -702,7 +733,9 @@ impl Vault {
             if let Place::Chest(chest, _) = place {
                 lines.push(crate::hud::Line::gap());
                 lines.push(crate::hud::Line::new(&tf!("In {found}", found = self.name(chest)), 12.0, true, color::GOOD));
-                if self.movable() && self.gift(place) {
+                if self.waiting_place(place) {
+                    lines.push(crate::hud::Line::new(tr("These gifts wait for room: empty a gift chest to bring them out."), 12.0, false, color::TEXT_DIM));
+                } else if self.movable() && self.gift(place) {
                     lines.push(crate::hud::Line::new(tr("Click: to your inventory"), 12.0, false, color::TEXT_DIM));
                 } else if self.movable() {
                     lines.push(crate::hud::Line::new(tr("Click: to your inventory · Right-click: mark the chest"), 12.0, false, color::TEXT_DIM));

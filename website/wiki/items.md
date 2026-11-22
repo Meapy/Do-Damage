@@ -71,7 +71,7 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
 - (Not in your vault but in the Nexus: four **shared vault chests** in the vault yard, north
   across the spawn's pond, that every player can put items in and take them from. They keep
   their items through restarts.)
-- **Gift chests**, in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in.
+- **Gift chests**, 42 of them in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in. When you have more gifts than they hold, an emptied gift chest fills straight up with the next ones.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
 - The **Collection**, a golden trophy left of the spawn: every piece of gear (weapons, abilities,
   armor and rings) there is to get, in colour once your account has had it and dark until then.
@@ -88,7 +88,8 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
 
 **The vault window:** in your vault, the chest button beside Quests in the side bar, or K (it can
 be rebound in Options), opens every vault chest at once, numbered as they stand from the spawn
-outwards, then your gift chests. Drag items between chests, or between a chest and your inventory
+outwards, then your gift chests, then any gifts still waiting for a gift chest (**Waiting
+gifts**: empty a gift chest to bring them out). Drag items between chests, or between a chest and your inventory
 beside the window; a click sends an item across (from a chest to your inventory, or from your
 inventory into the first free chest slot). Gifts only come out, into an empty inventory slot.
 **Sort by** lays everything out chest by chest, or as one grid by type (weapons, abilities,

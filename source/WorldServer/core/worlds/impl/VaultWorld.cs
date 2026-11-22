@@ -10,6 +10,7 @@ using WorldServer.core.objects.inventory;
 using WorldServer.core.objects.vendors;
 using WorldServer.core.structures;
 using WorldServer.networking;
+using WorldServer.utils;
 
 namespace WorldServer.core.worlds.impl
 {
@@ -20,8 +21,38 @@ namespace WorldServer.core.worlds.impl
         // The account's vault chests in the world, by chest number (DbVaultSingle's index), for the
         // vault window (VaultContentsHandler).
         public readonly List<Container> VaultChests = new List<Container>();
-        // Its gift chests, in the order they were filled (an emptied one leaves the world).
+        // Its gift chests, in the order they were filled. An emptied one takes the next gifts
+        // waiting for room (Refill), else leaves the world.
         public readonly List<Container> GiftChests = new List<Container>();
+
+        // The account's gifts in no gift chest here, in the order given: those past the gift
+        // chests' room, and any given since the vault opened. Reads them from Redis.
+        public List<ushort> WaitingGifts()
+        {
+            Client.Account.Reload("gifts");
+            var waiting = Client.Account.Gifts.ToList();
+            foreach (var g in GiftChests)
+                if (g.World == this)
+                    foreach (var i in g.Inventory)
+                        if (i != null)
+                            waiting.Remove(i.ObjectType);
+            return waiting;
+        }
+
+        // Fills an emptied gift chest with the next eight gifts waiting, if any.
+        public bool Refill(Container chest)
+        {
+            if (Client?.Account == null || chest.Dead)
+                return false;
+            var next = WaitingGifts().Take(8).ToList();
+            if (next.Count == 0)
+                return false;
+            next.AddRange(Enumerable.Repeat(ushort.MaxValue, 8 - next.Count));
+            chest.Inventory.SetItems(chest.Inventory.ConvertTypeToItemArray(next));
+            for (var s = 0; s < 8; s++)
+                chest.ForceUpdate(s);
+            return true;
+        }
 
         public VaultWorld(GameServer gameServer, int id, WorldResource resource, World parent) : base(gameServer, id, resource, parent)
         {

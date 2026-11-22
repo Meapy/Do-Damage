@@ -38,6 +38,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Chat
 - The chat's emoji are up to date: every emoji is redrawn in a fresh, clearer style and all those added since (the salute, the melting and shaking faces, the pink and light-blue hearts and hundreds more, flags included) are there, over 1,900 in all. Type them as before, `:smile:`, `:heart:`, and now `:saluting_face:` (or `:salute:`); every code that worked still does.
 
+### Vault
+- Your vault has 42 gift chests, up from 26. Gifts that don't fit wait their turn: an emptied gift chest fills straight up with the next ones, and the vault window shows them all, the waiting ones under **Waiting gifts**.
+
 ## 2.6.3 (2026-11-21)
 
 ### Skins
