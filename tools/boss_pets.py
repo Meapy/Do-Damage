@@ -7,16 +7,18 @@ A pet is drawn with its boss's own row of the dungeon's character sheet, and its
 with the boss's (the pet takes one on as the boss does, for its signature attack); its generator's
 icon is the boss shrunk to 16x16 (black_between.small.pet_icon). Its attacks are its behaviour,
 next to its boss's in BehaviorDb.BlackBetween.cs and BehaviorDb.Crucible.cs: the numbers in a
-spec (its damage a second, healing and what else it does) are what that behaviour does, so change
+spec (its damage a second and what else it does) are what that behaviour does, so change
 both together.
 
 Damage a second is what it does to one boss-sized enemy: shots within 8 degrees of where a volley
 aims all hit, a ring hits with one, a turning ring or spiral with its share of a full turn (23
 degrees, a boss at 5 tiles), each counted for the share of the time its phase lasts; a nova hits
 for its average. Every one is "Oryx" sized, as the Lil' Oryxes are: no Mystery Pet Stone gives
-one and the Pen Keeper doesn't raise them.
+one, and it grows to level 30 as it's fed (Shared.pets.PetLevels).
 """
 import xml.etree.ElementTree as ET
+
+from pet_healing import healing
 
 
 def _sub(parent, tag, text=None, **attrs):
@@ -55,8 +57,8 @@ def pet_objects(type_of, name, spec, chars_file, row, alt_rows, icon_file, icon_
     """The pet and its generator: type_of(name) gives an object's type code; row is the boss's row
     of chars_file, alt_rows its forms' rows; icon_index the generator's icon on icon_file (16x16).
 
-    spec: size (as drawn), dps, heal (HP and MP each heal, every ms), effects (what else it does,
-    for the tooltip), description, shots (its <Projectile>s)."""
+    spec: size (as drawn), dps, effects (what else it does, for the tooltip), description, shots
+    (its <Projectile>s). Its healing is its own, as every pet's is (tools/pet_healing.py)."""
     pet = ET.Element("Object", {"type": type_of(name), "id": name})
     _sub(pet, "Class", "Character")
     _animated(pet, chars_file, row)
@@ -82,11 +84,11 @@ def pet_objects(type_of, name, spec, chars_file, row, alt_rows, icon_file, icon_
     _sub(gen, "Description", spec["description"])
     _sub(gen, "BagType", 6)
     _sub(gen, "Sound", "spell/light_heal")
-    amount, ms = spec["heal"]
     attrs = {"objectId": name, "cooldown": 10, "petDps": spec["dps"], "petSize": "Oryx"}
     if spec.get("effects"):
         attrs["petEffects"] = "; ".join(spec["effects"])
-    attrs.update(petHp=amount, petHpMs=ms, petMp=amount, petMpMs=ms)
+    hp, hp_ms, mp, mp_ms = healing(name, "Oryx", spec["dps"])
+    attrs.update(petHp=hp, petHpMs=hp_ms, petMp=mp, petMpMs=mp_ms)
     _sub(gen, "Activate", "PermaPet", **attrs)
     _sub(gen, "InvUse")
     return [pet, gen]

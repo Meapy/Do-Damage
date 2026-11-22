@@ -40,8 +40,12 @@ namespace WorldServer.logic.behaviors.doomed
                 state = cool - time.ElapsedMsDelta;
                 return;
             }
-            var raised = (host as Pet)?.Heal;
+            // the pet's own healing, from its stone and grown with its level (Pet.HealHp, HealMp);
+            // the numbers here only for a pet without them
+            var raised = _mana ? (host as Pet)?.HealMp : (host as Pet)?.HealHp;
             state = raised?.Ms ?? _coolDown.Next(Random);
+            if (raised == null && (host as Pet)?.OwnHealing == true)
+                return;
 
             // from any distance: a pet left behind by a fast character, or stuck on a wall, still heals
             var owner = (host as Pet)?.PlayerOwner;

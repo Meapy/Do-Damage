@@ -9,10 +9,13 @@ namespace WorldServer.core.objects
 
         public Player PlayerOwner { get; set; }
 
-        // what the Pen Keeper's raise makes of it (Player.PetPower): its damage times this, and its
-        // healing of HP and MP (null: its own)
+        // what its level makes of it (Player.PetPower, Shared.pets.PetLevels): its damage times
+        // this, and its healing of HP and of MP, its stone's grown (null: its behaviour's own)
         public float DamageScale { get; set; } = 1;
-        public (int Amount, int Ms)? Heal { get; set; }
+        public (int Amount, int Ms)? HealHp { get; set; }
+        public (int Amount, int Ms)? HealMp { get; set; }
+        // whether it heals by its stone's numbers (any sized pet): then no number there is no healing
+        public bool OwnHealing { get; set; }
 
         public void Damage(int dmg, Entity src) { }
 

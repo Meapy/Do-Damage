@@ -1029,7 +1029,7 @@
 		<Description>The Dusk Star in miniature, and no gentler for it. She keeps the dark at your back now.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Vesper" cooldown="10" petDps="2217" petSize="Oryx" petEffects="Her rings slow for 1.5s; Dusk mines burst on all enemies within 2.5 tiles of its target" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Lil' Vesper" cooldown="10" petDps="2217" petSize="Oryx" petEffects="Her rings slow for 1.5s; Dusk mines burst on all enemies within 2.5 tiles of its target" petHp="49" petHpMs="2500" petMp="30" petMpMs="3000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0x8D4B" id="Lil' Aurel">
@@ -1088,7 +1088,7 @@
 		<Description>The Dawn Blade, sword and all, sworn to your side. He still says he'll finish this.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Aurel" cooldown="10" petDps="2590" petSize="Oryx" petEffects="Crescents break armor for 2s; Divine lightning strikes all enemies within 2 tiles of its target; The Sunwheel: a spiral of crescents every 9.5s" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Lil' Aurel" cooldown="10" petDps="2590" petSize="Oryx" petEffects="Crescents break armor for 2s; Divine lightning strikes all enemies within 2 tiles of its target; The Sunwheel: a spiral of crescents every 9.5s" petHp="34" petHpMs="2000" petMp="16" petMpMs="2000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0x8D4D" id="Lil' Mysterious One">
@@ -1143,7 +1143,7 @@
 		<Description>Only the shadow of a shadow he cast into this realm. It is more than enough.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Mysterious One" cooldown="10" petDps="3002" petSize="Oryx" petEffects="Crescents and eclipse orbs break armor for 2s; His black hole tears at all enemies within 3.5 tiles of its target; Divine lightning strikes all enemies within 2 tiles of its target" petHp="60" petHpMs="1500" petMp="60" petMpMs="1500">PermaPet</Activate>
+		<Activate objectId="Lil' Mysterious One" cooldown="10" petDps="3002" petSize="Oryx" petEffects="Crescents and eclipse orbs break armor for 2s; His black hole tears at all enemies within 3.5 tiles of its target; Divine lightning strikes all enemies within 2 tiles of its target" petHp="31" petHpMs="2000" petMp="17" petMpMs="2000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0x8D36" id="Observatory Heart">

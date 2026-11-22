@@ -78,14 +78,27 @@ def png_size(path):
 
 
 
-def _heal_row(amount, what, ms):
+# Pet levels (Shared.pets.PetLevels): a sized pet grows from level 1 to its size's last as the Pen
+# Keeper feeds it, its damage from 60% of its stone's petDps to 120%, its healing from its stone's
+# petHp and petMp to 160%.
+PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Oryx": 30}
+
+
+def _pet_round(x):
+    """C#'s Math.Round: halves to even, as Python's round."""
+    return int(round(x))
+
+
+def _heal_row(amount, what, ms, grown=None):
     """A pet's heal as a row of its card's healing block: ('HP', '<b>10-60</b> every 3s
     &middot; <b>12</b> a second') for "10-60" (or "76") each time, every `ms`; None when it
-    doesn't heal that."""
+    doesn't heal that. `grown`: what one heal comes to at its last level (shown after an arrow)."""
     nums = [int(x) for x in re.findall(r"\d+", amount or "")][:2]
     if not nums or not any(nums):
         return None
     value = "<b>%s</b>" % "&ndash;".join(str(n) for n in nums)
+    if grown:
+        value += " &rarr; <b>%d</b>" % grown
     if ms > 0:
         per_second = sum(nums) / len(nums) / (ms / 1000)
         value += ' every %gs <span class="sep">&middot;</span> <b>%s</b> a second' % (
@@ -711,12 +724,24 @@ class Gear:
         order = {"Oryx": 0, "Large": 1, "Medium": 2, "Small": 3, "Tiny": 4}
         for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -p["dps"], p["name"].lower())):
             oid = p["item"]
-            lines = ['<p class="it-nums">Damage a second <b>%d</b></p>' % p["dps"]] if p["dps"] else []
+            last = PET_MAX_LEVEL.get(p["size"])
+            if last and p["dps"]:
+                # level 1 to its last (PetLevels.DamageScale)
+                lines = ['<p class="it-nums">Damage a second <b>%s</b> &rarr; <b>%s</b></p>' % (
+                    "{:,}".format(_pet_round(p["dps"] * 0.6)), "{:,}".format(_pet_round(p["dps"] * 1.2)))]
+            else:
+                lines = ['<p class="it-nums">Damage a second <b>%d</b></p>' % p["dps"]] if p["dps"] else []
+            if last:
+                lines.append('<p class="it-line"><span>Levels</span> 1 to %d, fed by the Pen Keeper</p>' % last)
             pet = d.name(p["pet"]) if p["pet"] else ""
             if pet and pet != p["name"]:
                 lines.append('<p class="it-line"><span>Pet</span> %s</p>' % h.esc(pet))
             # healing, its own block: what one heal restores, how often, and about how much a second
-            heals = [r for r in (_heal_row(p["hp"], "HP", p["hpms"]), _heal_row(p["mp"], "MP", p["mpms"])) if r]
+            def grown(amount):
+                nums = [int(x) for x in re.findall(r"\d+", amount or "")]
+                return _pet_round(nums[0] * 1.6) if last and len(nums) == 1 else None
+            heals = [r for r in (_heal_row(p["hp"], "HP", p["hpms"], grown(p["hp"])),
+                                 _heal_row(p["mp"], "MP", p["mpms"], grown(p["mp"]))) if r]
             if heals:
                 lines.append('<dl class="it-heal"><span>Heals</span>%s</dl>' % "".join(
                     '<div class="%s"><dt>%s</dt><dd>%s</dd></div>' % (what.lower(), what, value) for what, value in heals))
@@ -732,7 +757,8 @@ class Gear:
                 continue
             flags = ["Soulbound"] if d.objects[oid]["soulbound"] else []
             search = " ".join([p["name"], pet, "pet generator", p["size"]] + p["effects"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
-            tag = " · ".join(x for x in (p["size"], "%d DPS" % p["dps"] if p["dps"] else "") if x) or "Pet"
+            dps_tag = ("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * 1.2)), last) if last else "%d DPS" % p["dps"]) if p["dps"] else ""
+            tag = " · ".join(x for x in (p["size"], dps_tag) if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,
                                         p["name"], tag, lines,
                                         d.objects[oid]["desc"].strip(), src, flags, search))

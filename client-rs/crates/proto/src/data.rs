@@ -434,6 +434,33 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// A pet's level (`PetPen`, last; the server's `Shared.pets.PetLevels`): its level and last,
+    /// the food it has eaten, the food at its level and at the next (the same at its last), and
+    /// what it does now and at its last level: damage a second, HP and MP a heal, how often (ms);
+    /// then the biggest pets the account's pen takes (0 Tiny to 4 Oryx) and what growing it to
+    /// the next size costs in fame and in gold (0 at the last).
+    #[derive(Copy, Eq)]
+    pub struct PetLevel {
+        pub level: u8,
+        pub max_level: u8,
+        pub xp: i32,
+        pub xp_level: i32,
+        pub xp_next: i32,
+        pub dps: i32,
+        pub dps_max: i32,
+        pub hp: i16,
+        pub hp_max: i16,
+        pub hp_ms: i16,
+        pub mp: i16,
+        pub mp_max: i16,
+        pub mp_ms: i16,
+        pub pen_size: u8,
+        pub pen_fame: i32,
+        pub pen_gold: i32,
+    }
+}
+
+wire_struct! {
     /// The Customize window's choices (`QuestsData`, last): the chat name colour and glow the
     /// Hall of Champions gives now (0: no place), whether the account is a legend (the red
     /// glow), the player's own glow (`/glow`, 0: none), and the sources chosen

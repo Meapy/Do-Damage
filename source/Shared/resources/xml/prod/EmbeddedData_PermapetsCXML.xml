@@ -14,7 +14,7 @@
       <Consumable />
       <Description>Give this to someone you care about!</Description>
       <BagType>6</BagType>
-      <Activate objectId="Valentine" cooldown="1" hideEffect="false" petDps="51" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Valentine" cooldown="1" hideEffect="false" petDps="51" petSize="Tiny" petHp="8" petHpMs="1500" petMp="7" petMpMs="3000">PermaPet</Activate>
       <InvUse/>
       <feedPower>250</feedPower>
    </Object>
@@ -70,7 +70,7 @@
       <InvUse/>
       <VaultItem/>
        
-      <Activate objectId="Beer Slurp" cooldown="10" petDps="125" petSize="Small" petHp="20" petHpMs="2000" petMp="20" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Beer Slurp" cooldown="10" petDps="125" petSize="Small" petHp="14" petHpMs="2000" petMp="7" petMpMs="2000">PermaPet</Activate>
       <OldSound>use_potion</OldSound>
       <feedPower>1000</feedPower>
    </Object>
@@ -110,7 +110,7 @@
       <Description>Play with this ball on the beach! (Requires a buddy!)</Description>
       <BagType>6</BagType>
       <InvUse/>
-      <Activate objectId="Beach Ball" cooldown="1" hideEffect="true" petDps="50" petSize="Tiny" petHp="15" petHpMs="2000" petMp="15" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Beach Ball" cooldown="1" hideEffect="true" petDps="50" petSize="Tiny" petHp="10" petHpMs="2000" petMp="8" petMpMs="3000">PermaPet</Activate>
        
       <feedPower>500</feedPower>
    </Object>
@@ -780,7 +780,7 @@
       <Description>Pulls the strings of a little theatre of its own.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Puppet Master" cooldown="10" petDps="500" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Puppet Master" cooldown="10" petDps="500" petSize="Large" petHp="23" petHpMs="1500" petMp="13" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c02" id="Lil' Davy Jones">
@@ -821,7 +821,7 @@
       <Description>Still owes the sea a soul or two.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Davy Jones" cooldown="10" petDps="500" petSize="Large" petEffects="Slowed on hit for 1s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Davy Jones" cooldown="10" petDps="500" petSize="Large" petEffects="Slowed on hit for 1s" petHp="47" petHpMs="2500" petMp="28" petMpMs="3000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c04" id="Lil' Crystal Prisoner">
@@ -867,7 +867,7 @@
       <Description>Out of its crystal at last, and in no mood to go back.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Crystal Prisoner" cooldown="10" petDps="501" petSize="Large" petEffects="Armor Broken on hit for 1.5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Crystal Prisoner" cooldown="10" petDps="501" petSize="Large" petEffects="Armor Broken on hit for 1.5s" petHp="38" petHpMs="2500" petMp="18" petMpMs="3000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c06" id="Lil' Forgotten King">
@@ -914,7 +914,7 @@
       <Description>Remembers every one of your enemies.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Forgotten King" cooldown="10" petDps="501" petSize="Large" petEffects="Bleeds 82 over 3s; Slowed on hit for 1.5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Forgotten King" cooldown="10" petDps="501" petSize="Large" petEffects="Bleeds 82 over 3s; Slowed on hit for 1.5s" petHp="35" petHpMs="2000" petMp="22" petMpMs="2500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c08" id="Lil' Esben">
@@ -954,7 +954,7 @@
       <Description>Unwilling to do anything but freeze your foes.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Esben" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3 tiles of its target, Slowed for 1.5s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Esben" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3 tiles of its target, Slowed for 1.5s" petHp="22" petHpMs="1500" petMp="17" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c0a" id="Lil' Megamoth">
@@ -995,7 +995,7 @@
       <Description>The murderous kind, drawn to the light of battle.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Megamoth" cooldown="10" petDps="499" petSize="Large" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Lil' Megamoth" cooldown="10" petDps="499" petSize="Large" petHp="21" petHpMs="1500" petMp="20" petMpMs="2500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c0c" id="Abyssal Krakenling">
@@ -1035,7 +1035,7 @@
       <Description>Brought up from the deep, still dripping ink.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Abyssal Krakenling" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3.5 tiles of its target" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Abyssal Krakenling" cooldown="10" petDps="500" petSize="Large" petEffects="Hits all enemies within 3.5 tiles of its target" petHp="48" petHpMs="2500" petMp="43" petMpMs="4000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c0e" id="Ember Matriarch">
@@ -1076,7 +1076,7 @@
       <Description>Mother of wyrms, and fiercely protective.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Ember Matriarch" cooldown="10" petDps="500" petSize="Large" petEffects="Bleeds 83 over 3s" petHp="45" petHpMs="1500" petMp="45" petMpMs="1500">PermaPet</Activate>
+      <Activate objectId="Ember Matriarch" cooldown="10" petDps="500" petSize="Large" petEffects="Bleeds 83 over 3s" petHp="39" petHpMs="2500" petMp="17" petMpMs="2500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c10" id="Lil' Medusa">
@@ -1109,7 +1109,7 @@
       <Description>Don't look it in the eyes. Your enemies will.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Medusa" cooldown="10" petDps="249" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Paralyzed for 0.5s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lil' Medusa" cooldown="10" petDps="249" petSize="Medium" petEffects="Hits all enemies within 2.5 tiles of its target, Paralyzed for 0.5s" petHp="25" petHpMs="3000" petMp="14" petMpMs="4000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c12" id="Lil' Ent">
@@ -1142,7 +1142,7 @@
       <Description>Slow to anger, slower to forgive.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Ent" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2 tiles of its target, Slowed for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lil' Ent" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 2 tiles of its target, Slowed for 1s" petHp="22" petHpMs="3000" petMp="6" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c14" id="Lil' Flying Brain">
@@ -1175,7 +1175,7 @@
       <Description>Thinks for you, and fights for you too.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Flying Brain" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lil' Flying Brain" cooldown="10" petDps="250" petSize="Medium" petHp="31" petHpMs="3000" petMp="11" petMpMs="2500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c16" id="Lil' Ghost Ship">
@@ -1215,7 +1215,7 @@
       <Description>Sails the air with its cannons loaded.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Ghost Ship" cooldown="10" petDps="249" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lil' Ghost Ship" cooldown="10" petDps="249" petSize="Medium" petHp="21" petHpMs="2500" petMp="14" petMpMs="3000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c18" id="Lil' Werewolf">
@@ -1248,7 +1248,7 @@
       <Description>Every night is a full moon for this one.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lil' Werewolf" cooldown="10" petDps="250" petSize="Medium" petEffects="Bleeds 81 over 3s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lil' Werewolf" cooldown="10" petDps="250" petSize="Medium" petEffects="Bleeds 81 over 3s" petHp="16" petHpMs="2000" petMp="8" petMpMs="2500">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c1a" id="Kitsune Spirit">
@@ -1289,7 +1289,7 @@
       <Description>A fox spirit of the eastern shrines, sly and quick.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Kitsune Spirit" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Kitsune Spirit" cooldown="10" petDps="250" petSize="Medium" petHp="15" petHpMs="1500" petMp="22" petMpMs="4000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c1c" id="Jade Golem">
@@ -1330,7 +1330,7 @@
       <Description>Carved from a single jade, and just as hard.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Jade Golem" cooldown="10" petDps="250" petSize="Medium" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Jade Golem" cooldown="10" petDps="250" petSize="Medium" petHp="16" petHpMs="1500" petMp="8" petMpMs="2000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c1e" id="Ember Wyrmling">
@@ -1364,7 +1364,7 @@
       <Description>A young wyrm, all fire and no patience.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Ember Wyrmling" cooldown="10" petDps="252" petSize="Medium" petEffects="Bleeds 30 over 2s; Hits all enemies within 2 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Ember Wyrmling" cooldown="10" petDps="252" petSize="Medium" petEffects="Bleeds 30 over 2s; Hits all enemies within 2 tiles of its target" petHp="24" petHpMs="2500" petMp="22" petMpMs="4000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c20" id="Oni Warlord">
@@ -1404,7 +1404,7 @@
       <Description>A demon general, sworn to your banner.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Oni Warlord" cooldown="10" petDps="251" petSize="Medium" petEffects="Armor Broken on hit for 1s" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Oni Warlord" cooldown="10" petDps="251" petSize="Medium" petEffects="Armor Broken on hit for 1s" petHp="25" petHpMs="3000" petMp="12" petMpMs="3000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <Object type="0x6c22" id="Lantern Wisp">
@@ -1438,7 +1438,7 @@
       <Description>Lights the way, and burns what's in it.</Description>
       <BagType>6</BagType>
       <Sound>spell/light_heal</Sound>
-      <Activate objectId="Lantern Wisp" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 3 tiles of its target" petHp="30" petHpMs="2000" petMp="30" petMpMs="2000">PermaPet</Activate>
+      <Activate objectId="Lantern Wisp" cooldown="10" petDps="250" petSize="Medium" petEffects="Hits all enemies within 3 tiles of its target" petHp="23" petHpMs="3000" petMp="19" petMpMs="4000">PermaPet</Activate>
       <InvUse/>
    </Object>
    <!-- the end of the new pets -->

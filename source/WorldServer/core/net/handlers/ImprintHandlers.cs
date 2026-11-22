@@ -216,7 +216,8 @@ namespace WorldServer.core.net.handlers
                 Stack = data?.Stack ?? 0,
                 MaxStack = data?.MaxStack ?? 0,
                 Imprints = imprints,
-                // what else the item carries stays on it (a pet's upgrade, its corruption)
+                // what else the item carries stays on it (a pet's food, its corruption)
+                PetXp = data?.PetXp,
                 PetUpgrade = data?.PetUpgrade,
                 Corruption = data?.Corruption,
                 Unique = data?.Unique

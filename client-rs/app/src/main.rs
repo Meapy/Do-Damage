@@ -30,6 +30,7 @@ mod quests;
 mod market;
 mod particles;
 mod pass;
+mod petlevels;
 mod petpen;
 mod petals;
 mod pings;

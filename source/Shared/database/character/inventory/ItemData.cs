@@ -21,8 +21,13 @@ namespace Shared.database.character.inventory
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int[] Imprints { get; set; }
 
-        // a pet generator given back by the Pen Keeper or /removepet: the sizes the Pen Keeper raised
-        // the pet by (Player.PetPen.cs); left out when there are none
+        // a pet stone given back by the Pen Keeper or /removepet: the food its pet had eaten
+        // (Shared.pets.PetLevels, Player.PetPen.cs); left out when there is none
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PetXp { get; set; }
+
+        // a pet stone given back before levels (2.6.4): the sizes the Pen Keeper raised its pet by,
+        // turned into food when it's used (PetLevels.MigratedXp)
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PetUpgrade { get; set; }
 

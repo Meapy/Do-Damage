@@ -300,7 +300,7 @@ PETS = {
     # and the Iron Tempest's spiral of hammer waves:
     # 3 x 170 / 1.2 s + 300 / 2.6 s + 150 / 3.2 s + 1,400 / 4 s + 3 x 23/360 x 200 / 0.3 s x 0.4
     "Lil' Ferrogrim": ("Ferrogrim, the Iron Warden", ["Ferrogrim, Iron Tempest"], dict(
-        size=50, dps=988, heal=(45, 1500),
+        size=50, dps=988,
         effects=["Hammer waves and Hammerfall break armor", "Hammerfall strikes all enemies within 2.5 tiles of its target",
                  "Iron Tempest: a spiral of hammer waves every 10s", "Makes you Armored for 2s every 10s"],
         description="The Iron Warden, Bastion and all, cut down to a size that fits at your heel. It still holds the line.",
@@ -314,7 +314,7 @@ PETS = {
     # and round it, and the Maelstrom's two arms of bubbles:
     # 3 x 210 / 1.1 s + 10 x 23/360 x 300 / 2.8 s + 250 / 3.6 s + 2 x 23/360 x 220 / 0.3 s x 0.4 + 1,600 / 4.5 s
     "Lil' Nerissa": ("Nerissa, the Tidecaller", ["Nerissa, Maelstrom"], dict(
-        size=50, dps=1104, heal=(45, 1500),
+        size=50, dps=1104,
         effects=["Tide orbs, bubbles and her waves slow", "Her waves strike all enemies within 3 tiles of its target",
                  "Maelstrom: a whirl of bubbles every 10s", "Heals you over 2s every 8s"],
         description="The Tidecaller, with a sea of her own in a shell. The tide still answers to her.",
@@ -327,7 +327,7 @@ PETS = {
     # his magma ball, cinder fans and rings, a meteor on the enemy and round it, and Molten Core's
     # spiral of magma: 420 / 1.8 s + 3 x 180 / 1.1 s + 200 / 3 s + 3 x 23/360 x 250 / 0.4 s x 0.4 + 1,250 / 3.5 s
     "Lil' Pyrrhax": ("Pyrrhax, the Forge Tyrant", ["Pyrrhax, Molten Core"], dict(
-        size=50, dps=1196, heal=(45, 1500),
+        size=50, dps=1196,
         effects=["Meteors strike all enemies within 2.2 tiles of its target", "Molten Core: a spiral of magma every 10s",
                  "Makes you Berserk for 2s every 10s"],
         description="The Forge Tyrant, still hot from the furnace. It burns whatever stands between you and the loot.",
@@ -341,7 +341,7 @@ PETS = {
     # and round it, and Reversal's four arms of gears turning back:
     # 12 x 23/360 x 220 / 2.4 s + 3 x 245 / 1.3 s + 500 / 3.5 s + 4 x 23/360 x 200 / 0.5 s x 0.4 + 1,925 / 4 s
     "Lil' Chronarch": ("Chronarch, the Hour Thief", ["Chronarch, Reversal"], dict(
-        size=50, dps=1301, heal=(45, 1500),
+        size=50, dps=1301,
         effects=["Chrono orbs and the chime slow", "The chime strikes all enemies within 2.5 tiles of its target",
                  "Reversal: a spiral of gears every 10s", "Makes you Speedy for 2s every 8s"],
         description="The Hour Thief, small enough for a pocket watch. It steals a little time for you now and then.",
@@ -355,7 +355,7 @@ PETS = {
     # enemy and round it, and Unbound's fans of void embers (armour-breaking):
     # 3 x 285 / 1 s + 16 x 23/360 x 300 / 2.6 s + 2 x 23/360 x 200 / 0.42 s + 5 x 180 / 0.8 s x 0.4 + 1,000 / 3 s
     "Lil' Vaelith": ("Vaelith, the Crucible Sovereign", ["Vaelith, Unbound"], dict(
-        size=55, dps=1817, heal=(60, 1500),
+        size=55, dps=1817,
         effects=["Void embers break armor for 2s", "Gold strikes all enemies within 2.5 tiles of its target",
                  "Unbound: fans of void embers every 10s", "Makes you Damaging for 2s every 10s"],
         description="The Crucible Sovereign. He built a tower to find the worthy, and it seems he found you.",

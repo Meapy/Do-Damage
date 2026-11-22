@@ -170,7 +170,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::CommunityGoals => open(tr("The realm's goals, together"), tr("Rally")),
         NpcKind::RealmPass => open(tr("The season's road and its rewards"), tr("Open")),
         NpcKind::Collection => open(tr("Every piece of gear you've had"), tr("View")),
-        NpcKind::PetPen => open(tr("Raise and swap your pets"), tr("Open")),
+        NpcKind::PetPen => open(tr("Feed and swap your pets"), tr("Open")),
         NpcKind::ScryingGlass => open(tr("Watch adventurers out in the realm"), tr("Watch")),
     }
 }

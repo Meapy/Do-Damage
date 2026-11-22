@@ -314,7 +314,7 @@ PETS = {
     # her dusk mines bursting on the enemy and everything round it:
     # 3 x 430 / 0.9 s + 600 / 2.4 s + 1,600 / 3 s
     "Lil' Vesper": ("Vesper, the Dusk Star", [], dict(
-        size=50, dps=2217, heal=(60, 1500),
+        size=50, dps=2217,
         effects=["Her rings slow for 1.5s", "Dusk mines burst on all enemies within 2.5 tiles of its target"],
         description="The Dusk Star in miniature, and no gentler for it. She keeps the dark at your back now.",
         shots=[
@@ -325,7 +325,7 @@ PETS = {
     # and everything round it, and every 9.5 s the Sunwheel (four arms of crescents turning, 3.5 s):
     # 3 x 450 / 1.2 s + 400 / 2.4 s + 1,400 / 4 s + 1,900 / 2.5 s + 4 x 23/360 x 360 / 0.18 s x 3.5/9.5
     "Lil' Aurel": ("Aurel, the Dawn Blade", [], dict(
-        size=50, dps=2590, heal=(60, 1500),
+        size=50, dps=2590,
         effects=["Crescents break armor for 2s", "Divine lightning strikes all enemies within 2 tiles of its target",
                  "The Sunwheel: a spiral of crescents every 9.5s"],
         description="The Dawn Blade, sword and all, sworn to your side. He still says he'll finish this.",
@@ -339,7 +339,7 @@ PETS = {
     # eclipse orbs turning, his black hole and divine lightning, each on the enemy and round it:
     # 3 x 330 / 1 s + 3 x 380 / 1.3 s + 8 x 23/360 x 500 / 2.6 s + 2,800 / 5 s + 1,050 / 2.2 s
     "Lil' Mysterious One": ("The Mysterious One", [], dict(
-        size=55, dps=3002, heal=(60, 1500),
+        size=55, dps=3002,
         effects=["Crescents and eclipse orbs break armor for 2s",
                  "His black hole tears at all enemies within 3.5 tiles of its target",
                  "Divine lightning strikes all enemies within 2 tiles of its target"],

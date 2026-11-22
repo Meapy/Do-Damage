@@ -305,6 +305,16 @@ fn collection_and_pet_pen_match_their_handlers() {
     let body = B::default().i16(0x1234).u8(1).u8(2).i32(300).u8(25).u8(1).utf("ok").0;
     let ServerMessage::PetPen(p) = ServerMessage::decode(139, &body).unwrap() else { panic!() };
     assert_eq!((p.pet, p.base_size, p.size, p.shards, p.shards_needed, p.ok, p.message.as_str()), (0x1234, 1, 2, 300, 25, true, "ok"));
+    assert!(p.level.is_none());
+    // from 2.6.4 its level follows: level, last, food, food at its level and the next, damage a
+    // second now and at its last, HP (now, last, ms) and MP (now, last, ms)
+    let body = B::default().i16(0x1234).u8(1).u8(1).i32(0).u8(25).u8(1).utf("").u8(3).u8(15).i32(130).i32(115).i32(270)
+        .i32(90).i32(180).i16(12).i16(19).i16(2000).i16(5).i16(8).i16(3000).u8(2).i32(5000).i32(350).0;
+    let ServerMessage::PetPen(p) = ServerMessage::decode(139, &body).unwrap() else { panic!() };
+    let l = p.level.unwrap();
+    assert_eq!((l.level, l.max_level, l.xp, l.xp_level, l.xp_next, l.dps, l.dps_max), (3, 15, 130, 115, 270, 90, 180));
+    assert_eq!((l.hp, l.hp_max, l.hp_ms, l.mp, l.mp_max, l.mp_ms), (12, 19, 2000, 5, 8, 3000));
+    assert_eq!((l.pen_size, l.pen_fame, l.pen_gold), (2, 5000, 350));
     assert_eq!(ClientMessage::from(PetPenAct { action: 2, slot: 5 }).to_frame(), B::default().u8(2).u8(5).frame(138));
     // NexusPlacesMessage.Write: a short count of places (name, kind, x, y, icon).
     let body = B::default().i16(1).utf("Divine Forge").u8(0).f32(164.5).f32(94.5).i16(0x497a).0;

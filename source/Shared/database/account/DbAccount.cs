@@ -31,6 +31,9 @@ namespace Shared.database.account
         public ushort[] Collection { get => GetValue<ushort[]>("collection"); set => SetValue("collection", value); }
         // the Shards of the Mad God the Pen Keeper keeps for the account (WorldServer Player.PetPen.cs)
         public int PenShards { get => GetValue<int>("penShards"); set => SetValue("penShards", value); }
+        // the biggest pets the Pen Keeper feeds for the account (Shared.pets.PetLevels.Sizes: 0 Tiny,
+        // where every account starts, to 4 Oryx), bought with fame or gold (PetLevels.PenPrice)
+        public int PenSize { get => GetValue<int>("penSize"); set => SetValue("penSize", value); }
         // the furthest Arena round the account has reached in any season (DoomedBattleArena, or the
         // leaderboards' runs: CrucibleAccess), for the Crucible's door (Shared.crucible.CrucibleRules)
         public int ArenaBest { get => GetValue<int>("arenaBest"); set => SetValue("arenaBest", value); }

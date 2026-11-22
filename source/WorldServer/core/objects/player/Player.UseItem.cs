@@ -1,6 +1,7 @@
 ﻿using Pipelines.Sockets.Unofficial.Arenas;
 using Shared;
 using Shared.isc;
+using Shared.pets;
 using Shared.resources;
 using StackExchange.Redis;
 using System;
@@ -154,7 +155,7 @@ namespace WorldServer.core.objects
 
             // a Shard of the Mad God used from the inventory goes to the Pen Keeper, who keeps it for the
             // account towards raising a pet to Large (Player.PetPen.cs), wherever you are
-            if (container == this && item.ObjectId.StartsWith(PetShardPrefix))
+            if (container == this && item.ObjectId.StartsWith(PetFood.ShardPrefix))
             {
                 var answer = TradeTarget != null ? null : GiveShards(new[] { slot });
                 if (answer == null)
@@ -1815,7 +1816,7 @@ namespace WorldServer.core.objects
             if (GameServer.Resources.GameData.IdToObjectType.TryGetValue("Lil' Oryx (Doomed)", out var oryx) && PetId != oryx)
             {
                 PetId = oryx;
-                PetUpgrade = 0;
+                PetXp = PetLevels.XpAt(PetMaxLevel(oryx));
             }
         }
 
@@ -1827,20 +1828,24 @@ namespace WorldServer.core.objects
             // generators are used up, so the pet this one replaces goes back into the inventory as
             // its generator: swapping pets never loses one
             var old = PetId;
-            var oldUpgrade = PetUpgrade;
+            var oldXp = PetXp;
             PetId = desc.ObjectType;
-            // a generator the Pen Keeper raised brings its raise back
-            PetUpgrade = _usedPetData?.PetUpgrade ?? 0;
+            // a stone given back brings its pet's food (or a raise from before levels) back
+            PetXp = PetXpOf(PetId, _usedPetData);
             _usedPetData = null;
             SpawnPetIfAttached(World);
             if (old != 0 && old != PetId)
-                GivePetGeneratorBack(old, oldUpgrade);
+                GivePetGeneratorBack(old, oldXp);
         }
 
         // The item that gives this pet (a PermaPet activate for it): a "... Generator" before the
         // others (Doomie Heart, the snowballs), then the lowest type. Null when none does.
         public Item PetGenerator(int petType)
         {
+            // worked out once a pet (a pet's levels ask often)
+            lock (PetGenerators)
+                if (PetGenerators.TryGetValue(petType, out var known))
+                    return known;
             var gameData = GameServer.Resources.GameData;
             Item best = null;
             foreach (var it in gameData.Items.Values)
@@ -1857,22 +1862,31 @@ namespace WorldServer.core.objects
                     named == best.ObjectId.Contains("Generator") && it.ObjectType < best.ObjectType)
                     best = it;
             }
+            lock (PetGenerators)
+                PetGenerators[petType] = best;
             return best;
         }
 
+        private static readonly Dictionary<int, Item> PetGenerators = new Dictionary<int, Item>();
+
+        /// <summary>Whether a pet that has eaten can go back into its stone here: its food rides in
+        /// the stone's slot data, which the gift chest doesn't keep, so it needs a free slot.</summary>
+        public bool RoomForPetStone(int petType) =>
+            PetXp <= 0 || PetGenerator(petType) is not { } g || Inventory.GetAvailableInventorySlot(g) != -1;
+
         // Puts the pet's generator in the inventory (the gift chest when it's full); false when the
         // pet has no generator to give back.
-        public bool GivePetGeneratorBack(int petType, int upgrade = 0)
+        public bool GivePetGeneratorBack(int petType, int xp = 0)
         {
             var generator = PetGenerator(petType);
             if (generator == null)
                 return false;
-            if (upgrade <= 0)
+            if (xp <= 0)
             {
                 GiveItem(generator);
                 return true;
             }
-            // raised by the Pen Keeper: the raise goes with it, in its slot's data (or the gift chest,
+            // a pet that has eaten: its food goes with it, in its slot's data (or the gift chest,
             // which keeps no data, when the inventory is full)
             var slot = Inventory.GetAvailableInventorySlot(generator);
             if (slot == -1)
@@ -1880,7 +1894,7 @@ namespace WorldServer.core.objects
                 GiveItem(generator);
                 return true;
             }
-            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetUpgrade = upgrade };
+            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetXp = xp };
             Inventory[slot] = generator;
             SendInfo($"You received {generator.DisplayName}!");
             return true;

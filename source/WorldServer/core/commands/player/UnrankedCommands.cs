@@ -32,8 +32,11 @@ namespace WorldServer.core.commands.player
 
         protected override bool Process(Player player, TickTime time, string args)
         {
-            if (player.PetId != 0)
-                // the generator was used up: it comes back (with the Pen Keeper's raise), so the pet isn't lost
+            if (player.PetId != 0 && !player.RoomForPetStone(player.PetId))
+                // its food rides in the stone's slot: the gift chest would lose it
+                player.SendError("Make room in your inventory for your pet's stone first.");
+            else if (player.PetId != 0)
+                // the generator was used up: it comes back (with the food it has eaten), so the pet isn't lost
                 player.RemovePet();
             else
                 player.SendError("You do not have a pet");

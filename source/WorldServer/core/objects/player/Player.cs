@@ -3,6 +3,7 @@ using Shared.database;
 using Shared.database.guild;
 using Shared.database.leaderboard;
 using Shared.database.party;
+using Shared.pets;
 using Shared.resources;
 using System;
 using System.Collections.Concurrent;
@@ -338,7 +339,8 @@ namespace WorldServer.core.objects
             }
 
             PetId = character.PetId;
-            PetUpgrade = character.PetUpgrade;
+            // a pet from before levels: its raise turned into food, once
+            PetXp = character.PetXp >= 0 ? character.PetXp : PetLevels.MigratedXp(character.PetUpgrade, PetMaxLevel(PetId));
 
             InitializePotionStacks(character, settings);
             InitializeInventory(gameData, character);
@@ -524,7 +526,8 @@ namespace WorldServer.core.objects
             chr.MagicStackCount = MagicPotionStack.Count;
             chr.HasBackpack = HasBackpack;
             chr.PetId = PetId;
-            chr.PetUpgrade = PetUpgrade;
+            chr.PetXp = PetXp;
+            chr.PetUpgrade = 0;
             chr.Items = Inventory.GetItemTypes();
             chr.XPBoostTime = XPBoostTime;
             chr.LDBoostTime = LDBoostTime;
@@ -758,11 +761,13 @@ namespace WorldServer.core.objects
                 var pet = new Pet(GameServer, this, (ushort)petId);
                 pet.Move(X, Y);
                 pet.Z = Z;
-                (pet.DamageScale, pet.Heal) = PetPower();
+                float draw;
+                (pet.DamageScale, pet.HealHp, pet.HealMp, draw) = PetPower();
+                pet.OwnHealing = PetMaxLevel(petId) > 1;
                 owner.EnterWorld(pet);
-                // a raised pet is drawn as big as pets of the size it's raised to
+                // it grows with its level (PetLevels.DrawScale)
                 if (petDesc.Size > 0)
-                    pet.Size = (int)Math.Round(petDesc.Size * PetDrawScale());
+                    pet.Size = (int)Math.Round(petDesc.Size * draw);
                 Pet = pet;
             }
             else if (petId != 0)

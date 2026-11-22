@@ -260,7 +260,7 @@ the stone water basins at its corners do. From there:
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
   and the **Warcaller** (the [community goals](community-goals.html)); east of them, the pet pen,
   where pets of every kind come and go, and the **Pen Keeper** at its gate, who
-  [raises and swaps pets](pets.html#the-pen-keeper-raising-a-pet). Beside it rises a round
+  [feeds and swaps pets](pets.html#levels-and-the-pen-keeper). Beside it rises a round
   stone tower: go in at its door and climb the spiral stair inside to its top, where the
   [Hall of Champions](champions.html) stands round the cap room, with a telescope to look out
   over the sky, and on an overhang to the east the **Sky Bar**: every 20 seconds Barman Kenji

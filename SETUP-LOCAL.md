@@ -717,6 +717,22 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Pet levels, food, the pen and each pet's own healing** (2026-11-22; `source/Shared/pets/`
+  `PetLevels.cs` and `PetFood.cs`, `Player.PetPen.cs`, `tools/pet_healing.py`, the client's
+  `petlevels.rs` and `petpen.rs`): every sized pet starts at level 1 and grows as the Pen Keeper
+  feeds it, to its size's last level (Tiny 10 to Oryx 30); damage 60% to 120% of its kit's,
+  healing up to 160%, drawn up to a quarter bigger. Food: treats, gear (untiered by its bag's
+  rarity, Ascended highest), potions, shards and other pets' generators (`PetFood`). Feeding costs
+  fame (`PetLevels.FameCost`: 3 per 100 food at level 1, 15% more a level), and the account's pen
+  (`DbAccount.PenSize`) feeds only the sizes bought, Tiny free, then for fame or gold
+  (`PetLevels.PenPrice`). The pet's food lives on the character (`petXp`) or its generator's data
+  (`ItemData.PetXp`); pets raised before levels were turned into food once
+  (`PetLevels.MigratedXp`). Every stone's healing is its own, written by `tools/pet_healing.py`
+  (rerun it after adding a pet stone; the boss pets get theirs from `boss_pets.py`), with MP about
+  half of HP. The client works out the same numbers for its window and tooltips: change
+  `PetLevels.cs`, `PetFood.cs` and `petlevels.rs` together (`PetLevelsTests` and the client's tests
+  check both).
+
 - **Boss pets of the Black Between and the Crucible** (2026-11-22; `tools/boss_pets.py`,
   `PETS` in `tools/build_black_between.py` and `tools/build_crucible.py`, the pets' behaviours
   beside their bosses' in `BehaviorDb.BlackBetween.cs` and `BehaviorDb.Crucible.cs`
@@ -728,8 +744,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   boss's shots in its patterns: fans, rings that turn (`rotateAngle`: the first volley aims, each
   after turns on), `PetNova`s for mines, lightning, meteors and the black hole, and for the
   champions every 10 s their last form and spiral for 4 s. All are `petSize="Oryx"` (out of the
-  Mystery Pet Stones and the Pen Keeper's raises), healing 45 (the Crucible's first four) or 60
-  every 1.5 s; damage a second, written into each generator (`petDps`) and worked out in `PETS`'
+  Mystery Pet Stones; level 1 to 30), healing their own way (`tools/pet_healing.py`); damage a
+  second at 100% (60% at level 1, 120% at 30), written into each generator (`petDps`) and worked out in `PETS`'
   comments as `boss_pets.py` explains: Ferrogrim 988, Nerissa 1,104, Pyrrhax 1,196, Chronarch
   1,301, Vaelith 1,817, Vesper 2,217, Aurel 2,590, the Mysterious One 3,002 (the Lil' Oryxes are
   1,000 to 3,000). The champions also buff their owner now and then (`PetOwnerEffect`: Armored,

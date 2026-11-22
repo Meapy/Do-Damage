@@ -628,39 +628,19 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
-/// The sizes pets come in (the server's Player.PetSizes), smallest first.
-pub const PET_SIZES: [&str; 4] = ["Tiny", "Small", "Medium", "Large"];
-/// Each size's healing of HP and MP and how often, in ms (the server's `Player.SizeHeal`).
-const PET_SIZE_HEAL: [(u32, u32); 4] = [(15, 2000), (20, 2000), (30, 2000), (45, 1500)];
-
-/// The sizes the Pen Keeper raised the pet of a generator by (`ItemData.PetUpgrade` in its slot's
-/// data), 0 for none.
-pub fn pet_raise(o: &GameObj, slot: u8) -> u8 {
-    let Some(json) = o.stat_str(slot_data_stat(slot)) else { return 0 };
-    let Some(i) = json.find("\"PetUpgrade\":") else { return 0 };
-    json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().unwrap_or(0)
+/// The food in the pet stone in an object's slot (`petlevels::stone_xp`, from its slot's data).
+pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> i32 {
+    crate::petlevels::stone_xp(data, item, o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
-/// The size a generator's pet hatches at (its PermaPet's petSize), 0 Tiny to 3 Large.
-fn pet_base_size(data: &GameData, item: i32) -> Option<usize> {
-    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
-    PET_SIZES.iter().position(|&s| s == size)
-}
-
-fn pet_size_name(size: usize) -> &'static str {
+fn pet_size_name(size: &str) -> &str {
     match size {
-        0 => tr("Tiny"),
-        1 => tr("Small"),
-        2 => tr("Medium"),
-        _ => tr("Large"),
+        "Tiny" => tr("Tiny"),
+        "Small" => tr("Small"),
+        "Medium" => tr("Medium"),
+        "Large" => tr("Large"),
+        _ => size,
     }
-}
-
-/// A pet generator the Pen Keeper raised: the size it raises its pet to, as "Grey Wolf (Large)".
-pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
-    let up = pet_raise(o, slot) as usize;
-    let base = pet_base_size(data, item)?;
-    (up > 0).then(|| pet_size_name((base + up).min(3)))
 }
 
 pub fn slot_imprints(o: &GameObj, slot: u8) -> [u32; 4] {
@@ -2663,8 +2643,8 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        let raise = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_raise(m, slot.index));
-        let mut lines = item_tooltip_raised(ui.data, slot.item, me, slot.kind, slot.imprints, raise);
+        let xp = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_xp(ui.data, m, slot.index, slot.item));
+        let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines.extend(corrupted);
@@ -3130,13 +3110,12 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
-    item_tooltip_raised(data, item, me, kind, imprints, 0)
+    item_tooltip_pet(data, item, me, kind, imprints, 0)
 }
 
-/// `item_tooltip_imprinted` for a pet generator the Pen Keeper raised `raise` sizes (`pet_raise`):
-/// its title names the size, and its size, damage and healing are the raised pet's, in the
-/// imprints' green.
-pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], raise: u8) -> Vec<Line> {
+/// `item_tooltip_imprinted` for a pet stone holding `xp` of food (`pet_xp`): its pet's level, and
+/// its damage and healing at that level and at its last (`petlevels`), in green once it's grown.
+pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], xp: i32) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -3153,13 +3132,7 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
         .iter()
         .find(|(t, _)| xml.has(t))
         .map_or(0xFFFFFF, |(_, c)| *c);
-    // a raised pet's generator: the size the raise takes it to (sized pets only)
-    let raised = pet_base_size(data, item).filter(|_| raise > 0).map(|base| (base, (base + raise as usize).min(3)));
-    let title = match raised {
-        Some((_, to)) => format!("{} ({})", desc.display_id, pet_size_name(to)),
-        None => desc.display_id.clone(),
-    };
-    out.push(Line::new(&title, 16.0, true, title_color));
+    out.push(Line::new(&desc.display_id, 16.0, true, title_color));
     if let Some((tag, color)) = tier_tag(xml) {
         out.push(Line::new(&tag, 14.0, true, color));
     }
@@ -3195,38 +3168,34 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
             // The port writes the pet's damage on one enemy and its healing here.
             out.push(Line::gap());
             out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
+            // its level (sized pets only): what it does now, and at its last level
+            let max = crate::petlevels::max_level(a.attr("petSize"));
+            let level = crate::petlevels::level_for(xp, max);
+            let grown = if level > 1 { color::GOOD } else { VALUE };
+            let up_to = |now: String, last: String| if level < max { tf!("{now}, up to {last}", now, last) } else { now };
             if let Some(size) = a.attr("petSize") {
-                // the sizes the server's pets come in (Player.PetSizes); the Lil' Oryxes'
-                // own size is a name, shown as sent
-                let size = match (raised, PET_SIZES.iter().position(|&s| s == size)) {
-                    (Some((_, to)), _) => pet_size_name(to),
-                    (None, Some(i)) => pet_size_name(i),
-                    (None, None) => size,
-                };
-                out.push(Line::stat(&format!("    {}", tr("Size")), size, if raised.is_some() { color::GOOD } else { VALUE }));
+                out.push(Line::stat(&format!("    {}", tr("Size")), pet_size_name(size), VALUE));
+            }
+            if max > 1 {
+                let text = if level < max { tf!("{level} of {max}", level, max) } else { tf!("{level}, its last", level) };
+                out.push(Line::stat(&format!("    {}", tr("Level")), &text, grown));
             }
             if let Some(dps) = a.attr("petDps") {
-                // a raise doubles the pet's damage for each size (the server's `Player.PetPower`)
-                match (raised, dps.parse::<u32>()) {
-                    (Some((base, to)), Ok(d)) => {
-                        let dps = d << (to - base);
-                        out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), color::GOOD));
+                let text = match dps.parse::<i32>() {
+                    Ok(d) => {
+                        let (now, last) = (crate::petlevels::dps(d, level, max), crate::petlevels::dps(d, max, max));
+                        up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }
-                    _ => out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), VALUE)),
-                }
+                    Err(_) => tf!("{dps} per second", dps),
+                };
+                out.push(Line::stat(&format!("    {}", tr("Damage")), &text, grown));
             }
             for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
-                if let Some(amount) = a.attr(key) {
-                    // a raised pet heals as the size it's raised to does
-                    if let Some((_, to)) = raised {
-                        let (amount, ms) = PET_SIZE_HEAL[to];
-                        let secs = ms as f64 / 1000.0;
-                        out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), color::GOOD));
-                        continue;
-                    }
-                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                    out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), VALUE));
-                }
+                let Some(amount) = a.attr(key).and_then(|v| v.parse::<i32>().ok()).filter(|&v| v > 0) else { continue };
+                let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
+                let now = crate::petlevels::heal(amount, level, max);
+                let text = tf!("{amount} {what} every {secs}s", amount = now, what, secs);
+                out.push(Line::stat(&format!("    {verb}"), &up_to(text, crate::petlevels::heal(amount, max, max).to_string()), grown));
             }
             // What else it does (its abilities, and what its hits do), "; " between.
             if let Some(effects) = a.attr("petEffects") {

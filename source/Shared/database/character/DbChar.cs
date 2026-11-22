@@ -28,7 +28,11 @@ namespace Shared.database.character
         public ushort ObjectType { get => GetValue<ushort>("charType"); set => SetValue("charType", value); }
         public int PetId { get => GetValue<int>("petId"); set => SetValue("petId", value); }
         // the Pen Keeper's work on the pet (Player.PetPen.cs): the sizes it was raised by
+        // the Pen Keeper's raise of a pet from before levels (2.6.4): only read, to turn into food
         public int PetUpgrade { get => GetValue<int>("petUpgrade"); set => SetValue("petUpgrade", value); }
+        // the food the pet out has eaten (Shared.pets.PetLevels); -1 for a character saved before
+        // levels, whose pet's raise (PetUpgrade) is turned into food once
+        public int PetXp { get => GetValue<int>("petXp", -1); set => SetValue("petXp", value); }
         public int Skin { get => GetValue<int>("skin"); set => SetValue("skin", value); }
 
         public int[] Stats { get => GetValue<int[]>("stats"); set => SetValue("stats", value); }
