@@ -25,22 +25,25 @@ namespace Shared.crucible
             admin || gilded || bestArenaRound >= UnlockRound;
 
         /// Climbs a day (UTC): one, or two with a Gilded Realm Pass. A climb counts as it begins (the
-        /// lobby's countdown ends), so leaving a lobby costs nothing.
-        public static int DailyClimbs(bool gilded) => gilded ? 2 : 1;
+        /// lobby's countdown ends), so leaving a lobby costs nothing. An event may multiply them
+        /// (ServerEvents.CrucibleClimbs).
+        public static int DailyClimbs(bool gilded, int eventTimes = 1) => (gilded ? 2 : 1) * Math.Max(1, eventTimes);
 
         /// The UTC day a time falls on, as a number (days since 1970).
         public static int Day(DateTime utc) => (int)(utc - DateTime.UnixEpoch).TotalDays;
 
         /// Climbs left today, from the day the account last climbed and how many it began that day.
         /// Admins aren't limited.
-        public static int ClimbsLeft(int today, int lastDay, int climbsThatDay, bool gilded, bool admin) =>
-            admin ? int.MaxValue : Math.Max(0, DailyClimbs(gilded) - (lastDay == today ? climbsThatDay : 0));
+        public static int ClimbsLeft(int today, int lastDay, int climbsThatDay, bool gilded, bool admin, int eventTimes = 1) =>
+            admin ? int.MaxValue : Math.Max(0, DailyClimbs(gilded, eventTimes) - (lastDay == today ? climbsThatDay : 0));
 
         /// What a player out of climbs is told, with the time until the next UTC day.
-        public static string SpentHint(bool gilded, TimeSpan untilReset) =>
-            $"You've climbed the Crucible {(gilded ? "twice" : "once")} today, all a day allows" +
-            (gilded ? "" : " (a Gilded Realm Pass allows two)") +
+        public static string SpentHint(bool gilded, TimeSpan untilReset, int eventTimes = 1) =>
+            $"You've climbed the Crucible {Times(DailyClimbs(gilded, eventTimes))} today, all a day allows" +
+            (gilded ? "" : " (a Gilded Realm Pass doubles that)") +
             $". It opens to you again in {Math.Max(0, (int)untilReset.TotalHours)}h {Math.Max(0, untilReset.Minutes)}m (00:00 UTC).";
+
+        private static string Times(int n) => n == 1 ? "once" : n == 2 ? "twice" : $"{n} times";
 
         /// What a locked player is told at the portal.
         public static string LockedHint(int bestArenaRound) =>

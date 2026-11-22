@@ -100,23 +100,27 @@ namespace WorldServer.core.worlds.impl.crucible
             }
             if (ClimbsLeft(client) <= 0)
             {
-                why = CrucibleRules.SpentHint(gilded, UntilReset());
+                why = CrucibleRules.SpentHint(gilded, UntilReset(), EventTimes(client));
                 return false;
             }
             return true;
         }
 
-        // ---- climbs a day: one, two with a Gilded Realm Pass ----
+        // ---- climbs a day: one, two with a Gilded Realm Pass, times what the events allow ----
+
+        // what the timed events running now multiply the climbs a day by (serverSettings.events)
+        private static int EventTimes(Client client) =>
+            Shared.resources.ServerEvents.CrucibleClimbs((client?.Player?.GameServer ?? client?.GameServer)?.Configuration.serverSettings.events, DateTime.UtcNow);
 
         public static int ClimbsLeft(Client client)
         {
             var acc = client?.Account;
             if (acc == null)
                 return 0;
-            return CrucibleRules.ClimbsLeft(CrucibleRules.Day(DateTime.UtcNow), acc.CrucibleDay, acc.CrucibleClimbs, Gilded(client), IsAdmin(acc));
+            return CrucibleRules.ClimbsLeft(CrucibleRules.Day(DateTime.UtcNow), acc.CrucibleDay, acc.CrucibleClimbs, Gilded(client), IsAdmin(acc), EventTimes(client));
         }
 
-        public static int DailyClimbs(Client client) => CrucibleRules.DailyClimbs(Gilded(client));
+        public static int DailyClimbs(Client client) => CrucibleRules.DailyClimbs(Gilded(client), EventTimes(client));
 
         public static TimeSpan UntilReset() => DateTime.UtcNow.Date.AddDays(1) - DateTime.UtcNow;
 

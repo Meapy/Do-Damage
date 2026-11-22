@@ -189,6 +189,27 @@ namespace Tests
         public void ClimbsADay(int today, int lastDay, int climbs, bool gilded, bool admin, int left) =>
             Assert.Equal(left, CrucibleRules.ClimbsLeft(today, lastDay, climbs, gilded, admin));
 
+        // an event that doubles the climbs (ServerEvent.crucibleClimbs): two a day, four Gilded
+        [Theory]
+        [InlineData(100, 100, 1, false, 1)]
+        [InlineData(100, 100, 2, false, 0)]
+        [InlineData(100, 100, 2, true, 2)]
+        [InlineData(100, 100, 4, true, 0)]
+        [InlineData(100, 99, 4, true, 4)]
+        public void AnEventMultipliesTheClimbs(int today, int lastDay, int climbs, bool gilded, int left)
+        {
+            Assert.Equal(left, CrucibleRules.ClimbsLeft(today, lastDay, climbs, gilded, false, 2));
+            Assert.Equal(gilded ? 4 : 2, CrucibleRules.DailyClimbs(gilded, 2));
+        }
+
+        [Fact]
+        public void TheSpentHintCountsTheEventsClimbs()
+        {
+            Assert.StartsWith("You've climbed the Crucible once today", CrucibleRules.SpentHint(false, TimeSpan.FromHours(3)));
+            Assert.StartsWith("You've climbed the Crucible twice today", CrucibleRules.SpentHint(false, TimeSpan.FromHours(3), 2));
+            Assert.StartsWith("You've climbed the Crucible 4 times today", CrucibleRules.SpentHint(true, TimeSpan.FromHours(3), 2));
+        }
+
         [Fact]
         public void ADayIsAUtcDay()
         {

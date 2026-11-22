@@ -122,6 +122,28 @@ namespace Tests
             Assert.Equal($"{e.name}: Necromantic Relics drop twice as often from the Elder bosses, until the end of 30 November (UTC)!", e.Message());
         }
 
+        [Fact]
+        public void TwinAscentDoublesTheCruciblesClimbsForTwoWeeks()
+        {
+            var config = ServerConfig.ReadJson(File.ReadAllText(Path.Combine(SourceDir(), "WorldServer", "wServer.json")));
+            var events = config.serverSettings.events;
+            var e = events.Single(x => x.crucibleClimbs > 1);
+            Assert.Equal(2, e.crucibleClimbs);
+            Assert.Equal(TimeSpan.FromDays(14), e.end - e.start);
+            Assert.Equal(DateTimeKind.Utc, e.end.Kind);
+
+            Assert.Equal(1, ServerEvents.CrucibleClimbs(events, Utc(11, 21, 23, 59, 59)));
+            Assert.Equal(2, ServerEvents.CrucibleClimbs(events, Utc(11, 22)));
+            Assert.Equal(2, ServerEvents.CrucibleClimbs(events, Utc(12, 5, 23, 59, 59)));
+            Assert.Equal(1, ServerEvents.CrucibleClimbs(events, Utc(12, 6)));
+            Assert.Equal(1, ServerEvents.CrucibleClimbs(null, Utc(11, 25)));
+            // nothing else changes
+            Assert.Equal(1, ServerEvents.PotionChance(events, Utc(12, 3)));
+            Assert.Equal(1, ServerEvents.RelicChance(events, Utc(12, 3)));
+
+            Assert.Equal($"{e.name}: you may climb the Crucible twice as often each day, until the end of 5 December (UTC)!", e.Message());
+        }
+
         private static string SourceDir()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

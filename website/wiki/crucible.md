@@ -23,6 +23,8 @@ lava runs through the cracks, the clock strikes. Beat all five and the Crucible 
   anywhere. `/crucible status` tells you whether it's open to you, how many climbs you have left
   today and the three best climbs.
 
+{{gen:crucible-event}}
+
 Before the portal lets you in, it reminds you of the above and asks whether to climb.
 
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
