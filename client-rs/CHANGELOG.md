@@ -21,6 +21,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Mechanic
 - **The Mechanic is reworked.** A turret blueprint throws a crate where you aim, up to 8 tiles away, and it unfolds into a turret whose head turns to its target and leads it, its shots leaving the barrel. Up to three stand at once (a fourth blows up the oldest). Within 7 tiles of you a turret is overclocked, linked to you by a cable of light, and fires half again as often. When its time runs out it blows up, hurting every enemy round it. Every tier is rebalanced and redrawn with its own shots: the higher tiers fire pairs and some pierce.
+- Ferrogrim's Bastion Turret, the Crucible's white bag for the Mechanic, works the same way now: thrown where you aim, counted with your other turrets, overclocked beside you and blowing up at the end, still firing three iron shards and slamming the ground. It has new art, a black iron keep with a forge in its gate and a turning head of three barrels.
 - The Armoire sells new Mechanic skins: the Steamwright, the Scrapper, the Arcwright and the Clockwork Mechanic for 200 gold, and the big Titan Artificer, in a walking exo-frame, for 800.
 
 ### Realm Pass

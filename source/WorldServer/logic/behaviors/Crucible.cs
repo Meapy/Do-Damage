@@ -859,55 +859,6 @@ namespace WorldServer.logic.behaviors
         }
     }
 
-    // Ferrogrim's Bastion Turret (an ally, Player.CruciblePowers.cs): every `coolDownMs` it slams the
-    // ground: `damage` to the enemies within `radius` (its owner's, as its shots are), their armor
-    // broken for `brokenMs`, and its owner's allies within it Armored until the next slam
-    internal class AllyBastionSlam : Behavior
-    {
-        private readonly float _radius;
-        private readonly int _damage, _coolDownMs, _brokenMs;
-
-        public AllyBastionSlam(float radius, int damage, int coolDownMs, int brokenMs)
-        {
-            _radius = radius;
-            _damage = damage;
-            _coolDownMs = coolDownMs;
-            _brokenMs = brokenMs;
-        }
-
-        protected override void OnStateEntry(Entity host, TickTime time, ref object state) => state = _coolDownMs / 2;
-
-        protected override void TickCore(Entity host, TickTime time, ref object state)
-        {
-            var cool = (int)(state ?? 0) - time.ElapsedMsDelta;
-            if (cool > 0)
-            {
-                state = cool;
-                return;
-            }
-            state = _coolDownMs;
-            var world = host.World;
-            if (world == null || !world.Players.TryGetValue(host.AllyOwnerId, out var owner))
-                return;
-            var at = new Position(host.X, host.Y);
-            world.BroadcastIfVisible(new ShowEffect
-            {
-                EffectType = EffectType.Relic, TargetObjectId = host.Id, Pos1 = at, Pos2 = new Position(_radius, Player.BastionLook),
-                Color = new ARGB(Player.BastionIron), ObjectType = 1, SourceId = owner.Id,
-            }, ref at);
-            foreach (var e in host.GetNearestEntities(_radius, 0, false))
-                if (e is Enemy en && !en.Dead && en.AllyOwnerId == -1)
-                {
-                    en.Damage(owner, ref time, _damage, false);
-                    if (!en.Dead)
-                        en.ApplyConditionEffect(ConditionEffectIndex.ArmorBroken, _brokenMs);
-                }
-            foreach (var p in world.Players.Values)
-                if (!p.Dead && p.DistTo(host) <= _radius)
-                    p.ApplyConditionEffect(ConditionEffectIndex.Armored, _coolDownMs + 200);
-        }
-    }
-
     // The Apex's forms (ApexForm): for each of its Heart's states, what each square round its middle
     // is (`ms` into the form: the orrery turns).
     public static class ApexForms

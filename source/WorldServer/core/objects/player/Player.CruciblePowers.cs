@@ -12,7 +12,7 @@ namespace WorldServer.core.objects
     // Ferrogrim's Bastion Turret (Mechanic), Nerissa's Tidepearl (Druid), Pyrrhax's Meteor Mortar
     // (Pirate), Chronarch's Coat of Stolen Hours (Blademaster) and Vaelith's Final Aria (Bard).
     // What each does beyond its numbers, by its <RelicPower>: CrucibleAbility runs when the ability
-    // is used (the turret's slams are its own behaviour, BehaviorDb.Crucible.cs). The numbers here
+    // is used (the turret is a Mechanic's turret, Player.Turrets.cs, slamming as Turret.Slam). The numbers here
     // are the ones their tooltips give: change both together.
     partial class Player
     {
@@ -44,9 +44,13 @@ namespace WorldServer.core.objects
         private const int MortarPoolTicks = 6, MortarPoolEveryMs = 500, MortarPoolDamage = 90;
         private const float MortarPoolRadius = 2.5f;
 
-        // the Bastion Turret raised (look 51, objectType 0; its slams are 1, sent by the turret)
+        // the Bastion Turret raised where it lands (look 51, objectType 0, Player.Turrets.cs) and its
+        // slam (objectType 1, Turret.cs): every BastionSlamMs, BastionSlamDamage to the enemies
+        // within BastionSlamRadius, their armor broken for BastionBrokenMs, the players in it Armored
         public const int BastionLook = 51;
         public const uint BastionIron = 0xFFFF9A2A;
+        private const float BastionSlamRadius = 3.5f;
+        private const int BastionSlamDamage = 380, BastionSlamMs = 3000, BastionBrokenMs = 2000;
 
         // Nerissa's Tidepearl (look 52, objectType the wave): waves of the tide rolling out from the
         // druid, every TideEveryMs, each to TideRadius: TideDamage to enemies, TideHeal to allies
@@ -81,9 +85,8 @@ namespace WorldServer.core.objects
                     break;
                 // the shell arcs to where it's aimed (9 tiles at most), its landing marked; it
                 // bursts, meteors rain round the crater, and a pool of slag burns on in it
-                // the turret is the item's BuildTower; raising it is shown here
+                // the turret is the item's BuildTower (Player.Turrets.cs), raised where it lands
                 case "BastionTurret":
-                    MortarFx(BastionLook, new Position(X, Y), 3.5f, 0, color: BastionIron);
                     break;
                 // the pearl's substitute and heal are its PearlAbility; then the tide
                 case "Tidepearl":

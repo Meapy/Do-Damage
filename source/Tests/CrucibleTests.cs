@@ -219,8 +219,24 @@ namespace Tests
         public void TheWhiteBagsAlliesHaveBehaviours()
         {
             var (data, db) = Game.Value;
-            foreach (var ally in new[] { "Bastion Turret", "Tidal Substitute" })
-                Assert.True(db.Definitions.ContainsKey(data.IdToObjectType[ally]), ally);
+            Assert.True(db.Definitions.ContainsKey(data.IdToObjectType["Tidal Substitute"]));
+        }
+
+        // Ferrogrim's Bastion Turret is a Mechanic's turret (Turret.cs, Player.Turrets.cs): thrown
+        // where aimed, its shots its own and no behaviour to fight it
+        [Fact]
+        public void TheBastionTurretIsAMechanicsTurret()
+        {
+            var (data, db) = Game.Value;
+            var item = data.Items[data.IdToObjectType["Ferrogrim's Bastion Turret"]];
+            var build = Assert.Single(item.ActivateEffects, e => e.Effect == ActivateEffects.BuildTower);
+            Assert.Equal("Bastion Turret", build.ObjectId);
+            Assert.True(build.AllyMs > 0);
+            Assert.Equal(3, build.AllyShots);
+            Assert.True(item.Cooldown >= 1);
+            var turret = data.IdToObjectType["Bastion Turret"];
+            Assert.False(db.Definitions.ContainsKey(turret));
+            Assert.True(data.ObjectDescs[turret].Projectiles.ContainsKey(0));
         }
 
         // every item name a loot table could drop, by reflection (the loot classes keep them private)

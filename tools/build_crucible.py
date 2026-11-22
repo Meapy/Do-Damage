@@ -331,15 +331,18 @@ SCENERY = {
 # BehaviorDb.Crucible.cs): change both together. "activate": the item's own <Activate>s (text,
 # attributes); "power": its <RelicPower>; "stats": (stat, amount) on equip
 WHITES = {
+    # a Mechanic's turret as the blueprints are (Turret.cs: thrown where aimed, up to `amount`,
+    # overclocked near its Mechanic, a blast at the end), with Ferrogrim's slam besides
+    # (Player.CruciblePowers.cs, Bastion*)
     "Ferrogrim's Bastion Turret": dict(
-        slot=32, sound="spell/light_heal", mp=150, cooldown=0, power="BastionTurret",
+        slot=32, sound="spell/light_heal", mp=150, cooldown=1, power="BastionTurret",
         stats=[(0, 60), (3, 60), (21, 6), (28, 4)],
-        activate=[("BuildTower", dict(objectId="Bastion Turret", duration=20))],
-        description="Ferrogrim's own sentinel, folded down for a Mechanic to raise. It fires three iron shards at a "
+        activate=[("BuildTower", dict(objectId="Bastion Turret", duration=20, range=8, amount=3, totalDamage=600,
+                                      radius=4, allyDamage=100, allyShots=3, allyMs=700))],
+        description="Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a "
                     "time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor "
-                    "broken, and allies beside it are Armored while it holds.",
-        info=[("Turret", "20 secs: 3 shards of 160 every 0.7 secs, to 10 sqrs"),
-              ("Slam", "every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored")]),
+                    "broken, and allies beside it are Armored while it holds. When its time is up it blows apart.",
+        info=[("Slam", "every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored")]),
     "Nerissa's Tidepearl": dict(
         slot=30, sound="spell/fire_spray", mp=100, cooldown=0, power="Tidepearl",
         stats=[(0, 60), (3, 60), (26, 8), (27, 4)],
@@ -380,10 +383,12 @@ WHITES = {
               ("Crescendo", "700 to 9 sqrs, armor broken for 3 secs; allies within 9 sqrs berserk for 3 secs")]),
 }
 
-# the white bags' allies: the turret (Ferrogrim's sentinel) and the pearl's substitute (unseen)
+# the white bags' allies: the turret (Ferrogrim's sentinel: a Mechanic's turret, Turret.cs, its
+# base and the head the Rust client turns in tools/draw_turrets.py's row 3) and the pearl's
+# substitute (unseen)
 ALLIES = {
-    "Bastion Turret": dict(sentinel=True, shot=("Iron Shard", 160, 120, 800, False)),
-    "Tidal Substitute": dict(sentinel=False, shot=("Trident Bolt", 230, 160, 800, True)),
+    "Bastion Turret": dict(turret=(0x1E, 0x1F), shot=("Iron Shard", 100, 120, 800, False)),
+    "Tidal Substitute": dict(turret=None, shot=("Trident Bolt", 230, 160, 800, True)),
 }
 
 
@@ -529,9 +534,11 @@ def objects(types, s8, s16, s32, c16, c32):
     for name, a in ALLIES.items():
         e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
         sub(e, "Class", "Character")
-        if a["sentinel"]:
-            texture(e, CHARS16[0], minion_rows["Iron Sentinel"], "AnimatedTexture")
+        if a["turret"]:
+            base, head = a["turret"]
+            texture(e, "mechanicTurrets16x16", base)
             sub(e, "Size", 90)
+            sub(e, "TurretHead", "0x%02x" % head)
         else:
             texture(e, "invisible", 0)
         shot, damage, speed, life, multi = a["shot"]

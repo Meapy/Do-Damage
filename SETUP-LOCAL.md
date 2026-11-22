@@ -726,8 +726,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `radius`); `amount` (3) at once, the oldest blowing up for a newer one; the blueprints hold a
   1 s cooldown. Tower1-9 and SpecialTower have no behaviours any more. The Rust client turns
   each turret's `TurretHead` sprite to its shots and draws the ShowEffect Relic looks 54-57
-  (throw, build, seen, blast), its plate, rings and the cable to its Mechanic. A BuildTower
-  without `allyMs` (Ferrogrim's Bastion Turret) is a summoned ally as before. The Mechanic's
+  (throw, build, seen, blast), its plate, rings and the cable to its Mechanic. Ferrogrim's
+  Bastion Turret (the Crucible's white bag, `tools/build_crucible.py`) is one of them too, its
+  base and head in `draw_turrets.py`'s row 3, with his slam (`Turret.Slam`, the numbers in
+  `Player.CruciblePowers.cs`; `AllyBastionSlam` is gone). The Mechanic's
   Armoire skins (`tools/draw_mechanic_skins.py`, `MechanicSkins.xml`, types 0xE200-0xE204) cost
   200 gold, the 16 by 16 Titan Artificer 800 (`<Cost>`).
 - **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
@@ -784,7 +786,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   banners and victory (`crucible.rs`) and its sky (`cruciblesky.rs`); climbs that clear a floor go
   on the Redis sorted set `crucible.runs` (`DbCrucibleRuns`). No fame is paid. The champions'
   white bags (1% each) are ability items with a `<RelicPower>` (`Player.CruciblePowers.cs`, the
-  turret's slam `AllyBastionSlam`), drawn by the Rust client's looks 48-53 (`particles/relic.rs`),
+  turret a Mechanic's turret with its slam, `Turret.Slam`), drawn by the Rust client's looks 48-53 (`particles/relic.rs`),
   which also gives each champion its own aura, building with the health it has lost, each phase a
   burst and the portal its embers (`champion_auras`, `champion_cue`). Each floor has a shape of its
   own (`SHAPES` in the script, within 17 squares of its middle: `FloorReach`). A climber's pet and

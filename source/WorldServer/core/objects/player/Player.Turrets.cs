@@ -11,9 +11,11 @@ namespace WorldServer.core.objects
     // (<Activate objectId duration range amount totalDamage radius allyDamage allyShots allyMs>BuildTower</Activate>)
     // throws a crate to where it was aimed, at most `range` tiles off (UseItem refuses a spot that
     // isn't open floor, before the mana is spent), and the turret stands where it lands
-    // TurretThrowMs later. At most `amount` stand at once: one more blows up the oldest. A
-    // BuildTower without allyMs (Ferrogrim's Bastion Turret) is an ally of its own, at the player's
-    // feet, as before (SpawnAlly).
+    // TurretThrowMs later. At most `amount` stand at once: one more blows up the oldest.
+    // Ferrogrim's Bastion Turret (RelicPower BastionTurret, the Crucible's white bag) is one too,
+    // in its forge's colour and with his slam (Turret.Slam, the numbers in
+    // Player.CruciblePowers.cs), raised where it lands with the Crucible's look. A BuildTower
+    // without allyMs (none now) would be an ally of its own at the player's feet (SpawnAlly).
     public partial class Player
     {
         private const int TurretThrowMs = 350;
@@ -42,7 +44,8 @@ namespace WorldServer.core.objects
             }
 
             var spot = TurretSpot(target, eff);
-            var color = Turret.ColorOf(item);
+            var bastion = item.RelicPower == "BastionTurret";
+            var color = bastion ? BastionIron : Turret.ColorOf(item);
 
             // one past the most that may stand: the oldest blows up
             _turrets.RemoveAll(t => t.Gone);
@@ -55,6 +58,9 @@ namespace WorldServer.core.objects
             }
 
             var turret = new Turret(this, type, eff, color);
+            if (bastion)
+                turret.SetSlam(new Turret.Slam(BastionSlamRadius, BastionSlamDamage, BastionSlamMs, BastionBrokenMs,
+                    BastionLook, BastionIron));
             _turrets.Add(turret);
 
             // the crate flying from the Mechanic to the spot (turret.rs, look 54)
@@ -81,6 +87,8 @@ namespace WorldServer.core.objects
                 turret.Move(spot.X, spot.Y);
                 turret.Z = z;
                 w.EnterWorld(turret);
+                if (bastion)
+                    MortarFx(BastionLook, spot, BastionSlamRadius, 0, color: BastionIron);
             });
         }
     }

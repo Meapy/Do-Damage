@@ -25,6 +25,12 @@ namespace WorldServer.core.objects
     // left in Duration, its Mechanic in SourceId and its blast's radius in hundredths of a tile in
     // ObjectType, for the plate the client draws under it and the link to its Mechanic. Older
     // clients see the turret and its shots.
+    //
+    // A turret may also slam the ground (Ferrogrim's Bastion Turret: Player.Turrets.cs gives it its
+    // `Slam`, the numbers in Player.CruciblePowers.cs): every EveryMs, Damage to the enemies within
+    // Radius (its Mechanic's, as its shots are), their armor broken for BrokenMs, and the players
+    // within it Armored until the next; its look is the Crucible's (ShowEffect Relic `Look`,
+    // objectType 1).
     internal class Turret : StaticObject
     {
         public const int LOOK_THROW = 54;
@@ -74,6 +80,17 @@ namespace WorldServer.core.objects
 
         // blown up or packed away (or never landed): out of its Mechanic's count
         public bool Gone { get; private set; }
+
+        public sealed record Slam(float Radius, int Damage, int EveryMs, int BrokenMs, int Look, uint Color);
+
+        private Slam slam;
+        private int slamCool;
+
+        public void SetSlam(Slam s)
+        {
+            slam = s;
+            slamCool = s.EveryMs / 2;   // the first a moment after it stands
+        }
 
         public Turret(Player owner, ushort objType, ActivateEffect eff, uint color)
             : base(owner.GameServer, objType, null, true, false, false)
@@ -127,6 +144,11 @@ namespace WorldServer.core.objects
             }
 
             Track(time.ElapsedMsDelta);
+            if (slam != null && (slamCool -= time.ElapsedMsDelta) <= 0)
+            {
+                slamCool = Math.Max(slamCool, -slam.EveryMs) + slam.EveryMs;
+                SlamGround(ref time);
+            }
             cool -= time.ElapsedMsDelta;
             if (cool <= 0)
             {
@@ -238,6 +260,30 @@ namespace WorldServer.core.objects
             }
             World.BroadcastServerPlayerShoot(shoots, this);
             return true;
+        }
+
+        private void SlamGround(ref TickTime time)
+        {
+            var at = new Position(X, Y);
+            World.BroadcastIfVisible(new ShowEffect
+            {
+                EffectType = EffectType.Relic, TargetObjectId = Id, Pos1 = at, Pos2 = new Position(slam.Radius, slam.Look),
+                Color = new ARGB(slam.Color), ObjectType = 1, SourceId = owner.Id,
+            }, this);
+            var now = time;
+            var s = slam;
+            this.AOE(s.Radius, false, e =>
+            {
+                if (e is Enemy en && Shootable(en))
+                {
+                    en.Damage(owner, ref now, s.Damage, false);
+                    if (!en.Dead)
+                        en.ApplyConditionEffect(ConditionEffectIndex.ArmorBroken, s.BrokenMs);
+                }
+            });
+            foreach (var p in World.Players.Values)
+                if (!p.Dead && p.SqDistTo(this) <= s.Radius * s.Radius)
+                    p.ApplyConditionEffect(ConditionEffectIndex.Armored, s.EveryMs + 200);
         }
 
         // its blast: `blastDamage` to the enemies within `blastRadius`, its look to everyone in view

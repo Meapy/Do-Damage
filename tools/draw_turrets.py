@@ -21,6 +21,10 @@ registers for the Rust client:
   8 Skystorm Turret   storm-dark steel under a crackling tesla orb, twin barrels
   9 War Turret        an olive gatling with a brass ammunition belt
 
+Row 3 is Ferrogrim's Bastion Turret (the Crucible's white bag, tools/build_crucible.py): its base
+in column 0 (index 0x1e), a squat keep of black iron with molten seams and a forge burning in its
+gate, and its head in column 1 (0x1f), a riveted iron housing round a glowing core, three barrels.
+
 Each turret's base stands on its feet, light from the upper left, and its head, seen from above,
 points right; the Rust client turns the head to aim and gives the turret a plate on the ground and
 its muzzle flashes (client-rs/app/src/particles/turret.rs). The colours
@@ -506,6 +510,59 @@ def head_war():
     return cv
 
 
+# Ferrogrim's Bastion Turret: his forge iron, its seams glowing
+FORGE = ramp(0x8A2A06, 0xD05A10, 0xFF9A2A, 0xFFE070)
+BLACKIRON = ramp(0x16181C, 0x2A2E36, 0x464C58, 0x6E7686)
+
+
+def base_bastion():
+    cv = Canvas()
+    # four stout iron feet
+    for x in (4, 5, 10, 11):
+        cv.set(x, 14, BLACKIRON[1])
+        cv.set(x, 15, BLACKIRON[0])
+    cv.set(4, 15, BLACKIRON[2])
+    cv.set(10, 15, BLACKIRON[2])
+    # the keep: a block of black iron, battlements on its rim, a forge in its gate
+    cv.shade_rect(3, 9, 12, 14, BLACKIRON)
+    for x in (3, 5, 10, 12):
+        cv.set(x, 8, BLACKIRON[3])
+    cv.rect(6, 12, 9, 14, FORGE[0])
+    cv.rect(7, 12, 8, 13, FORGE[2])
+    cv.set(7, 12, FORGE[3])
+    cv.set(6, 11, BLACKIRON[0])
+    cv.set(9, 11, BLACKIRON[0])
+    # molten seams and rivets
+    for x, y in ((4, 11), (11, 10), (5, 13), (10, 13)):
+        cv.set(x, y, FORGE[1])
+    for x, y in ((4, 10), (11, 12)):
+        cv.set(x, y, hexc(0xA8B2BE))
+    turntable(cv, BLACKIRON, 8, 3, 12)
+    cv.set(3, 8, FORGE[2])
+    cv.set(12, 8, FORGE[2])
+    glow(cv, FORGE[0], 55)
+    return cv
+
+
+def head_bastion():
+    cv = Canvas()
+    # a heavy riveted housing, a molten core in its middle, a crest of iron behind
+    box(cv, 2, 3, 10, 13, BLACKIRON)
+    for x, y in ((3, 4), (9, 4), (3, 12), (9, 12)):
+        cv.set(x, y, hexc(0xA8B2BE))
+    disc(cv, 6.5, 8.5, 2.2, FORGE)
+    cv.set(6, 8, FORGE[3])
+    cv.set(1, 7, BLACKIRON[2])
+    cv.set(1, 8, BLACKIRON[1])
+    cv.set(1, 9, BLACKIRON[0])
+    # three barrels, the shards' (Turret.BARREL_GAP apart), glowing at the mouth
+    for y in (4, 8, 12):
+        gun(cv, y, 11, 14, BLACKIRON, tip=FORGE[3], thick=1)
+        cv.set(11, y, BLACKIRON[3])
+    glow(cv, FORGE[0], 50)
+    return cv
+
+
 BASES = [base_makeshift, base_basic, base_advanced, base_organic, base_aquatic, base_demonic, base_light,
          base_ancient, base_skystorm, base_war]
 HEADS = [head_makeshift, head_basic, head_advanced, head_organic, head_aquatic, head_demonic, head_light,
@@ -670,13 +727,16 @@ def shot(tier):
 
 
 def sheets():
-    sheet = Image.new("RGBA", (CELL * COLUMNS, CELL * 3), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (CELL * COLUMNS, CELL * 4), (0, 0, 0, 0))
     shots = Image.new("RGBA", (8 * COLUMNS, 8), (0, 0, 0, 0))
     for i in range(COLUMNS):
         sheet.paste(blueprint(i).image(), (i * CELL, 0))
         sheet.paste(BASES[i]().image(), (i * CELL, CELL))
         sheet.paste(HEADS[i]().image(), (i * CELL, CELL * 2))
         shots.paste(shot(i).image(), (i * 8, 0))
+    # row 3: Ferrogrim's Bastion Turret, its base then its head
+    sheet.paste(base_bastion().image(), (0, CELL * 3))
+    sheet.paste(head_bastion().image(), (CELL, CELL * 3))
     return sheet, shots
 
 

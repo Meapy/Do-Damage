@@ -109,8 +109,9 @@ pub mod look {
     /// (a pool of slag left burning `duration` ms), 1 a meteor falling out of the sky onto it
     /// over `duration` ms and bursting there.
     pub const MORTAR_BLAST: u8 = 50;
-    /// Ferrogrim's Bastion Turret (`Player.CruciblePowers.cs`, `AllyBastionSlam`): `object_type` 0
-    /// raised where its Mechanic stands (iron plates flying in and locking, sparks), 1 its slam
+    /// Ferrogrim's Bastion Turret (`Player.CruciblePowers.cs`, a Mechanic's turret with
+    /// `Turret.Slam`): `object_type` 0 raised where it lands (iron plates flying in and locking,
+    /// sparks; the plate, head and link are `turret.rs`'s, as every turret's), 1 its slam
     /// (the ground cracking in a ring, iron and sparks thrown up), pos2.x the slam's reach.
     pub const BASTION: u8 = 51;
     /// Nerissa's Tidepearl: a wave of the tide rolling out from its Druid to pos2.x (`object_type`

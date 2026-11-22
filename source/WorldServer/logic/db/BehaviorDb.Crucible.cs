@@ -163,15 +163,9 @@ namespace WorldServer.logic
                     new ItemLoot("Ferrogrim's Bastion Turret", 0.01) // the white bag (Player.CruciblePowers.cs)
                 )
             )
-            // the white bags' allies (Player.CruciblePowers.cs): Ferrogrim's Bastion Turret, a
-            // sentinel of his own that fires its shards and slams the ground; the Tidepearl's
-            // substitute, a volley of Nerissa's tridents
-            .Init("Bastion Turret",
-                new State(
-                    new AllyShoot(10, 3, shootAngle: 12, projectileIndex: 0, coolDown: 700),
-                    new AllyBastionSlam(3.5f, 380, 3000, 2000)
-                )
-            )
+            // the white bags' allies (Player.CruciblePowers.cs): the Tidepearl's substitute, a
+            // volley of Nerissa's tridents (Ferrogrim's Bastion Turret is a Mechanic's turret,
+            // Turret.cs, with no behaviour)
             .Init("Tidal Substitute",
                 new State(
                     new State("fire", new AllyShoot(10, 5, shootAngle: 12, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")),

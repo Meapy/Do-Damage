@@ -903,19 +903,19 @@
 			<Index>0x71</Index>
 		</Texture>
 		<SlotType>32</SlotType>
-		<Description>Ferrogrim's own sentinel, folded down for a Mechanic to raise. It fires three iron shards at a time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor broken, and allies beside it are Armored while it holds.</Description>
+		<Description>Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor broken, and allies beside it are Armored while it holds. When its time is up it blows apart.</Description>
 		<ExtraTooltipData>
-			<EffectInfo name="Turret" description="20 secs: 3 shards of 160 every 0.7 secs, to 10 sqrs" />
 			<EffectInfo name="Slam" description="every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored" />
 		</ExtraTooltipData>
 		<Sound>spell/light_heal</Sound>
 		<Usable />
-		<Activate objectId="Bastion Turret" duration="20">BuildTower</Activate>
+		<Activate objectId="Bastion Turret" duration="20" range="8" amount="3" totalDamage="600" radius="4" allyDamage="100" allyShots="3" allyMs="700">BuildTower</Activate>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<MpCost>150</MpCost>
+		<Cooldown>1</Cooldown>
 		<RelicPower>BastionTurret</RelicPower>
 		<BagType>6</BagType>
 		<FameBonus>6</FameBonus>
@@ -1031,15 +1031,16 @@
 	</Object>
 	<Object type="0xC670" id="Bastion Turret">
 		<Class>Character</Class>
-		<AnimatedTexture>
-			<File>crucibleChars16x16</File>
-			<Index>0</Index>
-		</AnimatedTexture>
+		<Texture>
+			<File>mechanicTurrets16x16</File>
+			<Index>0x1e</Index>
+		</Texture>
 		<Size>90</Size>
+		<TurretHead>0x1f</TurretHead>
 		<Projectile id="0">
 			<ObjectId>Iron Shard</ObjectId>
 			<Speed>120</Speed>
-			<Damage>160</Damage>
+			<Damage>100</Damage>
 			<LifetimeMS>800</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
