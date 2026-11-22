@@ -3183,7 +3183,8 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             if let Some(dps) = a.attr("petDps") {
                 let text = match dps.parse::<i32>() {
                     Ok(d) => {
-                        let (now, last) = (crate::petlevels::dps(d, level, max), crate::petlevels::dps(d, max, max));
+                        // what it really does (every pet three quarters of its level's)
+                        let (now, last) = (crate::petlevels::effective_dps(d, level, max), crate::petlevels::effective_dps(d, max, max));
                         up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }
                     Err(_) => tf!("{dps} per second", dps),
@@ -3193,14 +3194,22 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
                 let Some(amount) = a.attr(key).and_then(|v| v.parse::<i32>().ok()).filter(|&v| v > 0) else { continue };
                 let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                let now = crate::petlevels::heal(amount, level, max);
-                let text = tf!("{amount} {what} every {secs}s", amount = now, what, secs);
-                out.push(Line::stat(&format!("    {verb}"), &up_to(text, crate::petlevels::heal(amount, max, max).to_string()), grown));
+                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max));
+                let text = tf!("{amount} {what} every {secs}s", amount = heal(level), what, secs);
+                out.push(Line::stat(&format!("    {verb}"), &up_to(text, heal(max).to_string()), grown));
             }
             // What else it does (its abilities, and what its hits do), "; " between.
             if let Some(effects) = a.attr("petEffects") {
                 for effect in effects.split("; ").filter(|e| !e.is_empty()) {
-                    out.push(Line::stat(&format!("    {}", tr("Also")), effect, VALUE));
+                    // a bleed ("Bleeds 83 over 3s") as the pet really does it
+                    let effect = match effect.strip_prefix("Bleeds ").and_then(|rest| rest.split_once(' ')) {
+                        Some((n, rest)) => match n.parse::<i32>() {
+                            Ok(n) => format!("Bleeds {} {rest}", crate::petlevels::effective(n)),
+                            Err(_) => effect.to_string(),
+                        },
+                        None => effect.to_string(),
+                    };
+                    out.push(Line::stat(&format!("    {}", tr("Also")), &effect, VALUE));
                 }
             }
             continue;

@@ -1,4 +1,5 @@
 using System;
+using Shared.pets;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
@@ -54,7 +55,7 @@ namespace WorldServer.logic.behaviors.doomed
             if (owner.HasConditionEffect(ConditionEffectIndex.Sick))
                 return;
 
-            var amount = raised?.Amount ?? Random.Next(_min, _max + 1);
+            var amount = PetLevels.Effective(raised?.Amount ?? Random.Next(_min, _max + 1));
             int gained;
             if (_mana)
             {

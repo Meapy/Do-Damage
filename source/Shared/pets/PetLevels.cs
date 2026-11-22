@@ -10,6 +10,8 @@ namespace Shared.pets
     // - healing: its generator's petHp and petMp (each pet its own) at level 1, up to 160% at its
     //   last, as often;
     // - drawn up to a quarter bigger.
+    // On top of that, every pet, levelled or not, does Effectiveness (three quarters) of that
+    // damage, healing and bleeding (since 2.6.4).
     // Feeding costs fame, more the stronger the pet is: 3 for each 100 food it eats at level 1,
     // 15% more at each level after (FameCost). From level 1 to its last that's about 185 fame for a
     // Tiny pet, 690 Small, 1,780 Medium, 3,710 Large and 6,820 Oryx.
@@ -24,6 +26,11 @@ namespace Shared.pets
         public const float DamageAtFirst = 0.6f, DamageAtLast = 1.2f;
         public const float HealAtLast = 1.6f;
         public const float GrowAtLast = 1.25f;
+        public const float Effectiveness = 0.75f;
+
+        /// <summary>A pet's heal of HP or MP, or its bleed, as it really does it: times
+        /// Effectiveness, rounded half away from zero.</summary>
+        public static int Effective(int amount) => (int)Math.Round(amount * Effectiveness, MidpointRounding.AwayFromZero);
 
         /// <summary>The size's index in Sizes, -1 for none (an unsized pet doesn't level).</summary>
         public static int SizeIndex(string size) => size == null ? -1 : Array.IndexOf(Sizes, size);

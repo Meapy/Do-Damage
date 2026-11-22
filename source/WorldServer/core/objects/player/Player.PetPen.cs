@@ -98,14 +98,15 @@ namespace WorldServer.core.objects
             data.Xp = PetXp;
             data.XpLevel = PetLevels.XpAt(level);
             data.XpNext = PetLevels.XpAt(Math.Min(level + 1, max));
+            // what it really does: its level's, times PetLevels.Effectiveness (as Pet.Hit and PetHeal do)
             var dps = PetDps(stone);
-            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max));
-            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max));
-            data.Hp = (short)PetLevels.Heal(stone.PetHp, level, max);
-            data.HpMax = (short)PetLevels.Heal(stone.PetHp, max, max);
+            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max) * PetLevels.Effectiveness);
+            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max) * PetLevels.Effectiveness);
+            data.Hp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, level, max));
+            data.HpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, max, max));
             data.HpMs = (short)stone.PetHpMs;
-            data.Mp = (short)PetLevels.Heal(stone.PetMp, level, max);
-            data.MpMax = (short)PetLevels.Heal(stone.PetMp, max, max);
+            data.Mp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, level, max));
+            data.MpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, max, max));
             data.MpMs = (short)stone.PetMpMs;
             return data;
         }

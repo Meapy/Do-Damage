@@ -57,6 +57,14 @@ namespace Tests
         }
 
         [Fact]
+        public void EveryPetDoesThreeQuarters()
+        {
+            Assert.Equal(0.75f, PetLevels.Effectiveness);
+            // the heals of the sizes' stones, as the client's tooltips show them (petlevels.rs)
+            Assert.Equal(new[] { 11, 15, 23, 34, 45 }, new[] { 15, 20, 30, 45, 60 }.Select(PetLevels.Effective).ToArray());
+        }
+
+        [Fact]
         public void FeedingCostsMoreFameAsThePetGrows()
         {
             // 3 for each 100 food at level 1, 15% more a level after

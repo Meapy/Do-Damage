@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Shared.pets;
 using WorldServer.core.net.stats;
 
 namespace WorldServer.core.objects
@@ -16,6 +17,9 @@ namespace WorldServer.core.objects
         public (int Amount, int Ms)? HealMp { get; set; }
         // whether it heals by its stone's numbers (any sized pet): then no number there is no healing
         public bool OwnHealing { get; set; }
+
+        /// <summary>A pet's hit: amount times its level's DamageScale and PetLevels.Effectiveness.</summary>
+        public static int Hit(Entity host, int amount) => (int)(amount * ((host as Pet)?.DamageScale ?? 1) * PetLevels.Effectiveness);
 
         public void Damage(int dmg, Entity src) { }
 

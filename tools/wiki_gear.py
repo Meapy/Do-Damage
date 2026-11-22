@@ -20,6 +20,7 @@ A category is where the classes wear the slot type (a class's slots are weapon, 
 ring), so a Wakizashi is an ability, as it is for the Samurai.
 """
 import hashlib
+import math
 import os
 import re
 import shutil
@@ -82,6 +83,24 @@ def png_size(path):
 # Keeper feeds it, its damage from 60% of its stone's petDps to 120%, its healing from its stone's
 # petHp and petMp to 160%.
 PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Oryx": 30}
+
+
+def _pet_effectiveness():
+    """PetLevels.Effectiveness: the share of all that every pet really does (0.75)."""
+    try:
+        with open(os.path.join(wd.SRC, "Shared", "pets", "PetLevels.cs"), encoding="utf-8-sig") as f:
+            m = re.search(r"Effectiveness\s*=\s*([0-9.]+)f?", f.read())
+        return float(m.group(1)) if m else 1.0
+    except OSError:
+        return 1.0
+
+
+PET_EFFECTIVENESS = _pet_effectiveness()
+
+
+def _pet_effective(n):
+    """A heal or a bleed as the pet really does it (PetLevels.Effective: halves away from zero)."""
+    return int(math.floor(n * PET_EFFECTIVENESS + 0.5))
 
 
 def _pet_round(x):
@@ -727,25 +746,33 @@ class Gear:
             last = PET_MAX_LEVEL.get(p["size"])
             if last and p["dps"]:
                 # level 1 to its last (PetLevels.DamageScale)
+                # level 1 to its last (PetLevels.DamageScale), times PetLevels.Effectiveness
                 lines = ['<p class="it-nums">Damage a second <b>%s</b> &rarr; <b>%s</b></p>' % (
-                    "{:,}".format(_pet_round(p["dps"] * 0.6)), "{:,}".format(_pet_round(p["dps"] * 1.2)))]
+                    "{:,}".format(_pet_round(p["dps"] * 0.6 * PET_EFFECTIVENESS)),
+                    "{:,}".format(_pet_round(p["dps"] * 1.2 * PET_EFFECTIVENESS)))]
             else:
-                lines = ['<p class="it-nums">Damage a second <b>%d</b></p>' % p["dps"]] if p["dps"] else []
+                lines = (['<p class="it-nums">Damage a second <b>%d</b></p>' % _pet_round(p["dps"] * PET_EFFECTIVENESS)]
+                         if p["dps"] else [])
             if last:
                 lines.append('<p class="it-line"><span>Levels</span> 1 to %d, fed by the Pen Keeper</p>' % last)
             pet = d.name(p["pet"]) if p["pet"] else ""
             if pet and pet != p["name"]:
                 lines.append('<p class="it-line"><span>Pet</span> %s</p>' % h.esc(pet))
             # healing, its own block: what one heal restores, how often, and about how much a second
+            # (as every pet really does it: PetLevels.Effective)
             def grown(amount):
                 nums = [int(x) for x in re.findall(r"\d+", amount or "")]
-                return _pet_round(nums[0] * 1.6) if last and len(nums) == 1 else None
-            heals = [r for r in (_heal_row(p["hp"], "HP", p["hpms"], grown(p["hp"])),
-                                 _heal_row(p["mp"], "MP", p["mpms"], grown(p["mp"]))) if r]
+                return _pet_effective(_pet_round(nums[0] * 1.6)) if last and len(nums) == 1 else None
+            def effective(amount):
+                return re.sub(r"\d+", lambda m: str(_pet_effective(int(m.group(0)))), amount or "")
+            heals = [r for r in (_heal_row(effective(p["hp"]), "HP", p["hpms"], grown(p["hp"])),
+                                 _heal_row(effective(p["mp"]), "MP", p["mpms"], grown(p["mp"]))) if r]
             if heals:
                 lines.append('<dl class="it-heal"><span>Heals</span>%s</dl>' % "".join(
                     '<div class="%s"><dt>%s</dt><dd>%s</dd></div>' % (what.lower(), what, value) for what, value in heals))
-            for effect in p["effects"]:
+            # a bleed ("Bleeds 83 over 3s") as the pet really does it
+            effects = [re.sub(r"^Bleeds (\d+)", lambda m: "Bleeds %d" % _pet_effective(int(m.group(1))), e) for e in p["effects"]]
+            for effect in effects:
                 lines.append('<p class="it-line"><span>Also</span> %s</p>' % h.esc(effect))
             src = self._item_sources(oid)
             if oid in sold and price:
@@ -756,8 +783,9 @@ class Gear:
                 # nothing gives it (test pets, an old donation reward): not something players can get
                 continue
             flags = ["Soulbound"] if d.objects[oid]["soulbound"] else []
-            search = " ".join([p["name"], pet, "pet generator", p["size"]] + p["effects"] + [re.sub(r"<[^>]+>", "", v) for _, v in src])
-            dps_tag = ("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * 1.2)), last) if last else "%d DPS" % p["dps"]) if p["dps"] else ""
+            search = " ".join([p["name"], pet, "pet generator", p["size"]] + effects + [re.sub(r"<[^>]+>", "", v) for _, v in src])
+            dps_tag = (("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * 1.2 * PET_EFFECTIVENESS)), last) if last
+                        else "%d DPS" % _pet_round(p["dps"] * PET_EFFECTIVENESS)) if p["dps"] else "")
             tag = " · ".join(x for x in (p["size"], dps_tag) if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,
                                         p["name"], tag, lines,
