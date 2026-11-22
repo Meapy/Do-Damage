@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
+using WorldServer.logic.behaviors.doomed;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
 
@@ -160,7 +162,9 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Attack", 0.5),
                     new ItemLoot("Greater Potion of Life", 0.15),
                     new ItemLoot("Ascended Armor Shard", 0.06),
-                    new ItemLoot("Ferrogrim's Bastion Turret", 0.01) // the white bag (Player.CruciblePowers.cs)
+                    new ItemLoot("Ferrogrim's Bastion Turret", 0.01), // the white bag (Player.CruciblePowers.cs)
+                    // its pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Ferrogrim Generator", 0.02)
                 )
             )
             // the white bags' allies (Player.CruciblePowers.cs): the Tidepearl's substitute, a
@@ -280,7 +284,9 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Speed", 0.5),
                     new ItemLoot("Greater Potion of Mana", 0.15),
                     new ItemLoot("Ascended Accessory Shard", 0.06),
-                    new ItemLoot("Nerissa's Tidepearl", 0.01) // the white bag (Player.CruciblePowers.cs)
+                    new ItemLoot("Nerissa's Tidepearl", 0.01), // the white bag (Player.CruciblePowers.cs)
+                    // its pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Nerissa Generator", 0.02)
                 )
             )
             .Init("Riptide Eel",
@@ -388,7 +394,9 @@ namespace WorldServer.logic
                     new ItemLoot("Potion of Defense", 0.5),
                     new ItemLoot("Greater Potion of Life", 0.2),
                     new ItemLoot("Ascended Weapon Shard", 0.06),
-                    new ItemLoot("Pyrrhax's Meteor Mortar", 0.01) // the white bag (Player.CruciblePowers.cs)
+                    new ItemLoot("Pyrrhax's Meteor Mortar", 0.01), // the white bag (Player.CruciblePowers.cs)
+                    // its pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Pyrrhax Generator", 0.02)
                 )
             )
             .Init("Molten Golem",
@@ -495,7 +503,9 @@ namespace WorldServer.logic
                     new ItemLoot("Greater Potion of Life", 0.2),
                     new ItemLoot("Greater Potion of Mana", 0.2),
                     new ItemLoot("Ascended Ability Shard", 0.06),
-                    new ItemLoot("Chronarch's Coat of Stolen Hours", 0.01) // the white bag (Player.CruciblePowers.cs)
+                    new ItemLoot("Chronarch's Coat of Stolen Hours", 0.01), // the white bag (Player.CruciblePowers.cs)
+                    // its pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Chronarch Generator", 0.02)
                 )
             )
             .Init("Hour Echo",
@@ -648,14 +658,83 @@ namespace WorldServer.logic
                     new ItemLoot("Ascended Weapon Shard", 0.15),
                     new ItemLoot("Ascended Ability Shard", 0.15),
                     new ItemLoot("Ascended Armor Shard", 0.15),
-                    new ItemLoot("Ascended Accessory Shard", 0.15)
+                    new ItemLoot("Ascended Accessory Shard", 0.15),
+                    // her pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Vaelith Generator", 0.02)
                 )
             )
             // the fallen champions' ghosts on the Apex: untouchable, each firing its own shot
             .Init("Echo of Ferrogrim", EchoGhost(2400))
             .Init("Echo of Nerissa", EchoGhost(2600))
             .Init("Echo of Pyrrhax", EchoGhost(2200))
-            .Init("Echo of Chronarch", EchoGhost(2800));
+            .Init("Echo of Chronarch", EchoGhost(2800))
+
+            // ================================================================================
+            // The champions' pets: each champion drops a little copy of itself (1 in 100), which
+            // fights as the champion does and, every 10 s, takes on the champion's last form for 4 s
+            // and throws out its spiral. Their shots, and the numbers in their generators' tooltips
+            // (damage a second, healing, what else they do), are tools/build_crucible.py's PETS:
+            // change both together.
+            // shard fans, his armour-breaking hammer wave, iron rings, Hammerfall; Iron Tempest's
+            // spiral of hammer waves; and his bastion round you
+            .Init("Lil' Ferrogrim", ChampionPet(45,
+                new IStateChildren[]
+                {
+                    new PetOwnerEffect(ConditionEffectIndex.Armored, 2000, 10000),
+                    new PetShoot(10, 5, 6, 0, 0, 1200),
+                    new PetShoot(10, 1, 0, 0, 1, 2600),
+                    new PetShoot(10, 12, 30, 0, 2, 3200),
+                    new PetNova(1250, 1550, 4000, 10, 2.5, ConditionEffectIndex.ArmorBroken, 1500, IronGlow),
+                },
+                new PetShoot(10, 3, 120, 0, 3, 300, rotateAngle: 17)))
+            // trident volleys, her swaying ring of tide orbs turning, bubbles, a tidal wave; the
+            // Maelstrom's two arms of bubbles; and the tide's healing for you
+            .Init("Lil' Nerissa", ChampionPet(45,
+                new IStateChildren[]
+                {
+                    new PetOwnerEffect(ConditionEffectIndex.Healing, 2000, 8000),
+                    new PetShoot(10, 3, 6, 0, 0, 1100),
+                    new PetShoot(10, 10, 36, 0, 1, 2800, rotateAngle: 13),
+                    new PetShoot(10, 5, 20, 0, 2, 3600),
+                    new PetNova(1450, 1750, 4500, 10, 3, ConditionEffectIndex.Slowed, 1000, TideGlow),
+                },
+                new PetShoot(10, 2, 180, 0, 3, 300, rotateAngle: 14)))
+            // his magma ball, cinder fans and rings, a meteor; Molten Core's spiral of magma; and
+            // the forge's heat in you
+            .Init("Lil' Pyrrhax", ChampionPet(45,
+                new IStateChildren[]
+                {
+                    new PetOwnerEffect(ConditionEffectIndex.Berserk, 2000, 10000),
+                    new PetShoot(10, 1, 0, 0, 0, 1800),
+                    new PetShoot(10, 5, 6, 0, 1, 1100),
+                    new PetShoot(10, 16, 22.5, 0, 2, 3000),
+                    new PetNova(1150, 1350, 3500, 10, 2.2, null, 0, LavaGlow),
+                },
+                new PetShoot(10, 3, 120, 0, 3, 400, rotateAngle: 13)))
+            // his gear ring turning, hand-blade fans, a slowing chrono orb, the midnight chime;
+            // Reversal's four arms of gears turning back; and a stolen moment for you
+            .Init("Lil' Chronarch", ChampionPet(45,
+                new IStateChildren[]
+                {
+                    new PetOwnerEffect(ConditionEffectIndex.Speedy, 2000, 8000),
+                    new PetShoot(10, 12, 30, 0, 0, 2400, rotateAngle: 7.5),
+                    new PetShoot(10, 3, 6, 0, 1, 1300),
+                    new PetShoot(10, 1, 0, 0, 2, 3500),
+                    new PetNova(1750, 2100, 4000, 10, 2.5, ConditionEffectIndex.Slowed, 1500, ChronoGlow),
+                },
+                new PetShoot(10, 4, 90, 0, 3, 500, rotateAngle: -12)))
+            // his lances, a swaying ring of flame feathers turning, his spiral of stars, gold
+            // striking; Unbound's fans of void embers; and the Sovereign's decree in your strikes
+            .Init("Lil' Vaelith", ChampionPet(60,
+                new IStateChildren[]
+                {
+                    new PetOwnerEffect(ConditionEffectIndex.Damaging, 2000, 10000),
+                    new PetShoot(10, 3, 4, 0, 0, 1000),
+                    new PetShoot(10, 16, 22.5, 0, 1, 2600, rotateAngle: 11),
+                    new PetShoot(10, 2, 180, 0, 2, 420, rotateAngle: 11),
+                    new PetNova(900, 1100, 3000, 10, 2.5, null, 0, SovereignGlow),
+                },
+                new PetShoot(10, 7, 4, 0, 3, 800)));
 
         // ---- the champions' kits, `pace` < 1 faster ----
 
@@ -703,6 +782,27 @@ namespace WorldServer.logic
                 new Prioritize(new StayCloseToSpawn(0.6, 5), new Wander(0.4)),
                 SovereignKit(1.15)
             );
+
+        // a champion's pet: it follows and heals its owner (heal HP and MP every 1.5 s) and fights
+        // with `kit` all the while; every 10 s it takes on the champion's last form (AltTexture 1)
+        // for 4 s and adds `signature`, the spiral the champion throws out in its last phase
+        private static State ChampionPet(int heal, IStateChildren[] kit, Behavior signature) => new State(
+            new IStateChildren[]
+            {
+                new PetFollow(),
+                new PetHeal(false, heal, heal, 1500),
+                new PetHeal(true, heal, heal, 1500),
+                new State("Calm",
+                    new SetAltTexture(0),
+                    new TimedTransition(6000, "Signature")
+                ),
+                new State("Signature",
+                    new SetAltTexture(1),
+                    signature,
+                    new TimedTransition(4000, "Calm")
+                ),
+            }.Concat(kit).ToArray()
+        );
 
         private static State EchoGhost(int coolDown) => new State(
             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),

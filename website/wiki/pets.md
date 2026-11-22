@@ -70,6 +70,26 @@ every 1.5 seconds, and grow stronger along the chain:
 Until 27 November 2026, every account can claim a free Lil' Oryx from the quest log's Daily
 Rewards tab.
 
+The bosses of the two hardest places do the same: each of [The Black Between](dungeons.html)'s
+three bosses and [The Crucible](crucible.html)'s five champions has a **1% chance** to drop a
+little copy of itself, in a white bag. It fights as its boss does, with the boss's own shots in
+its patterns (weaving volleys, rings that turn, its blast on the enemy and everything round it),
+and the champions' pets take on their champion's last form every 10 seconds to throw out its
+spiral. Each is as strong as a Lil' Oryx, and the champions' pets help you as well:
+
+| Pet | Dropped by | Damage a second | Also |
+|---|---|---|---|
+| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 1,000 | breaks armor; makes you Armored for 2 s every 10 s |
+| Lil' Nerissa | Nerissa, the Tidecaller | about 1,100 | slows; heals you over 2 s every 8 s |
+| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,200 | makes you Berserk for 2 s every 10 s |
+| Lil' Chronarch | Chronarch, the Hour Thief | about 1,300 | slows; makes you Speedy for 2 s every 8 s |
+| Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,800 | breaks armor; makes you Damaging for 2 s every 10 s |
+| Lil' Vesper | Vesper, the Dusk Star | about 2,200 | slows |
+| Lil' Aurel | Aurel, the Dawn Blade | about 2,600 | breaks armor; the Sunwheel every 9.5 s |
+| Lil' Mysterious One | The Mysterious One | about 3,000 | breaks armor; his black hole |
+
+The Crucible's first four heal 45 each every 1.5 seconds, the rest 60.
+
 ### What they do
 
 - **Every pet fights its own way.** The critters scratch, bite, spit, peck, throw bones, eggs,

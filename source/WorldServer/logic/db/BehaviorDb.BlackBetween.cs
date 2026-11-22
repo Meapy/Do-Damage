@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
+using WorldServer.logic.behaviors.doomed;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
 
@@ -282,6 +283,10 @@ namespace WorldServer.logic
                         DuskVolley(800)
                     )
                     )
+                ),
+                // her pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                new Threshold(0.01,
+                    new ItemLoot("Lil' Vesper Generator", 0.02)
                 )
             )
             .Init("Vesper's Veil Copy",
@@ -424,6 +429,10 @@ namespace WorldServer.logic
                             Cyclone("High Noon Cyclone", "High Noon Fight", 2)
                         )
                     )
+                ),
+                // his pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                new Threshold(0.01,
+                    new ItemLoot("Lil' Aurel Generator", 0.02)
                 )
             )
 
@@ -674,7 +683,9 @@ namespace WorldServer.logic
                     new ItemLoot("Helm of the Dawn Blade", 0.01),
                     new ItemLoot("Prism of the Dusk Veil", 0.01),
                     new ItemLoot("Cloak of the Planar Rift", 0.01),
-                    new ItemLoot("Vial of Cascading Dusk", 0.01)
+                    new ItemLoot("Vial of Cascading Dusk", 0.01),
+                    // his pet, 1 in 100 (written twice that: Loots.PetDropRate halves every pet)
+                    new ItemLoot("Lil' Mysterious One Generator", 0.02)
                 )
             )
 
@@ -722,6 +733,55 @@ namespace WorldServer.logic
                         new TimedTransition(11000, "Gone")
                     ),
                     new State("Gone", new Suicide())
+                )
+            )
+
+            // ---- the family's pets: each boss drops a little copy of itself (1 in 100), which fights
+            // as the boss does. Their shots, and the numbers in their generators' tooltips (damage a
+            // second, healing, what else they do), are tools/build_black_between.py's PETS: change
+            // both together ----
+            // her weaving dusk volleys, her bowing ring of umbral orbs turning as it goes, and her dusk
+            // mines bursting on the enemy and all round it
+            .Init("Lil' Vesper",
+                new State(
+                    new PetFollow(),
+                    new PetHeal(false, 60, 60, 1500),
+                    new PetHeal(true, 60, 60, 1500),
+                    new PetShoot(10, 5, 6, 0, 0, 900),
+                    new PetShoot(10, 18, 20, 0, 1, 2400, rotateAngle: 10),
+                    new PetNova(1450, 1750, 3000, 10, 2.5, null, 0, Violet)
+                )
+            )
+            // his armour-breaking crescents, the Sunburst, his sword thrown, divine lightning; and
+            // every 9.5 s the Sunwheel, four arms of crescents turning round him for 3.5 s
+            .Init("Lil' Aurel",
+                new State(
+                    new PetFollow(),
+                    new PetHeal(false, 60, 60, 1500),
+                    new PetHeal(true, 60, 60, 1500),
+                    new PetShoot(10, 3, 8, 0, 0, 1200),
+                    new PetShoot(10, 12, 30, 0, 1, 2400),
+                    new PetShoot(11, 1, 0, 0, 3, 4000),
+                    new PetNova(1750, 2050, 2500, 10, 2, ConditionEffectIndex.Paralyzed, 600, Gold),
+                    new State("Dawn", new TimedTransition(6000, "Sunwheel")),
+                    new State("Sunwheel",
+                        new PetShoot(10, 4, 90, 0, 2, 180, rotateAngle: 14),
+                        new TimedTransition(3500, "Dawn")
+                    )
+                )
+            )
+            // both eyes at once: his daughter's weaving volleys and his son's crescents, his slow ring
+            // of eclipse orbs turning, his black hole opening round the enemy, divine lightning
+            .Init("Lil' Mysterious One",
+                new State(
+                    new PetFollow(),
+                    new PetHeal(false, 60, 60, 1500),
+                    new PetHeal(true, 60, 60, 1500),
+                    new PetShoot(10, 5, 6, 0, 0, 1000),
+                    new PetShoot(10, 3, 8, 0, 1, 1300),
+                    new PetShoot(10, 8, 45, 0, 2, 2600, rotateAngle: 9),
+                    new PetNova(2500, 3100, 5000, 10, 3.5, null, 0, Violet),
+                    new PetNova(950, 1150, 2200, 10, 2, ConditionEffectIndex.Paralyzed, 600, Gold)
                 )
             )
 

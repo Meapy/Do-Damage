@@ -156,6 +156,15 @@ champion's:
 
 Each item's page under [Gear](gear.html) has its numbers.
 
+## The champions' pets
+
+Each champion also has a **1% chance** to drop a little copy of itself as a pet, in a white bag of
+its own: Lil' Ferrogrim, Lil' Nerissa, Lil' Pyrrhax, Lil' Chronarch and Lil' Vaelith. Each fights
+as its champion does, with its shots in its patterns, and every 10 seconds it takes on its
+champion's last form (Iron Tempest, Maelstrom, Molten Core, Reversal, Unbound) and throws out its
+spiral. They hit as hard as the Lil' Oryxes (about 1,000 for Ferrogrim's up to 1,800 for
+Vaelith's), and each helps you in its champion's way. [Pets](pets.html) has their numbers.
+
 ## The leaderboard
 
 Every climb that clears at least one floor goes on the Crucible's board: the most floors first,

@@ -49,7 +49,8 @@ Outputs (generated, don't edit):
   CrucibleChars32x32.png in the client's custom/images (registered for the Rust client by
   tools/gen_rs_manifest.py).
 The art is drawn by tools/crucible/bosses.py (the champions, 32x32) and small.py (everything
-else). Type codes are kept stable in tools/crucible/types.json (0xC600-0xC7FF). Needs Pillow.
+else). Each champion drops a little copy of itself as a pet (PETS, tools/boss_pets.py). Type
+codes are kept stable in tools/crucible/types.json (0xC600-0xC7FF). Needs Pillow.
 """
 import base64
 import json
@@ -64,6 +65,8 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from crucible import bosses, small  # noqa: E402
 from black_between.bosses import spectral  # noqa: E402
+from black_between import small as bb_small  # noqa: E402
+import boss_pets  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -287,6 +290,81 @@ CHAMPIONS = {
         foe(3, "Void Ember", 190, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN]),
         foe(4, "Flame Feather", 170, 130, 1600),
     ]),
+}
+# the champions' pets (tools/boss_pets.py), each a little copy that fights as its champion does,
+# taking on the champion's last form for its signature spiral (4 s in every 10), as the champion
+# does for its last phase (its behaviour beside the champion's in BehaviorDb.Crucible.cs; change
+# the numbers in both): name -> (champion, [forms it takes on], spec). Each drops its own, 1 in 100.
+PETS = {
+    # shard fans, his armour-breaking hammer wave, iron rings, Hammerfall on the enemy and round it,
+    # and the Iron Tempest's spiral of hammer waves:
+    # 3 x 170 / 1.2 s + 300 / 2.6 s + 150 / 3.2 s + 1,400 / 4 s + 3 x 23/360 x 200 / 0.3 s x 0.4
+    "Lil' Ferrogrim": ("Ferrogrim, the Iron Warden", ["Ferrogrim, Iron Tempest"], dict(
+        size=50, dps=988, heal=(45, 1500),
+        effects=["Hammer waves and Hammerfall break armor", "Hammerfall strikes all enemies within 2.5 tiles of its target",
+                 "Iron Tempest: a spiral of hammer waves every 10s", "Makes you Armored for 2s every 10s"],
+        description="The Iron Warden, Bastion and all, cut down to a size that fits at your heel. It still holds the line.",
+        shots=[
+            boss_pets.shot(0, "Iron Shard", 170, 100, 1000, 90, multi=True),
+            boss_pets.shot(1, "Hammer Wave", 300, 70, 1400, 150, effects=[ARMOR_BROKEN], multi=True),
+            boss_pets.shot(2, "Iron Shard", 150, 80, 1200, 90),
+            boss_pets.shot(3, "Hammer Wave", 200, 80, 1200, 130, multi=True),
+        ])),
+    # trident volleys, her swaying ring of tide orbs (slowing), bubbles, a tidal wave on the enemy
+    # and round it, and the Maelstrom's two arms of bubbles:
+    # 3 x 210 / 1.1 s + 10 x 23/360 x 300 / 2.8 s + 250 / 3.6 s + 2 x 23/360 x 220 / 0.3 s x 0.4 + 1,600 / 4.5 s
+    "Lil' Nerissa": ("Nerissa, the Tidecaller", ["Nerissa, Maelstrom"], dict(
+        size=50, dps=1104, heal=(45, 1500),
+        effects=["Tide orbs, bubbles and her waves slow", "Her waves strike all enemies within 3 tiles of its target",
+                 "Maelstrom: a whirl of bubbles every 10s", "Heals you over 2s every 8s"],
+        description="The Tidecaller, with a sea of her own in a shell. The tide still answers to her.",
+        shots=[
+            boss_pets.shot(0, "Trident Bolt", 210, 140, 750, 90),
+            boss_pets.shot(1, "Tide Orb", 300, 60, 1700, 110, effects=[("Slowed", 1.5)], multi=True, amplitude=1.0, frequency=0.6),
+            boss_pets.shot(2, "Bubble", 250, 70, 1400, 100, effects=[("Slowed", 1)]),
+            boss_pets.shot(3, "Bubble", 220, 80, 1200, 100),
+        ])),
+    # his magma ball, cinder fans and rings, a meteor on the enemy and round it, and Molten Core's
+    # spiral of magma: 420 / 1.8 s + 3 x 180 / 1.1 s + 200 / 3 s + 3 x 23/360 x 250 / 0.4 s x 0.4 + 1,250 / 3.5 s
+    "Lil' Pyrrhax": ("Pyrrhax, the Forge Tyrant", ["Pyrrhax, Molten Core"], dict(
+        size=50, dps=1196, heal=(45, 1500),
+        effects=["Meteors strike all enemies within 2.2 tiles of its target", "Molten Core: a spiral of magma every 10s",
+                 "Makes you Berserk for 2s every 10s"],
+        description="The Forge Tyrant, still hot from the furnace. It burns whatever stands between you and the loot.",
+        shots=[
+            boss_pets.shot(0, "Magma Ball", 420, 80, 1300, 150, multi=True),
+            boss_pets.shot(1, "Cinder", 180, 130, 800, 90),
+            boss_pets.shot(2, "Cinder", 200, 90, 1100, 90),
+            boss_pets.shot(3, "Magma Ball", 250, 70, 1400, 120, multi=True),
+        ])),
+    # his turning gear ring, hand-blade fans, a slowing chrono orb, the midnight chime on the enemy
+    # and round it, and Reversal's four arms of gears turning back:
+    # 12 x 23/360 x 220 / 2.4 s + 3 x 245 / 1.3 s + 500 / 3.5 s + 4 x 23/360 x 200 / 0.5 s x 0.4 + 1,925 / 4 s
+    "Lil' Chronarch": ("Chronarch, the Hour Thief", ["Chronarch, Reversal"], dict(
+        size=50, dps=1301, heal=(45, 1500),
+        effects=["Chrono orbs and the chime slow", "The chime strikes all enemies within 2.5 tiles of its target",
+                 "Reversal: a spiral of gears every 10s", "Makes you Speedy for 2s every 8s"],
+        description="The Hour Thief, small enough for a pocket watch. It steals a little time for you now and then.",
+        shots=[
+            boss_pets.shot(0, "Gear Shot", 220, 70, 1500, 100),
+            boss_pets.shot(1, "Hand Blade", 245, 150, 700, 90),
+            boss_pets.shot(2, "Chrono Orb", 500, 60, 1600, 120, effects=[("Slowed", 2)], multi=True),
+            boss_pets.shot(3, "Gear Shot", 200, 80, 1300, 100),
+        ])),
+    # his lances, a swaying ring of flame feathers turning, a spiral of stars, gold striking the
+    # enemy and round it, and Unbound's fans of void embers (armour-breaking):
+    # 3 x 285 / 1 s + 16 x 23/360 x 300 / 2.6 s + 2 x 23/360 x 200 / 0.42 s + 5 x 180 / 0.8 s x 0.4 + 1,000 / 3 s
+    "Lil' Vaelith": ("Vaelith, the Crucible Sovereign", ["Vaelith, Unbound"], dict(
+        size=55, dps=1817, heal=(60, 1500),
+        effects=["Void embers break armor for 2s", "Gold strikes all enemies within 2.5 tiles of its target",
+                 "Unbound: fans of void embers every 10s", "Makes you Damaging for 2s every 10s"],
+        description="The Crucible Sovereign. He built a tower to find the worthy, and it seems he found you.",
+        shots=[
+            boss_pets.shot(0, "Sovereign Lance", 285, 150, 750, 90, multi=True),
+            boss_pets.shot(1, "Flame Feather", 300, 70, 1500, 110, multi=True, amplitude=1.2, frequency=0.5),
+            boss_pets.shot(2, "Sovereign Star", 200, 70, 1400, 100),
+            boss_pets.shot(3, "Void Ember", 180, 100, 1000, 110, effects=[ARMOR_BROKEN], multi=True),
+        ])),
 }
 # copies that fight beside a champion: name -> (art, size, [projectiles])
 ECHOES = {
@@ -599,6 +677,12 @@ def objects(types, s8, s16, s32, c16, c32):
         sub(e, "ShadowSize", 0)
         sub(e, "Size", 0)
         out.append(e)
+
+    # the champions' pets and their generators (tools/boss_pets.py)
+    for name, (champion, forms, spec) in PETS.items():
+        icon = s16.add(bb_small.pet_icon(sprites[champion][0]))
+        out += boss_pets.pet_objects(lambda n: types.get(n, OBJECT_TYPES), name, spec, CHARS32[0], row(champion),
+                                     [row(f) for f in forms], SHEET16[0], icon)
     return out
 
 
@@ -1014,7 +1098,7 @@ def main():
               "Generated by tools/build_crucible.py: the Crucible's floors. Do not edit.")
     write_xml(OUT_XML["objects"], "Objects", o,
               "Generated by tools/build_crucible.py: the Crucible's champions, minions, scenery, "
-              "portal, hearts and shots. Do not edit.")
+              "portal, hearts, shots and pets. Do not edit.")
     save_map(m)
     types.save()
     known = {e.get("id") for e in g + o} | {None}

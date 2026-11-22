@@ -717,6 +717,25 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Boss pets of the Black Between and the Crucible** (2026-11-22; `tools/boss_pets.py`,
+  `PETS` in `tools/build_black_between.py` and `tools/build_crucible.py`, the pets' behaviours
+  beside their bosses' in `BehaviorDb.BlackBetween.cs` and `BehaviorDb.Crucible.cs`
+  (`ChampionPet`), `PetShoot`'s `rotateAngle`): each of the eight bosses drops a Lil' copy of
+  itself (its generator `ItemLoot` at 0.02, so 1% once `Loots.PetDropRate` halves it; Vesper and
+  Aurel had no loot before). Each is drawn with its boss's own row of the dungeon's 32x32 character
+  sheet (and its last form as AltTexture 1, for the champions), its generator's icon the boss
+  shrunk to 16x16 (`black_between/small.pet_icon`, on the dungeon's 16x16 sheet), and fires its
+  boss's shots in its patterns: fans, rings that turn (`rotateAngle`: the first volley aims, each
+  after turns on), `PetNova`s for mines, lightning, meteors and the black hole, and for the
+  champions every 10 s their last form and spiral for 4 s. All are `petSize="Oryx"` (out of the
+  Mystery Pet Stones and the Pen Keeper's raises), healing 45 (the Crucible's first four) or 60
+  every 1.5 s; damage a second, written into each generator (`petDps`) and worked out in `PETS`'
+  comments as `boss_pets.py` explains: Ferrogrim 988, Nerissa 1,104, Pyrrhax 1,196, Chronarch
+  1,301, Vaelith 1,817, Vesper 2,217, Aurel 2,590, the Mysterious One 3,002 (the Lil' Oryxes are
+  1,000 to 3,000). The champions also buff their owner now and then (`PetOwnerEffect`: Armored,
+  Healing, Berserk, Speedy, Damaging). The numbers live in both the script and the behaviour:
+  change them together.
+
 - **The Mechanic reworked** (2026-11-22; `Turret.cs`, `Player.Turrets.cs`, both
   `DoomedRealms.xml` copies, `tools/draw_turrets.py`, `client-rs/app/src/particles/turret.rs`):
   a turret blueprint (`BuildTower` with `allyMs`) throws a crate to where it's aimed (`range`, on

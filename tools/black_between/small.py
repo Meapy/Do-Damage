@@ -431,6 +431,25 @@ def item_icon(name):
     return img
 
 
+def pet_icon(frame):
+    """A boss's 32x32 frame at 16x16, for its pet's generator (the client draws a 16x16 item at
+    half size, as big as an 8x8 one, so the icon keeps twice the detail): each 2x2 block is the
+    colour most of its filled pixels have (the brightest of a tie, so the highlights survive), or
+    clear when fewer than two are filled."""
+    src = frame.convert("RGBA")
+    w, h = src.size
+    img = Image.new("RGBA", (w // 2, h // 2), (0, 0, 0, 0))
+    for y in range(h // 2):
+        for x in range(w // 2):
+            px = [src.getpixel((2 * x + dx, 2 * y + dy)) for dy in (0, 1) for dx in (0, 1)]
+            filled = [p for p in px if p[3] >= 128]
+            if len(filled) < 2:
+                continue
+            best = max(filled, key=lambda p: (filled.count(p), sum(p[:3])))
+            img.putpixel((x, y), best[:3] + (255,))
+    return img
+
+
 TILES = {
     "Astral Stone": [astral_stone(s) for s in (3, 4, 5, 6)],
     "Platform Rim": [platform_rim(s) for s in (1, 2, 3, 4)],
