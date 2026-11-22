@@ -68,6 +68,13 @@ You can ask multiple players at once; each recipient can accept their request, a
 - On a game older than version 2.3.7 there's no box: your friend sees the request in chat and
   answers with `/yes` or `/no` (on 2.3.7 itself, summons come in chat too).
 
+## Emoji in chat
+
+Words in colons turn into pictures in chat and in the speech balloons over players' heads: type
+`:smile:`, `:heart:`, `:fire:` or `:saluting_face:` (also `:salute:`) and the others from the
+usual emoji names, over 1,900 of them, flags included (`:ireland:`), with a few shortcuts such as
+`:)`, `:D`, `<3` and `:kappa:`. Put a space on each side of one, as it's a word of its own.
+
 ## Shops and selling
 
 - `/shop` lists the shops and `/shop <name>` opens one: weapons, abilities, armor, rings,

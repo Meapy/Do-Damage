@@ -37,6 +37,9 @@ pub const MIN_ANIM_CYCLE: i32 = 160;
 
 /// The tile type of a square nothing has been sent for (`Square.tileType_` default).
 pub const NO_TILE: u16 = 255;
+/// The Crucible's `Background`: its floors float in open air, so shots fly on over the sky
+/// between and through their gaps instead of stopping where the ground ends.
+pub const BACKGROUND_OPEN_AIR: u8 = 9;
 
 /// On stacked floors, the furthest the ground may rise or fall between one square and the next
 /// for us to walk on (a stair's step is half a tile); more is a wall or a drop (`World.Step` on

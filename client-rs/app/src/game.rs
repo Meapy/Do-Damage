@@ -52,6 +52,10 @@ pub struct Game {
     /// Whether we stay at our grave when we die (Options, Gameplay); else the death goes
     /// straight on to its summary, as before. Set by the app each frame.
     pub linger: bool,
+    /// The Gilded dungeon guide (`GuideSubscribe`): whether we ask for it (Options), the way
+    /// the server last showed, and whether our world has said it knows it.
+    pub guide_on: bool,
+    pub guide: crate::guide::Guide,
     /// When a white bag last landed near us (its flash round the view, `whitebag`).
     pub white_bag_at: Option<i32>,
     /// How many worlds we've entered (each `MapInfo`): a new one clears the windows' searches.
@@ -118,6 +122,8 @@ pub struct Game {
     /// The Arena's rounds (`ArenaRound`, Season 2): the fight running, what the next one will be
     /// (while the votes are open), and the banner shown over the world (the message, and when).
     pub arena_fight: Option<bsk_proto::ArenaRound>,
+    /// The Crucible's climb, once its first message comes in this world (`crucible.rs`).
+    pub crucible: Option<crate::crucible::Climb>,
     pub arena_next: Option<bsk_proto::ArenaRound>,
     pub arena_banner: Option<(bsk_proto::ArenaRound, i32)>,
     /// Staff's `/autoaim`: shots go at the nearest enemy. Only the server turns it on, with a line
@@ -149,6 +155,9 @@ pub struct Game {
     pub invite: Option<(Invite, i32)>,
     /// Someone's /visit waiting for our Yes or No (`VisitRequest`), in the corner.
     pub visit: Option<VisitAsk>,
+    /// The Crucible Portal we're about to enter: its warning waits for Climb or Not now
+    /// (`crucible::draw_ask`).
+    pub crucible_ask: Option<i32>,
     /// The pings showing in this world (`PingShow`), and whether the server knows pings.
     pub pings: crate::pings::Marks,
     /// The Scrying Glass's messages, for its picture and big view (`glass.rs`).
@@ -409,6 +418,8 @@ impl Game {
             dying: None,
             grave: None,
             linger: true,
+            guide_on: true,
+            guide: crate::guide::Guide::default(),
             white_bag_at: None,
             maps_entered: 0,
             reconnects: 0,
@@ -443,6 +454,7 @@ impl Game {
             arena_fight: None,
             arena_next: None,
             arena_banner: None,
+            crucible: None,
             auto_aim: false,
             show_displays: false,
             particles: Default::default(),
@@ -457,6 +469,7 @@ impl Game {
             trade: None,
             invite: None,
             visit: None,
+            crucible_ask: None,
             pings: Default::default(),
             glass_events: Vec::new(),
             locked: Default::default(),
@@ -710,6 +723,7 @@ impl Game {
                 // the last world's quest: its id is some other object here (a building, a wall),
                 // whose picture the quest arrow drew at the view's edge until a new quest came
                 self.quest = None;
+                self.guide.clear();
                 self.white_bag_at = None;
                 self.map_key = (self.hello.game_id, info.name.clone(), info.width as i32, info.height as i32);
                 let mut world = World::new(info.width as i32, info.height as i32, &info.display_name, info.seed);
@@ -726,6 +740,7 @@ impl Game {
                 self.arena_asked = false;
                 self.arena_fight = None;
                 self.arena_next = None;
+                self.crucible = None;
                 self.arena_banner = None;
                 self.pings.clear();
                 self.show_displays = info.show_displays;
@@ -771,6 +786,10 @@ impl Game {
                 self.socket.send(&bsk_proto::PingMark { kind: crate::pings::HELLO, x: 0.0, y: 0.0, z: 0.0, target_id: 0 }.into());
                 // we can stay at our grave as a ghost when we die
                 self.socket.send(&bsk_proto::Grave { action: 255 }.into());
+                // and show a Gilded pass's way to a dungeon's boss
+                if self.guide_on {
+                    self.socket.send(&bsk_proto::GuideSubscribe { on: true }.into());
+                }
                 self.status.clear();
             }
             Some(Event::Failure { description, .. }) => {
@@ -807,6 +826,7 @@ impl Game {
         }
         match msg {
             ServerMessage::QuestObjId(q) => self.quest = Some(q.object_id),
+            ServerMessage::DungeonGuide(g) => self.guide.set(g, now),
             ServerMessage::QuestDamage(d) => {
                 let hitters = d.top.iter().map(|s| Hitter { name: s.name.clone(), class: 0, damage: s.damage, assist: 0 }).collect();
                 self.set_quest_damage(d.object_id, None, hitters, (d.mine, 0), data);
@@ -1126,8 +1146,17 @@ impl Game {
             ServerMessage::ServerPlayerShoot(s) => {
                 if world.objects.get(&s.owner_id).is_some_and(|o| !o.dead) {
                     let (x, y) = (s.starting_pos.x as f64, s.starting_pos.y as f64);
-                    let p = Projectile::new(s.owner_id, s.bullet_id, s.container_type as u16, s.bullet_type.unwrap_or(0) as i32, s.angle as f64, now, x, y, 1.0, s.damage, false);
+                    let mut p = Projectile::new(s.owner_id, s.bullet_id, s.container_type as u16, s.bullet_type.unwrap_or(0) as i32, s.angle as f64, now, x, y, 1.0, s.damage, false);
+                    // a turret's shot leaves its barrel, at its head's height
+                    if data.objects.get(&(s.container_type as u16)).is_some_and(|d| d.xml.has("TurretHead")) {
+                        p.z = crate::particles::turret::HEAD_Z;
+                    }
                     world.add_projectile(p);
+                    // a Mechanic's turret's shot: a flash at its muzzle (particles/turret.rs), as
+                    // faint as other players' shots
+                    if Some(s.owner_id) == world.me || self.particles.others > 0.0 {
+                        self.particles.turret_shot(x, y, s.angle as f64, now);
+                    }
                 }
             }
             ServerMessage::AllyShoot(a) => {
@@ -1155,6 +1184,15 @@ impl Game {
                     self.arena_next = None;
                 }
                 self.arena_votes = Some(v.clone());
+            }
+            ServerMessage::Crucible(c) => {
+                // a phase begun: its burst round the champion (particles/relic.rs)
+                if c.kind == crate::crucible::kind::CUE {
+                    if let Some(world) = &self.world {
+                        self.particles.champion_cue(c.cue, c.champion, world, now);
+                    }
+                }
+                self.crucible.get_or_insert_with(Default::default).on_message(c, now);
             }
             ServerMessage::ArenaRound(r) => match r.kind {
                 // what the next fight will be
@@ -1867,6 +1905,13 @@ impl Game {
 
     /// Hide the visit request once it has run out (the server tells the visitor then).
     pub fn expire_visit(&mut self, now: i32) {
+        // the Crucible's warning goes once its portal is out of reach
+        if let Some(id) = self.crucible_ask {
+            let near = self.world.as_ref().and_then(|w| Some((w.objects.get(&id)?, w.player()?))).is_some_and(|(o, me)| (o.x - me.x).hypot(o.y - me.y) < 3.0);
+            if !near {
+                self.crucible_ask = None;
+            }
+        }
         if self.visit.as_ref().is_some_and(|v| now >= v.until) {
             self.visit = None;
         }
@@ -2006,6 +2051,20 @@ impl Game {
         self.send(bsk_proto::PassAct { kind, value }.into());
     }
 
+    /// The Options switch for the dungeon guide changed: tell the server, once we're in.
+    pub fn set_guide(&mut self, on: bool) {
+        if on == self.guide_on {
+            return;
+        }
+        self.guide_on = on;
+        if !on {
+            self.guide.clear();
+        }
+        if self.world.as_ref().is_some_and(|w| w.me.is_some()) {
+            self.send(bsk_proto::GuideSubscribe { on }.into());
+        }
+    }
+
     /// Ask the community goals' server side (`CommunityGoals.cs`).
     pub fn community(&mut self, act: crate::community::Act) {
         use crate::community::Act;
@@ -2018,6 +2077,7 @@ impl Game {
                 }
                 bsk_proto::CommunityClaim { key, tier }.into()
             }
+            Act::Boost(key) => bsk_proto::CommunityBoost { key }.into(),
         };
         self.send(msg);
     }
@@ -2122,6 +2182,23 @@ impl Game {
             return;
         }
         self.socket.send(&UsePortal { object_id }.into());
+    }
+
+    /// Enter a portal the player chose: the Crucible's first asks (how often it can be climbed,
+    /// that it's meant for a group), the rest at once.
+    pub fn enter_portal(&mut self, object_id: i32, data: &bsk_data::GameData) {
+        let crucible = self
+            .world
+            .as_ref()
+            .and_then(|w| w.objects.get(&object_id))
+            .and_then(|o| data.objects.get(&o.object_type))
+            .is_some_and(|d| d.id == crate::crucible::PORTAL);
+        if crucible && self.crucible_ask != Some(object_id) {
+            self.crucible_ask = Some(object_id);
+            return;
+        }
+        self.crucible_ask = None;
+        self.use_portal(object_id);
     }
 
     /// Back to the nexus (the R key). Not from the nexus itself: the server disconnects for that.

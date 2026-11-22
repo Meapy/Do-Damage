@@ -1,4 +1,5 @@
 using System;
+using Shared.pets;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
@@ -40,8 +41,12 @@ namespace WorldServer.logic.behaviors.doomed
                 state = cool - time.ElapsedMsDelta;
                 return;
             }
-            var raised = (host as Pet)?.Heal;
+            // the pet's own healing, from its stone and grown with its level (Pet.HealHp, HealMp);
+            // the numbers here only for a pet without them
+            var raised = _mana ? (host as Pet)?.HealMp : (host as Pet)?.HealHp;
             state = raised?.Ms ?? _coolDown.Next(Random);
+            if (raised == null && (host as Pet)?.OwnHealing == true)
+                return;
 
             // from any distance: a pet left behind by a fast character, or stuck on a wall, still heals
             var owner = (host as Pet)?.PlayerOwner;
@@ -50,7 +55,7 @@ namespace WorldServer.logic.behaviors.doomed
             if (owner.HasConditionEffect(ConditionEffectIndex.Sick))
                 return;
 
-            var amount = raised?.Amount ?? Random.Next(_min, _max + 1);
+            var amount = PetLevels.Effective(raised?.Amount ?? Random.Next(_min, _max + 1));
             int gained;
             if (_mana)
             {

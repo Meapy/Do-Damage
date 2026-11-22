@@ -97,11 +97,45 @@ pub mod look {
     /// The Realm Pass made Gilded: a crown of gold sparks wheeling round its player, gold
     /// raining out, two rings.
     pub const PASS_GILDED: u8 = 47;
-    pub const LAST: u8 = 47;
+    /// Vaelith's Final Aria (`Player.CruciblePowers.cs`): a verse ringing out from its Bard to
+    /// the radius, notes thrown out on it (`object_type` which verse, 0 to 3, gold turning to
+    /// violet; the last, the crescendo, draws the Sovereign's star under them for `duration`).
+    pub const ARIA: u8 = 48;
+    /// Pyrrhax's Meteor Mortar (`Player.CruciblePowers.cs`): the shell fired from its Pirate (the
+    /// target) to where it lands (pos1) over `duration` ms: a muzzle blast and a ring of smoke,
+    /// then a molten ball arcing over, trailing fire, smoke and dripping slag.
+    pub const MORTAR_SHOT: u8 = 49;
+    /// The Meteor Mortar's blasts at pos1 (pos2.x the radius): `object_type` 0 the shell landing
+    /// (a pool of slag left burning `duration` ms), 1 a meteor falling out of the sky onto it
+    /// over `duration` ms and bursting there.
+    pub const MORTAR_BLAST: u8 = 50;
+    /// Ferrogrim's Bastion Turret (`Player.CruciblePowers.cs`, a Mechanic's turret with
+    /// `Turret.Slam`): `object_type` 0 raised where it lands (iron plates flying in and locking,
+    /// sparks; the plate, head and link are `turret.rs`'s, as every turret's), 1 its slam
+    /// (the ground cracking in a ring, iron and sparks thrown up), pos2.x the slam's reach.
+    pub const BASTION: u8 = 51;
+    /// Nerissa's Tidepearl: a wave of the tide rolling out from its Druid to pos2.x (`object_type`
+    /// which, 0 to 2; the first opens a whirlpool under them).
+    pub const TIDE: u8 = 52;
+    /// Chronarch's Coat of Stolen Hours: the Orrery's clock on the ground round its Blademaster
+    /// (pos2.x its reach), its hand sweeping round twice over `duration` ms.
+    pub const HOURS: u8 = 53;
+    /// A Mechanic's turret (`Turret.cs`, `Player.Turrets.cs`; drawn by `turret.rs`): its crate
+    /// thrown from its Mechanic (the target) to where it lands (pos1) over `duration` ms.
+    pub const TURRET_THROW: u8 = 54;
+    /// The turret built at pos1 (the target): dust, bolts and welding sparks, a blueprint's ring
+    /// out to its reach (pos2.x); `duration` its time left, `source_id` its Mechanic and
+    /// `object_type` its blast's radius in hundredths of a tile, for the plate under it.
+    pub const TURRET_BUILD: u8 = 55;
+    /// A turret already up when it came into view: its plate alone (as `TURRET_BUILD`).
+    pub const TURRET_SEEN: u8 = 56;
+    /// A turret blowing up (its time up, or a newer one in its place): pos2.x the blast's radius.
+    pub const TURRET_BLAST: u8 = 57;
+    pub const LAST: u8 = 57;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
-const GRAVITY: f64 = 12.0e-6;
+pub(super) const GRAVITY: f64 = 12.0e-6;
 
 /// What a decal draws.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -127,6 +161,8 @@ pub(super) enum DecalKind {
     Scorch,
     /// The Bulwark's golden ward under a player.
     Ward,
+    /// Chronarch's clock: a face, its twelve marks and its hand sweeping round twice.
+    Clock,
     /// The Tome's ring of stars under a player.
     Stars,
     /// The Chaotic Scripture's rift: a torn, glowing void, the eight arrows of chaos turning round
@@ -196,7 +232,7 @@ fn period(look: u8) -> i32 {
 }
 
 /// Between two colours.
-fn mix(a: u32, b: u32, t: f64) -> u32 {
+pub(super) fn mix(a: u32, b: u32, t: f64) -> u32 {
     let t = t.clamp(0.0, 1.0);
     let ch = |s: u32| -> u32 {
         let (x, y) = ((a >> s) & 0xFF, (b >> s) & 0xFF);
@@ -265,7 +301,7 @@ fn field_style(color: u32) -> FieldStyle {
     FieldStyle { accent, spark, unsteady, drift }
 }
 
-fn hash(seed: u64, i: u64) -> f64 {
+pub(super) fn hash(seed: u64, i: u64) -> f64 {
     let mut h = seed ^ i.wrapping_mul(0x9E37_79B9_7F4A_7C15);
     h ^= h >> 33;
     h = h.wrapping_mul(0xFF51_AFD7_ED55_8CCD);
@@ -274,11 +310,11 @@ fn hash(seed: u64, i: u64) -> f64 {
 }
 
 impl Particles {
-    fn pick(&mut self, colors: &[u32]) -> u32 {
+    pub(super) fn pick(&mut self, colors: &[u32]) -> u32 {
         colors[(self.random() * colors.len() as f64) as usize % colors.len()]
     }
 
-    fn decal(&mut self, kind: DecalKind, x: f64, y: f64, radius: f64, color: u32, start: i32, ms: i32, follow: Option<i32>) {
+    pub(super) fn decal(&mut self, kind: DecalKind, x: f64, y: f64, radius: f64, color: u32, start: i32, ms: i32, follow: Option<i32>) {
         if self.disabled || self.decals.len() >= 64 || self.muting >= 1.0 {
             return;
         }
@@ -298,7 +334,7 @@ impl Particles {
 
     /// Pieces thrown up and out, falling back and bouncing.
     #[allow(clippy::too_many_arguments)]
-    fn debris(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, speed: f64, up: f64, life: i32, delay: i32) {
+    pub(super) fn debris(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, speed: f64, up: f64, life: i32, delay: i32) {
         for _ in 0..n {
             let a = 2.0 * PI * self.random();
             let s = speed * (0.35 + 0.65 * self.random());
@@ -316,7 +352,7 @@ impl Particles {
 
     /// Smoke or mist: puffs drifting out and up, growing as they fade.
     #[allow(clippy::too_many_arguments)]
-    fn puffs(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, spread: f64, rise: f64, life: i32, delay: i32) {
+    pub(super) fn puffs(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, spread: f64, rise: f64, life: i32, delay: i32) {
         for i in 0..n {
             let a = 2.0 * PI * self.random();
             let s = spread * (0.3 + 0.7 * self.random());
@@ -446,6 +482,135 @@ impl Particles {
     /// The Vial of Cascading Dusk's flight from `from` to `to` in `ms`: a tumbling vial (a dark
     /// heart in a violet glow, a white glint turning round it) on an arc, a ribbon of dusk left
     /// hanging behind it, stars shaken loose, drops of dusk falling and its shadow on the floor.
+    /// The Meteor Mortar fired (`look::MORTAR_SHOT`): the muzzle's flash and smoke, and the shell
+    /// arcing from `from` to `to` over `ms`, molten and trailing fire.
+    fn mortar_shot(&mut self, from: (f64, f64), to: (f64, f64), ms: i32) {
+        const PEAK: f64 = 3.0;
+        let t_all = ms as f64;
+        let (dx, dy) = (to.0 - from.0, to.1 - from.1);
+        let len = (dx * dx + dy * dy).sqrt().max(0.01);
+        let (ux, uy) = (dx / len, dy / len);
+        // the muzzle: a flash, fire thrown forward, a ring of smoke rolling out
+        let (mx, my) = (from.0 + ux * 0.5, from.1 + uy * 0.5);
+        self.add(Particle::new(mx, my, 0.6, 0xFFF0B0, 520.0, 120, Motion::Spark));
+        for i in 0..14 {
+            let spread = self.pm(0.6);
+            let (f1, f2) = (2.5 + 2.0 * self.random(), 2.5 + 2.0 * self.random());
+            let (vx, vy) = (ux * f1 - uy * spread, uy * f2 + ux * spread);
+            let c = [0xFFE060, 0xFFA040, 0xFF6A14][i % 3];
+            let life = 260 + (self.random() * 160.0) as i32;
+            let p = Particle::new(mx, my, 0.6, c, 130.0, life, Motion::Spark).moving(vx / 1000.0, vy / 1000.0, 0.0006);
+            self.add(p);
+        }
+        for i in 0..12 {
+            let a = 2.0 * PI * i as f64 / 12.0;
+            let c = self.pick(&[0x3A3A3A, 0x545454, 0x6E6A66]);
+            let size = 240.0 + 80.0 * self.random();
+            let mut p = Particle::new(mx, my, 0.5, c, size, 900, Motion::Plain).moving(a.cos() * 0.0011, a.sin() * 0.0011, 0.0004);
+            p.fade = true;
+            self.add(p);
+        }
+        // where it is `t` ms in: along the line, up a parabola PEAK tiles high at the middle
+        let at = |t: f64| {
+            let f = (t / t_all).clamp(0.0, 1.0);
+            (from.0 + dx * f, from.1 + dy * f, 0.6 + 4.0 * PEAK * f * (1.0 - f))
+        };
+        let steps = (ms / 16).max(1);
+        for i in 0..steps {
+            let t = i as f64 * t_all / steps as f64;
+            let (px, py, pz) = at(t);
+            // the shell: a black iron core in a molten glow, a white-hot fleck turning on it
+            let spin = t * 0.02;
+            for (ox, oy, c, size) in [(0.0, 0.0, 0xFF6A14, 380.0), (0.0, 0.0, 0x2A1008, 230.0), (0.1 * spin.cos(), 0.1 * spin.sin(), 0xFFE0A0, 90.0)] {
+                let mut p = Particle::new(px + ox, py + oy, pz, c, size, 40, Motion::Plain);
+                p.delay = t as i32;
+                self.add(p);
+            }
+            // fire streaming off it
+            let c = self.pick(&[0xFFE060, 0xFFA040, 0xFF6A14, 0xD03010]);
+            let (jx, jy, size) = (self.pm(0.08), self.pm(0.08), 150.0 + 60.0 * self.random());
+            let (vx, vy) = (self.pm(0.3) / 1000.0, self.pm(0.3) / 1000.0);
+            let mut p = Particle::new(px + jx, py + jy, pz, c, size, 360, Motion::Spark).moving(vx, vy, 0.0008);
+            p.delay = t as i32;
+            self.add(p);
+            // smoke hanging in its wake
+            if i % 3 == 0 {
+                let c = self.pick(&[0x2A2A2A, 0x404040, 0x585858]);
+                let size = 200.0 + 80.0 * self.random();
+                let mut p = Particle::new(px, py, pz, c, size, 900, Motion::Plain).moving(0.0, 0.0, 0.0003);
+                p.delay = t as i32;
+                p.fade = true;
+                self.add(p);
+            }
+            // slag dripping off it
+            if i % 6 == 3 {
+                let mut p = Particle::new(px, py, pz, 0xFF8030, 90.0, 900, Motion::Ballistic { g: GRAVITY })
+                    .moving(dx / t_all * 0.3, dy / t_all * 0.3, 0.0);
+                p.delay = t as i32;
+                self.add(p);
+            }
+        }
+    }
+
+    /// The Meteor Mortar's shell landing (`look::MORTAR_BLAST`, 0): a flash, shockwaves, the
+    /// ground cracked and scorched, a column of fire, slag and rock thrown out, black smoke, and a
+    /// pool of slag left burning for `ms`.
+    fn mortar_blast(&mut self, x: f64, y: f64, r: f64, ms: i32, now: i32) {
+        let lasts = ms.clamp(600, 10_000);
+        self.add(Particle::new(x, y, 0.5, 0xFFF4C0, 1100.0, 160, Motion::Spark));
+        self.decal(DecalKind::Ring, x, y, r, 0xFFC060, now, 420, None);
+        self.decal(DecalKind::Ring, x, y, r * 1.5, 0xFF6A14, now + 110, 560, None);
+        self.decal(DecalKind::Cracks, x, y, r * 0.95, 0xFF6A14, now, lasts, None);
+        self.decal(DecalKind::Scorch, x, y, r * 0.8, 0xFF8030, now, lasts, None);
+        // the column: fire roaring straight up out of the crater
+        for i in 0..40 {
+            let a = 2.0 * PI * self.random();
+            let d = 0.6 * self.random();
+            let c = [0xFFF0A0, 0xFFE060, 0xFFA040, 0xFF6A14, 0xD03010][i % 5];
+            let (size, up) = (200.0 + 120.0 * self.random(), 0.008 + 0.006 * self.random());
+            let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.1, c, size, 700, Motion::Spark).moving(0.0, 0.0, up);
+            p.delay = (i as i32 * 9) % 240;
+            self.add(p);
+        }
+        self.debris(x, y, 44, &[0xFFE060, 0xFFA040, 0xFF6020, 0xD03010], 130.0, r * 1.6, 7.0, 900, 40);
+        self.debris(x, y, 18, &[0x3A2A20, 0x5A4030, 0x2A1810], 110.0, r * 1.2, 8.0, 1000, 60);
+        self.puffs(x, y, 16, &[0x2A2A2A, 0x404040, 0x585858, 0x6A3020], 300.0, r * 0.6, 1.6, 1600, 140);
+        self.flames(x, y, r * 0.5, 10, &[0xFFE060, 0xFF8030, 0xFF6A14], 260.0, 3.0, 600, 80);
+        // the pool burning on: embers rising off it while it lasts
+        self.aura(look::HELLBRAND, 0, x, y, r * 0.75, 0xFF6A14, now, lasts, false);
+    }
+
+    /// A meteor of the Meteor Mortar (`look::MORTAR_BLAST`, 1): falling steeply out of the sky
+    /// onto (x, y) over `ms`, trailing fire, and bursting there.
+    fn meteor(&mut self, x: f64, y: f64, r: f64, ms: i32, now: i32) {
+        const HIGH: f64 = 8.0;
+        let (sx, sy) = (x - 1.6, y - 2.4);
+        let steps = (ms / 16).max(1);
+        for i in 0..steps {
+            let f = i as f64 / steps as f64;
+            let (px, py, pz) = (sx + (x - sx) * f, sy + (y - sy) * f, 0.3 + HIGH * (1.0 - f));
+            let t = (f * ms as f64) as i32;
+            for (c, size) in [(0xFF6A14, 330.0), (0x3A1408, 190.0), (0xFFE0A0, 80.0)] {
+                let mut p = Particle::new(px, py, pz, c, size, 40, Motion::Plain);
+                p.delay = t;
+                self.add(p);
+            }
+            let c = self.pick(&[0xFFE060, 0xFFA040, 0xFF6A14]);
+            let (jx, jy, size) = (self.pm(0.1), self.pm(0.1), 140.0 + 60.0 * self.random());
+            let mut p = Particle::new(px + jx, py + jy, pz, c, size, 300, Motion::Spark).moving(0.0, 0.0, 0.002);
+            p.delay = t;
+            self.add(p);
+        }
+        // the burst where it lands
+        let mut flash = Particle::new(x, y, 0.4, 0xFFF0B0, 600.0, 130, Motion::Spark);
+        flash.delay = ms;
+        self.add(flash);
+        self.decal(DecalKind::Ring, x, y, r, 0xFFA040, now + ms, 380, None);
+        self.decal(DecalKind::Scorch, x, y, r * 0.7, 0xFF8030, now + ms, 1400, None);
+        self.debris(x, y, 20, &[0xFFE060, 0xFFA040, 0xFF6020, 0x3A2A20], 110.0, r * 1.8, 6.0, 700, ms);
+        self.puffs(x, y, 6, &[0x2A2A2A, 0x404040], 240.0, r * 0.5, 1.2, 1100, ms + 40);
+    }
+
     fn dusk_throw(&mut self, from: (f64, f64), to: (f64, f64), ms: i32, color: u32) {
         const PEAK: f64 = 2.2;
         let t_all = ms as f64;
@@ -595,6 +760,11 @@ impl Particles {
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
         self.here = (z, world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8));
+        // the Mechanic's turrets have a module of their own
+        if (look::TURRET_THROW..=look::TURRET_BLAST).contains(&look) {
+            self.turret_look(e, look, world, now);
+            return;
+        }
         match look {
             // Broadside: a cannonball drops onto the target and bursts: a shockwave, fire thrown
             // out, black smoke rolling up and seawater sprayed high
@@ -1058,6 +1228,150 @@ impl Particles {
                 self.debris(cx, cy, 30, &[GOLD, SHINE, 0xE0A020], 120.0, 3.5, 8.0, 1100, 100);
                 self.puffs(cx, cy, 8, &[GOLD, SHINE], 220.0, 0.8, 1.5, 900, 60);
                 self.aura(look::OATH, id, cx, cy, 1.0, GOLD, now, 1800, true);
+            }
+            look::ARIA => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                const GOLD: u32 = 0xFFD24A;
+                const SHINE: u32 = 0xFFF4C0;
+                const VIOLET: u32 = 0xC070FF;
+                const PALE: u32 = 0xF0D8FF;
+                let verse = e.object_type.min(3) as usize;
+                let shade = mix(GOLD, VIOLET, verse as f64 / 3.0);
+                // the verse: a ring racing out to its reach, a paler one at its heels
+                self.decal(DecalKind::Ring, cx, cy, r, shade, now, 420 + 60 * verse as i32, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.7, SHINE, now + 90, 360, None);
+                // its notes: sparks wheeling out from the Bard, more with each verse
+                let n = 10 + 4 * verse;
+                for i in 0..n {
+                    let a = 2.0 * PI * i as f64 / n as f64 + verse as f64 * 0.4;
+                    let c = [SHINE, shade, PALE][i % 3];
+                    let spin = if verse % 2 == 0 { 0.05 } else { -0.05 };
+                    let mut p = Particle::new(cx, cy, 0.5, c, 120.0 + 40.0 * self.random(), 650, Motion::Swirl { id, angle: a, speed: spin, rad: 0.4, out: r * 0.8 / 650.0, rise: 0.0008 });
+                    p.fade = true;
+                    p.delay = (i as i32 * 11) % 90;
+                    self.add(p);
+                }
+                // a ring of light round the Bard as it plays
+                for i in 0..8 {
+                    let a = 2.0 * PI * i as f64 / 8.0;
+                    let mut p = Particle::new(cx, cy, 0.9, if i % 2 == 0 { SHINE } else { shade }, 90.0, 500, Motion::Swirl { id, angle: a, speed: 0.12, rad: 0.55, out: 0.0, rise: 0.0 });
+                    p.fade = true;
+                    self.add(p);
+                }
+                if verse == 3 {
+                    // the crescendo: the Sovereign's star drawn under them, light bursting up,
+                    // gold and violet raining out to the edge, the floor ringing twice more
+                    self.decal(DecalKind::Pentagram, cx, cy, r * 0.55, GOLD, now, ms.max(1200), Some(id));
+                    self.decal(DecalKind::Stars, cx, cy, 1.3, VIOLET, now, ms.max(1200), Some(id));
+                    self.decal(DecalKind::Ring, cx, cy, r, VIOLET, now + 220, 520, None);
+                    self.decal(DecalKind::Ring, cx, cy, r, GOLD, now + 440, 520, None);
+                    for i in 0..32 {
+                        let a = 2.0 * PI * i as f64 / 32.0;
+                        let d = 0.2 + 0.4 * self.random();
+                        let c = [GOLD, SHINE, VIOLET, PALE][i % 4];
+                        let mut p = Particle::new(cx + d * a.cos(), cy + d * a.sin(), 0.1, c, 120.0 + 60.0 * self.random(), 700, Motion::Spark)
+                            .moving(0.0, 0.0, 0.007 + 0.004 * self.random());
+                        p.delay = (i as i32 * 13) % 200;
+                        self.add(p);
+                    }
+                    self.debris(cx, cy, 36, &[GOLD, SHINE, VIOLET, PALE], 120.0, r * 0.9, 6.0, 900, 60);
+                    self.aura(look::STARLIGHT, id, cx, cy, 1.0, VIOLET, now, ms.max(1200), true);
+                }
+            }
+            look::BASTION => {
+                const IRON: u32 = 0xB4BCC8;
+                const DARK: u32 = 0x4A505C;
+                const GLOW: u32 = 0xFF9A2A;
+                if e.object_type == 0 {
+                    // the plates flying in from all round and locking with a flash
+                    for i in 0..16 {
+                        let a = 2.0 * PI * i as f64 / 16.0;
+                        let d = 2.2 + 0.6 * self.random();
+                        let c = if i % 2 == 0 { IRON } else { DARK };
+                        let life = 260;
+                        let p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.8, c, 170.0, life, Motion::Plain)
+                            .moving(-d * a.cos() / life as f64, -d * a.sin() / life as f64, -0.6 / life as f64);
+                        self.add(p);
+                    }
+                    let mut flash = Particle::new(x, y, 0.5, 0xFFF0C0, 600.0, 140, Motion::Spark);
+                    flash.delay = 260;
+                    self.add(flash);
+                    self.decal(DecalKind::Ring, x, y, r, GLOW, now + 260, 420, None);
+                    self.decal(DecalKind::Cracks, x, y, r * 0.5, GLOW, now + 260, 1500, None);
+                    self.debris(x, y, 18, &[GLOW, 0xFFE060, IRON], 100.0, 3.0, 6.0, 600, 260);
+                } else {
+                    // the slam: a flash, the ground cracking in a ring, iron and sparks thrown
+                    // up, dust rolling out
+                    self.add(Particle::new(x, y, 0.4, 0xFFF0C0, 520.0, 120, Motion::Spark));
+                    self.decal(DecalKind::Ring, x, y, r, GLOW, now, 380, None);
+                    self.decal(DecalKind::Ring, x, y, r * 0.6, IRON, now + 80, 320, None);
+                    self.decal(DecalKind::Cracks, x, y, r * 0.8, GLOW, now, 1100, None);
+                    self.debris(x, y, 16, &[GLOW, 0xFFE060, 0xFF6A14], 110.0, r * 1.4, 5.0, 600, 0);
+                    self.debris(x, y, 10, &[IRON, DARK], 120.0, r * 1.1, 6.0, 700, 0);
+                    self.puffs(x, y, 8, &[0x6A6058, 0x8A8070, 0x4A4440], 240.0, r * 0.6, 0.8, 900, 40);
+                }
+            }
+            look::TIDE => {
+                const FOAM: u32 = 0xD8FFFF;
+                const DEEP: u32 = 0x16505A;
+                let wave = e.object_type.min(2) as i32;
+                let (cx, cy) = (x, y);
+                if wave == 0 {
+                    self.decal(DecalKind::Whirlpool, cx, cy, 1.6, color, now, 1500, None);
+                }
+                self.decal(DecalKind::Ring, cx, cy, r, color, now, 520, None);
+                self.decal(DecalKind::Ring, cx, cy, r * 0.8, FOAM, now + 70, 460, None);
+                self.decal(DecalKind::Puddle, cx, cy, r * 0.55, color, now, 900, None);
+                // the wave's crest: water thrown up all along it as it rolls out
+                let n = 28;
+                for i in 0..n {
+                    let a = 2.0 * PI * i as f64 / n as f64 + wave as f64 * 0.11;
+                    let c = [FOAM, color, 0x8AF0E0, DEEP][i % 4];
+                    let life = 480 + (self.random() * 120.0) as i32;
+                    let speed = r * 0.95 / life as f64;
+                    let mut p = Particle::new(cx + 0.4 * a.cos(), cy + 0.4 * a.sin(), 0.2, c, 150.0 + 60.0 * self.random(), life, Motion::Ballistic { g: GRAVITY * 0.35 })
+                        .moving(speed * a.cos(), speed * a.sin(), 0.0035 + 0.002 * self.random());
+                    p.delay = (i as i32 * 7) % 60;
+                    self.add(p);
+                }
+                // foam bubbling up round its Druid
+                self.puffs(cx, cy, 6, &[FOAM, 0x8AF0E0], 160.0, 1.0, 1.4, 700, 0);
+            }
+            look::HOURS => {
+                const BRASS: u32 = 0xD0A040;
+                let lasts = ms.clamp(400, 5000);
+                // the clock, sweeping (the decal), a little past its time to fade
+                self.decal(DecalKind::Clock, x, y, r, color, now, lasts * 5 / 4, Some(id));
+                self.decal(DecalKind::Ring, x, y, r, color, now, 380, None);
+                // the moment stopped: gears and motes of light hanging still round them, falling
+                // as time comes back
+                for i in 0..18 {
+                    let a = 2.0 * PI * self.random();
+                    let d = r * (0.3 + 0.65 * self.random());
+                    let c = [color, BRASS, 0xD8FFFF][i % 3];
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.6 + 1.2 * self.random(), c, 90.0 + 50.0 * self.random(), lasts, Motion::Ballistic { g: GRAVITY * 0.02 });
+                    p.fade = true;
+                    p.delay = (i as i32 * 23) % 200;
+                    self.add(p);
+                }
+                // a ring of light round the Blademaster
+                for i in 0..10 {
+                    let a = 2.0 * PI * i as f64 / 10.0;
+                    let mut p = Particle::new(x, y, 1.0, if i % 2 == 0 { color } else { BRASS }, 100.0, lasts, Motion::Swirl { id, angle: a, speed: -0.08, rad: 0.6, out: 0.0, rise: 0.0 });
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
+            look::MORTAR_SHOT => {
+                let from = on.unwrap_or((x - 1.0, y - 1.0));
+                self.mortar_shot(from, (x, y), ms.clamp(200, 2000));
+            }
+            look::MORTAR_BLAST => {
+                if e.object_type == 0 {
+                    self.mortar_blast(x, y, r, ms, now);
+                } else {
+                    self.meteor(x, y, r, ms.clamp(150, 2000), now);
+                }
             }
             look::DUSK_FLOW => {
                 self.dusk_on = Some((id, now));
@@ -1745,6 +2059,16 @@ impl Particles {
             look::DUSK_FLOW => (3.5, 0xFF9A48F0, 500, false),
             look::PASS_TIER => (3.0, 0xFF8FD0FF, 2200, true),
             look::PASS_GILDED => (3.0, 0xFFFFD24A, 2200, true),
+            look::ARIA => (9.0, 0xFFC070FF, 3000, true),
+            look::MORTAR_SHOT => (0.0, 0xFFFF6A14, 700, false),
+            look::MORTAR_BLAST => (3.5, 0xFFFF6A14, 3000, false),
+            look::BASTION => (3.5, 0xFFFF9A2A, 0, true),
+            look::TIDE => (5.5, 0xFF46C2B4, 0, true),
+            look::HOURS => (6.0, 0xFF4AF0FF, 1600, true),
+            look::TURRET_THROW | look::TURRET_BUILD | look::TURRET_SEEN | look::TURRET_BLAST => {
+                self.test_turret(which, world, now);
+                return;
+            }
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -1803,27 +2127,27 @@ impl Particles {
 }
 
 /// Draws on the ground round a spot.
-struct Pen<'a> {
-    cam: &'a Camera,
-    renderer: &'a mut Renderer,
-    x: f64,
-    y: f64,
-    z: f64,
+pub(super) struct Pen<'a> {
+    pub(super) cam: &'a Camera,
+    pub(super) renderer: &'a mut Renderer,
+    pub(super) x: f64,
+    pub(super) y: f64,
+    pub(super) z: f64,
     /// Every alpha times this (another player's decal, faded).
-    dim: f32,
+    pub(super) dim: f32,
 }
 
 impl Pen<'_> {
     /// The point `r` tiles out at angle `a`.
-    fn at(&self, r: f64, a: f64) -> [f32; 2] {
+    pub(super) fn at(&self, r: f64, a: f64) -> [f32; 2] {
         self.cam.to_screen(self.x + r * a.cos(), self.y + r * a.sin(), self.z)
     }
 
-    fn pt(&self, x: f64, y: f64) -> [f32; 2] {
+    pub(super) fn pt(&self, x: f64, y: f64) -> [f32; 2] {
         self.cam.to_screen(self.x + x, self.y + y, self.z)
     }
 
-    fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, alpha: f32) {
+    pub(super) fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, alpha: f32) {
         let alpha = alpha * self.dim;
         if alpha <= 0.005 {
             return;
@@ -1832,13 +2156,13 @@ impl Pen<'_> {
         self.renderer.triangle(white, pts, [[0.5, 0.5]; 3], Tint::color(rgb, alpha.min(1.0)));
     }
 
-    fn quad(&mut self, p: [[f32; 2]; 4], rgb: u32, alpha: f32) {
+    pub(super) fn quad(&mut self, p: [[f32; 2]; 4], rgb: u32, alpha: f32) {
         self.tri([p[0], p[1], p[2]], rgb, alpha);
         self.tri([p[0], p[2], p[3]], rgb, alpha);
     }
 
     /// A filled circle of radius `r` round (ox, oy) from the spot.
-    fn disc_at(&mut self, ox: f64, oy: f64, r: f64, rgb: u32, alpha: f32) {
+    pub(super) fn disc_at(&mut self, ox: f64, oy: f64, r: f64, rgb: u32, alpha: f32) {
         let sides = if r < 0.6 { 14 } else { 36 };
         let c = self.pt(ox, oy);
         for i in 0..sides {
@@ -1848,12 +2172,12 @@ impl Pen<'_> {
         }
     }
 
-    fn disc(&mut self, r: f64, rgb: u32, alpha: f32) {
+    pub(super) fn disc(&mut self, r: f64, rgb: u32, alpha: f32) {
         self.disc_at(0.0, 0.0, r, rgb, alpha);
     }
 
     /// A ring between `r0` and `r1`.
-    fn band(&mut self, r0: f64, r1: f64, rgb: u32, alpha: f32) {
+    pub(super) fn band(&mut self, r0: f64, r1: f64, rgb: u32, alpha: f32) {
         const SIDES: usize = 40;
         let r0 = r0.max(0.0);
         for i in 0..SIDES {
@@ -1863,7 +2187,7 @@ impl Pen<'_> {
     }
 
     /// A line `w` tiles wide between two points (tiles from the spot).
-    fn line(&mut self, a: (f64, f64), b: (f64, f64), w: f64, rgb: u32, alpha: f32) {
+    pub(super) fn line(&mut self, a: (f64, f64), b: (f64, f64), w: f64, rgb: u32, alpha: f32) {
         let (dx, dy) = (b.0 - a.0, b.1 - a.1);
         let len = dx.hypot(dy).max(1e-6);
         let (nx, ny) = (-dy / len * w / 2.0, dx / len * w / 2.0);
@@ -1922,6 +2246,33 @@ fn draw_decal(pen: &mut Pen, d: &Decal, t: f64, now: i32) {
             }
             pen.disc(r * 0.35 * spread, d.color, 0.5 * a);
             pen.disc_at(-0.1 * r, -0.1 * r, r * 0.12 * spread, mix(d.color, 0xFFFFFF, 0.6), 0.5 * a);
+        }
+        DecalKind::Clock => {
+            // the face (its last fifth fading), the rim and an inner ring of brass
+            let a = envelope(t, 0.08, 0.2);
+            let turns = (t / 0.8).min(1.0) * 2.0;
+            pen.disc(r, 0x0A1A2A, 0.35 * a);
+            pen.band(r - 0.14, r, d.color, 0.85 * a);
+            pen.band(r * 0.6 - 0.06, r * 0.6, 0xD0A040, 0.6 * a);
+            // the twelve marks, the quarters longer
+            for k in 0..12 {
+                let ang = -PI / 2.0 + k as f64 * PI / 6.0;
+                let (len, w) = if k % 3 == 0 { (0.55, 0.035) } else { (0.3, 0.025) };
+                pen.quad([pen.at(r - 0.18, ang - w), pen.at(r - 0.18 - len, ang - w), pen.at(r - 0.18 - len, ang + w), pen.at(r - 0.18, ang + w)], 0xD8FFFF, 0.9 * a);
+            }
+            // the hand, from 12 o'clock clockwise, and the light it leaves behind
+            let hand = -PI / 2.0 + turns * 2.0 * PI;
+            if t < 0.8 {
+                for k in 1..8 {
+                    let back = hand - k as f64 * 0.07;
+                    pen.quad([pen.at(0.2, back - 0.07), pen.at(r - 0.25, back - 0.07), pen.at(r - 0.25, back), pen.at(0.2, back)], d.color, 0.32 * a * (1.0 - k as f32 / 8.0));
+                }
+            }
+            pen.quad([pen.at(0.25, hand - 1.3), pen.at(r - 0.25, hand - 0.03), pen.at(r - 0.25, hand + 0.03), pen.at(0.25, hand + 1.3)], 0xF0FFFF, 0.95 * a);
+            // the hour hand, turning a twelfth as slowly, and the pin
+            let hour = -PI / 2.0 + turns * PI / 6.0;
+            pen.quad([pen.at(0.2, hour - 1.3), pen.at(r * 0.45, hour - 0.06), pen.at(r * 0.45, hour + 0.06), pen.at(0.2, hour + 1.3)], 0xD0A040, 0.9 * a);
+            pen.disc(0.22, 0xD0A040, a);
         }
         DecalKind::Sigil => {
             let a = envelope(t, 0.12, 0.3);
@@ -2342,6 +2693,483 @@ fn draw_forcefield(pen: &mut Pen, d: &Decal, now: i32) {
         for i in 0..6 {
             let (a0, a1) = (spin + i as f64 * PI / 3.0, spin + (i + 1) as f64 * PI / 3.0);
             pen.line((cx + 0.17 * a0.cos(), cy + 0.17 * a0.sin()), (cx + 0.17 * a1.cos(), cy + 0.17 * a1.sin()), 0.045, color, 0.85 * a);
+        }
+    }
+}
+
+/// The Crucible's champions (`BehaviorDb.Crucible.cs`), by their object ids: which one, for their
+/// auras and their phases' bursts (`champion_auras`, `champion_cue`); and its portal in the Nexus.
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Champion {
+    Ferrogrim,
+    Nerissa,
+    Pyrrhax,
+    Chronarch,
+    Vaelith,
+    /// one of the four ghosts on the Apex, in its floor's colour
+    Echo(u32),
+    /// the Crucible Portal, sunk into the Nexus's floor
+    Portal,
+}
+
+/// The Crucible's squares we knew had ground, to tell ground built (the ways up and the floors
+/// coming together, `CrucibleWorld`) and ground fallen from ground just come into sight.
+#[derive(Default)]
+pub struct GroundWatch {
+    world: u64,
+    seen: usize,
+    known: Vec<bool>,
+    /// Since when squares come in as sight does (arriving, a jump), not as they're built.
+    settling: i32,
+    at: (f64, f64),
+}
+
+fn champion(id: &str) -> Option<Champion> {
+    Some(match id {
+        "Ferrogrim, the Iron Warden" => Champion::Ferrogrim,
+        "Nerissa, the Tidecaller" => Champion::Nerissa,
+        "Pyrrhax, the Forge Tyrant" => Champion::Pyrrhax,
+        "Chronarch, the Hour Thief" => Champion::Chronarch,
+        "Vaelith, the Crucible Sovereign" => Champion::Vaelith,
+        "Echo of Ferrogrim" => Champion::Echo(0xBEC8E6),
+        "Echo of Nerissa" => Champion::Echo(0x78F0DC),
+        "Echo of Pyrrhax" => Champion::Echo(0xFFAA5A),
+        "Echo of Chronarch" | "Hour Echo" => Champion::Echo(0x78E6FF),
+        "Crucible Portal" => Champion::Portal,
+        _ => return None,
+    })
+}
+
+impl Particles {
+    /// Every frame (`dt` ms): what each of the Crucible's champions near us gives off, by who it
+    /// is and which form it's in (its `AltTexture`, stat 61: the phase it's in): Ferrogrim's forge
+    /// sparks (a whirl of them in his Tempest), the sea round Nerissa (a maelstrom of spray), the
+    /// fire off Pyrrhax (flames all over him once his Core is molten), Chronarch's gears turning
+    /// round him (the other way in his Reversal), Vaelith's feathers of flame falling (rising light
+    /// once Ascended, a spiral of the void once Unbound), and wisps off the echoes. Each builds as
+    /// its fight goes on (`fury`, how much of its health is gone): thicker as it's hurt, with more
+    /// of its floor joining in once a third is gone and again at two thirds. And the Crucible
+    /// Portal's embers, the four floors' colours circling it and its pulse of gold.
+    pub fn champion_auras(&mut self, world: &World, data: &bsk_data::GameData, dt: i32) {
+        if self.disabled || dt <= 0 {
+            return;
+        }
+        let Some(me) = world.player() else { return };
+        let (mx, my) = (me.x, me.y);
+        let near: Vec<(i32, f64, f64, f64, Champion, i32, f64)> = world
+            .objects
+            .values()
+            .filter(|o| (o.x - mx).hypot(o.y - my) <= 18.0)
+            .filter_map(|o| {
+                let c = champion(&data.objects.get(&o.object_type)?.id)?;
+                let (max, hp) = (o.stat_int(0).unwrap_or(0), o.stat_int(1).unwrap_or(0));
+                let fury = if max > 0 { (1.0 - hp as f64 / max as f64).clamp(0.0, 1.0) } else { 0.0 };
+                Some((o.id, o.x, o.y, o.z, c, o.stat_int(61).unwrap_or(0), fury))
+            })
+            .collect();
+        let dt = dt.min(100) as f64;
+        let ticked = |now: i32, every: i32| now / every != (now - dt as i32) / every;
+        for (id, x, y, z, who, form, fury) in near {
+            // its particles and decals on its own floor and height, not ours or the last effect's
+            // (on the Nexus's stacked floors the portal's pulse and embers were a floor up, 3 tiles
+            // off it, seen from the spawn)
+            let z = if world.levels.is_some() { z } else { 0.0 };
+            self.floor = z;
+            self.here = (z, world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8));
+            // about `rate` a second, as dt allows, more as the fight goes on
+            let more = 1.0 + 1.5 * fury;
+            let due = |p: &mut Self, rate: f64| {
+                let n = rate * more * dt / 1000.0;
+                let whole = n.floor() as usize;
+                whole + usize::from(p.random() < n - n.floor())
+            };
+            let (wounded, desperate) = (fury >= 0.34, fury >= 0.66);
+            let now = self.now;
+            match who {
+                Champion::Ferrogrim => {
+                    // sparks spat from the forge in his chest and off his hammer
+                    for _ in 0..due(self, if form > 0 { 26.0 } else { 9.0 }) {
+                        let c = self.pick(&[0xFFE29A, 0xFF9A2A, 0xD8600E]);
+                        let (vx, vy) = (self.pm(1.2) / 1000.0, self.pm(1.2) / 1000.0);
+                        let p = Particle::new(x + self.pm(0.5), y + self.pm(0.3), 1.0 + self.random() * 0.8, c, 70.0 + 40.0 * self.random(), 500, Motion::Ballistic { g: GRAVITY * 0.6 })
+                            .moving(vx, vy, 0.002 + 0.002 * self.random());
+                        self.add(p);
+                    }
+                    if wounded {
+                        // his seams split: molten iron dripping off him and hissing on the floor
+                        for _ in 0..due(self, 4.0) {
+                            let c = self.pick(&[0xFFE29A, 0xFF9A2A]);
+                            let p = Particle::new(x + self.pm(0.7), y + self.pm(0.4), 0.9, c, 90.0, 700, Motion::Ballistic { g: GRAVITY });
+                            self.add(p);
+                        }
+                    }
+                    if desperate && ticked(now, 1600) {
+                        // the forge's heart beating through the floor
+                        self.decal(DecalKind::Ring, x, y, 2.6, 0xFF9A2A, now, 420, Some(id));
+                        self.decal(DecalKind::Cracks, x, y, 1.8, 0xFF9A2A, now, 900, None);
+                    }
+                    if form > 0 {
+                        // the Tempest: a ring of fire whirling round him with the hammer
+                        for _ in 0..due(self, 30.0) {
+                            let a = 2.0 * PI * self.random();
+                            let c = self.pick(&[0xFFE29A, 0xFF9A2A]);
+                            let mut p = Particle::new(x, y, 0.8, c, 110.0, 450, Motion::Swirl { id, angle: a, speed: 0.22, rad: 1.6 + 0.4 * self.random(), out: 0.0, rise: 0.0004 });
+                            p.fade = true;
+                            self.add(p);
+                        }
+                    }
+                }
+                Champion::Nerissa => {
+                    // droplets circling her, and bubbles rising off her
+                    let (rate, speed, out) = if form > 0 { (40.0, 0.18, 0.0018) } else { (12.0, 0.07, 0.0002) };
+                    for _ in 0..due(self, rate) {
+                        let a = 2.0 * PI * self.random();
+                        let c = self.pick(&[0x46C2B4, 0x8AF0E0, 0xD8FFFF, 0x1A8288]);
+                        let mut p = Particle::new(x, y, 0.3 + self.random() * 1.2, c, 80.0 + 50.0 * self.random(), 900, Motion::Swirl { id, angle: a, speed, rad: 1.0 + 0.5 * self.random(), out, rise: 0.0006 });
+                        p.fade = true;
+                        self.add(p);
+                    }
+                    for _ in 0..due(self, 4.0) {
+                        let mut p = Particle::new(x + self.pm(0.6), y + self.pm(0.4), 0.2, 0xD8FFFF, 90.0, 900, Motion::Plain).moving(0.0, 0.0, 0.0018);
+                        p.fade = true;
+                        self.add(p);
+                    }
+                    if wounded && ticked(now, 1800) {
+                        // the sea answering her: ripples spreading out round her
+                        self.decal(DecalKind::Ring, x, y, 2.2, 0x8AF0E0, now, 700, Some(id));
+                        self.decal(DecalKind::Ring, x, y, 3.4, 0x46C2B4, now + 250, 800, Some(id));
+                    }
+                    if desperate && self.random() < dt / 260.0 {
+                        // columns of water rising round her and falling back as spray
+                        let a = 2.0 * PI * self.random();
+                        let (cx, cy) = (x + 1.8 * a.cos(), y + 1.8 * a.sin());
+                        self.flames(cx, cy, 0.35, 3, &[0xD8FFFF, 0x8AF0E0, 0x46C2B4], 160.0, 4.0, 500, 0);
+                        for i in 0..6 {
+                            let b = 2.0 * PI * i as f64 / 6.0;
+                            let mut p = Particle::new(cx, cy, 1.6, 0xD8FFFF, 70.0, 600, Motion::Ballistic { g: GRAVITY * 0.6 })
+                                .moving(b.cos() * 0.0015, b.sin() * 0.0015, 0.006);
+                            p.delay = 150;
+                            self.add(p);
+                        }
+                    }
+                }
+                Champion::Pyrrhax => {
+                    // embers and smoke off him; flames all over him once molten, slag dripping
+                    for _ in 0..due(self, if form > 0 { 30.0 } else { 12.0 }) {
+                        let c = self.pick(&[0xFFF2A6, 0xFF9A24, 0xE0400C]);
+                        let p = Particle::new(x + self.pm(0.8), y + self.pm(0.5), 0.6 + self.random() * 1.2, c, 80.0 + 50.0 * self.random(), 900, Motion::Spark)
+                            .moving(self.pm(0.3) / 1000.0, self.pm(0.3) / 1000.0, 0.0022 + 0.0015 * self.random());
+                        self.add(p);
+                    }
+                    for _ in 0..due(self, 2.5) {
+                        let c = self.pick(&[0x2A1A18, 0x3A2420, 0x4A3028]);
+                        let mut p = Particle::new(x + self.pm(0.5), y + self.pm(0.3), 1.8, c, 220.0, 1400, Motion::Plain).moving(0.0, 0.0, 0.0009);
+                        p.fade = true;
+                        self.add(p);
+                    }
+                    if wounded && ticked(now, 2200) {
+                        // the floor scorching under him
+                        let (sx, sy) = (x + self.pm(0.6), y + self.pm(0.6));
+                        self.decal(DecalKind::Scorch, sx, sy, 1.4, 0xE0400C, now, 2400, None);
+                    }
+                    if desperate && self.random() < dt / 300.0 {
+                        // lava bursting up through the floor round him
+                        let a = 2.0 * PI * self.random();
+                        let (cx, cy) = (x + 2.2 * a.cos(), y + 2.2 * a.sin());
+                        self.decal(DecalKind::Ring, cx, cy, 0.8, 0xFF9A24, now, 300, None);
+                        self.debris(cx, cy, 10, &[0xFFF2A6, 0xFF9A24, 0xE0400C], 90.0, 2.0, 7.0, 700, 0);
+                    }
+                    if form > 0 && self.random() < dt / 120.0 {
+                        self.flames(x, y, 0.8, 2, &[0xFFF2A6, 0xFF9A24, 0xE0400C], 200.0, 3.0, 500, 0);
+                        let p = Particle::new(x + self.pm(0.6), y + self.pm(0.4), 0.8, 0xFF9A24, 90.0, 800, Motion::Ballistic { g: GRAVITY });
+                        self.add(p);
+                    }
+                }
+                Champion::Chronarch => {
+                    // brass and light turning round him like a clock's works (backwards, and
+                    // magenta, in his Reversal)
+                    let back = form > 0;
+                    for _ in 0..due(self, 10.0) {
+                        let a = 2.0 * PI * self.random();
+                        let c = if back { self.pick(&[0xFF6AE8, 0xF0B0FF, 0xD0A040]) } else { self.pick(&[0x4AF0FF, 0xD0A040, 0xF2D282]) };
+                        let mut p = Particle::new(x, y, 1.0, c, 90.0, 1400, Motion::Swirl { id, angle: a, speed: if back { -0.06 } else { 0.06 }, rad: 1.4, out: 0.0, rise: 0.0 });
+                        p.fade = true;
+                        self.add(p);
+                    }
+                    // a tick: once a second the works pulse (twice, as time runs short)
+                    if ticked(now, if desperate { 500 } else { 1000 }) {
+                        let c = if back { 0xFF6AE8 } else { 0x4AF0FF };
+                        self.decal(DecalKind::Ring, x, y, 1.6, c, now, 300, Some(id));
+                    }
+                    if wounded && ticked(now, 3000) {
+                        // the clock's face showing under him
+                        let c = if back { 0xFF6AE8 } else { 0xD0A040 };
+                        self.decal(DecalKind::Clock, x, y, 2.8, c, now, 2600, Some(id));
+                    }
+                    if desperate {
+                        // time tearing round him: light running both ways at once
+                        for _ in 0..due(self, 8.0) {
+                            let a = 2.0 * PI * self.random();
+                            let speed = if self.random() < 0.5 { 0.14 } else { -0.14 };
+                            let c = self.pick(&[0xFFFFFF, 0x4AF0FF, 0xFF6AE8]);
+                            let mut p = Particle::new(x, y, 0.6, c, 70.0, 600, Motion::Swirl { id, angle: a, speed, rad: 2.2, out: 0.0, rise: 0.0 });
+                            p.fade = true;
+                            self.add(p);
+                        }
+                    }
+                }
+                Champion::Vaelith => {
+                    let (rate, colors): (f64, &[u32]) = match form {
+                        0 => (8.0, &[0xFFD24A, 0xFFF0A0, 0xFFA024]),
+                        1 => (16.0, &[0xFFF0A0, 0xFFFFFF, 0xFFD24A]),
+                        _ => (22.0, &[0xA828D8, 0xF0A0FF, 0x5A0E7A]),
+                    };
+                    for _ in 0..due(self, rate) {
+                        let c = self.pick(colors);
+                        let p = if form >= 2 {
+                            // the void spiralling up round him
+                            let a = 2.0 * PI * self.random();
+                            let mut p = Particle::new(x, y, 0.2, c, 100.0, 1000, Motion::Swirl { id, angle: a, speed: 0.12, rad: 1.2, out: 0.0004, rise: 0.0025 });
+                            p.fade = true;
+                            p
+                        } else if form == 1 {
+                            // light streaming up off him
+                            Particle::new(x + self.pm(0.7), y + self.pm(0.4), 0.3, c, 90.0, 800, Motion::Spark).moving(0.0, 0.0, 0.004)
+                        } else {
+                            // feathers of flame drifting down from his wings
+                            let mut p = Particle::new(x + self.pm(1.4), y + self.pm(0.6), 2.2, c, 100.0, 1600, Motion::Ballistic { g: GRAVITY * 0.05 })
+                                .moving(self.pm(0.3) / 1000.0, self.pm(0.3) / 1000.0, 0.0);
+                            p.fade = true;
+                            p
+                        };
+                        self.add(p);
+                    }
+                    let glow = if form >= 2 { 0xA828D8 } else { 0xFFD24A };
+                    if wounded && ticked(now, 3200) {
+                        // the tower's sigil burning under him
+                        self.decal(DecalKind::Sigil, x, y, 3.0, glow, now, 2800, Some(id));
+                    }
+                    if desperate && self.random() < dt / 240.0 {
+                        // pillars of light rising round him
+                        let a = 2.0 * PI * self.random();
+                        let (cx, cy) = (x + 2.6 * a.cos(), y + 2.6 * a.sin());
+                        for i in 0..10 {
+                            let c = if i % 3 == 0 { 0xFFFFFF } else { glow };
+                            let mut p = Particle::new(cx + self.pm(0.15), cy + self.pm(0.15), 0.2, c, 110.0, 700, Motion::Spark).moving(0.0, 0.0, 0.006 + 0.002 * self.random());
+                            p.delay = i * 30;
+                            self.add(p);
+                        }
+                    }
+                }
+                Champion::Echo(tint) => {
+                    for _ in 0..due(self, 8.0) {
+                        let c = mix(tint, 0xFFFFFF, self.random() * 0.5);
+                        let mut p = Particle::new(x + self.pm(0.6), y + self.pm(0.4), 0.4 + self.random(), c, 120.0, 900, Motion::Plain).moving(0.0, 0.0, 0.0012);
+                        p.fade = true;
+                        self.add(p);
+                    }
+                }
+                Champion::Portal => {
+                    // embers rising off the vortex
+                    for _ in 0..due(self, 14.0) {
+                        let (a, d) = (2.0 * PI * self.random(), 1.3 * self.random().sqrt());
+                        let c = self.pick(&[0xFFF8DC, 0xFFD66E, 0xFF8C1E, 0xC83410]);
+                        let p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.0, c, 60.0 + 50.0 * self.random(), 1300, Motion::Spark)
+                            .moving(self.pm(0.15) / 1000.0, self.pm(0.15) / 1000.0, 0.0018 + 0.0014 * self.random());
+                        self.add(p);
+                    }
+                    // the four floors' colours circling its lip
+                    for _ in 0..due(self, 6.0) {
+                        let a = 2.0 * PI * self.random();
+                        let c = self.pick(&[0xA4AFC0, 0x46C2B4, 0xFF9A24, 0x4AF0FF]);
+                        let mut p = Particle::new(x, y, 0.15, c, 80.0, 1600, Motion::Swirl { id, angle: a, speed: 0.05, rad: 1.85, out: 0.0, rise: 0.0006 });
+                        p.fade = true;
+                        self.add(p);
+                    }
+                    // and every two seconds a pulse of gold out of it
+                    if ticked(now, 2000) {
+                        self.decal(DecalKind::Ring, x, y, 2.3, 0xFFD24A, now, 700, Some(id));
+                    }
+                }
+            }
+        }
+        self.floor = world.my_z();
+    }
+
+    /// A phase begun (`CrucibleMessage` Cue `cue`, on the champion of type `champion`): its own
+    /// burst round the champion, in its floor's colours.
+    /// Every frame, in the Crucible: ground built near us (its ways laid ahead of us, a floor
+    /// coming together) rises out of the sky with light streaming up into it and a breath of dust
+    /// as it settles, now and then a ring of light; ground falling away breaks into pieces that
+    /// tumble down into the sky with embers. Squares just come into sight (arriving, walking on,
+    /// a jump) aren't building: only those that appear within `NEAR` of us, after we've settled.
+    pub fn crucible_ground(&mut self, world: &World, data: &bsk_data::GameData) {
+        const NEAR: f64 = 13.0;
+        const MOST: usize = 48; // squares a frame given effects
+        if world.background != crate::cruciblesky::SKY_CRUCIBLE {
+            self.crucible.world = 0;
+            return;
+        }
+        let Some(me) = world.player() else { return };
+        let (w, h) = (world.width, world.height);
+        let n = (w * h).max(0) as usize;
+        let log = world.tile_log();
+        let now = self.now;
+        let watch = &mut self.crucible;
+        if watch.world != world.id() || watch.known.len() != n || watch.seen > log.len() {
+            watch.world = world.id();
+            watch.seen = log.len();
+            watch.known = (0..n).map(|i| world.tile(i as i32 % w, i as i32 / w).is_some()).collect();
+            watch.settling = now;
+            watch.at = (me.x, me.y);
+            return;
+        }
+        if (me.x - watch.at.0).hypot(me.y - watch.at.1) > 4.0 {
+            watch.settling = now;
+        }
+        watch.at = (me.x, me.y);
+        let settled = now - watch.settling > 1200;
+        let fresh: Vec<u32> = log[watch.seen..].to_vec();
+        watch.seen = log.len();
+        let (mut built, mut fell) = (Vec::new(), Vec::new());
+        for i in fresh {
+            let i = i as usize;
+            if i >= n {
+                continue;
+            }
+            let (x, y) = (i as i32 % w, i as i32 / w);
+            let was = self.crucible.known[i];
+            let tile = world.tile(x, y);
+            self.crucible.known[i] = tile.is_some();
+            let near = (x as f64 + 0.5 - me.x).hypot(y as f64 + 0.5 - me.y) <= NEAR;
+            if !settled || !near {
+                continue;
+            }
+            match (was, tile) {
+                (false, Some(t)) if built.len() < MOST => built.push((x, y, t)),
+                (true, None) if fell.len() < MOST => fell.push((x, y)),
+                _ => {}
+            }
+        }
+        let shade = |c: u32, k: f64| {
+            let ch = |s: u32| ((((c >> s) & 255) as f64 * k).min(255.0) as u32) << s;
+            ch(16) | ch(8) | ch(0)
+        };
+        for (x, y, t) in built {
+            let c = data.grounds.get(&t).and_then(|g| g.color).unwrap_or(0x8A7A6A);
+            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+            // light streaming up into it out of the sky below
+            for _ in 0..2 {
+                let col = self.pick(&[0xFFE29A, 0xFFB03A, shade(c, 2.2)]);
+                let mut p = Particle::new(cx + self.pm(0.4), cy + self.pm(0.4), -1.6 - self.random(), col, 80.0 + 40.0 * self.random(), 650, Motion::Plain)
+                    .moving(0.0, 0.0, 0.0032 + 0.0015 * self.random());
+                p.fade = true;
+                self.add(p);
+            }
+            // a breath of dust as it settles
+            if self.random() < 0.3 {
+                self.puffs(cx, cy, 1, &[shade(c, 1.4), shade(c, 0.9)], 150.0, 0.5, 0.35, 700, 0);
+            }
+            if self.random() < 0.08 {
+                self.decal(DecalKind::Ring, cx, cy, 1.1, 0xFFB03A, now, 520, None);
+            }
+        }
+        for (x, y) in fell {
+            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+            // pieces of it tumbling down into the sky, an ember or two with them
+            for k in 0..3 {
+                let col = if k == 2 { self.pick(&[0xFF9A2A, 0xFFE29A]) } else { self.pick(&[0x4A3E50, 0x2A2230, 0x6A5A70]) };
+                let size = if k == 2 { 60.0 } else { 120.0 + 90.0 * self.random() };
+                let mut p = Particle::new(cx + self.pm(0.4), cy + self.pm(0.4), 0.0, col, size, 900 + (self.random() * 400.0) as i32, Motion::Rising { acc: -9.0 - 6.0 * self.random() })
+                    .moving(self.pm(0.0008), self.pm(0.0008), 0.0012 * self.random());
+                p.fade = true;
+                self.add(p);
+            }
+        }
+    }
+
+    pub fn champion_cue(&mut self, cue: u8, champion: u16, world: &World, now: i32) {
+        if self.disabled {
+            return;
+        }
+        let Some(o) = world.objects.values().find(|o| o.object_type == champion) else { return };
+        let (x, y, id) = (o.x, o.y, o.id);
+        self.here = (world.my_z(), self.here.1);
+        match cue {
+            // Ferrogrim: the anvil rings: a shockwave, the floor cracking, sparks everywhere
+            1..=4 => {
+                let glow = if cue == 4 { 0xFFE29A } else { 0xFF9A2A };
+                self.add(Particle::new(x, y, 0.6, 0xFFF0C0, 900.0, 160, Motion::Spark));
+                self.decal(DecalKind::Ring, x, y, 5.0, glow, now, 520, None);
+                self.decal(DecalKind::Ring, x, y, 3.0, 0xB4BCC8, now + 100, 420, None);
+                self.decal(DecalKind::Cracks, x, y, 3.5, glow, now, 1800, None);
+                self.debris(x, y, 40, &[0xFFE29A, 0xFF9A2A, 0xD8600E, 0xA4AFC0], 120.0, 6.0, 6.0, 900, 0);
+                self.puffs(x, y, 10, &[0x5C6476, 0x3C4250], 260.0, 1.4, 1.0, 1200, 60);
+            }
+            // Nerissa: the sea rises: a column of water, a whirlpool opening, spray far and wide
+            5..=8 => {
+                self.decal(DecalKind::Whirlpool, x, y, if cue >= 7 { 4.0 } else { 2.5 }, 0x46C2B4, now, 1800, Some(id));
+                self.decal(DecalKind::Ring, x, y, 6.0, 0x8AF0E0, now, 600, None);
+                for i in 0..40 {
+                    let a = 2.0 * PI * self.random();
+                    let d = 0.6 * self.random();
+                    let c = [0xD8FFFF, 0x46C2B4, 0x8AF0E0, 0x1A8288][i % 4];
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.2, c, 150.0 + 80.0 * self.random(), 900, Motion::Ballistic { g: GRAVITY * 0.5 })
+                        .moving(a.cos() * 0.002, a.sin() * 0.002, 0.008 + 0.005 * self.random());
+                    p.delay = (i as i32 * 9) % 200;
+                    self.add(p);
+                }
+            }
+            // Pyrrhax: the forge erupts: fire roaring up, the ground scorched, slag flung out
+            // (meteors falling round him for his Meteor Storm)
+            9..=12 => {
+                self.mortar_blast(x, y, 3.5, 1600, now);
+                if cue == 10 {
+                    for k in 0..6 {
+                        let a = 2.0 * PI * k as f64 / 6.0 + self.random();
+                        let d = 3.0 + 3.0 * self.random();
+                        self.meteor(x + d * a.cos(), y + d * a.sin(), 1.4, 450 + k * 120, now);
+                    }
+                }
+            }
+            // Chronarch: the hour strikes: the clock on the floor round him, its hand sweeping
+            13..=16 => {
+                let c = if cue == 16 { 0xFF6AE8 } else { 0x4AF0FF };
+                self.decal(DecalKind::Clock, x, y, 5.0, c, now, 2000, Some(id));
+                self.decal(DecalKind::Ring, x, y, 5.0, c, now, 420, None);
+                self.debris(x, y, 24, &[c, 0xD0A040, 0xF2D282], 100.0, 4.0, 5.0, 900, 0);
+            }
+            // Vaelith: the Sovereign's decree: his star drawn on the floor, a column of light; the
+            // echoes each in their floor's colour; the Crucible breaking; the void unbound
+            _ => {
+                let c = match cue {
+                    18 => 0xFF9A2A,
+                    19 => 0x46C2B4,
+                    20 => 0xFF6A14,
+                    21 => 0x4AF0FF,
+                    23 => 0xA828D8,
+                    _ => 0xFFD24A,
+                };
+                self.decal(DecalKind::Pentagram, x, y, 4.5, c, now, 2200, Some(id));
+                self.decal(DecalKind::Stars, x, y, 1.6, c, now, 2200, Some(id));
+                self.decal(DecalKind::Ring, x, y, 7.0, c, now, 650, None);
+                if cue == 22 {
+                    self.decal(DecalKind::Cracks, x, y, 7.0, 0xFFD24A, now, 3000, None);
+                }
+                if cue == 23 {
+                    self.decal(DecalKind::BlackHole, x, y, 2.5, c, now, 2000, Some(id));
+                }
+                for i in 0..48 {
+                    let a = 2.0 * PI * i as f64 / 48.0;
+                    let d = 0.3 + 0.5 * self.random();
+                    let col = [c, 0xFFFFFF, mix(c, 0xFFFFFF, 0.5)][i % 3];
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 0.1, col, 140.0 + 80.0 * self.random(), 800, Motion::Spark)
+                        .moving(0.0, 0.0, 0.009 + 0.006 * self.random());
+                    p.delay = (i as i32 * 7) % 260;
+                    self.add(p);
+                }
+                self.debris(x, y, 30, &[c, 0xFFFFFF, mix(c, 0x000000, 0.4)], 120.0, 7.0, 7.0, 1000, 80);
+            }
         }
     }
 }

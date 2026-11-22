@@ -6,7 +6,8 @@
 # It deploys only from main, and only once the repository variable DEPLOY_ENABLED is "true";
 # until then, and on pull requests, it builds the whole bundle as a dry run and touches nothing.
 # The secrets live in the "production" environment, which only main can use. Setting it up:
-# SETUP-LOCAL.md, "Deploying from GitHub".
+# SETUP-LOCAL.md, "Deploying from GitHub". A pull request's world server also goes on Testing,
+# the admin-only world server: testing.yml.
 #
 # The desktop client: with the CLIENT_UPDATE_KEY secret, a Windows job publishes it first when it
 # changed (as deploy.py does on the main checkout). Without it, everything else is deployed and the

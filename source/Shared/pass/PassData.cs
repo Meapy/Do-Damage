@@ -82,11 +82,14 @@ namespace Shared.pass
 
     // What a Gilded pass does for the community goals' loot (CommunityGoals.Claim): its rolls are
     // made this many Overdrive levels luckier, and each stage claimed that rolls loot rolls this
-    // many more times.
+    // many more times. It can also rally one community goal a run (CommunityGoals.Rally): until
+    // the run ends everyone's contributions to it count RallyMultiplier times, and the one who
+    // rallied shares the goal's top prize whatever their place.
     public sealed class PassCommunityBoost
     {
         public int Luck { get; set; } = 1;
         public int Rolls { get; set; } = 1;
+        public int RallyMultiplier { get; set; } = 2;
     }
 
     public sealed class SeasonDef

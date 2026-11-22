@@ -163,7 +163,9 @@ namespace WorldServer.core.objects
                 return true;
             }
             StaticLogger.Instance.Info($"{Name} was defeated by {killer} in {World.IdName} and sent to the Nexus");
-            SendInfo("You were defeated in the arena and sent back to the Nexus.");
+            SendInfo(World is worlds.impl.crucible.CrucibleWorld
+                ? "You fell in the Crucible and were sent back to the Nexus."
+                : "You were defeated in the arena and sent back to the Nexus.");
             ReconnectToNexus();
             return true;
         }

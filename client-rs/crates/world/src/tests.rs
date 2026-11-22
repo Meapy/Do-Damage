@@ -377,6 +377,42 @@ fn a_kill_the_server_never_confirms_is_taken_back() {
 }
 
 #[test]
+fn shots_fly_over_open_air_but_stop_at_the_void() {
+    // the Crucible's floors float in open air: a shot carries on over a gap with no ground; anywhere
+    // else no ground stops it
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>10</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let fire = |background: u8| {
+        let mut w = world(&d);
+        w.background = background;
+        // a gap of sky two squares deep between us and a monster to the north
+        for y in 2..4 {
+            for x in 0..10 {
+                w.set_tile(x, y, NO_TILE);
+            }
+        }
+        let mut pirate = obj(3, 0x30, 5.5, 0.5, 0);
+        pirate.status.stats = vec![StatData { id: 1, value: StatValue::Int(1000) }].into();
+        w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+        w.add_projectile(combat::Projectile::new(2, 1, 0x40, 0, -std::f64::consts::FRAC_PI_2, 0, 5.5, 5.5, 1.0, 10, false));
+        let mut hits = Vec::new();
+        for t in (0..800).step_by(10) {
+            hits.extend(w.update_projectiles(t, &d));
+        }
+        hits
+    };
+    assert!(fire(0).is_empty(), "stopped at the void");
+    let hits = fire(BACKGROUND_OPEN_AIR);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { target_id: 3, .. }]), "{hits:?}");
+}
+
+#[test]
 fn ground_gone_into_the_void_cant_be_walked_on() {
     // the Black Between's causeway in the fight: the server sends the empty tile for squares that
     // had ground, and the square is as if never sent (the sky shows there)
@@ -394,6 +430,25 @@ fn ground_gone_into_the_void_cant_be_walked_on() {
     // and it comes back as ground
     w.set_tile(5, 4, FLOOR);
     assert_eq!(w.tile(5, 4), Some(FLOOR));
+}
+
+#[test]
+fn ground_falling_away_round_us_never_leaves_us_stuck() {
+    // standing in the north-west corner of our square, the squares west, north and north-west of
+    // it fall into the sky (a Crucible floor reshaping): each step south or east was refused, as
+    // the squares beside our corner stop us there, and only an exact diagonal got out
+    let d = data();
+    let mut w = world(&d);
+    w.apply_goto(2, 5.2, 5.2, 0, &d);
+    for (x, y) in [(4, 5), (5, 4), (4, 4)] {
+        w.set_tile(x, y, NO_TILE);
+    }
+    let (_, y) = walk(&mut w, &d, 0.0, 1.0, 300);
+    assert!(y > 5.5, "walked south out of the corner: {y}");
+    // but never off our square into the sky: north and west stop at its edges
+    let (x, y) = walk(&mut w, &d, -1.0, -1.0, 1000);
+    assert!(x >= 5.0 && y >= 5.0, "({x}, {y})");
+    assert_eq!((w.tile(x as i32, y as i32)), Some(FLOOR));
 }
 
 #[test]

@@ -8,6 +8,7 @@ namespace Tests
     {
         [Theory]
         [InlineData("The Black Between")]
+        [InlineData("The Crucible")]
         [InlineData("The Elder Shatters")]
         [InlineData("Elder Lost Halls")]
         [InlineData("Elder Cultist Hideout")]

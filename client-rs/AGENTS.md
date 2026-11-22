@@ -208,7 +208,10 @@ Example, the Arena (portal in the shrine's floor north-west of the spawn; monste
   (103/104) with `QuestProgress` (108), `QuestNotice` (107) and `QuestClaim`/`QuestResult`
   (105/106) for the quest log (`quests.rs`); `VaultContents` (114/115) for the vault window
   (`vault.rs`, which stops asking after 5 s without an answer); `QuestDamageFull` (91/92) beside
-  `QuestDamage` (89/90) for boss damage (`Game::boss_history`, the last 3 bosses).
+  `QuestDamage` (89/90) for boss damage (`Game::boss_history`, the last 3 bosses);
+  `GuideSubscribe` (176) with `DungeonGuide` (177) for the Gilded pass's trail to a dungeon's boss
+  (`guide.rs`; Options, Gameplay turns it off), and `CommunityBoost` (175) to rally a goal
+  (`community.rs`).
 - **Async loading:** everything touching files or the GPU at startup is `async` (the browser can't
   block); desktop runs it under `pollster::block_on`.
 

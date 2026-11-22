@@ -356,7 +356,7 @@ pub fn burger_button(ui: &mut Ui, r: [f32; 4], open: bool, hover: bool, s: f32) 
     }
 }
 
-fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
+pub(crate) fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
     let (x, y) = (x as f32, y as f32);
     x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
 }
@@ -628,39 +628,19 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 }
 
 /// The imprints on the item in an object's slot.
-/// The sizes pets come in (the server's Player.PetSizes), smallest first.
-pub const PET_SIZES: [&str; 4] = ["Tiny", "Small", "Medium", "Large"];
-/// Each size's healing of HP and MP and how often, in ms (the server's `Player.SizeHeal`).
-const PET_SIZE_HEAL: [(u32, u32); 4] = [(15, 2000), (20, 2000), (30, 2000), (45, 1500)];
-
-/// The sizes the Pen Keeper raised the pet of a generator by (`ItemData.PetUpgrade` in its slot's
-/// data), 0 for none.
-pub fn pet_raise(o: &GameObj, slot: u8) -> u8 {
-    let Some(json) = o.stat_str(slot_data_stat(slot)) else { return 0 };
-    let Some(i) = json.find("\"PetUpgrade\":") else { return 0 };
-    json[i + 13..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>().parse().unwrap_or(0)
+/// The food in the pet stone in an object's slot (`petlevels::stone_xp`, from its slot's data).
+pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> i32 {
+    crate::petlevels::stone_xp(data, item, o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
-/// The size a generator's pet hatches at (its PermaPet's petSize), 0 Tiny to 3 Large.
-fn pet_base_size(data: &GameData, item: i32) -> Option<usize> {
-    let size = data.objects.get(&(item as u16))?.xml.children_named("Activate").find(|a| a.text.trim() == "PermaPet")?.attr("petSize")?;
-    PET_SIZES.iter().position(|&s| s == size)
-}
-
-fn pet_size_name(size: usize) -> &'static str {
+fn pet_size_name(size: &str) -> &str {
     match size {
-        0 => tr("Tiny"),
-        1 => tr("Small"),
-        2 => tr("Medium"),
-        _ => tr("Large"),
+        "Tiny" => tr("Tiny"),
+        "Small" => tr("Small"),
+        "Medium" => tr("Medium"),
+        "Large" => tr("Large"),
+        _ => size,
     }
-}
-
-/// A pet generator the Pen Keeper raised: the size it raises its pet to, as "Grey Wolf (Large)".
-pub fn raised_pet_size(data: &GameData, item: i32, o: &GameObj, slot: u8) -> Option<&'static str> {
-    let up = pet_raise(o, slot) as usize;
-    let base = pet_base_size(data, item)?;
-    (up > 0).then(|| pet_size_name((base + up).min(3)))
 }
 
 pub fn slot_imprints(o: &GameObj, slot: u8) -> [u32; 4] {
@@ -863,6 +843,9 @@ pub enum Button {
     /// Answer the visit request in the corner.
     VisitYes,
     VisitNo,
+    /// The Crucible's warning: go through its portal after all, or not.
+    CrucibleClimb(i32),
+    CrucibleNotNow,
 }
 
 /// `PlayerMenu`'s options.
@@ -912,6 +895,8 @@ pub struct Social<'a> {
     pub arena_next: Option<&'a bsk_proto::ArenaRound>,
     /// Someone's /visit waiting for our answer (`Game::visit`).
     pub visit: Option<&'a crate::game::VisitAsk>,
+    /// The Crucible Portal whose warning is up (`Game::crucible_ask`).
+    pub crucible_ask: Option<i32>,
 }
 
 /// A player's account id (`ACCOUNT_ID_STAT`), as the account lists hold it.
@@ -1306,6 +1291,13 @@ impl Panel {
                     panel.buttons.push((Button::ArenaPick(k), r));
                 }
             }
+        }
+        // The Crucible's warning in the middle, its box the HUD's too.
+        if let Some(id) = social.crucible_ask {
+            let (frame, climb, not_now) = crate::crucible::ask_layout(lay);
+            panel.history.push(frame);
+            panel.buttons.push((Button::CrucibleClimb(id), climb));
+            panel.buttons.push((Button::CrucibleNotNow, not_now));
         }
         // The visit request in the corner: its box counts as the HUD's, so clicks on it never shoot.
         if social.visit.is_some() {
@@ -2651,8 +2643,8 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        let raise = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_raise(m, slot.index));
-        let mut lines = item_tooltip_raised(ui.data, slot.item, me, slot.kind, slot.imprints, raise);
+        let xp = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_xp(ui.data, m, slot.index, slot.item));
+        let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines.extend(corrupted);
@@ -2963,11 +2955,23 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             (tr("Lightning"), r)
         }
         "SamuraiAbility" | "DazeBlast" | "TomeDamage" => (tr("Blast"), vec![row(tr("Damage"), num("totalDamage").to_string()), row(tr("Radius"), sqrs(area()))]),
+        // a Mechanic's turret (the server's `Turret.cs`: it has allyMs) or an ally of its own
         "BuildTower" => {
-            let mut r = ally_shot_rows(a).unwrap_or_else(|| vec![row(tr("Damage"), num("totalDamage").to_string())]);
-            r.push(row(tr("Builds"), text("objectId")));
-            r.push(row(tr("Lasts"), secs(num("duration"))));
-            (tr("Tower"), r)
+            let mut r = ally_shot_rows(a).unwrap_or_default();
+            if num("allyMs") > 0.0 {
+                let every = (num("allyMs") * 100.0 / TURRET_OVERCLOCK_PERCENT / 10.0).round() / 100.0;
+                r.push(row(tr("Overclocked"), tf!("every {n} secs within {range} of you", n = every, range = sqrs(TURRET_LINK_RANGE))));
+                if num("totalDamage") > 0.0 {
+                    r.push(row(tr("Self-destructs"), tf!("{n} damage within {range}", n = num("totalDamage"), range = sqrs(num("radius")))));
+                }
+                r.push(row(tr("Built"), tf!("where you aim, up to {range} away", range = sqrs(if has("range") { num("range") } else { 8.0 }))));
+                r.push(row(tr("Lasts"), secs(num("duration"))));
+                r.push(row("", tf!("Up to {n} out at once", n = if has("amount") { num("amount") } else { 3.0 })));
+            } else {
+                r.push(row(tr("Builds"), text("objectId")));
+                r.push(row(tr("Lasts"), secs(num("duration"))));
+            }
+            (tr("Turret"), r)
         }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
@@ -3073,6 +3077,11 @@ fn tome_share_range(xml: &bsk_data::xml::Element) -> f64 {
 /// How many summons a Summoner keeps out at once (the server's `Player.MaxSummons`).
 const MAX_SUMMONS: u32 = 6;
 
+/// How near a Mechanic overclocks their turret, and how much more often it fires then (the
+/// server's `Turret.LINK_RANGE` and `OVERCLOCK_PERCENT`).
+const TURRET_LINK_RANGE: f64 = 7.0;
+const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
+
 /// A summon's or turret's shots, which the port writes on the item's activate (allyDamage a shot,
 /// "min-max" if it varies; allyShots a volley; allyMs between volleys): the damage of a shot and
 /// how often, then on one enemy a second, before its defense.
@@ -3101,13 +3110,12 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
-    item_tooltip_raised(data, item, me, kind, imprints, 0)
+    item_tooltip_pet(data, item, me, kind, imprints, 0)
 }
 
-/// `item_tooltip_imprinted` for a pet generator the Pen Keeper raised `raise` sizes (`pet_raise`):
-/// its title names the size, and its size, damage and healing are the raised pet's, in the
-/// imprints' green.
-pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], raise: u8) -> Vec<Line> {
+/// `item_tooltip_imprinted` for a pet stone holding `xp` of food (`pet_xp`): its pet's level, and
+/// its damage and healing at that level and at its last (`petlevels`), in green once it's grown.
+pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], xp: i32) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -3124,13 +3132,7 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
         .iter()
         .find(|(t, _)| xml.has(t))
         .map_or(0xFFFFFF, |(_, c)| *c);
-    // a raised pet's generator: the size the raise takes it to (sized pets only)
-    let raised = pet_base_size(data, item).filter(|_| raise > 0).map(|base| (base, (base + raise as usize).min(3)));
-    let title = match raised {
-        Some((_, to)) => format!("{} ({})", desc.display_id, pet_size_name(to)),
-        None => desc.display_id.clone(),
-    };
-    out.push(Line::new(&title, 16.0, true, title_color));
+    out.push(Line::new(&desc.display_id, 16.0, true, title_color));
     if let Some((tag, color)) = tier_tag(xml) {
         out.push(Line::new(&tag, 14.0, true, color));
     }
@@ -3166,43 +3168,48 @@ pub fn item_tooltip_raised(data: &GameData, item: i32, me: Option<&GameObj>, kin
             // The port writes the pet's damage on one enemy and its healing here.
             out.push(Line::gap());
             out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
+            // its level (sized pets only): what it does now, and at its last level
+            let max = crate::petlevels::max_level(a.attr("petSize"));
+            let level = crate::petlevels::level_for(xp, max);
+            let grown = if level > 1 { color::GOOD } else { VALUE };
+            let up_to = |now: String, last: String| if level < max { tf!("{now}, up to {last}", now, last) } else { now };
             if let Some(size) = a.attr("petSize") {
-                // the sizes the server's pets come in (Player.PetSizes); the Lil' Oryxes'
-                // own size is a name, shown as sent
-                let size = match (raised, PET_SIZES.iter().position(|&s| s == size)) {
-                    (Some((_, to)), _) => pet_size_name(to),
-                    (None, Some(i)) => pet_size_name(i),
-                    (None, None) => size,
-                };
-                out.push(Line::stat(&format!("    {}", tr("Size")), size, if raised.is_some() { color::GOOD } else { VALUE }));
+                out.push(Line::stat(&format!("    {}", tr("Size")), pet_size_name(size), VALUE));
+            }
+            if max > 1 {
+                let text = if level < max { tf!("{level} of {max}", level, max) } else { tf!("{level}, its last", level) };
+                out.push(Line::stat(&format!("    {}", tr("Level")), &text, grown));
             }
             if let Some(dps) = a.attr("petDps") {
-                // a raise doubles the pet's damage for each size (the server's `Player.PetPower`)
-                match (raised, dps.parse::<u32>()) {
-                    (Some((base, to)), Ok(d)) => {
-                        let dps = d << (to - base);
-                        out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), color::GOOD));
+                let text = match dps.parse::<i32>() {
+                    Ok(d) => {
+                        // what it really does (every pet 90% of its level's)
+                        let (now, last) = (crate::petlevels::effective_dps(d, level, max), crate::petlevels::effective_dps(d, max, max));
+                        up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }
-                    _ => out.push(Line::stat(&format!("    {}", tr("Damage")), &tf!("{dps} per second", dps), VALUE)),
-                }
+                    Err(_) => tf!("{dps} per second", dps),
+                };
+                out.push(Line::stat(&format!("    {}", tr("Damage")), &text, grown));
             }
             for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
-                if let Some(amount) = a.attr(key) {
-                    // a raised pet heals as the size it's raised to does
-                    if let Some((_, to)) = raised {
-                        let (amount, ms) = PET_SIZE_HEAL[to];
-                        let secs = ms as f64 / 1000.0;
-                        out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), color::GOOD));
-                        continue;
-                    }
-                    let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                    out.push(Line::stat(&format!("    {verb}"), &tf!("{amount} {what} every {secs}s", amount, what, secs), VALUE));
-                }
+                let Some(amount) = a.attr(key).and_then(|v| v.parse::<i32>().ok()).filter(|&v| v > 0) else { continue };
+                let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
+                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max));
+                let text = tf!("{amount} {what} every {secs}s", amount = heal(level), what, secs);
+                out.push(Line::stat(&format!("    {verb}"), &up_to(text, heal(max).to_string()), grown));
             }
             // What else it does (its abilities, and what its hits do), "; " between.
             if let Some(effects) = a.attr("petEffects") {
                 for effect in effects.split("; ").filter(|e| !e.is_empty()) {
-                    out.push(Line::stat(&format!("    {}", tr("Also")), effect, VALUE));
+                    // a bleed ("Bleeds 83 over 3s") as the pet really does it
+                    let effect = match effect.strip_prefix("Bleeds ").and_then(|rest| rest.split_once(' ')) {
+                        Some((n, rest)) => match n.parse::<i32>() {
+                            Ok(n) => format!("Bleeds {} {rest}", crate::petlevels::effective(n)),
+                            Err(_) => effect.to_string(),
+                        },
+                        None => effect.to_string(),
+                    };
+                    out.push(Line::stat(&format!("    {}", tr("Also")), &effect, VALUE));
                 }
             }
             continue;
@@ -3444,7 +3451,8 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "ObjectToss" => tf!("Throws a {object}", object = text("objectId")),
         "MonsterToss" => tf!("Throws a {object} to fight for you", object = text("objectId")),
         "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
-        "BuildTower" => tf!("Builds a {object} for {time} secs ({damage} damage)", object = text("objectId"), time = num("duration"), damage = num("totalDamage")),
+        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, for {time} secs", time = num("duration")),
+        "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
@@ -4583,8 +4591,9 @@ pub fn draw_chat(
 /// `CreditDisplay`: your gold and fame, each before its icon, beside the minimap (no box),
 /// under your rank and its star (`GameSprite.rankText_`) in maps that show it, and the frame
 /// rate (`fps`) at the foot when it's on. Each count is centred on its icon by the middle of
-/// its digits.
-pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fps: Option<&str>) {
+/// its digits. A small gold "+" before the gold opens the Gold Store on the website; returns
+/// where it is, for clicks.
+pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fps: Option<&str>, mouse: (f64, f64)) -> [f32; 4] {
     let s = lay.s;
     let size = lay.font(16.0);
     let fps_size = lay.font(12.0);
@@ -4598,6 +4607,9 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fp
     for v in [rank.unwrap_or(0), gold, fame] {
         inner = inner.max(ui.measure(&v.to_string(), size, true) + 24.0 * s);
     }
+    // the gold's row also holds the "+"
+    let plus = (17.0 * s).round();
+    inner = inner.max(ui.measure(&gold.to_string(), size, true) + 24.0 * s + plus + 6.0 * s);
     if let Some(t) = fps {
         inner = inner.max(ui.measure(t, fps_size, true));
     }
@@ -4624,14 +4636,47 @@ pub fn draw_credits(ui: &mut Ui, lay: &Layout, me: &GameObj, show_rank: bool, fp
         cy += row_h;
     }
     // lofiObj3's coin and fame icons.
+    let mut buy = [0.0; 4];
     for (value, icon) in [(gold, 225), (fame, 224)] {
         ui.tile_icon("lofiObj3", icon, 40, icon_x, cy, s);
         count(ui, value, cy, 0xFFFFFF);
+        if icon == 225 {
+            let tw = ui.measure(&value.to_string(), size, true);
+            buy = [(right - 24.0 * s - tw - 6.0 * s - plus).round(), (cy - plus / 2.0).round(), plus, plus];
+        }
         cy += row_h;
     }
     if let Some(t) = fps {
         let tw = ui.measure(t, fps_size, true);
         ui.label(t, right - tw, cy - row_h / 2.0, fps_size, true, 0xB0FFB0);
+    }
+    draw_buy_gold(ui, buy, s, inside(buy, mouse));
+    buy
+}
+
+/// The HUD's Buy gold button: a gold chip with a dark "+", brighter under the mouse, which then
+/// says what it does to its left. Also the character list's, beside the gold there.
+pub(crate) fn draw_buy_gold(ui: &mut Ui, r: [f32; 4], s: f32, hover: bool) {
+    let radius = 4.0 * s;
+    let base = if hover { theme::shade(color::GOLD, 0.18) } else { color::GOLD };
+    if hover {
+        theme::fill(ui.renderer, [r[0] - 2.0 * s, r[1] - 2.0 * s, r[2] + 4.0 * s, r[3] + 4.0 * s], radius + 2.0 * s, color::GOLD, 0.25);
+    }
+    theme::shadow(ui.renderer, r, radius, 2.0 * s, 0.4);
+    theme::rounded(ui.renderer, r, radius, (theme::shade(base, 0.2), 1.0), (theme::shade(base, -0.22), 1.0));
+    theme::fill(ui.renderer, [r[0] + radius * 0.6, r[1] + s.max(1.0), r[2] - radius * 1.2, s.max(1.0)], 0.0, 0xFFFFFF, 0.35);
+    // the "+", drawn so it sits exactly in the middle
+    let (cx, cy) = (r[0] + r[2] / 2.0, r[1] + r[3] / 2.0);
+    let (arm, thick) = ((r[2] * 0.3).round(), (2.0 * s).round().max(2.0));
+    ui.rect((cx - arm).round(), (cy - thick / 2.0).round(), 2.0 * arm, thick, color::ACCENT_TEXT, 1.0);
+    ui.rect((cx - thick / 2.0).round(), (cy - arm).round(), thick, 2.0 * arm, color::ACCENT_TEXT, 1.0);
+    if hover {
+        let label = tr("Buy gold");
+        let ts = (13.0 * s).round().max(9.0);
+        let (tw, pad) = (ui.measure(label, ts, true), 6.0 * s);
+        let tip = [(r[0] - 6.0 * s - tw - 2.0 * pad).round(), (cy - (ts * 1.22 + 6.0 * s) / 2.0).round(), (tw + 2.0 * pad).round(), (ts * 1.22 + 6.0 * s).round()];
+        theme::frame(ui.renderer, tip, 4.0 * s, s.max(1.0), (color::GOLD, 0.8), ((color::PANEL_TOP, 0.96), (color::PANEL_BOTTOM, 0.96)));
+        ui.label(label, tip[0] + pad, tip[1] + 3.0 * s, ts, true, color::GOLD);
     }
 }
 
@@ -5179,7 +5224,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None, crucible_ask: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

@@ -54,6 +54,8 @@ pub struct Ground {
     pub undersides: crate::islands::Undersides,
     /// The void's starry sky behind the Black Between (`voidsky`).
     pub void_sky: crate::voidsky::VoidSky,
+    /// The ember sky round the Crucible's floors (`cruciblesky`).
+    pub crucible_sky: crate::cruciblesky::CrucibleSky,
 }
 
 /// What a connected wall draws: its faces, its side and top textures.

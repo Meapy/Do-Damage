@@ -276,7 +276,8 @@ and the old one keeps what doesn't need speed:
   shell, whose `authorized_keys` line only allows forwarding to `127.0.0.1:6379`). Its world proxy
   trusts the game machine's gateway for players' addresses (`BSK_TRUSTED_GATEWAYS`), and that
   gateway allows Testing's address (`other_worlds`, added by deploy.py). It plays on the live
-  data: test risky changes on an isolated stack, as always.
+  data: test risky changes on an isolated stack, as always. Pull requests deploy their world
+  server to it (see "Pull requests on Testing").
 - **Server list:** admin-only servers come last, so a client with no choice saved (or a choice
   that's gone, "Europe") takes Europe 2. The account server gives a client on its own machine
   (everyone through the gateway) `127.0.0.1` only for world servers with its own address
@@ -442,7 +443,8 @@ it deployed, desktop client included.
      the VPS's own. Without a new release, the VPS's releases stay as they are.
   3. `deploy.py --status`: the services, the world server slots and the gateway slots.
 - **On a pull request** (and on `main` while deploys are off): `deploy.py --dry-run` builds the
-  whole bundle and sends nothing. `.github/workflows/ci.yml` checks pull requests and release
+  whole bundle and sends nothing. Its world server also goes on Testing (see "Pull requests on
+  Testing" below). `.github/workflows/ci.yml` checks pull requests and release
   branches besides: `cargo test`, the wasm build, `dotnet build` and `dotnet test`, the website,
   and the Docker images.
 - **Watching it:** `gh run watch --repo Meapy/Do-Damage <run id>` (`gh run list --workflow Deploy`
@@ -492,6 +494,56 @@ any branch pushed to this repository can read them. To keep the key on this PC i
 `CLIENT_UPDATE_KEY`: GitHub then deploys everything but the client, its run's summary says when
 the client changed, and `python deploy\deploy.py --client-only` from the main checkout publishes
 it and installs only the releases and the website (`deploy/remote/install-client.sh`).
+
+### Pull requests on Testing
+
+Each pull request's world server goes on **Testing**, the admin-only world server on the website
+machine (see "Two machines"), so it can be played before it's merged:
+`.github/workflows/testing.yml` runs `deploy/deploy.py --testing-only`. That builds only
+`source/WorldServer` and installs it with `install-site.sh --testing-only`, a rolling deploy of
+Testing that kicks nobody (only admins play there). Europe 2, the account server, the gateway, the
+web client, the website, the Discord bot and the desktop client stay as they are.
+
+- **When:** opening a pull request, pushing to it, reopening it or marking it ready deploys its
+  head commit. Drafts don't, nor pull requests from forks (GitHub gives a fork's run no secrets).
+  Closing one without merging it into `main` puts `main` back on Testing; a merge into `main`
+  deploys `main` everywhere, Testing included. "Run workflow" on the Testing workflow (Actions
+  tab) deploys the branch it's run on. With several pull requests open, the last one pushed is on
+  Testing. `deploy.py --status` says what Testing runs ("Testing runs: pull request #81, built
+  ..."), and so does the run's summary.
+- **Trying it:** each run also builds that commit's desktop client (the `client` job, on
+  Windows): open the run (the pull request's checks, "Testing"), download the
+  `Do-Damage-testing-pr<number>` artifact under Artifacts, unzip it and start `betterskillys.exe`,
+  then sign in as an admin (the `admin` flag or rank 6) and pick "Testing (admin)" in the server
+  list. It has the pull request's client changes (new messages, art, XML), so both halves are
+  tried together. It isn't signed (the job has no secrets), so it never updates itself and no
+  player's client takes it; the artifact is kept 14 days. It signs in at
+  `TESTING_CLIENT_ACCOUNT` (a repository variable), by default `http://play.dodmg.com:8080`: the
+  account server's plain port, whose clients play over TCP, straight to Testing (the password
+  goes unencrypted, as with the oldest clients). Once 2.6.4's gateway is live, set it to
+  `https://play.dodmg.com/api` to go through the gateway over https instead. The released client
+  reaches Testing too (from 2.6.4), but with the server half only: items and monsters a pull
+  request adds are drawn as it can. A character holding one carries it back into Europe 2, whose
+  server doesn't know it.
+- **Live data:** Testing plays on the game's Redis (its tunnel), so a pull request's code reads and
+  writes the live database, players' accounts included. Keep changes to what's saved (new or
+  renamed Redis keys, migrations, anything that rewrites accounts or characters) off Testing until
+  they've been tried on an isolated stack (`tools/testclient/iso_stack.py`), and leave such a pull
+  request a draft. Testing's own realm snapshot is `realms:Testing`.
+- **One at a time:** Testing deploys share a concurrency group and are never cancelled half way
+  (a newer one waiting replaces an older one waiting); on the VPS they take `/opt/bsk/deploy.lock`
+  with every other deploy. A pull request's run also builds the whole bundle as a dry run
+  (`deploy.yml`) and runs CI (`ci.yml`), as before.
+- **Setting it up** (once): in Settings, Environments, create an environment named `testing`, with
+  deployment branches left open (pull requests come from any branch), and give it the secrets
+  `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS` and `VPS_CONFIG` (the same `deploy/vps.local.json`; only its
+  `website` part is used). Best with a key of its own, in `authorized_keys` on the website machine
+  only, and `VPS_KNOWN_HOSTS` holding only that machine's host key: anyone who can push a branch
+  here can change the workflow in a pull request and read this environment's secrets, so this key
+  should reach nothing but the website machine (the `production` secrets, client signing key
+  included, stay out of reach). A required reviewer on `testing` makes each deploy wait for a click.
+  Then `gh variable set TESTING_DEPLOY_ENABLED --repo Meapy/Do-Damage --body true`; `false` turns
+  it off again.
 
 ## Docker
 
@@ -665,6 +717,124 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Pet levels, food, the pen and each pet's own healing** (2026-11-22; `source/Shared/pets/`
+  `PetLevels.cs` and `PetFood.cs`, `Player.PetPen.cs`, `tools/pet_healing.py`, the client's
+  `petlevels.rs` and `petpen.rs`): every sized pet starts at level 1 and grows as the Pen Keeper
+  feeds it, to its size's last level (Tiny 10 to Oryx 30); damage 60% to 120% of its kit's,
+  healing up to 160%, drawn up to a quarter bigger. Food: treats, gear (untiered by its bag's
+  rarity, Ascended highest), potions, shards and other pets' generators (`PetFood`). Feeding costs
+  fame (`PetLevels.FameCost`: 3 per 100 food at level 1, 15% more a level), and the account's pen
+  (`DbAccount.PenSize`) feeds only the sizes bought, Tiny free, then for fame or gold
+  (`PetLevels.PenPrice`). The pet's food lives on the character (`petXp`) or its generator's data
+  (`ItemData.PetXp`); pets raised before levels were turned into food once
+  (`PetLevels.MigratedXp`). Every stone's healing is its own, written by `tools/pet_healing.py`
+  (rerun it after adding a pet stone; the boss pets get theirs from `boss_pets.py`), with MP about
+  half of HP. The client works out the same numbers for its window and tooltips: change
+  `PetLevels.cs`, `PetFood.cs` and `petlevels.rs` together (`PetLevelsTests` and the client's tests
+  check both). On top of the level, every pet (sized or not) does `PetLevels.EffectivePercent`,
+  90%, of its damage (`Pet.Hit`), its heals and its bleeds (`PetLevels.Effective`); the Pen
+  Keeper's window, the client's tooltips (`petlevels::effective`) and the wiki's pet cards
+  (`tools/wiki_gear.py`) show what pets really do. The XML's `petDps`, `petHp`, `petMp` and
+  "Bleeds" lines stay the kit's numbers before it.
+
+- **Boss pets of the Black Between and the Crucible** (2026-11-22; `tools/boss_pets.py`,
+  `PETS` in `tools/build_black_between.py` and `tools/build_crucible.py`, the pets' behaviours
+  beside their bosses' in `BehaviorDb.BlackBetween.cs` and `BehaviorDb.Crucible.cs`
+  (`ChampionPet`), `PetShoot`'s `rotateAngle`): each of the eight bosses drops a Lil' copy of
+  itself (its generator `ItemLoot` at 0.02, so 1% once `Loots.PetDropRate` halves it; Vesper and
+  Aurel had no loot before). Each is drawn with its boss's own row of the dungeon's 32x32 character
+  sheet (and its last form as AltTexture 1, for the champions), its generator's icon the boss
+  shrunk to 16x16 (`black_between/small.pet_icon`, on the dungeon's 16x16 sheet), and fires its
+  boss's shots in its patterns: fans, rings that turn (`rotateAngle`: the first volley aims, each
+  after turns on), `PetNova`s for mines, lightning, meteors and the black hole, and for the
+  champions every 10 s their last form and spiral for 4 s. All are `petSize="Oryx"` (out of the
+  Mystery Pet Stones; level 1 to 30), healing their own way (`tools/pet_healing.py`); damage a
+  second at 100% (60% at level 1, 120% at 30), written into each generator (`petDps`) and worked out in `PETS`'
+  comments as `boss_pets.py` explains: Ferrogrim 988, Nerissa 1,104, Pyrrhax 1,196, Chronarch
+  1,301, Vaelith 1,817, Vesper 2,217, Aurel 2,590, the Mysterious One 3,002 (the Lil' Oryxes are
+  1,000 to 3,000). The champions also buff their owner now and then (`PetOwnerEffect`: Armored,
+  Healing, Berserk, Speedy, Damaging). The numbers live in both the script and the behaviour:
+  change them together.
+
+- **The Mechanic reworked** (2026-11-22; `Turret.cs`, `Player.Turrets.cs`, both
+  `DoomedRealms.xml` copies, `tools/draw_turrets.py`, `client-rs/app/src/particles/turret.rs`):
+  a turret blueprint (`BuildTower` with `allyMs`) throws a crate to where it's aimed (`range`, on
+  walkable ground) and puts down a `Turret`, a static object that fires its projectile 0 as the
+  Mechanic's server shots (`allyShots` every `allyMs`, two thirds of that within 7 tiles of its
+  Mechanic), leading its target, and blows up at the end of `duration` (`totalDamage` within
+  `radius`); `amount` (3) at once, the oldest blowing up for a newer one; the blueprints hold a
+  1 s cooldown. Tower1-9 and SpecialTower have no behaviours any more. The Rust client turns
+  each turret's `TurretHead` sprite to its shots and draws the ShowEffect Relic looks 54-57
+  (throw, build, seen, blast), its plate, rings and the cable to its Mechanic. Ferrogrim's
+  Bastion Turret (the Crucible's white bag, `tools/build_crucible.py`) is one of them too, its
+  base and head in `draw_turrets.py`'s row 3, with his slam (`Turret.Slam`, the numbers in
+  `Player.CruciblePowers.cs`; `AllyBastionSlam` is gone). The Mechanic's
+  Armoire skins (`tools/draw_mechanic_skins.py`, `MechanicSkins.xml`, types 0xE200-0xE204) cost
+  200 gold, the 16 by 16 Titan Artificer 800 (`<Cost>`).
+- **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
+  --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
+  server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`
+  back (see "Pull requests on Testing"). `deploy.py --status` says what Testing runs
+  (`/opt/bsk/testing.txt`). The gateway sends a bridge straight to a world server slot only when
+  its target is this machine's own proxy (a loopback host); before, any target on port 2051 was,
+  so browser and https players picking Testing landed on Europe 2 (`client-rs/gateway/src/world.rs`,
+  `is_local_proxy`). Testing lets in rank 6 as well as the `admin` flag (`DbAccount.IsAdmin`, in
+  `HelloHandler` and `MessageHandlers.IsEnabledOrAdminOnly`).
+- **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
+  (`Dungeons/The Crucible/The Crucible.jm`, 56x460, `<World id="The Crucible">` in Dungeons.xml:
+  Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
+  `tools/build_crucible.py` (the map, `CrucibleGrounds.xml` and `CrucibleObjects.xml` in both
+  copies, the sheets `Crucible8x8`, `Crucible16x16`, `Crucible32x32`, `CrucibleChars16x16`, `CrucibleChars32x32`;
+  art in `tools/crucible/bosses.py` and `small.py`, type numbers kept in `tools/crucible/types.json`,
+  0xC600-0xC7FF) and `tools/crucible/sound.py` (the music; needs numpy). Rules in
+  `Shared/crucible/CrucibleRules.cs`: open at Arena round 50 (`DbAccount.arenaBest`, kept as rounds
+  begin and filled once from every season's leaderboard) or a Gilded pass, admins always; one climb
+  a UTC day, two Gilded (`crucibleDay`, `crucibleClimbs`, spent as a climb begins). The world
+  (`worlds/impl/crucible/CrucibleWorld.cs`) runs lobby, the walk up, arrival, fight and clear: the
+  map's floors above the Threshold and its ways up between them (`Crucible Way` squares,
+  `TileRegion.Crucible_Way`, `WAYS` and `way()` in the script: each winding from a floor's
+  northern edge to the next's southern edge in that floor's ground, a line of its light down the
+  middle and its pillars on ledges) are taken away as the world opens (`_held`) and built as the
+  climb gets to them: a way in steps out from the floor below, `Ahead` steps ahead of the
+  furthest along it, the floor above outwards from where the way lands once it nearly reaches it;
+  behind the last climber the way falls (`Behind`), and the floor below once all are on it;
+  whoever stands on fallen ground is put back on the way, stragglers are brought up 20 s after the
+  first arrives (and everyone 150 s after it opens). Message `CRUCIBLE` kind 8 (`Way`) tells the
+  clients how far along the leader is (the sky blends and drifts with it, the tracker names the
+  floor); the Rust client's `crucible_ground` (`particles/relic.rs`) throws light up into ground
+  built near us and breaks ground that falls into pieces. Admins' `/crucible floor <n>` still
+  jumps (the floor built at once). The Apex is the biggest floor (reach 23, `FloorReach` 25) and
+  reshapes itself through Vaelith's fight, as every floor does through its champion's
+  (`ArenaForm` and `ArenaForms` in `logic/behaviors/CrucibleArenas.cs`, on each Heart's `Fight`
+  state: a form for each of its states, the change spreading out from the
+  middle, ground that goes cracking first, pillars rising and falling with their squares, anyone on
+  fallen ground or cut off from the rest thrown onto the nearest of it, anyone in a corner the
+  clients won't step out of set in the middle of their square; turning forms move on; the map's
+  floor back when the fight ends; `CrucibleTests.EveryArenaFormIsWholeAndInTheGame` prints each).
+  `Crucible.Shake` shakes a world at most every 4 s. Its champions'
+  health grows half as fast with players as elsewhere (`GroupScaling`, as the Black Between). The
+  Rust client asks before entering the Crucible Portal (`Game::enter_portal`, `crucible::draw_ask`).
+  Shots fly over squares with no ground in this sky (`Background`
+  9, `bsk_world::BACKGROUND_OPEN_AIR`, `combat.rs`) instead of stopping there;
+  each floor's invisible Heart changes its floor (`logic/behaviors/Crucible.cs`: `CrucibleFloor` and
+  its painters, `Rampart`, `Crumble`, `Transmute`), ordered by its champion
+  (`BehaviorDb.Crucible.cs`); the ground is put back from a snapshot whenever a floor is quiet. Its
+  portal (sunk into the floor, four tiles across, `Crucible32x32.png`) stands on the islands' `Crucible
+  Portal` tile (`TileRegion.Crucible_Portal`, `build_nexus_islands.py` `CRUCIBLE_PIT`, across Realm 2's
+  vortex from the Arena's pit; elsewhere across the vortex from the Arena's portal, else the nearest
+  clear floor: `DoomedWorlds.AddCruciblePortal`), `UsePortalHandler` turns
+  away those it's closed to, `/crucible` (`Command.Crucible.cs`: `status`; admins `floor <n>` and
+  `equip <item>`). Message `CRUCIBLE` (175) drives the Rust client's tracker, title cards, phase
+  banners and victory (`crucible.rs`) and its sky (`cruciblesky.rs`); climbs that clear a floor go
+  on the Redis sorted set `crucible.runs` (`DbCrucibleRuns`). No fame is paid. The champions'
+  white bags (1% each) are ability items with a `<RelicPower>` (`Player.CruciblePowers.cs`, the
+  turret a Mechanic's turret with its slam, `Turret.Slam`), drawn by the Rust client's looks 48-53 (`particles/relic.rs`),
+  which also gives each champion its own aura, building with the health it has lost, each phase a
+  burst and the portal its embers (`champion_auras`, `champion_cue`). Each floor has a shape of its
+  own (`SHAPES` in the script, within 17 squares of its middle: `FloorReach`). A climber's pet and
+  allies (enemies with their `AllyOwnerId`) come up with them and a floor's reset leaves them
+  (`CrucibleWorld.BringAllies`). Tests: `CrucibleTests`.
+
 - **Skins sold at the Armoire** (2026-11-20): a `Reskin` for a skin the account lacks buys it
   (`ReskinHandler`): the same rules as `/account/purchaseSkin` (not a Realm Pass skin, the class
   at the skin's `<UnlockLevel>`, counting the character's own level, and `<Cost>` gold, 200 by
@@ -695,7 +865,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   tiers on top of Caches already opened. Messages 171-174 (`PassAct`, `PassData`, `PassXp`, `PassResult`), player stat 222
   `Aura`, relic looks 46 (a tier) and 47 (Gilded). A Gilded pass rolls the community goals' loot
   `community.luck` Overdrive levels luckier and `community.rolls` more times
-  (`CommunityGoals.cs`). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,
+  (`CommunityGoals.cs`), and has two more perks (2026-11-21): **rallying** a community goal,
+  and a **dungeon guide**. A rally (`COMMUNITY_BOOST` 175, `CommunityGoals.Rally`; `pass.json`'s
+  `community.rallyMultiplier`) is once per account and goal run: the account
+  goes into the Redis set `community:<run>:rallied` first, then a Lua script in the run's hash
+  (`community:<run>`) sets `boostUntil` to the run's end (the first rally's name in `boostBy`) and
+  counts `boosts`; `CommunityGoals.Count` multiplies every contribution to a
+  rallied run, in its total and in the helper's share, until then, and each refresh reads
+  `boostUntil` back so the other world server counts it too. The rallier also shares the run's
+  top prize whatever their rank (`Claimable`: rank in the top `TopCount` or rallied, with the
+  goal's minimum share). The rally travels as a section after the goals in `COMMUNITY_DATA`
+  (older clients stop before it) and as `COMMUNITY_NOTICE` kinds 6 (everyone: "X rallied the
+  realm") and 7 (the rallier's answer). The guide (`GUIDE_SUBSCRIBE` 176, `DUNGEON_GUIDE` 177,
+  `Player.Guide.cs`, `core/guide/GuidePath.cs`) runs for a Gilded player in a dungeon (not a
+  realm, the Nexus, a vault, a minigame or stacked floors): an A* over the map, eight ways with
+  no corner cutting, which crosses a door (an object filling its square) only when no other way
+  is open, from the player to the dungeon's boss, their `Quest`; it is made again when either
+  moves 3 tiles or every 6 s, and sent as every second tile (the Rust client's `guide.rs` draws
+  the trail and a chip; Options, Gameplay switches it off). The skins are drawn by `tools/draw_pass_skins.py` (`PassSkins16x16.png`,
   both `PassSkins.xml`, `<PassSkin>` naming the effect the Rust client adds; the account server
   never sells them); the Wayfarer by `tools/draw_quest_npcs.py`, placed by `QuestGivers.cs`
   east of the Warcaller. Rust client: `pass.rs` (the window, Y, the HUD's Pass button) and
@@ -1545,7 +1732,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   when there is one). The guild halls are gardens now too (see "Guilds", *Halls*). So is the
   vault (`tools/build_vault.py`, `Exalt/Vault Garden.jm` in Worlds.xml): an island in the shape
   of the old cellar, the 60 `Vault` tiles on stone pads in a raked-gravel garden beyond a torii
-  with storehouses at its head, the 26 `Gifting Chest` tiles in two bamboo-fenced tatami yards,
+  with storehouses at its head, the `Gifting Chest` tiles in two bamboo-fenced tatami yards (26; 42 from 2026-11-22),
   the Potion Storage, the Armoire (`NG Armoire`), the Guild Chronicle and the Guild Hall Portal
   in a stone court, the spawn on a deck with the Glowing Portal of Cowardice, the Daily Quest
   Portal and the Training Dummy (5 east of the spawn, as before). The castle vault and its
@@ -1780,7 +1967,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   connection, so an older server never counts it as packet spam. A right-click marks a chest in
   the world. Gift chests come after the vault chests (`VaultWorld.GiftChests`, the ones still
   holding something; elsewhere the account's `gifts` eight to a chest), flagged in each chest's
-  entry; items only come out of them (`ValidateEntities`), and the client only drops them into an
+  entry, and in the vault the gifts no gift chest holds after them (`VaultWorld.WaitingGifts`,
+  eight to a chest with no object id; since 2026-11-22, when an emptied gift chest started
+  refilling with them, `VaultWorld.Refill`, and the vault got 42 gift chests); items only come out of them (`ValidateEntities`), and the client only drops them into an
   empty inventory slot. **Sort by** lays the items out chest by chest or as one grid by type, tier
   (`forge::order`) or name, each marked with its chest's number.
 - **One portal per boss** (2026-10-28; `source/Tests/PortalSourcesTests.cs`): three bosses placed the same portal twice. The Ghost Ship's death set piece (`Setpieces/Ghost Ship/Death.jm`, on its spawn point) holds the Davy Jones' Locker portal, and a `DropPortalOnDeath` of the same portal (2026-10-11) put a second where it died: the drop is gone, so the one portal stays on the island, open until the realm closes, as upstream. The Royal Cnidarian had `RealmPortalDrop` and a `DropPortalOnDeath("Realm Portal")` (2026-10-12), two Realm Portals on one spot: its `RealmPortalDrop` is gone (the behaviour is now unused). The Puppet Master's `YepDead` state (he runs out of time and leaves by `Suicide`) had its own `TransformOnDeath("Puppet Loot Chest")` beside the root one, so a timed-out fight left two chests and two Encore portals: the state's is gone. `PortalSourcesTests` loads the real game data and `BehaviorDb` (a `GameServer` with only `Resources`, so `source/Tests` now references `WorldServer`) and walks every monster's behaviours by reflection, the Doomed Realms ones too: `DropPortalOnDeath`, `RealmPortalDrop`, `DeathPortal`, the portals in a `PlaceMapAtDeath` set piece, `TransformOnDeath` into a portal, portals spawned or tossed during the fight, and what a monster turns into or throws out on death (followed down to its own portals). It fails when one portal has two sources that both fire (both on death in states the monster is in together, or either during the fight); 0% drops (the Elder Tomb's shared builder) don't count. Different portals from one boss are left alone: Oryx 2's Realm, Sanctuary and 10% Lost Halls portals, Oryx 3 and 4's locked portal and Realm Portal, the gods with an Elder dungeon and a Realm Portal (Davy Jones, Dreadstump, Septavius, Thessal, Malphas, the Masked Party God, Mixcoatl with Secluded Thicket too), Lord Ruthven's Realm Portal and his Coffin's Elder Manor portal, and the realm events with two dungeons (Dragon Head, Grand Sphinx, Hermit, Lord of the Lost Lands, Encounter Altar). World code was checked too: `World.BossDied` adds a Realm Portal only when none is there, and the only map holding a portal its boss also drops is Oryx's Elysium, whose Nexus Portal on the Landing is where players arrive, not where Oryx 5 dies. The wiki reads `PlaceMapAtDeath` set pieces' portals (`wiki_data.map_portals`), so the Ghost Ship stays the Davy Jones' Locker portal's source. Tested on an isolated stack with `bsk-bot` (a real Realm 2 Wreck Coast event, the Cnidarian Reef and the Puppet Master's time-out: two of the portal before, one after; and Oryx 1 into the Wine Cellar and Oryx 2): Oryx 1 leaves one open Wine Cellar portal, Oryx 2 one Realm, one open Sanctuary and the 10% Lost Halls portal.
@@ -2044,6 +2233,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Free guilds event** (`serverSettings.freeGuildsUntil` in `wServer.json`, the moment it ends in UTC, such as `"2026-12-01T00:00:00Z"`; `Shared/database/guild/GuildPrice.cs`): making a guild costs nothing until then and the normal 1,000 fame after, with no redeploy (`CreateGuildHandler` checks the date on each guild). The Guild Register (`WorldServer/core/objects/GuildRegister.cs`; static in the XML, but `Wmap` loads it as an entity, since a static object's stats are sent once) sends its price as `MerchandisePrice` (0 during the event), which the Rust client shows on its button and in the name prompt; an older client shows 1,000 and is charged nothing. The Nexus login message names the last free day while it runs. Empty: no event. Live: until 2026-12-01 00:00 UTC.
 - **Timed events: Halloween Sweet Treats** (2026-10-30; `Shared/resources/ServerEvents.cs`, `serverSettings.events` in `wServer.json`, `Tests/ServerEventsTests.cs`): a list of named events, each with a `start` and `end` in UTC and its effects, running from its start until just before its end with no redeploy. The one effect so far is on stat potions (`ServerEvents.IsStatPotion`: Potion of Life, Mana, Attack, Defense, Speed, Dexterity, Vitality and Wisdom, their `(SB)` and Greater ones; not the Max potions, the Candies of Extreme or other stat consumables): `potionChance` multiplies the drop's own chance in `Loot.Handle`'s per-player roll before the boosts (so the Loot Drop Potion, the Legends, guild halls, the Hall of Champions, weekend, `lootEvent` and the damage share multiply it as any drop's, and `Loot.Chance` caps it at a sure drop before the arena's rate), and `potionAmount` puts that many of the potion in the bag. Two events at once multiply. `GameServer.EventsTick` announces to everyone online when one starts or ends (not one already on when the server starts, nor while draining); the Nexus login message and `/boosts` show the running ones. Live: Halloween Sweet Treats, 2026-10-30 00:00 to 2026-11-07 00:00 UTC (the last day 6 November), potions twice as likely and two at a time. Tested on an isolated stack with an admin `bsk-bot` spawning and `/smite`-ing MegaRototos (BasicPots) in its vault, the event's window set a few minutes ahead in the stack's `wServer.json`: before it 2.28 potions a kill (210 kills; 2.27 expected), during it 9.02 (250 kills; 9.01 expected, a 72% chance per potion with the damage share and the 25% `lootEvent`, times two), after it 2.33 (140 kills); its start and end were announced on time and it ended by itself. The Nexus line and `/boosts` checked with the live dates. World server only.
 - **Timed events: Necromantic Harvest** (2026-11-13; `ServerEvent.relicChance`, `ServerEvents.RelicChance`, `BossResurrection.AddRelicDrop`/`RelicChance`, `Tests/ServerEventsTests.cs`): an event's `relicChance` multiplies the Necromantic Relic's chance from every boss that leaves remains (`relicChance` in `resurrection.json`, 5%) before the loot boosts, capped at a sure drop; the damage threshold (2%) stays. Two events at once multiply. Its line in the Nexus and `/boosts` reads "Necromantic Relics drop twice as often from the Elder bosses". The wiki's Necromantic Relic page shows a note (`{{gen:relic-event}}`, `build_wiki.py` `gen_relic_event`, from `wiki_data.server_events()`) while such an event is running or still to come when the site is built, and nothing once it's over (the note stays until the next deploy rebuilds the site). Live: Necromantic Harvest, 2026-11-13 00:00 to 2026-12-01 00:00 UTC, relics twice as often (10%). World server and website.
+- **Timed events: Twin Ascent** (2026-11-22; `ServerEvent.crucibleClimbs`, `ServerEvents.CrucibleClimbs`, `CrucibleRules.DailyClimbs`/`ClimbsLeft`/`SpentHint`, `CrucibleAccess.EventTimes`, `Tests/ServerEventsTests.cs`, `Tests/CrucibleTests.cs`): an event's `crucibleClimbs` multiplies the Crucible's climbs a day (one, two with a Gilded pass), counted against the same `crucibleDay`/`crucibleClimbs` fields. An event's `crucibleWhiteChance` (`ServerEvents.CrucibleWhiteChance`, `CrucibleRules.IsWhiteBag`, each `CrucibleFloor`'s `WhiteBag`) multiplies the five champions' white bags' own chance in `Loot.Handle` before the boosts, as `potionChance` does, capped at a sure drop (not the pets). Two events at once multiply. Its line in the Nexus and `/boosts` reads "you may climb the Crucible twice as often each day, and its champions' white bags drop twice as often"; the wiki's Crucible page shows a note (`{{gen:crucible-event}}`, `build_wiki.py` `gen_crucible_event`) while one runs or is still to come. Live: Twin Ascent, 2026-11-22 00:00 to 2026-12-06 00:00 UTC, two climbs a day, four Gilded, white bags at 2%. World server and website.
 - **/realm2 for everyone** (2026-10-30; `Command.Realm2`, moved to `commands/player/`): any player can use it to go into the Nexus's Realm 2 (`RealmPortalMonitor.Realm2`, the one its portal leads to, never a new one or a key-opened one), refused while it's being built or full. Inside a Realm 2 the land list, `/realm2 next` and `/realm2 <land>` stay admin-only; anyone else is told which Realm 2 they're in. The wiki lists it (`COMMAND_HELP`). World server only.
 - **Arena leaderboard in the Nexus** (`Shared/database/leaderboard/DbArenaRuns.cs`, `App/Controllers/ArenaController.cs`, `ArenaWorld`, `DoomedBattleArena`; Rust client `npc.rs`; `Arena Leaderboard` 0x4975 in both `CustomObjects.xml`, its trophy at 0x60 in `CustomAssets8x8.png`, placed at (48, 68) by `tools/build_castle_maps.py`): runs are kept in the sorted set `doomed.arenaLeaderboard` as `<unix ms>|<seconds>|<arena>|<players>` with the score `wave + (1,000,000 - seconds) / 10^7`, so of two runs to the same wave the quicker ranks first; older members (`<unix ms>|<players>`, whole scores) still read, with no time. The Battle Arenas time a run from the end of their minute's countdown; the public arena (`ArenaWorld`, which didn't record runs before) from the start of the game, and adds its run in `Over` with everyone who was in it at the start or at any wave. `/leaderboard` shows the time; the account server's `POST /arena/leaderboard` (`count`, at most 50) answers `<ArenaRuns><Run wave seconds time arena><Player>…`. The trophy's class is `ArenaLeaderboard`: the Rust client's interact panel opens a window with the best run in a card and the next nine in rows, and while the player is within 11 tiles a sign floats over it with the best run (`signs.rs`, fetched with `count=1` every minute while near; the window's fetch refreshes it too). Signs are cards drawn over a world object in the world's scale, never in the chat; another object can have one by adding its contents to `Signs`. An older client doesn't know the object.
 - **Nine star colours** (Rust client `stars.rs`; `Player.STAFF_STARS`): the rank star's colour is one of nine steps, one per ninth of the most stars there are (5 per class), from light blue to white; it was one of five, a step per multiple of the number of classes, so most of the range was yellow. Staff are given 1000 stars (it was 100, which real ranks now pass with 30 classes) and the client draws 1000 and up green; `/stars` takes 0 to 1000. The rank tooltip's legend lists the same nine ranges (`stars::step_start`), the last ending at the most stars; it had kept the old ranges, a step per multiple of the number of classes, so it ran past the most there are.
@@ -2711,6 +2901,27 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   with no Royal to free them. They now go to `Free` when no Royal Cnidarian is within 15 tiles
   (`BehaviorDb.CnidarianReef.cs`, in the Reef too).
 
+- **Chat emoji brought up to date** (since 2026-11-21): the sheet (`Emotes.png`) held 880 emoji in
+  2014's Apple-style art. `tools/update_emotes.py` redrew every plain emoji cell in Google's Noto
+  Emoji art (Apache 2.0; flags from its region-flags, public domain) and appended the 1,032 emoji
+  since, with gemoji's names plus `:salute:` for `:saluting_face:`; the sheet is 256 x 1920 now
+  and `client/src/kabam/rotmg/emotes/Emotes.as` and the Rust manifest (`gen_rs_manifest.py`) list
+  1,941 emotes. Every old cell keeps its number, so every old code and shortcut is unchanged.
+  To add emoji after a future Unicode release, run `python tools\update_emotes.py --cache <folder>`
+  (it fetches gemoji's list and the PNGs; codes already in `Emotes.as` keep their cell), then
+  `python tools\gen_rs_manifest.py`.
+- **The Empowered Marble Colossus's hall grows** (2026-11-22; `resurrection/ColossusArena.cs`, called
+  from `EmpoweredGround.Widen`): raised in the Elder Lost Halls, he breaks his room open over about
+  3.5 s, built like the Crucible's floors. From the room's controller (`Elder LH Monster Spawner`) it
+  finds the room, its ring of walls and its way in (Hall Tile floor inside the new rim), lays floor
+  on the void inside an oval (24 tiles each side, 19 north, 21 south) wherever nothing but its own
+  is in the eight squares round it (the layout is shuffled each run) and two squares off the map's
+  edge, breaks only the walls with floor all round, raises walls on the void round the new floor,
+  relights the whole hall with the map's six Lit tiles and moves the braziers to the new rim. Only
+  existing effects, so old clients draw it. Each step calls `Player.UpdateTiles()` (tiles otherwise
+  reach a player only when they step onto another square); the Forgotten King's floor does too
+  now. Placed objects need their `ObjDesc` and a new `ObjId`. World server only.
+
 ## Classes, minigames and the economy
 
 Where the newer classes, their items and pets, the minigames, the second behaviour engine and the
@@ -2727,10 +2938,11 @@ XML in step.
 - **Classes:** Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademaster, King, Palemaster,
   Father, Adept, Monk, Pirate and Snowman. The last two have the ids "Pirate (Doomed)" and
   "Snowman (Doomed)" (the plain names are monsters) and show as Pirate and Snowman. Their abilities
-  are in `Player.UseItem.Doomed.cs` (PearlAbility, BuildTower, Summon, Forcefield, SamuraiAbility,
+  are in `Player.UseItem.Doomed.cs` (PearlAbility, Summon, Forcefield, SamuraiAbility,
   TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`; the
-  Father's censers' Ward is `Player.Ward.cs`), and
-  their turrets, summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
+  Father's censers' Ward is `Player.Ward.cs`; the Mechanic's BuildTower is `Player.Turrets.cs`
+  and its turrets `Turret.cs`), and
+  their summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
   slot types 126 and 128 are 26 and 28 elsewhere, which betterSkillys uses for pet eggs and lutes;
   the clients name them in `ItemConstants`.
 - **Pets:** `BehaviorDb.DoomedPets.cs` gives every pet a follow and its attacks (PetHeal, PetStrike,

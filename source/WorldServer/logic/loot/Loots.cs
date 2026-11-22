@@ -279,6 +279,7 @@ namespace WorldServer.logic.loot
             var events = enemy.GameServer.Configuration.serverSettings.events;
             var potionChance = ServerEvents.PotionChance(events, DateTime.UtcNow);
             var potionAmount = ServerEvents.PotionAmount(events, DateTime.UtcNow);
+            var crucibleWhite = ServerEvents.CrucibleWhiteChance(events, DateTime.UtcNow);
 
             var privDrops = new Dictionary<Player, IList<Item>>();
             var shares = new Dictionary<Player, double>();
@@ -334,9 +335,12 @@ namespace WorldServer.logic.loot
                         }
 
                         // a stat potion during an event (ServerEvents): its own chance and its amount
-                        // multiplied, the boosts on top as for any drop
+                        // multiplied, the boosts on top as for any drop; a Crucible white bag's chance too
                         var potion = ServerEvents.IsStatPotion(item.ObjectId);
-                        var probability = Chance(potion ? i.Probabilty * potionChance : i.Probabilty, totalBoost, rate * PetRate(enemy, i, worldRate));
+                        var own = potion ? i.Probabilty * potionChance
+                            : Shared.crucible.CrucibleRules.IsWhiteBag(item.ObjectId) ? i.Probabilty * crucibleWhite
+                            : i.Probabilty;
+                        var probability = Chance(own, totalBoost, rate * PetRate(enemy, i, worldRate));
 
                         if (c >= probability && !(lucky.TryGetValue(i, out var luckyOne) && luckyOne == player))
                             continue;

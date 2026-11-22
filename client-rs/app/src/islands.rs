@@ -57,6 +57,9 @@ pub const SUNSET: Style = Style { rock: "NI Sky Rock", soil: "NI Island Rim", ha
 /// The Black Between's platform over the void (tools/build_black_between.py): dark violet stone
 /// veined with starlight under a band of dressed stone and gold, fading into the void's black.
 pub const VOID: Style = Style { rock: "BB Underside Rock", soil: "BB Underside Rim", haze: 0x07051A };
+/// The Crucible's floors in their sky (tools/build_crucible.py): dark stone flecked with embers
+/// under a band of dressed stone and gold, fading into the dusk.
+pub const CRUCIBLE: Style = Style { rock: "Crucible Underside Rock", soil: "Crucible Underside Rim", haze: 0x1A1220 };
 
 /// A side of a column of rock, from a to b (going round its square clockwise), from `top` down to
 /// `bottom`: `deep` how deep its foot is (0 to 1 of `MAX_DEPTH`, for the haze), `tone` its stone's

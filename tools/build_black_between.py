@@ -31,7 +31,8 @@ Outputs (generated, don't edit):
   BlackBetweenChars8x8.png and BlackBetweenChars32x32.png in the client's custom/images
   (registered for the Rust client by tools/gen_rs_manifest.py).
 The art is drawn by tools/black_between/bosses.py (the three bosses and their forms, 32x32) and
-small.py (everything else). Type codes are kept stable in tools/black_between/types.json.
+small.py (everything else). Each boss drops a little copy of itself as a pet (PETS,
+tools/boss_pets.py). Type codes are kept stable in tools/black_between/types.json.
 Needs Pillow.
 """
 import base64
@@ -47,6 +48,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from black_between import bosses, small  # noqa: E402
+import boss_pets  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_DIR = os.path.join(ROOT, "source", "Shared", "resources", "xml")
@@ -300,6 +302,53 @@ HELPERS = {
     "Observatory Heart": [],
     # the points of Vesper's Gravity Well, round the platform's edge, firing in at its middle
     "Gravity Point": [foe(0, "Umbral Orb", 150, 45, 3400, 110, effects=[("Slowed", 1)])],
+}
+
+
+# the bosses' pets (tools/boss_pets.py), each a little copy that fights as its boss does (its
+# behaviour beside the boss's in BehaviorDb.BlackBetween.cs; change the numbers in both): name ->
+# (boss, [boss forms it takes on], spec). Each boss drops its own, 1 in 100.
+ORB_SLOW = ("Slowed", 1.5)
+PETS = {
+    # her weaving dusk volleys, her bowing ring of umbral orbs turning as it goes (slowing), and
+    # her dusk mines bursting on the enemy and everything round it:
+    # 3 x 430 / 0.9 s + 600 / 2.4 s + 1,600 / 3 s
+    "Lil' Vesper": ("Vesper, the Dusk Star", [], dict(
+        size=50, dps=2217,
+        effects=["Her rings slow for 1.5s", "Dusk mines burst on all enemies within 2.5 tiles of its target"],
+        description="The Dusk Star in miniature, and no gentler for it. She keeps the dark at your back now.",
+        shots=[
+            shot(0, "Dusk Bolt", 430, 110, 950, 90, multi=True, amplitude=WAVE[0], frequency=WAVE[1]),
+            shot(1, "Umbral Orb", 600, 60, 1700, 100, effects=[ORB_SLOW], multi=True, amplitude=ARC[0], frequency=ARC[1]),
+        ])),
+    # his armour-breaking crescents, the Sunburst, his sword thrown, divine lightning on the enemy
+    # and everything round it, and every 9.5 s the Sunwheel (four arms of crescents turning, 3.5 s):
+    # 3 x 450 / 1.2 s + 400 / 2.4 s + 1,400 / 4 s + 1,900 / 2.5 s + 4 x 23/360 x 360 / 0.18 s x 3.5/9.5
+    "Lil' Aurel": ("Aurel, the Dawn Blade", [], dict(
+        size=50, dps=2590,
+        effects=["Crescents break armor for 2s", "Divine lightning strikes all enemies within 2 tiles of its target",
+                 "The Sunwheel: a spiral of crescents every 9.5s"],
+        description="The Dawn Blade, sword and all, sworn to your side. He still says he'll finish this.",
+        shots=[
+            shot(0, "Dawn Crescent", 450, 100, 1000, 110, effects=[("Armor Broken", 2)], multi=True),
+            shot(1, "Sunspark", 400, 90, 1100, 90),
+            shot(2, "Dawn Crescent", 360, 80, 1200, 100, multi=True),
+            shot(3, "Dawn Sword", 1400, 160, 700, 140, multi=True),
+        ])),
+    # both eyes at once: his daughter's weaving volleys and his son's crescents, his slow ring of
+    # eclipse orbs turning, his black hole and divine lightning, each on the enemy and round it:
+    # 3 x 330 / 1 s + 3 x 380 / 1.3 s + 8 x 23/360 x 500 / 2.6 s + 2,800 / 5 s + 1,050 / 2.2 s
+    "Lil' Mysterious One": ("The Mysterious One", [], dict(
+        size=55, dps=3002,
+        effects=["Crescents and eclipse orbs break armor for 2s",
+                 "His black hole tears at all enemies within 3.5 tiles of its target",
+                 "Divine lightning strikes all enemies within 2 tiles of its target"],
+        description="Only the shadow of a shadow he cast into this realm. It is more than enough.",
+        shots=[
+            shot(0, "Dusk Bolt", 330, 110, 950, 90, multi=True, amplitude=WAVE[0], frequency=WAVE[1]),
+            shot(1, "Dawn Crescent", 380, 100, 1000, 110, effects=[("Armor Broken", 2)], multi=True),
+            shot(2, "Eclipse Orb", 500, 50, 2200, 130, effects=[("Armor Broken", 2)], multi=True),
+        ])),
 }
 
 
@@ -622,6 +671,12 @@ def objects(types, s8, s16, s32, c8, c32):
     sub(e, "ShadowSize", 0)
     out.append(e)
 
+    # the bosses' pets and their generators (tools/boss_pets.py)
+    for name, (boss, forms, spec) in PETS.items():
+        icon = s16.add(small.pet_icon(sprites[boss][0]))
+        out += boss_pets.pet_objects(lambda n: types.get(n, OBJECT_TYPES), name, spec, CHARS32[0], row(boss),
+                                     [row(f) for f in forms], SHEET16[0], icon)
+
     # invisible helpers
     for name, shots in HELPERS.items():
         e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
@@ -782,7 +837,7 @@ def main():
               "Generated by tools/build_black_between.py: the Black Between's floor. Do not edit.")
     write_xml(OUT_XML["objects"], "Objects", o,
               "Generated by tools/build_black_between.py: the Black Between's bosses, minions, walls, "
-              "rift, helpers and shots. Do not edit.")
+              "rift, helpers, shots and pets. Do not edit.")
     save_map(m)
     types.save()
     known = {e.get("id") for e in g + o} | {None}

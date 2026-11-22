@@ -68,6 +68,14 @@ namespace WorldServer.core.net.handlers
                 return;
             }
 
+            // the Crucible: round 50 of the Arena, or a Gilded Realm Pass (CrucibleAccess)
+            if (portal.PortalDescr?.DungeonName == Shared.crucible.CrucibleRules.WorldName
+                && !worlds.impl.crucible.CrucibleAccess.MayEnter(client, out var lockedWhy))
+            {
+                player.SendError(lockedWhy);
+                return;
+            }
+
             WorldServer.core.worlds.impl.doomed.DoomedWorlds.RefreshPortal(portal);
             world = portal.WorldInstance;
             if (world == null)

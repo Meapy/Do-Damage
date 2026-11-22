@@ -39,7 +39,9 @@ cost {{v:slot_cost}} or {{v:slot_gold}} gold on the character screen; more vault
 {{v:vault_chest_price}} fame or {{v:vault_gold}} gold in the vault (see
 [Items](items.html#your-vault)). The fame price doubles every {{v:unlock_doubles}} slots (or
 chests) you buy with fame; the gold price never changes, and buying with gold doesn't raise the
-fame price.
+fame price. Gold is bought in the [Gold Store](../gold.html): the gold **+** beside your gold (in
+the game and on the character screen) and the **Gold Store** button on the main menu and the
+Escape menu open it in your browser.
 
 ## Choosing a class
 
@@ -176,7 +178,7 @@ summary instead.
 The world fills the window, with one bar down the right:
 
 - **At the top:** the minimap, your experience, HP and MP. Your rank star, gold and fame sit
-  beside the minimap. On it, your quest is a red box, realm events orange, and players yellow
+  beside the minimap (the gold **+** opens the Gold Store). On it, your quest is a red box, realm events orange, and players yellow
   over everything; a realm you go back to keeps the map you'd uncovered. In the Nexus it also shows
   its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
   ringed gold for those you talk to and violet for portals, even before you've been there, at the
@@ -213,9 +215,10 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
-  A skin costs **200 gold**, bought at the Armoire (it shows every skin of your character's
-  class, its price, and puts a skin on as you buy it) or on a class's page when you make a new
-  character; some need the class at a level first. Once bought it's yours on the account, and the
+  A skin costs **200 gold** (a few big 16 by 16 ones, such as the Mechanic's Titan Artificer,
+  800), bought at the Armoire (it shows every skin of your character's class, its price, and
+  puts a skin on as you buy it) or on a class's page when you make a new character; some need
+  the class at a level first. Once bought it's yours on the account, and the
   Armoire puts it on any character of that class. The [Realm Pass](realm-pass.html)'s skins come
   only from its Gilded track.
   Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,
@@ -259,7 +262,7 @@ the stone water basins at its corners do. From there:
   samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
   and the **Warcaller** (the [community goals](community-goals.html)); east of them, the pet pen,
   where pets of every kind come and go, and the **Pen Keeper** at its gate, who
-  [raises and swaps pets](pets.html#the-pen-keeper-raising-a-pet). Beside it rises a round
+  [feeds and swaps pets](pets.html#levels-and-the-pen-keeper). Beside it rises a round
   stone tower: go in at its door and climb the spiral stair inside to its top, where the
   [Hall of Champions](champions.html) stands round the cap room, with a telescope to look out
   over the sky, and on an overhang to the east the **Sky Bar**: every 20 seconds Barman Kenji

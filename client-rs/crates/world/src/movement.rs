@@ -229,6 +229,12 @@ impl World {
         if (!x_cross && !y_cross) || self.is_valid_position(x0, y0, x, y, data) {
             return (x, y);
         }
+        // The ground changed round us (a floor reshaping into the sky): where we stand is no
+        // longer anywhere we could have walked to, and every step from it would be refused. Within
+        // our own square we go where we like until we're somewhere we could be again.
+        if (x as i32, y as i32) == (x0 as i32, y0 as i32) && !self.is_valid_position(x0, y0, x0, y0, data) {
+            return (x, y);
+        }
         let mut next_x = f64::NAN;
         let mut next_y = f64::NAN;
         // Stopped short of a square's border going east or south, but never pushed back from

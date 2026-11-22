@@ -41,11 +41,7 @@ namespace WorldServer.core.objects
                 ActivateHealHp(this, eff.Amount);
         }
 
-        // Mechanic turrets: stay where they are built and shoot nearby enemies for the duration.
-        private void AEBuildTower(TickTime time, Item item, Position target, ActivateEffect eff)
-        {
-            SpawnAlly(eff.ObjectId, new Position(X, Y), eff.DurationMS > 0 ? eff.DurationMS : 10000);
-        }
+        // (Mechanic turrets: Player.Turrets.cs, Turret.cs)
 
         // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration. At
         // most MaxSummons at a time: a new one past that sends the oldest away.

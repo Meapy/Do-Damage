@@ -32,6 +32,7 @@ namespace WorldServer.core.worlds.impl.doomed
                 case "Zombies Minigame": return new DoomedZombieGame(gameServer, id, resource, parent);
                 case "Sheep Herding Minigame": return new DoomedHerding(gameServer, id, resource, parent);
                 case "Shop": return new DoomedShop(gameServer, id, resource, parent);
+                case Shared.crucible.CrucibleRules.WorldName: return new crucible.CrucibleWorld(gameServer, id, resource, parent);
                 default: return null;
             }
         }
@@ -58,7 +59,46 @@ namespace WorldServer.core.worlds.impl.doomed
                 var (px, py, pz) = nexus.Marker(marker) ?? (x, y, 0f);
                 if (nexus.IsPassable(px, py, true))
                     nexus.CreateNewEntity(portal, px, py, nexus.Levels == null ? (float?)null : pz);
+                if (portal == ArenaPortal)
+                    AddCruciblePortal(nexus, px, py, pz);
             }
+        }
+
+        // the Crucible's portal (Shared.crucible.CrucibleRules), sunk into the floor four tiles
+        // across as the Arena's pit is: on the map's Crucible_Portal tile (the islands' shrine,
+        // across Realm 2's vortex from the Arena's pit), else across the vortex from the Arena's, else
+        // the nearest open floor a pit's width clear of it
+        private static void AddCruciblePortal(World nexus, float ax, float ay, float az)
+        {
+            var z = nexus.Levels == null ? (float?)null : az;
+            if (nexus.Marker(TileRegion.Crucible_Portal) is { } at)
+            {
+                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, at.X, at.Y, nexus.Levels == null ? (float?)null : at.Z);
+                return;
+            }
+            var spots = new List<(int, int)>();
+            if (nexus.Marker(TileRegion.Realm2_Portal) is { } v)
+                spots.Add(((int)(2 * v.X - ax), (int)(2 * v.Y - ay)));
+            foreach (var (dx, dy) in new[] { (5, 0), (-5, 0), (0, 5), (0, -5), (5, 2), (-5, 2), (5, -2), (-5, -2), (6, 0), (-6, 0), (0, 6), (0, -6) })
+                spots.Add(((int)ax + dx, (int)ay + dy));
+            foreach (var (x, y) in spots)
+            {
+                if (!PitClear(nexus, x, y))
+                    continue;
+                nexus.CreateNewEntity(Shared.crucible.CrucibleRules.PortalName, x + 0.5f, y + 0.5f, z);
+                return;
+            }
+        }
+
+        // five by five squares of open floor round (x, y), with nothing standing on them
+        private static bool PitClear(World nexus, int x, int y)
+        {
+            for (var oy = -2; oy <= 2; oy++)
+                for (var ox = -2; ox <= 2; ox++)
+                    if (!nexus.Map.Contains(x + ox, y + oy) || !nexus.IsPassable(x + ox + 0.5, y + oy + 0.5, true)
+                        || nexus.Map[x + ox, y + oy].ObjType != 0)
+                        return false;
+            return true;
         }
 
         // A portal keeps the world it opened; once that minigame has started or closed, it opens a new one.
@@ -711,6 +751,10 @@ namespace WorldServer.core.worlds.impl.doomed
             }
             foreach (var p in Players.Values)
                 SendWaveInfo(p);
+            // the furthest round each has reached, for the Crucible's door (not in an admin's test)
+            if (!_tested)
+                foreach (var p in Players.Values)
+                    crucible.CrucibleAccess.Reached(p, Wave);
             var message = RoundMessage(ArenaRoundMessage.Begins, _fightFrom, Wave);
             foreach (var p in Players.Values.Where(p => _voteSubscribers.Contains(p.Id)))
                 p.Client?.SendPacket(message);

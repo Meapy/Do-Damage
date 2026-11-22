@@ -57,6 +57,17 @@ The **newer classes** (Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademas
 Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own: turrets, summons, halos, pearls and more. A Summoner can keep up to six summons out at a time; they're drawn small (the Dragon and Oryx about a player's size) so they don't hide what you're fighting. Where a class's own kind of item has no tiers,
 `/gear` leaves that slot alone.
 
+**The Mechanic's turrets.** A Mechanic's turret blueprint throws a crate to where you aim, up to
+8 tiles away, and it unfolds into a turret that turns to the nearest enemy in reach (about 9
+tiles), leads it as it moves and keeps to it. Up to **three** stand at once: a fourth makes the
+oldest blow up. While you're within 7 tiles of a turret it's **overclocked**, linked to you by a
+cable of light, and fires half again as often; the higher tiers fire pairs, and some pierce
+through enemies. When its time runs out (12 seconds at T0 up to 20 at T8) it **blows up**,
+hitting every enemy round it (150 damage at T0 up to 550 at T8), a ring warning of it for its
+last 3 seconds. A blueprint can be used once a second; the War Turret fires little shots very
+fast. The Armoire sells the Mechanic four skins at 200 gold (the Steamwright, the Scrapper, the
+Arcwright and the Clockwork Mechanic) and the 16 by 16 Titan Artificer at 800.
+
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks
 them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%

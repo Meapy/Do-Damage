@@ -8,6 +8,7 @@ server (a VPS with Ubuntu 24.04) over ssh. Nothing is built on the server.
     python deploy/deploy.py --no-publish             # deploy without publishing the desktop client
     python deploy/deploy.py --dry-run --no-publish   # build and pack only: nothing reaches the server
     python deploy/deploy.py --client-only            # publish the client, upload it and the website only
+    python deploy/deploy.py --testing-only           # only the Testing world server, from this checkout
 
 Deploys normally come from GitHub Actions (.github/workflows/deploy.yml), on each merge to main,
 from a fresh checkout with no dist/. --fetch-from-server lists what the server has published
@@ -18,6 +19,13 @@ then deploys from Linux with what it published). --client-only publishes the cli
 only the releases and the website (deploy/remote/install-client.sh), leaving the servers as they
 are. Upload and install hold a lock on the server (/opt/bsk/deploy.lock), so deploys from a PC and
 from the workflow never overlap.
+
+--testing-only builds only the world server and installs it as Testing, the website machine's
+admin-only world server (install-site.sh --testing-only, a rolling deploy), leaving everything
+else as it is: what .github/workflows/testing.yml does for each pull request. The next full
+deploy (a merge to main) puts main's world server back on Testing. Testing plays on the live
+Redis, so a pull request's code reaches live data there (SETUP-LOCAL.md, "Pull requests on
+Testing").
 
 Client releases (183 MB by 2.3.2) move only as what's new. Each run lists the server's release
 files: publishing writes only the blobs the server lacks (bsk-publish --known), the bundle carries
@@ -95,6 +103,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -434,11 +443,8 @@ def build(cfg, args):
     ports = cfg["ports"]
     source = os.path.join(ROOT, "source")
 
-    # Debug, as Run Server.bat builds: Optimize is on for WorldServer and Shared in Debug too
-    for project, folder in (("App", "app"), ("WorldServer", "worldserver")):
-        run(["dotnet", "publish", os.path.join(source, project, project + ".csproj"), "-c", "Debug",
-             "-r", "linux-x64", "--self-contained", "false", "-o", os.path.join(STAGE, folder),
-             "-v", "q", "--nologo"])
+    dotnet_publish("App", os.path.join(STAGE, "app"))
+    stage_world(cfg)
 
     def account(d):
         d["dbInfo"]["port"] = ports["redis"]
@@ -455,14 +461,6 @@ def build(cfg, args):
             d["serverSettings"]["paypal"] = paypal
     shutil.copyfile(os.path.join(source, "App", "server.json"), os.path.join(STAGE, "app", "server.json"))
     set_json(os.path.join(STAGE, "app", "server.json"), account)
-
-    def world(d):
-        d["dbInfo"]["port"] = ports["redis"]
-        d["serverInfo"]["port"] = ports["world"]
-        d["serverInfo"]["address"] = cfg["public_address"]
-    shutil.copyfile(os.path.join(source, "WorldServer", "wServer.json"),
-                    os.path.join(STAGE, "worldserver", "wServer.json"))
-    set_json(os.path.join(STAGE, "worldserver", "wServer.json"), world)
 
     run([sys.executable, os.path.join(ROOT, "tools", "build_client_rs.py"), "--web"])
     shutil.copytree(os.path.join(ROOT, "build", "client-rs", "web"), os.path.join(STAGE, "web"))
@@ -561,6 +559,27 @@ def build(cfg, args):
         build_website(cfg, args)
 
 
+def dotnet_publish(project, dest):
+    # Debug, as Run Server.bat builds: Optimize is on for WorldServer and Shared in Debug too
+    run(["dotnet", "publish", os.path.join(ROOT, "source", project, project + ".csproj"), "-c", "Debug",
+         "-r", "linux-x64", "--self-contained", "false", "-o", dest, "-v", "q", "--nologo"])
+
+
+def stage_world(cfg):
+    """source/WorldServer for linux-x64 in build/vps/bundle/worldserver, wServer.json set to the
+    ports and the game's address."""
+    ports = cfg["ports"]
+    dest = os.path.join(STAGE, "worldserver")
+    dotnet_publish("WorldServer", dest)
+
+    def world(d):
+        d["dbInfo"]["port"] = ports["redis"]
+        d["serverInfo"]["port"] = ports["world"]
+        d["serverInfo"]["address"] = cfg["public_address"]
+    shutil.copyfile(os.path.join(ROOT, "source", "WorldServer", "wServer.json"), os.path.join(dest, "wServer.json"))
+    set_json(os.path.join(dest, "wServer.json"), world)
+
+
 def ssh_host(machine):
     """The host part of a machine's ssh (root@169.58.244.146 -> 169.58.244.146)."""
     return machine["ssh"].rpartition("@")[2]
@@ -619,47 +638,69 @@ def build_website(cfg, args):
                        for alias in web.get("site_redirects", [])))
 
     if web.get("testing"):
-        # Testing: the game's world server, admin-only, on the game's Redis through the tunnel
-        # (local port redis + 1, so it never meets a Redis of this machine's own)
-        ports = cfg["ports"]
-        shutil.copytree(os.path.join(STAGE, "worldserver"), os.path.join(SITE_STAGE, "worldserver"))
-
-        def testing(d):
-            d["serverInfo"]["name"] = "Testing"
-            d["serverInfo"]["adminOnly"] = True
-            d["serverInfo"]["address"] = web["testing"]
-            d["serverSettings"]["realmsKey"] = "realms:Testing"
-            d["serverSettings"]["sendPlayersTo"] = "%s:%d" % (cfg["public_address"], ports["world"])
-        set_json(os.path.join(SITE_STAGE, "worldserver", "wServer.json"), testing)
-        for name in ("world_proxy.py", "rolling_restart.py"):
-            copy_lf(os.path.join(ROOT, "tools", name), os.path.join(SITE_STAGE, "tools", name))
-        # Testing's Redis is the tunnel, not a bsk-redis of this machine's
-        with open(os.path.join(HERE, "systemd", "bsk-world.service"), encoding="utf-8") as f:
-            unit = f.read().replace("\r\n", "\n")
-        unit = unit.replace("Wants=bsk-redis.service", "Wants=bsk-redis-tunnel.service")
-        unit = unit.replace("After=network.target bsk-redis.service bsk-account.service",
-                            "After=network.target bsk-redis-tunnel.service")
-        write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-world.service"), unit)
-        write_lf(os.path.join(SITE_STAGE, "bsk.env"),
-                 "# Written by deploy/deploy.py from %s: Testing, on this machine.\n"
-                 "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_TRUSTED_GATEWAYS=%s\n"
-                 % (os.path.basename(args.config), web["testing"], ports["redis"] + 1, ports["world"], web["game_address"]))
-        write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-redis-tunnel.service"),
-                 "# Written by deploy/deploy.py: Testing reaches the game's Redis through this SSH tunnel\n"
-                 "# (127.0.0.1:%(local)d here). On the game machine the bsk-tunnel user's key may only\n"
-                 "# forward to its 127.0.0.1:%(redis)d (SETUP-LOCAL.md, \"Two machines\").\n"
-                 "[Unit]\nDescription=betterSkillys Redis tunnel to the game machine\n"
-                 "After=network-online.target\nWants=network-online.target\nBefore=bsk-world.service\n"
-                 "ConditionPathExists=%(r)s/.ssh/redis_tunnel\n\n"
-                 "[Service]\nUser=bsk\n"
-                 "ExecStart=/usr/bin/ssh -N -i %(r)s/.ssh/redis_tunnel -o UserKnownHostsFile=%(r)s/.ssh/known_hosts"
-                 " -o StrictHostKeyChecking=yes -o BatchMode=yes -o ExitOnForwardFailure=yes"
-                 " -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
-                 " -L 127.0.0.1:%(local)d:127.0.0.1:%(redis)d bsk-tunnel@%(game)s\n"
-                 "Restart=always\nRestartSec=3\n\n[Install]\nWantedBy=multi-user.target\n"
-                 % {"local": ports["redis"] + 1, "redis": ports["redis"], "r": REMOTE, "game": web["game_address"]})
+        stage_testing(cfg, args)
     for name in units:
         copy_lf(os.path.join(HERE, "systemd", name), os.path.join(SITE_STAGE, "deploy", "systemd", name))
+
+
+def stage_testing(cfg, args):
+    """Testing in the website machine's bundle: the game's world server (build/vps/bundle/worldserver),
+    admin-only, on the game's Redis through the tunnel (local port redis + 1, so it never meets a
+    Redis of that machine's own), with its units, tools and bsk.env."""
+    web = cfg["website"]
+    ports = cfg["ports"]
+    shutil.copytree(os.path.join(STAGE, "worldserver"), os.path.join(SITE_STAGE, "worldserver"))
+
+    def testing(d):
+        d["serverInfo"]["name"] = "Testing"
+        d["serverInfo"]["adminOnly"] = True
+        d["serverInfo"]["address"] = web["testing"]
+        d["serverSettings"]["realmsKey"] = "realms:Testing"
+        d["serverSettings"]["sendPlayersTo"] = "%s:%d" % (cfg["public_address"], ports["world"])
+    set_json(os.path.join(SITE_STAGE, "worldserver", "wServer.json"), testing)
+    for name in ("world_proxy.py", "rolling_restart.py"):
+        copy_lf(os.path.join(ROOT, "tools", name), os.path.join(SITE_STAGE, "tools", name))
+    # Testing's Redis is the tunnel, not a bsk-redis of this machine's
+    with open(os.path.join(HERE, "systemd", "bsk-world.service"), encoding="utf-8") as f:
+        unit = f.read().replace("\r\n", "\n")
+    unit = unit.replace("Wants=bsk-redis.service", "Wants=bsk-redis-tunnel.service")
+    unit = unit.replace("After=network.target bsk-redis.service bsk-account.service",
+                        "After=network.target bsk-redis-tunnel.service")
+    write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-world.service"), unit)
+    write_lf(os.path.join(SITE_STAGE, "bsk.env"),
+             "# Written by deploy/deploy.py from %s: Testing, on this machine.\n"
+             "BSK_PUBLIC_ADDRESS=%s\nBSK_REDIS_PORT=%d\nBSK_WORLD_PORT=%d\nBSK_TRUSTED_GATEWAYS=%s\n"
+             % (os.path.basename(args.config), web["testing"], ports["redis"] + 1, ports["world"], web["game_address"]))
+    write_lf(os.path.join(SITE_STAGE, "deploy", "systemd", "bsk-redis-tunnel.service"),
+             "# Written by deploy/deploy.py: Testing reaches the game's Redis through this SSH tunnel\n"
+             "# (127.0.0.1:%(local)d here). On the game machine the bsk-tunnel user's key may only\n"
+             "# forward to its 127.0.0.1:%(redis)d (SETUP-LOCAL.md, \"Two machines\").\n"
+             "[Unit]\nDescription=betterSkillys Redis tunnel to the game machine\n"
+             "After=network-online.target\nWants=network-online.target\nBefore=bsk-world.service\n"
+             "ConditionPathExists=%(r)s/.ssh/redis_tunnel\n\n"
+             "[Service]\nUser=bsk\n"
+             "ExecStart=/usr/bin/ssh -N -i %(r)s/.ssh/redis_tunnel -o UserKnownHostsFile=%(r)s/.ssh/known_hosts"
+             " -o StrictHostKeyChecking=yes -o BatchMode=yes -o ExitOnForwardFailure=yes"
+             " -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
+             " -L 127.0.0.1:%(local)d:127.0.0.1:%(redis)d bsk-tunnel@%(game)s\n"
+             "Restart=always\nRestartSec=3\n\n[Install]\nWantedBy=multi-user.target\n"
+             % {"local": ports["redis"] + 1, "redis": ports["redis"], "r": REMOTE, "game": web["game_address"]})
+    # what Testing runs, for --status: a pull request's build (BSK_TESTING_LABEL, from
+    # .github/workflows/testing.yml) or the commit
+    _, commit = git("rev-parse", "--short=10", "HEAD")
+    label = os.environ.get("BSK_TESTING_LABEL") or "commit %s" % commit
+    write_lf(os.path.join(SITE_STAGE, "testing.txt"), "%s, built %s\n" % (label, time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())))
+
+
+def build_testing(cfg, args):
+    """--testing-only: the website machine's bundle with only Testing (install-site.sh --testing-only)."""
+    for stage in (STAGE, SITE_STAGE):
+        if os.path.exists(stage):
+            shutil.rmtree(stage)
+    os.makedirs(SITE_STAGE)
+    stage_world(cfg)
+    stage_testing(cfg, args)
+    copy_lf(os.path.join(HERE, "remote", "install-site.sh"), os.path.join(SITE_STAGE, "deploy", "install-site.sh"))
 
 
 def discord_link_secret():
@@ -783,6 +824,9 @@ def main():
                     help="publish the desktop client if it changed and upload only it and the website")
     ap.add_argument("--force-client", action="store_true",
                     help="with --client-only: upload the releases and the website even if nothing was published")
+    ap.add_argument("--testing-only", action="store_true",
+                    help="build only the world server and install it as Testing on the website machine"
+                         " (pull requests; SETUP-LOCAL.md, \"Pull requests on Testing\")")
     ap.add_argument("--dry-run", action="store_true", help="build and pack, but don't touch the server")
     ap.add_argument("--retire-game", action="store_true",
                     help="with a website machine: stop and mask its own Redis, account server, gateways and"
@@ -798,7 +842,8 @@ def main():
             print("== the website machine (%s)" % web["ssh"], flush=True)
             remote(web, "systemctl --no-pager --lines=0 status caddy bsk-discord bsk-redis-tunnel bsk-world"
                         " | grep -E '[.]service - |^ *Active'; [ -f %(r)s/worldserver/wServer.json ] &&"
-                        " runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status; true" % {"r": REMOTE})
+                        " runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status;"
+                        " [ -f %(r)s/testing.txt ] && echo \"Testing runs: $(cat %(r)s/testing.txt)\"; true" % {"r": REMOTE})
             print("== the game machine (%s)" % cfg["ssh"], flush=True)
         sys.exit(remote(cfg, "systemctl --no-pager --lines=0 status bsk-redis bsk-account bsk-world 'bsk-gateway@*' caddy bsk-discord"
                              " | grep -E '[.]service - |^ *Active'; runuser -u bsk -- python3 %(r)s/tools/rolling_restart.py status;"
@@ -806,6 +851,18 @@ def main():
                              " p=$BSK_GATEWAY_PORT; for s in a b c; do"
                              " h=$(curl -s --max-time 2 http://127.0.0.1:$p/healthz) && echo \"gateway slot $s (port $p): $h\"; p=$((p + 1)); done"
                         % {"r": REMOTE}))
+    if args.testing_only:
+        web = cfg.get("website") or {}
+        if not web.get("testing"):
+            sys.exit("%s: --testing-only needs website.testing (the website machine runs Testing)" % args.config)
+        build_testing(cfg, args)
+        pack(SITE_STAGE, SITE_BUNDLE)
+        if args.dry_run:
+            print("dry run: nothing sent to the server")
+            return
+        print("== Testing, on the website machine (%s)" % web["ssh"], flush=True)
+        upload_and_install(web, "install-site.sh --testing-only", SITE_BUNDLE)
+        return
     if args.fetch_from_server:
         fetch_from_server(cfg, downloads=not args.publish_only)
     elif not args.dry_run and not args.skip_build and not args.no_releases:

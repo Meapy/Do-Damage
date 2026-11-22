@@ -18,57 +18,106 @@ Using the generator of the pet you already have does nothing, and keeps the gene
 A pet heals you wherever you are in the same world, however far it has fallen behind. If you go up
 or down a floor (the Sky Bar's stair, a teleport), it comes to you on your floor.
 
-### The Pen Keeper: raising a pet
+### Levels and the Pen Keeper
+
+**Every pet starts at level 1 and grows as you feed it**, up to its size's last level: 10 for a
+Tiny pet, 15 Small, 20 Medium, 25 Large and 30 for the Lil' Oryxes and the boss pets. Along the
+way its damage goes from 60% of its kit's to 120%, its healing to 160% of what it heals at level 1,
+and it grows a quarter bigger. A pet keeps its level in its generator when you take it back, and
+pets from before levels came back about as strong as they were (a raised one at its last level).
+
+**Every pet does 90%** of the damage, healing and bleeding its kit and level make
+(since 2.6.4): the numbers on this page, in the tooltips and in the Pen Keeper's window are what
+pets really do.
 
 The **Pen Keeper** stands at the gate of the **pet pen**, east of the Herald and the Warcaller on the
-Arena island; pets of every kind come and go in the pen behind him. Talk to him to:
+Arena island; pets of every kind come and go in the pen behind him. His window shows your pet's
+level, the food to its next level, and what it does now and at its last level. Talk to him to:
 
+- **Feed your pet**: pick anything in your inventory or backpack and he says how much food it is
+  and what level it takes your pet to, then feed it (a whole stack at once). Pets eat:
+  - **treats**: a Superburger 1,500, an Ambrosia 5,000, a Shard of the Mad God 200;
+  - **untiered gear** by how rare its bag is: brown 150, pink 200, purple 300, cyan 600, blue
+    800, up to 1,500 for the rarer bags, a white bag's 2,000, and Ascended gear 3,000;
+  - **tiered gear**: 20 and 15 a tier (abilities and rings 20 and 30 a tier);
+  - **potions**: a stat potion 60, a Greater one 150, Life and Mana 200;
+  - **other pets' generators**, by size: Tiny 150, Small 400, Medium 1,200, Large 3,000, Oryx
+    8,000, and half the food a fed one holds.
+- **Feeding costs fame**, more the stronger your pet is: 3 for each 100 food it eats at level 1,
+  15% more at each level after, and only for the food it uses. Taking a pet all the way costs
+  about 185 fame for a Tiny one, 690 Small, 1,780 Medium, 3,710 Large and 6,820 Oryx.
+- **Grow your pen** to feed bigger pets. Every account's pen feeds Tiny pets; each bigger size is
+  bought once, for fame or gold: Small 2,000 fame or 200 gold, Medium 5,000 or 400, Large 10,000
+  or 700, and Oryx (the Lil' Oryxes and the boss pets) 20,000 or 1,000. Any pet can still be put
+  in and fights and heals at its level; only feeding needs the pen.
+- **Put in a pet**: pick a pet generator, then "Put this pet in". Your pet goes back into its own
+  generator, with its level.
 - **Take your pet back** into its generator (as `/removepet` does).
-- **Put in a pet**: click any pet generator in your inventory or backpack.
-- **Raise your pet a size**, without changing its look or its shots: it grows to the size it's
-  raised to, and hits and heals as that size does (twice as hard a size, and the size's healing
-  in the table below).
-  - **Small to Medium** for a **Superburger**.
-  - **Medium to Large** for an **Ambrosia** from your inventory.
-- **Give him your Shards of the Mad God.** He keeps them for your whole account, whatever pet you
-  have. Using a stack of shards from your inventory, anywhere, hands it to him too.
-- **Trade 25 of his shards for an Ambrosia**, into your inventory. Ambrosia also comes from the
-  Mystery Box, the death spin and the community goals.
+- **Give him your Shards of the Mad God.** He keeps them for your whole account (using a stack of
+  shards anywhere hands it to him too), feeds them to your pet when you ask, or trades 25 of them
+  for an Ambrosia. Ambrosia also comes from the Mystery Box, the death spin and the community goals.
 
-Tiny pets can't be raised. A raised pet's generator keeps its raise when you take the pet back:
-its name says the size it's raised to, such as "Grey Wolf (Large)", and its tooltip shows the
-raised pet's size, damage and healing in green.
+A fed pet's generator shows its level in the corner, and its tooltip shows its level, damage and
+healing now (in green once it's grown) and at its last level.
 
 ### Sizes
 
-Every pet is **Tiny**, **Small**, **Medium** or **Large** (the Pen Keeper can raise a Small or
-Medium one), and each size hits about twice as hard as the one below it. The size decides how much it heals, how hard it hits and how big it looks next to
-you, and the generator's tooltip says which it is.
+Every pet is **Tiny**, **Small**, **Medium** or **Large**, or as big as an Oryx (the Lil' Oryxes and
+the boss pets). The size decides how hard it hits, how much it heals, its last level and how big it
+looks next to you, and the generator's tooltip says which it is. **Every pet heals its own way**:
+its size gives about how much HP it heals a second at level 1, a pet that hits hard for its size
+heals a little less and a gentle one more, healers (priests, angels, fairies, unicorns...) heal half
+again as much, and each pet heals more or less often than the next. **MP is about half its HP**: a
+pet restores roughly half as much MP a second as it heals HP (the mages, wisps and djinns a little
+more), never more than two thirds of it.
 
-| Size | Heals HP and MP | Damage a second | Looks | Which pets |
-|---|---|---|---|---|
-| Tiny | 15 each, every 2 seconds | about 50 | half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
-| Small | 20 each, every 2 seconds | about 125 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
-| Medium | 30 each, every 2 seconds | about 250 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
-| Large | 45 each, every 1.5 seconds | 500 to 600 | nearly half again as tall as you | the boss pets |
+| Size | HP a second at level 1 | Damage a second at level 1 | Last level | Looks | Which pets |
+|---|---|---|---|---|---|
+| Tiny | about 4 | about 27 | 10 | half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
+| Small | about 5.4 | about 68 | 15 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
+| Medium | about 8 | about 135 | 20 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
+| Large | about 14 | 270 to 325 | 25 | nearly half again as tall as you | the boss pets |
+| Oryx | about 20 | 540 to 1,620 | 30 | as the Large pets | the Lil' Oryxes, the Black Between's and the Crucible's bosses |
 
-The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 600 a second), then
-Lil' Thessal, Horrific Creation and Pancookie (about 550).
+Each pet's card under [Pet generators](#pet-generators) gives its own numbers, at level 1 and at
+its last.
+
+The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 650 a second at
+their last level), then Lil' Thessal, Horrific Creation and Pancookie (about 590).
 
 Every Oryx has a **Lil' Oryx** of his own, drawn as him and shooting his shots. Each Oryx drops
-his generator in a white bag (1%), and the generator is used up when used. They all heal 60 each
-every 1.5 seconds, and grow stronger along the chain:
+his generator in a white bag (1%), and the generator is used up when used. They grow stronger along
+the chain (damage a second at level 30; half that at level 1):
 
 | Lil' Oryx | Dropped by | Damage a second |
 |---|---|---|
-| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,000 |
-| Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,500 |
-| Lil' Celestial Oryx | Oryx the Celestial Mad God | about 2,000 |
-| Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,500 |
-| Lil' Ascended Oryx | Oryx the Ascended God | about 3,000 |
+| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,080 |
+| Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,620 |
+| Lil' Celestial Oryx | Oryx the Celestial Mad God | about 2,160 |
+| Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,700 |
+| Lil' Ascended Oryx | Oryx the Ascended God | about 3,240 |
 
 Until 27 November 2026, every account can claim a free Lil' Oryx from the quest log's Daily
 Rewards tab.
+
+The bosses of the two hardest places do the same: each of [The Black Between](dungeons.html)'s
+three bosses and [The Crucible](crucible.html)'s five champions has a **1% chance** to drop a
+little copy of itself, in a white bag. It fights as its boss does, with the boss's own shots in
+its patterns (weaving volleys, rings that turn, its blast on the enemy and everything round it),
+and the champions' pets take on their champion's last form every 10 seconds to throw out its
+spiral. Each is as strong as a Lil' Oryx (damage a second at level 30 below; half that at level
+1), and the champions' pets help you as well:
+
+| Pet | Dropped by | Damage a second | Also |
+|---|---|---|---|
+| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 1,080 | breaks armor; makes you Armored for 2 s every 10 s |
+| Lil' Nerissa | Nerissa, the Tidecaller | about 1,170 | slows; heals you over 2 s every 8 s |
+| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,260 | makes you Berserk for 2 s every 10 s |
+| Lil' Chronarch | Chronarch, the Hour Thief | about 1,440 | slows; makes you Speedy for 2 s every 8 s |
+| Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,980 | breaks armor; makes you Damaging for 2 s every 10 s |
+| Lil' Vesper | Vesper, the Dusk Star | about 2,430 | slows |
+| Lil' Aurel | Aurel, the Dawn Blade | about 2,790 | breaks armor; the Sunwheel every 9.5 s |
+| Lil' Mysterious One | The Mysterious One | about 3,240 | breaks armor; his black hole |
 
 ### What they do
 
@@ -98,8 +147,8 @@ Rewards tab.
   Reaper, the Doomed Nature Beast, Ember Matriarch, Ember Wyrmling...). A new bleed from your pet
   starts the old one again rather than adding to it.
 
-The generator's tooltip shows the pet's size, its damage a second on one enemy, how much it heals
-and how often, and anything else it does ("Also").
+The generator's tooltip shows the pet's size and level, its damage a second on one enemy, how much
+it heals and how often (now, and up to its last level), and anything else it does ("Also").
 
 Besides generators, some items **summon a helper** beside you instead: a drake from an egg,
 Santa's reindeer, a firecracker. They're listed under [Summoned helpers](#summoned-helpers).

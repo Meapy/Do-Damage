@@ -275,6 +275,9 @@ What's finished and what's still to do, upstream's work and this repository's to
   other maps.
 - **Gummy:** the Lair of Draconis map.
 - **nekoT:** betterAssets in the client.
+- **Google (Noto Emoji):** the chat's emoji pictures, under the Apache License 2.0
+  (<https://github.com/googlefonts/noto-emoji>); the flags are from its region-flags set (public
+  domain); the codes are from GitHub's gemoji list.
 - **Orb, GlassBBQ:** credited on TK-Reborn.
 - **rusjaell, Aaron, TKROfficial, kevin, Comfrog, Dante Tyler:** work on TK-Reborn and
   betterSkillys; the condensed history names them as co-authors of each milestone.

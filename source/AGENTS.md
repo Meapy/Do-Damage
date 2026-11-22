@@ -157,6 +157,10 @@ dotnet test source\Tests
   (before paying), every 30 s while it changes, and on leaving.
 - **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>` and
   `look <aura> [skin id]` (admins, on a test stack only); the Rust client's `--pass <tab>`.
+- **Gilded perks beyond the track:** rallying a community goal (`CommunityGoals.Rally`, Redis set
+  `community:<run>:rallied` and the run hash's `boostUntil`/`boostBy`) and the dungeon guide
+  (`Player.Guide.cs`, `core/guide/GuidePath.cs`, `GuidePathTests`). Try them with `/passadmin
+  gilded`, `/dungeon <name>` and the Rust client's `--npc CommunityGoals`.
 
 ## Commands
 

@@ -6,7 +6,8 @@ Writes `Exalt/Vault Garden.jm` (Worlds.xml's Vault). Built from the Nexus garden
 (tools/build_nexus.py's grid and preview, build_guild_halls.py's fenced yards and planting).
 `VaultWorld` places the chests on the region tiles nearest the spawn first, so only their number
 matters: 120 `Vault` tiles (as many chests as any account can have; 60 until 2026-11-19, when the
-garden grew 12 rows north) and 26 `Gifting Chest` ones.
+garden grew 12 rows north) and 42 `Gifting Chest` ones (26 until 2026-11-22, when the
+gift yards took a third row).
 In the Rust client blossom falls all over the vault (`petals::map_strength`).
 
 From the south up:
@@ -36,10 +37,10 @@ OUTLINE = [(5, 2), (41, 2), (44, 5), (44, 28 + D), (38, 34 + D), (32, 34 + D), (
            (14, 34 + D), (8, 34 + D), (2, 28 + D), (2, 5)]
 SPAWN = (23, 39 + D)
 VAULT_CHESTS = 120
-GIFT_CHESTS = 26
+GIFT_CHESTS = 42
 CHEST_ROWS = tuple(range(6, 28, 3))
 CHEST_XS = list(range(7, 20, 2)) + list(range(27, 40, 2))
-GIFT_ROWS = (24 + D, 27 + D)
+GIFT_ROWS = (23 + D, 25 + D, 27 + D)
 GIFT_XS = list(range(5, 18, 2)) + list(range(29, 42, 2))
 PATH_X = (22, 24)                       # the path up the middle, from the deck to the storehouses
 

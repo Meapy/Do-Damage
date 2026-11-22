@@ -28,6 +28,11 @@ namespace Shared.resources
         /// PermaPet: the pet's size (petSize): Tiny, Small,
         /// Medium, Large or Oryx. Only Tiny pets' generators are sold.
         public readonly string PetSize;
+        /// PermaPet: the pet's healing at level 1 (each pet its own; Shared.pets.PetLevels grows
+        /// it): HP and MP restored, every so many ms (0: none).
+        public readonly int PetHp, PetHpMs, PetMp, PetMpMs;
+        /// PermaPet: the damage a second its kit does on one enemy (at PetLevels' 100%).
+        public readonly int PetDps;
         public readonly bool NoStack;
         public readonly float Radius;
         public readonly float Range;
@@ -84,6 +89,10 @@ namespace Shared.resources
         public readonly float OffsetAngle;
         public readonly float MinDistance;
         public readonly float MaxDistance;
+        // a turret's or summon's shots (the tooltip's numbers; the Mechanic's turrets fire by them,
+        // Turret.cs): how many a volley and the ms between volleys
+        public readonly int AllyShots;
+        public readonly int AllyMs;
 
         public ActivateEffect(XElement e)
         {
@@ -157,6 +166,11 @@ namespace Shared.resources
             MaximumDistance = e.GetAttribute<float>("maxDistance");
             MaxTargets = e.GetAttribute<int>("maxTargets");
             PetSize = e.GetAttribute<string>("petSize");
+            PetDps = e.GetAttribute<int>("petDps");
+            PetHp = e.GetAttribute<int>("petHp");
+            PetHpMs = e.GetAttribute<int>("petHpMs");
+            PetMp = e.GetAttribute<int>("petMp");
+            PetMpMs = e.GetAttribute<int>("petMpMs");
             Stats = e.GetAttribute<int>("stat");
             Cooldown = e.GetAttribute<float>("cooldown");
             RemoveSelf = e.GetAttribute<bool>("removeSelf");
@@ -170,6 +184,8 @@ namespace Shared.resources
             OffsetAngle = e.GetAttribute<float>("offsetAngle", 90);
             MinDistance = e.GetAttribute<float>("minDistance");
             MaxDistance = e.GetAttribute<float>("maxDistance", 4.4f);
+            AllyShots = e.GetAttribute<int>("allyShots");
+            AllyMs = e.GetAttribute<int>("allyMs");
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

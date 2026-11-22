@@ -498,7 +498,9 @@ impl World {
         let inside = x >= 0.0 && y >= 0.0 && x < self.width as f64 && y < self.height as f64;
         let (sx, sy) = (x as i32, y as i32);
         let (tile, obstacle) = self.square_at(sx, sy, p.floor, data);
-        if !inside || tile.unwrap_or(NO_TILE) == NO_TILE {
+        // no ground stops a shot, but in open air (the Crucible's sky) it flies on over the gap
+        let void = tile.unwrap_or(NO_TILE) == NO_TILE && self.background != crate::BACKGROUND_OPEN_AIR;
+        if !inside || void {
             if p.damages_players {
                 hits.push(Hit::Square { time, bullet_id: p.bullet_id, owner_id: p.owner_id });
             }

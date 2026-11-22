@@ -257,7 +257,13 @@ messages! {
         // The community goals (after CommunityRequest and each claim): the server's time and when
         // the week's goals end (Unix seconds), the tiers' names, the Overdrive levels' name, the
         // loot's rarities, and the goals running or ended lately.
-        129 => CommunityData { now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal> },
+        // After the goals (a server before the Gilded rally leaves them out): whether we hold a
+        // Gilded pass and can rally a goal, how long a rally lasts (minutes) and what it
+        // multiplies by, and each goal's rally.
+        129 => CommunityData {
+            now: i32, week_ends_at: i32, tier_names: List8<String>, bonus_name: String, rarities: List8<String>, goals: List8<CommunityGoal>,
+            can_rally: Option<bool>, rally_minutes: Option<u8>, rally_multiplier: Option<u8>, rallies: Option<List8<CommunityRally>>,
+        },
         // A claim's answer (kind 0 paid, 1 refused) or a popup: a tier or Overdrive level the
         // server reached (2), a goal completed (3), the week's new goals (4), someone's rare loot
         // (5).
@@ -275,11 +281,11 @@ messages! {
         // The Collection (after CollectionRequest): every piece of gear there is to collect, the ones
         // the account has had, and where the untiered gear comes from.
         137 => Collection { all: List16<u16>, have: List16<u16>, groups: List16<CollectionGroup> },
-        // The Pen Keeper's answer (after PetPenAct): the pet (0 for none), its size as it hatched
-        // and now (0 Tiny to 3 Large, 255 unknown), the shards he keeps for the account and how many
-        // a raise to Large takes, whether the act worked and what to say about it (empty for a plain
-        // ask).
-        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String },
+        // The Pen Keeper's answer (after PetPenAct): the pet (0 for none), its size (0 Tiny to 3
+        // Large, 255 any other; base_size the same), the shards he keeps for the account and how
+        // many an Ambrosia takes, whether the act worked and what to say about it (empty for a plain
+        // ask); then its level and what it does (from 2.6.4; older servers leave it out).
+        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String, level: Option<PetLevel> },
         // The Nexus's places for the minimap (after NexusPlacesRequest): its NPCs and portals.
         141 => NexusPlaces { places: List16<NexusPlace> },
         // The answer to Corrupt (the Cosmic Anvil): whether it worked, the inventory slot, what went
@@ -328,6 +334,16 @@ messages! {
         // The answer to PassAct: a code (`pass::code`) with a tier or count, the server's English,
         // and what it paid (a claim's rewards, or what the caches rolled).
         174 => PassResult { code: u8, success: bool, count: i32, message: String, rewards: List8<PassReward> },
+        // The Crucible's climb (`CrucibleMessage`): kind (`crucible::kind`: 0 the Threshold's
+        // countdown, 1 an ascent begins, 2 a floor's champion arrives, 3 a phase, 4 a floor cleared,
+        // 5 the rest before the next ascent, 6 the victory, 7 where the climb is, on arriving), the
+        // floor (0 the Threshold), the phase (`crucible::cue_name`), the champion's type, seconds
+        // (a countdown, a floor's or the climb's time) and the server's English.
+        175 => Crucible { kind: u8, floor: u8, cue: u8, champion: u16, seconds: i32, text: String },
+        // The Gilded dungeon guide (after GuideSubscribe 1): the shortest walk to the dungeon's
+        // boss, as the tiles along it (every second one) with the boss's type and place and how
+        // many tiles the walk is. No points: the guide goes away.
+        177 => DungeonGuide { object_type: u16, x: f32, y: f32, length: i32, points: List16<GuidePoint> },
     }
 }
 
@@ -449,6 +465,12 @@ messages! {
         // 255: its top's prize, 254: all it has waiting); no key claims everything waiting on
         // every goal.
         130 => CommunityClaim { key: String, tier: u8 },
+        // Rally a goal by its run's key (a Gilded Realm Pass, once a run): everyone's help with it
+        // counts double for a while. Only sent to a server whose CommunityData said we can.
+        175 => CommunityBoost { key: String },
+        // Whether we can show the Gilded dungeon guide (1), or no longer want it (0): said once in
+        // each world. An older server doesn't know it.
+        176 => GuideSubscribe { on: bool },
         // How high we walk, in tiles, just before each Move in a world of stacked floors (only
         // once Layers came, so never to a server without it).
         133 => Height { z: f32 },

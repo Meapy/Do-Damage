@@ -12,6 +12,45 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.4 (2026-11-22)
+
+### The Crucible
+- **The Crucible** is open: a tower of bosses above the Arena. Climb five floors (up to six of you together) and beat a champion on each: Ferrogrim, Nerissa, Pyrrhax, Chronarch and Vaelith. Get in through the portal in the Nexus's shrine, or type `/crucible`. It opens at round 50 in the Arena or with a Gilded Realm Pass: one climb a day, two with the Pass. It has its own music, sky and leaderboard (`/crucible status`), and your pet and summons climb with you.
+- **The fights:** each champion fights in phases, and the floor changes shape with every phase, turning slowly as you fight. Ground that is about to fall cracks first. If you're caught on it you're put back on the floor with a light hit. Dodge the shots: the aimed ones hit hard and afflict you (bleeding, slowed, armor broken and more), every champion has a heavy signature shot and walls of shots to get out of the way of, and quick minions run at you now and then. Some floors burn or cut where marked, such as Chronarch's clock hands, and in Time Fracture his Hour Echoes blink onto the hours they light, giving you time to get clear.
+- **Climbing:** after each champion falls, a path builds itself up to the next floor. Loot that drops over the sky gets a platform of its own. There's no fame for a climb: the loot is the reward. It's made for groups: each extra player adds only about a sixth to a champion's health.
+- **Loot:** each champion has a 1% white bag: Ferrogrim's Bastion Turret (Mechanic), Nerissa's Tidepearl (Druid), Pyrrhax's Meteor Mortar (Pirate), Chronarch's Coat of Stolen Hours (Blademaster) and Vaelith's Final Aria (Bard). Each also has a 1% chance to drop a little copy of itself as a pet, as strong as a Lil' Oryx, that fights with its champion's shots and helps you its own way.
+- **Twin Ascent**, until the end of 5 December (UTC): climb the Crucible twice as often (two climbs a day, or four with a Gilded Realm Pass), and every champion's white bag drops twice as often.
+- An earthquake anywhere now shakes the screen more gently and briefly.
+
+### The Black Between
+- **Vesper, Aurel and the Mysterious One** each have a 1% chance to drop a little copy of themselves as a pet, among the strongest in the game (about 2,400, 2,800 and 3,200 damage a second at their last level): Lil' Vesper's weaving dusk volleys, turning rings and dusk mines, Lil' Aurel's crescents, thrown sword, divine lightning and Sunwheel, and the Lil' Mysterious One's two eyes at once and his black hole.
+
+### Pets
+- **Pets grow:** every pet starts at level 1 and levels up as the Pen Keeper feeds it, up to level 10 for a Tiny pet and 30 for the Lil' Oryxes and boss pets, hitting up to twice as hard and healing 60% more on the way, and growing a little bigger. Feed it gear (untiered gear by how rare it is, up to 2,000 food for a white bag item and 3,000 for Ascended gear), potions, Superburgers, Ambrosia, Shards of the Mad God and other pets' generators. Feeding costs fame, more as your pet gets stronger. His pen feeds Tiny pets at first: grow it with fame or gold to feed Small, Medium, Large and then Oryx-sized pets. His window is all new: your pet's level and food bar, what it does now and at its last level, and what everything you carry is worth to it. A pet keeps its level in its generator, and pets from before keep about the strength they had (raised ones are at their last level).
+- **Every pet heals its own way** now, by its size, how hard it hits and what it is (healers heal more), and restores about half as much MP as it heals HP: less MP than before.
+- **Pets are a little weaker:** every pet does 90% of the damage, bleeding and healing it did, at every level. The tooltips, the Pen Keeper's window and the wiki show the new numbers.
+
+### Mechanic
+- **The Mechanic is reworked.** A turret blueprint throws a crate where you aim, up to 8 tiles away, and it unfolds into a turret whose head turns to its target and leads it, its shots leaving the barrel. Up to three stand at once (a fourth blows up the oldest). Within 7 tiles of you a turret is overclocked, linked to you by a cable of light, and fires half again as often. When its time runs out it blows up, hurting every enemy round it. Every tier is rebalanced and redrawn with its own shots: the higher tiers fire pairs and some pierce.
+- Ferrogrim's Bastion Turret, the Crucible's white bag for the Mechanic, works the same way now: thrown where you aim, counted with your other turrets, overclocked beside you and blowing up at the end, still firing three iron shards and slamming the ground. It has new art, a black iron keep with a forge in its gate and a turning head of three barrels.
+- The Armoire sells new Mechanic skins: the Steamwright, the Scrapper, the Arcwright and the Clockwork Mechanic for 200 gold, and the big Titan Artificer, in a walking exo-frame, for 800.
+
+### Realm Pass
+- A Gilded pass can **rally** a community goal, once each: press Rally on its card and from then until it ends everyone's help with it counts double, in the total and in each helper's share. The realm is told, the goal burns gold in the window with "rallied by" the rallier's name, and you share its top prize whatever your place once it ends (with your own minimum share).
+- In a dungeon, a Gilded pass shows the way: a trail of small gold arrows runs the shortest walk to the boss, doors included, with a chip at the foot of the view counting the tiles left. It goes once you're within 30 tiles of the boss or its fight has begun. Options, Gameplay switches it off.
+
+### Dungeons
+- Raising the Marble Colossus in the Elder Lost Halls now breaks his hall open: the walls crack apart, the floor builds itself outwards half as wide again with the new walls rising along it, and he hurls the braziers' fire out to the new rim, all in a few seconds of lightning and marble dust. The Forgotten King's floor in the Elder Shatters now appears as it spreads instead of only once you move.
+
+### Chat
+- The chat's emoji are up to date: every emoji is redrawn in a fresh, clearer style and all those added since (the salute, the melting and shaking faces, the pink and light-blue hearts and hundreds more, flags included) are there, over 1,900 in all. Type them as before, `:smile:`, `:heart:`, and now `:saluting_face:` (or `:salute:`); every code that worked still does.
+
+### Vault
+- Your vault has 42 gift chests, up from 26. Gifts that don't fit wait their turn: an emptied gift chest fills straight up with the next ones, and the vault window shows them all, the waiting ones under **Waiting gifts**.
+
+### Game
+- A **Gold Store** button opens the gold store on the website: the little gold **+** beside your gold (in the game and on the character screen), and **Gold Store** on the main menu and the Escape menu.
+
 ## 2.6.3 (2026-11-21)
 
 ### Skins

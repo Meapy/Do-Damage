@@ -47,4 +47,24 @@ namespace WorldServer.core.net.handlers
             CommunityGoals.Claim(player, key, tier);
         }
     }
+
+    // A Gilded Realm Pass holder rallies a goal (its run's key): everyone's contributions to it
+    // count double for a while. The server checks it all (CommunityGoals.Rally).
+    public class CommunityBoostHandler : IMessageHandler
+    {
+        public override MessageId MessageId => MessageId.COMMUNITY_BOOST;
+
+        public override void Handle(Client client, NetworkReader rdr, ref TickTime time)
+        {
+            var key = rdr.ReadUTF16();
+            var player = client.Player;
+            if (player == null || key.Length > 64)
+                return;
+            var now = DateTime.UtcNow;
+            if ((now - player.CommunityClaimed).TotalMilliseconds < 300)
+                return;
+            player.CommunityClaimed = now;
+            CommunityGoals.Rally(player, key);
+        }
+    }
 }

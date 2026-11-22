@@ -65,6 +65,11 @@ says so, and another tells you when a reward of yours is waiting.
 6. **Rewards** go straight to you: fame to your account, items to the gift chest in your vault.
    The window and the chat name what each claim gave you. Ended goals' rewards wait {{v:community_claim_weeks}} more week, then go.
 
+A [Gilded Realm Pass](realm-pass.html) can **rally** a goal, once each: for
+the rest of the goal everyone's help with it counts **x{{v:pass_rally_mult}}**, and the one
+who rallied it shares its top prize whatever their place. The goal's card in the window shows the
+rally burning, with the time left, to everyone.
+
 {{gen:community_tiers}}
 
 ## Finished early: a bonus goal

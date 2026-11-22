@@ -1304,6 +1304,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             ground.void_sky.draw(renderer, &cam, scene.time);
             Some(&crate::islands::VOID)
         }
+        crate::cruciblesky::SKY_CRUCIBLE => {
+            ground.crucible_sky.draw(renderer, &cam, scene.time);
+            Some(&crate::islands::CRUCIBLE)
+        }
         _ => None,
     };
     if let Some(style) = islands {
@@ -1410,6 +1414,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                     if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
                         tops.push((obj, top));
                     }
+                    draw_turret_head(scene, renderer, redrawer, obj, desc);
                 }
                 Item::Model { obj, desc, model } => draw_model(scene, renderer, obj, desc, model),
                 _ => {}
@@ -1469,6 +1474,7 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                     if let Some(top) = draw_sprite(scene, renderer, redrawer, ground, obj, desc) {
                         tops.push((obj, top));
                     }
+                    draw_turret_head(scene, renderer, redrawer, obj, desc);
                 }
             }
         }
@@ -1923,6 +1929,29 @@ fn draw_sprite_faded(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redr
     // Centred on where it stands, not on the canvas: a wide attack frame's canvas is shifted, and
     // the condition icons above would jump to and fro while it shoots.
     Some([px.round(), quad.origin[1]])
+}
+
+/// A Mechanic's turret's head (`<TurretHead>`, an index in its texture's sheet): seen from above,
+/// turned the way it aims (particles/turret.rs), kicked back by a shot, on its base's turntable
+/// `turret::HEAD_Z` tiles up, where its shots leave the barrel.
+fn draw_turret_head(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, obj: &GameObj, desc: &ObjectDesc) {
+    let index = desc.xml.int("TurretHead", -1);
+    let Some(file) = desc.xml.child("Texture").and_then(|t| t.child("File")).map(|f| f.text.trim().to_owned()) else { return };
+    if index < 0 || fade(scene, obj, desc) <= 0.0 {
+        return;
+    }
+    let Some(src) = scene.sprites.tile_src(&file, index as u32) else { return };
+    let size = obj.stat_int(2).unwrap_or(desc.min_size);
+    let Some(sprite) = redrawer.get_padded(scene.sprites, renderer, src, false, size, None, true) else { return };
+    let cam = scene.camera;
+    let (aim, kick) = scene.particles.turret_head(obj.id, scene.time).unwrap_or((0.0, 0.0));
+    let z = crate::particles::turret::HEAD_Z + scene.height(obj);
+    let [px, py] = cam.to_screen(obj.x - aim.cos() * kick, obj.y - aim.sin() * kick, z);
+    let k = (cam.scale / TILE_PX) as f32;
+    let quad = Quad::rotated(px, py, sprite.w as f32 * k, sprite.h as f32 * k, (aim - cam.angle) as f32);
+    let mut tint = scene.particles.flash_tint(obj.id, scene.time).unwrap_or(Tint::NONE);
+    tint.mul[3] *= fade(scene, obj, desc);
+    renderer.sprite(sprite.rect, quad, tint);
 }
 
 /// `Projectile.draw` with projOutline (the AIR client's default): the outlined texture centred

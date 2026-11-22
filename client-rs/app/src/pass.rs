@@ -1091,7 +1091,9 @@ impl Pass {
         ];
         if d.community_luck > 0 || d.community_rolls > 0 {
             perks.push((2, tr("Luckier community goal loot"), tr("A Gilded pass makes each stage's loot luckier, with an extra roll.").to_owned()));
+            perks.push((5, tr("Rally a community goal"), tr("Once a goal, make everyone's help with it count double until it ends, and share its top prize whatever your place.").to_owned()));
         }
+        perks.push((6, tr("The way to the boss"), tr("In a dungeon, a trail of arrows leads you the shortest way to its boss.").to_owned()));
         // the title can be hidden (a server from 2.6.3 says whether it is)
         let hidden = d.gilded && d.show_title == Some(false);
         let title_text = if hidden {
@@ -1128,6 +1130,8 @@ impl Pass {
                 1 => ui_icon(ui, crate::hud::ui_icon::SWORDS, ix, iy, 26.0 * s),
                 2 => theme::star(ui.renderer, ix, iy, 11.0 * s, ic),
                 3 => ui_icon(ui, crate::hud::ui_icon::BANNER, ix, iy, 26.0 * s),
+                5 => ui_icon(ui, crate::hud::ui_icon::QUEST, ix, iy, 26.0 * s),
+                6 => ui_icon(ui, crate::hud::ui_icon::SKULL, ix, iy, 26.0 * s),
                 _ => ui_icon(ui, crate::hud::ui_icon::CROWN, ix, iy, 26.0 * s),
             }
             // the state, top right: on, or what turns it on; the chat title's a switch to hide or

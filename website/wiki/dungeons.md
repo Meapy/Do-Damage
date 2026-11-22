@@ -20,6 +20,11 @@ a realm, and to the Nexus from one opened in the Nexus or in another dungeon.
 
 Some dungeons are laid out anew for every run, from the rooms of their map: small, medium or large.
 
+With a Gilded [Realm Pass](realm-pass.html), a trail of small gold arrows in a dungeon leads you
+the shortest way to its boss, and a chip at the foot of the view counts the tiles left. It follows
+the boss as it moves and goes away once you're within 30 tiles of it or anyone has started
+fighting it. Options, Gameplay switches it off.
+
 > **About these numbers.** The list is built from the server's data each time the site updates.
 > Drop chances are the listed ones; your real chance is higher (about double when you're alone),
 > since every roll grows with your share of the damage. Difficulty is a rough guide from the
@@ -250,7 +255,10 @@ Halls** (stand still for a moment and you turn to marble, armored until you move
 the Blood Pact** (below half your health your shots hit harder and ignore defense) and **The
 Hollow Sourcestone** (every few seconds it breaks the armor of the enemy nearest you). Raised
 again, below, they drop a seal that raises marble pillars round you, a skull that draws a
-pentagram on your target and a bow whose hits open a singularity.
+pentagram on your target and a bow whose hits open a singularity. Raising the Colossus breaks his
+hall open: its ring of walls cracks apart, the marble floor builds itself outwards half as wide
+again (as far as the halls' other rooms leave space), new walls rise along the rim and he hurls
+the braziers' fire out to it, so the Empowered fight has room to move.
 
 ## The Cultist Hideout and the Void
 

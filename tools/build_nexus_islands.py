@@ -32,7 +32,8 @@ heights, joined by bridges; floor 1 is the lowest map (the game's `World.Levels[
   straw dummies).
 - PORTALS (south, floor 1, a floor below the spawn), down a stone bridge on arches: the shrine
   of the realm portals (Realm 2's vortex on `Realm2 Portal`, four caverns on `Realm Portals`, the
-  Arena's sand pit on `Arena Portal`), the torii and the pagoda, and the forest round it on petal
+  Arena's sand pit on `Arena Portal`, the Crucible's portal across the vortex from it on
+  `Crucible Portal`), the torii and the pagoda, and the forest round it on petal
   ground (blossom falls there): the elder cherry's dry garden in its west, the memorial clearing
   and the twins (`Nexus Twins`) in its east.
 - ARENA (east, floor 2), across an arched wooden bridge (as the garden's over its pond): the Arena
@@ -158,6 +159,7 @@ SMITHY = (32, 96)
 VORTEX = (112, 138)
 CAVERNS = [(102, 132), (122, 132), (102, 144), (122, 144)]
 ARENA_PIT = (100, 138)               # the Arena's sand pit (4 across), west of the vortex
+CRUCIBLE_PIT = (124, 138)            # the Crucible's portal (4 across), east of it, as far
 SHRINE = (17, 10)                    # the court's half width and height round the vortex
 PAGODA = (112, 152)
 TORII = (112, 126)
@@ -584,7 +586,7 @@ def lay_portals(g):
         for x in range(vx - rx - 1, vx + rx + 2):
             if math.hypot((x - vx) / rx, (y - vy) / ry) <= 1.0 and g.has(x, y):
                 g.ground(x, y, SLAB, keep=True)
-    for (cx, cy), r in [(VORTEX, 4.6)] + [(c, 3.4) for c in CAVERNS] + [(ARENA_PIT, 3.4)]:
+    for (cx, cy), r in [(VORTEX, 4.6)] + [(c, 3.4) for c in CAVERNS] + [(ARENA_PIT, 3.4), (CRUCIBLE_PIT, 3.4)]:
         for y in range(int(cy - r) - 1, int(cy + r) + 2):
             for x in range(int(cx - r) - 1, int(cx + r) + 2):
                 if math.hypot(x - cx, y - cy) <= r:
@@ -593,6 +595,7 @@ def lay_portals(g):
     for cx, cy in CAVERNS:
         g.put(cx, cy, region="Realm Portals")
     g.put(*ARENA_PIT, region="Arena Portal")
+    g.put(*CRUCIBLE_PIT, region="Crucible Portal")
     for k in range(8):
         a = k / 8 * math.tau + math.pi / 8
         g.place(int(round(vx + math.cos(a) * 5.6)), int(round(vy + math.sin(a) * 5.6)), LANTERN)
@@ -917,7 +920,7 @@ def check(levels):
     assert regions.get("Realm2 Portal") == 1, regions
     assert regions.get("Nexus Waypoint", 0) >= 16, regions
     for r in ("Nexus Bot", "Nexus Dungeon", "Nexus Tinkerer", "Nexus Chronicler", "Nexus Herald", "Nexus Broker",
-              "Nexus Name Changer", "Nexus Character Changer", "Nexus Twins", "Arena Portal", "Nexus Barman",
+              "Nexus Name Changer", "Nexus Character Changer", "Nexus Twins", "Arena Portal", "Crucible Portal", "Nexus Barman",
               "Nexus Warcaller", "Nexus Pen Keeper"):
         assert regions.get(r) == 1, (r, regions.get(r))
     assert regions.get("Nexus Pet Pen", 0) >= 60, regions
@@ -926,9 +929,9 @@ def check(levels):
         assert regions.get(shop) == n, (shop, regions.get(shop))
     chests = sorted(t["name"] for g in levels for row in g.t for t in row if t["obj"] == "Vault Chest")
     assert chests == sorted("%d_%d" % c for _, c in bn.CHESTS), ("the shared vault chests", chests)
-    # the Arena's pit and the portals' floors clear
+    # the Arena's and the Crucible's pits and the portals' floors clear
     g0 = levels[0]
-    for (cx, cy), r in [(VORTEX, 3), (ARENA_PIT, 2)] + [(c, 2) for c in CAVERNS]:
+    for (cx, cy), r in [(VORTEX, 3), (ARENA_PIT, 2), (CRUCIBLE_PIT, 2)] + [(c, 2) for c in CAVERNS]:
         for y in range(cy - r, cy + r + 1):
             for x in range(cx - r, cx + r + 1):
                 assert not g0[x, y]["obj"] and g0.land(x, y), ("something on a portal's floor", x, y, g0[x, y]["obj"])

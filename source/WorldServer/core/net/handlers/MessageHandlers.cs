@@ -21,12 +21,12 @@ namespace WorldServer.core.net.handlers
         public static bool IsEnabledOrAdminOnly(Client client)
         {
             var player = client.Player;
-            if (player.Client.Account.Admin)
+            if (player.Client.Account.IsAdmin)
                 return true;
 
             if (player.GameServer.Configuration.serverInfo.adminOnly)
             {
-                if (!player.GameServer.IsWhitelisted(player.AccountId) || !player.Client.Account.Admin)
+                if (!player.GameServer.IsWhitelisted(player.AccountId))
                 {
                     player.SendError("This feature (as of right now) is Admin only!");
                     return false;

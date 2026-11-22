@@ -54,7 +54,7 @@ namespace WorldServer.core.net.handlers
 
             // first check: admin server
             // (acc: client.Account is only set below)
-            if (config.serverInfo.adminOnly && !acc.Admin && !cManager.IsWhitelisted(acc.AccountId))
+            if (config.serverInfo.adminOnly && !acc.IsAdmin && !cManager.IsWhitelisted(acc.AccountId))
             {
                 // Testing sends everyone else to the main server's Nexus (their client connects
                 // there by itself, as for any Reconnect naming a host)

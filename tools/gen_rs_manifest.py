@@ -37,6 +37,10 @@ RS_ONLY_SETS = [
     ("blackBetween8x8", "kabam/rotmg/assets/custom/images/BlackBetween8x8.png", 8, 8),
     ("blackBetween16x16", "kabam/rotmg/assets/custom/images/BlackBetween16x16.png", 16, 16),
     ("blackBetween32x32", "kabam/rotmg/assets/custom/images/BlackBetween32x32.png", 32, 32),
+    # the Crucible's floors, shots, scenery, portal and sigil (tools/build_crucible.py)
+    ("crucible8x8", "kabam/rotmg/assets/custom/images/Crucible8x8.png", 8, 8),
+    ("crucible16x16", "kabam/rotmg/assets/custom/images/Crucible16x16.png", 16, 16),
+    ("crucible32x32", "kabam/rotmg/assets/custom/images/Crucible32x32.png", 32, 32),
     # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
     ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
@@ -75,6 +79,10 @@ RS_ONLY_SETS = [
     ("ascendantHalos16x16", "kabam/rotmg/assets/custom/images/AscendantHalos16x16.png", 16, 16),
     # the Father's censers, tier 0 to 8, a cell each (tools/draw_censers.py)
     ("fatherCensers16x16", "kabam/rotmg/assets/custom/images/FatherCensers16x16.png", 16, 16),
+    # the Mechanic's blueprints and turrets, tier 0 to 8 and the War Turret, and their shots
+    # (tools/draw_turrets.py)
+    ("mechanicTurrets16x16", "kabam/rotmg/assets/custom/images/MechanicTurrets16x16.png", 16, 16),
+    ("mechanicShots8x8", "kabam/rotmg/assets/custom/images/MechanicShots8x8.png", 8, 8),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
@@ -113,6 +121,9 @@ RS_ONLY_SETS = [
 RS_ONLY_CHARS = [
     # the Realm Pass's skins (tools/draw_pass_skins.py)
     ("passSkins16", "kabam/rotmg/assets/custom/images/PassSkins16x16.png", 16, 16, 112, 48, "right"),
+    # the Mechanic's skins sold at the Armoire (tools/draw_mechanic_skins.py)
+    ("mechanicSkins8", "kabam/rotmg/assets/custom/images/MechanicSkins8x8.png", 8, 8, 56, 24, "right"),
+    ("mechanicSkins16", "kabam/rotmg/assets/custom/images/MechanicSkins16x16.png", 16, 16, 112, 48, "right"),
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
@@ -131,6 +142,9 @@ RS_ONLY_CHARS = [
     # the Black Between's bosses and their forms, and its minions (tools/build_black_between.py)
     ("blackBetweenChars8x8", "kabam/rotmg/assets/custom/images/BlackBetweenChars8x8.png", 8, 8, 56, 8, "right"),
     ("blackBetweenChars32x32", "kabam/rotmg/assets/custom/images/BlackBetweenChars32x32.png", 32, 32, 224, 32, "right"),
+    # the Crucible's champions, their echoes and its minions (tools/build_crucible.py)
+    ("crucibleChars16x16", "kabam/rotmg/assets/custom/images/CrucibleChars16x16.png", 16, 16, 112, 16, "right"),
+    ("crucibleChars32x32", "kabam/rotmg/assets/custom/images/CrucibleChars32x32.png", 32, 32, 224, 32, "right"),
 ]
 # (name, file): 3D models only the Rust client draws: the Nexus garden's houses, teahouse,
 # storehouse, pagoda, smithy, torii, railings and fences (tools/build_nexus_garden.py)
@@ -150,7 +164,8 @@ RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Grounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
@@ -158,7 +173,9 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusIslandsObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
-                      "kabam/rotmg/assets/custom/xmls/PassSkins.xml"]
+                      "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

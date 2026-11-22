@@ -27,6 +27,14 @@ namespace Shared.resources
         // times relicChance (at most a sure drop). 1: unchanged.
         public double relicChance { get; set; } = 1;
 
+        // The Crucible's climbs a day (CrucibleRules.DailyClimbs), Gilded or not, times
+        // crucibleClimbs. 1: unchanged.
+        public int crucibleClimbs { get; set; } = 1;
+
+        // The Crucible champions' white bags (CrucibleRules.IsWhiteBag): each one's chance times
+        // crucibleWhiteChance (at most a sure drop). 1: unchanged.
+        public double crucibleWhiteChance { get; set; } = 1;
+
         public bool ActiveAt(DateTime utcNow) => utcNow >= start && utcNow < end;
 
         // "until the end of 6 November (UTC)" for an end at midnight, as GuildPrice.Message says it
@@ -44,6 +52,10 @@ namespace Shared.resources
                 parts.Add($"{Times(potionAmount)} as many");
             if (relicChance > 1)
                 parts.Add($"Necromantic Relics drop {Times(relicChance)} as often from the Elder bosses");
+            if (crucibleClimbs > 1)
+                parts.Add($"you may climb the Crucible {Times(crucibleClimbs)} as often each day");
+            if (crucibleWhiteChance > 1)
+                parts.Add($"its champions' white bags drop {Times(crucibleWhiteChance)} as often");
             if (mysteriousOne)
                 parts.Add("the Mysterious One opens his Rift every time Oryx the Ascended God falls");
             return string.Join(", and ", parts);
@@ -86,6 +98,16 @@ namespace Shared.resources
         // when two overlap), before the loot boosts, as a stat potion's chance
         public static double RelicChance(ServerEvent[] events, DateTime utcNow) =>
             Active(events, utcNow).Aggregate(1.0, (m, e) => m * Math.Max(1, e.relicChance));
+
+        // What the events running now multiply the Crucible's climbs a day by (both multiply when
+        // two overlap)
+        public static int CrucibleClimbs(ServerEvent[] events, DateTime utcNow) =>
+            Active(events, utcNow).Aggregate(1, (m, e) => m * Math.Max(1, e.crucibleClimbs));
+
+        // What the events running now multiply a Crucible white bag's chance by (both multiply when
+        // two overlap), before the loot boosts, as a stat potion's chance
+        public static double CrucibleWhiteChance(ServerEvent[] events, DateTime utcNow) =>
+            Active(events, utcNow).Aggregate(1.0, (m, e) => m * Math.Max(1, e.crucibleWhiteChance));
 
         public static int PotionAmount(ServerEvent[] events, DateTime utcNow) =>
             Active(events, utcNow).Aggregate(1, (m, e) => m * Math.Max(1, e.potionAmount));

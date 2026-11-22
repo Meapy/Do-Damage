@@ -3,7 +3,7 @@
 # ("website" in deploy/vps.local.json; SETUP-LOCAL.md, "Two machines"), from the bundle
 # deploy/deploy.py unpacked into /opt/bsk/incoming. Runs as root:
 #
-#     bash /opt/bsk/incoming/deploy/install-site.sh [--retire-game]
+#     bash /opt/bsk/incoming/deploy/install-site.sh [--retire-game | --testing-only]
 #
 # - the website (/opt/bsk/site) and Caddy: the website at the root, /play redirected to the game's
 #   site, /api and /ws forwarded there (for clients built for this address);
@@ -13,19 +13,28 @@
 # It refuses while this machine still runs the game's own Redis: --retire-game (the move to two
 # machines, once) stops and masks this machine's bsk-redis, bsk-account, gateways and backups
 # first. Their files stay in /opt/bsk.
+#
+# --testing-only (deploy.py --testing-only, a pull request's build): only Testing, from a bundle
+# with nothing else. The website, Caddy, the Discord bot and its tools stay as they are.
 set -euo pipefail
 
 ROOT=/opt/bsk
 IN=$ROOT/incoming
 RETIRE=0
+TESTING_ONLY=0
 for a in "$@"; do
     case "$a" in
         --retire-game) RETIRE=1 ;;
+        --testing-only) TESTING_ONLY=1 ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
 done
 [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
 [ -d "$IN" ] || { echo "no bundle in $IN" >&2; exit 1; }
+if [ $TESTING_ONLY = 1 ]; then
+    [ $RETIRE = 0 ] || { echo "--retire-game needs a full deploy, not --testing-only" >&2; exit 2; }
+    [ -d $IN/worldserver ] || { echo "--testing-only: no worldserver in the bundle" >&2; exit 1; }
+fi
 
 say() { echo "== $*"; }
 
@@ -100,7 +109,13 @@ if [ -d $IN/site ]; then
     [ -d $ROOT/site ] && mv $ROOT/site $ROOT/site.old
     mv $ROOT/site.new $ROOT/site && rm -rf $ROOT/site.old
 fi
-rm -rf $ROOT/tools && cp -r $IN/tools $ROOT/tools
+if [ $TESTING_ONLY = 1 ]; then
+    # only Testing's tools: the Discord bot's (tools/discord) stay
+    mkdir -p $ROOT/tools
+    for f in $IN/tools/*.py; do install -m 644 "$f" $ROOT/tools/; done
+else
+    rm -rf $ROOT/tools && cp -r $IN/tools $ROOT/tools
+fi
 if [ -f $IN/Caddyfile ]; then
     systemctl enable --quiet caddy
     if ! cmp -s $IN/Caddyfile /etc/caddy/Caddyfile; then
@@ -114,6 +129,7 @@ fi
 # --- Testing (the admin-only world server) ----------------------------------------------------
 if [ -d $IN/worldserver ]; then
     install -m 644 $IN/bsk.env $ROOT/bsk.env
+    [ -f $IN/testing.txt ] && install -m 644 $IN/testing.txt $ROOT/testing.txt
     world_changed=0
     if ! diff -rq $IN/worldserver $ROOT/worldserver >/dev/null 2>&1; then
         world_changed=1
@@ -144,7 +160,7 @@ if [ -d $IN/worldserver ]; then
 fi
 
 # --- the Discord bot (as install.sh) ----------------------------------------------------------
-if [ -f $IN/discord.env ] || [ -f $ROOT/discord/discord.env ]; then
+if [ $TESTING_ONLY = 0 ] && { [ -f $IN/discord.env ] || [ -f $ROOT/discord/discord.env ]; }; then
     mkdir -p $ROOT/discord
     chown bsk:bsk $ROOT/discord
     bot_restart=0
@@ -191,6 +207,7 @@ fi
 rm -f $IN/discord.env
 
 chown -R bsk:bsk $ROOT/site 2>/dev/null || true
+[ -f $ROOT/testing.txt ] && say "Testing runs: $(cat $ROOT/testing.txt)"
 say "done"
 systemctl --no-pager --lines=0 status caddy bsk-discord bsk-redis-tunnel bsk-world 2>/dev/null | grep -E '^(●|  *Active)' || true
 true

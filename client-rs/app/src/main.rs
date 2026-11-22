@@ -11,12 +11,15 @@ mod collection;
 mod community;
 mod connected;
 mod crosshair;
+mod crucible;
+mod cruciblesky;
 mod death;
 mod emotes;
 mod events;
 mod game;
 mod glass;
 mod grave;
+mod guide;
 mod ground;
 mod hud;
 mod i18n;
@@ -27,6 +30,7 @@ mod quests;
 mod market;
 mod particles;
 mod pass;
+mod petlevels;
 mod petpen;
 mod petals;
 mod pings;
@@ -194,6 +198,8 @@ struct App {
     teller: usize,
     /// Clickable names and help links in the chat, as last drawn.
     chat_clicks: Vec<hud::ChatClick>,
+    /// Where the HUD's Buy gold "+" was drawn last frame, for clicks.
+    buy_gold: Option<[f32; 4]>,
     /// `--say <text>` (desktop tests): lines still to send, one per world we join (see `say_arg`).
     say: Vec<String>,
     /// The join (`reconnects`) the last --say line went out in, and when.
@@ -747,7 +753,12 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         }
         Action::Stack(s) => game.add_to_stack(now, slot_of(&s)),
         Action::Button(Button::Nexus) => game.escape(),
-        Action::Button(Button::Enter(id)) => game.use_portal(id),
+        Action::Button(Button::Enter(id)) => game.enter_portal(id, data),
+        Action::Button(Button::CrucibleClimb(id)) => {
+            game.crucible_ask = None;
+            game.use_portal(id);
+        }
+        Action::Button(Button::CrucibleNotNow) => game.crucible_ask = None,
         Action::Button(Button::Buy(id)) => game.buy(id, None),
         Action::Button(Button::BuyGold(id)) => game.buy(id, Some(0)),
         Action::Button(Button::Menu(opt, id)) => {
@@ -1471,6 +1482,7 @@ impl App {
                 self.front.message = None;
             }
             Action::OpenDiscord => login::open_link(&format!("https://{}", screens::DISCORD_INVITE)),
+            Action::OpenGoldStore => login::open_link(screens::GOLD_STORE),
             Action::SpriteEditor => {
                 self.sprite_editor.open();
                 self.front.show(screens::Screen::Sprites);
@@ -2665,6 +2677,7 @@ impl App {
                     self.game_menu = false;
                     self.changelog.show();
                 }
+                Some(screens::MenuChoice::GoldStore) => login::open_link(screens::GOLD_STORE),
                 Some(screens::MenuChoice::Home) => {
                     self.leave_game(None);
                     return;
@@ -2692,6 +2705,7 @@ impl App {
                 arena_votes: game.arena_votes.as_ref(),
                 arena_next: game.arena_next.as_ref(),
                 visit: game.visit.as_ref(),
+                crucible_ask: game.crucible_ask,
                 fame: &game.fame_stats,
             };
             let built = game.world.as_ref().map(|w| hud::Panel::new(&lay, w, data, &self.hud, &social));
@@ -2710,7 +2724,7 @@ impl App {
                     // Interact with what the interact area shows (enter the portal, buy from the
                     // shop): not a portal under the bag it shows instead.
                     Some(Bind::Interact) => match built.as_ref().and_then(|p| p.interact.clone()) {
-                        Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
+                        Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.enter_portal(id, data),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id, None),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
                             to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
@@ -3188,6 +3202,14 @@ impl App {
                             continue;
                         }
                     }
+                    // The "+" beside the gold: the Gold Store, on the website.
+                    if self.buy_gold.is_some_and(|r| hud::inside(r, pos)) {
+                        if down {
+                            login::open_link(screens::GOLD_STORE);
+                        }
+                        self.mouse_down = false;
+                        continue;
+                    }
                     // Chat names open their menu or a whisper; a help link sends /visit at once.
                     let (px, py) = (pos.0 as f32, pos.1 as f32);
                     let click = self.chat_clicks.iter().find(|click| {
@@ -3298,6 +3320,7 @@ impl App {
             }
             prof::mark("pre");
             game.linger = self.settings.linger;
+            game.set_guide(self.settings.dungeon_guide);
             game.poll(now, data);
             prof::mark("poll");
             if reset_angle {
@@ -3327,6 +3350,8 @@ impl App {
             game.particles.realize(sprites, data);
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
+                game.particles.champion_auras(world, data, dt);
+                game.particles.crucible_ground(world, data);
                 game.particles.trails(world, data, dt);
             }
             jitter = game.particles.jitter(now);
@@ -3456,6 +3481,7 @@ impl App {
                         });
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha, inset: None, glass: Some(&glass_draw) };
                         prof::mark("pre-world");
+                        ground.crucible_sky.state = game.crucible.as_ref().map(|c| c.sky(now)).unwrap_or((0, None, 0.0));
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else
@@ -3486,6 +3512,9 @@ impl App {
                             hud::draw_bag_previews(&mut ui, world, &camera, lay.s);
                         }
                         game.pings.draw(&mut ui, &camera, (lay.view_w(), lay.h), self.settings.pings_from, now);
+                        if let Some(me) = world.player() {
+                            game.guide.draw(&mut ui, &camera, (me.x, me.y), &lay, now);
+                        }
                         // The top left, down: the quest's health (and who hit it, near it), the
                         // realm's events (only their count near the quest), then the boss history
                         // and the keys.
@@ -3512,6 +3541,7 @@ impl App {
                             arena_votes: game.arena_votes.as_ref(),
                             arena_next: game.arena_next.as_ref(),
                             visit: game.visit.as_ref(),
+                            crucible_ask: game.crucible_ask,
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
@@ -3542,13 +3572,14 @@ impl App {
                 let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
                 prof::mark("pre-chat");
                 self.chat_clicks = hud::draw_chat(&mut ui, &lay, &game.chat, &me, self.chat_input.as_ref(), self.chat_channel, (self.mouse.0 as f32, self.mouse.1 as f32), self.chat_scroll, self.settings.chat_size, self.settings.chat_alpha, now);
+                self.buy_gold = None;
                 if let Some(p) = game.world.as_ref().and_then(|w| w.player()) {
                     // The frame rate and the ping (L), under the gold and fame.
                     let fps = self.settings.show_fps.then(|| match game.ping {
                         Some(ms) => format!("{:.0} fps  ·  {ms} ms", self.fps_shown),
                         None => format!("{:.0} fps", self.fps_shown),
                     });
-                    hud::draw_credits(&mut ui, &lay, p, game.show_displays && game.arena.is_none(), fps.as_deref());
+                    self.buy_gold = Some(hud::draw_credits(&mut ui, &lay, p, game.show_displays && game.arena.is_none(), fps.as_deref(), mouse));
                 }
                 if let Some(arena) = game.arena {
                     hud::draw_arena(&mut ui, &lay, arena, now);
@@ -3565,8 +3596,15 @@ impl App {
                 if let Some(banner) = &game.arena_banner {
                     hud::draw_arena_banner(&mut ui, &lay, banner, now);
                 }
+                // the Crucible's tracker and its moments (crucible.rs)
+                if let Some(climb) = &game.crucible {
+                    climb.draw(&mut ui, &lay, now);
+                }
                 if let Some(visit) = &game.visit {
                     hud::draw_visit(&mut ui, &lay, visit, now, mouse);
+                }
+                if game.crucible_ask.is_some() {
+                    crate::crucible::draw_ask(&mut ui, &lay, mouse);
                 }
             }
         }
@@ -3613,6 +3651,7 @@ impl App {
                     arena_votes: game.arena_votes.as_ref(),
                     arena_next: game.arena_next.as_ref(),
                     visit: game.visit.as_ref(),
+                    crucible_ask: game.crucible_ask,
                     fame: &game.fame_stats,
                 };
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);
@@ -4260,6 +4299,7 @@ fn main() {
         chat_log: Vec::new(),
         teller: 0,
         chat_clicks: Vec::new(),
+        buy_gold: None,
         chat_send: Vec::new(),
         say: say_lines(),
         say_sent_in: None,
