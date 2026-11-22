@@ -26,7 +26,7 @@ way its damage goes from 60% of its kit's to 120%, its healing to 160% of what i
 and it grows a quarter bigger. A pet keeps its level in its generator when you take it back, and
 pets from before levels came back about as strong as they were (a raised one at its last level).
 
-**Every pet does three quarters** of the damage, healing and bleeding its kit and level make
+**Every pet does 90%** of the damage, healing and bleeding its kit and level make
 (since 2.6.4): the numbers on this page, in the tooltips and in the Pen Keeper's window are what
 pets really do.
 
@@ -73,17 +73,17 @@ more), never more than two thirds of it.
 
 | Size | HP a second at level 1 | Damage a second at level 1 | Last level | Looks | Which pets |
 |---|---|---|---|---|---|
-| Tiny | about 3.4 | about 23 | 10 | half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
-| Small | about 4.5 | about 56 | 15 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
-| Medium | about 7 | about 113 | 20 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
-| Large | about 12 | 225 to 270 | 25 | nearly half again as tall as you | the boss pets |
-| Oryx | about 16 | 450 to 1,350 | 30 | as the Large pets | the Lil' Oryxes, the Black Between's and the Crucible's bosses |
+| Tiny | about 4 | about 27 | 10 | half your height | the plain critters: cats, pups, foxes, frogs, snails, penguins, birds... |
+| Small | about 5.4 | about 68 | 15 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
+| Medium | about 8 | about 135 | 20 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
+| Large | about 14 | 270 to 325 | 25 | nearly half again as tall as you | the boss pets |
+| Oryx | about 20 | 540 to 1,620 | 30 | as the Large pets | the Lil' Oryxes, the Black Between's and the Crucible's bosses |
 
 Each pet's card under [Pet generators](#pet-generators) gives its own numbers, at level 1 and at
 its last.
 
-The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 540 a second at
-their last level), then Lil' Thessal, Horrific Creation and Pancookie (about 500).
+The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 650 a second at
+their last level), then Lil' Thessal, Horrific Creation and Pancookie (about 590).
 
 Every Oryx has a **Lil' Oryx** of his own, drawn as him and shooting his shots. Each Oryx drops
 his generator in a white bag (1%), and the generator is used up when used. They grow stronger along
@@ -91,11 +91,11 @@ the chain (damage a second at level 30; half that at level 1):
 
 | Lil' Oryx | Dropped by | Damage a second |
 |---|---|---|
-| Lil' Oryx | Oryx the Mad God, in his Chamber | about 900 |
-| Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,350 |
-| Lil' Celestial Oryx | Oryx the Celestial Mad God | about 1,800 |
-| Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,250 |
-| Lil' Ascended Oryx | Oryx the Ascended God | about 2,700 |
+| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,080 |
+| Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,620 |
+| Lil' Celestial Oryx | Oryx the Celestial Mad God | about 2,160 |
+| Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,700 |
+| Lil' Ascended Oryx | Oryx the Ascended God | about 3,240 |
 
 Until 27 November 2026, every account can claim a free Lil' Oryx from the quest log's Daily
 Rewards tab.
@@ -110,14 +110,14 @@ spiral. Each is as strong as a Lil' Oryx (damage a second at level 30 below; hal
 
 | Pet | Dropped by | Damage a second | Also |
 |---|---|---|---|
-| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 900 | breaks armor; makes you Armored for 2 s every 10 s |
-| Lil' Nerissa | Nerissa, the Tidecaller | about 980 | slows; heals you over 2 s every 8 s |
-| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,050 | makes you Berserk for 2 s every 10 s |
-| Lil' Chronarch | Chronarch, the Hour Thief | about 1,200 | slows; makes you Speedy for 2 s every 8 s |
-| Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,650 | breaks armor; makes you Damaging for 2 s every 10 s |
-| Lil' Vesper | Vesper, the Dusk Star | about 2,000 | slows |
-| Lil' Aurel | Aurel, the Dawn Blade | about 2,300 | breaks armor; the Sunwheel every 9.5 s |
-| Lil' Mysterious One | The Mysterious One | about 2,700 | breaks armor; his black hole |
+| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 1,080 | breaks armor; makes you Armored for 2 s every 10 s |
+| Lil' Nerissa | Nerissa, the Tidecaller | about 1,170 | slows; heals you over 2 s every 8 s |
+| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,260 | makes you Berserk for 2 s every 10 s |
+| Lil' Chronarch | Chronarch, the Hour Thief | about 1,440 | slows; makes you Speedy for 2 s every 8 s |
+| Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,980 | breaks armor; makes you Damaging for 2 s every 10 s |
+| Lil' Vesper | Vesper, the Dusk Star | about 2,430 | slows |
+| Lil' Aurel | Aurel, the Dawn Blade | about 2,790 | breaks armor; the Sunwheel every 9.5 s |
+| Lil' Mysterious One | The Mysterious One | about 3,240 | breaks armor; his black hole |
 
 ### What they do
 

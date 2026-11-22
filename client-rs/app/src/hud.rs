@@ -3183,7 +3183,7 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             if let Some(dps) = a.attr("petDps") {
                 let text = match dps.parse::<i32>() {
                     Ok(d) => {
-                        // what it really does (every pet three quarters of its level's)
+                        // what it really does (every pet 90% of its level's)
                         let (now, last) = (crate::petlevels::effective_dps(d, level, max), crate::petlevels::effective_dps(d, max, max));
                         up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }

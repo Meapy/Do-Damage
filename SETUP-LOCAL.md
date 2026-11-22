@@ -731,8 +731,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (rerun it after adding a pet stone; the boss pets get theirs from `boss_pets.py`), with MP about
   half of HP. The client works out the same numbers for its window and tooltips: change
   `PetLevels.cs`, `PetFood.cs` and `petlevels.rs` together (`PetLevelsTests` and the client's tests
-  check both). On top of the level, every pet (sized or not) does `PetLevels.Effectiveness`, three
-  quarters, of its damage (`Pet.Hit`), its heals and its bleeds (`PetLevels.Effective`); the Pen
+  check both). On top of the level, every pet (sized or not) does `PetLevels.EffectivePercent`,
+  90%, of its damage (`Pet.Hit`), its heals and its bleeds (`PetLevels.Effective`); the Pen
   Keeper's window, the client's tooltips (`petlevels::effective`) and the wiki's pet cards
   (`tools/wiki_gear.py`) show what pets really do. The XML's `petDps`, `petHp`, `petMp` and
   "Bleeds" lines stay the kit's numbers before it.

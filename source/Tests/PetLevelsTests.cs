@@ -57,11 +57,12 @@ namespace Tests
         }
 
         [Fact]
-        public void EveryPetDoesThreeQuarters()
+        public void EveryPetDoesNineTenths()
         {
-            Assert.Equal(0.75f, PetLevels.Effectiveness);
-            // the heals of the sizes' stones, as the client's tooltips show them (petlevels.rs)
-            Assert.Equal(new[] { 11, 15, 23, 34, 45 }, new[] { 15, 20, 30, 45, 60 }.Select(PetLevels.Effective).ToArray());
+            Assert.Equal(0.9f, PetLevels.Effectiveness);
+            // the heals of the sizes' stones, as the client's tooltips show them (petlevels.rs):
+            // halves up, 13.5 to 14 and 40.5 to 41
+            Assert.Equal(new[] { 14, 18, 27, 41, 54 }, new[] { 15, 20, 30, 45, 60 }.Select(PetLevels.Effective).ToArray());
         }
 
         [Fact]

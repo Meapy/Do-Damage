@@ -85,22 +85,23 @@ def png_size(path):
 PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Oryx": 30}
 
 
-def _pet_effectiveness():
-    """PetLevels.Effectiveness: the share of all that every pet really does (0.75)."""
+def _pet_effective_percent():
+    """PetLevels.EffectivePercent: the share of all that every pet really does (90)."""
     try:
         with open(os.path.join(wd.SRC, "Shared", "pets", "PetLevels.cs"), encoding="utf-8-sig") as f:
-            m = re.search(r"Effectiveness\s*=\s*([0-9.]+)f?", f.read())
-        return float(m.group(1)) if m else 1.0
+            m = re.search(r"EffectivePercent\s*=\s*(\d+)", f.read())
+        return int(m.group(1)) if m else 100
     except OSError:
-        return 1.0
+        return 100
 
 
-PET_EFFECTIVENESS = _pet_effectiveness()
+PET_EFFECTIVE_PERCENT = _pet_effective_percent()
+PET_EFFECTIVENESS = PET_EFFECTIVE_PERCENT / 100
 
 
 def _pet_effective(n):
-    """A heal or a bleed as the pet really does it (PetLevels.Effective: halves away from zero)."""
-    return int(math.floor(n * PET_EFFECTIVENESS + 0.5))
+    """A heal or a bleed as the pet really does it (PetLevels.Effective: halves up, in whole numbers)."""
+    return (n * PET_EFFECTIVE_PERCENT + 50) // 100
 
 
 def _pet_round(x):

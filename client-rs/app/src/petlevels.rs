@@ -14,8 +14,9 @@ const DAMAGE_AT_FIRST: f32 = 0.6;
 const DAMAGE_AT_LAST: f32 = 1.2;
 const HEAL_AT_LAST: f32 = 1.6;
 /// What every pet really does of the damage, healing and bleeding above (the server's
-/// `PetLevels.Effectiveness`).
-const EFFECTIVENESS: f32 = 0.75;
+/// `PetLevels.EffectivePercent`), a whole percent so heals round as the server's do.
+const EFFECTIVE_PERCENT: i32 = 90;
+const EFFECTIVENESS: f32 = EFFECTIVE_PERCENT as f32 / 100.0;
 
 /// What its stone says of a pet: its `PermaPet` activate.
 pub fn stone(data: &GameData, item: i32) -> Option<&bsk_data::xml::Element> {
@@ -92,10 +93,10 @@ pub fn dps(dps: i32, level: i32, max: i32) -> i32 {
     ((dps as f32 * damage_scale(level, max)) as f64).round_ties_even() as i32
 }
 
-/// A heal or a bleed as the pet really does it: times `EFFECTIVENESS`, rounded half away from
-/// zero (the server's `PetLevels.Effective`).
+/// A heal or a bleed as the pet really does it: times `EFFECTIVE_PERCENT`, rounded half away from
+/// zero in whole numbers (the server's `PetLevels.Effective`).
 pub fn effective(amount: i32) -> i32 {
-    (amount as f64 * EFFECTIVENESS as f64).round() as i32
+    (amount * EFFECTIVE_PERCENT + if amount < 0 { -50 } else { 50 }) / 100
 }
 
 /// Its damage a second at `level` as it really does it (what the server's Pen Keeper window sends).
@@ -256,10 +257,10 @@ mod tests {
     }
 
     #[test]
-    fn every_pet_does_three_quarters() {
-        assert_eq!(effective_dps(1000, 30, 30), 900);
-        assert_eq!(effective_dps(50, 1, 1), 38);
-        assert_eq!((effective(15), effective(30), effective(45), effective(60)), (11, 23, 34, 45));
+    fn every_pet_does_nine_tenths() {
+        assert_eq!(effective_dps(1000, 30, 30), 1080);
+        assert_eq!(effective_dps(50, 1, 1), 45);
+        assert_eq!((effective(15), effective(30), effective(45), effective(60)), (14, 27, 41, 54));
     }
 
     #[test]
