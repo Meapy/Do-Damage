@@ -269,35 +269,35 @@ def grounds(types, sheet):
 # Stolen Moment, Final Decree).
 ARMOR_BROKEN = ("Armor Broken", 2)
 CHAMPIONS = {
-    "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 175000, 60, ["Ferrogrim, Iron Tempest"], [
+    "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 150000, 60, ["Ferrogrim, Iron Tempest"], [
         foe(0, "Iron Shard", 210, 80, 2200, effects=[("Bleeding", 1.5)]),
         foe(1, "Hammer Wave", 270, 55, 3000, 160, effects=[("Armor Broken", 3), ("Dazed", 1.5)]),
         foe(2, "Iron Shard", 140, 60, 2600),
         foe(3, "Hammer Wave", 240, 70, 2400, 140, effects=[ARMOR_BROKEN, ("Stunned", 1)]),
         foe(4, "Iron Shard", 130, 115, 1300, 90, effects=[("Bleeding", 3)]),
     ]),
-    "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 210000, 50, ["Nerissa, Maelstrom"], [
+    "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 180000, 50, ["Nerissa, Maelstrom"], [
         foe(0, "Trident Bolt", 230, 95, 2200, effects=[("Bleeding", 2)]),
         foe(1, "Tide Orb", 150, 50, 3600, 120, effects=[("Slowed", 1.5)], amplitude=1.0, frequency=0.6),
         foe(2, "Bubble", 125, 40, 4000, 110, effects=[("Slowed", 1)]),
         foe(3, "Trident Bolt", 210, 120, 1800, effects=[("Confused", 1)]),
         foe(4, "Tide Orb", 260, 42, 3800, 150, effects=[("Quiet", 2), ("Paralyzed", 0.8)], amplitude=0.6, frequency=0.4),
     ]),
-    "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 245000, 70, ["Pyrrhax, Molten Core"], [
+    "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 210000, 70, ["Pyrrhax, Molten Core"], [
         foe(0, "Magma Ball", 290, 60, 2800, 150, effects=[("Weak", 2.5)]),
         foe(1, "Cinder", 200, 100, 1800, effects=[("Sick", 2)]),
         foe(2, "Cinder", 150, 70, 2400),
         foe(3, "Magma Ball", 175, 45, 3600, 120),
         foe(4, "Magma Ball", 330, 38, 4200, 180, effects=[("Paralyzed", 1), ("Armor Broken", 2)]),
     ]),
-    "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 280000, 80, ["Chronarch, Reversal"], [
+    "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 240000, 80, ["Chronarch, Reversal"], [
         foe(0, "Gear Shot", 155, 60, 3000, 110),
         foe(1, "Hand Blade", 240, 110, 2000, effects=[("Bleeding", 2)]),
         foe(2, "Chrono Orb", 220, 45, 4000, 120, effects=[("Slowed", 2), ("Dazed", 2)]),
         foe(3, "Gear Shot", 150, 75, 2600),
         foe(4, "Chrono Orb", 210, 85, 2000, 100, effects=[("Silenced", 2.5), ("Paralyzed", 0.6)]),
     ]),
-    "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 400000, 90,
+    "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 340000, 90,
                                         ["Vaelith, Ascendant", "Vaelith, Unbound"], [
         foe(0, "Sovereign Lance", 280, 120, 2200, effects=[("Exposed", 3)]),
         foe(1, "Flame Feather", 175, 70, 3000, 110, amplitude=1.2, frequency=0.5),

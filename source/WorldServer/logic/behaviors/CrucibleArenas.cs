@@ -39,8 +39,24 @@ namespace WorldServer.logic.behaviors
         // The forms below are drawn at the floors' design size and grown this many times onto the
         // floor (each square takes the nearest design square's look; a pillar stands only on the
         // square nearest its own), as tools/build_crucible.py (GROW) grows the floors themselves:
-        // change both together. None of them turns any more: each holds still until the next.
+        // change both together.
         public const double Grow = 1.4;
+
+        // The forms that keep moving once they've formed, so a floor changes through a phase too:
+        // their squares crack a moment before they go (ArenaForm). Some turn by their own drawing
+        // (`ms` into the form: the gear, the whirlpool's arms...); the rest in Spin turn whole round
+        // the middle, this many degrees a second. Lockdown's towers (its grates stand on the
+        // bridges), the petals (each an hour the chime strikes) and the Apex's fort and cross (their
+        // corners would swing past the floor's reach) hold still.
+        private static readonly HashSet<string> TurnsItself = new() { "gear", "spiral", "maelstrom", "hourglass", "coil", "orrery" };
+
+        public static readonly Dictionary<string, double> Spin = new()
+        {
+            ["starfort"] = 3, ["wheel"] = 2.5, ["grate"] = 2.5, ["anvil"] = 3, ["crucible"] = 4,
+            ["shards"] = 5, ["halo"] = 3,
+        };
+
+        public static bool Moves(string form) => form != null && (TurnsItself.Contains(form) || Spin.ContainsKey(form));
 
         // rounded half up, as build_crucible.py's near()
         private static int Near(double v) => (int)Math.Floor(v + 0.5);
@@ -435,12 +451,18 @@ namespace WorldServer.logic.behaviors
             return all;
         }
 
-        // what the form puts on the floor's square (dx, dy), grown from its design (Grow)
+        // what the form puts on the floor's square (dx, dy) `ms` into it, grown from its design (Grow)
+        // and turned as far as it has spun (Spin)
         public static Look Want(string form, int dx, int dy, int ms)
         {
-            var (sx, sy) = (Design(dx), Design(dy));
-            var look = Designed(form, sx, sy, ms);
-            if (look.Obj != null && (dx != Near(sx * Grow) || dy != Near(sy * Grow)))
+            var turn = Spin.TryGetValue(form, out var degPerSec) ? degPerSec * ms / 1000.0 * Math.PI / 180 : 0;
+            var (cos, sin) = (Math.Cos(turn), Math.Sin(turn));
+            // back from the floor to the design as it was drawn, then to its nearest square
+            var (ux, uy) = (dx / Grow, dy / Grow);
+            var (sx, sy) = (Near(ux * cos + uy * sin), Near(-ux * sin + uy * cos));
+            var look = Designed(form, sx, sy, 0 == turn ? ms : 0);
+            // a pillar only on the floor's square nearest where its own has turned to
+            if (look.Obj != null && (dx != Near((sx * cos - sy * sin) * Grow) || dy != Near((sx * sin + sy * cos) * Grow)))
                 look = look with { Obj = null };
             return look;
         }
@@ -641,7 +663,8 @@ namespace WorldServer.logic.behaviors
     // and as the Heart moves into one, the floor turns into it in a wave out from the middle over
     // `spreadMs`: ground that stays takes the form's stone, ground that goes cracks (`warnMs` before)
     // and falls into the sky, ground that comes rises out of it, and pillars rise and fall with their
-    // squares; then it holds still until the next. `reach` is at design size (ArenaForms.Grow).
+    // squares. Once formed, a moving form (ArenaForms.Moves) keeps turning until the next, its
+    // squares cracking `warnMs` before they go. `reach` is at design size (ArenaForms.Grow).
     // Whoever stands where the ground falls, or is left cut off from the rest of the floor
     // once it has formed (on a shard drifting off it, say), is thrown onto the nearest ground that is
     // part of it (`damage`), never under a pillar; with `moveFoes` monsters are set back on it too. Squares a hazard painter
@@ -671,7 +694,9 @@ namespace WorldServer.logic.behaviors
             public readonly Dictionary<(int, int), (int At, ushort G, ushort O, bool Crack, ushort WasO)> Pending = new();
             public readonly Random Rng = new Random();
             // the form's layout worked out
-            public (string Form, Dictionary<(int, int), ArenaForms.Look> Layout) Last;
+            public (string Form, int Ms, Dictionary<(int, int), ArenaForms.Look> Layout) Last;
+            // how far into it a moving form was last set
+            public int Moved;
         }
 
         private static ushort Ground(Entity host, string id) =>
@@ -718,25 +743,44 @@ namespace WorldServer.logic.behaviors
                     var r = Math.Sqrt(key.Item1 * key.Item1 + key.Item2 * key.Item2);
                     Schedule(s, key, g, o, decor, s.Now + _warnMs + (int)(r / _reach * _spreadMs) + s.Rng.Next(220), sky);
                 }
+                s.Moved = 0;
+            }
+            else if (ArenaForms.Moves(form) && s.Now - s.Began >= _spreadMs + _warnMs + Step)
+            {
+                // formed, it keeps turning: every Step it is set to where it will be `_warnMs` on, so
+                // what goes cracks that long before it falls, and what comes rises at once
+                var ms = (s.Now - s.Began - _spreadMs - _warnMs) / Step * Step;
+                if (ms != s.Moved)
+                {
+                    s.Moved = ms;
+                    foreach (var key in s.Map0.Keys)
+                    {
+                        var (g, o, decor) = Target(host, s, key, ms + _warnMs);
+                        Schedule(s, key, g, o, decor, g == sky ? s.Now + _warnMs : s.Now, sky);
+                    }
+                }
             }
             Apply(host, s, time, sky);
         }
 
-        private Dictionary<(int, int), ArenaForms.Look> Layout(S s)
+        // how often a moving form is moved on
+        private const int Step = 250;
+
+        private Dictionary<(int, int), ArenaForms.Look> Layout(S s, int ms)
         {
-            if (s.Last.Layout == null || s.Last.Form != s.Form)
-                s.Last = (s.Form, ArenaForms.Layout(s.Form, 0, _reach, out _));
+            if (s.Last.Layout == null || s.Last.Form != s.Form || s.Last.Ms != ms)
+                s.Last = (s.Form, ms, ArenaForms.Layout(s.Form, ms, _reach, out _));
             return s.Last.Layout;
         }
 
-        private (ushort G, ushort O, bool Decor) Target(Entity host, S s, (int, int) key)
+        private (ushort G, ushort O, bool Decor) Target(Entity host, S s, (int, int) key, int ms = 0)
         {
             if (s.Form == null)
             {
                 var m = s.Map0[key];
                 return (m.G, m.O, false);
             }
-            var look = Layout(s).TryGetValue(key, out var l) ? l : default;
+            var look = Layout(s, ms).TryGetValue(key, out var l) ? l : default;
             return (look.Ground == null ? Ground(host, "Empty") : Ground(host, look.Ground), Obj(host, look.Obj), look.Decor);
         }
 
@@ -746,7 +790,7 @@ namespace WorldServer.logic.behaviors
             var shown = s.Shown[key];
             if (shown.G == g && shown.O == o)
             {
-                s.Pending.Remove(key);
+                // already so, or on its way to it (a moving form asks again every step)
                 s.Shown[key] = (g, o, decor);
                 return;
             }

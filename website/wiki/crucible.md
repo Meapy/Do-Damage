@@ -62,8 +62,11 @@ its floor joins in once a third of its health is gone, and more again at two thi
 
 The floors are big, with room to move round the champions. As each phase begins a floor reshapes
 itself in a wave out from its middle: ground that goes cracks for over a second first and falls
-into the sky, new ground rises out of it, and pillars rise and fall with it. Then the shape holds
-still until the next phase. Anyone left standing where the ground falls, or cut off from the rest
+into the sky, new ground rises out of it, and pillars rise and fall with it. Most shapes then keep
+turning slowly until the next phase (the gear, the star fort, the wheel of isles, the coral arms,
+the grate, the anvil, the crucible, the hourglass, the coil, the Apex's rings, shards and halo),
+so the ground under you keeps changing: what is about to fall still cracks first. Lockdown's
+towers, the petals, the Apex's fortress and its cross hold still. Anyone left standing where the ground falls, or cut off from the rest
 of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
 
 The real danger is the champions' shots: each phase has patterns of its own to read and slip
@@ -72,7 +75,9 @@ through. The floor adds at most one hazard at a time, quick but always shown bef
 The shots aimed at you hit hard, about as hard as Oryx's last form, and carry each champion's
 afflictions; dodge them rather than stand in them. The big rings and spirals are lighter and carry
 nothing: they're there to weave through. Each champion also has a signature shot, slower and
-heavier, and its last phase throws shots where you're going, so keep moving:
+heavier, a **wall**: a line of shots side by side aimed at you, flying as one, that you get
+out of the way of rather than stand still between. Each champion's last phase throws shots where
+you're going, so keep moving:
 
 | Champion | Its shots | Signature |
 |---|---|---|
@@ -102,16 +107,18 @@ A keep: square, with a round bastion at each corner and a gate in each side.
 A horned juggernaut in riveted iron, a furnace burning in his chest, a tower shield and a molten
 hammer.
 
+- **Shield Charge:** he braces behind his shield with a flash, then rams at you; where he stops,
+  a double ring of shards bursts out. Get out of his line while he braces.
 - **Hammerfall:** he slams his hammer and two rings of fire race out across the floor, each
   with three wide gaps. He throws a cross of hammer waves, turned with each blow, and rings of
   shards twice, the second in the first's gaps.
 - **Lockdown** (70%): the yard falls in, leaving a tower at each corner and the walls between
-  them, and his dais in the middle with its drawbridges raised behind iron grates. An Iron
+  them, and his dais in the middle with a gate of iron grates across each drawbridge. An Iron
   Sentinel holds each tower; he can't be hurt until they're broken (or 30 seconds pass). A
   four-armed spiral of shards turns out from him over the yard, and his anvil's cross of hammer
   waves cuts through it.
 - **Grinding Blades:** the keep becomes a great iron gear, ten teeth and five holes, and two
-  blades of fire sweep round it from its middle. He leaps on you, and every so often slams
+  blades of fire sweep round it from its middle. He leaps on you often, and every so often slams
   the floor again: the double ring and the cross.
 - **Iron Tempest** (35%): a star fort, his keep in a dry moat crossed at the gates and a bastion
   pointing out from each corner. A banner on each bastion guards him and his hammer whirls,

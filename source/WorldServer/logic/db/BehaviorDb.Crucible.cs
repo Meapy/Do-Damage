@@ -32,10 +32,11 @@ namespace WorldServer.logic
         private _ CrucibleTower = () => Behav()
             // ================================================================================
             // I. The Iron Bastion: Ferrogrim, the Iron Warden
-            // Each phase has at most one thing on the floor, slow and shown first; the danger is in
-            // his shots.
-            // - 100% to 70%: his kit (shard fans, a slow armour-breaking hammer wave, iron rings) and
-            //   Hammerfall in turn: he slams the floor, two rings of molten grate roll slowly out
+            // Each phase has at most one thing on the floor, shown first; the danger is in his shots.
+            // - 100% to 70%: his kit (shard fans, an armour-breaking hammer wave, iron rings, the Iron
+            //   Wall: a line of shards to sidestep, Rending Volley, hounds), then the Shield Charge
+            //   (he braces with a flash, rams at you and bursts a double ring where he stops), then
+            //   Hammerfall: he slams the floor, two rings of molten grate race out
             //   (three wide gaps each), and he throws a cross of hammer waves that turns each throw
             //   and a double ring of shards, the second in the first's gaps.
             // - 70%: Lockdown (a survival phase): grates rise in a cross, cutting the floor into
@@ -69,7 +70,7 @@ namespace WorldServer.logic
             )
             .Init("Ferrogrim, the Iron Warden",
                 new State(
-                    new BossStats(175000, 50, 1.0, 0.35),
+                    new BossStats(150000, 60, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(IronGlow, 0.3, 6),
@@ -82,7 +83,24 @@ namespace WorldServer.logic
                             new Order(40, "Bastion Heart", "Idle"),
                             new Prioritize(new StayCloseToSpawn(0.6, Gi(6)), new Follow(0.5, CrucibleSight, 3)),
                             IronKit(1.0),
-                            new TimedTransition(7000, "Hammerfall")
+                            new TimedTransition(7000, "Shield Charge")
+                        ),
+                        // he braces behind his shield (a flash: get out of his line), rams at you
+                        // and bursts a double ring of shards where he stops
+                        new State("Shield Charge",
+                            new State("SC Brace",
+                                new Flash(IronGlow, 0.15, 5),
+                                new Taunt(0.5, "Stand aside!") { Bubble = false },
+                                new TimedTransition(900, "SC Run")
+                            ),
+                            new State("SC Run",
+                                new Charge(2.6, (float)CrucibleSight, 6000),
+                                new TimedTransition(1100, "SC Burst")
+                            ),
+                            new State("SC Burst",
+                                DoubleRing(12, 2, 9000, 250),
+                                new TimedTransition(700, "Hammerfall")
+                            )
                         ),
                         new State("Hammerfall",
                             new CrucibleCue(1, shake: true),
@@ -125,7 +143,7 @@ namespace WorldServer.logic
                             new Order(40, "Bastion Heart", "Blades"),
                             new Prioritize(new StayCloseToSpawn(0.7, Gi(8)), new Follow(0.6, CrucibleSight, 3)),
                             IronKit(0.9),
-                            new LeapStrike(CrucibleSight, 2.8, 320, 1500, 7000, 2, 14),
+                            new LeapStrike(CrucibleSight, 2.8, 320, 1500, 5000, 2, 14),
                             new TimedTransition(9000, "Blades Slam")
                         ),
                         new State("Blades Slam",
@@ -234,7 +252,7 @@ namespace WorldServer.logic
             )
             .Init("Nerissa, the Tidecaller",
                 new State(
-                    new BossStats(210000, 45, 1.0, 0.35),
+                    new BossStats(180000, 45, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(TideGlow, 0.3, 6),
@@ -359,7 +377,7 @@ namespace WorldServer.logic
             )
             .Init("Pyrrhax, the Forge Tyrant",
                 new State(
-                    new BossStats(245000, 55, 1.0, 0.35),
+                    new BossStats(210000, 55, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(LavaGlow, 0.3, 6),
@@ -476,7 +494,7 @@ namespace WorldServer.logic
             )
             .Init("Chronarch, the Hour Thief",
                 new State(
-                    new BossStats(280000, 60, 1.0, 0.35),
+                    new BossStats(240000, 60, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(BrassGlow, 0.3, 6),
@@ -626,7 +644,7 @@ namespace WorldServer.logic
             )
             .Init("Vaelith, the Crucible Sovereign",
                 new State(
-                    new BossStats(400000, 70, 1.0, 0.35),
+                    new BossStats(340000, 70, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(SovereignGlow, 0.3, 10),
@@ -796,8 +814,10 @@ namespace WorldServer.logic
             new SweepingArms("Hour Hand", 1, G(2.5), outer, 1.4, 50 * pace));
 
         // Lockdown's raised drawbridges (the towers form's), in its design squares
+        // (a gate two squares deep across each bridge, not the whole bridge: grown, that was a solid
+        // block of grates five wide and six long)
         private static bool Drawbridge(int dx, int dy) =>
-            Math.Min(Math.Abs(dx), Math.Abs(dy)) <= 1 && Math.Max(Math.Abs(dx), Math.Abs(dy)) is >= 6 and <= 9;
+            Math.Min(Math.Abs(dx), Math.Abs(dy)) <= 1 && Math.Max(Math.Abs(dx), Math.Abs(dy)) is >= 7 and <= 8;
 
         // ---- the champions' kits, `pace` < 1 faster ----
 
@@ -811,8 +831,16 @@ namespace WorldServer.logic
             new Shoot(CrucibleSight, 1, projectileIndex: 1, coolDown: (int)(2300 * pace), coolDownOffset: 800),
             new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 2, coolDown: (int)(2900 * pace), coolDownOffset: 1600),
             new Shoot(CrucibleSight, 7, 5, projectileIndex: 4, predictive: 0.3, coolDown: (int)(3400 * pace), coolDownOffset: 2300),
+            Wall(0, 7, (int)(3800 * pace), 1200), // Iron Wall: a line of bleeding shards
             Rushers("Iron Hound", pace)
         );
+
+        // a wall: `width` shots side by side, aimed at you and flying as one line, so it isn't dodged
+        // by standing still between them but by getting out of its way
+        private static IStateChildren Wall(int projectileIndex, int width, int coolDown, int coolDownOffset) =>
+            new ShootFormation(CrucibleSight, 1,
+                Enumerable.Range(0, width).SelectMany(i => new[] { 0.0, (i - (width - 1) / 2.0) * 0.9 }).ToArray(),
+                projectileIndex: projectileIndex, coolDown: coolDown, coolDownOffset: coolDownOffset);
 
         // a few of the champion's rushers sent out round the floor now and then (at most three about
         // at once): they run at you and bite up close, so they're to be shot on the way in
@@ -845,6 +873,7 @@ namespace WorldServer.logic
             new Shoot(0, 10, fixedAngle: 0, rotateAngle: 13, projectileIndex: 1, coolDown: (int)(2500 * pace), coolDownOffset: 900),
             new Shoot(CrucibleSight, 5, 20, projectileIndex: 2, coolDown: (int)(3200 * pace), coolDownOffset: 1800),
             new Shoot(CrucibleSight, 3, 24, projectileIndex: 4, coolDown: (int)(4200 * pace), coolDownOffset: 2600),
+            Wall(1, 7, (int)(4000 * pace), 1400), // a breaker: a swaying line of tide orbs
             Rushers("Brine Darter", pace)
         );
 
@@ -855,6 +884,7 @@ namespace WorldServer.logic
             new Shoot(CrucibleSight, 5, 9, projectileIndex: 1, predictive: 0.3, coolDown: (int)(1000 * pace), coolDownOffset: 500),
             new Shoot(0, 16, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: (int)(2700 * pace), coolDownOffset: 1500),
             new Shoot(CrucibleSight, 3, 28, projectileIndex: 4, predictive: 0.3, coolDown: (int)(4000 * pace), coolDownOffset: 2000),
+            Wall(1, 7, (int)(3800 * pace), 1300), // a sheet of cinders
             Rushers("Cinder Imp", pace)
         );
 
@@ -865,6 +895,7 @@ namespace WorldServer.logic
             new Shoot(CrucibleSight, 3, 12, projectileIndex: 1, predictive: 0.4, coolDown: (int)(1150 * pace), coolDownOffset: 600),
             new Shoot(CrucibleSight, 1, projectileIndex: 2, coolDown: (int)(3100 * pace), coolDownOffset: 1700),
             new Shoot(CrucibleSight, 2, 14, projectileIndex: 4, predictive: 0.5, coolDown: (int)(3600 * pace), coolDownOffset: 2400),
+            Wall(1, 5, (int)(3400 * pace), 1100), // a rank of hand-blades
             Rushers("Clockwork Mite", pace)
         );
 
@@ -875,6 +906,7 @@ namespace WorldServer.logic
             new Shoot(0, 16, fixedAngle: 0, rotateAngle: 11, projectileIndex: 1, coolDown: (int)(2400 * pace), coolDownOffset: 1300),
             new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: (int)(560 * pace)),
             new Shoot(CrucibleSight, 3, 22, projectileIndex: 5, coolDown: (int)(4800 * pace), coolDownOffset: 3000),
+            Wall(0, 7, (int)(3600 * pace), 1500), // a phalanx of lances
             Rushers("Gilded Wisp", pace)
         );
 

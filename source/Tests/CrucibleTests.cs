@@ -85,7 +85,9 @@ namespace Tests
         }
 
         public static IEnumerable<object[]> ArenaFormMoments() =>
-            WorldServer.logic.behaviors.ArenaForms.All.Select(f => new object[] { f, 0 });
+            WorldServer.logic.behaviors.ArenaForms.All.SelectMany(f =>
+                (WorldServer.logic.behaviors.ArenaForms.Moves(f) ? new[] { 0, 7300, 23900, 41700, 66100 } : new[] { 0 })
+                .Select(ms => new object[] { f, ms }));
 
         // Every floor reshapes itself through its champion's fight (ArenaForms): each form's ground
         // and pillars are in the game, it stays within the floor's reach, and everything that isn't

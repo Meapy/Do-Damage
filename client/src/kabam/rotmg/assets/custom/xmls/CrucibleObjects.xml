@@ -116,7 +116,7 @@
 		<HitSound>monster/golems_hit</HitSound>
 		<DeathSound>monster/golems_death</DeathSound>
 		<Size>120</Size>
-		<MaxHitPoints>175000</MaxHitPoints>
+		<MaxHitPoints>150000</MaxHitPoints>
 		<Defense>60</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -193,7 +193,7 @@
 		<HitSound>monster/snake_queen_hit</HitSound>
 		<DeathSound>monster/snake_queen_death</DeathSound>
 		<Size>115</Size>
-		<MaxHitPoints>210000</MaxHitPoints>
+		<MaxHitPoints>180000</MaxHitPoints>
 		<Defense>50</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -274,7 +274,7 @@
 		<HitSound>monster/demons_hit</HitSound>
 		<DeathSound>monster/demons_death</DeathSound>
 		<Size>125</Size>
-		<MaxHitPoints>245000</MaxHitPoints>
+		<MaxHitPoints>210000</MaxHitPoints>
 		<Defense>70</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -349,7 +349,7 @@
 		<HitSound>monster/golems_hit</HitSound>
 		<DeathSound>monster/golems_death</DeathSound>
 		<Size>115</Size>
-		<MaxHitPoints>280000</MaxHitPoints>
+		<MaxHitPoints>240000</MaxHitPoints>
 		<Defense>80</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -431,7 +431,7 @@
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
 		<Size>125</Size>
-		<MaxHitPoints>400000</MaxHitPoints>
+		<MaxHitPoints>340000</MaxHitPoints>
 		<Defense>90</Defense>
 		<Quest />
 		<HealthBarBoss />

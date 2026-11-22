@@ -613,16 +613,35 @@ namespace WorldServer.logic.behaviors
                         continue;
                     walls.Add((x, y));
                 }
-            // anyone in the way steps aside first
+            // anyone in the way steps aside first: out through the walls to the nearest open square,
+            // however deep in they stand (a search outwards, not a fixed few squares: from the
+            // middle of a wide wall that found nothing and left them inside)
             foreach (var p in world.Players.Values.ToList())
             {
-                if (!walls.Contains(((int)p.X, (int)p.Y)))
+                var at = ((int)p.X, (int)p.Y);
+                if (!walls.Contains(at))
                     continue;
-                var free = Enumerable.Range(1, 3).SelectMany(d => new[] { (d, 0), (-d, 0), (0, d), (0, -d), (d, d), (-d, -d), (d, -d), (-d, d) })
-                    .Select(o => ((int)p.X + o.Item1, (int)p.Y + o.Item2))
-                    .FirstOrDefault(s => !walls.Contains(s) && world.IsPassable(s.Item1 + 0.5, s.Item2 + 0.5));
-                if (free != default)
-                    p.TeleportPosition(time, new Position(free.Item1 + 0.5f, free.Item2 + 0.5f), true);
+                var seen = new HashSet<(int, int)> { at };
+                var todo = new Queue<(int, int)>(seen);
+                (int, int)? free = null;
+                while (todo.Count > 0 && free == null)
+                {
+                    var (x, y) = todo.Dequeue();
+                    foreach (var q in new[] { (x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1) })
+                    {
+                        if (!seen.Add(q) || Math.Abs(q.Item1 - at.Item1) > 12 || Math.Abs(q.Item2 - at.Item2) > 12)
+                            continue;
+                        if (!walls.Contains(q) && world.IsPassable(q.Item1 + 0.5, q.Item2 + 0.5))
+                        {
+                            free = q;
+                            break;
+                        }
+                        if (walls.Contains(q))
+                            todo.Enqueue(q);
+                    }
+                }
+                if (free is (int fx, int fy))
+                    p.TeleportPosition(time, new Position(fx + 0.5f, fy + 0.5f), true);
             }
             var desc0 = data.ObjectDescs[type];
             foreach (var (x, y) in walls)
