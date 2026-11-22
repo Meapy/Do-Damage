@@ -155,6 +155,9 @@ pub struct Game {
     pub invite: Option<(Invite, i32)>,
     /// Someone's /visit waiting for our Yes or No (`VisitRequest`), in the corner.
     pub visit: Option<VisitAsk>,
+    /// The Crucible Portal we're about to enter: its warning waits for Climb or Not now
+    /// (`crucible::draw_ask`).
+    pub crucible_ask: Option<i32>,
     /// The pings showing in this world (`PingShow`), and whether the server knows pings.
     pub pings: crate::pings::Marks,
     /// The Scrying Glass's messages, for its picture and big view (`glass.rs`).
@@ -466,6 +469,7 @@ impl Game {
             trade: None,
             invite: None,
             visit: None,
+            crucible_ask: None,
             pings: Default::default(),
             glass_events: Vec::new(),
             locked: Default::default(),
@@ -1892,6 +1896,13 @@ impl Game {
 
     /// Hide the visit request once it has run out (the server tells the visitor then).
     pub fn expire_visit(&mut self, now: i32) {
+        // the Crucible's warning goes once its portal is out of reach
+        if let Some(id) = self.crucible_ask {
+            let near = self.world.as_ref().and_then(|w| Some((w.objects.get(&id)?, w.player()?))).is_some_and(|(o, me)| (o.x - me.x).hypot(o.y - me.y) < 3.0);
+            if !near {
+                self.crucible_ask = None;
+            }
+        }
         if self.visit.as_ref().is_some_and(|v| now >= v.until) {
             self.visit = None;
         }
@@ -2162,6 +2173,23 @@ impl Game {
             return;
         }
         self.socket.send(&UsePortal { object_id }.into());
+    }
+
+    /// Enter a portal the player chose: the Crucible's first asks (how often it can be climbed,
+    /// that it's meant for a group), the rest at once.
+    pub fn enter_portal(&mut self, object_id: i32, data: &bsk_data::GameData) {
+        let crucible = self
+            .world
+            .as_ref()
+            .and_then(|w| w.objects.get(&object_id))
+            .and_then(|o| data.objects.get(&o.object_type))
+            .is_some_and(|d| d.id == crate::crucible::PORTAL);
+        if crucible && self.crucible_ask != Some(object_id) {
+            self.crucible_ask = Some(object_id);
+            return;
+        }
+        self.crucible_ask = None;
+        self.use_portal(object_id);
     }
 
     /// Back to the nexus (the R key). Not from the nexus itself: the server disconnects for that.

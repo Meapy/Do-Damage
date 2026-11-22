@@ -750,7 +750,12 @@ fn apply_action(game: &mut Game, panel: &hud::Panel, action: hud::Action, now: i
         }
         Action::Stack(s) => game.add_to_stack(now, slot_of(&s)),
         Action::Button(Button::Nexus) => game.escape(),
-        Action::Button(Button::Enter(id)) => game.use_portal(id),
+        Action::Button(Button::Enter(id)) => game.enter_portal(id, data),
+        Action::Button(Button::CrucibleClimb(id)) => {
+            game.crucible_ask = None;
+            game.use_portal(id);
+        }
+        Action::Button(Button::CrucibleNotNow) => game.crucible_ask = None,
         Action::Button(Button::Buy(id)) => game.buy(id, None),
         Action::Button(Button::BuyGold(id)) => game.buy(id, Some(0)),
         Action::Button(Button::Menu(opt, id)) => {
@@ -2695,6 +2700,7 @@ impl App {
                 arena_votes: game.arena_votes.as_ref(),
                 arena_next: game.arena_next.as_ref(),
                 visit: game.visit.as_ref(),
+                crucible_ask: game.crucible_ask,
                 fame: &game.fame_stats,
             };
             let built = game.world.as_ref().map(|w| hud::Panel::new(&lay, w, data, &self.hud, &social));
@@ -2713,7 +2719,7 @@ impl App {
                     // Interact with what the interact area shows (enter the portal, buy from the
                     // shop): not a portal under the bag it shows instead.
                     Some(Bind::Interact) => match built.as_ref().and_then(|p| p.interact.clone()) {
-                        Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.use_portal(id),
+                        Some(hud::Interact { id, kind: hud::InteractKind::Portal, .. }) => game.enter_portal(id, data),
                         Some(hud::Interact { id, kind: hud::InteractKind::Shop { .. }, .. }) => game.buy(id, None),
                         Some(hud::Interact { kind: hud::InteractKind::Npc { kind, .. }, .. }) => {
                             to_chars |= npc_open(kind, game, &mut self.npcs, &mut self.market, &mut self.forge, &mut self.forge_acts, (&mut self.quests, &mut self.quest_acts), (&mut self.pass, &mut self.pass_acts), (&mut self.community, &mut self.community_acts), (&mut self.collection, &mut self.pet_pen, &mut self.keeper_acts), self.front.list.as_ref(), data);
@@ -3522,6 +3528,7 @@ impl App {
                             arena_votes: game.arena_votes.as_ref(),
                             arena_next: game.arena_next.as_ref(),
                             visit: game.visit.as_ref(),
+                            crucible_ask: game.crucible_ask,
                             fame: &game.fame_stats,
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
@@ -3582,6 +3589,9 @@ impl App {
                 if let Some(visit) = &game.visit {
                     hud::draw_visit(&mut ui, &lay, visit, now, mouse);
                 }
+                if game.crucible_ask.is_some() {
+                    crate::crucible::draw_ask(&mut ui, &lay, mouse);
+                }
             }
         }
         if let (Some(far), Phase::Playing(game)) = (view_radius, &mut self.phase) {
@@ -3627,6 +3637,7 @@ impl App {
                     arena_votes: game.arena_votes.as_ref(),
                     arena_next: game.arena_next.as_ref(),
                     visit: game.visit.as_ref(),
+                    crucible_ask: game.crucible_ask,
                     fame: &game.fame_stats,
                 };
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);

@@ -199,7 +199,7 @@ namespace WorldServer.core.worlds.impl.crucible
         // again: its painters put back only what they painted, and only where it is still theirs,
         // so this makes sure no lava, tide or broken floor is left over between them
         private readonly Dictionary<int, List<(int X, int Y, ushort Ground)>> _pristine = new Dictionary<int, List<(int, int, ushort)>>();
-        private const int FloorReach = 18;
+        private const int FloorReach = 25; // the Apex, the biggest floor, reaches 23
 
         private List<(int X, int Y, ushort Ground)> Ground(int cx, int cy, HashSet<(int, int)> way)
         {

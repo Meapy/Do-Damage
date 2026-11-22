@@ -507,7 +507,7 @@
 		</RandomTexture>
 		<Color>0x8A4A1E</Color>
 	</Ground>
-	<Ground type="0xC61C" id="Crucible Underside Rock">
+	<Ground type="0xC61E" id="Unbound Marble">
 		<RandomTexture>
 			<Texture>
 				<File>crucible8x8</File>
@@ -526,9 +526,9 @@
 				<Index>0x59</Index>
 			</Texture>
 		</RandomTexture>
-		<Color>0x2A2230</Color>
+		<Color>0x2A1846</Color>
 	</Ground>
-	<Ground type="0xC61D" id="Crucible Underside Rim">
+	<Ground type="0xC61F" id="Unbound Rim">
 		<RandomTexture>
 			<Texture>
 				<File>crucible8x8</File>
@@ -537,6 +537,44 @@
 			<Texture>
 				<File>crucible8x8</File>
 				<Index>0x5b</Index>
+			</Texture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x5c</Index>
+			</Texture>
+		</RandomTexture>
+		<Color>0x5A2A8A</Color>
+	</Ground>
+	<Ground type="0xC61C" id="Crucible Underside Rock">
+		<RandomTexture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x5d</Index>
+			</Texture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x5e</Index>
+			</Texture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x5f</Index>
+			</Texture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x60</Index>
+			</Texture>
+		</RandomTexture>
+		<Color>0x2A2230</Color>
+	</Ground>
+	<Ground type="0xC61D" id="Crucible Underside Rim">
+		<RandomTexture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x61</Index>
+			</Texture>
+			<Texture>
+				<File>crucible8x8</File>
+				<Index>0x62</Index>
 			</Texture>
 		</RandomTexture>
 		<Color>0x4A3E50</Color>

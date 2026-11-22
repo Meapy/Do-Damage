@@ -19,8 +19,10 @@ next, out of sight of it):
   arms fall away (Pyrrhax);
 - IV, the Clockwork Orrery: three rings with open sky between them, joined by spokes, a hub, a
   middle ring and the dial with its twelve numerals, orrery pylons on the spokes (Chronarch);
-- V, the Apex: a star of marble with eight points, inlaid with the tower's sigil, four
-  obelisks banded in the floors' colours on four of its points (Vaelith, the Crucible Sovereign).
+- V, the Apex: the biggest floor (reach 23), a star of marble with eight points, inlaid with the
+  tower's sigil, four obelisks banded in the floors' colours on four of its points (Vaelith, the
+  Crucible Sovereign, who reshapes it through his fight: ApexForms in logic/behaviors/Crucible.cs,
+  its last form in the Unbound grounds made here).
 
 Between each floor and the next a way up winds through the sky (WAYS), from one's northern edge
 to the next one's southern edge, five squares wide, made of the floor it leads to: its ground and
@@ -28,7 +30,7 @@ edge, a line of its light down the middle, its pillars on ledges off the sides. 
 marked `Crucible Way`: CrucibleWorld takes the ways and every floor above the Threshold away as the
 world opens and builds them as the climb walks up, letting them fall behind it.
 
-No floor reaches further than 17 squares from its middle (CrucibleWorld.FloorReach, the snapshot
+No floor but the Apex reaches further than 17 squares from its middle (CrucibleWorld.FloorReach, the snapshot
 it puts the floor back from); the floor painters (logic/behaviors/Crucible.cs) only repaint
 ground that can be walked on and leave what stands on it, so the floors' holes and pillars stay.
 
@@ -213,11 +215,17 @@ GROUNDS = {
     # harmless, a warning
     "Crumbling Floor": ("0x3A3036", {}),
     "Crucible Warning": ("0x8A4A1E", {}),
+    # Vaelith's last form for the Apex (ApexForm, Unbound): marble of the void, veined in violet
+    "Unbound Marble": ("0x2A1846", {}),
+    "Unbound Rim": ("0x5A2A8A", {}),
     "Crucible Underside Rock": ("0x2A2230", {}),
     "Crucible Underside Rim": ("0x4A3E50", {}),
 }
 # the warning's art: the floor glowing ember-orange in stripes, harmless
 small.TILES["Crucible Warning"] = (small.pattern(["#5a2a14", "#8a4a1e", "#c86a24"], lambda x, y, s: (x + y + s) % 3), 2)
+small.TILES["Unbound Marble"] = (small.pattern(["#1c1030", "#2a1846", "#3a2260", "#2a1846"],
+                                               lambda x, y, s: (x * 3 + y * 5 + s * 7) % 11 // 3, fleck="#7a3ab8"), 4)
+small.TILES["Unbound Rim"] = (small.pattern(["#5a2a8a", "#d8a428", "#2a1846"], lambda x, y, s: (x + y * 2 + s) % 3, fleck="#ffe68a"), 3)
 
 
 def grounds(types, sheet):
@@ -590,8 +598,8 @@ def objects(types, s8, s16, s32, c16, c32):
 # ------------------------------------------------------------------------------------------------
 # the map
 
-W, H = 48, 460
-CX = 24
+W, H = 56, 460
+CX = 28
 # (heart, centre row, reach, shape, floor, rim): each floor's shape is `SHAPES[shape]`, true for
 # the squares (dx, dy) from its middle that are floor
 THRESHOLD = (CX, 440, 8)
@@ -600,7 +608,7 @@ FLOORS = [
     ("Sanctum Heart", 300, 17, "atoll", "Sanctum Mosaic", "Sanctum Rim"),
     ("Foundry Heart", 230, 17, "cross", "Foundry Plate", "Foundry Rim"),
     ("Orrery Heart", 160, 17, "orrery", "Orrery Dial", "Orrery Rim"),
-    ("Apex Heart", 88, 17, "star", "Apex Marble", "Apex Rim"),
+    ("Apex Heart", 82, 23, "star", "Apex Marble", "Apex Rim"),
 ]
 
 
@@ -649,9 +657,9 @@ def _orrery(dx, dy):
 
 
 def _star(dx, dy):
-    # eight points of marble round a disc
+    # eight points of marble round a disc (the biggest floor: Vaelith reshapes it, ApexForm)
     r, a = math.hypot(dx, dy), math.atan2(dy, dx)
-    return r <= 10.6 + 5.8 * abs(math.cos(4 * a)) ** 3
+    return r <= 15.0 + 8.0 * abs(math.cos(4 * a)) ** 3
 
 
 SHAPES = {"fort": _fort, "atoll": _atoll, "cross": _cross, "orrery": _orrery, "star": _star}
@@ -665,15 +673,15 @@ SHAPES = {"fort": _fort, "atoll": _atoll, "cross": _cross, "orrery": _orrery, "s
 # winds ("wave": an S of `turns` half-bends `swing` squares out; "zigzag": the same in straight
 # runs), how wide (squares from its middle line).
 WAYS = [
-    (("Bastion Flagstone", "Bastion Rim", "Bastion Inlay", "Bastion Pillar"), ("wave", 1, 8.0), 2.5),
-    (("Sanctum Mosaic", "Sanctum Rim", "Sanctum Shallows", "Coral Spire"), ("wave", 2, 10.0), 2.5),
-    (("Foundry Plate", "Foundry Rim", "Cooling Slag", "Foundry Brazier"), ("zigzag", 3, 9.0), 2.5),
-    (("Orrery Dial", None, "Dial Numeral", "Orrery Pylon"), ("wave", 2, 12.0), 2.5),
-    (("Apex Marble", "Apex Rim", "Apex Sigil", "Apex Obelisk"), ("wave", 1, 13.0), 3.0),
+    (("Bastion Flagstone", "Bastion Rim", "Bastion Inlay", "Bastion Pillar"), ("wave", 1, 10.0), 2.5),
+    (("Sanctum Mosaic", "Sanctum Rim", "Sanctum Shallows", "Coral Spire"), ("wave", 2, 12.0), 2.5),
+    (("Foundry Plate", "Foundry Rim", "Cooling Slag", "Foundry Brazier"), ("zigzag", 3, 11.0), 2.5),
+    (("Orrery Dial", None, "Dial Numeral", "Orrery Pylon"), ("wave", 2, 14.0), 2.5),
+    (("Apex Marble", "Apex Rim", "Apex Sigil", "Apex Obelisk"), ("wave", 1, 14.0), 3.0),
 ]
 # the ways' straight runs out of a floor and into the next: from its edge to this many squares
-# from its middle, so they wind only clear of both
-WAY_CLEAR = 19
+# past its reach, so they wind only clear of both
+WAY_CLEAR = 2
 WAY_LIGHT_EVERY = 3.0   # squares along the middle line between its lights
 WAY_LEDGE_EVERY = 11.0  # and between the ledges with pillars, side by side in turn
 
@@ -707,7 +715,7 @@ def disc(m, cy, r, shape, floor, rim):
                 dx, dy = x - CX, y - cy
                 if not fn(dx, dy):
                     continue
-                assert max(abs(dx), abs(dy)) <= 17, (shape, dx, dy)
+                assert max(abs(dx), abs(dy)) <= r, (shape, dx, dy)
                 edge = any(not fn(dx + ex, dy + ey) for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1)))
                 # the orrery's rings edged only on the outside (its rim stands up: on every ring
                 # it walled the floor into a maze)
@@ -822,37 +830,38 @@ def build_map():
                 for x in range(CX - r, CX + r + 1):
                     dx, dy = x - CX, y - cy
                     d = math.hypot(dx, dy)
-                    if d < 1 or d > 14 or m.ground[y][x] != floor:
+                    if d < 1 or d > 20 or m.ground[y][x] != floor:
                         continue
                     a = math.atan2(dy, dx)
-                    spike = 9 * (0.45 + 0.55 * abs(math.cos(4 * a)) ** 6)
-                    point = abs(math.sin(4 * a)) * d < 0.6 and d > 9.5
-                    if abs(d - spike) < 0.7 or abs(d - 4) < 0.45 or point:
+                    spike = 12.6 * (0.45 + 0.55 * abs(math.cos(4 * a)) ** 6)
+                    point = abs(math.sin(4 * a)) * d < 0.6 and d > 13
+                    if abs(d - spike) < 0.7 or abs(d - 5.5) < 0.45 or point:
                         m.ground[y][x] = "Apex Sigil"
-            for (x, y) in ring_points(cy, 14, 4, math.pi / 4):
+            for (x, y) in ring_points(cy, 19, 4, math.pi / 4):
                 m.place(x, y, "Apex Obelisk")
         m.place(CX, cy, heart)
-    platforms = [(THRESHOLD[1], None)] + [(f[1], f) for f in FLOORS]
+    platforms = [(THRESHOLD[1], THRESHOLD[2])] + [(f[1], f[2]) for f in FLOORS]
     for i, look in enumerate(WAYS):
-        way(m, platforms[i][0], platforms[i + 1][0], *look)
+        way(m, platforms[i], platforms[i + 1], *look)
     return m
 
 
-def _edge_row(m, cy, north):
-    """The floor's last square at x = CX going north (or south) from its middle, within 17."""
-    rows = range(cy - 17, cy + 1) if north else range(cy + 17, cy - 1, -1)
+def _edge_row(m, cy, reach, north):
+    """The floor's last square at x = CX going north (or south) from its middle, within its reach."""
+    rows = range(cy - reach, cy + 1) if north else range(cy + reach, cy - 1, -1)
     for y in rows:
         if m.ground[y][CX] is not None:
             return y
     raise AssertionError(("no floor at the middle", cy))
 
 
-def way(m, low_cy, high_cy, look, course, width):
-    """A way from the floor whose middle is row `low_cy` up (north) to the one at `high_cy`."""
+def way(m, low, high, look, course, width):
+    """A way from the floor `low` (its middle's row, its reach) up (north) to the floor `high`."""
+    (low_cy, low_r), (high_cy, high_r) = low, high
     ground, rim, light, pillar = look
     kind, turns, swing = course
-    start, end = _edge_row(m, low_cy, True), _edge_row(m, high_cy, False)
-    a, b = low_cy - WAY_CLEAR, high_cy + WAY_CLEAR
+    start, end = _edge_row(m, low_cy, low_r, True), _edge_row(m, high_cy, high_r, False)
+    a, b = low_cy - low_r - WAY_CLEAR, high_cy + high_r + WAY_CLEAR
     assert start > a > b > end, (start, a, b, end)
 
     def offset(y):

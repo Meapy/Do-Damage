@@ -19,7 +19,8 @@ namespace WorldServer.logic
     //
     // The champions arrive at their floor's middle (CrucibleWorld spawns them there), so their spawn
     // point is the middle, and every one sees the whole floor (Sight). Health scales with players
-    // (BossStats, 0.35 a player after the first).
+    // (BossStats, 0.35 a player after the first, halved for the Crucible as in the other hardest
+    // places, GroupScaling: each player after the first adds about a sixth).
     partial class BehaviorDb
     {
         private const double CrucibleSight = 30;
@@ -59,7 +60,7 @@ namespace WorldServer.logic
             )
             .Init("Ferrogrim, the Iron Warden",
                 new State(
-                    new BossStats(150000, 60, 1.0, 0.35),
+                    new BossStats(150000, 50, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(IronGlow, 0.3, 6),
@@ -216,7 +217,7 @@ namespace WorldServer.logic
             )
             .Init("Nerissa, the Tidecaller",
                 new State(
-                    new BossStats(180000, 50, 1.0, 0.35),
+                    new BossStats(180000, 45, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(TideGlow, 0.3, 6),
@@ -326,7 +327,7 @@ namespace WorldServer.logic
             )
             .Init("Pyrrhax, the Forge Tyrant",
                 new State(
-                    new BossStats(210000, 70, 1.0, 0.35),
+                    new BossStats(210000, 55, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(LavaGlow, 0.3, 6),
@@ -431,7 +432,7 @@ namespace WorldServer.logic
             )
             .Init("Chronarch, the Hour Thief",
                 new State(
-                    new BossStats(240000, 80, 1.0, 0.35),
+                    new BossStats(240000, 60, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(BrassGlow, 0.3, 6),
@@ -522,61 +523,61 @@ namespace WorldServer.logic
             // V. The Apex: Vaelith, the Crucible Sovereign
             // - 100% to 80%: Sovereign's Decree: lances, rings of flame feathers that sway, a
             //   spiral of stars, gold strikes falling on the players.
-            // - 80%, 65%, 50%, 35%: the four echoes, one after another: the Apex's marble turns into
-            //   each fallen champion's floor (spreading from the middle) with its hazards, and that
-            //   champion's ghost fights from the rim: iron (blades and molten rings), tide (sweeps),
-            //   forge (lava veins and meteors), hours (the chime and the hands).
-            // - 20%: The Crucible Breaks (a survival phase): the Apex crumbles into the sky down to
-            //   nine squares from the middle, the four ghosts together round it, gold raining.
-            // - Then Unbound to the end: violet flame, flame arms turning and waves of fire on what's
-            //   left of the floor, everything faster.
+            // - 80%, 65%, 50%, 35%: the four echoes, one after another: the Apex reshapes itself
+            //   into each fallen champion's floor, made over (ApexForm: a fortress with pits in its
+            //   yard, isles in a deep sea, a cross over the sky with furnaces floating off it, an
+            //   orrery whose spokes turn), with its hazards, and that champion's ghost fights from
+            //   the rim: iron (blades and molten rings), tide (sweeps), forge (lava veins and
+            //   meteors), hours (the chime and the hands).
+            // - 20%: The Crucible Breaks (a survival phase): the Apex shatters, a disc of its middle
+            //   left with its shards floating round it, the four ghosts together, gold raining.
+            // - Then Unbound to the end: the Apex re-forms as a halo of void marble round the void
+            //   itself, flame arms turning and waves of fire across it, everything faster.
             .Init("Apex Heart",
                 new State(
                     new State("Idle"),
-                    new State("Decree",
-                        new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 2600, color: SovereignGlow)
-                    ),
-                    new State("Iron",
-                        new Transmute("Bastion Flagstone", "Bastion Rim", 16, 60),
-                        new State("Iron Turn", new TimedTransition(1400, "Iron Go")),
-                        new State("Iron Go", new FloorLayers(
-                            new SweepingArms("Grinding Blade", 3, 3, 15, 1.6, 28),
-                            new FloorWave("Molten Grate", 15, 7, 2, 70, everyMs: 3600)))
-                    ),
-                    new State("Tide",
-                        new Transmute("Sanctum Mosaic", "Sanctum Rim", 16, 60),
-                        new State("Tide Turn", new TimedTransition(1400, "Tide Go")),
-                        new State("Tide Go", new TideSweep("Surging Tide", 16, 2.5, 8, 3, 2.4, everyMs: 4000))
-                    ),
-                    new State("Forge",
-                        new Transmute("Foundry Plate", "Foundry Rim", 16, 60),
-                        new State("Forge Turn", new TimedTransition(1400, "Forge Go")),
-                        new State("Forge Go",
-                            new LavaVeins("Forge Lava", "Cooling Slag", 3, 13, 16, everyMs: 3400),
-                            new Starfall(Starfall.Area.Scatter, 15, 2.2, 340, 900, color: LavaGlow)
-                        )
-                    ),
-                    new State("Hours",
-                        new Transmute("Orrery Dial", "Orrery Rim", 16, 60),
-                        new State("Hours Turn", new TimedTransition(1400, "Hours Go")),
-                        new State("Hours Go", new FloorLayers(
-                            new SectorChime("Chime Light", 12, 3, 15.5, null, warnMs: 1200, litMs: 1200, gapMs: 1600),
-                            new SweepingArms("Hour Hand", 1, 2.5, 15.5, 2.2, 16, warnMs: 0)))
-                    ),
-                    new State("Broken",
-                        new Crumble(9, 17, fallMs: 6000, warnMs: 1800, damage: 350),
-                        new State("Breaks",
-                            new Starfall(Starfall.Area.Scatter, 9, 1.8, 300, 700, color: SovereignGlow)
+                    new State("Fight",
+                        new ApexForm(),
+                        new State("Decree",
+                            new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 2600, color: SovereignGlow)
                         ),
-                        new State("Unbound", new FloorLayers(
-                            new SweepingArms("Sovereign Flame", 2, 2.5, 9, 1.4, 38),
-                            new FloorWave("Sovereign Flame", 9, 5, 2, 80, everyMs: 4200)))
+                        new State("Iron",
+                            new State("Iron Turn", new TimedTransition(3800, "Iron Go")),
+                            new State("Iron Go", new FloorLayers(
+                                new SweepingArms("Grinding Blade", 3, 3, 19, 1.6, 26),
+                                new FloorWave("Molten Grate", 20, 7, 2, 70, everyMs: 3800)))
+                        ),
+                        new State("Tide",
+                            new State("Tide Turn", new TimedTransition(3800, "Tide Go")),
+                            new State("Tide Go", new TideSweep("Surging Tide", 20, 2.5, 8, 3, 2.6, everyMs: 4200))
+                        ),
+                        new State("Forge",
+                            new State("Forge Turn", new TimedTransition(3800, "Forge Go")),
+                            new State("Forge Go",
+                                new LavaVeins("Forge Lava", "Cooling Slag", 3, 17, 21, everyMs: 3600),
+                                new Starfall(Starfall.Area.Scatter, 18, 2.2, 340, 900, color: LavaGlow)
+                            )
+                        ),
+                        new State("Hours",
+                            new State("Hours Turn", new TimedTransition(3800, "Hours Go")),
+                            new State("Hours Go", new FloorLayers(
+                                new SectorChime("Chime Light", 12, 3, 21, null, warnMs: 1300, litMs: 1200, gapMs: 1800),
+                                new SweepingArms("Hour Hand", 1, 2.5, 21, 2.2, 14, warnMs: 0)))
+                        ),
+                        new State("Broken",
+                            new State("Breaks",
+                                new Starfall(Starfall.Area.Scatter, 8, 1.8, 300, 700, color: SovereignGlow)
+                            ),
+                            new State("Unbound", new FloorLayers(
+                                new SweepingArms("Sovereign Flame", 2, 5, 16, 1.6, 32),
+                                new FloorWave("Sovereign Flame", 16, 5, 2, 80, everyMs: 4400)))
+                        )
                     )
                 )
             )
             .Init("Vaelith, the Crucible Sovereign",
                 new State(
-                    new BossStats(360000, 90, 1.0, 0.35),
+                    new BossStats(340000, 70, 1.0, 0.35),
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(SovereignGlow, 0.3, 10),

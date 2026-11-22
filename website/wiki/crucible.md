@@ -23,8 +23,14 @@ lava runs through the cracks, the clock strikes. Beat all five and the Crucible 
   anywhere. `/crucible status` tells you whether it's open to you, how many climbs you have left
   today and the three best climbs.
 
+Before the portal lets you in, it reminds you of the above and asks whether to climb.
+
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
 the lobby can say **GO** to start it sooner. Once it begins, nobody else can join.
+
+**Bring friends.** The champions are made for a group of up to six. Each player after the first adds
+only about a sixth to a champion's health, so a full group has far more damage for each point of
+health than someone climbing alone.
 
 ## How a climb goes
 
@@ -109,17 +115,30 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
-A star of marble with eight points, the tower's sigil inlaid in gold.
+The biggest floor: a star of marble with eight points, the tower's sigil inlaid in gold. It
+doesn't stay a star. With each phase it reshapes itself in a wave out from its middle: ground that
+goes cracks first and falls into the sky, new ground rises out of it, and anyone left standing where
+it falls is thrown onto what's left (and hurt).
 
 The tower's maker: a crowned champion in white and gold with wings of fire and a ring of gold
 set with the four floors' gems.
 
 - **Sovereign's Decree:** stars fall on each of you.
 - **The Echoes** (80%, 65%, 50%, 35%): one by one he raises the ghosts of the four champions
-  below. Each turns the Apex into its floor (iron, tide, forge, then clock) and fights with that
-  floor's hazards.
-- **The Crucible Breaks** (20%): all four echoes return at once and the Apex's rim crumbles away.
-- **Unbound:** his wings turn to the void for the end of the fight.
+  below. Each remakes the Apex in the shape of its floor and fights with that floor's hazards:
+  - **Iron:** a fortress, a square keep with a round bastion at each corner, a gate in each side,
+    four pits in its yard and iron pillars at the gates and bastions.
+  - **Tide:** an archipelago, a middle isle and six round it in a deep sea that slows you and wears
+    you down, shallows running out to the isles.
+  - **Forge:** a forge hall in a cross, four long arms over open sky, slag down them, furnaces
+    floating off its corners.
+  - **Hours:** an orrery, a hub and two rings over the sky, joined by spokes that turn, the inner
+    ones one way and the outer ones the other. The way across moves: the floor cracks a moment
+    before a spoke leaves it.
+- **The Crucible Breaks** (20%): the Apex shatters. Only a disc of its middle is left, with its
+  shards floating round it, and all four echoes return at once.
+- **Unbound:** the Apex re-forms as a halo of void marble round the void itself, rays of gold
+  across it, with Vaelith hovering in the middle, his wings turned to the void.
 
 ## The white bags
 

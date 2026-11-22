@@ -727,7 +727,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `is_local_proxy`). Testing lets in rank 6 as well as the `admin` flag (`DbAccount.IsAdmin`, in
   `HelloHandler` and `MessageHandlers.IsEnabledOrAdminOnly`).
 - **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
-  (`Dungeons/The Crucible/The Crucible.jm`, 48x460, `<World id="The Crucible">` in Dungeons.xml:
+  (`Dungeons/The Crucible/The Crucible.jm`, 56x460, `<World id="The Crucible">` in Dungeons.xml:
   Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
   `tools/build_crucible.py` (the map, `CrucibleGrounds.xml` and `CrucibleObjects.xml` in both
   copies, the sheets `Crucible8x8`, `Crucible16x16`, `Crucible32x32`, `CrucibleChars16x16`, `CrucibleChars32x32`;
@@ -749,7 +749,15 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   clients how far along the leader is (the sky blends and drifts with it, the tracker names the
   floor); the Rust client's `crucible_ground` (`particles/relic.rs`) throws light up into ground
   built near us and breaks ground that falls into pieces. Admins' `/crucible floor <n>` still
-  jumps (the floor built at once). Shots fly over squares with no ground in this sky (`Background`
+  jumps (the floor built at once). The Apex is the biggest floor (reach 23, `FloorReach` 25) and
+  reshapes itself through Vaelith's fight (`ApexForm` and `ApexForms` in `logic/behaviors/Crucible.cs`,
+  on the Apex Heart's `Fight` state: a form for each of its states, the change spreading out from the
+  middle, ground that goes cracking first, pillars rising and falling with their squares, anyone on
+  fallen ground thrown onto the nearest that stays; the orrery's spokes turn; the map's Apex back
+  when the fight ends; `CrucibleTests.EveryApexFormIsWholeAndInTheGame` prints each). Its champions'
+  health grows half as fast with players as elsewhere (`GroupScaling`, as the Black Between). The
+  Rust client asks before entering the Crucible Portal (`Game::enter_portal`, `crucible::draw_ask`).
+  Shots fly over squares with no ground in this sky (`Background`
   9, `bsk_world::BACKGROUND_OPEN_AIR`, `combat.rs`) instead of stopping there;
   each floor's invisible Heart changes its floor (`logic/behaviors/Crucible.cs`: `CrucibleFloor` and
   its painters, `Rampart`, `Crumble`, `Transmute`), ordered by its champion

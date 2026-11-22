@@ -9,6 +9,7 @@ using Shared.resources;
 using WorldServer.core;
 using WorldServer.logic;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
@@ -16,6 +17,10 @@ namespace Tests
     [Collection("BehaviorDb")]
     public class CrucibleTests
     {
+        private readonly ITestOutputHelper Output;
+
+        public CrucibleTests(ITestOutputHelper output) => Output = output;
+
         private static readonly Lazy<(XmlData Data, BehaviorDb Db)> Game = new Lazy<(XmlData, BehaviorDb)>(() =>
         {
             var res = new Resources(Path.Combine(AppContext.BaseDirectory, "resources"), true, false);
@@ -77,6 +82,57 @@ namespace Tests
                 Assert.True(db.Definitions.TryGetValue(type, out var def), f.Heart + ": no behaviour");
                 Assert.Equal("Idle", def.Item1.States.First().Name);
             }
+        }
+
+        // Vaelith's Apex reshapes itself (ApexForms): each form's ground and pillars are in the game,
+        // it stays within the Apex's reach, and everything that isn't only to be looked at is one
+        // piece, so nobody is ever cut off (the orrery's at every moment of its turning)
+        [Theory]
+        [InlineData("fort", 0)]
+        [InlineData("isles", 0)]
+        [InlineData("cross", 0)]
+        [InlineData("orrery", 0)]
+        [InlineData("orrery", 7300)]
+        [InlineData("orrery", 23900)]
+        [InlineData("shards", 0)]
+        [InlineData("halo", 0)]
+        public void EveryApexFormIsWholeAndInTheGame(string form, int ms)
+        {
+            var (data, _) = Game.Value;
+            const int reach = 25;
+            var floor = new HashSet<(int, int)>();
+            var picture = new System.Text.StringBuilder();
+            for (var dy = -reach; dy <= reach; dy++)
+            {
+                for (var dx = -reach; dx <= reach; dx++)
+                {
+                    var look = WorldServer.logic.behaviors.ApexForms.Want(form, dx, dy, ms);
+                    if (look.Ground == null)
+                    {
+                        picture.Append(' ');
+                        continue;
+                    }
+                    Assert.True(data.IdToTileType.ContainsKey(look.Ground), $"{form}: no ground {look.Ground}");
+                    Assert.True(look.Obj == null || data.IdToObjectType.ContainsKey(look.Obj), $"{form}: no object {look.Obj}");
+                    Assert.True(Math.Max(Math.Abs(dx), Math.Abs(dy)) <= 22, $"{form}: ({dx}, {dy}) is past the Apex");
+                    picture.Append(look.Obj != null ? 'P' : look.Decor ? '+' : look.Ground[0]);
+                    if (!look.Decor && look.Obj == null)
+                        floor.Add((dx, dy));
+                }
+                picture.Append('\n');
+            }
+            Output.WriteLine(picture.ToString());
+            Assert.NotEmpty(floor);
+            var seen = new HashSet<(int, int)> { floor.First() };
+            var todo = new Queue<(int, int)>(seen);
+            while (todo.Count > 0)
+            {
+                var (x, y) = todo.Dequeue();
+                foreach (var q in new[] { (x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1) })
+                    if (floor.Contains(q) && seen.Add(q))
+                        todo.Enqueue(q);
+            }
+            Assert.True(seen.Count == floor.Count, $"{form} at {ms} ms: {floor.Count - seen.Count} squares cut off");
         }
 
         // every state a champion orders its Heart into is one the Heart has

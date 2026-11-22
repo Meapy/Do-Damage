@@ -356,7 +356,7 @@ pub fn burger_button(ui: &mut Ui, r: [f32; 4], open: bool, hover: bool, s: f32) 
     }
 }
 
-fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
+pub(crate) fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
     let (x, y) = (x as f32, y as f32);
     x >= r[0] && y >= r[1] && x < r[0] + r[2] && y < r[1] + r[3]
 }
@@ -863,6 +863,9 @@ pub enum Button {
     /// Answer the visit request in the corner.
     VisitYes,
     VisitNo,
+    /// The Crucible's warning: go through its portal after all, or not.
+    CrucibleClimb(i32),
+    CrucibleNotNow,
 }
 
 /// `PlayerMenu`'s options.
@@ -912,6 +915,8 @@ pub struct Social<'a> {
     pub arena_next: Option<&'a bsk_proto::ArenaRound>,
     /// Someone's /visit waiting for our answer (`Game::visit`).
     pub visit: Option<&'a crate::game::VisitAsk>,
+    /// The Crucible Portal whose warning is up (`Game::crucible_ask`).
+    pub crucible_ask: Option<i32>,
 }
 
 /// A player's account id (`ACCOUNT_ID_STAT`), as the account lists hold it.
@@ -1306,6 +1311,13 @@ impl Panel {
                     panel.buttons.push((Button::ArenaPick(k), r));
                 }
             }
+        }
+        // The Crucible's warning in the middle, its box the HUD's too.
+        if let Some(id) = social.crucible_ask {
+            let (frame, climb, not_now) = crate::crucible::ask_layout(lay);
+            panel.history.push(frame);
+            panel.buttons.push((Button::CrucibleClimb(id), climb));
+            panel.buttons.push((Button::CrucibleNotNow, not_now));
         }
         // The visit request in the corner: its box counts as the HUD's, so clicks on it never shoot.
         if social.visit.is_some() {
@@ -5179,7 +5191,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None, crucible_ask: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

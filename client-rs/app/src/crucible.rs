@@ -33,6 +33,8 @@ pub mod kind {
 }
 
 pub const FLOORS: u8 = 5;
+/// The portal in the Nexus (`CrucibleRules.PortalName`), which asks before it lets anyone in.
+pub const PORTAL: &str = "Crucible Portal";
 /// How long each moment shows (ms).
 pub const ASCEND_MS: i32 = 2800;
 const TITLE_MS: i32 = 5200;
@@ -290,6 +292,62 @@ impl Climb {
         let lw = ui.measure(&line, ls, false);
         ui.label(&line, (cx - lw / 2.0).round(), r[1] + r[3] - ls * 1.35, ls, false, color::TEXT_DIM);
     }
+}
+
+/// The warning before entering, in the middle of the world: its box, Climb and Not now.
+pub fn ask_layout(lay: &Layout) -> ([f32; 4], [f32; 4], [f32; 4]) {
+    let s = lay.s;
+    let (w, h) = (400.0 * s, 196.0 * s);
+    let frame = [((lay.view_w() - w) / 2.0).round(), (lay.h * 0.42 - h / 2.0).round(), w.round(), h.round()];
+    let bw = 150.0 * s;
+    let by = frame[1] + frame[3] - 44.0 * s;
+    let climb = [(frame[0] + frame[2] / 2.0 - bw - 6.0 * s).round(), by.round(), bw.round(), (32.0 * s).round()];
+    let not_now = [(frame[0] + frame[2] / 2.0 + 6.0 * s).round(), by.round(), bw.round(), (32.0 * s).round()];
+    (frame, climb, not_now)
+}
+
+/// Before the Crucible Portal lets anyone in: how often it can be climbed and that its champions
+/// are made for a group, then Climb or Not now.
+pub fn draw_ask(ui: &mut Ui, lay: &Layout, mouse: (f64, f64)) {
+    let s = lay.s;
+    let (f, climb, not_now) = ask_layout(lay);
+    crate::hud::hud_box(ui, f, s);
+    theme::fill(ui.renderer, [f[0] + 24.0 * s, f[1], f[2] - 48.0 * s, 2.0 * s], 1.0 * s, color::GOLD, 0.9);
+    let cx = f[0] + f[2] / 2.0;
+    let ks = lay.font(16.0);
+    centred(ui, tr("THE CRUCIBLE"), cx, f[1] + 12.0 * s, ks, true, color::GOLD, 1.0, f[2]);
+    let size = lay.font(12.0);
+    let mut y = f[1] + 40.0 * s;
+    for (text, rgb) in [
+        (tr("One climb a day, or two with a Gilded Realm Pass. A climb counts once it begins: leaving the lobby before then costs nothing."), color::TEXT),
+        (tr("Its champions are made for a group. Bring friends: up to six can climb together."), color::ACCENT_HI),
+    ] {
+        for line in lines(ui, text, size, f[2] - 36.0 * s) {
+            centred(ui, &line, cx, y, size, false, rgb, 1.0, f[2]);
+            y += size * 1.35;
+        }
+        y += 6.0 * s;
+    }
+    ui.button(climb, tr("Climb"), theme::Kind::Primary, crate::hud::inside(climb, mouse), s);
+    ui.button(not_now, tr("Not now"), theme::Kind::Secondary, crate::hud::inside(not_now, mouse), s);
+}
+
+/// `text` in rows no wider than `max_w`, broken at spaces.
+fn lines(ui: &mut Ui, text: &str, size: f32, max_w: f32) -> Vec<String> {
+    let mut rows: Vec<String> = Vec::new();
+    let mut row = String::new();
+    for word in text.split(' ') {
+        let next = if row.is_empty() { word.to_owned() } else { format!("{row} {word}") };
+        if !row.is_empty() && ui.measure(&next, size, false) > max_w {
+            rows.push(std::mem::replace(&mut row, word.to_owned()));
+        } else {
+            row = next;
+        }
+    }
+    if !row.is_empty() {
+        rows.push(row);
+    }
+    rows
 }
 
 fn diamond(ui: &mut Ui, x: f32, y: f32, r: f32, rgb: u32, a: f32) {

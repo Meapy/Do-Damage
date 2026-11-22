@@ -907,4 +907,455 @@ namespace WorldServer.logic.behaviors
                     p.ApplyConditionEffect(ConditionEffectIndex.Armored, _coolDownMs + 200);
         }
     }
+
+    // The Apex's forms (ApexForm): for each of its Heart's states, what each square round its middle
+    // is (`ms` into the form: the orrery turns).
+    public static class ApexForms
+    {
+        // what a form puts on a square: its ground (null: the sky), what stands on it, and whether it
+        // is only to be seen (a shard floating off the floor, nobody is thrown onto it)
+        public readonly record struct Look(string Ground, string Obj = null, bool Decor = false);
+
+        public static readonly Dictionary<string, string> ByState = new()
+        {
+            ["Decree"] = null, ["Iron"] = "fort", ["Tide"] = "isles", ["Forge"] = "cross",
+            ["Hours"] = "orrery", ["Breaks"] = "shards", ["Unbound"] = "halo",
+        };
+
+        internal static string FormOf(Entity host)
+        {
+            for (var st = host.CurrentState; st != null; st = st.Parent)
+                if (ByState.TryGetValue(st.Name, out var f))
+                    return f;
+            return null;
+        }
+
+        private static double Ang(double a, double b)
+        {
+            var d = (a - b) % (2 * Math.PI);
+            if (d < -Math.PI) d += 2 * Math.PI;
+            if (d > Math.PI) d -= 2 * Math.PI;
+            return Math.Abs(d);
+        }
+
+        // ---- the forms: is (dx, dy) floor in it, and what is it ----
+
+        private static bool Fort(int dx, int dy)
+        {
+            var (ax, ay) = (Math.Abs(dx), Math.Abs(dy));
+            if (Math.Max(Math.Abs(ax - 7), Math.Abs(ay - 7)) <= 1)
+                return false; // the yard's pits
+            if (Math.Sqrt((ax - 14) * (ax - 14) + (ay - 14) * (ay - 14)) <= 6)
+                return true;
+            return Math.Max(ax, ay) <= 14 && !(Math.Min(ax, ay) <= 2 && Math.Max(ax, ay) >= 12);
+        }
+
+        private static bool Isle(int dx, int dy, out bool middle)
+        {
+            middle = Math.Sqrt(dx * dx + dy * dy) <= 5.5;
+            if (middle)
+                return true;
+            for (var k = 0; k < 6; k++)
+            {
+                var a = Math.PI / 3 * k + Math.PI / 6;
+                double ix = Math.Cos(a) * 14, iy = Math.Sin(a) * 14;
+                if ((dx - ix) * (dx - ix) + (dy - iy) * (dy - iy) <= 4.6 * 4.6)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool Cross(int dx, int dy, out bool furnace)
+        {
+            var (ax, ay) = (Math.Abs(dx), Math.Abs(dy));
+            furnace = Math.Sqrt((ax - 15) * (ax - 15) + (ay - 15) * (ay - 15)) <= 3.2;
+            if (furnace)
+                return true;
+            if (Math.Max(ax, ay) <= 7)
+                return true;
+            var (minor, major) = (Math.Min(ax, ay), Math.Max(ax, ay));
+            return minor <= 3 && (major <= 18 || Math.Sqrt(minor * minor + (major - 18) * (major - 18)) <= 3.4);
+        }
+
+        // the orrery at `ms` into its form: its spokes turning
+        private static bool Orrery(int dx, int dy, int ms, out bool spoke)
+        {
+            spoke = false;
+            var r = Math.Sqrt(dx * dx + dy * dy);
+            var a = Math.Atan2(dy, dx);
+            if (r <= 5 || r >= 8 && r <= 12 || r >= 15 && r <= 21)
+                return true;
+            if (r > 21)
+                return false;
+            var t = ms / 1000.0;
+            var inner = r < 8;
+            var turn = inner ? t * Math.PI / 20 : -t * Math.PI / 26; // 9 and about 7 degrees a second
+            var count = inner ? 3 : 4;
+            for (var k = 0; k < count; k++)
+                if (Ang(a, turn + 2 * Math.PI * k / count) * r <= 1.4)
+                    return spoke = true;
+            return false;
+        }
+
+        private static bool Shards(int dx, int dy, out bool shard)
+        {
+            shard = false;
+            if (Math.Sqrt(dx * dx + dy * dy) <= 8)
+                return true;
+            for (var k = 0; k < 8; k++)
+            {
+                var a = Math.PI / 4 * k + Math.PI / 8;
+                var rr = 15 + (k % 3) * 1.5;
+                double sx = Math.Cos(a) * rr, sy = Math.Sin(a) * rr;
+                if ((dx - sx) * (dx - sx) + (dy - sy) * (dy - sy) <= (k % 2 == 0 ? 2.4 * 2.4 : 1.8 * 1.8))
+                    return shard = true;
+            }
+            return false;
+        }
+
+        private static bool Halo(int dx, int dy, out bool obelisk)
+        {
+            obelisk = false;
+            var r = Math.Sqrt(dx * dx + dy * dy);
+            if (r >= 5 && r <= 16)
+                return true;
+            for (var k = 0; k < 8; k++)
+            {
+                var a = Math.PI / 4 * k;
+                if (Math.Abs(dx - Math.Round(Math.Cos(a) * 19.5)) <= 0 && Math.Abs(dy - Math.Round(Math.Sin(a) * 19.5)) <= 0)
+                    return obelisk = true;
+            }
+            return false;
+        }
+
+        private static bool Inside(string form, int dx, int dy, int ms) => form switch
+        {
+            "fort" => Fort(dx, dy),
+            "isles" => Math.Sqrt(dx * dx + dy * dy) <= 21,
+            "cross" => Cross(dx, dy, out _),
+            "orrery" => Orrery(dx, dy, ms, out _),
+            "shards" => Shards(dx, dy, out _),
+            "halo" => Halo(dx, dy, out _),
+            _ => false,
+        };
+
+        public static Look Want(string form, int dx, int dy, int ms)
+        {
+            if (!Inside(form, dx, dy, ms))
+                return new Look(null);
+            var edge = !Inside(form, dx + 1, dy, ms) || !Inside(form, dx - 1, dy, ms) || !Inside(form, dx, dy + 1, ms) || !Inside(form, dx, dy - 1, ms);
+            var (ax, ay) = (Math.Abs(dx), Math.Abs(dy));
+            var r = Math.Sqrt(dx * dx + dy * dy);
+            var a = Math.Atan2(dy, dx);
+            switch (form)
+            {
+                case "fort":
+                {
+                    string obj = null;
+                    if (ax == 14 && ay == 14 || Math.Min(ax, ay) == 3 && Math.Max(ax, ay) == 12)
+                        obj = "Bastion Pillar";
+                    if (edge)
+                        return new Look("Bastion Rim", obj);
+                    return new Look(Math.Max(ax, ay) == 10 && Math.Min(ax, ay) >= 4 || Math.Max(ax, ay) == 4 ? "Bastion Inlay" : "Bastion Flagstone", obj);
+                }
+                case "isles":
+                {
+                    if (r > 20)
+                        return new Look("Sanctum Rim");
+                    if (!Isle(dx, dy, out var middle))
+                    {
+                        // shallows out from the middle isle to each of the others, the rest deep sea
+                        for (var k = 0; k < 6; k++)
+                            if (r < 11 && Ang(a, Math.PI / 3 * k + Math.PI / 6) * r <= 1.3)
+                                return new Look("Sanctum Shallows");
+                        return new Look("Deep Tide");
+                    }
+                    var coast = !Isle(dx + 1, dy, out _) || !Isle(dx - 1, dy, out _) || !Isle(dx, dy + 1, out _) || !Isle(dx, dy - 1, out _);
+                    string spire = null;
+                    for (var k = 0; k < 6; k++)
+                    {
+                        var ka = Math.PI / 3 * k + Math.PI / 6;
+                        if (dx == (int)Math.Round(Math.Cos(ka) * 16) && dy == (int)Math.Round(Math.Sin(ka) * 16))
+                            spire = "Coral Spire";
+                    }
+                    return new Look(coast ? "Coral Isle" : "Sanctum Mosaic", spire);
+                }
+                case "cross":
+                {
+                    Cross(dx, dy, out var furnace);
+                    if (furnace)
+                        return new Look(edge ? "Foundry Rim" : "Foundry Plate", ax == 15 && ay == 15 ? "Foundry Brazier" : null, Decor: true);
+                    var (minor, major) = (Math.Min(ax, ay), Math.Max(ax, ay));
+                    var obj = minor == 2 && major == 19 ? "Foundry Brazier" : null;
+                    if (edge)
+                        return new Look("Foundry Rim", obj);
+                    var slag = minor == 0 && major >= 9 && major <= 19 || ax == ay && ax >= 2 && ax <= 6;
+                    return new Look(slag ? "Cooling Slag" : "Foundry Plate", obj);
+                }
+                case "orrery":
+                {
+                    Orrery(dx, dy, ms, out var spoke);
+                    if (spoke)
+                        return new Look("Dial Numeral");
+                    if (r > 20.3)
+                        return new Look("Orrery Rim");
+                    var numeral = Math.Abs(r - 18) < 0.6 && Ang(a, Math.Round(a / (Math.PI / 6)) * (Math.PI / 6)) * r < 0.6;
+                    var pylon = r >= 9.5 && r <= 10.5 && Ang(a, Math.Round((a - Math.PI / 4) / (Math.PI / 2)) * (Math.PI / 2) + Math.PI / 4) * r < 0.5;
+                    return new Look(numeral || Math.Abs(r - 4) < 0.5 ? "Dial Numeral" : "Orrery Dial", pylon ? "Orrery Pylon" : null);
+                }
+                case "shards":
+                {
+                    Shards(dx, dy, out var shard);
+                    return new Look(edge ? "Apex Rim" : "Apex Marble", null, Decor: shard);
+                }
+                default: // halo
+                {
+                    Halo(dx, dy, out var obelisk);
+                    if (obelisk)
+                        return new Look("Unbound Rim", "Apex Obelisk", Decor: true);
+                    var ray = r >= 7 && r <= 15 && Ang(a, Math.Round(a / (Math.PI / 4)) * (Math.PI / 4)) * r <= 0.5;
+                    return new Look(edge ? "Unbound Rim" : ray ? "Apex Sigil" : "Unbound Marble");
+                }
+            }
+        }
+    }
+
+    // The Apex changing shape through Vaelith's fight (BehaviorDb.Crucible.cs, the Apex Heart's
+    // "Fight" state): each of the Heart's states has a form of its own, and as the Heart moves into
+    // one, the floor turns into it in a wave out from the middle over `spreadMs`: ground that stays
+    // takes the form's stone, ground that goes cracks (`warnMs` before) and falls into the sky,
+    // ground that comes rises out of it, and pillars rise and fall with their squares.
+    // - Decree: the Apex as the map has it (a star of marble);
+    // - Iron: a fortress, a square keep with a round bastion at each corner, a gate in each side and
+    //   four pits in its yard, pillars in the bastions and at the gates;
+    // - Tide: an archipelago, a middle isle and six round it in a deep sea that slows and grinds
+    //   (Deep Tide), shallows running out to them, coral spires on the isles;
+    // - Forge: a forge hall in a cross, four long arms over open sky, slag down them, braziers at
+    //   their ends, four furnaces floating off its corners;
+    // - Hours: an orrery, a hub and two rings over the sky, joined by spokes that turn (the inner
+    //   ones one way, the outer the other: the way across moves, cracking a moment before);
+    // - Breaks: shattered, a disc of the middle left with shards of the Apex floating round it;
+    // - Unbound: a halo of void marble round the void itself, rays of gold across it, obelisks
+    //   floating round it.
+    // Whoever stands where the ground falls is thrown onto the nearest that stays (`damage`).
+    // Squares a hazard painter has (SweepingArms, TideSweep...) are simply changed: it leaves a
+    // square another has changed. When the fight ends, the Apex goes back as the map has it.
+    internal class ApexForm : Behavior
+    {
+        private readonly int _reach, _spreadMs, _warnMs, _damage;
+
+        public ApexForm(int reach = 25, int spreadMs = 2600, int warnMs = 900, int damage = 120)
+        {
+            _reach = reach;
+            _spreadMs = spreadMs;
+            _warnMs = warnMs;
+            _damage = damage;
+        }
+
+        private sealed class S
+        {
+            public string Form = "";
+            public int Now, Began;
+            public Dictionary<(int, int), (ushort G, ushort O)> Map0;
+            public Dictionary<(int, int), (ushort G, ushort O, bool Decor)> Shown;
+            public readonly Dictionary<(int, int), (int At, ushort G, ushort O, bool Crack)> Pending = new();
+            public readonly Random Rng = new Random();
+        }
+
+        // ---- running it ----
+
+        private static ushort Ground(Entity host, string id) =>
+            id != null && host.GameServer.Resources.GameData.IdToTileType.TryGetValue(id, out var t) ? t : (ushort)0;
+
+        private static ushort Obj(Entity host, string id) =>
+            id != null && host.GameServer.Resources.GameData.IdToObjectType.TryGetValue(id, out var t) ? t : (ushort)0;
+
+        protected override void OnStateEntry(Entity host, TickTime time, ref object state)
+        {
+            var map = host.World?.Map;
+            if (map == null || host.SpawnPoint == null)
+                return;
+            var c = host.SpawnPoint.Value;
+            var s = new S { Map0 = new(), Shown = new() };
+            for (var dy = -_reach; dy <= _reach; dy++)
+                for (var dx = -_reach; dx <= _reach; dx++)
+                {
+                    var (x, y) = ((int)c.X + dx, (int)c.Y + dy);
+                    if (!map.Contains(x, y))
+                        continue;
+                    var t = map[x, y];
+                    s.Map0[(dx, dy)] = (t.TileId, t.ObjType);
+                    s.Shown[(dx, dy)] = (t.TileId, t.ObjType, false);
+                }
+            state = s;
+        }
+
+        protected override void TickCore(Entity host, TickTime time, ref object state)
+        {
+            if (state is not S s || host.World == null)
+                return;
+            s.Now += time.ElapsedMsDelta;
+            var sky = Ground(host, "Empty");
+            var form = ApexForms.FormOf(host);
+            if (form != s.Form)
+            {
+                // a new form: the change spreads out from the middle
+                s.Form = form;
+                s.Began = s.Now;
+                foreach (var key in s.Map0.Keys)
+                {
+                    var (g, o, decor) = Target(host, s, key, 0);
+                    var r = Math.Sqrt(key.Item1 * key.Item1 + key.Item2 * key.Item2);
+                    Schedule(s, key, g, o, decor, s.Now + _warnMs + (int)(r / _reach * _spreadMs) + s.Rng.Next(220), sky);
+                }
+            }
+            else if (form == "orrery" && s.Now - s.Began > _spreadMs + _warnMs)
+            {
+                // its spokes turning: what goes cracks a moment before, what comes is there at once
+                var ms = s.Now - s.Began;
+                foreach (var key in s.Map0.Keys)
+                {
+                    if (s.Pending.ContainsKey(key))
+                        continue;
+                    var later = Target(host, s, key, ms + _warnMs);
+                    var now = Target(host, s, key, ms);
+                    var shown = s.Shown[key];
+                    if (later.G == sky && shown.G != sky)
+                        Schedule(s, key, sky, 0, false, s.Now + _warnMs, sky);
+                    else if (now.G != sky && shown.G == sky)
+                        Schedule(s, key, now.G, now.O, now.Decor, s.Now, sky);
+                }
+            }
+            Apply(host, s, time, sky);
+        }
+
+        private (ushort G, ushort O, bool Decor) Target(Entity host, S s, (int, int) key, int ms)
+        {
+            if (s.Form == null)
+            {
+                var m = s.Map0[key];
+                return (m.G, m.O, false);
+            }
+            var look = ApexForms.Want(s.Form, key.Item1, key.Item2, ms);
+            return (look.Ground == null ? Ground(host, "Empty") : Ground(host, look.Ground), Obj(host, look.Obj), look.Decor);
+        }
+
+        // `at` the square becomes (g, o); going to the sky, it cracks `_warnMs` before
+        private void Schedule(S s, (int, int) key, ushort g, ushort o, bool decor, int at, ushort sky)
+        {
+            var shown = s.Shown[key];
+            if (shown.G == g && shown.O == o)
+            {
+                s.Pending.Remove(key);
+                s.Shown[key] = (g, o, decor);
+                return;
+            }
+            var falls = g == sky && shown.G != sky;
+            s.Pending[key] = (at, g, o, falls);
+            s.Shown[key] = (g, o, decor);
+        }
+
+        private void Apply(Entity host, S s, TickTime time, ushort sky)
+        {
+            var world = host.World;
+            var map = world.Map;
+            var data = host.GameServer.Resources.GameData;
+            var c = host.SpawnPoint.Value;
+            var crack = Ground(host, "Crumbling Floor");
+            var changed = false;
+            foreach (var (key, p) in s.Pending.ToList())
+            {
+                var (x, y) = ((int)c.X + key.Item1, (int)c.Y + key.Item2);
+                var t = map[x, y];
+                if (p.Crack && s.Now >= p.At - _warnMs && s.Now < p.At)
+                {
+                    if (t.TileId != crack && t.TileId != sky)
+                    {
+                        t.TileId = crack;
+                        t.UpdateCount++;
+                        changed = true;
+                    }
+                    continue;
+                }
+                if (s.Now < p.At)
+                    continue;
+                s.Pending.Remove(key);
+                if (t.TileId != p.G)
+                {
+                    t.TileId = p.G;
+                    t.UpdateCount++;
+                    changed = true;
+                }
+                if (t.ObjType != p.O)
+                {
+                    if (p.O == 0)
+                        t.ObjType = 0; // its id stays, so the clients are told it's gone
+                    else
+                    {
+                        t.ObjType = p.O;
+                        t.ObjDesc = data.ObjectDescs[p.O];
+                        t.ObjId = world.GetNextEntityId();
+                    }
+                    t.UpdateCount++;
+                    changed = true;
+                }
+            }
+            if (changed)
+                Floor.Refresh(host);
+
+            // whoever stands where it fell: thrown onto the nearest ground that stays
+            foreach (var p in world.Players.Values.ToList())
+            {
+                var (px, py) = ((int)p.X, (int)p.Y);
+                var key = (px - (int)c.X, py - (int)c.Y);
+                if (!s.Shown.ContainsKey(key) || map[px, py].TileId != sky)
+                    continue;
+                (int, int)? best = null;
+                var bestD = double.MaxValue;
+                foreach (var (k, v) in s.Shown)
+                {
+                    if (v.G == sky || v.Decor || s.Pending.ContainsKey(k) || map[(int)c.X + k.Item1, (int)c.Y + k.Item2].TileId == sky)
+                        continue;
+                    var d = (k.Item1 - key.Item1) * (k.Item1 - key.Item1) + (k.Item2 - key.Item2) * (k.Item2 - key.Item2);
+                    if (d < bestD)
+                        (bestD, best) = (d, k);
+                }
+                if (best == null)
+                    continue;
+                var to = new Position((int)c.X + best.Value.Item1 + 0.5f, (int)c.Y + best.Value.Item2 + 0.5f);
+                p.TeleportPosition(time, to, true);
+                Strike.Land(world, host, to, 0.6, _damage, 0xFFFFD04A);
+            }
+        }
+
+        protected override void OnStateExit(Entity host, TickTime time, ref object state)
+        {
+            // the fight over: the Apex as the map has it
+            if (state is S s && host.World != null)
+            {
+                var map = host.World.Map;
+                var data = host.GameServer.Resources.GameData;
+                var c = host.SpawnPoint.Value;
+                foreach (var ((dx, dy), (g, o)) in s.Map0)
+                {
+                    var t = map[(int)c.X + dx, (int)c.Y + dy];
+                    if (t.TileId == g && t.ObjType == o)
+                        continue;
+                    t.TileId = g;
+                    if (t.ObjType != o)
+                    {
+                        t.ObjType = o;
+                        if (o != 0)
+                        {
+                            t.ObjDesc = data.ObjectDescs[o];
+                            t.ObjId = host.World.GetNextEntityId();
+                        }
+                    }
+                    t.UpdateCount++;
+                }
+                Floor.Refresh(host);
+            }
+            state = null;
+        }
+    }
 }
