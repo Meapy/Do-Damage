@@ -203,7 +203,7 @@ GROUNDS = {
     "Surging Tide": ("0x5AC8E0", {"MinDamage": 150, "MaxDamage": 180, "Animate": FLOW}),
     "Foundry Plate": ("0x2E2624", {}),
     "Foundry Rim": ("0x4A3A30", {}),
-    "Forge Lava": ("0xFF6A14", {"MinDamage": 160, "MaxDamage": 200, "Animate": WAVE}),
+    "Forge Lava": ("0xFF6A14", {"MinDamage": 80, "MaxDamage": 100, "Animate": WAVE}),
     "Cooling Slag": ("0x4A2418", {}),
     "Orrery Dial": ("0x3A3248", {}),
     "Orrery Rim": ("0x7A4E18", {}),

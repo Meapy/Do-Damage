@@ -299,8 +299,8 @@
 				<Index>0x33</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>160</MinDamage>
-		<MaxDamage>200</MaxDamage>
+		<MinDamage>80</MinDamage>
+		<MaxDamage>100</MaxDamage>
 		<Animate dx="0.3" dy="0.3">Wave</Animate>
 		<Color>0xFF6A14</Color>
 	</Ground>
