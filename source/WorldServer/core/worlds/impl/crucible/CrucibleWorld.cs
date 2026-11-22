@@ -708,8 +708,11 @@ namespace WorldServer.core.worlds.impl.crucible
             var floor = _floor;
             var spec = CrucibleRules.Floor(floor);
             _cleared = floor;
+            var fell = _champion == null ? (Position?)null : new Position(_champion.X, _champion.Y);
             _champion = null;
             ResetFloor(floor);
+            if (fell != null)
+                Landing(floor, fell.Value);
             var secs = Seconds(_floorStart);
             Send(new CrucibleMessage { Kind = CrucibleMessage.Cleared, FloorNumber = (byte)floor, Seconds = secs, Text = spec?.Name ?? "" });
             foreach (var p in Players.Values)
@@ -794,6 +797,56 @@ namespace WorldServer.core.worlds.impl.crucible
             foreach (var e in Enemies.Values.Where(e => e.DistTo(h.Centre.X, h.Centre.Y) < 36 && !Climbing(e.AllyOwnerId)).ToList())
                 LeaveWorld(e);
             RestorePristine(floor);
+        }
+
+        // where a champion fell over the sky (off an edge, or over a gap one of its phases opened),
+        // its loot would float out of reach once the floor goes back to its shape: a round landing
+        // of the floor's own ground rises under the spot, with a bridge back to the floor, and both
+        // fall away with the floor later (they join its platform)
+        private const double LandingRadius = 2.6;
+        private const int BridgeHalfWidth = 1;
+
+        private void Landing(int floor, Position at)
+        {
+            if (!_hearts.TryGetValue(floor, out var h) || !_platforms.TryGetValue(floor, out var platform))
+                return;
+            var ground = platform.Select(q => Map[q.Item1, q.Item2].TileId).Where(t => t != _sky)
+                .GroupBy(t => t).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault();
+            if (ground == 0)
+                return;
+            var built = new List<(int, int)>();
+            void Lay(int x, int y)
+            {
+                if (!Map.Contains(x, y) || _held.ContainsKey((x, y)) || Map[x, y].TileId != _sky || Map[x, y].ObjType != 0)
+                    return;
+                SetGround(x, y, ground);
+                built.Add((x, y));
+            }
+            var r = (int)Math.Ceiling(LandingRadius);
+            for (var dy = -r; dy <= r; dy++)
+                for (var dx = -r; dx <= r; dx++)
+                    if (dx * dx + dy * dy <= LandingRadius * LandingRadius)
+                        Lay((int)at.X + dx, (int)at.Y + dy);
+            // the bridge: toward the floor's middle until it meets the floor
+            var (ux, uy) = ((double)(h.Centre.X - at.X), (double)(h.Centre.Y - at.Y));
+            var len = Math.Sqrt(ux * ux + uy * uy);
+            if (len > 0.5)
+            {
+                (ux, uy) = (ux / len, uy / len);
+                for (var d = 0.0; d < len; d += 0.5)
+                {
+                    var (x, y) = ((int)(at.X + ux * d), (int)(at.Y + uy * d));
+                    var floorHere = Map[x, y].TileId != _sky && !built.Contains((x, y));
+                    if (floorHere && d > LandingRadius)
+                        break;
+                    for (var w = -BridgeHalfWidth; w <= BridgeHalfWidth; w++)
+                        Lay((int)(at.X + ux * d - uy * w), (int)(at.Y + uy * d + ux * w));
+                }
+            }
+            if (built.Count == 0)
+                return;
+            platform.UnionWith(built);
+            _tilesChanged = true;
         }
 
         private bool Climbing(int allyOwnerId) => allyOwnerId != -1 && Players.ContainsKey(allyOwnerId);

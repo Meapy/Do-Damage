@@ -226,6 +226,93 @@ def sentry(frame=0, fire=False):
     return cv.img
 
 
+# the rushers: small, quick things each champion sends at the players now and then, to be killed
+# before they reach you (BehaviorDb.Crucible.cs, Rusher)
+
+def hound(frame=0, bite=False):
+    """An Iron Hound: a low hound of riveted iron, ember eyes, legs at full stretch."""
+    cv = Canvas(16, 16)
+    stride = frame % 2
+    for (lx, back) in ((4, True), (6, False), (10, True), (12, False)):
+        reach = (1 if back else -1) * (1 if stride else -1)
+        line(cv, lx, 10, lx + reach, 14, IRON_DARK[1])
+    cv.shade(ell_mask(8, 9, 5, 2.6), IRON)
+    cv.shade(ell_mask(13, 7.5, 2.4, 2), IRON)
+    cv.px(14, 7, EMBER[3])
+    line(cv, 3, 8, 1, 6 + stride, IRON[2])
+    for x in (6, 8, 10):
+        cv.px(x, 7, IRON[3])
+    if bite:
+        for k in range(3):
+            cv.px(15, 8 + k % 2, "#ffffff")
+        sparkle(cv, 15, 9, EMBER[2])
+    return cv.img
+
+
+def darter(frame=0, bite=False):
+    """A Brine Darter: a sleek teal fish with coral fins, darting through the air as through water."""
+    cv = Canvas(16, 16)
+    sway = 1 if frame % 2 else 0
+    cv.shade(poly_mask([(1, 6 + sway), (4, 8), (1, 11 - sway)]), CORAL)
+    cv.shade(ell_mask(8.5, 8.5, 5.5, 2.8), SCALE)
+    cv.shade(poly_mask([(6, 6), (9, 3 + sway), (10, 6)]), CORAL)
+    cv.shade(poly_mask([(7, 11), (9, 13 - sway), (10, 11)]), CORAL)
+    cv.px(12, 7, "#ffe68a")
+    for x in (6, 8, 10):
+        cv.px(x, 9, SCALE[3])
+    if bite:
+        for k in range(2):
+            cv.px(14, 8 + k, "#ffffff")
+        sparkle(cv, 15, 8, "#bff4ff")
+    return cv.img
+
+
+def imp(frame=0, burst=False):
+    """A Cinder Imp: a little horned imp of obsidian, lava in its belly, ash wings beating."""
+    cv = Canvas(16, 16)
+    flap = frame % 2
+    cv.shade(poly_mask([(6, 7), (1, 3 + 2 * flap), (2, 9)]), OBSIDIAN)
+    cv.shade(poly_mask([(10, 7), (15, 3 + 2 * flap), (14, 9)]), OBSIDIAN)
+    cv.shade(ell_mask(8, 9, 3, 3.4), OBSIDIAN)
+    cv.shade(ell_mask(8, 5, 2.4, 2.2), OBSIDIAN)
+    cv.px(6, 2, LAVA[2]); cv.px(10, 2, LAVA[2])
+    cv.px(7, 5, LAVA[3]); cv.px(9, 5, LAVA[3])
+    hot = LAVA[3] if burst else LAVA[2]
+    for (x, y) in ((8, 9), (7, 10), (9, 10), (8, 11)):
+        cv.px(x, y, hot)
+    line(cv, 7, 12, 6, 15, OBSIDIAN[1]); line(cv, 9, 12, 10, 15, OBSIDIAN[1])
+    if burst:
+        sparkle(cv, 8, 9, LAVA[3])
+    return cv.img
+
+
+def mite(frame=0, bite=False):
+    """A Clockwork Mite: a tiny brass spider, a turning cog for a body, a cyan lens."""
+    cv = Canvas(16, 16)
+    for k, (lx, ly) in enumerate(((2, 6), (2, 13), (14, 6), (14, 13), (4, 3), (12, 3))):
+        off = (frame + k) % 2
+        line(cv, 8, 9, lx, ly + off, STEEL[2])
+    cog(cv, 8, 9, 3.4, BRASS, teeth=8, turn=frame * 0.4)
+    cv.shade(ell_mask(8, 9, 1.4, 1.4), STEEL)
+    cv.px(8, 9, "#4af0ff" if not bite else "#ffffff")
+    if bite:
+        sparkle(cv, 8, 9, "#4af0ff")
+    return cv.img
+
+
+def wisp(frame=0, flare=False):
+    """A Gilded Wisp: a teardrop of the Sovereign's gold flame, a white heart, a trailing tail."""
+    cv = Canvas(16, 16)
+    lick = frame % 2
+    cv.shade(poly_mask([(3, 8), (9, 4), (14, 8), (9, 12)]), FLAME)
+    cv.shade(poly_mask([(1, 6 + lick), (5, 8), (1, 10 - lick)]), FLAME)
+    cv.shade(ell_mask(10, 8, 2.6, 2.6), GOLD)
+    cv.px(10, 8, "#ffffff"); cv.px(11, 7, "#ffffff")
+    if flare:
+        sparkle(cv, 10, 8, "#fff8e0")
+    return cv.img
+
+
 def minions():
     """name -> (stand frames, attack)."""
     return {
@@ -234,6 +321,11 @@ def minions():
         "Riptide Eel": ([eel(0), eel(1), eel(2)], eel(1, True)),
         "Molten Golem": ([golem(0), golem(1)], golem(0, True)),
         "Clockwork Sentry": ([sentry(0), sentry(1)], sentry(0, True)),
+        "Iron Hound": ([hound(0), hound(1)], hound(0, True)),
+        "Brine Darter": ([darter(0), darter(1)], darter(0, True)),
+        "Cinder Imp": ([imp(0), imp(1)], imp(0, True)),
+        "Clockwork Mite": ([mite(0), mite(1)], mite(0, True)),
+        "Gilded Wisp": ([wisp(0), wisp(1)], wisp(0, True)),
     }
 
 

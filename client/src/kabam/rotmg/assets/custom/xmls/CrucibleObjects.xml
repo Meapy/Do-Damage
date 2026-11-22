@@ -116,7 +116,7 @@
 		<HitSound>monster/golems_hit</HitSound>
 		<DeathSound>monster/golems_death</DeathSound>
 		<Size>120</Size>
-		<MaxHitPoints>150000</MaxHitPoints>
+		<MaxHitPoints>175000</MaxHitPoints>
 		<Defense>60</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -132,24 +132,26 @@
 		<DazedImmune />
 		<Projectile id="0">
 			<ObjectId>Iron Shard</ObjectId>
-			<Damage>140</Damage>
+			<Damage>210</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Bleeding</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Hammer Wave</ObjectId>
-			<Damage>190</Damage>
+			<Damage>270</Damage>
 			<Speed>55</Speed>
 			<LifetimeMS>3000</LifetimeMS>
 			<Size>160</Size>
 			<MultiHit />
-			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+			<ConditionEffect duration="1.5">Dazed</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Iron Shard</ObjectId>
-			<Damage>120</Damage>
+			<Damage>140</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>2600</LifetimeMS>
 			<Size>100</Size>
@@ -157,11 +159,22 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Hammer Wave</ObjectId>
-			<Damage>160</Damage>
+			<Damage>240</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>2400</LifetimeMS>
 			<Size>140</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+			<ConditionEffect duration="1">Stunned</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Iron Shard</ObjectId>
+			<Damage>130</Damage>
+			<Speed>115</Speed>
+			<LifetimeMS>1300</LifetimeMS>
+			<Size>90</Size>
+			<MultiHit />
+			<ConditionEffect duration="3">Bleeding</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC64F" id="Nerissa, the Tidecaller">
@@ -180,7 +193,7 @@
 		<HitSound>monster/snake_queen_hit</HitSound>
 		<DeathSound>monster/snake_queen_death</DeathSound>
 		<Size>115</Size>
-		<MaxHitPoints>180000</MaxHitPoints>
+		<MaxHitPoints>210000</MaxHitPoints>
 		<Defense>50</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -196,15 +209,16 @@
 		<DazedImmune />
 		<Projectile id="0">
 			<ObjectId>Trident Bolt</ObjectId>
-			<Damage>160</Damage>
+			<Damage>230</Damage>
 			<Speed>95</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Bleeding</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Tide Orb</ObjectId>
-			<Damage>140</Damage>
+			<Damage>150</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>3600</LifetimeMS>
 			<Size>120</Size>
@@ -215,7 +229,7 @@
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Bubble</ObjectId>
-			<Damage>110</Damage>
+			<Damage>125</Damage>
 			<Speed>40</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>110</Size>
@@ -224,11 +238,24 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Trident Bolt</ObjectId>
-			<Damage>150</Damage>
+			<Damage>210</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>1800</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1">Confused</ConditionEffect>
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Tide Orb</ObjectId>
+			<Damage>260</Damage>
+			<Speed>42</Speed>
+			<LifetimeMS>3800</LifetimeMS>
+			<Size>150</Size>
+			<Amplitude>0.6</Amplitude>
+			<Frequency>0.4</Frequency>
+			<MultiHit />
+			<ConditionEffect duration="2">Quiet</ConditionEffect>
+			<ConditionEffect duration="0.8">Paralyzed</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC650" id="Pyrrhax, the Forge Tyrant">
@@ -247,7 +274,7 @@
 		<HitSound>monster/demons_hit</HitSound>
 		<DeathSound>monster/demons_death</DeathSound>
 		<Size>125</Size>
-		<MaxHitPoints>210000</MaxHitPoints>
+		<MaxHitPoints>245000</MaxHitPoints>
 		<Defense>70</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -263,23 +290,25 @@
 		<DazedImmune />
 		<Projectile id="0">
 			<ObjectId>Magma Ball</ObjectId>
-			<Damage>200</Damage>
+			<Damage>290</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>2800</LifetimeMS>
 			<Size>150</Size>
 			<MultiHit />
+			<ConditionEffect duration="2.5">Weak</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Cinder</ObjectId>
-			<Damage>140</Damage>
+			<Damage>200</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>1800</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Sick</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Cinder</ObjectId>
-			<Damage>130</Damage>
+			<Damage>150</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>2400</LifetimeMS>
 			<Size>100</Size>
@@ -287,11 +316,21 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Magma Ball</ObjectId>
-			<Damage>160</Damage>
+			<Damage>175</Damage>
 			<Speed>45</Speed>
 			<LifetimeMS>3600</LifetimeMS>
 			<Size>120</Size>
 			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Magma Ball</ObjectId>
+			<Damage>330</Damage>
+			<Speed>38</Speed>
+			<LifetimeMS>4200</LifetimeMS>
+			<Size>180</Size>
+			<MultiHit />
+			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC651" id="Chronarch, the Hour Thief">
@@ -310,7 +349,7 @@
 		<HitSound>monster/golems_hit</HitSound>
 		<DeathSound>monster/golems_death</DeathSound>
 		<Size>115</Size>
-		<MaxHitPoints>240000</MaxHitPoints>
+		<MaxHitPoints>280000</MaxHitPoints>
 		<Defense>80</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -326,7 +365,7 @@
 		<DazedImmune />
 		<Projectile id="0">
 			<ObjectId>Gear Shot</ObjectId>
-			<Damage>140</Damage>
+			<Damage>155</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>3000</LifetimeMS>
 			<Size>110</Size>
@@ -334,28 +373,40 @@
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Hand Blade</ObjectId>
-			<Damage>170</Damage>
+			<Damage>240</Damage>
 			<Speed>110</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Bleeding</ConditionEffect>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Chrono Orb</ObjectId>
-			<Damage>150</Damage>
+			<Damage>220</Damage>
 			<Speed>45</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>120</Size>
 			<MultiHit />
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
+			<ConditionEffect duration="2">Dazed</ConditionEffect>
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Gear Shot</ObjectId>
-			<Damage>130</Damage>
+			<Damage>150</Damage>
 			<Speed>75</Speed>
 			<LifetimeMS>2600</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+		</Projectile>
+		<Projectile id="4">
+			<ObjectId>Chrono Orb</ObjectId>
+			<Damage>210</Damage>
+			<Speed>85</Speed>
+			<LifetimeMS>2000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="2.5">Silenced</ConditionEffect>
+			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC652" id="Vaelith, the Crucible Sovereign">
@@ -380,7 +431,7 @@
 		<HitSound>monster/ghost_god_hit</HitSound>
 		<DeathSound>monster/ghost_god_death</DeathSound>
 		<Size>125</Size>
-		<MaxHitPoints>360000</MaxHitPoints>
+		<MaxHitPoints>400000</MaxHitPoints>
 		<Defense>90</Defense>
 		<Quest />
 		<HealthBarBoss />
@@ -396,15 +447,16 @@
 		<DazedImmune />
 		<Projectile id="0">
 			<ObjectId>Sovereign Lance</ObjectId>
-			<Damage>200</Damage>
+			<Damage>280</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>2200</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="3">Exposed</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Flame Feather</ObjectId>
-			<Damage>160</Damage>
+			<Damage>175</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>3000</LifetimeMS>
 			<Size>110</Size>
@@ -414,7 +466,7 @@
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Sovereign Star</ObjectId>
-			<Damage>150</Damage>
+			<Damage>165</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>3400</LifetimeMS>
 			<Size>100</Size>
@@ -422,21 +474,34 @@
 		</Projectile>
 		<Projectile id="3">
 			<ObjectId>Void Ember</ObjectId>
-			<Damage>190</Damage>
+			<Damage>250</Damage>
 			<Speed>55</Speed>
 			<LifetimeMS>3800</LifetimeMS>
 			<Size>120</Size>
 			<MultiHit />
 			<ConditionEffect duration="1.5">Darkness</ConditionEffect>
 			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+			<ConditionEffect duration="2">Curse</ConditionEffect>
 		</Projectile>
 		<Projectile id="4">
 			<ObjectId>Flame Feather</ObjectId>
-			<Damage>170</Damage>
+			<Damage>220</Damage>
 			<Speed>130</Speed>
 			<LifetimeMS>1600</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Quiet</ConditionEffect>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Sovereign Lance</ObjectId>
+			<Damage>380</Damage>
+			<Speed>50</Speed>
+			<LifetimeMS>4000</LifetimeMS>
+			<Size>200</Size>
+			<MultiHit />
+			<ArmorPiercing />
+			<ConditionEffect duration="1.5">Stunned</ConditionEffect>
+			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC653" id="Hour Echo">
@@ -460,11 +525,12 @@
 		<XpMult>0</XpMult>
 		<Projectile id="0">
 			<ObjectId>Hand Blade</ObjectId>
-			<Damage>150</Damage>
+			<Damage>190</Damage>
 			<Speed>100</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Bleeding</ConditionEffect>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Gear Shot</ObjectId>
@@ -496,11 +562,12 @@
 		<XpMult>0</XpMult>
 		<Projectile id="0">
 			<ObjectId>Hammer Wave</ObjectId>
-			<Damage>170</Damage>
+			<Damage>210</Damage>
 			<Speed>55</Speed>
 			<LifetimeMS>3000</LifetimeMS>
 			<Size>150</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC655" id="Echo of Nerissa">
@@ -524,12 +591,13 @@
 		<XpMult>0</XpMult>
 		<Projectile id="0">
 			<ObjectId>Tide Orb</ObjectId>
-			<Damage>150</Damage>
+			<Damage>180</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>3600</LifetimeMS>
 			<Size>120</Size>
 			<MultiHit />
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
+			<ConditionEffect duration="1.5">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC656" id="Echo of Pyrrhax">
@@ -553,11 +621,12 @@
 		<XpMult>0</XpMult>
 		<Projectile id="0">
 			<ObjectId>Magma Ball</ObjectId>
-			<Damage>170</Damage>
+			<Damage>210</Damage>
 			<Speed>55</Speed>
 			<LifetimeMS>3000</LifetimeMS>
 			<Size>140</Size>
 			<MultiHit />
+			<ConditionEffect duration="2">Sick</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC657" id="Echo of Chronarch">
@@ -581,12 +650,13 @@
 		<XpMult>0</XpMult>
 		<Projectile id="0">
 			<ObjectId>Chrono Orb</ObjectId>
-			<Damage>150</Damage>
+			<Damage>180</Damage>
 			<Speed>45</Speed>
 			<LifetimeMS>4000</LifetimeMS>
 			<Size>120</Size>
 			<MultiHit />
 			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+			<ConditionEffect duration="1.5">Dazed</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC658" id="Iron Sentinel">
@@ -607,11 +677,12 @@
 		<XpMult>0.5</XpMult>
 		<Projectile id="0">
 			<ObjectId>Iron Shard</ObjectId>
-			<Damage>110</Damage>
+			<Damage>140</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>2400</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1">Bleeding</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC659" id="Bastion Banner">
@@ -632,11 +703,12 @@
 		<XpMult>0.5</XpMult>
 		<Projectile id="0">
 			<ObjectId>Iron Shard</ObjectId>
-			<Damage>90</Damage>
+			<Damage>110</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Armor Broken</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC65A" id="Riptide Eel">
@@ -655,12 +727,13 @@
 		<XpMult>0.5</XpMult>
 		<Projectile id="0">
 			<ObjectId>Bubble</ObjectId>
-			<Damage>100</Damage>
+			<Damage>125</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>1600</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
+			<ConditionEffect duration="1">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC65B" id="Molten Golem">
@@ -679,11 +752,12 @@
 		<XpMult>0.5</XpMult>
 		<Projectile id="0">
 			<ObjectId>Cinder</ObjectId>
-			<Damage>110</Damage>
+			<Damage>140</Damage>
 			<Speed>80</Speed>
 			<LifetimeMS>1400</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Sick</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC65C" id="Clockwork Sentry">
@@ -702,11 +776,132 @@
 		<XpMult>0.5</XpMult>
 		<Projectile id="0">
 			<ObjectId>Gear Shot</ObjectId>
-			<Damage>110</Damage>
+			<Damage>140</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>2000</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
+			<ConditionEffect duration="1.5">Unstable</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xC67C" id="Iron Hound">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>crucibleChars16x16</File>
+			<Index>5</Index>
+		</AnimatedTexture>
+		<HitSound>monster/greater_pit_snakes_hit</HitSound>
+		<DeathSound>monster/greater_pit_snakes_death</DeathSound>
+		<Size>90</Size>
+		<MaxHitPoints>3600</MaxHitPoints>
+		<Defense>15</Defense>
+		<StasisImmune />
+		<XpMult>0.5</XpMult>
+		<Projectile id="0">
+			<ObjectId>Iron Shard</ObjectId>
+			<Damage>160</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>450</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Bleeding</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xC67D" id="Brine Darter">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>crucibleChars16x16</File>
+			<Index>6</Index>
+		</AnimatedTexture>
+		<HitSound>monster/greater_pit_snakes_hit</HitSound>
+		<DeathSound>monster/greater_pit_snakes_death</DeathSound>
+		<Size>85</Size>
+		<MaxHitPoints>3000</MaxHitPoints>
+		<Defense>10</Defense>
+		<StasisImmune />
+		<XpMult>0.5</XpMult>
+		<Projectile id="0">
+			<ObjectId>Bubble</ObjectId>
+			<Damage>140</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>450</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xC67E" id="Cinder Imp">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>crucibleChars16x16</File>
+			<Index>7</Index>
+		</AnimatedTexture>
+		<HitSound>monster/greater_pit_snakes_hit</HitSound>
+		<DeathSound>monster/greater_pit_snakes_death</DeathSound>
+		<Size>85</Size>
+		<MaxHitPoints>3300</MaxHitPoints>
+		<Defense>10</Defense>
+		<StasisImmune />
+		<XpMult>0.5</XpMult>
+		<Projectile id="0">
+			<ObjectId>Cinder</ObjectId>
+			<Damage>150</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>450</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="2">Sick</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xC67F" id="Clockwork Mite">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>crucibleChars16x16</File>
+			<Index>8</Index>
+		</AnimatedTexture>
+		<HitSound>monster/greater_pit_snakes_hit</HitSound>
+		<DeathSound>monster/greater_pit_snakes_death</DeathSound>
+		<Size>80</Size>
+		<MaxHitPoints>3000</MaxHitPoints>
+		<Defense>20</Defense>
+		<StasisImmune />
+		<XpMult>0.5</XpMult>
+		<Projectile id="0">
+			<ObjectId>Gear Shot</ObjectId>
+			<Damage>140</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>450</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Dazed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xC680" id="Gilded Wisp">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>crucibleChars16x16</File>
+			<Index>9</Index>
+		</AnimatedTexture>
+		<HitSound>monster/greater_pit_snakes_hit</HitSound>
+		<DeathSound>monster/greater_pit_snakes_death</DeathSound>
+		<Size>85</Size>
+		<MaxHitPoints>3800</MaxHitPoints>
+		<Defense>15</Defense>
+		<StasisImmune />
+		<XpMult>0.5</XpMult>
+		<Projectile id="0">
+			<ObjectId>Flame Feather</ObjectId>
+			<Damage>170</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>450</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Quiet</ConditionEffect>
 		</Projectile>
 	</Object>
 	<Object type="0xC65D" id="Bastion Pillar">

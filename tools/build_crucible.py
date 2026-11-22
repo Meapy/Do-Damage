@@ -257,39 +257,54 @@ def grounds(types, sheet):
 
 # The champions (32x32, BehaviorDb.Crucible.cs): name -> (art, size, health, defence, alt textures,
 # [projectiles]). Health and defence here are the base: BossStats sets them in the fight.
+# Each champion's shots carry its own afflictions, so what hit you says who and what to watch:
+# Ferrogrim breaks armour, cuts (Bleeding) and rattles (Dazed, Stunned); Nerissa drags (Slowed),
+# drowns your voice (Quiet), spins you (Confused) and pulls you under (Paralyzed); Pyrrhax burns
+# (Sick: no healing), saps (Weak) and sets you in slag (Paralyzed); Chronarch steals time (Slowed,
+# Paralyzed, Dazed) and your moment (Silenced); Vaelith exposes, curses, blinds and breaks. The big
+# rings and spirals carry nothing: the afflictions ride on the shots aimed at you. Those aimed
+# shots and the signatures hit hard (about Oryx 3's), so standing in them isn't an answer; the
+# rings and spirals stay lighter, there to be woven through. The last of each
+# list is the champion's signature (BehaviorDb.Crucible.cs: Rending Volley, Undertow, Slag Ball,
+# Stolen Moment, Final Decree).
 ARMOR_BROKEN = ("Armor Broken", 2)
 CHAMPIONS = {
-    "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 150000, 60, ["Ferrogrim, Iron Tempest"], [
-        foe(0, "Iron Shard", 140, 80, 2200),
-        foe(1, "Hammer Wave", 190, 55, 3000, 160, effects=[ARMOR_BROKEN]),
-        foe(2, "Iron Shard", 120, 60, 2600),
-        foe(3, "Hammer Wave", 160, 70, 2400, 140),
+    "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 175000, 60, ["Ferrogrim, Iron Tempest"], [
+        foe(0, "Iron Shard", 210, 80, 2200, effects=[("Bleeding", 1.5)]),
+        foe(1, "Hammer Wave", 270, 55, 3000, 160, effects=[("Armor Broken", 3), ("Dazed", 1.5)]),
+        foe(2, "Iron Shard", 140, 60, 2600),
+        foe(3, "Hammer Wave", 240, 70, 2400, 140, effects=[ARMOR_BROKEN, ("Stunned", 1)]),
+        foe(4, "Iron Shard", 130, 115, 1300, 90, effects=[("Bleeding", 3)]),
     ]),
-    "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 180000, 50, ["Nerissa, Maelstrom"], [
-        foe(0, "Trident Bolt", 160, 95, 2200),
-        foe(1, "Tide Orb", 140, 50, 3600, 120, effects=[("Slowed", 1.5)], amplitude=1.0, frequency=0.6),
-        foe(2, "Bubble", 110, 40, 4000, 110, effects=[("Slowed", 1)]),
-        foe(3, "Trident Bolt", 150, 120, 1800),
+    "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 210000, 50, ["Nerissa, Maelstrom"], [
+        foe(0, "Trident Bolt", 230, 95, 2200, effects=[("Bleeding", 2)]),
+        foe(1, "Tide Orb", 150, 50, 3600, 120, effects=[("Slowed", 1.5)], amplitude=1.0, frequency=0.6),
+        foe(2, "Bubble", 125, 40, 4000, 110, effects=[("Slowed", 1)]),
+        foe(3, "Trident Bolt", 210, 120, 1800, effects=[("Confused", 1)]),
+        foe(4, "Tide Orb", 260, 42, 3800, 150, effects=[("Quiet", 2), ("Paralyzed", 0.8)], amplitude=0.6, frequency=0.4),
     ]),
-    "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 210000, 70, ["Pyrrhax, Molten Core"], [
-        foe(0, "Magma Ball", 200, 60, 2800, 150),
-        foe(1, "Cinder", 140, 100, 1800),
-        foe(2, "Cinder", 130, 70, 2400),
-        foe(3, "Magma Ball", 160, 45, 3600, 120),
+    "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 245000, 70, ["Pyrrhax, Molten Core"], [
+        foe(0, "Magma Ball", 290, 60, 2800, 150, effects=[("Weak", 2.5)]),
+        foe(1, "Cinder", 200, 100, 1800, effects=[("Sick", 2)]),
+        foe(2, "Cinder", 150, 70, 2400),
+        foe(3, "Magma Ball", 175, 45, 3600, 120),
+        foe(4, "Magma Ball", 330, 38, 4200, 180, effects=[("Paralyzed", 1), ("Armor Broken", 2)]),
     ]),
-    "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 240000, 80, ["Chronarch, Reversal"], [
-        foe(0, "Gear Shot", 140, 60, 3000, 110),
-        foe(1, "Hand Blade", 170, 110, 2000),
-        foe(2, "Chrono Orb", 150, 45, 4000, 120, effects=[("Slowed", 2)]),
-        foe(3, "Gear Shot", 130, 75, 2600),
+    "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 280000, 80, ["Chronarch, Reversal"], [
+        foe(0, "Gear Shot", 155, 60, 3000, 110),
+        foe(1, "Hand Blade", 240, 110, 2000, effects=[("Bleeding", 2)]),
+        foe(2, "Chrono Orb", 220, 45, 4000, 120, effects=[("Slowed", 2), ("Dazed", 2)]),
+        foe(3, "Gear Shot", 150, 75, 2600),
+        foe(4, "Chrono Orb", 210, 85, 2000, 100, effects=[("Silenced", 2.5), ("Paralyzed", 0.6)]),
     ]),
-    "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 360000, 90,
+    "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 400000, 90,
                                         ["Vaelith, Ascendant", "Vaelith, Unbound"], [
-        foe(0, "Sovereign Lance", 200, 120, 2200),
-        foe(1, "Flame Feather", 160, 70, 3000, 110, amplitude=1.2, frequency=0.5),
-        foe(2, "Sovereign Star", 150, 60, 3400),
-        foe(3, "Void Ember", 190, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN]),
-        foe(4, "Flame Feather", 170, 130, 1600),
+        foe(0, "Sovereign Lance", 280, 120, 2200, effects=[("Exposed", 3)]),
+        foe(1, "Flame Feather", 175, 70, 3000, 110, amplitude=1.2, frequency=0.5),
+        foe(2, "Sovereign Star", 165, 60, 3400),
+        foe(3, "Void Ember", 250, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN, ("Curse", 2)]),
+        foe(4, "Flame Feather", 220, 130, 1600, effects=[("Quiet", 1.5)]),
+        foe(5, "Sovereign Lance", 380, 50, 4000, 200, effects=[("Stunned", 1.5), ("Armor Broken", 3)], piercing=True),
     ]),
 }
 # the champions' pets (tools/boss_pets.py), each a little copy that fights as its champion does,
@@ -370,20 +385,27 @@ PETS = {
 # copies that fight beside a champion: name -> (art, size, [projectiles])
 ECHOES = {
     # Chronarch's echoes in his Time Fracture: him to the life, but untouchable
-    "Hour Echo": ("Hour Echo", 115, [foe(0, "Hand Blade", 150, 100, 2000), foe(1, "Gear Shot", 120, 60, 2600)]),
+    "Hour Echo": ("Hour Echo", 115, [foe(0, "Hand Blade", 190, 100, 2000, effects=[("Bleeding", 1.5)]), foe(1, "Gear Shot", 120, 60, 2600)]),
     # the fallen champions' ghosts on the Apex
-    "Echo of Ferrogrim": ("Echo of Ferrogrim", 110, [foe(0, "Hammer Wave", 170, 55, 3000, 150)]),
-    "Echo of Nerissa": ("Echo of Nerissa", 110, [foe(0, "Tide Orb", 150, 50, 3600, 120, effects=[("Slowed", 1)])]),
-    "Echo of Pyrrhax": ("Echo of Pyrrhax", 110, [foe(0, "Magma Ball", 170, 55, 3000, 140)]),
-    "Echo of Chronarch": ("Echo of Chronarch", 110, [foe(0, "Chrono Orb", 150, 45, 4000, 120, effects=[("Slowed", 1.5)])]),
+    "Echo of Ferrogrim": ("Echo of Ferrogrim", 110, [foe(0, "Hammer Wave", 210, 55, 3000, 150, effects=[ARMOR_BROKEN])]),
+    "Echo of Nerissa": ("Echo of Nerissa", 110, [foe(0, "Tide Orb", 180, 50, 3600, 120, effects=[("Slowed", 1), ("Quiet", 1.5)])]),
+    "Echo of Pyrrhax": ("Echo of Pyrrhax", 110, [foe(0, "Magma Ball", 210, 55, 3000, 140, effects=[("Sick", 2)])]),
+    "Echo of Chronarch": ("Echo of Chronarch", 110, [foe(0, "Chrono Orb", 180, 45, 4000, 120, effects=[("Slowed", 1.5), ("Dazed", 1.5)])]),
 }
 # minions (16x16): name -> (health, defence, size, static, [projectiles])
 MINIONS = {
-    "Iron Sentinel": (9000, 40, 110, True, [foe(0, "Iron Shard", 110, 70, 2400)]),
-    "Bastion Banner": (6000, 30, 120, True, [foe(0, "Iron Shard", 90, 50, 2000)]),
-    "Riptide Eel": (4000, 20, 100, False, [foe(0, "Bubble", 100, 60, 1600, effects=[("Slowed", 1)])]),
-    "Molten Golem": (7000, 30, 110, False, [foe(0, "Cinder", 110, 80, 1400)]),
-    "Clockwork Sentry": (5000, 35, 100, False, [foe(0, "Gear Shot", 110, 70, 2000)]),
+    "Iron Sentinel": (9000, 40, 110, True, [foe(0, "Iron Shard", 140, 70, 2400, effects=[("Bleeding", 1)])]),
+    "Bastion Banner": (6000, 30, 120, True, [foe(0, "Iron Shard", 110, 50, 2000, effects=[("Armor Broken", 1.5)])]),
+    "Riptide Eel": (4000, 20, 100, False, [foe(0, "Bubble", 125, 60, 1600, effects=[("Slowed", 1), ("Quiet", 1)])]),
+    "Molten Golem": (7000, 30, 110, False, [foe(0, "Cinder", 140, 80, 1400, effects=[("Sick", 1.5)])]),
+    "Clockwork Sentry": (5000, 35, 100, False, [foe(0, "Gear Shot", 140, 70, 2000, effects=[("Unstable", 1.5)])]),
+    # the rushers (small.py): quick and frail, they run at the nearest player and bite at close
+    # range with their champion's affliction; kill them on the way in
+    "Iron Hound": (3600, 15, 90, False, [foe(0, "Iron Shard", 160, 60, 450, effects=[("Bleeding", 2)])]),
+    "Brine Darter": (3000, 10, 85, False, [foe(0, "Bubble", 140, 60, 450, effects=[("Slowed", 1.5)])]),
+    "Cinder Imp": (3300, 10, 85, False, [foe(0, "Cinder", 150, 60, 450, effects=[("Sick", 2)])]),
+    "Clockwork Mite": (3000, 20, 80, False, [foe(0, "Gear Shot", 140, 60, 450, effects=[("Dazed", 1.5)])]),
+    "Gilded Wisp": (3800, 15, 85, False, [foe(0, "Flame Feather", 170, 60, 450, effects=[("Quiet", 1.5)])]),
 }
 IMMUNE = ("StunImmune", "ParalyzeImmune", "PetrifyImmune", "SlowedImmune", "DazedImmune")
 # who sounds like whom (existing sounds)
@@ -958,11 +980,60 @@ def build_map():
         m.place(x, y, "Threshold Brazier")
 
     for (heart, cy, r, shape, floor, rim) in FLOORS:
-        grow(sketch(heart, cy, r, shape, floor, rim), m, cy, r)
+        if heart == "Orrery Heart":
+            orrery_face(m, heart, cy, r, floor, rim)
+        else:
+            grow(sketch(heart, cy, r, shape, floor, rim), m, cy, r)
     platforms = [(THRESHOLD[1], THRESHOLD[2])] + [(f[1], grown(f[2])) for f in FLOORS]
     for i, look in enumerate(WAYS):
         way(m, platforms[i], platforms[i + 1], *look)
     return m
+
+
+def orrery_face(m, heart, cy, r, floor, rim):
+    """Chronarch's floor drawn at its full size rather than grown square by square, so it keeps
+    reading as a clock: smooth rings and spokes, the rim on the outside only, a tick at each of the
+    twelve hours (the quarters longer), a ring round the hub and a clock's two hands in it, set at
+    ten past ten, the pylons where the spokes cross the sky."""
+    fn = SHAPES["orrery"]
+    R = grown(r)
+
+    def on(dx, dy):
+        return fn(dx / GROW, dy / GROW)
+
+    for y in range(cy - R, cy + R + 1):
+        for x in range(CX - R, CX + R + 1):
+            dx, dy = x - CX, y - cy
+            if not on(dx, dy):
+                continue
+            edge = math.hypot(dx, dy) >= 14.5 * GROW and any(
+                not on(dx + ex, dy + ey) for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            m.ground[y][x] = rim if edge else floor
+    dial = 14 * GROW
+    for k in range(12):
+        a = -math.pi / 2 + 2 * math.pi * k / 12
+        long = k % 3 == 0
+        for d in [dial + t * 0.5 for t in range(-3 if long else -1, 4 if long else 2)]:
+            x, y = near(CX + math.cos(a) * d), near(cy + math.sin(a) * d)
+            if m.ground[y][x] is not None:
+                m.ground[y][x] = "Dial Numeral"
+    hub = 4 * GROW
+    for y in range(cy - R, cy + R + 1):
+        for x in range(CX - R, CX + R + 1):
+            if m.ground[y][x] is not None and abs(math.hypot(x - CX, y - cy) - hub) < 0.5:
+                m.ground[y][x] = "Dial Numeral"
+    # the hands: the minute hand to two (ten past), the hour hand short of ten
+    for (hour, length) in ((2, hub - 1.2), (10, hub * 0.6)):
+        a = -math.pi / 2 + 2 * math.pi * hour / 12
+        for t in range(1, int(length * 4) + 1):
+            d = t / 4
+            x, y = near(CX + math.cos(a) * d), near(cy + math.sin(a) * d)
+            m.ground[y][x] = "Dial Numeral"
+    for k in range(4):
+        a = math.pi / 4 + math.pi / 2 * k
+        x, y = near(CX + math.cos(a) * 9.2 * GROW), near(cy + math.sin(a) * 9.2 * GROW)
+        m.place(x, y, "Orrery Pylon")
+    m.place(CX, cy, heart)
 
 
 def grow(sketch, m, cy, r):

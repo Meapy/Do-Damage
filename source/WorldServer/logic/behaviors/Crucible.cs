@@ -531,6 +531,47 @@ namespace WorldServer.logic.behaviors
         }
     }
 
+    // Several moving floors at once, as one: each step every layer says what it wants and the later
+    // layers win where they overlap, and the floor is painted once, so two never fight over a
+    // square (and never leave one of the other's behind).
+    internal class FloorLayers : CrucibleFloor
+    {
+        private readonly CrucibleFloor[] _layers;
+
+        public FloorLayers(params CrucibleFloor[] layers) : base(100) => _layers = layers;
+
+        protected internal override void Begin(Entity host, Run r)
+        {
+            var subs = new Run[_layers.Length];
+            for (var i = 0; i < _layers.Length; i++)
+            {
+                subs[i] = new Run { Rng = new Random(r.Rng.Next()) };
+                _layers[i].Begin(host, subs[i]);
+            }
+            r.Data = subs;
+        }
+
+        protected internal override void Shape(Entity host, Run r)
+        {
+            var subs = (Run[])r.Data;
+            for (var i = 0; i < _layers.Length; i++)
+            {
+                subs[i].Elapsed = r.Elapsed;
+                subs[i].Want.Clear();
+                _layers[i].Shape(host, subs[i]);
+                foreach (var (sq, tile) in subs[i].Want)
+                    r.Want[sq] = tile;
+            }
+        }
+
+        protected internal override void After(Entity host, Run r, TickTime time)
+        {
+            var subs = (Run[])r.Data;
+            for (var i = 0; i < _layers.Length; i++)
+                _layers[i].After(host, subs[i], time);
+        }
+    }
+
     // Walls raised for as long as the state lasts: `objName` (a static object that blocks) on every
     // walkable square round the host's spawn where `where(dx, dy)` says, within `reach`. Whoever
     // stands where a wall will rise is moved to the nearest square beside it first. Ferrogrim's

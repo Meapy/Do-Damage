@@ -67,7 +67,33 @@ still until the next phase. Anyone left standing where the ground falls, or cut 
 of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
 
 The real danger is the champions' shots: each phase has patterns of its own to read and slip
-through. The floor adds at most one hazard at a time, slow, and always shown before it strikes.
+through. The floor adds at most one hazard at a time, quick but always shown before it strikes.
+
+The shots aimed at you hit hard, about as hard as Oryx's last form, and carry each champion's
+afflictions; dodge them rather than stand in them. The big rings and spirals are lighter and carry
+nothing: they're there to weave through. Each champion also has a signature shot, slower and
+heavier, and its last phase throws shots where you're going, so keep moving:
+
+| Champion | Its shots | Signature |
+|---|---|---|
+| Ferrogrim | Bleeding shard fans; hammer waves that break armour and daze (Iron Tempest's stun) | **Rending Volley:** a quick tight spray of shards, bleeding for 3 s |
+| Nerissa | Barbed tridents (bleeding), the quick ones confusing; slowing orbs and bubbles | **Undertow:** three great slow orbs that quiet you and pull you under (paralyzed) |
+| Pyrrhax | Magma that leaves you weak; cinders that make you sick (no healing) | **Slag Ball:** three heavy globs that paralyze and break armour |
+| Chronarch | Hand-blades (bleeding); chrono orbs that slow and daze | **Stolen Moment:** two quick orbs that silence you and freeze you in place |
+| Vaelith | Lances that leave you exposed; void embers that blind, break armour and curse; quick feathers that quiet | **Final Decree:** three huge slow lances through armour that stun and break it |
+
+Their helpers carry them too: the Sentinels' shards cut, the Banners' break armour, the eels'
+bubbles quiet, the golems' cinders sicken, the sentries' gears unsettle, and the echoes bring
+their champions' with them.
+
+Every champion also sends **rushers** out round its floor now and then, a few at a time: small,
+quick and frail, they run straight at you and bite up close with their champion's affliction, so
+shoot them on the way in. Ferrogrim's Iron Hounds (bleeding), Nerissa's Brine Darters (slowing),
+Pyrrhax's Cinder Imps (sickening), Chronarch's Clockwork Mites (dazing) and Vaelith's Gilded Wisps
+(quieting).
+
+When a champion falls over the sky (beside an edge, or over a gap one of its phases opened), a
+landing of the floor's own ground rises under its loot, with a bridge back to the floor.
 
 ### I. The Iron Bastion: Ferrogrim, the Iron Warden
 
@@ -76,19 +102,21 @@ A keep: square, with a round bastion at each corner and a gate in each side.
 A horned juggernaut in riveted iron, a furnace burning in his chest, a tower shield and a molten
 hammer.
 
-- **Hammerfall:** he slams his hammer and two slow rings of fire roll out across the floor, each
+- **Hammerfall:** he slams his hammer and two rings of fire race out across the floor, each
   with three wide gaps. He throws a cross of hammer waves, turned with each blow, and rings of
   shards twice, the second in the first's gaps.
 - **Lockdown** (70%): the yard falls in, leaving a tower at each corner and the walls between
   them, and his dais in the middle with its drawbridges raised behind iron grates. An Iron
   Sentinel holds each tower; he can't be hurt until they're broken (or 30 seconds pass). A
-  four-armed spiral of shards turns out from him over the yard.
+  four-armed spiral of shards turns out from him over the yard, and his anvil's cross of hammer
+  waves cuts through it.
 - **Grinding Blades:** the keep becomes a great iron gear, ten teeth and five holes, and two
-  blades of fire sweep slowly round it from its middle. He leaps on you, and every so often slams
+  blades of fire sweep round it from its middle. He leaps on you, and every so often slams
   the floor again: the double ring and the cross.
 - **Iron Tempest** (35%): a star fort, his keep in a dry moat crossed at the gates and a bastion
-  pointing out from each corner. A banner on each bastion guards him, the floor goes quiet and his
-  hammer whirls: two spirals of shards turning opposite ways weave a lattice round him.
+  pointing out from each corner. A banner on each bastion guards him and his hammer whirls,
+  dragging two blades of fire round the fort the other way, while two spirals of shards turning
+  opposite ways weave a lattice round him.
 
 ### II. The Drowned Sanctum: Nerissa, the Tidecaller
 
@@ -96,13 +124,13 @@ An atoll with a ragged coast and tide pools, five coral isles across it.
 
 A sea-queen with a serpent's tail, a coral crown and a golden trident.
 
-- **Tidal Lanes:** a slow band of surging tide sweeps across the floor, shown first at its edge.
+- **Tidal Lanes:** a band of surging tide rushes across the floor, shown first at its edge.
   Step through one of its two wide gaps. She throws rings of swaying orbs, each turned half a gap.
 - **Rising Tide** (66%): the atoll sinks to a wheel: five dry isles, one in the middle and four on
   the rim, a ring of deep sea round it and channels out to them, Riptide Eels hunting in the deep.
   Get to an isle and hold out for 20 seconds against her flower of orbs and arms of bubbles.
 - **Whirlpool:** the floor becomes three arms of coral round her, two curved arms of tide wheel
-  slowly across them, and her bubbles spiral out the same way.
+  across them, and her bubbles spiral out the same way.
 - **Maelstrom** (33%): a ring of coral round a vortex, an islet in its eye reached by three
   shallows. The tide's arms turn the other way, and two spirals of bubbles cross round her.
 
@@ -112,32 +140,36 @@ A forge hall in a cross, four arms out from a square crucible, slag channels dow
 
 A horned demon of rock and fire with wings of ash and a hammer of lava.
 
-- **Lava Veins:** two veins of lava crack open across the floor at a time, glowing a full second
+- **Lava Veins:** two veins of lava race open across the floor at a time, glowing for a moment
   first, then burning, then cooling to slag.
 - **Meteor Storm** (70%): the floor becomes an iron grate over the sky, furnaces floating off it,
   meteors fall round him, each marked first, while Molten Golems join the fight and he erupts in
   rings of slow magma.
-- **Hammer:** an anvil, its horn out to the west and the hardy hole through it. No lava now: he
-  throws walls of cinders in a cross that turns with each throw, and leaps on you.
+- **Hammer:** an anvil, its horn out to the west and the hardy hole through it. His hammer falls
+  where each of you stands, marked first; he throws walls of cinders in a cross that turns with
+  each throw, and leaps on you.
 - **The Crucible Pours** (35%): the forge falls away but for its crucible and spout, plates of it
-  drifting round, and lava pours in from the edge.
+  drifting round, lava pouring in from the edge and embers raining over what's left.
 - **Molten Core:** his body goes molten, a meteor falls on each of you now and then, and a
   spiral of magma turns out from him.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
-Three rings over open sky, joined by spokes: watch where you step when the clock strikes.
+A clock face: three rings over open sky, joined by spokes, a mark at each hour round the dial and
+two hands at the hub. Watch where you step when the clock strikes.
 
 A hooded thief of time with a clock for a face and an hourglass for a heart. Four arms carry
 blades made of a clock's hands, and an orrery's ring wheels round him.
 
-- **Hour Hands:** the clock's broad hour hand sweeps slowly round the floor.
+- **Hour Hands:** the clock's two hands sweep round the floor and burn whoever they cross: the
+  broad hour hand, and the thin minute hand nearly three times as fast.
 - **Midnight Chime** (70%): the dial splits into twelve petals, one for each hour, and the hours
   light up in turn, half the floor at a time, with a rest between. Stand on a petal that isn't lit
   when it strikes, while a clock hand of blades sweeps round him.
-- **Time Fracture:** an hourglass; Hour Echoes of him appear and he blinks round it.
+- **Time Fracture:** an hourglass. The broken clock strikes half its hours at random, shown
+  first; Hour Echoes of him appear and he blinks round it.
 - **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
-  backwards, the hour hand with it, and two hands of gears sweep backwards round him.
+  backwards, both hands with it and faster, and two hands of gears sweep backwards round him.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
@@ -152,7 +184,7 @@ set with the four floors' gems.
 - **Sovereign's Decree:** stars fall on each of you.
 - **The Echoes** (80%, 65%, 50%, 35%): one by one he raises the ghosts of the four champions
   below. Each remakes the Apex in the shape of its floor and brings back one of its hazards (two
-  blades, a sweep of tide, lava veins, the hour hand):
+  blades, a sweep of tide, lava veins, the clock's two hands):
   - **Iron:** a fortress, a square keep with a round bastion at each corner, a gate in each side,
     four pits in its yard and iron pillars at the gates and bastions.
   - **Tide:** an archipelago, a middle isle and six round it in a deep sea that slows you and wears
