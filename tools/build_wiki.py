@@ -1116,22 +1116,33 @@ class Gen:
 
     def gen_crucible_event(self, used):
         """A note on the Crucible page while a timed event in wServer.json multiplies its climbs a
-        day (crucibleClimbs), or is still to come: nothing once it's over."""
+        day (crucibleClimbs) or its champions' white bags (crucibleWhiteChance), or is still to
+        come: nothing once it's over."""
         import datetime
         now = datetime.datetime.now(datetime.timezone.utc)
         notes = []
         for e in wd.server_events():
             x = int(e.get("crucibleClimbs", 1) or 1)
-            if x <= 1 or e["end"] <= now:
+            w = float(e.get("crucibleWhiteChance", 1) or 1)
+            if (x <= 1 and w <= 1) or e["end"] <= now:
                 continue
             last = e["end"] - datetime.timedelta(seconds=1)
             until = ("until the end of %d %s (UTC)" % (last.day, last.strftime("%B")) if e["end"].time() == datetime.time(0)
                      else "until %d %s, %s UTC" % (e["end"].day, e["end"].strftime("%B"), e["end"].strftime("%H:%M")))
             since = "" if e["start"] <= now else " from %d %s" % (e["start"].day, e["start"].strftime("%B"))
-            times = {2: "twice", 3: "three times"}.get(x, "%d times" % x)
-            notes.append('<div class="note"><p><strong>Event: %s.</strong> You may climb the Crucible %s as often%s %s: '
-                         '%d climbs a day, or %d with a Gilded Realm Pass. <code>/crucible status</code> counts them.</p></div>'
-                         % (esc(e.get("name", "")), times, since, until, x, 2 * x))
+            def times(n):
+                return {2: "twice", 3: "three times"}.get(n, "%g times" % n)
+            parts = []
+            if x > 1:
+                parts.append("you may climb the Crucible %s as often (%d climbs a day, or %d with a Gilded Realm Pass; "
+                             "<code>/crucible status</code> counts them)" % (times(x), x, 2 * x))
+            if w > 1:
+                parts.append("each champion's white bag drops %s as often (%s instead of 1%%, before your loot boosts)"
+                             % (times(w), pct(min(1, 0.01 * w))))
+            text = " and ".join(parts)
+            notes.append('<div class="note"><p><strong>Event: %s.</strong> %s%s %s. <code>/boosts</code> in the game '
+                         'shows it while it runs.</p></div>'
+                         % (esc(e.get("name", "")), text[0].upper() + text[1:], since, until))
         return "".join(notes)
 
     def gen_raise_items(self, used):

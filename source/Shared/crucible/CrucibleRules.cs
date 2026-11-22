@@ -50,15 +50,21 @@ namespace Shared.crucible
             $"The Crucible opens to those who reach round {UnlockRound} in the Arena (your best: {Math.Max(0, bestArenaRound)}), " +
             "or who hold a Gilded Realm Pass.";
 
-        /// The tower's floors, bottom to top: (number, name, its Heart, its champion).
+        /// The tower's floors, bottom to top: (number, name, its Heart, its champion, its white bag).
         public static readonly IReadOnlyList<CrucibleFloor> Floors = new[]
         {
-            new CrucibleFloor(1, "The Iron Bastion", "Bastion Heart", "Ferrogrim, the Iron Warden"),
-            new CrucibleFloor(2, "The Drowned Sanctum", "Sanctum Heart", "Nerissa, the Tidecaller"),
-            new CrucibleFloor(3, "The Ember Foundry", "Foundry Heart", "Pyrrhax, the Forge Tyrant"),
-            new CrucibleFloor(4, "The Clockwork Orrery", "Orrery Heart", "Chronarch, the Hour Thief"),
-            new CrucibleFloor(5, "The Apex", "Apex Heart", "Vaelith, the Crucible Sovereign"),
+            new CrucibleFloor(1, "The Iron Bastion", "Bastion Heart", "Ferrogrim, the Iron Warden", "Ferrogrim's Bastion Turret"),
+            new CrucibleFloor(2, "The Drowned Sanctum", "Sanctum Heart", "Nerissa, the Tidecaller", "Nerissa's Tidepearl"),
+            new CrucibleFloor(3, "The Ember Foundry", "Foundry Heart", "Pyrrhax, the Forge Tyrant", "Pyrrhax's Meteor Mortar"),
+            new CrucibleFloor(4, "The Clockwork Orrery", "Orrery Heart", "Chronarch, the Hour Thief", "Chronarch's Coat of Stolen Hours"),
+            new CrucibleFloor(5, "The Apex", "Apex Heart", "Vaelith, the Crucible Sovereign", "Vaelith's Final Aria"),
         };
+
+        private static readonly HashSet<string> WhiteBagIds = new HashSet<string>(Floors.Select(f => f.WhiteBag));
+
+        /// Whether an item is one of the champions' white bags (an event may make them drop more often,
+        /// ServerEvents.CrucibleWhiteChance).
+        public static bool IsWhiteBag(string itemId) => itemId != null && WhiteBagIds.Contains(itemId);
 
         public static CrucibleFloor Floor(int number) => Floors.FirstOrDefault(f => f.Number == number);
 
@@ -75,13 +81,15 @@ namespace Shared.crucible
         public readonly string Name;
         public readonly string Heart;
         public readonly string Champion;
+        public readonly string WhiteBag;
 
-        public CrucibleFloor(int number, string name, string heart, string champion)
+        public CrucibleFloor(int number, string name, string heart, string champion, string whiteBag)
         {
             Number = number;
             Name = name;
             Heart = heart;
             Champion = champion;
+            WhiteBag = whiteBag;
         }
     }
 

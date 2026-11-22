@@ -58,7 +58,8 @@
                 "name": "Twin Ascent",
                 "start": "2026-11-22T00:00:00Z",
                 "end": "2026-12-06T00:00:00Z",
-                "crucibleClimbs": 2
+                "crucibleClimbs": 2,
+                "crucibleWhiteChance": 2
             }
         ]
     }

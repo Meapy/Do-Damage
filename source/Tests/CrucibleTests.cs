@@ -236,6 +236,18 @@ namespace Tests
             Assert.True(it.Soulbound);
             var loot = db.Definitions[data.IdToObjectType[champion]].Item2;
             Assert.Contains(item, string.Join("|", AllLoot(loot)));
+            // the rules know it as its champion's (an event's crucibleWhiteChance covers it)
+            Assert.Equal(item, CrucibleRules.Floors.Single(f => f.Champion == champion).WhiteBag);
+            Assert.True(CrucibleRules.IsWhiteBag(item));
+        }
+
+        [Fact]
+        public void OnlyTheFiveAreWhiteBags()
+        {
+            Assert.Equal(5, CrucibleRules.Floors.Select(f => f.WhiteBag).Distinct().Count());
+            Assert.False(CrucibleRules.IsWhiteBag("Lil' Ferrogrim Generator"));
+            Assert.False(CrucibleRules.IsWhiteBag("Potion of Life"));
+            Assert.False(CrucibleRules.IsWhiteBag(null));
         }
 
         [Fact]

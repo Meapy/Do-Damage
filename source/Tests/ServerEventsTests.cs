@@ -137,11 +137,18 @@ namespace Tests
             Assert.Equal(2, ServerEvents.CrucibleClimbs(events, Utc(12, 5, 23, 59, 59)));
             Assert.Equal(1, ServerEvents.CrucibleClimbs(events, Utc(12, 6)));
             Assert.Equal(1, ServerEvents.CrucibleClimbs(null, Utc(11, 25)));
+            // the champions' white bags twice as often, over the same days
+            Assert.Equal(2, e.crucibleWhiteChance);
+            Assert.Equal(1, ServerEvents.CrucibleWhiteChance(events, Utc(11, 21, 23, 59, 59)));
+            Assert.Equal(2, ServerEvents.CrucibleWhiteChance(events, Utc(11, 22)));
+            Assert.Equal(2, ServerEvents.CrucibleWhiteChance(events, Utc(12, 5, 23, 59, 59)));
+            Assert.Equal(1, ServerEvents.CrucibleWhiteChance(events, Utc(12, 6)));
+            Assert.Equal(1, ServerEvents.CrucibleWhiteChance(null, Utc(11, 25)));
             // nothing else changes
             Assert.Equal(1, ServerEvents.PotionChance(events, Utc(12, 3)));
             Assert.Equal(1, ServerEvents.RelicChance(events, Utc(12, 3)));
 
-            Assert.Equal($"{e.name}: you may climb the Crucible twice as often each day, until the end of 5 December (UTC)!", e.Message());
+            Assert.Equal($"{e.name}: you may climb the Crucible twice as often each day, and its champions' white bags drop twice as often, until the end of 5 December (UTC)!", e.Message());
         }
 
         private static string SourceDir()
