@@ -254,7 +254,10 @@ Halls** (stand still for a moment and you turn to marble, armored until you move
 the Blood Pact** (below half your health your shots hit harder and ignore defense) and **The
 Hollow Sourcestone** (every few seconds it breaks the armor of the enemy nearest you). Raised
 again, below, they drop a seal that raises marble pillars round you, a skull that draws a
-pentagram on your target and a bow whose hits open a singularity.
+pentagram on your target and a bow whose hits open a singularity. Raising the Colossus breaks his
+hall open: its ring of walls cracks apart, the marble floor builds itself outwards half as wide
+again (as far as the halls' other rooms leave space), new walls rise along the rim and he hurls
+the braziers' fire out to it, so the Empowered fight has room to move.
 
 ## The Cultist Hideout and the Void
 

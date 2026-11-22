@@ -2902,6 +2902,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   To add emoji after a future Unicode release, run `python tools\update_emotes.py --cache <folder>`
   (it fetches gemoji's list and the PNGs; codes already in `Emotes.as` keep their cell), then
   `python tools\gen_rs_manifest.py`.
+- **The Empowered Marble Colossus's hall grows** (2026-11-22; `resurrection/ColossusArena.cs`, called
+  from `EmpoweredGround.Widen`): raised in the Elder Lost Halls, he breaks his room open over about
+  3.5 s, built like the Crucible's floors. From the room's controller (`Elder LH Monster Spawner`) it
+  finds the room, its ring of walls and its way in (Hall Tile floor inside the new rim), lays floor
+  on the void inside an oval (24 tiles each side, 19 north, 21 south) wherever nothing but its own
+  is in the eight squares round it (the layout is shuffled each run) and two squares off the map's
+  edge, breaks only the walls with floor all round, raises walls on the void round the new floor,
+  relights the whole hall with the map's six Lit tiles and moves the braziers to the new rim. Only
+  existing effects, so old clients draw it. Each step calls `Player.UpdateTiles()` (tiles otherwise
+  reach a player only when they step onto another square); the Forgotten King's floor does too
+  now. Placed objects need their `ObjDesc` and a new `ObjId`. World server only.
 
 ## Classes, minigames and the economy
 

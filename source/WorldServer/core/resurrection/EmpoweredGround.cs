@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using WorldServer.core.net.datas;
@@ -31,6 +31,12 @@ namespace WorldServer.core.resurrection
 
         public static void Widen(Enemy boss, BossInfo info)
         {
+            // the Marble Colossus's hall is built again bigger (ColossusArena)
+            if (ColossusArena.Grows(info) && boss.World != null)
+            {
+                ColossusArena.Grow(boss);
+                return;
+            }
             if (info?.Boss != King || boss.World == null)
                 return;
             var world = boss.World;
@@ -87,6 +93,9 @@ namespace WorldServer.core.resurrection
                             tile.ObjId = w.GetNextEntityId();
                         tile.UpdateCount++;
                     }
+                    // sent now, not as each player next steps onto another square
+                    foreach (var p in w.Players.Values)
+                        p.UpdateTiles();
                 });
             }
         }

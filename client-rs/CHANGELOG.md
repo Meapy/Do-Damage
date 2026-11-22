@@ -35,6 +35,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - A Gilded pass can **rally** a community goal, once each: press Rally on its card and from then until it ends everyone's help with it counts double, in the total and in each helper's share. The realm is told, the goal burns gold in the window with "rallied by" the rallier's name, and you share its top prize whatever your place once it ends (with your own minimum share).
 - In a dungeon, a Gilded pass shows the way: a trail of small gold arrows runs the shortest walk to the boss, doors included, with a chip at the foot of the view counting the tiles left. Options, Gameplay switches it off.
 
+### Dungeons
+- Raising the Marble Colossus in the Elder Lost Halls now breaks his hall open: the walls crack apart, the floor builds itself outwards half as wide again with the new walls rising along it, and he hurls the braziers' fire out to the new rim, all in a few seconds of lightning and marble dust. The Forgotten King's floor in the Elder Shatters now appears as it spreads instead of only once you move.
+
 ### Chat
 - The chat's emoji are up to date: every emoji is redrawn in a fresh, clearer style and all those added since (the salute, the melting and shaking faces, the pink and light-blue hearts and hundreds more, flags included) are there, over 1,900 in all. Type them as before, `:smile:`, `:heart:`, and now `:saluting_face:` (or `:salute:`); every code that worked still does.
 
