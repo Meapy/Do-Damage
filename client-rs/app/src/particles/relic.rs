@@ -2691,6 +2691,18 @@ enum Champion {
     Portal,
 }
 
+/// The Crucible's squares we knew had ground, to tell ground built (the ways up and the floors
+/// coming together, `CrucibleWorld`) and ground fallen from ground just come into sight.
+#[derive(Default)]
+pub struct GroundWatch {
+    world: u64,
+    seen: usize,
+    known: Vec<bool>,
+    /// Since when squares come in as sight does (arriving, a jump), not as they're built.
+    settling: i32,
+    at: (f64, f64),
+}
+
 fn champion(id: &str) -> Option<Champion> {
     Some(match id {
         "Ferrogrim, the Iron Warden" => Champion::Ferrogrim,
@@ -2958,6 +2970,96 @@ impl Particles {
 
     /// A phase begun (`CrucibleMessage` Cue `cue`, on the champion of type `champion`): its own
     /// burst round the champion, in its floor's colours.
+    /// Every frame, in the Crucible: ground built near us (its ways laid ahead of us, a floor
+    /// coming together) rises out of the sky with light streaming up into it and a breath of dust
+    /// as it settles, now and then a ring of light; ground falling away breaks into pieces that
+    /// tumble down into the sky with embers. Squares just come into sight (arriving, walking on,
+    /// a jump) aren't building: only those that appear within `NEAR` of us, after we've settled.
+    pub fn crucible_ground(&mut self, world: &World, data: &bsk_data::GameData) {
+        const NEAR: f64 = 13.0;
+        const MOST: usize = 48; // squares a frame given effects
+        if world.background != crate::cruciblesky::SKY_CRUCIBLE {
+            self.crucible.world = 0;
+            return;
+        }
+        let Some(me) = world.player() else { return };
+        let (w, h) = (world.width, world.height);
+        let n = (w * h).max(0) as usize;
+        let log = world.tile_log();
+        let now = self.now;
+        let watch = &mut self.crucible;
+        if watch.world != world.id() || watch.known.len() != n || watch.seen > log.len() {
+            watch.world = world.id();
+            watch.seen = log.len();
+            watch.known = (0..n).map(|i| world.tile(i as i32 % w, i as i32 / w).is_some()).collect();
+            watch.settling = now;
+            watch.at = (me.x, me.y);
+            return;
+        }
+        if (me.x - watch.at.0).hypot(me.y - watch.at.1) > 4.0 {
+            watch.settling = now;
+        }
+        watch.at = (me.x, me.y);
+        let settled = now - watch.settling > 1200;
+        let fresh: Vec<u32> = log[watch.seen..].to_vec();
+        watch.seen = log.len();
+        let (mut built, mut fell) = (Vec::new(), Vec::new());
+        for i in fresh {
+            let i = i as usize;
+            if i >= n {
+                continue;
+            }
+            let (x, y) = (i as i32 % w, i as i32 / w);
+            let was = self.crucible.known[i];
+            let tile = world.tile(x, y);
+            self.crucible.known[i] = tile.is_some();
+            let near = (x as f64 + 0.5 - me.x).hypot(y as f64 + 0.5 - me.y) <= NEAR;
+            if !settled || !near {
+                continue;
+            }
+            match (was, tile) {
+                (false, Some(t)) if built.len() < MOST => built.push((x, y, t)),
+                (true, None) if fell.len() < MOST => fell.push((x, y)),
+                _ => {}
+            }
+        }
+        let shade = |c: u32, k: f64| {
+            let ch = |s: u32| ((((c >> s) & 255) as f64 * k).min(255.0) as u32) << s;
+            ch(16) | ch(8) | ch(0)
+        };
+        for (x, y, t) in built {
+            let c = data.grounds.get(&t).and_then(|g| g.color).unwrap_or(0x8A7A6A);
+            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+            // light streaming up into it out of the sky below
+            for _ in 0..2 {
+                let col = self.pick(&[0xFFE29A, 0xFFB03A, shade(c, 2.2)]);
+                let mut p = Particle::new(cx + self.pm(0.4), cy + self.pm(0.4), -1.6 - self.random(), col, 80.0 + 40.0 * self.random(), 650, Motion::Plain)
+                    .moving(0.0, 0.0, 0.0032 + 0.0015 * self.random());
+                p.fade = true;
+                self.add(p);
+            }
+            // a breath of dust as it settles
+            if self.random() < 0.3 {
+                self.puffs(cx, cy, 1, &[shade(c, 1.4), shade(c, 0.9)], 150.0, 0.5, 0.35, 700, 0);
+            }
+            if self.random() < 0.08 {
+                self.decal(DecalKind::Ring, cx, cy, 1.1, 0xFFB03A, now, 520, None);
+            }
+        }
+        for (x, y) in fell {
+            let (cx, cy) = (x as f64 + 0.5, y as f64 + 0.5);
+            // pieces of it tumbling down into the sky, an ember or two with them
+            for k in 0..3 {
+                let col = if k == 2 { self.pick(&[0xFF9A2A, 0xFFE29A]) } else { self.pick(&[0x4A3E50, 0x2A2230, 0x6A5A70]) };
+                let size = if k == 2 { 60.0 } else { 120.0 + 90.0 * self.random() };
+                let mut p = Particle::new(cx + self.pm(0.4), cy + self.pm(0.4), 0.0, col, size, 900 + (self.random() * 400.0) as i32, Motion::Rising { acc: -9.0 - 6.0 * self.random() })
+                    .moving(self.pm(0.0008), self.pm(0.0008), 0.0012 * self.random());
+                p.fade = true;
+                self.add(p);
+            }
+        }
+    }
+
     pub fn champion_cue(&mut self, cue: u8, champion: u16, world: &World, now: i32) {
         if self.disabled {
             return;

@@ -3332,6 +3332,7 @@ impl App {
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
                 game.particles.champion_auras(world, data, dt);
+                game.particles.crucible_ground(world, data);
                 game.particles.trails(world, data, dt);
             }
             jitter = game.particles.jitter(now);
@@ -3461,7 +3462,7 @@ impl App {
                         });
                         let scene = view::Scene { sprites, data, world, camera, time: now, floaters: &game.floaters, bubbles: &game.bubbles, particles: &game.particles, show, hallucinating, roof, me_alpha, inset: None, glass: Some(&glass_draw) };
                         prof::mark("pre-world");
-                        ground.crucible_sky.state = game.crucible.as_ref().map(|c| c.sky(now)).unwrap_or((0, None));
+                        ground.crucible_sky.state = game.crucible.as_ref().map(|c| c.sky(now)).unwrap_or((0, None, 0.0));
                         view::draw(&scene, renderer, redrawer, ground, fonts, text);
                         game.petals.draw(&camera, renderer, now);
                         // The world through a filter (Map.getFilterIndex): paused, else blind, else

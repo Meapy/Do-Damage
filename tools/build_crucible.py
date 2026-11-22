@@ -22,6 +22,12 @@ next, out of sight of it):
 - V, the Apex: a star of marble with eight points, inlaid with the tower's sigil, four
   obelisks banded in the floors' colours on four of its points (Vaelith, the Crucible Sovereign).
 
+Between each floor and the next a way up winds through the sky (WAYS), from one's northern edge
+to the next one's southern edge, five squares wide, made of the floor it leads to: its ground and
+edge, a line of its light down the middle, its pillars on ledges off the sides. Its squares are
+marked `Crucible Way`: CrucibleWorld takes the ways and every floor above the Threshold away as the
+world opens and builds them as the climb walks up, letting them fall behind it.
+
 No floor reaches further than 17 squares from its middle (CrucibleWorld.FloorReach, the snapshot
 it puts the floor back from); the floor painters (logic/behaviors/Crucible.cs) only repaint
 ground that can be walked on and leave what stands on it, so the floors' holes and pillars stay.
@@ -651,11 +657,33 @@ def _star(dx, dy):
 SHAPES = {"fort": _fort, "atoll": _atoll, "cross": _cross, "orrery": _orrery, "star": _star}
 
 
+# The ways up between them (CrucibleWorld builds each square by square ahead of whoever walks it,
+# and lets it fall behind the last of them): each winds from the floor below's northern edge to
+# the next one's southern edge, made of the floor it leads to, a line of that floor's light down
+# its middle and that floor's pillars on ledges off its sides. Per way, the floor it leads to:
+# (ground, edge (None: none), the light down its middle, the pillars), and its course: how it
+# winds ("wave": an S of `turns` half-bends `swing` squares out; "zigzag": the same in straight
+# runs), how wide (squares from its middle line).
+WAYS = [
+    (("Bastion Flagstone", "Bastion Rim", "Bastion Inlay", "Bastion Pillar"), ("wave", 1, 8.0), 2.5),
+    (("Sanctum Mosaic", "Sanctum Rim", "Sanctum Shallows", "Coral Spire"), ("wave", 2, 10.0), 2.5),
+    (("Foundry Plate", "Foundry Rim", "Cooling Slag", "Foundry Brazier"), ("zigzag", 3, 9.0), 2.5),
+    (("Orrery Dial", None, "Dial Numeral", "Orrery Pylon"), ("wave", 2, 12.0), 2.5),
+    (("Apex Marble", "Apex Rim", "Apex Sigil", "Apex Obelisk"), ("wave", 1, 13.0), 3.0),
+]
+# the ways' straight runs out of a floor and into the next: from its edge to this many squares
+# from its middle, so they wind only clear of both
+WAY_CLEAR = 19
+WAY_LIGHT_EVERY = 3.0   # squares along the middle line between its lights
+WAY_LEDGE_EVERY = 11.0  # and between the ledges with pillars, side by side in turn
+
+
 class Map:
     def __init__(self):
         self.ground = [[None] * W for _ in range(H)]
         self.obj = [[None] * W for _ in range(H)]
         self.region = [[None] * W for _ in range(H)]
+        self.ways = []  # each way's middle line, (x, y) from the floor below up (for scripted walks)
 
     def place(self, x, y, name):
         assert self.ground[y][x] is not None and self.obj[y][x] is None, (name, x, y)
@@ -804,7 +832,97 @@ def build_map():
             for (x, y) in ring_points(cy, 14, 4, math.pi / 4):
                 m.place(x, y, "Apex Obelisk")
         m.place(CX, cy, heart)
+    platforms = [(THRESHOLD[1], None)] + [(f[1], f) for f in FLOORS]
+    for i, look in enumerate(WAYS):
+        way(m, platforms[i][0], platforms[i + 1][0], *look)
     return m
+
+
+def _edge_row(m, cy, north):
+    """The floor's last square at x = CX going north (or south) from its middle, within 17."""
+    rows = range(cy - 17, cy + 1) if north else range(cy + 17, cy - 1, -1)
+    for y in rows:
+        if m.ground[y][CX] is not None:
+            return y
+    raise AssertionError(("no floor at the middle", cy))
+
+
+def way(m, low_cy, high_cy, look, course, width):
+    """A way from the floor whose middle is row `low_cy` up (north) to the one at `high_cy`."""
+    ground, rim, light, pillar = look
+    kind, turns, swing = course
+    start, end = _edge_row(m, low_cy, True), _edge_row(m, high_cy, False)
+    a, b = low_cy - WAY_CLEAR, high_cy + WAY_CLEAR
+    assert start > a > b > end, (start, a, b, end)
+
+    def offset(y):
+        if y >= a or y <= b:
+            return 0.0
+        t = (a - y) / (a - b)
+        wave = math.sin(math.pi * turns * t)
+        if kind == "zigzag":
+            # straight runs, their corners just rounded off
+            return swing * math.asin(0.97 * wave) / math.asin(0.97)
+        return swing * math.sin(math.pi * turns * t)
+
+    # the middle line, finely, and its length so far at each point
+    line, run = [], 0.0
+    y = start - 0.5
+    while y > end + 0.5:
+        x = CX + 0.5 + offset(y)
+        if line:
+            run += math.hypot(x - line[-1][0], y - line[-1][1])
+        line.append((x, y, run))
+        y -= 0.05
+    squares = set()
+    for (x, y, _) in line:
+        for sy in range(int(y - width - 1), int(y + width + 2)):
+            for sx in range(int(x - width - 1), int(x + width + 2)):
+                if math.hypot(sx + 0.5 - x, sy + 0.5 - y) <= width and m.ground[sy][sx] is None:
+                    squares.add((sx, sy))
+    # ledges off its sides for the pillars, clear of its ends
+    ledges = []
+    side, next_at = 1, WAY_LEDGE_EVERY * 0.7
+    for i, (x, y, r) in enumerate(line):
+        if r < next_at or not (b + 2 < y < a - 2):
+            continue
+        next_at = r + WAY_LEDGE_EVERY
+        j = min(i + 10, len(line) - 1)
+        dx, dy = line[j][0] - x, line[j][1] - y
+        n = math.hypot(dx, dy) or 1.0
+        nx, ny = -dy / n * side, dx / n * side
+        px, py = x + nx * (width + 1.4), y + ny * (width + 1.4)
+        ledges.append((int(px), int(py)))
+        for sy in range(int(py) - 2, int(py) + 3):
+            for sx in range(int(px) - 2, int(px) + 3):
+                if math.hypot(sx + 0.5 - px, sy + 0.5 - py) <= 1.5 and m.ground[sy][sx] is None:
+                    squares.add((sx, sy))
+        side = -side
+    for (x, y) in squares:
+        assert 0 < x < W - 1, ("a way off the map", x, y)
+        m.ground[y][x] = ground
+        m.region[y][x] = "Crucible Way"
+    for (x, y) in squares:
+        if rim and any((x + ex, y + ey) not in squares and m.ground[y + ey][x + ex] is None
+                       for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+            m.ground[y][x] = rim
+    # its lights down the middle
+    k = WAY_LIGHT_EVERY
+    for (x, y, r) in line:
+        if r >= k:
+            k += WAY_LIGHT_EVERY
+            if (int(x), int(y)) in squares:
+                m.ground[int(y)][int(x)] = light
+    for (x, y) in ledges:
+        if (x, y) in squares and m.obj[y][x] is None:
+            m.place(x, y, pillar)
+    m.ways.append([(x, y) for (x, y, _) in line])
+    # it touches the floors only at its ends, never beside its bends
+    for (x, y) in squares:
+        if b < y < a:
+            for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                g = m.ground[y + ey][x + ex]
+                assert g is None or (x + ex, y + ey) in squares or m.region[y + ey][x + ex] == "Crucible Way", ("a way beside a floor", x, y)
 
 
 def save_map(m):

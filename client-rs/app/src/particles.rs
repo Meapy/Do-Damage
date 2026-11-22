@@ -193,6 +193,9 @@ pub struct Particles {
     /// The Father's wards on players, by player id (`relic`, looks 34 to 37), for the shell drawn
     /// round them (`ward.rs`).
     wards: HashMap<i32, WardLook>,
+    /// The Crucible's ground as we last knew it, for what builds and falls round us
+    /// (`relic::GroundWatch`, `crucible_ground`).
+    crucible: relic::GroundWatch,
 }
 
 /// How a player's ward has looked of late: its censer's colour, when it was raised and last

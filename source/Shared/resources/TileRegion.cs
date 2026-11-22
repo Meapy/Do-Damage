@@ -97,6 +97,9 @@
         Nexus_Pet_Pen,
         // the Crucible's portal (DoomedWorlds.AddCruciblePortal), across Realm 2's vortex from the
         // Arena's pit
-        Crucible_Portal
+        Crucible_Portal,
+        // the Crucible's ways up between its floors (tools/build_crucible.py), taken away until the
+        // climb gets to them (CrucibleWorld)
+        Crucible_Way
     }
 }

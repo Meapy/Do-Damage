@@ -12,10 +12,11 @@ namespace WorldServer.networking.packets.outgoing
         // Lobby: the Threshold's countdown (seconds; 0 waiting for players). Ascend: the climb to
         // `floor` begins (the client's warp; players move halfway through). Floor: its champion
         // arrives. Cue: a phase begins. Cleared: the floor's champion fell (seconds: the floor's
-        // time). Rest: the rest before the next ascent (seconds left). Victory: the Sovereign fell
-        // (seconds: the whole climb). Status: where the climb is, for whoever just arrived
-        // (seconds: since it began).
-        public const byte Lobby = 0, Ascend = 1, Floor = 2, Cue = 3, Cleared = 4, Rest = 5, Victory = 6, Status = 7;
+        // time). Rest: no longer sent (the rest before an ascent, seconds left). Victory: the
+        // Sovereign fell (seconds: the whole climb). Status: where the climb is, for whoever just
+        // arrived (seconds: since it began). Way: the way up to `floor` is open (seconds: how far
+        // along it the leader is, 0 to 100).
+        public const byte Lobby = 0, Ascend = 1, Floor = 2, Cue = 3, Cleared = 4, Rest = 5, Victory = 6, Status = 7, Way = 8;
 
         public byte Kind { get; set; }
         public byte FloorNumber { get; set; }

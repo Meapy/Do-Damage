@@ -4,7 +4,8 @@
 //! round the Ember Foundry, a starry night round the Clockwork Orrery, a golden dawn above the
 //! clouds round the Apex). Embers drift up past the floor; banks of cloud drift by below. In an
 //! ascent (`crucible::Climb::sky`) the colours blend from one floor's to the next, and the clouds
-//! and embers stream down past us as we rise. It stays put as the camera moves and is drawn first,
+//! and embers stream down past us as we rise; on a way up, the same, slowly, as far as the climb
+//! has walked it. It stays put as the camera moves and is drawn first,
 //! wherever there is no ground; the floors' rocky undersides hang into it (`islands.rs`). Drawn in
 //! cells the size of the art's pixels, as `voidsky.rs` is.
 
@@ -13,7 +14,7 @@ use bsk_render::Renderer;
 use crate::view::{Camera, TILE_PX};
 
 /// `MapInfo.background` for this sky (Dungeons.xml `<Background>`).
-pub const SKY_CRUCIBLE: u8 = 9;
+pub const SKY_CRUCIBLE: u8 = bsk_world::BACKGROUND_OPEN_AIR;
 
 /// Each floor's sky (0 the Threshold): top, horizon, embers, cloud, stars (how many show).
 #[derive(Clone, Copy)]
@@ -70,9 +71,10 @@ pub struct CrucibleSky {
     stars: Vec<(f32, f32, f32)>,
     /// (cell x, cell y, radius, speed)
     clouds: Vec<(f32, f32, f32, f32)>,
-    /// Which floor's colours, and an ascent's progress (from, to, 0 to 1): set each frame from the
-    /// climb (`crucible::Climb::sky`).
-    pub state: (u8, Option<(u8, u8, f32)>),
+    /// Which floor's colours, an ascent's or a walk's progress (from, to, 0 to 1), and how fast
+    /// everything streams down past us (0 to 1; an ascent's own rush when 0): set each frame from
+    /// the climb (`crucible::Climb::sky`).
+    pub state: (u8, Option<(u8, u8, f32)>, f32),
     /// How far the ascents have carried everything down (seconds at full rush), and the last frame's time.
     rushed: f32,
     last: i32,
@@ -100,11 +102,12 @@ impl CrucibleSky {
         }
         let px = cell as f32;
         let (cw, ch) = (w as f32 / px, h as f32 / px);
-        let (floor, ascent) = self.state;
+        let (floor, ascent, drift) = self.state;
         let at = |f: u8| PALETTES[(f as usize).min(PALETTES.len() - 1)];
         // in an ascent: the next floor's colours come in through its middle, and everything
         // streams down past us, fastest at its height
         let (pal, rush) = match ascent {
+            Some((from, to, t)) if drift > 0.0 => (blend(&at(from), &at(to), t * t * (3.0 - 2.0 * t)), drift),
             Some((from, to, t)) => {
                 let k = ((t - 0.3) / 0.4).clamp(0.0, 1.0);
                 (blend(&at(from), &at(to), k * k * (3.0 - 2.0 * k)), (1.0 - (2.0 * t - 1.0).abs()).powf(0.8))

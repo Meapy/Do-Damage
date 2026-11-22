@@ -2,8 +2,10 @@
 //! tracker at the top (five floors as diamonds joined by a line, the climb's clock, the
 //! Threshold's and the rests' countdowns), and its moments, each animated over the world:
 //!
-//! - the ascent: a rush of light streaking down past us as we rise, the screen washed in the next
-//!   floor's colour at its height (when the server moves us), its numeral in the middle;
+//! - the way up (`kind::WAY`): the tracker names the floor it leads to, the sky blending into its
+//!   colours as the climb walks it;
+//! - an admin's jump: a rush of light streaking down past us as we rise, the screen washed in the
+//!   next floor's colour at its height (when the server moves us), its numeral in the middle;
 //! - a floor's title card: letterbox bars slide in, the numeral and the floor's name with a line
 //!   drawn out under it, its champion's portrait and name;
 //! - a phase: a slash of the floor's colour sweeping across, the champion's name over the phase's;
@@ -27,6 +29,7 @@ pub mod kind {
     pub const REST: u8 = 5;
     pub const VICTORY: u8 = 6;
     pub const STATUS: u8 = 7;
+    pub const WAY: u8 = 8;
 }
 
 pub const FLOORS: u8 = 5;
@@ -108,6 +111,9 @@ pub struct Climb {
     /// The Threshold's or a rest's countdown: seconds left as of `at`, and which.
     countdown: Option<(i32, i32, u8)>,
     ascend: Option<(u8, u8, i32)>,
+    /// The way up: from, to, how far along it the leader is (0 to 1), and how far the sky has got
+    /// (easing after it), with when it last moved.
+    way: Option<(u8, u8, f32, std::cell::Cell<(f32, i32)>)>,
     title: Option<(u8, u16, i32)>,
     cue: Option<(u8, u8, u16, String, i32)>,
     cleared_banner: Option<(u8, i32, i32)>,
@@ -130,7 +136,19 @@ impl Climb {
                 }
                 self.ascend = Some((self.floor, m.floor, now));
             }
+            kind::WAY => {
+                self.countdown = None;
+                if self.started.is_none() {
+                    self.started = Some(now);
+                }
+                let t = (m.seconds as f32 / 100.0).clamp(0.0, 1.0);
+                match &mut self.way {
+                    Some((_, to, target, _)) if *to == m.floor => *target = t,
+                    _ => self.way = Some((m.floor.saturating_sub(1), m.floor, t, std::cell::Cell::new((0.0, now)))),
+                }
+            }
             kind::FLOOR => {
+                self.way = None;
                 self.floor = m.floor;
                 self.started = Some(now - m.seconds * 1000);
                 self.title = Some((m.floor, m.champion, now));
@@ -162,10 +180,19 @@ impl Climb {
 
     /// For the sky: the floor whose colours it wears, and how far through an ascent we are
     /// (from-floor, to-floor, 0 to 1), if one is running.
-    pub fn sky(&self, now: i32) -> (u8, Option<(u8, u8, f32)>) {
+    /// On a way up, the sky eases after how far along it the leader is, everything drifting down
+    /// past us as we climb.
+    pub fn sky(&self, now: i32) -> (u8, Option<(u8, u8, f32)>, f32) {
+        if let Some((from, to, target, shown)) = &self.way {
+            let (t, last) = shown.get();
+            let dt = (now - last).clamp(0, 100) as f32 / 1000.0;
+            let t = t + (target - t) * (1.0 - (-dt * 1.5).exp());
+            shown.set((t, now));
+            return (*to, Some((*from, *to, t)), 0.22);
+        }
         match self.ascend {
-            Some((from, to, at)) if now - at < ASCEND_MS => (to, Some((from, to, (now - at) as f32 / ASCEND_MS as f32))),
-            _ => (self.floor, None),
+            Some((from, to, at)) if now - at < ASCEND_MS => (to, Some((from, to, (now - at) as f32 / ASCEND_MS as f32)), 0.0),
+            _ => (self.floor, None, 0.0),
         }
     }
 
@@ -221,23 +248,25 @@ impl Climb {
             ui.renderer.fill(x0, y - 1.0 * s, done, 2.0 * s, color::GOLD, 1.0);
         }
         let pulse = 0.5 + 0.5 * ((now as f32) / 300.0).sin();
+        // on a way up, the floor it leads to
+        let current = self.way.as_ref().map_or(self.floor, |w| w.1);
         for f in 1..=FLOORS {
             let x = x0 + gap * (f - 1) as f32;
             let (fill, a, size) = if f <= self.cleared {
                 (color::GOLD, 1.0, 6.0)
-            } else if f == self.floor {
+            } else if f == current {
                 (floor_color(f), 0.65 + 0.35 * pulse, 7.0 + 1.5 * pulse)
             } else {
                 (0x4A4060, 1.0, 5.0)
             };
-            if f == self.floor && f > self.cleared {
+            if f == current && f > self.cleared {
                 diamond(ui, x, y, (size + 4.0) * s, floor_color(f), 0.25 * pulse);
             }
             diamond(ui, x, y, size * s, fill, a);
             let n = roman(f);
             let ns = lay.font(8.0);
             let nw = ui.measure(n, ns, true);
-            ui.label_alpha(n, (x - nw / 2.0).round(), y + 8.0 * s, ns, true, if f <= self.cleared || f == self.floor { color::TEXT } else { color::TEXT_MUTED }, 1.0);
+            ui.label_alpha(n, (x - nw / 2.0).round(), y + 8.0 * s, ns, true, if f <= self.cleared || f == current { color::TEXT } else { color::TEXT_MUTED }, 1.0);
         }
         // the countdown, or the floor's name
         let ls = lay.font(9.5);
@@ -249,6 +278,10 @@ impl Climb {
                 } else {
                     tf!("Ascending in {seconds} s · say GO", seconds = left)
                 }
+            }
+            None if self.way.is_some() => {
+                let to = self.way.as_ref().map_or(0, |w| w.1);
+                tf!("The way up to {floor}", floor = floor_name(to))
             }
             None if self.floor == 0 => tr("Waiting for climbers").to_owned(),
             None => floor_name(self.floor).to_owned(),

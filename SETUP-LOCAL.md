@@ -736,7 +736,21 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Shared/crucible/CrucibleRules.cs`: open at Arena round 50 (`DbAccount.arenaBest`, kept as rounds
   begin and filled once from every season's leaderboard) or a Gilded pass, admins always; one climb
   a UTC day, two Gilded (`crucibleDay`, `crucibleClimbs`, spent as a climb begins). The world
-  (`worlds/impl/crucible/CrucibleWorld.cs`) runs lobby, ascent, arrival, fight, rest and departure;
+  (`worlds/impl/crucible/CrucibleWorld.cs`) runs lobby, the walk up, arrival, fight and clear: the
+  map's floors above the Threshold and its ways up between them (`Crucible Way` squares,
+  `TileRegion.Crucible_Way`, `WAYS` and `way()` in the script: each winding from a floor's
+  northern edge to the next's southern edge in that floor's ground, a line of its light down the
+  middle and its pillars on ledges) are taken away as the world opens (`_held`) and built as the
+  climb gets to them: a way in steps out from the floor below, `Ahead` steps ahead of the
+  furthest along it, the floor above outwards from where the way lands once it nearly reaches it;
+  behind the last climber the way falls (`Behind`), and the floor below once all are on it;
+  whoever stands on fallen ground is put back on the way, stragglers are brought up 20 s after the
+  first arrives (and everyone 150 s after it opens). Message `CRUCIBLE` kind 8 (`Way`) tells the
+  clients how far along the leader is (the sky blends and drifts with it, the tracker names the
+  floor); the Rust client's `crucible_ground` (`particles/relic.rs`) throws light up into ground
+  built near us and breaks ground that falls into pieces. Admins' `/crucible floor <n>` still
+  jumps (the floor built at once). Shots fly over squares with no ground in this sky (`Background`
+  9, `bsk_world::BACKGROUND_OPEN_AIR`, `combat.rs`) instead of stopping there;
   each floor's invisible Heart changes its floor (`logic/behaviors/Crucible.cs`: `CrucibleFloor` and
   its painters, `Rampart`, `Crumble`, `Transmute`), ordered by its champion
   (`BehaviorDb.Crucible.cs`); the ground is put back from a snapshot whenever a floor is quiet. Its

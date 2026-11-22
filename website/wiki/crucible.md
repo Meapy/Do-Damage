@@ -28,11 +28,20 @@ the lobby can say **GO** to start it sooner. Once it begins, nobody else can joi
 
 ## How a climb goes
 
-1. The floor rises: the screen rushes up through the sky and you land on the next floor.
-2. The champion's title comes up, and it arrives in the middle of the floor.
+1. **The way up opens.** You climb the Crucible on foot. A path builds itself out of the sky
+   ahead of whoever is furthest along it, winding up to the next floor, made of that floor's
+   stone with its pillars along the sides. As you get near, the next floor comes together round
+   where the path meets it. Behind the last of you, the path breaks away and falls, and once
+   everyone is on it, so does the floor you left. Nothing can hurt you on the way up.
+2. Once everyone is on the new floor, its title comes up and the champion arrives in the middle.
+   Anyone who lags behind for 20 seconds after the first arrives is brought up.
 3. It fights in **phases**, each called out on screen as it begins. The floor changes with them.
-4. When it falls, you are healed and safe for **20 seconds**. The **Ascension Sigil** turns in the
-   middle (say GO to go on sooner). Then the floor's edge breaks away into the sky and up you go.
+4. When it falls, you are healed and the **Ascension Sigil** turns in the middle. A few seconds
+   later the next way up opens. Take your time with the loot: the floor stays until everyone has
+   left it.
+
+The floors float in open air, so your shots (and the champions') fly on over the gaps in a floor
+and the sky beside it instead of stopping at the edge.
 
 Your pet climbs with you, and so do allies you've summoned (a turret, a pet from an item): they
 come up to each floor beside you.
