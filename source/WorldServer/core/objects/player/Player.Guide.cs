@@ -11,7 +11,8 @@ namespace WorldServer.core.objects
     // The Gilded Realm Pass's dungeon guide: in a dungeon, a client that asked for it (GUIDE_SUBSCRIBE)
     // is sent the shortest walk to the dungeon's boss (its quest, `Quest`), again each time the
     // player has moved a few squares or the boss has, and now and then while they stand still.
-    // The client draws it as a trail of arrows on the ground (guide.rs).
+    // The client draws it as a trail of arrows on the ground (guide.rs). It goes once the boss is
+    // near (GuideNear squares of walking) or its fight has begun (anyone has hurt it).
     public partial class Player
     {
         // the client can show the guide (GUIDE_SUBSCRIBE)
@@ -26,6 +27,8 @@ namespace WorldServer.core.objects
         // longest wait with neither moving (ms), and after a failed search
         private const int GuideMoved = 3;
         private const long GuideEveryMs = 6000, GuideRetryMs = 5000;
+        // the boss is this near (squares of walking): the guide goes, the rest is in sight
+        public const int GuideNear = 30;
 
         // A world with a dungeon's boss to be led to: not a realm (its events have their own
         // arrow), the Nexus, a vault, a minigame, a guild hall or stacked floors.
@@ -36,7 +39,8 @@ namespace WorldServer.core.objects
         {
             if (!GuideWanted || time.TickCount % 5 != 0)
                 return;
-            if (Quest is not Enemy boss || boss.Dead || Pass?.IsGilded != true || !InDungeon)
+            if (Quest is not Enemy boss || boss.Dead || Pass?.IsGilded != true || !InDungeon
+                || boss.DamageCounter?.TotalDamage > 0)
             {
                 ClearGuide();
                 return;
@@ -54,9 +58,9 @@ namespace WorldServer.core.objects
             _guideBoss = boss.Id;
             _guideAt = now;
             var path = GuidePath.Find(World, x, y, bx, by);
-            if (path == null || path.Count < 2)
+            if (path == null || path.Count - 1 < GuideNear)
             {
-                // no way known (or we're there): nothing to show
+                // no way known, or the boss is near: nothing to show
                 ClearGuide();
                 return;
             }

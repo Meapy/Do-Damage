@@ -74,7 +74,8 @@ ends and gives, besides its track:
   the goal's minimum share of your own).
 - **The way to the boss**: in a dungeon, a trail of small gold arrows runs along the shortest walk
   from you to its boss (doors and barriers included), with a chip at the foot of the view saying
-  how many tiles it is. **Options**, Gameplay switches it off.
+  how many tiles it is. It goes once you're within 30 tiles of the boss or its fight has begun.
+  **Options**, Gameplay switches it off.
 - **A title in chat**: your name in the chat wears a gold **[Gilded]** title before it, which a
   soft glint runs across every few seconds. Rather go without? The **Hide** button on its card in
   the pass's Gilded perks tab (or `/pass title off`) hides it, and **Show** (or `/pass title on`)

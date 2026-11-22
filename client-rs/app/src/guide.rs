@@ -3,7 +3,9 @@
 //! server knows, doors and all), and this draws it as a trail of small arrows on the ground that
 //! flow toward the boss, bright by our feet and fading out ahead of us, with a chip at the foot
 //! of the view: the boss's picture, an arrow turned the way to walk, and how far it is.
-//! Options, Gameplay switches it off (`GuideSubscribe`: then the server sends nothing).
+//! It goes within 30 tiles of walking of the boss, and once anyone has hurt the boss (the server
+//! then sends no path). Options, Gameplay switches it off (`GuideSubscribe`: then the server
+//! sends nothing).
 //!
 //! The path is every second tile along the walk, sent again each time we or the boss move a few
 //! tiles, so between messages the trail is cut to where we are now: it starts at our feet and
@@ -21,8 +23,9 @@ const AHEAD: f32 = 46.0;
 const SPACING: f32 = 1.8;
 /// How fast the arrows flow toward the boss (tiles a second).
 const FLOW: f32 = 3.2;
-/// The boss is this close (tiles of walking): the trail goes, we can see where.
-const NEAR: f32 = 7.0;
+/// The boss is this close (tiles of walking): the trail goes, the rest is in sight
+/// (`Player.GuideNear`, which also stops sending it once anyone has hurt the boss).
+const NEAR: f32 = 30.0;
 /// A path older than this (ms) goes: the server sends again every few seconds while we're in
 /// a dungeon with a boss.
 const STALE_MS: i32 = 16_000;
@@ -81,6 +84,11 @@ impl Guide {
         std::iter::once(me).chain(self.path[i..].iter().copied()).collect()
     }
 
+    /// Whether the trail shows from `me`: a fresh path, the boss still far off.
+    fn shown(&self, me: (f32, f32), now: i32) -> bool {
+        self.active(now) && self.remaining(me) >= NEAR
+    }
+
     /// Tiles of walking left from `me`.
     pub fn remaining(&self, me: (f32, f32)) -> f32 {
         self.ahead(me).windows(2).map(|w| (w[1].0 - w[0].0).hypot(w[1].1 - w[0].1)).sum()
@@ -114,14 +122,11 @@ impl Guide {
 
     /// The trail and the chip, over the world (after the pings).
     pub fn draw(&self, ui: &mut Ui, cam: &Camera, me: (f64, f64), lay: &Layout, now: i32) {
-        if !self.active(now) {
-            return;
-        }
         let me = (me.0 as f32, me.1 as f32);
-        let left = self.remaining(me);
-        if left < NEAR {
+        if !self.shown(me, now) {
             return;
         }
+        let left = self.remaining(me);
         let k = ((cam.scale / TILE_PX) as f32).max(0.6);
         let white = ui.renderer.white();
         let t = now as f32 / 1000.0;
@@ -252,6 +257,16 @@ mod tests {
         // none further than the trail goes
         let far = guide(&[(10, 10), (60, 10), (110, 10), (160, 10)], (200.5, 10.5));
         assert!(far.marks(me, 0).iter().all(|m| m.along <= AHEAD));
+    }
+
+    #[test]
+    fn the_trail_goes_within_thirty_tiles_of_the_boss() {
+        // a walk of 40 tiles east to the boss
+        let pts: Vec<(u16, u16)> = (0..20).map(|i| (10 + i * 2, 10)).collect();
+        let g = guide(&pts, (50.5, 10.5));
+        assert!(g.shown((9.5, 10.5), 1000));
+        // 25 tiles of walking left: near enough to see
+        assert!(!g.shown((25.5, 10.5), 1000));
     }
 
     #[test]
