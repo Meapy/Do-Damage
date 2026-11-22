@@ -10,7 +10,7 @@ namespace WorldServer.logic.behaviors
 {
     // The Crucible's floors changing shape through their champions' fights (ArenaForm, on each
     // Heart's "Fight" state in BehaviorDb.Crucible.cs): for each of a Heart's states, what each square
-    // round its middle is (`ms` into the form: some turn). A state with no form here (or null) is
+    // round its middle is (`ms` into the form: the forms that once turned still take it; the game asks for 0). A state with no form here (or null) is
     // the floor as the map has it.
     public static class ArenaForms
     {
@@ -20,13 +20,13 @@ namespace WorldServer.logic.behaviors
 
         public static readonly Dictionary<string, Dictionary<string, string>> ByHeart = new()
         {
-            // Ferrogrim: the keep, then its towers with the drawbridges raised, a turning gear, a star fort
-            ["Bastion Heart"] = new() { ["Lockdown"] = "towers", ["Blades"] = "gear", ["Blades Wave"] = "gear", ["Tempest"] = "starfort" },
-            // Nerissa: the atoll, then a wheel of isles and channels, a turning spiral, a ring round a vortex
+            // Ferrogrim: the keep, then its towers with the drawbridges raised, an iron gear, a star fort
+            ["Bastion Heart"] = new() { ["Lockdown"] = "towers", ["Blades"] = "gear",["Tempest"] = "starfort" },
+            // Nerissa: the atoll, then a wheel of isles and channels, arms of coral, a ring round a vortex
             ["Sanctum Heart"] = new() { ["Flood"] = "wheel", ["Whirlpool"] = "spiral", ["Maelstrom"] = "maelstrom" },
             // Pyrrhax: the cross, then a grate over the sky, an anvil, the crucible itself
             ["Foundry Heart"] = new() { ["Meteors"] = "grate", ["Hammer"] = "anvil", ["Broken"] = "crucible" },
-            // Chronarch: the orrery, then twelve hours as petals, a turning hourglass, a coil running backwards
+            // Chronarch: the orrery, then twelve hours as petals, an hourglass, a coil
             ["Orrery Heart"] = new() { ["Chime"] = "petals", ["Fracture"] = "hourglass", ["Reversal"] = "coil" },
             // Vaelith: each echo's floor in turn, then shattered, then a halo round the void
             ["Apex Heart"] = new()
@@ -36,8 +36,17 @@ namespace WorldServer.logic.behaviors
             },
         };
 
-        // the forms that keep moving once they've formed: their squares crack a moment before they go
-        public static readonly HashSet<string> Turning = new() { "orrery", "gear", "spiral", "maelstrom", "hourglass", "coil" };
+        // The forms below are drawn at the floors' design size and grown this many times onto the
+        // floor (each square takes the nearest design square's look; a pillar stands only on the
+        // square nearest its own), as tools/build_crucible.py (GROW) grows the floors themselves:
+        // change both together. None of them turns any more: each holds still until the next.
+        public const double Grow = 1.4;
+
+        // rounded half up, as build_crucible.py's near()
+        private static int Near(double v) => (int)Math.Floor(v + 0.5);
+
+        // a floor square's offset from its middle, in the design's squares
+        public static int Design(int d) => Near(d / Grow);
 
         public static IEnumerable<string> All => ByHeart.Values.SelectMany(f => f.Values).Where(f => f != null).Distinct();
 
@@ -426,7 +435,17 @@ namespace WorldServer.logic.behaviors
             return all;
         }
 
+        // what the form puts on the floor's square (dx, dy), grown from its design (Grow)
         public static Look Want(string form, int dx, int dy, int ms)
+        {
+            var (sx, sy) = (Design(dx), Design(dy));
+            var look = Designed(form, sx, sy, ms);
+            if (look.Obj != null && (dx != Near(sx * Grow) || dy != Near(sy * Grow)))
+                look = look with { Obj = null };
+            return look;
+        }
+
+        private static Look Designed(string form, int dx, int dy, int ms)
         {
             if (!Inside(form, dx, dy, ms))
                 return new Look(null);
@@ -622,8 +641,8 @@ namespace WorldServer.logic.behaviors
     // and as the Heart moves into one, the floor turns into it in a wave out from the middle over
     // `spreadMs`: ground that stays takes the form's stone, ground that goes cracks (`warnMs` before)
     // and falls into the sky, ground that comes rises out of it, and pillars rise and fall with their
-    // squares. Forms that turn (ArenaForms.Turning) go on moving, cracking a moment before a square
-    // goes. Whoever stands where the ground falls, or is left cut off from the rest of the floor
+    // squares; then it holds still until the next. `reach` is at design size (ArenaForms.Grow).
+    // Whoever stands where the ground falls, or is left cut off from the rest of the floor
     // once it has formed (on a shard drifting off it, say), is thrown onto the nearest ground that is
     // part of it (`damage`), never under a pillar; with `moveFoes` monsters are set back on it too. Squares a hazard painter
     // has (SweepingArms, TideSweep...) are simply changed: it leaves a square another has changed,
@@ -634,9 +653,9 @@ namespace WorldServer.logic.behaviors
         private readonly int _reach, _spreadMs, _warnMs, _damage;
         private readonly bool _moveFoes;
 
-        public ArenaForm(int reach = 22, int spreadMs = 2400, int warnMs = 900, int damage = 120, bool moveFoes = true)
+        public ArenaForm(int reach = 22, int spreadMs = 2400, int warnMs = 1600, int damage = 50, bool moveFoes = true)
         {
-            _reach = reach;
+            _reach = (int)Math.Ceiling(reach * ArenaForms.Grow);
             _spreadMs = spreadMs;
             _warnMs = warnMs;
             _damage = damage;
@@ -651,8 +670,8 @@ namespace WorldServer.logic.behaviors
             public Dictionary<(int, int), (ushort G, ushort O, bool Decor)> Shown;
             public readonly Dictionary<(int, int), (int At, ushort G, ushort O, bool Crack, ushort WasO)> Pending = new();
             public readonly Random Rng = new Random();
-            // the form's last two layouts worked out (a turning one asks for now and a moment ahead)
-            public (string Form, int Ms, Dictionary<(int, int), ArenaForms.Look> Layout) Last, Before;
+            // the form's layout worked out
+            public (string Form, Dictionary<(int, int), ArenaForms.Look> Layout) Last;
         }
 
         private static ushort Ground(Entity host, string id) =>
@@ -695,50 +714,29 @@ namespace WorldServer.logic.behaviors
                 s.Began = s.Now;
                 foreach (var key in s.Map0.Keys)
                 {
-                    var (g, o, decor) = Target(host, s, key, 0);
+                    var (g, o, decor) = Target(host, s, key);
                     var r = Math.Sqrt(key.Item1 * key.Item1 + key.Item2 * key.Item2);
                     Schedule(s, key, g, o, decor, s.Now + _warnMs + (int)(r / _reach * _spreadMs) + s.Rng.Next(220), sky);
-                }
-            }
-            else if (form != null && ArenaForms.Turning.Contains(form) && s.Now - s.Began > _spreadMs + _warnMs)
-            {
-                // it turns: what goes cracks a moment before, what comes is there at once
-                var ms = s.Now - s.Began;
-                foreach (var key in s.Map0.Keys)
-                {
-                    if (s.Pending.ContainsKey(key))
-                        continue;
-                    var later = Target(host, s, key, ms + _warnMs);
-                    var now = Target(host, s, key, ms);
-                    var shown = s.Shown[key];
-                    if (later.G == sky && shown.G != sky)
-                        Schedule(s, key, sky, 0, false, s.Now + _warnMs, sky);
-                    else if (now.G != sky && (shown.G == sky || shown.G != now.G))
-                        Schedule(s, key, now.G, now.O, now.Decor, s.Now, sky);
                 }
             }
             Apply(host, s, time, sky);
         }
 
-        private Dictionary<(int, int), ArenaForms.Look> Layout(S s, int ms)
+        private Dictionary<(int, int), ArenaForms.Look> Layout(S s)
         {
-            if (s.Last.Layout != null && s.Last.Form == s.Form && s.Last.Ms == ms)
-                return s.Last.Layout;
-            if (s.Before.Layout != null && s.Before.Form == s.Form && s.Before.Ms == ms)
-                return s.Before.Layout;
-            s.Before = s.Last;
-            s.Last = (s.Form, ms, ArenaForms.Layout(s.Form, ms, _reach, out _));
+            if (s.Last.Layout == null || s.Last.Form != s.Form)
+                s.Last = (s.Form, ArenaForms.Layout(s.Form, 0, _reach, out _));
             return s.Last.Layout;
         }
 
-        private (ushort G, ushort O, bool Decor) Target(Entity host, S s, (int, int) key, int ms)
+        private (ushort G, ushort O, bool Decor) Target(Entity host, S s, (int, int) key)
         {
             if (s.Form == null)
             {
                 var m = s.Map0[key];
                 return (m.G, m.O, false);
             }
-            var look = Layout(s, ms).TryGetValue(key, out var l) ? l : default;
+            var look = Layout(s).TryGetValue(key, out var l) ? l : default;
             return (look.Ground == null ? Ground(host, "Empty") : Ground(host, look.Ground), Obj(host, look.Obj), look.Decor);
         }
 

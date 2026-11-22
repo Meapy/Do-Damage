@@ -60,11 +60,14 @@ without you. There is no fame for a climb. The reward is the champions' loot.
 Every floor has a shape of its own, and each champion's aura grows as you wear it down: more of
 its floor joins in once a third of its health is gone, and more again at two thirds.
 
-No floor keeps its shape for long. As each phase begins it reshapes itself in a wave out from its
-middle: ground that goes cracks first and falls into the sky, new ground rises out of it, and
-pillars rise and fall with it. Some shapes keep turning. Anyone left standing where the ground
-falls, or cut off from the rest of the floor, is thrown back onto it (and hurt), so watch for the
-cracks.
+The floors are big, with room to move round the champions. As each phase begins a floor reshapes
+itself in a wave out from its middle: ground that goes cracks for over a second first and falls
+into the sky, new ground rises out of it, and pillars rise and fall with it. Then the shape holds
+still until the next phase. Anyone left standing where the ground falls, or cut off from the rest
+of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
+
+The real danger is the champions' shots: each phase has patterns of its own to read and slip
+through. The floor adds at most one hazard at a time, slow, and always shown before it strikes.
 
 ### I. The Iron Bastion: Ferrogrim, the Iron Warden
 
@@ -73,15 +76,19 @@ A keep: square, with a round bastion at each corner and a gate in each side.
 A horned juggernaut in riveted iron, a furnace burning in his chest, a tower shield and a molten
 hammer.
 
-- **Hammerfall:** he slams his hammer and rings of fire run out across the floor.
+- **Hammerfall:** he slams his hammer and two slow rings of fire roll out across the floor, each
+  with three wide gaps. He throws a cross of hammer waves, turned with each blow, and rings of
+  shards twice, the second in the first's gaps.
 - **Lockdown** (70%): the yard falls in, leaving a tower at each corner and the walls between
   them, and his dais in the middle with its drawbridges raised behind iron grates. An Iron
-  Sentinel holds each tower; he can't be hurt until they're broken (or 30 seconds pass).
-- **Grinding Blades:** the keep becomes a great iron gear, ten teeth and five holes, slowly
-  turning, and three blades of fire sweep round it from its middle.
+  Sentinel holds each tower; he can't be hurt until they're broken (or 30 seconds pass). A
+  four-armed spiral of shards turns out from him over the yard.
+- **Grinding Blades:** the keep becomes a great iron gear, ten teeth and five holes, and two
+  blades of fire sweep slowly round it from its middle. He leaps on you, and every so often slams
+  the floor again: the double ring and the cross.
 - **Iron Tempest** (35%): a star fort, his keep in a dry moat crossed at the gates and a bastion
-  pointing out from each corner. A banner on each bastion guards him, his hammer whirls round him,
-  waves of molten grates run out and the blades turn the other way.
+  pointing out from each corner. A banner on each bastion guards him, the floor goes quiet and his
+  hammer whirls: two spirals of shards turning opposite ways weave a lattice round him.
 
 ### II. The Drowned Sanctum: Nerissa, the Tidecaller
 
@@ -89,15 +96,15 @@ An atoll with a ragged coast and tide pools, five coral isles across it.
 
 A sea-queen with a serpent's tail, a coral crown and a golden trident.
 
-- **Tidal Lanes:** bands of surging tide sweep across the floor. Step through the gaps.
+- **Tidal Lanes:** a slow band of surging tide sweeps across the floor, shown first at its edge.
+  Step through one of its two wide gaps. She throws rings of swaying orbs, each turned half a gap.
 - **Rising Tide** (66%): the atoll sinks to a wheel: five dry isles, one in the middle and four on
   the rim, a ring of deep sea round it and channels out to them, Riptide Eels hunting in the deep.
-  Get to an isle and hold out for 20 seconds.
-- **Whirlpool:** the floor becomes three arms of coral wheeling slowly round her, and curved arms
-  of tide wheel across them.
+  Get to an isle and hold out for 20 seconds against her flower of orbs and arms of bubbles.
+- **Whirlpool:** the floor becomes three arms of coral round her, two curved arms of tide wheel
+  slowly across them, and her bubbles spiral out the same way.
 - **Maelstrom** (33%): a ring of coral round a vortex, an islet in its eye reached by three
-  shallows that wheel round, and everything at once, with the sea round her whipped into a
-  storm.
+  shallows. The tide's arms turn the other way, and two spirals of bubbles cross round her.
 
 ### III. The Ember Foundry: Pyrrhax, the Forge Tyrant
 
@@ -105,15 +112,17 @@ A forge hall in a cross, four arms out from a square crucible, slag channels dow
 
 A horned demon of rock and fire with wings of ash and a hammer of lava.
 
-- **Lava Veins:** veins of lava crack open across the floor, first glowing, then burning, then
-  cooling to slag.
+- **Lava Veins:** two veins of lava crack open across the floor at a time, glowing a full second
+  first, then burning, then cooling to slag.
 - **Meteor Storm** (70%): the floor becomes an iron grate over the sky, furnaces floating off it,
-  and meteors fall round him while Molten Golems join the fight.
-- **Hammer:** an anvil, its horn out to the west and the hardy hole through it, with the veins,
-  his leaps and more golems.
+  meteors fall round him, each marked first, while Molten Golems join the fight and he erupts in
+  rings of slow magma.
+- **Hammer:** an anvil, its horn out to the west and the hardy hole through it. No lava now: he
+  throws walls of cinders in a cross that turns with each throw, and leaps on you.
 - **The Crucible Pours** (35%): the forge falls away but for its crucible and spout, plates of it
   drifting round, and lava pours in from the edge.
-- **Molten Core:** his body goes molten and everything burns at once.
+- **Molten Core:** his body goes molten, a meteor falls on each of you now and then, and a
+  spiral of magma turns out from him.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
@@ -122,13 +131,13 @@ Three rings over open sky, joined by spokes: watch where you step when the clock
 A hooded thief of time with a clock for a face and an hourglass for a heart. Four arms carry
 blades made of a clock's hands, and an orrery's ring wheels round him.
 
-- **Hour Hands:** an hour hand and a minute hand sweep the floor, the minute hand faster.
+- **Hour Hands:** the clock's broad hour hand sweeps slowly round the floor.
 - **Midnight Chime** (70%): the dial splits into twelve petals, one for each hour, and the hours
-  light up in turn, half the floor at a time. Stand on a petal that isn't lit when it strikes.
-- **Time Fracture:** an hourglass turning slowly end over end; Hour Echoes of him appear and he
-  blinks round it.
-- **Reversal** (35%): a coil winding out from the hub to the rim, turning backwards; the clock runs
-  backwards and turns magenta, and the hands and chimes come together.
+  light up in turn, half the floor at a time, with a rest between. Stand on a petal that isn't lit
+  when it strikes, while a clock hand of blades sweeps round him.
+- **Time Fracture:** an hourglass; Hour Echoes of him appear and he blinks round it.
+- **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
+  backwards, the hour hand with it, and two hands of gears sweep backwards round him.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
@@ -142,20 +151,20 @@ set with the four floors' gems.
 
 - **Sovereign's Decree:** stars fall on each of you.
 - **The Echoes** (80%, 65%, 50%, 35%): one by one he raises the ghosts of the four champions
-  below. Each remakes the Apex in the shape of its floor and fights with that floor's hazards:
+  below. Each remakes the Apex in the shape of its floor and brings back one of its hazards (two
+  blades, a sweep of tide, lava veins, the hour hand):
   - **Iron:** a fortress, a square keep with a round bastion at each corner, a gate in each side,
     four pits in its yard and iron pillars at the gates and bastions.
   - **Tide:** an archipelago, a middle isle and six round it in a deep sea that slows you and wears
     you down, shallows running out to the isles.
   - **Forge:** a forge hall in a cross, four long arms over open sky, slag down them, furnaces
     floating off its corners.
-  - **Hours:** an orrery, a hub and two rings over the sky, joined by spokes that turn, the inner
-    ones one way and the outer ones the other. The way across moves: the floor cracks a moment
-    before a spoke leaves it.
+  - **Hours:** an orrery, a hub and two rings over the sky, joined by spokes.
 - **The Crucible Breaks** (20%): the Apex shatters. Only a disc of its middle is left, with its
-  shards floating round it, and all four echoes return at once.
+  shards floating round it, all four echoes return at once and flame feathers bloom out of him.
 - **Unbound:** the Apex re-forms as a halo of void marble round the void itself, rays of gold
-  across it, with Vaelith hovering in the middle, his wings turned to the void.
+  across it, with Vaelith hovering in the middle, his wings turned to the void. Two slow arms of
+  flame turn across it, and he fires double rings of void embers.
 
 ## The white bags
 

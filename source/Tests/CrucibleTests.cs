@@ -85,22 +85,20 @@ namespace Tests
         }
 
         public static IEnumerable<object[]> ArenaFormMoments() =>
-            WorldServer.logic.behaviors.ArenaForms.All.SelectMany(f => WorldServer.logic.behaviors.ArenaForms.Turning.Contains(f)
-                ? new[] { 0, 7300, 23900, 41700, 66100 }.Select(ms => new object[] { f, ms })
-                : new[] { new object[] { f, 0 } });
+            WorldServer.logic.behaviors.ArenaForms.All.Select(f => new object[] { f, 0 });
 
         // Every floor reshapes itself through its champion's fight (ArenaForms): each form's ground
         // and pillars are in the game, it stays within the floor's reach, and everything that isn't
-        // only to be looked at is one piece, so nobody is ever cut off (those that turn, at moments
-        // of their turning)
+        // only to be looked at is one piece, so nobody is ever cut off (at the size they're grown to)
         [Theory]
         [MemberData(nameof(ArenaFormMoments))]
         public void EveryArenaFormIsWholeAndInTheGame(string form, int ms)
         {
             var (data, _) = Game.Value;
-            const int reach = 25;
+            const int reach = 36;
+            var farthest = (int)Math.Ceiling(22 * WorldServer.logic.behaviors.ArenaForms.Grow);
             var layout = WorldServer.logic.behaviors.ArenaForms.Layout(form, ms, reach, out var dropped);
-            Assert.True(dropped <= 8, $"{form} at {ms} ms: {dropped} squares can't be walked to");
+            Assert.True(dropped <= 16, $"{form} at {ms} ms: {dropped} squares can't be walked to");
             var floor = new HashSet<(int, int)>();
             var picture = new System.Text.StringBuilder();
             for (var dy = -reach; dy <= reach; dy++)
@@ -114,7 +112,7 @@ namespace Tests
                     }
                     Assert.True(data.IdToTileType.ContainsKey(look.Ground), $"{form}: no ground {look.Ground}");
                     Assert.True(look.Obj == null || data.IdToObjectType.ContainsKey(look.Obj), $"{form}: no object {look.Obj}");
-                    Assert.True(Math.Max(Math.Abs(dx), Math.Abs(dy)) <= 22, $"{form}: ({dx}, {dy}) is past the floor's reach");
+                    Assert.True(Math.Max(Math.Abs(dx), Math.Abs(dy)) <= farthest, $"{form}: ({dx}, {dy}) is past the floor's reach");
                     picture.Append(look.Obj != null ? 'P' : look.Decor ? '+' : look.Ground[0]);
                     if (!look.Decor && look.Obj == null)
                         floor.Add((dx, dy));

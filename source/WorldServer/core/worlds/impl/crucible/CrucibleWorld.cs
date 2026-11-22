@@ -199,7 +199,7 @@ namespace WorldServer.core.worlds.impl.crucible
         // again: its painters put back only what they painted, and only where it is still theirs,
         // so this makes sure no lava, tide or broken floor is left over between them
         private readonly Dictionary<int, List<(int X, int Y, ushort Ground)>> _pristine = new Dictionary<int, List<(int, int, ushort)>>();
-        private const int FloorReach = 25; // the Apex, the biggest floor, reaches 23
+        private const int FloorReach = 35; // the Apex, the biggest floor, reaches 33 (tools/build_crucible.py, grown)
 
         private List<(int X, int Y, ushort Ground)> Ground(int cx, int cy, HashSet<(int, int)> way)
         {
@@ -639,7 +639,8 @@ namespace WorldServer.core.worlds.impl.crucible
             StartNewTimer(AscendMs, (w, t) => Arrive(floor));
         }
 
-        // everyone onto the floor's southern half, side by side, facing its middle
+        // everyone onto the floor's southern half, side by side, facing its middle (9 squares out
+        // on the floor as designed, the Orrery's middle ring, grown as the floors are)
         private void MoveOnto(int floor, TickTime time)
         {
             if (!_hearts.TryGetValue(floor, out var h))
@@ -648,9 +649,9 @@ namespace WorldServer.core.worlds.impl.crucible
             for (var i = 0; i < players.Count; i++)
             {
                 var dx = (i - (players.Count - 1) / 2f) * 1.6f;
-                var at = new Position(h.Centre.X + dx, h.Centre.Y + 9);
+                var at = new Position(h.Centre.X + dx, h.Centre.Y + (float)Math.Round(9 * ArenaForms.Grow));
                 if (!IsPassable(at.X, at.Y))
-                    at = new Position(h.Centre.X, h.Centre.Y + 8);
+                    at = new Position(h.Centre.X, h.Centre.Y + (float)Math.Round(8 * ArenaForms.Grow));
                 players[i].TeleportPosition(time, at, true);
                 BringAllies(players[i], at);
             }
@@ -790,7 +791,7 @@ namespace WorldServer.core.worlds.impl.crucible
                 }
             }
             // (but not a climber's own allies: their pets and turrets stay with them)
-            foreach (var e in Enemies.Values.Where(e => e.DistTo(h.Centre.X, h.Centre.Y) < 26 && !Climbing(e.AllyOwnerId)).ToList())
+            foreach (var e in Enemies.Values.Where(e => e.DistTo(h.Centre.X, h.Centre.Y) < 36 && !Climbing(e.AllyOwnerId)).ToList())
                 LeaveWorld(e);
             RestorePristine(floor);
         }

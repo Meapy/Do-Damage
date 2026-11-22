@@ -25,42 +25,42 @@ namespace WorldServer.logic
     // places, GroupScaling: each player after the first adds about a sixth).
     partial class BehaviorDb
     {
-        private const double CrucibleSight = 30;
+        private const double CrucibleSight = 40;
         private const uint IronGlow = 0xFFFF9A2A, TideGlow = 0xFF46C2B4, LavaGlow = 0xFFFF6A14, BrassGlow = 0xFFF2D282,
             ChronoGlow = 0xFF4AF0FF, SovereignGlow = 0xFFFFD04A, VoidGlow = 0xFFE040FF;
 
         private _ CrucibleTower = () => Behav()
             // ================================================================================
             // I. The Iron Bastion: Ferrogrim, the Iron Warden
+            // Each phase has at most one thing on the floor, slow and shown first; the danger is in
+            // his shots.
             // - 100% to 70%: his kit (shard fans, a slow armour-breaking hammer wave, iron rings) and
-            //   Hammerfall in turn: he slams the floor and molten rings spread out across it, each
-            //   with two gaps to step through.
+            //   Hammerfall in turn: he slams the floor, two rings of molten grate roll slowly out
+            //   (three wide gaps each), and he throws a cross of hammer waves that turns each throw
+            //   and a double ring of shards, the second in the first's gaps.
             // - 70%: Lockdown (a survival phase): grates rise in a cross, cutting the floor into
             //   quarters, an Iron Sentinel in each; he waits untouchable in the middle until the four
-            //   are broken (or 30 s pass).
-            // - 70% to 35%: Grinding Blades: three blades of the floor turn round him while he fights
-            //   on, charging and leaping on players; every so often a Hammerfall with them.
-            // - 35%: Iron Tempest: his hammer whirls; four blades turning the other way and molten
-            //   rings; three Bastion Banners rise, and while any stands he is armoured.
+            //   are broken (or 30 s pass), turning out a four-armed spiral of shards.
+            // - 70% to 35%: Grinding Blades: two slow blades of the floor turn round him while he
+            //   fights on and leaps on players; every so often a slam: the double ring and a hammer
+            //   wave at each of you.
+            // - 35%: Iron Tempest: his hammer whirls, the floor quiet: two spirals of shards turning
+            //   opposite ways weave a lattice round him; three Bastion Banners rise, and while any
+            //   stands he is armoured.
             .Init("Bastion Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Hammerfall", new FloorWave("Molten Grate", 13.5, 7, 2, 70, everyMs: 2400)),
+                        new State("Hammerfall", new FloorWave("Molten Grate", G(13.5), 5, 3, 80, everyMs: 4000)),
                         new State("Lockdown",
                             // the drawbridges raised: nobody reaches him on his dais
-                            new Rampart("Bastion Grate", 13.5, (dx, dy) => Math.Min(Math.Abs(dx), Math.Abs(dy)) <= 1 && Math.Max(Math.Abs(dx), Math.Abs(dy)) is >= 6 and <= 9),
-                            new SpawnRing("Iron Sentinel", 4, 14, 45, aroundSpawn: true),
+                            new Rampart("Bastion Grate", G(13.5), (dx, dy) => Drawbridge(ArenaForms.Design(dx), ArenaForms.Design(dy))),
+                            new SpawnRing("Iron Sentinel", 4, G(14), 45, aroundSpawn: true),
                             new RemoveEntitiesOnExit(20, "Iron Sentinel")
                         ),
-                        new State("Blades", new SweepingArms("Grinding Blade", 3, 3, 15.5, 1.6, 26)),
-                        new State("Blades Wave", new FloorLayers(
-                            new SweepingArms("Grinding Blade", 3, 3, 15.5, 1.6, 26, warnMs: 0),
-                            new FloorWave("Molten Grate", 15.5, 7, 2, 70, everyMs: 3000))),
-                        new State("Tempest", new FloorLayers(
-                            new FloorWave("Molten Grate", 19, 6, 3, 60, everyMs: 3200),
-                            new SweepingArms("Grinding Blade", 4, 3, 17, 1.5, -34)))
+                        new State("Blades", new SweepingArms("Grinding Blade", 2, G(3), G(15.5), 1.6, 18)),
+                        new State("Tempest")
                     )
                 )
             )
@@ -77,7 +77,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.7, "Lockdown"),
                         new State("Guard Fight",
                             new Order(40, "Bastion Heart", "Idle"),
-                            new Prioritize(new StayCloseToSpawn(0.6, 6), new Follow(0.5, CrucibleSight, 3)),
+                            new Prioritize(new StayCloseToSpawn(0.6, Gi(6)), new Follow(0.5, CrucibleSight, 3)),
                             IronKit(1.0),
                             new TimedTransition(7000, "Hammerfall")
                         ),
@@ -86,8 +86,10 @@ namespace WorldServer.logic
                             new CrucibleSlam(4, 260, IronGlow),
                             new Order(40, "Bastion Heart", "Hammerfall"),
                             new Taunt(0.5, "Feel the anvil!") { Bubble = false },
-                            new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 2, coolDown: 2400),
-                            new Shoot(CrucibleSight, 5, 12, projectileIndex: 0, predictive: 0.4, coolDown: 1600),
+                            new ReturnToSpawn(0.8),
+                            AnvilCross(1400),
+                            DoubleRing(12, 2, 2400, 300),
+                            new Shoot(CrucibleSight, 5, 12, projectileIndex: 0, predictive: 0.4, coolDown: 2000),
                             new TimedTransition(8000, "Guard Fight")
                         )
                     ),
@@ -97,7 +99,8 @@ namespace WorldServer.logic
                         new ReturnToSpawn(1.5),
                         new Order(40, "Bastion Heart", "Lockdown"),
                         new Taunt(true, "The gates are shut. Break my sentinels, if you can.") { Bubble = false },
-                        new Shoot(0, 8, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: 1800),
+                        // a four-armed spiral of shards turning slowly out over the quarters
+                        new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 9, projectileIndex: 2, coolDown: 320),
                         new State("Lockdown Rise", new TimedTransition(2000, "Lockdown Hold")),
                         new State("Lockdown Hold",
                             new EntityNotExistsTransition("Iron Sentinel", 30, "Blades Rise"),
@@ -115,16 +118,16 @@ namespace WorldServer.logic
                         new HpLessTransition(0.35, "Tempest Rise"),
                         new State("Blades Fight",
                             new Order(40, "Bastion Heart", "Blades"),
-                            new Prioritize(new StayCloseToSpawn(0.7, 8), new Follow(0.6, CrucibleSight, 3)),
+                            new Prioritize(new StayCloseToSpawn(0.7, Gi(8)), new Follow(0.6, CrucibleSight, 3)),
                             IronKit(0.9),
-                            new Charge(1.6, 12, 4500),
                             new LeapStrike(CrucibleSight, 2.8, 320, 1500, 7000, 2, 14),
                             new TimedTransition(9000, "Blades Slam")
                         ),
                         new State("Blades Slam",
                             new CrucibleSlam(4, 260, IronGlow),
-                            new Order(40, "Bastion Heart", "Blades Wave"),
-                            new Shoot(CrucibleSight, 5, 12, projectileIndex: 0, predictive: 0.4, coolDown: 1400),
+                            new ReturnToSpawn(0.8),
+                            DoubleRing(16, 2, 2000, 300),
+                            AnvilCross(1600),
                             new Shoot(CrucibleSight, 1, projectileIndex: 1, coolDown: 2400),
                             new TimedTransition(7000, "Blades Fight")
                         )
@@ -142,11 +145,13 @@ namespace WorldServer.logic
                     new State("Tempest",
                         new SetAltTexture(1),
                         new Order(40, "Bastion Heart", "Tempest"),
-                        new SpawnRing("Bastion Banner", 4, 17, 45, aroundSpawn: true), // on the star fort's bastions
-                        new Prioritize(new StayCloseToSpawn(0.5, 6), new Follow(0.45, CrucibleSight, 2)),
-                        // the whirling hammer throws its waves out in a turning spiral
-                        new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 17, projectileIndex: 3, coolDown: 420),
-                        new Shoot(CrucibleSight, 5, 12, projectileIndex: 0, predictive: 0.4, coolDown: 1500),
+                        new SpawnRing("Bastion Banner", 4, G(17), 45, aroundSpawn: true), // on the star fort's bastions
+                        new Prioritize(new StayCloseToSpawn(0.5, Gi(6)), new Follow(0.45, CrucibleSight, 2)),
+                        // the whirling hammer: two spirals of shards turning opposite ways weave a
+                        // lattice to slip through, a hammer wave at each of you now and then
+                        new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 13, projectileIndex: 2, coolDown: 480),
+                        new Shoot(0, 3, 120, fixedAngle: 60, rotateAngle: -13, projectileIndex: 2, coolDown: 480, coolDownOffset: 240),
+                        new Shoot(CrucibleSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2200),
                         new State("Tempest Banners",
                             new ConditionEffectBehavior(ConditionEffectIndex.Armored),
                             new State("TB Wait", new TimedTransition(1000, "TB Hold")),
@@ -195,27 +200,29 @@ namespace WorldServer.logic
             // ================================================================================
             // II. The Drowned Sanctum: Nerissa, the Tidecaller
             // - 100% to 66%: trident volleys, rings of tide orbs that sway as they spread (and slow),
-            //   and the Tidal Lanes in turn: waves sweep across the floor from side to side, each
-            //   shown first at its edge with the dry lanes left through it.
+            //   and the Tidal Lanes in turn: a slow wave sweeps across the floor from side to side,
+            //   shown first at its edge with two wide dry lanes left through it, while she throws
+            //   rings of swaying orbs, each turned half a gap from the last.
             // - 66%: Rising Tide (a survival phase): the sea comes in from the edge until only the
-            //   five coral isles are dry; the deep water drags and stings, and riptide eels hunt in it.
-            // - 66% to 33%: the Whirlpool: three arms of surging tide spiral round her.
-            // - 33%: Maelstrom: the whirlpool and the lanes together, and her kit faster.
+            //   five coral isles are dry; the deep water drags and stings, and three riptide eels
+            //   hunt in it; she turns out a flower of tide orbs and two slow arms of bubbles.
+            // - 66% to 33%: the Whirlpool: two slow arms of surging tide spiral round her, and her
+            //   bubbles spiral out the same way.
+            // - 33%: Maelstrom: the whirlpool turns the other way, the lanes stay quiet; two spirals
+            //   of bubbles turning opposite ways cross round her.
             .Init("Sanctum Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Lanes", new TideSweep("Surging Tide", 15, 2.5, 7.5, 3, 2.4, everyMs: 4200)),
+                        new State("Lanes", new TideSweep("Surging Tide", G(15), 2.5, 6, 2, 3.5, warnMs: 1800, everyMs: 6500)),
                         // the wheel's ring and channels are the deep sea (ArenaForms), the eels in it
                         new State("Flood",
-                            new SpawnRing("Riptide Eel", 4, 12.5, 0, aroundSpawn: true),
+                            new SpawnRing("Riptide Eel", 3, G(12.5), 0, aroundSpawn: true),
                             new RemoveEntitiesOnExit(25, "Riptide Eel")
                         ),
-                        new State("Whirlpool", new SweepingArms("Surging Tide", 3, 3, 17, 1.7, 30, curve: 14)),
-                        new State("Maelstrom", new FloorLayers(
-                            new SweepingArms("Surging Tide", 3, 3, 16.5, 1.6, -36, curve: -16),
-                            new TideSweep("Surging Tide", 16.5, 2, 8, 3, 2.6, everyMs: 6000)))
+                        new State("Whirlpool", new SweepingArms("Surging Tide", 2, G(3), G(17), 1.7, 20, curve: 10)),
+                        new State("Maelstrom", new SweepingArms("Surging Tide", 2, G(3), G(16.5), 1.6, -24, curve: -11))
                     )
                 )
             )
@@ -232,7 +239,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.66, "Rising"),
                         new State("Current Fight",
                             new Order(40, "Sanctum Heart", "Idle"),
-                            new Prioritize(new StayCloseToSpawn(0.7, 9), new Wander(0.5)),
+                            new Prioritize(new StayCloseToSpawn(0.7, Gi(9)), new Wander(0.5)),
                             TideKit(1.0),
                             new TimedTransition(7000, "Lanes")
                         ),
@@ -241,8 +248,8 @@ namespace WorldServer.logic
                             new Order(40, "Sanctum Heart", "Lanes"),
                             new Taunt(0.5, "Swim, if you can.") { Bubble = false },
                             new ReturnToSpawn(0.8),
-                            new Shoot(CrucibleSight, 3, 10, projectileIndex: 3, predictive: 0.4, coolDown: 900),
-                            new Shoot(0, 10, fixedAngle: 0, rotateAngle: 13, projectileIndex: 1, coolDown: 3000),
+                            new Shoot(CrucibleSight, 3, 10, projectileIndex: 3, predictive: 0.4, coolDown: 1500),
+                            new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 1, coolDown: 1600),
                             new TimedTransition(13000, "Current Fight")
                         )
                     ),
@@ -253,17 +260,21 @@ namespace WorldServer.logic
                         new Order(40, "Sanctum Heart", "Flood"),
                         new Flash(TideGlow, 0.25, 12),
                         new Taunt(true, "Rise, sea. Take them.") { Bubble = false },
-                        new Shoot(0, 14, fixedAngle: 0, rotateAngle: 9, projectileIndex: 2, coolDown: 1700),
-                        new Shoot(CrucibleSight, 3, 10, projectileIndex: 0, predictive: 0.3, coolDown: 1600),
+                        // a flower of swaying tide orbs, each ring turned, and two slow arms of bubbles
+                        new Shoot(0, 8, 45, fixedAngle: 0, rotateAngle: 22.5, projectileIndex: 1, coolDown: 1400),
+                        new Shoot(0, 2, 180, fixedAngle: 90, rotateAngle: 11, projectileIndex: 2, coolDown: 380),
+                        new Shoot(CrucibleSight, 3, 10, projectileIndex: 0, predictive: 0.3, coolDown: 2200),
                         new TimedTransition(20000, "Whirl")
                     ),
                     new State("Whirl",
                         new HpLessTransition(0.33, "Maelstrom Rise"),
                         new CrucibleCue(7),
                         new Order(40, "Sanctum Heart", "Whirlpool"),
-                        new Prioritize(new StayCloseToSpawn(0.7, 6), new Wander(0.5)),
-                        TideKit(0.9),
-                        new Spawn("Riptide Eel", 2, 0, 9000)
+                        new Prioritize(new StayCloseToSpawn(0.7, Gi(6)), new Wander(0.5)),
+                        TideKit(1.0),
+                        // her bubbles spiral out with the whirlpool
+                        new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 10, projectileIndex: 2, coolDown: 450),
+                        new Spawn("Riptide Eel", 2, 0, 12000)
                     ),
                     new State("Maelstrom Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -277,9 +288,11 @@ namespace WorldServer.logic
                     new State("Maelstrom",
                         new SetAltTexture(1),
                         new Order(40, "Sanctum Heart", "Maelstrom"),
-                        new Prioritize(new StayCloseToSpawn(0.8, 7), new Wander(0.6)),
-                        TideKit(0.75),
-                        new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 14, projectileIndex: 2, coolDown: 360)
+                        new Prioritize(new StayCloseToSpawn(0.8, Gi(7)), new Wander(0.6)),
+                        TideKit(0.9),
+                        // two spirals of bubbles turning opposite ways, crossing round her
+                        new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 12, projectileIndex: 2, coolDown: 500),
+                        new Shoot(0, 3, 120, fixedAngle: 60, rotateAngle: -12, projectileIndex: 2, coolDown: 500, coolDownOffset: 250)
                     )
                 ),
                 new Threshold(0.01,
@@ -304,32 +317,31 @@ namespace WorldServer.logic
 
             // ================================================================================
             // III. The Ember Foundry: Pyrrhax, the Forge Tyrant
-            // - 100% to 70%: magma, cinder fans and rings; Lava Veins crack out across the floor at
-            //   the players, glowing first, burning, then cooling to slag; the Anvil Drop (he leaps
-            //   onto a marked spot).
-            // - 70%: Meteor Storm (a survival phase): meteors rain over the whole floor, marked as
-            //   they fall, and molten golems climb out of the forge.
-            // - 70% to 35%: the veins again, with leaps and golems.
-            // - 35%: The Crucible Pours: the floor's edge cracks and falls away into the sky down to
-            //   eight squares from the middle, for the rest of the fight; then Molten Core: veins on
-            //   what's left, meteors, a spiral of magma.
+            // - 100% to 70%: magma, cinder fans and rings; Lava Veins: two at a time crack out across
+            //   the floor at the players, glowing a full second first, burning, then cooling to slag;
+            //   the Anvil Drop (he leaps onto a marked spot).
+            // - 70%: Meteor Storm (a survival phase): meteors rain over the floor, each marked as it
+            //   falls, and molten golems climb out of the forge; he erupts in rings of slow magma.
+            // - 70% to 35%: Hammer: the floor quiet; he throws walls of cinders in a turning cross,
+            //   with leaps and golems.
+            // - 35%: The Crucible Pours: the floor's edge cracks and falls away into the sky, for the
+            //   rest of the fight; then Molten Core: a meteor on each of you now and then, and a
+            //   spiral of magma.
             .Init("Foundry Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 3, 13, 15, everyMs: 3400)),
+                        new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(11), G(15), everyMs: 5000, warnMs: 1000)),
                         new State("Meteors",
-                            new LavaVeins("Forge Lava", "Cooling Slag", 2, 10, 15, everyMs: 5000),
-                            new Starfall(Starfall.Area.Scatter, 15, 2.2, 340, 420, perVolley: 2, color: LavaGlow)
+                            new Starfall(Starfall.Area.Scatter, G(15), 2.2, 340, 900, color: LavaGlow)
                         ),
-                        new State("Hammer", new LavaVeins("Forge Lava", "Cooling Slag", 3, 15, 19, everyMs: 3400)),
+                        new State("Hammer"),
                         // the forge falls away but for its crucible (ArenaForms)
                         new State("Broken",
                             new State("Pour"),
                             new State("Molten",
-                                new LavaVeins("Forge Lava", "Cooling Slag", 3, 7, 9, everyMs: 3000, burnMs: 2200),
-                                new Starfall(Starfall.Area.Players, CrucibleSight, 1.8, 300, 2400, color: LavaGlow)
+                                new Starfall(Starfall.Area.Players, CrucibleSight, 1.8, 300, 3200, color: LavaGlow)
                             )
                         )
                     )
@@ -348,7 +360,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.7, "Storm"),
                         new CrucibleCue(9),
                         new Order(40, "Foundry Heart", "Veins"),
-                        new Prioritize(new StayCloseToSpawn(0.6, 8), new Follow(0.5, CrucibleSight, 4)),
+                        new Prioritize(new StayCloseToSpawn(0.6, Gi(8)), new Follow(0.5, CrucibleSight, 4)),
                         ForgeKit(1.0),
                         new LeapStrike(CrucibleSight, 3, 350, 1400, 7500, 2, 16)
                     ),
@@ -359,17 +371,22 @@ namespace WorldServer.logic
                         new Order(40, "Foundry Heart", "Meteors"),
                         new Flash(LavaGlow, 0.25, 10),
                         new Taunt(true, "The sky is a forge too. LOOK UP.") { Bubble = false },
-                        new Spawn("Molten Golem", 4, 0.5, 3500),
-                        new Shoot(0, 16, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: 2200),
+                        new Spawn("Molten Golem", 3, 0.5, 3500),
+                        // he erupts: rings of slow magma, each turned half a gap, cinders between
+                        new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 3, coolDown: 1800),
+                        new Shoot(0, 10, 36, fixedAngle: 9, rotateAngle: 18, projectileIndex: 2, coolDown: 1800, coolDownOffset: 900),
                         new TimedTransition(14000, "Hammer")
                     ),
                     new State("Hammer",
                         new HpLessTransition(0.35, "Pour"),
                         new Order(40, "Foundry Heart", "Hammer"),
-                        new Prioritize(new StayCloseToSpawn(0.7, 8), new Follow(0.6, CrucibleSight, 4)),
-                        ForgeKit(0.85),
-                        new LeapStrike(CrucibleSight, 3, 350, 1400, 6000, 2, 16),
-                        new Spawn("Molten Golem", 3, 0, 9000)
+                        new Prioritize(new StayCloseToSpawn(0.7, Gi(8)), new Follow(0.6, CrucibleSight, 4)),
+                        ForgeKit(1.0),
+                        // walls of three cinders side by side, in a cross that turns 30 degrees a throw
+                        new ShootFormation(0, 4, new[] { 0.0, -0.9, 0.0, 0.0, 0.0, 0.9 }, projectileIndex: 2,
+                            fixedAngle: 0, rotateAngle: 30, coolDown: 1600),
+                        new LeapStrike(CrucibleSight, 3, 350, 1400, 7000, 2, 16),
+                        new Spawn("Molten Golem", 2, 0, 10000)
                     ),
                     new State("Pour",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -391,9 +408,9 @@ namespace WorldServer.logic
                     new State("Molten",
                         new SetAltTexture(1),
                         new Order(40, "Foundry Heart", "Molten"),
-                        new Prioritize(new StayCloseToSpawn(0.6, 5), new Follow(0.5, CrucibleSight, 3)),
-                        ForgeKit(0.8),
-                        new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 13, projectileIndex: 3, coolDown: 520)
+                        new Prioritize(new StayCloseToSpawn(0.6, Gi(5)), new Follow(0.5, CrucibleSight, 3)),
+                        ForgeKit(0.9),
+                        new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 13, projectileIndex: 3, coolDown: 600)
                     )
                 ),
                 new Threshold(0.01,
@@ -419,32 +436,27 @@ namespace WorldServer.logic
             // ================================================================================
             // IV. The Clockwork Orrery: Chronarch, the Hour Thief
             // - 100% to 70%: gear rings, fans of hand-blades, slow chrono orbs; the Hour Hands: his
-            //   floor is a clock, and its hour hand (broad, slow) and minute hand (thin, quick) sweep
-            //   round it; clockwork sentries now and then.
+            //   floor is a clock and its broad hour hand sweeps slowly round it; clockwork sentries
+            //   now and then.
             // - 70%: Midnight Chime (a survival phase): the clock's hours light in patterns, half at
-            //   a time, each glowing first and then burning.
-            // - 70% to 35%: Time Fracture: two Hour Echoes, untouchable copies, fight beside him
-            //   and he blinks about the floor; the hands sweep on.
-            // - 35%: Reversal: the hands run backwards and faster, the hours chime under them.
+            //   a time, each glowing first and then burning, with a long rest between; he sweeps a
+            //   clock hand of blades round himself and rings out the hours in gears.
+            // - 70% to 35%: Time Fracture: the floor quiet; two Hour Echoes, untouchable copies,
+            //   fight beside him and he blinks about the floor.
+            // - 35%: Reversal: the hour hand runs backwards, and so do his: two hands of gears
+            //   sweeping back round him.
             .Init("Orrery Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Hands", new FloorLayers(
-                            new SweepingArms("Hour Hand", 1, 2.5, 14.5, 2.4, 14),
-                            new SweepingArms("Hour Hand", 1, 2.5, 14.5, 1.4, 42))),
-                        new State("Chime", new SectorChime("Chime Light", 12, 3, 15.8, new[]
+                        new State("Hands", new SweepingArms("Hour Hand", 1, G(2.5), G(14.5), 2.4, 16)),
+                        new State("Chime", new SectorChime("Chime Light", 12, G(3), G(15.8), new[]
                         {
                             "101010101010", "010101010101", "110011001100", "001100110011", "111000111000", "000111000111",
-                        })),
-                        new State("Fracture", new FloorLayers(
-                            new SweepingArms("Hour Hand", 1, 2.5, 19, 2.4, 14),
-                            new SweepingArms("Hour Hand", 1, 2.5, 19, 1.4, 42))),
-                        new State("Reversal", new FloorLayers(
-                            new SectorChime("Chime Light", 12, 3, 17.5, null, warnMs: 1300, litMs: 1100, gapMs: 1400),
-                            new SweepingArms("Hour Hand", 1, 2.5, 17.5, 2.2, -22, warnMs: 0),
-                            new SweepingArms("Hour Hand", 1, 2.5, 17.5, 1.3, -60, warnMs: 0)))
+                        }, warnMs: 1500, gapMs: 1300)),
+                        new State("Fracture"),
+                        new State("Reversal", new SweepingArms("Hour Hand", 1, G(2.5), G(17.5), 2.4, -20))
                     )
                 )
             )
@@ -461,9 +473,9 @@ namespace WorldServer.logic
                         new HpLessTransition(0.7, "Midnight"),
                         new CrucibleCue(13),
                         new Order(40, "Orrery Heart", "Hands"),
-                        new Prioritize(new StayCloseToSpawn(0.5, 5), new Wander(0.3)),
+                        new Prioritize(new StayCloseToSpawn(0.5, Gi(5)), new Wander(0.3)),
                         ClockKit(1.0),
-                        new Spawn("Clockwork Sentry", 3, 0, 10000)
+                        new Spawn("Clockwork Sentry", 2, 0, 12000)
                     ),
                     new State("Midnight",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -472,23 +484,25 @@ namespace WorldServer.logic
                         new Order(40, "Orrery Heart", "Chime"),
                         new Flash(BrassGlow, 0.25, 12),
                         new Taunt(true, "Midnight. Hear the bells toll for you.") { Bubble = false },
-                        new Shoot(0, 6, fixedAngle: 0, rotateAngle: 12, projectileIndex: 3, coolDown: 1200),
+                        // a clock hand of blades sweeping round him, and the twelve hours in gears
+                        new Shoot(0, 1, fixedAngle: -90, rotateAngle: 9, projectileIndex: 1, coolDown: 160),
+                        new Shoot(0, 12, 30, fixedAngle: 0, projectileIndex: 3, coolDown: 2600),
                         new TimedTransition(16000, "Fracture")
                     ),
                     new State("Fracture",
                         new HpLessTransition(0.35, "Reversal Rise"),
                         new CrucibleCue(15, shake: true),
                         new Order(40, "Orrery Heart", "Fracture"),
-                        new SpawnRing("Hour Echo", 2, 8, 90, aroundSpawn: true), // in the hourglass's bulbs
+                        new SpawnRing("Hour Echo", 2, G(8), 90, aroundSpawn: true), // in the hourglass's bulbs
                         new RemoveEntitiesOnExit(40, "Hour Echo"),
                         new Taunt(true, "Which of me is now? All of us.") { Bubble = false },
                         new State("Fracture Fight",
-                            new Prioritize(new StayCloseToSpawn(0.6, 9), new Wander(0.4)),
+                            new Prioritize(new StayCloseToSpawn(0.6, Gi(9)), new Wander(0.4)),
                             ClockKit(0.9),
                             new TimedTransition(5000, "Fracture Blink")
                         ),
                         new State("Fracture Blink",
-                            new BlinkAround(4, 11),
+                            new BlinkAround(G(4), G(11)),
                             new Flash(ChronoGlow, 0.2, 2),
                             new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 300),
                             new TimedTransition(500, "Fracture Fight")
@@ -506,9 +520,10 @@ namespace WorldServer.logic
                     new State("Reversal",
                         new SetAltTexture(1),
                         new Order(40, "Orrery Heart", "Reversal"),
-                        new Prioritize(new StayCloseToSpawn(0.5, 5), new Wander(0.4)),
-                        ClockKit(0.8),
-                        new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: -12, projectileIndex: 3, coolDown: 600)
+                        new Prioritize(new StayCloseToSpawn(0.5, Gi(5)), new Wander(0.4)),
+                        ClockKit(0.9),
+                        // two hands of gears sweeping backwards round him
+                        new Shoot(0, 2, 180, fixedAngle: -90, rotateAngle: -8, projectileIndex: 3, coolDown: 220)
                     )
                 ),
                 new Threshold(0.01,
@@ -527,7 +542,7 @@ namespace WorldServer.logic
             .Init("Hour Echo",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Prioritize(new StayCloseToSpawn(0.5, 3), new Wander(0.3)),
+                    new Prioritize(new StayCloseToSpawn(0.5, Gi(3)), new Wander(0.3)),
                     new Shoot(CrucibleSight, 3, 14, projectileIndex: 0, predictive: 0.3, coolDown: 2200),
                     new Shoot(0, 8, fixedAngle: 22.5, rotateAngle: 15, projectileIndex: 1, coolDown: 3400, coolDownOffset: 1500)
                 )
@@ -546,51 +561,43 @@ namespace WorldServer.logic
             // - 80%, 65%, 50%, 35%: the four echoes, one after another: the Apex reshapes itself
             //   into each fallen champion's floor, made over (ApexForm: a fortress with pits in its
             //   yard, isles in a deep sea, a cross over the sky with furnaces floating off it, an
-            //   orrery whose spokes turn), with its hazards, and that champion's ghost fights from
-            //   the rim: iron (blades and molten rings), tide (sweeps), forge (lava veins and
-            //   meteors), hours (the chime and the hands).
+            //   orrery), with one of its hazards, slow, and that champion's ghost fights from the
+            //   rim: iron (two blades), tide (sweeps), forge (lava veins), hours (the hour hand).
             // - 20%: The Crucible Breaks (a survival phase): the Apex shatters, a disc of its middle
-            //   left with its shards floating round it, the four ghosts together, gold raining.
+            //   left with its shards floating round it, the four ghosts together, gold raining, a
+            //   flower of flame feathers.
             // - Then Unbound to the end: the Apex re-forms as a halo of void marble round the void
-            //   itself, flame arms turning and waves of fire across it, everything faster.
+            //   itself, two slow arms of flame turning across it, double rings of void embers.
             .Init("Apex Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(reach: 25, spreadMs: 2600, moveFoes: false), // Vaelith hovers over the void
                         new State("Decree",
-                            new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 2600, color: SovereignGlow)
+                            new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 3200, color: SovereignGlow)
                         ),
+                        // each echo brings back one thing of its floor, slowly
                         new State("Iron",
                             new State("Iron Turn", new TimedTransition(3800, "Iron Go")),
-                            new State("Iron Go", new FloorLayers(
-                                new SweepingArms("Grinding Blade", 3, 3, 19, 1.6, 26),
-                                new FloorWave("Molten Grate", 20, 7, 2, 70, everyMs: 3800)))
+                            new State("Iron Go", new SweepingArms("Grinding Blade", 2, G(3), G(19), 1.6, 18))
                         ),
                         new State("Tide",
                             new State("Tide Turn", new TimedTransition(3800, "Tide Go")),
-                            new State("Tide Go", new TideSweep("Surging Tide", 20, 2.5, 8, 3, 2.6, everyMs: 4200))
+                            new State("Tide Go", new TideSweep("Surging Tide", G(20), 2.5, 6.5, 2, 3.5, warnMs: 1800, everyMs: 6500))
                         ),
                         new State("Forge",
                             new State("Forge Turn", new TimedTransition(3800, "Forge Go")),
-                            new State("Forge Go",
-                                new LavaVeins("Forge Lava", "Cooling Slag", 3, 17, 21, everyMs: 3600),
-                                new Starfall(Starfall.Area.Scatter, 18, 2.2, 340, 900, color: LavaGlow)
-                            )
+                            new State("Forge Go", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(14), G(21), everyMs: 5000, warnMs: 1000))
                         ),
                         new State("Hours",
                             new State("Hours Turn", new TimedTransition(3800, "Hours Go")),
-                            new State("Hours Go", new FloorLayers(
-                                new SectorChime("Chime Light", 12, 3, 21, null, warnMs: 1300, litMs: 1200, gapMs: 1800),
-                                new SweepingArms("Hour Hand", 1, 2.5, 21, 2.2, 14, warnMs: 0)))
+                            new State("Hours Go", new SweepingArms("Hour Hand", 1, G(2.5), G(21), 2.4, 16))
                         ),
                         new State("Broken",
                             new State("Breaks",
-                                new Starfall(Starfall.Area.Scatter, 8, 1.8, 300, 700, color: SovereignGlow)
+                                new Starfall(Starfall.Area.Scatter, G(8), 1.8, 300, 1400, color: SovereignGlow)
                             ),
-                            new State("Unbound", new FloorLayers(
-                                new SweepingArms("Sovereign Flame", 2, 5, 16, 1.6, 32),
-                                new FloorWave("Sovereign Flame", 16, 5, 2, 80, everyMs: 4400)))
+                            new State("Unbound", new SweepingArms("Sovereign Flame", 2, G(5), G(16), 1.6, 20))
                         )
                     )
                 )
@@ -614,7 +621,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.8, "Echo Iron"),
                         new CrucibleCue(17),
                         new Order(40, "Apex Heart", "Decree"),
-                        new Prioritize(new StayCloseToSpawn(0.7, 8), new Follow(0.6, CrucibleSight, 4)),
+                        new Prioritize(new StayCloseToSpawn(0.7, Gi(8)), new Follow(0.6, CrucibleSight, 4)),
                         SovereignKit(1.0)
                     ),
                     Echo("Echo Iron", "Echo Tide", 0.65, 18, "Iron", "Echo of Ferrogrim", "Iron, rise again!", IronGlow),
@@ -629,12 +636,13 @@ namespace WorldServer.logic
                         new Order(40, "Apex Heart", "Breaks"),
                         new Flash(SovereignGlow, 0.2, 16),
                         new Taunt(true, "Enough! Then let it ALL fall!") { Bubble = false },
-                        new SpawnRing("Echo of Ferrogrim", 1, 7, 225, aroundSpawn: true),
-                        new SpawnRing("Echo of Nerissa", 1, 7, 315, aroundSpawn: true),
-                        new SpawnRing("Echo of Pyrrhax", 1, 7, 45, aroundSpawn: true),
-                        new SpawnRing("Echo of Chronarch", 1, 7, 135, aroundSpawn: true),
+                        new SpawnRing("Echo of Ferrogrim", 1, G(7), 225, aroundSpawn: true),
+                        new SpawnRing("Echo of Nerissa", 1, G(7), 315, aroundSpawn: true),
+                        new SpawnRing("Echo of Pyrrhax", 1, G(7), 45, aroundSpawn: true),
+                        new SpawnRing("Echo of Chronarch", 1, G(7), 135, aroundSpawn: true),
                         new RemoveEntitiesOnExit(40, "Echo of Ferrogrim", "Echo of Nerissa", "Echo of Pyrrhax", "Echo of Chronarch"),
-                        new Shoot(0, 10, fixedAngle: 0, rotateAngle: 12, projectileIndex: 1, coolDown: 2000),
+                        // a flower of flame feathers, each ring turned half a gap
+                        new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 1, coolDown: 1800),
                         new TimedTransition(13000, "Unbound Rise")
                     ),
                     new State("Unbound Rise",
@@ -649,10 +657,12 @@ namespace WorldServer.logic
                     new State("Unbound",
                         new SetAltTexture(2),
                         new Order(40, "Apex Heart", "Unbound"),
-                        new Prioritize(new StayCloseToSpawn(0.6, 4), new Follow(0.5, CrucibleSight, 3)),
-                        SovereignKit(0.8),
-                        new Shoot(0, 12, fixedAngle: 0, rotateAngle: 9, projectileIndex: 3, coolDown: 2600),
-                        new Shoot(CrucibleSight, 7, 9, projectileIndex: 4, predictive: 0.3, coolDown: 2000, coolDownOffset: 1000)
+                        new Prioritize(new StayCloseToSpawn(0.6, Gi(4)), new Follow(0.5, CrucibleSight, 3)),
+                        SovereignKit(0.9),
+                        // a double ring of void embers, the second in the first's gaps, and now and
+                        // then a fan of quick feathers at you
+                        DoubleRing(12, 3, 3000, 350),
+                        new Shoot(CrucibleSight, 7, 9, projectileIndex: 4, predictive: 0.3, coolDown: 2600, coolDownOffset: 1000)
                     )
                 ),
                 new Threshold(0.01,
@@ -752,12 +762,32 @@ namespace WorldServer.logic
                 },
                 new PetShoot(10, 7, 4, 0, 3, 800)));
 
+        // a distance on the floors as designed, grown as they are (ArenaForms.Grow: the floors are
+        // bigger than they were drawn, so their hazards and champions reach as far)
+        private static double G(double squares) => squares * ArenaForms.Grow;
+        private static int Gi(int squares) => (int)Math.Round(squares * ArenaForms.Grow);
+
+        // Lockdown's raised drawbridges (the towers form's), in its design squares
+        private static bool Drawbridge(int dx, int dy) =>
+            Math.Min(Math.Abs(dx), Math.Abs(dy)) <= 1 && Math.Max(Math.Abs(dx), Math.Abs(dy)) is >= 6 and <= 9;
+
         // ---- the champions' kits, `pace` < 1 faster ----
 
         private static IStateChildren IronKit(double pace) => new State(
             new Shoot(CrucibleSight, 5, 12, projectileIndex: 0, predictive: 0.4, coolDown: (int)(1400 * pace)),
             new Shoot(CrucibleSight, 1, projectileIndex: 1, coolDown: (int)(2600 * pace), coolDownOffset: 800),
             new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 2, coolDown: (int)(3200 * pace), coolDownOffset: 1600)
+        );
+
+        // Ferrogrim's anvil: four hammer waves in a cross, turned 45 degrees each throw (+, x, +...)
+        private static IStateChildren AnvilCross(int coolDown) =>
+            new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 45, projectileIndex: 1, coolDown: coolDown);
+
+        // a ring of `count` shots and, `delayMs` after, a second in the first's gaps: step in
+        // between the two
+        private static IStateChildren DoubleRing(int count, int projectileIndex, int coolDown, int delayMs) => new State(
+            new Shoot(0, count, 360.0 / count, fixedAngle: 0, projectileIndex: projectileIndex, coolDown: coolDown),
+            new Shoot(0, count, 360.0 / count, fixedAngle: 180.0 / count, projectileIndex: projectileIndex, coolDown: coolDown, coolDownOffset: delayMs)
         );
 
         private static IStateChildren TideKit(double pace) => new State(
@@ -781,7 +811,7 @@ namespace WorldServer.logic
         private static IStateChildren SovereignKit(double pace) => new State(
             new Shoot(CrucibleSight, 3, 8, projectileIndex: 0, predictive: 0.5, coolDown: (int)(1100 * pace)),
             new Shoot(0, 16, fixedAngle: 0, rotateAngle: 11, projectileIndex: 1, coolDown: (int)(2600 * pace), coolDownOffset: 1300),
-            new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: (int)(420 * pace))
+            new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 11, projectileIndex: 2, coolDown: (int)(560 * pace))
         );
 
         // one of the Sovereign's echoes: the Apex turns into the fallen champion's floor, the
@@ -793,9 +823,9 @@ namespace WorldServer.logic
                 new Order(40, "Apex Heart", heart),
                 new Flash(glow, 0.25, 6),
                 new Taunt(true, taunt) { Bubble = false },
-                new TossObject(ghost, 11, 270, coolDown: 90000000),
+                new TossObject(ghost, G(11), 270, coolDown: 90000000),
                 new RemoveEntitiesOnExit(40, ghost),
-                new Prioritize(new StayCloseToSpawn(0.6, 5), new Wander(0.4)),
+                new Prioritize(new StayCloseToSpawn(0.6, Gi(5)), new Wander(0.4)),
                 SovereignKit(1.15)
             );
 
@@ -823,7 +853,7 @@ namespace WorldServer.logic
         private static State EchoGhost(int coolDown) => new State(
             new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
             new Flash(0xFFFFFFFF, 0.4, 3),
-            new Prioritize(new StayCloseToSpawn(0.3, 2), new Wander(0.2)),
+            new Prioritize(new StayCloseToSpawn(0.3, Gi(2)), new Wander(0.2)),
             new Shoot(CrucibleSight, 3, 14, projectileIndex: 0, predictive: 0.3, coolDown: coolDown),
             new Shoot(0, 8, fixedAngle: 0, rotateAngle: 22.5, projectileIndex: 0, coolDown: coolDown * 2, coolDownOffset: coolDown / 2)
         );
