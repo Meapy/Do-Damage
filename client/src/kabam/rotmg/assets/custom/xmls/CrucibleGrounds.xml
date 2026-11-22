@@ -237,8 +237,8 @@
 				<Index>0x28</Index>
 			</Texture>
 		</RandomTexture>
-		<MinDamage>150</MinDamage>
-		<MaxDamage>180</MaxDamage>
+		<MinDamage>75</MinDamage>
+		<MaxDamage>90</MaxDamage>
 		<Animate dx=".35">Flow</Animate>
 		<Color>0x5AC8E0</Color>
 	</Ground>

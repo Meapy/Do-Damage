@@ -200,7 +200,7 @@ GROUNDS = {
     "Sanctum Shallows": ("0x2E96A2", {"Animate": WAVE}),
     # the flood: deep water slows you and grinds at you; the surge hits hard
     "Deep Tide": ("0x0E4466", {"Speed": 0.55, "Sink": None, "MinDamage": 40, "MaxDamage": 60, "Animate": FLOW}),
-    "Surging Tide": ("0x5AC8E0", {"MinDamage": 150, "MaxDamage": 180, "Animate": FLOW}),
+    "Surging Tide": ("0x5AC8E0", {"MinDamage": 75, "MaxDamage": 90, "Animate": FLOW}),
     "Foundry Plate": ("0x2E2624", {}),
     "Foundry Rim": ("0x4A3A30", {}),
     "Forge Lava": ("0xFF6A14", {"MinDamage": 80, "MaxDamage": 100, "Animate": WAVE}),
