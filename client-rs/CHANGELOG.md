@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.4 (2026-11-22)
 
 ### The Crucible
 - **The Crucible** is open: a tower of bosses above the Arena. Climb five floors (up to six of you together) and beat a champion on each: Ferrogrim, Nerissa, Pyrrhax, Chronarch and Vaelith. Get in through the portal in the Nexus's shrine, or type `/crucible`. It opens at round 50 in the Arena or with a Gilded Realm Pass: one climb a day, two with the Pass. It has its own music, sky and leaderboard (`/crucible status`), and your pet and summons climb with you.
