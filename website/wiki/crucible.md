@@ -173,8 +173,11 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
 - **Midnight Chime** (70%): the dial splits into twelve petals, one for each hour, and the hours
   light up in turn, half the floor at a time, with a rest between. Stand on a petal that isn't lit
   when it strikes, while a clock hand of blades sweeps round him.
-- **Time Fracture:** an hourglass. The broken clock strikes half its hours at random, shown
-  first; Hour Echoes of him appear and he blinks round it.
+- **Time Fracture:** an hourglass. Six Hour Echoes of him keep the broken clock's hours: before
+  each strike, each blinks onto an hour, throws a bolt down it and lights it, the warning spreading
+  out from where it stands. Half the hours burn at a time, nearly three seconds after they're lit,
+  so get off them. The echoes can't be hurt and never shoot; Chronarch blinks round it, shooting
+  less than in his other phases, and sends no rushers.
 - **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
   backwards, both hands with it and faster, and two hands of gears sweep backwards round him.
 

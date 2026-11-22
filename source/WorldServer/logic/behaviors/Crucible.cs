@@ -443,15 +443,20 @@ namespace WorldServer.logic.behaviors
     // turns: each pattern ("101010101010": which hours burn, from twelve o'clock round) glows as a
     // warning for `warnMs`, burns for `litMs`, then rests `gapMs` before the next. Patterns repeat
     // in order; an empty list picks half the hours at random each time. Chronarch's Midnight Chime.
+    // With `casters` (Time Fracture's Hour Echoes), the hours are lit by them: as each pattern is
+    // picked, a caster blinks onto every hour that will burn (one each while they last, the rest
+    // shared), throws a bolt down it, and the warning spreads out from where it stands over the
+    // first part of `warnMs`; as the hours burn, each casts again.
     internal class SectorChime : CrucibleFloor
     {
-        private readonly string _tile, _warnTile;
+        private readonly string _tile, _warnTile, _casters;
         private readonly int _sectors, _warnMs, _litMs, _gapMs;
         private readonly double _inner, _outer;
         private readonly string[] _patterns;
+        private readonly uint _color;
 
         public SectorChime(string tile, int sectors, double inner, double outer, string[] patterns, int warnMs = 1100, int litMs = 1300,
-            int gapMs = 300, string warnTile = "Crucible Warning") : base(100)
+            int gapMs = 300, string warnTile = "Crucible Warning", string casters = null, uint color = 0xFFFFD27A) : base(100)
         {
             _tile = tile;
             _warnTile = warnTile;
@@ -462,19 +467,34 @@ namespace WorldServer.logic.behaviors
             _warnMs = warnMs;
             _litMs = litMs;
             _gapMs = gapMs;
+            _casters = casters;
+            _color = color;
         }
 
-        protected internal override void Begin(Entity host, Run r) => r.Data = (Disc(_inner, _outer), new Dictionary<int, bool[]>());
+        private sealed class Chime
+        {
+            public List<(int Dx, int Dy, double R, double A)> Disc;
+            public readonly Dictionary<int, bool[]> Picked = new();
+            // the cycle the casters last took their hours for, and burned
+            public int Cast = -1, Struck = -1;
+            // each lit hour's caster and the square its warning spreads from
+            public readonly Dictionary<int, (Entity By, int Dx, int Dy)> From = new();
+        }
+
+        protected internal override void Begin(Entity host, Run r) => r.Data = new Chime { Disc = Disc(_inner, _outer) };
+
+        // twelve o'clock is straight up (north, -y), going clockwise
+        private int Hour(double a) => (((int)Math.Floor((a + Math.PI / 2) / (2 * Math.PI) * _sectors + 0.5)) % _sectors + _sectors) % _sectors;
 
         protected internal override void Shape(Entity host, Run r)
         {
-            var (disc, picked) = ((List<(int Dx, int Dy, double R, double A)>, Dictionary<int, bool[]>))r.Data;
+            var c = (Chime)r.Data;
             var cycle = _warnMs + _litMs + _gapMs;
             var k = r.Elapsed / cycle;
             var at = r.Elapsed % cycle;
             if (at >= _warnMs + _litMs)
                 return;
-            if (!picked.TryGetValue(k, out var lit))
+            if (!c.Picked.TryGetValue(k, out var lit))
             {
                 lit = new bool[_sectors];
                 if (_patterns.Length > 0)
@@ -486,17 +506,103 @@ namespace WorldServer.logic.behaviors
                 else
                     foreach (var i in Enumerable.Range(0, _sectors).OrderBy(_ => r.Rng.Next()).Take(_sectors / 2))
                         lit[i] = true;
-                picked[k] = lit;
-                picked.Remove(k - 2);
+                c.Picked[k] = lit;
+                c.Picked.Remove(k - 2);
             }
-            var tile = Tile(host, at < _warnMs ? _warnTile : _tile);
-            foreach (var (dx, dy, _, a) in disc)
+            if (_casters != null && c.Cast != k)
             {
-                // twelve o'clock is straight up (north, -y), going clockwise
-                var hours = (a + Math.PI / 2) / (2 * Math.PI) * _sectors + 0.5;
-                var s = (((int)Math.Floor(hours)) % _sectors + _sectors) % _sectors;
-                if (lit[s])
-                    r.Want[(dx, dy)] = tile;
+                c.Cast = k;
+                TakeHours(host, c, lit);
+            }
+            var warn = at < _warnMs;
+            if (_casters != null && !warn && c.Struck != k)
+            {
+                c.Struck = k;
+                foreach (var (s, (by, dx, dy)) in c.From)
+                    if (by.World == host.World && !by.Dead)
+                        Strike.Bolt(by, Far(host, s), _color);
+            }
+            var tile = Tile(host, warn ? _warnTile : _tile);
+            // the warning reaches the whole hour in the first 45% of warnMs
+            var spread = (_outer + 2) * at / (_warnMs * 0.45);
+            foreach (var (dx, dy, _, a) in c.Disc)
+            {
+                var s = Hour(a);
+                if (!lit[s])
+                    continue;
+                if (warn && c.From.TryGetValue(s, out var f) && Math.Sqrt((dx - f.Dx) * (dx - f.Dx) + (dy - f.Dy) * (dy - f.Dy)) > spread)
+                    continue;
+                r.Want[(dx, dy)] = tile;
+            }
+        }
+
+        // the hour's far end, at the rim
+        private Position Far(Entity host, int s)
+        {
+            var a = s * 2 * Math.PI / _sectors - Math.PI / 2;
+            var o = host.SpawnPoint.Value;
+            return new Position((float)(o.X + Math.Cos(a) * _outer * 0.9), (float)(o.Y + Math.Sin(a) * _outer * 0.9));
+        }
+
+        private void TakeHours(Entity host, Chime c, bool[] lit)
+        {
+            c.From.Clear();
+            var world = host.World;
+            var map = world?.Map;
+            if (map == null)
+                return;
+            var o = host.SpawnPoint.Value;
+            var (cx, cy) = ((int)o.X, (int)o.Y);
+            var casters = world.Enemies.Values
+                .Where(e => !e.Dead && e.ObjectDesc.IdName == _casters && Math.Abs(e.X - o.X) < 45 && Math.Abs(e.Y - o.Y) < 45)
+                .OrderBy(e => e.Id).ToList();
+            if (casters.Count == 0)
+                return;
+            var tiles = host.GameServer.Resources.GameData.Tiles;
+            var hours = Enumerable.Range(0, _sectors).Where(s => lit[s]).ToList();
+            var mid = (_inner + _outer) / 2;
+            for (var i = 0; i < hours.Count; i++)
+            {
+                var s = hours[i];
+                var by = casters[i % casters.Count];
+                var middle = s * 2 * Math.PI / _sectors - Math.PI / 2;
+                // the hour's square nearest its middle that can be stood on now
+                (int Dx, int Dy, double R, double A)? best = null;
+                var score = double.MaxValue;
+                foreach (var q in c.Disc)
+                {
+                    if (Hour(q.A) != s || !map.Contains(cx + q.Dx, cy + q.Dy))
+                        continue;
+                    var t = map[cx + q.Dx, cy + q.Dy];
+                    if (!tiles.TryGetValue(t.TileId, out var d) || d.NoWalk || t.ObjType != 0 && t.ObjDesc != null && t.ObjDesc.FullOccupy)
+                        continue;
+                    var turn = Math.Abs(Math.IEEERemainder(q.A - middle, 2 * Math.PI));
+                    var sc = Math.Abs(q.R - mid) + turn * q.R;
+                    if (sc < score)
+                        (score, best) = (sc, q);
+                }
+                if (best == null)
+                    continue;
+                var spot = new Position(cx + best.Value.Dx + 0.5f, cy + best.Value.Dy + 0.5f);
+                if (i < casters.Count)
+                {
+                    // it blinks onto its hour
+                    world.BroadcastIfVisible(new ShowEffect
+                    {
+                        EffectType = EffectType.Teleport,
+                        TargetObjectId = by.Id,
+                        Pos1 = spot,
+                        Pos2 = new Position(),
+                        Color = new ARGB(_color),
+                    }, ref spot);
+                    by.Move(spot.X, spot.Y);
+                    c.From[s] = (by, best.Value.Dx, best.Value.Dy);
+                }
+                else
+                    // a caster already standing on an hour lights this one from there
+                    c.From[s] = (by, (int)Math.Floor(by.X) - cx, (int)Math.Floor(by.Y) - cy);
+                Strike.Bolt(by, Far(host, s), _color);
+                Strike.Mark(by, new Position(cx + c.From[s].Dx + 0.5f, cy + c.From[s].Dy + 0.5f), 1.4, _warnMs, _color);
             }
         }
     }

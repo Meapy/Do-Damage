@@ -472,8 +472,10 @@ namespace WorldServer.logic
             // - 70%: Midnight Chime (a survival phase): the clock's hours light in patterns, half at
             //   a time, each glowing first and then burning, with a long rest between; he sweeps a
             //   clock hand of blades round himself and rings out the hours in gears.
-            // - 70% to 35%: Time Fracture: the broken clock strikes half its hours at random (shown
-            //   first); two Hour Echoes, untouchable copies, fight beside him and he blinks about.
+            // - 70% to 35%: Time Fracture: the broken clock strikes half its hours at random; six Hour
+            //   Echoes, untouchable copies, keep its hours: each blinks onto an hour about to burn and
+            //   lights it, the warning spreading out from it for nearly three seconds, and they never
+            //   shoot. He blinks about with a lighter kit and no rushers.
             // - 35%: Reversal: the clock's hands run backwards and faster, and so do his: two hands of gears
             //   sweeping back round him.
             .Init("Orrery Heart",
@@ -486,8 +488,10 @@ namespace WorldServer.logic
                         {
                             "101010101010", "010101010101", "110011001100", "001100110011", "111000111000", "000111000111",
                         }, warnMs: 1200, gapMs: 800)),
-                        // the fractured clock strikes at random: half its hours at a time, shown first
-                        new State("Fracture", new SectorChime("Chime Light", 12, G(3), G(16.5), null, warnMs: 1300, litMs: 1100, gapMs: 1600)),
+                        // the fractured clock strikes at random: half its hours at a time, each lit by an
+                        // Hour Echo blinking onto it, with time to get off it
+                        new State("Fracture", new SectorChime("Chime Light", 12, G(3), G(16.5), null, warnMs: 2800, litMs: 1100, gapMs: 1400,
+                            casters: "Hour Echo", color: ChronoGlow)),
                         new State("Reversal", ClockHands(G(17.5), -1.3))
                     )
                 )
@@ -525,12 +529,12 @@ namespace WorldServer.logic
                         new HpLessTransition(0.35, "Reversal Rise"),
                         new CrucibleCue(15, shake: true),
                         new Order(40, "Orrery Heart", "Fracture"),
-                        new SpawnRing("Hour Echo", 2, G(8), 90, aroundSpawn: true), // in the hourglass's bulbs
+                        new SpawnRing("Hour Echo", 6, G(9), 0, aroundSpawn: true), // the keepers of its hours
                         new RemoveEntitiesOnExit(40, "Hour Echo"),
                         new Taunt(true, "Which of me is now? All of us.") { Bubble = false },
                         new State("Fracture Fight",
                             new Prioritize(new StayCloseToSpawn(0.6, Gi(9)), new Wander(0.4)),
-                            ClockKit(0.9),
+                            ClockKit(1.2, rushers: false),
                             new TimedTransition(5000, "Fracture Blink")
                         ),
                         new State("Fracture Blink",
@@ -573,12 +577,12 @@ namespace WorldServer.logic
                     new ItemLoot("Lil' Chronarch Generator", 0.02)
                 )
             )
+            // the keepers of the fractured clock's hours: they stand still and never shoot, the Heart
+            // (SectorChime) blinks each onto an hour to light it
             .Init("Hour Echo",
                 new State(
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new Prioritize(new StayCloseToSpawn(0.5, Gi(3)), new Wander(0.3)),
-                    new Shoot(CrucibleSight, 3, 14, projectileIndex: 0, predictive: 0.3, coolDown: 2200),
-                    new Shoot(0, 8, fixedAngle: 22.5, rotateAngle: 15, projectileIndex: 1, coolDown: 3400, coolDownOffset: 1500)
+                    new Flash(ChronoGlow, 0.4, 1)
                 )
             )
             .Init("Clockwork Sentry",
@@ -890,14 +894,21 @@ namespace WorldServer.logic
 
         // gear rings, hand-blades that cut (bleeding), chrono orbs that slow and daze; Stolen
         // Moment: two quick orbs that silence you and freeze you in place
-        private static IStateChildren ClockKit(double pace) => new State(
-            new Shoot(0, 12, fixedAngle: 0, rotateAngle: 7.5, projectileIndex: 0, coolDown: (int)(2200 * pace)),
-            new Shoot(CrucibleSight, 3, 12, projectileIndex: 1, predictive: 0.4, coolDown: (int)(1150 * pace), coolDownOffset: 600),
-            new Shoot(CrucibleSight, 1, projectileIndex: 2, coolDown: (int)(3100 * pace), coolDownOffset: 1700),
-            new Shoot(CrucibleSight, 2, 14, projectileIndex: 4, predictive: 0.5, coolDown: (int)(3600 * pace), coolDownOffset: 2400),
-            Wall(1, 5, (int)(3400 * pace), 1100), // a rank of hand-blades
-            Rushers("Clockwork Mite", pace)
-        );
+        // (no rushers in Time Fracture, where the floor needs watching)
+        private static IStateChildren ClockKit(double pace, bool rushers = true)
+        {
+            var kit = new System.Collections.Generic.List<IStateChildren>
+            {
+                new Shoot(0, 12, fixedAngle: 0, rotateAngle: 7.5, projectileIndex: 0, coolDown: (int)(2200 * pace)),
+                new Shoot(CrucibleSight, 3, 12, projectileIndex: 1, predictive: 0.4, coolDown: (int)(1150 * pace), coolDownOffset: 600),
+                new Shoot(CrucibleSight, 1, projectileIndex: 2, coolDown: (int)(3100 * pace), coolDownOffset: 1700),
+                new Shoot(CrucibleSight, 2, 14, projectileIndex: 4, predictive: 0.5, coolDown: (int)(3600 * pace), coolDownOffset: 2400),
+                Wall(1, 5, (int)(3400 * pace), 1100), // a rank of hand-blades
+            };
+            if (rushers)
+                kit.Add(Rushers("Clockwork Mite", pace));
+            return new State(kit.ToArray());
+        }
 
         // lances that leave you exposed, swaying rings of flame feathers, a spiral of stars; Final
         // Decree: three huge slow lances through armour that stun and shatter it
