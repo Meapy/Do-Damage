@@ -2756,7 +2756,7 @@ impl Particles {
         }
         let Some(me) = world.player() else { return };
         let (mx, my) = (me.x, me.y);
-        let near: Vec<(i32, f64, f64, Champion, i32, f64)> = world
+        let near: Vec<(i32, f64, f64, f64, Champion, i32, f64)> = world
             .objects
             .values()
             .filter(|o| (o.x - mx).hypot(o.y - my) <= 18.0)
@@ -2764,12 +2764,18 @@ impl Particles {
                 let c = champion(&data.objects.get(&o.object_type)?.id)?;
                 let (max, hp) = (o.stat_int(0).unwrap_or(0), o.stat_int(1).unwrap_or(0));
                 let fury = if max > 0 { (1.0 - hp as f64 / max as f64).clamp(0.0, 1.0) } else { 0.0 };
-                Some((o.id, o.x, o.y, c, o.stat_int(61).unwrap_or(0), fury))
+                Some((o.id, o.x, o.y, o.z, c, o.stat_int(61).unwrap_or(0), fury))
             })
             .collect();
         let dt = dt.min(100) as f64;
         let ticked = |now: i32, every: i32| now / every != (now - dt as i32) / every;
-        for (id, x, y, who, form, fury) in near {
+        for (id, x, y, z, who, form, fury) in near {
+            // its particles and decals on its own floor and height, not ours or the last effect's
+            // (on the Nexus's stacked floors the portal's pulse and embers were a floor up, 3 tiles
+            // off it, seen from the spawn)
+            let z = if world.levels.is_some() { z } else { 0.0 };
+            self.floor = z;
+            self.here = (z, world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8));
             // about `rate` a second, as dt allows, more as the fight goes on
             let more = 1.0 + 1.5 * fury;
             let due = |p: &mut Self, rate: f64| {
@@ -2987,6 +2993,7 @@ impl Particles {
                 }
             }
         }
+        self.floor = world.my_z();
     }
 
     /// A phase begun (`CrucibleMessage` Cue `cue`, on the champion of type `champion`): its own
