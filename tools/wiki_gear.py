@@ -465,7 +465,14 @@ class Gear:
                                                      round(mean * count * 1000 / ms))
 
         if e == "BuildTower":
-            return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
+            if not g("allyMs"):
+                return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
+            # a Mechanic's turret (Turret.cs): built where you aim, up to `amount` at once, faster
+            # with its Mechanic within 7 tiles (LINK_RANGE, OVERCLOCK_PERCENT), and it blows up
+            # at the end (totalDamage within radius)
+            return ("builds a turret where you aim (up to %s tiles away) for %ss%s; up to %s at once, firing "
+                    "half again as often while you're within 7 tiles; it blows up at the end: %s damage within %s tiles"
+                    % (n("range"), n("duration"), ally_shots(), n("amount"), n("totalDamage"), n("radius")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

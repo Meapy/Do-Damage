@@ -207,7 +207,8 @@ namespace WorldServer.core.objects
 
             // a halo's forcefield or a censer's ward not again before its cooldown (4 s) is over, as the client waits it
             // out; a little slack for the trip (other abilities' cooldowns are still the client's alone)
-            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield || e.Effect == ActivateEffects.Ward))
+            if (slot == 1 && entity == this && item.Cooldown >= 1 && item.ActivateEffects.Any(e => e.Effect == ActivateEffects.Forcefield || e.Effect == ActivateEffects.Ward
+                || e.Effect == ActivateEffects.BuildTower && IsMechanicTurret(e)))
             {
                 var now = Environment.TickCount64;
                 if (now < _abilityReadyAt - AbilityCooldownSlackMs)
@@ -283,6 +284,14 @@ namespace WorldServer.core.objects
                     && (!World.IsPassable(dest.X, dest.Y) || !CanAbilityMoveTo(dest)))
                 {
                     Refuse("You can't dash there.");
+                    return;
+                }
+            // nor a Mechanic's turret thrown onto a wall or anything standing in the way
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.BuildTower && IsMechanicTurret(eff) && TurretSpot(pos, eff) is var spot
+                    && !World.IsPassable(spot.X, spot.Y))
+                {
+                    Refuse("You can't build there.");
                     return;
                 }
             // nor a teleport (the Rogue's and Trickster's) past a gate that's still shut

@@ -19,6 +19,10 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - It opens once you reach round 50 in the Arena, or with a Gilded Realm Pass, for one climb a day (two with the Pass). It has its own music, sky, title cards and leaderboard (`/crucible status`). Pets, and allies you summon, climb with you from floor to floor. It's made for a group, and each player after the first adds only about a sixth to a champion's health. There's no fame for a climb: the champions' loot is the reward.
 - Each champion has a 1% white bag: Ferrogrim's Bastion Turret (Mechanic), Nerissa's Tidepearl (Druid), Pyrrhax's Meteor Mortar (Pirate), Chronarch's Coat of Stolen Hours (Blademaster) and Vaelith's Final Aria (Bard), each with an ability of its own.
 
+### Mechanic
+- **The Mechanic is reworked.** A turret blueprint throws a crate where you aim, up to 8 tiles away, and it unfolds into a turret whose head turns to its target and leads it, its shots leaving the barrel. Up to three stand at once (a fourth blows up the oldest). Within 7 tiles of you a turret is overclocked, linked to you by a cable of light, and fires half again as often. When its time runs out it blows up, hurting every enemy round it. Every tier is rebalanced and redrawn with its own shots: the higher tiers fire pairs and some pierce.
+- The Armoire sells new Mechanic skins: the Steamwright, the Scrapper, the Arcwright and the Clockwork Mechanic for 200 gold, and the big Titan Artificer, in a walking exo-frame, for 800.
+
 ### Realm Pass
 - A Gilded pass can **rally** a community goal, once each: press Rally on its card and from then until it ends everyone's help with it counts double, in the total and in each helper's share. The realm is told, the goal burns gold in the window with "rallied by" the rallier's name, and you share its top prize whatever your place once it ends (with your own minimum share).
 - In a dungeon, a Gilded pass shows the way: a trail of small gold arrows runs the shortest walk to the boss, doors included, with a chip at the foot of the view counting the tiles left. Options, Gameplay switches it off.

@@ -119,11 +119,22 @@ pub mod look {
     /// Chronarch's Coat of Stolen Hours: the Orrery's clock on the ground round its Blademaster
     /// (pos2.x its reach), its hand sweeping round twice over `duration` ms.
     pub const HOURS: u8 = 53;
-    pub const LAST: u8 = 53;
+    /// A Mechanic's turret (`Turret.cs`, `Player.Turrets.cs`; drawn by `turret.rs`): its crate
+    /// thrown from its Mechanic (the target) to where it lands (pos1) over `duration` ms.
+    pub const TURRET_THROW: u8 = 54;
+    /// The turret built at pos1 (the target): dust, bolts and welding sparks, a blueprint's ring
+    /// out to its reach (pos2.x); `duration` its time left, `source_id` its Mechanic and
+    /// `object_type` its blast's radius in hundredths of a tile, for the plate under it.
+    pub const TURRET_BUILD: u8 = 55;
+    /// A turret already up when it came into view: its plate alone (as `TURRET_BUILD`).
+    pub const TURRET_SEEN: u8 = 56;
+    /// A turret blowing up (its time up, or a newer one in its place): pos2.x the blast's radius.
+    pub const TURRET_BLAST: u8 = 57;
+    pub const LAST: u8 = 57;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
-const GRAVITY: f64 = 12.0e-6;
+pub(super) const GRAVITY: f64 = 12.0e-6;
 
 /// What a decal draws.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -220,7 +231,7 @@ fn period(look: u8) -> i32 {
 }
 
 /// Between two colours.
-fn mix(a: u32, b: u32, t: f64) -> u32 {
+pub(super) fn mix(a: u32, b: u32, t: f64) -> u32 {
     let t = t.clamp(0.0, 1.0);
     let ch = |s: u32| -> u32 {
         let (x, y) = ((a >> s) & 0xFF, (b >> s) & 0xFF);
@@ -289,7 +300,7 @@ fn field_style(color: u32) -> FieldStyle {
     FieldStyle { accent, spark, unsteady, drift }
 }
 
-fn hash(seed: u64, i: u64) -> f64 {
+pub(super) fn hash(seed: u64, i: u64) -> f64 {
     let mut h = seed ^ i.wrapping_mul(0x9E37_79B9_7F4A_7C15);
     h ^= h >> 33;
     h = h.wrapping_mul(0xFF51_AFD7_ED55_8CCD);
@@ -298,11 +309,11 @@ fn hash(seed: u64, i: u64) -> f64 {
 }
 
 impl Particles {
-    fn pick(&mut self, colors: &[u32]) -> u32 {
+    pub(super) fn pick(&mut self, colors: &[u32]) -> u32 {
         colors[(self.random() * colors.len() as f64) as usize % colors.len()]
     }
 
-    fn decal(&mut self, kind: DecalKind, x: f64, y: f64, radius: f64, color: u32, start: i32, ms: i32, follow: Option<i32>) {
+    pub(super) fn decal(&mut self, kind: DecalKind, x: f64, y: f64, radius: f64, color: u32, start: i32, ms: i32, follow: Option<i32>) {
         if self.disabled || self.decals.len() >= 64 || self.muting >= 1.0 {
             return;
         }
@@ -322,7 +333,7 @@ impl Particles {
 
     /// Pieces thrown up and out, falling back and bouncing.
     #[allow(clippy::too_many_arguments)]
-    fn debris(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, speed: f64, up: f64, life: i32, delay: i32) {
+    pub(super) fn debris(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, speed: f64, up: f64, life: i32, delay: i32) {
         for _ in 0..n {
             let a = 2.0 * PI * self.random();
             let s = speed * (0.35 + 0.65 * self.random());
@@ -340,7 +351,7 @@ impl Particles {
 
     /// Smoke or mist: puffs drifting out and up, growing as they fade.
     #[allow(clippy::too_many_arguments)]
-    fn puffs(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, spread: f64, rise: f64, life: i32, delay: i32) {
+    pub(super) fn puffs(&mut self, x: f64, y: f64, n: usize, colors: &[u32], size: f64, spread: f64, rise: f64, life: i32, delay: i32) {
         for i in 0..n {
             let a = 2.0 * PI * self.random();
             let s = spread * (0.3 + 0.7 * self.random());
@@ -748,6 +759,11 @@ impl Particles {
         let on = world.objects.get(&id).map(|o| (o.x, o.y));
         let z = world.my_z();
         self.here = (z, world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8));
+        // the Mechanic's turrets have a module of their own
+        if (look::TURRET_THROW..=look::TURRET_BLAST).contains(&look) {
+            self.turret_look(e, look, world, now);
+            return;
+        }
         match look {
             // Broadside: a cannonball drops onto the target and bursts: a shockwave, fire thrown
             // out, black smoke rolling up and seawater sprayed high
@@ -2048,6 +2064,10 @@ impl Particles {
             look::BASTION => (3.5, 0xFFFF9A2A, 0, true),
             look::TIDE => (5.5, 0xFF46C2B4, 0, true),
             look::HOURS => (6.0, 0xFF4AF0FF, 1600, true),
+            look::TURRET_THROW | look::TURRET_BUILD | look::TURRET_SEEN | look::TURRET_BLAST => {
+                self.test_turret(which, world, now);
+                return;
+            }
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -2106,27 +2126,27 @@ impl Particles {
 }
 
 /// Draws on the ground round a spot.
-struct Pen<'a> {
-    cam: &'a Camera,
-    renderer: &'a mut Renderer,
-    x: f64,
-    y: f64,
-    z: f64,
+pub(super) struct Pen<'a> {
+    pub(super) cam: &'a Camera,
+    pub(super) renderer: &'a mut Renderer,
+    pub(super) x: f64,
+    pub(super) y: f64,
+    pub(super) z: f64,
     /// Every alpha times this (another player's decal, faded).
-    dim: f32,
+    pub(super) dim: f32,
 }
 
 impl Pen<'_> {
     /// The point `r` tiles out at angle `a`.
-    fn at(&self, r: f64, a: f64) -> [f32; 2] {
+    pub(super) fn at(&self, r: f64, a: f64) -> [f32; 2] {
         self.cam.to_screen(self.x + r * a.cos(), self.y + r * a.sin(), self.z)
     }
 
-    fn pt(&self, x: f64, y: f64) -> [f32; 2] {
+    pub(super) fn pt(&self, x: f64, y: f64) -> [f32; 2] {
         self.cam.to_screen(self.x + x, self.y + y, self.z)
     }
 
-    fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, alpha: f32) {
+    pub(super) fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, alpha: f32) {
         let alpha = alpha * self.dim;
         if alpha <= 0.005 {
             return;
@@ -2135,13 +2155,13 @@ impl Pen<'_> {
         self.renderer.triangle(white, pts, [[0.5, 0.5]; 3], Tint::color(rgb, alpha.min(1.0)));
     }
 
-    fn quad(&mut self, p: [[f32; 2]; 4], rgb: u32, alpha: f32) {
+    pub(super) fn quad(&mut self, p: [[f32; 2]; 4], rgb: u32, alpha: f32) {
         self.tri([p[0], p[1], p[2]], rgb, alpha);
         self.tri([p[0], p[2], p[3]], rgb, alpha);
     }
 
     /// A filled circle of radius `r` round (ox, oy) from the spot.
-    fn disc_at(&mut self, ox: f64, oy: f64, r: f64, rgb: u32, alpha: f32) {
+    pub(super) fn disc_at(&mut self, ox: f64, oy: f64, r: f64, rgb: u32, alpha: f32) {
         let sides = if r < 0.6 { 14 } else { 36 };
         let c = self.pt(ox, oy);
         for i in 0..sides {
@@ -2151,12 +2171,12 @@ impl Pen<'_> {
         }
     }
 
-    fn disc(&mut self, r: f64, rgb: u32, alpha: f32) {
+    pub(super) fn disc(&mut self, r: f64, rgb: u32, alpha: f32) {
         self.disc_at(0.0, 0.0, r, rgb, alpha);
     }
 
     /// A ring between `r0` and `r1`.
-    fn band(&mut self, r0: f64, r1: f64, rgb: u32, alpha: f32) {
+    pub(super) fn band(&mut self, r0: f64, r1: f64, rgb: u32, alpha: f32) {
         const SIDES: usize = 40;
         let r0 = r0.max(0.0);
         for i in 0..SIDES {
@@ -2166,7 +2186,7 @@ impl Pen<'_> {
     }
 
     /// A line `w` tiles wide between two points (tiles from the spot).
-    fn line(&mut self, a: (f64, f64), b: (f64, f64), w: f64, rgb: u32, alpha: f32) {
+    pub(super) fn line(&mut self, a: (f64, f64), b: (f64, f64), w: f64, rgb: u32, alpha: f32) {
         let (dx, dy) = (b.0 - a.0, b.1 - a.1);
         let len = dx.hypot(dy).max(1e-6);
         let (nx, ny) = (-dy / len * w / 2.0, dx / len * w / 2.0);

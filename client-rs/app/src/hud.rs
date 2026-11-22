@@ -2975,11 +2975,23 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             (tr("Lightning"), r)
         }
         "SamuraiAbility" | "DazeBlast" | "TomeDamage" => (tr("Blast"), vec![row(tr("Damage"), num("totalDamage").to_string()), row(tr("Radius"), sqrs(area()))]),
+        // a Mechanic's turret (the server's `Turret.cs`: it has allyMs) or an ally of its own
         "BuildTower" => {
-            let mut r = ally_shot_rows(a).unwrap_or_else(|| vec![row(tr("Damage"), num("totalDamage").to_string())]);
-            r.push(row(tr("Builds"), text("objectId")));
-            r.push(row(tr("Lasts"), secs(num("duration"))));
-            (tr("Tower"), r)
+            let mut r = ally_shot_rows(a).unwrap_or_default();
+            if num("allyMs") > 0.0 {
+                let every = (num("allyMs") * 100.0 / TURRET_OVERCLOCK_PERCENT / 10.0).round() / 100.0;
+                r.push(row(tr("Overclocked"), tf!("every {n} secs within {range} of you", n = every, range = sqrs(TURRET_LINK_RANGE))));
+                if num("totalDamage") > 0.0 {
+                    r.push(row(tr("Self-destructs"), tf!("{n} damage within {range}", n = num("totalDamage"), range = sqrs(num("radius")))));
+                }
+                r.push(row(tr("Built"), tf!("where you aim, up to {range} away", range = sqrs(if has("range") { num("range") } else { 8.0 }))));
+                r.push(row(tr("Lasts"), secs(num("duration"))));
+                r.push(row("", tf!("Up to {n} out at once", n = if has("amount") { num("amount") } else { 3.0 })));
+            } else {
+                r.push(row(tr("Builds"), text("objectId")));
+                r.push(row(tr("Lasts"), secs(num("duration"))));
+            }
+            (tr("Turret"), r)
         }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
@@ -3084,6 +3096,11 @@ fn tome_share_range(xml: &bsk_data::xml::Element) -> f64 {
 
 /// How many summons a Summoner keeps out at once (the server's `Player.MaxSummons`).
 const MAX_SUMMONS: u32 = 6;
+
+/// How near a Mechanic overclocks their turret, and how much more often it fires then (the
+/// server's `Turret.LINK_RANGE` and `OVERCLOCK_PERCENT`).
+const TURRET_LINK_RANGE: f64 = 7.0;
+const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
 
 /// A summon's or turret's shots, which the port writes on the item's activate (allyDamage a shot,
 /// "min-max" if it varies; allyShots a volley; allyMs between volleys): the damage of a shot and
@@ -3456,7 +3473,8 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "ObjectToss" => tf!("Throws a {object}", object = text("objectId")),
         "MonsterToss" => tf!("Throws a {object} to fight for you", object = text("objectId")),
         "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
-        "BuildTower" => tf!("Builds a {object} for {time} secs ({damage} damage)", object = text("objectId"), time = num("duration"), damage = num("totalDamage")),
+        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, for {time} secs", time = num("duration")),
+        "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),

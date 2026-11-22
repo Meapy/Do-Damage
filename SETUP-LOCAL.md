@@ -717,6 +717,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Mechanic reworked** (2026-11-22; `Turret.cs`, `Player.Turrets.cs`, both
+  `DoomedRealms.xml` copies, `tools/draw_turrets.py`, `client-rs/app/src/particles/turret.rs`):
+  a turret blueprint (`BuildTower` with `allyMs`) throws a crate to where it's aimed (`range`, on
+  walkable ground) and puts down a `Turret`, a static object that fires its projectile 0 as the
+  Mechanic's server shots (`allyShots` every `allyMs`, two thirds of that within 7 tiles of its
+  Mechanic), leading its target, and blows up at the end of `duration` (`totalDamage` within
+  `radius`); `amount` (3) at once, the oldest blowing up for a newer one; the blueprints hold a
+  1 s cooldown. Tower1-9 and SpecialTower have no behaviours any more. The Rust client turns
+  each turret's `TurretHead` sprite to its shots and draws the ShowEffect Relic looks 54-57
+  (throw, build, seen, blast), its plate, rings and the cable to its Mechanic. A BuildTower
+  without `allyMs` (Ferrogrim's Bastion Turret) is a summoned ally as before. The Mechanic's
+  Armoire skins (`tools/draw_mechanic_skins.py`, `MechanicSkins.xml`, types 0xE200-0xE204) cost
+  200 gold, the 16 by 16 Titan Artificer 800 (`<Cost>`).
 - **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
   --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
   server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`
@@ -2867,10 +2880,11 @@ XML in step.
 - **Classes:** Mechanic, Ascendant, Summoner, Druid, Sharklord, Blademaster, King, Palemaster,
   Father, Adept, Monk, Pirate and Snowman. The last two have the ids "Pirate (Doomed)" and
   "Snowman (Doomed)" (the plain names are monsters) and show as Pirate and Snowman. Their abilities
-  are in `Player.UseItem.Doomed.cs` (PearlAbility, BuildTower, Summon, Forcefield, SamuraiAbility,
+  are in `Player.UseItem.Doomed.cs` (PearlAbility, Summon, Forcefield, SamuraiAbility,
   TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`; the
-  Father's censers' Ward is `Player.Ward.cs`), and
-  their turrets, summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
+  Father's censers' Ward is `Player.Ward.cs`; the Mechanic's BuildTower is `Player.Turrets.cs`
+  and its turrets `Turret.cs`), and
+  their summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
   slot types 126 and 128 are 26 and 28 elsewhere, which betterSkillys uses for pet eggs and lutes;
   the clients name them in `ItemConstants`.
 - **Pets:** `BehaviorDb.DoomedPets.cs` gives every pet a follow and its attacks (PetHeal, PetStrike,

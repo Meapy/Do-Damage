@@ -1,5 +1,5 @@
-// Turrets, summons and pearl substitutes spawned by the abilities of the classes ported from
-// Doomed Realms, as betterSkillys allies.
+// Summons and pearl substitutes spawned by the abilities of the classes ported from Doomed
+// Realms, as betterSkillys allies. (The Mechanic's turrets fire by themselves: Turret.cs.)
 using WorldServer.logic.behaviors;
 using WorldServer.logic.transitions;
 
@@ -14,7 +14,6 @@ namespace WorldServer.logic
             .Init("Oryx Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(15, 5, shootAngle: 5, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))))
             .Init("Sheep Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))))
             .Init("Snake Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))))
-            .Init("SpecialTower", new State(new AllyShoot(15, 1, projectileIndex: 0, coolDown: 100)))
             .Init("Substitute1", new State(new State("fire", new AllyShoot(10, 1, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
             .Init("Substitute2", new State(new State("fire", new AllyShoot(10, 1, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
             .Init("Substitute3", new State(new State("fire", new AllyShoot(10, 1, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
@@ -24,15 +23,6 @@ namespace WorldServer.logic
             .Init("Substitute7", new State(new State("fire", new AllyShoot(10, 3, shootAngle: 10, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
             .Init("Substitute8", new State(new State("fire", new AllyShoot(10, 3, shootAngle: 10, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
             .Init("Substitute9", new State(new State("fire", new AllyShoot(10, 3, shootAngle: 10, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")), new State("die", new Suicide())))
-            .Init("Tower1", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower2", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower3", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower4", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower5", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower6", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower7", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower8", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
-            .Init("Tower9", new State(new AllyShoot(10, 1, projectileIndex: 0, coolDown: 500)))
             .Init("Wasp Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))))
             .Init("Wisp Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))))
             .Init("Wolf Summon", new State(new State("attack", new AllyCharge(1, 10, 1), new AllyShoot(10, 1, projectileIndex: 0, coolDown: 1000), new NoEntityWithinAllyTransition(10, false, "follow")), new State("follow", new AllyFollow(1, 10, 1.5), new EntityWithinAllyTransition(10, "attack"))));

@@ -1436,6 +1436,18 @@
    "h": 16
   },
   {
+   "name": "mechanicTurrets16x16",
+   "file": "kabam/rotmg/assets/custom/images/MechanicTurrets16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "mechanicShots8x8",
+   "file": "kabam/rotmg/assets/custom/images/MechanicShots8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,
@@ -3104,6 +3116,26 @@
    "dir": "right"
   },
   {
+   "name": "mechanicSkins8",
+   "file": "kabam/rotmg/assets/custom/images/MechanicSkins8x8.png",
+   "mask": null,
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "mechanicSkins16",
+   "file": "kabam/rotmg/assets/custom/images/MechanicSkins16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3692,7 +3724,8 @@
   "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
   "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
   "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
-  "kabam/rotmg/assets/custom/xmls/PassSkins.xml"
+  "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

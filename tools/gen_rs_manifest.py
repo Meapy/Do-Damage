@@ -79,6 +79,10 @@ RS_ONLY_SETS = [
     ("ascendantHalos16x16", "kabam/rotmg/assets/custom/images/AscendantHalos16x16.png", 16, 16),
     # the Father's censers, tier 0 to 8, a cell each (tools/draw_censers.py)
     ("fatherCensers16x16", "kabam/rotmg/assets/custom/images/FatherCensers16x16.png", 16, 16),
+    # the Mechanic's blueprints and turrets, tier 0 to 8 and the War Turret, and their shots
+    # (tools/draw_turrets.py)
+    ("mechanicTurrets16x16", "kabam/rotmg/assets/custom/images/MechanicTurrets16x16.png", 16, 16),
+    ("mechanicShots8x8", "kabam/rotmg/assets/custom/images/MechanicShots8x8.png", 8, 8),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
@@ -117,6 +121,9 @@ RS_ONLY_SETS = [
 RS_ONLY_CHARS = [
     # the Realm Pass's skins (tools/draw_pass_skins.py)
     ("passSkins16", "kabam/rotmg/assets/custom/images/PassSkins16x16.png", 16, 16, 112, 48, "right"),
+    # the Mechanic's skins sold at the Armoire (tools/draw_mechanic_skins.py)
+    ("mechanicSkins8", "kabam/rotmg/assets/custom/images/MechanicSkins8x8.png", 8, 8, 56, 24, "right"),
+    ("mechanicSkins16", "kabam/rotmg/assets/custom/images/MechanicSkins16x16.png", 16, 16, 112, 48, "right"),
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
@@ -167,7 +174,8 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
-                      "kabam/rotmg/assets/custom/xmls/PassSkins.xml"]
+                      "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

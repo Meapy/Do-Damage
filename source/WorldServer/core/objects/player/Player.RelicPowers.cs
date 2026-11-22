@@ -82,6 +82,9 @@ namespace WorldServer.core.objects
             Vow = 42,           // Halo of the Ghost Bride: a player its forcefield kept from dying
             // 43-45: the Vial of Cascading Dusk's flight, splashes and spreading dusk, sent by
             // Player.BetweenPowers.cs (DuskFx)
+            // 46-47: the Realm Pass's tiers (PassTracker); 48-53: the Crucible's white bags
+            // (Player.CruciblePowers.cs); 54-57: the Mechanic's turrets, sent by Turret.cs and
+            // Player.Turrets.cs
         }
 
         // the Ghost Bride's halo's forcefield (Forcefield.cs): pale, its petals drifting (relic.rs)

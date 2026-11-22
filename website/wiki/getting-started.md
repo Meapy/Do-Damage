@@ -213,9 +213,10 @@ the stone water basins at its corners do. From there:
 - **On the spawn's island**: the **Support Bot** in the middle of the deck, the Name Changer
   (your first name is free; changing it costs {{v:name_change}} fame) strolling about its west
   side and the Character Changer about its east, the Armoire (skins) and the **Vault** portal.
-  A skin costs **200 gold**, bought at the Armoire (it shows every skin of your character's
-  class, its price, and puts a skin on as you buy it) or on a class's page when you make a new
-  character; some need the class at a level first. Once bought it's yours on the account, and the
+  A skin costs **200 gold** (a few big 16 by 16 ones, such as the Mechanic's Titan Artificer,
+  800), bought at the Armoire (it shows every skin of your character's class, its price, and
+  puts a skin on as you buy it) or on a class's page when you make a new character; some need
+  the class at a level first. Once bought it's yours on the account, and the
   Armoire puts it on any character of that class. The [Realm Pass](realm-pass.html)'s skins come
   only from its Gilded track.
   Just north of the deck the **Scrying Glass** shows a player out in a realm or a dungeon, live,

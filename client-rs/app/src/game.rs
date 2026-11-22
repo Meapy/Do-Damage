@@ -1146,8 +1146,17 @@ impl Game {
             ServerMessage::ServerPlayerShoot(s) => {
                 if world.objects.get(&s.owner_id).is_some_and(|o| !o.dead) {
                     let (x, y) = (s.starting_pos.x as f64, s.starting_pos.y as f64);
-                    let p = Projectile::new(s.owner_id, s.bullet_id, s.container_type as u16, s.bullet_type.unwrap_or(0) as i32, s.angle as f64, now, x, y, 1.0, s.damage, false);
+                    let mut p = Projectile::new(s.owner_id, s.bullet_id, s.container_type as u16, s.bullet_type.unwrap_or(0) as i32, s.angle as f64, now, x, y, 1.0, s.damage, false);
+                    // a turret's shot leaves its barrel, at its head's height
+                    if data.objects.get(&(s.container_type as u16)).is_some_and(|d| d.xml.has("TurretHead")) {
+                        p.z = crate::particles::turret::HEAD_Z;
+                    }
                     world.add_projectile(p);
+                    // a Mechanic's turret's shot: a flash at its muzzle (particles/turret.rs), as
+                    // faint as other players' shots
+                    if Some(s.owner_id) == world.me || self.particles.others > 0.0 {
+                        self.particles.turret_shot(x, y, s.angle as f64, now);
+                    }
                 }
             }
             ServerMessage::AllyShoot(a) => {

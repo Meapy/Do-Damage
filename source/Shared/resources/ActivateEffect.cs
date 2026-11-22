@@ -84,6 +84,10 @@ namespace Shared.resources
         public readonly float OffsetAngle;
         public readonly float MinDistance;
         public readonly float MaxDistance;
+        // a turret's or summon's shots (the tooltip's numbers; the Mechanic's turrets fire by them,
+        // Turret.cs): how many a volley and the ms between volleys
+        public readonly int AllyShots;
+        public readonly int AllyMs;
 
         public ActivateEffect(XElement e)
         {
@@ -170,6 +174,8 @@ namespace Shared.resources
             OffsetAngle = e.GetAttribute<float>("offsetAngle", 90);
             MinDistance = e.GetAttribute<float>("minDistance");
             MaxDistance = e.GetAttribute<float>("maxDistance", 4.4f);
+            AllyShots = e.GetAttribute<int>("allyShots");
+            AllyMs = e.GetAttribute<int>("allyMs");
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

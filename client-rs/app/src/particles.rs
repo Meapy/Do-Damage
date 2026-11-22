@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::f64::consts::PI;
 
 pub(crate) mod relic;
+pub(crate) mod turret;
 
 #[derive(Clone, Debug)]
 enum Motion {
@@ -196,6 +197,8 @@ pub struct Particles {
     /// The Crucible's ground as we last knew it, for what builds and falls round us
     /// (`relic::GroundWatch`, `crucible_ground`).
     crucible: relic::GroundWatch,
+    /// The Mechanics' turrets standing (`turret.rs`, looks 54 to 57): their plates and links.
+    turrets: Vec<turret::TurretLook>,
 }
 
 /// How a player's ward has looked of late: its censer's colour, when it was raised and last
@@ -292,6 +295,7 @@ impl Particles {
         self.emitters.clear();
         self.fields.clear();
         self.wards.clear();
+        self.turrets.clear();
         self.ward_on = None;
         self.dusk_on = None;
         self.jitter_since = None;
@@ -667,6 +671,7 @@ impl Particles {
             self.relic(&e, world, now);
         }
         self.relic_update(world, now);
+        self.turret_update(world, now, dt);
         // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`)
         for obj in world.objects.values() {
             if obj.stat_int(76).unwrap_or(0) != 0 {
@@ -1112,6 +1117,7 @@ impl Particles {
     pub fn draw_marks(&self, cam: &Camera, renderer: &mut Renderer, level: u8) {
         const SIDES: usize = 40;
         self.draw_decals(cam, renderer, level);
+        self.draw_turrets(cam, renderer, level);
         for m in self.marks.iter().filter(|m| m.level == level) {
             let t = (self.now - m.start) as f64 / m.ms as f64;
             let fill = t.clamp(0.0, 1.0);
@@ -1426,6 +1432,43 @@ mod tests {
     }
 
     #[test]
+    fn a_turret_keeps_its_plate_until_its_time_or_its_blast() {
+        let data = GameData::default();
+        let mut world = World::new(10, 10, "test", 1);
+        let tiles: Vec<_> = (0..100).map(|i| bsk_proto::GroundTile { x: i % 10, y: i / 10, tile_type: 0 }).collect();
+        let obj = |id: i32, x: f32| bsk_proto::ObjectData { object_type: 0x70a4, status: bsk_proto::ObjectStatus { object_id: id, pos: WorldPos { x, y: 5.5 }, stats: Default::default() } };
+        // the turret (7) and its Mechanic (8), two tiles apart: near enough to overclock it
+        world.apply_update(&bsk_proto::Update { tiles: tiles.into(), new_objs: vec![obj(7, 5.5), obj(8, 3.5)].into(), drops: Default::default() }, &data, 0);
+        let mut p = Particles::default();
+        let built = |ms: i32| ShowEffect { duration: ms, object_type: 350, source_id: Some(8), ..effect(41, 7, (5.5, 5.5), (9.0, relic::look::TURRET_BUILD as f32)) };
+        p.show_effect(&built(4000), &world, 0);
+        assert_eq!(p.turrets.len(), 1);
+        assert!(!p.list.is_empty(), "its building shows");
+        p.update(&world, 50, 50);
+        assert!(p.turrets[0].linked_for_tests(), "its Mechanic beside it overclocks it");
+        // a shot from its muzzle flashes there; one from elsewhere doesn't
+        p.list.clear();
+        p.turret_shot(1.0, 1.0, 0.0, 100);
+        assert!(p.list.is_empty());
+        p.turret_shot(5.9, 5.5, 0.0, 100);
+        assert!(!p.list.is_empty());
+        // built again (seen again): still one plate
+        p.show_effect(&ShowEffect { pos2: WorldPos { x: 9.0, y: relic::look::TURRET_SEEN as f32 }, ..built(3000) }, &world, 1000);
+        assert_eq!(p.turrets.len(), 1);
+        // its time up: gone
+        let mut now = 1000;
+        while now < 4500 {
+            now += 50;
+            p.update(&world, now, 50);
+        }
+        assert!(p.turrets.is_empty());
+        // or its blast takes it at once
+        p.show_effect(&built(8000), &world, now);
+        p.show_effect(&effect(41, 7, (5.5, 5.5), (3.5, relic::look::TURRET_BLAST as f32)), &world, now);
+        assert!(p.turrets.is_empty() && !p.decals.is_empty());
+    }
+
+    #[test]
     fn relic_looks_show_then_go() {
         let world = World::new(10, 10, "test", 1);
         let mut p = Particles::default();
@@ -1433,13 +1476,13 @@ mod tests {
             let mut e = effect(41, 99, (5.0, 5.0), (2.0, look as f32));
             e.duration = 1500;
             p.show_effect(&e, &world, 0);
-            assert!(!p.list.is_empty() || !p.decals.is_empty() || !p.auras.is_empty(), "look {look} shows nothing");
+            assert!(!p.list.is_empty() || !p.decals.is_empty() || !p.auras.is_empty() || !p.turrets.is_empty(), "look {look} shows nothing");
             let mut now = 0;
             while now < 12_000 {
                 now += 50;
                 p.update(&world, now, 50);
             }
-            assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty(), "look {look} stays");
+            assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty() && p.turrets.is_empty(), "look {look} stays");
         }
         // an unknown look does nothing, and particles off shows nothing
         p.show_effect(&effect(41, 99, (5.0, 5.0), (2.0, 99.0)), &world, 0);
