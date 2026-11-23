@@ -72,7 +72,12 @@ namespace WorldServer.core.net.stats
         {
             var def = targetDefense;
             if (host.HasConditionEffect(ConditionEffectIndex.Armored))
-                def *= 2;
+            {
+                if (host is Player)
+                    def += def / 2;
+                else
+                    def *= 2;
+            }
             else if (pierce || host.HasConditionEffect(ConditionEffectIndex.ArmorBroken))
                 def = 0;
             if (host.HasConditionEffect(ConditionEffectIndex.Exposed))
@@ -246,7 +251,7 @@ namespace WorldServer.core.net.stats
             var def = this[3];
 
             if (Owner.HasConditionEffect(ConditionEffectIndex.Armored))
-                def *= 2;
+                def += def / 2;
 
             if (Owner.HasConditionEffect(ConditionEffectIndex.ArmorBroken) || noDef)
                 def = 0;

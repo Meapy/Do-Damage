@@ -131,12 +131,16 @@ pub fn bound_to_pi(a: f64) -> f64 {
 }
 
 /// `GameObject.damageWithDefense` as the server works it out (`StatsManager.DamageWithDefense`):
-/// Armored doubles defense and keeps it against armor piercing and Armor Broken. AS3 truncates to
-/// int at each assignment.
-pub fn damage_with_defense(damage: i32, defense: i32, armor_piercing: bool, conditions: [u32; 2]) -> i32 {
+/// Armored gives players 1.5x defense and mobs 2x defense, and keeps it against armor piercing and
+/// Armor Broken. AS3 truncates to int at each assignment.
+pub fn damage_with_defense(damage: i32, defense: i32, armor_piercing: bool, conditions: [u32; 2], player: bool) -> i32 {
     let mut def = defense;
     if has(conditions, condition::ARMORED) {
-        def *= 2;
+        if player {
+            def += def / 2;
+        } else {
+            def *= 2;
+        }
     } else if armor_piercing || has(conditions, condition::ARMOR_BROKEN) {
         def = 0;
     }
@@ -537,7 +541,7 @@ impl World {
         self.impacts.push(impact);
         if send {
             let defense = target.stat_int(STAT_DEFENSE).unwrap_or_else(|| tdesc.map_or(0, |d| d.xml.int("Defense", 0)));
-            let dmg = damage_with_defense(p.damage, defense, desc.armor_piercing, target.conditions());
+            let dmg = damage_with_defense(p.damage, defense, desc.armor_piercing, target.conditions(), tdesc.is_some_and(|d| d.player));
             let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
             if Some(target_id) == me {
                 let (damage, stacked) = self.unstacked_damage(p, desc, dmg, time, data);
@@ -755,15 +759,17 @@ mod tests {
 
     #[test]
     fn defense_rules() {
-        assert_eq!(damage_with_defense(100, 30, false, [0, 0]), 70);
+        assert_eq!(damage_with_defense(100, 30, false, [0, 0], false), 70);
         // At least 10% gets through.
-        assert_eq!(damage_with_defense(100, 95, false, [0, 0]), 10);
-        assert_eq!(damage_with_defense(100, 95, true, [0, 0]), 100);
-        // Armored: defence ×2, as the server: 60; armor piercing doesn't go through it.
-        assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0]), 40);
-        assert_eq!(damage_with_defense(100, 30, true, [1 << (condition::ARMORED - 1), 0]), 40);
+        assert_eq!(damage_with_defense(100, 95, false, [0, 0], false), 10);
+        assert_eq!(damage_with_defense(100, 95, true, [0, 0], false), 100);
+        // Armored: mobs keep defence x2; players get defence x1.5. Piercing doesn't go through it.
+        assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0], false), 40);
+        assert_eq!(damage_with_defense(100, 30, true, [1 << (condition::ARMORED - 1), 0], false), 40);
+        assert_eq!(damage_with_defense(100, 30, false, [1 << (condition::ARMORED - 1), 0], true), 55);
+        assert_eq!(damage_with_defense(100, 30, true, [1 << (condition::ARMORED - 1), 0], true), 55);
         // Curse: ×1.25.
-        assert_eq!(damage_with_defense(100, 0, false, [0, 1 << (condition::CURSE - 32)]), 125);
+        assert_eq!(damage_with_defense(100, 0, false, [0, 1 << (condition::CURSE - 32)], false), 125);
     }
 
     #[test]

@@ -989,8 +989,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   Sickle and the Unstable Anomaly, whose ring of ten stays); tiered helms (and the Enthroned
   Helm) add Armored on self, tiered shields add Armored on self and Exposed on their shots, tiered
   seals add a `HealNova`; caps: Knight Attack 60, Paladin Vitality 60, Pirate Life 770 and
-  Defense 30. The client's `damage_with_defense` now treats Armored as the server does (×2, and
-  it holds against armor piercing and Armor Broken).
+  Defense 30. The player's Armored effect adds 50% of their defense (1.5x total), while mobs and
+  bosses keep 2x; it holds against armor piercing and Armor Broken on both. The client's
+  `damage_with_defense` matches.
 
 - **Lingering at the grave** (2026-11-18; `Player.Grave.cs`, `GraveHandler.cs`,
   `packets/outgoing/GraveInfo.cs`; the Rust client's `grave.rs`): a player who dies stays in the

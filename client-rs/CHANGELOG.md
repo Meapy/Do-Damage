@@ -25,6 +25,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Mechanic
 - **Turrets hit twice as hard and every shot pierces:** the shots and the blast at the end of every turret do double, and the shots of the lower tiers now go through enemies like the higher ones' do.
 
+### Game
+- ** Updated Armored protection** the Armored effect now adds half their defense on players.
+
 ### Pets
 - **Grow your pet:** once your pet reaches its last level, the Pen Keeper can grow it to the next size, for fame or gold (Tiny to Small 1,000 fame or 100 gold, up to Large to Huge for 25,000 or 1,000). It keeps its level, looks bigger and can be fed on to its new size's last level. The biggest size, once called Oryx, is now **Huge**.
 - **Only Huge pets go past 100%:** every other pet now tops out at 100% damage (and 140% healing) at its last level; Huge pets still reach 120% (160%) at level 30. A grown pet never gets weaker: it stays at 100% until it's Huge, then climbs on to 120%.
