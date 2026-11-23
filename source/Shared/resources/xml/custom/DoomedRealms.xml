@@ -12789,8 +12789,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Nail</ObjectId>
 			<Speed>160</Speed>
-			<Damage>42</Damage>
+			<Damage>84</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -12805,8 +12806,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Bolt</ObjectId>
 			<Speed>160</Speed>
-			<Damage>51</Damage>
+			<Damage>102</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -12821,8 +12823,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Tracer</ObjectId>
 			<Speed>160</Speed>
-			<Damage>60</Damage>
+			<Damage>120</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -12837,7 +12840,7 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Thorn</ObjectId>
 			<Speed>160</Speed>
-			<Damage>36</Damage>
+			<Damage>72</Damage>
 			<LifetimeMS>560</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -12854,7 +12857,7 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Bubble</ObjectId>
 			<Speed>160</Speed>
-			<Damage>84</Damage>
+			<Damage>168</Damage>
 			<LifetimeMS>560</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -12871,8 +12874,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Hellfire</ObjectId>
 			<Speed>160</Speed>
-			<Damage>50</Damage>
+			<Damage>100</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -12887,7 +12891,7 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Lance</ObjectId>
 			<Speed>160</Speed>
-			<Damage>114</Damage>
+			<Damage>228</Damage>
 			<LifetimeMS>560</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -12904,8 +12908,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Jade Dart</ObjectId>
 			<Speed>160</Speed>
-			<Damage>66</Damage>
+			<Damage>132</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -12920,7 +12925,7 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Lightning</ObjectId>
 			<Speed>160</Speed>
-			<Damage>75</Damage>
+			<Damage>150</Damage>
 			<LifetimeMS>560</LifetimeMS>
 			<MultiHit />
 		</Projectile>
@@ -13256,7 +13261,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower1" duration="12" range="8" amount="3" totalDamage="150" radius="2.5" allyDamage="42" allyShots="1" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower1" duration="12" range="8" amount="3" totalDamage="300" radius="2.5" allyDamage="84" allyShots="1" allyMs="600">BuildTower</Activate>
 		<MpCost>40</MpCost>
 		<Cooldown>1</Cooldown>
 		<Cooldown>1</Cooldown>
@@ -13275,7 +13280,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>4</BagType>
-		<Activate objectId="SpecialTower" duration="15" range="8" amount="3" totalDamage="200" radius="2.5" allyDamage="30" allyShots="1" allyMs="200">BuildTower</Activate>
+		<Activate objectId="SpecialTower" duration="15" range="8" amount="3" totalDamage="400" radius="2.5" allyDamage="60" allyShots="1" allyMs="200">BuildTower</Activate>
 		<MpCost>100</MpCost>
 		<Cooldown>1</Cooldown>
 		<Cooldown>1</Cooldown>
@@ -13293,8 +13298,9 @@
 		<Projectile id="0">
 			<ObjectId>Mechanic Round</ObjectId>
 			<Speed>160</Speed>
-			<Damage>30</Damage>
+			<Damage>60</Damage>
 			<LifetimeMS>560</LifetimeMS>
+			<MultiHit />
 		</Projectile>
 		<NoMiniMap />
 	</Object>
@@ -13311,7 +13317,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower2" duration="12" range="8" amount="3" totalDamage="180" radius="2.5" allyDamage="51" allyShots="1" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower2" duration="12" range="8" amount="3" totalDamage="360" radius="2.5" allyDamage="102" allyShots="1" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="1">IncrementStat</ActivateOnEquip>
 		<MpCost>45</MpCost>
 		<Cooldown>1</Cooldown>
@@ -13332,7 +13338,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>1</BagType>
-		<Activate objectId="Tower3" duration="14" range="8" amount="3" totalDamage="220" radius="2.5" allyDamage="60" allyShots="1" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower3" duration="14" range="8" amount="3" totalDamage="440" radius="2.5" allyDamage="120" allyShots="1" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="2">IncrementStat</ActivateOnEquip>
 		<MpCost>50</MpCost>
 		<Cooldown>1</Cooldown>
@@ -13353,7 +13359,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>2</BagType>
-		<Activate objectId="Tower4" duration="14" range="8" amount="3" totalDamage="260" radius="3" allyDamage="36" allyShots="2" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower4" duration="14" range="8" amount="3" totalDamage="520" radius="3" allyDamage="72" allyShots="2" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="3">IncrementStat</ActivateOnEquip>
 		<MpCost>60</MpCost>
 		<Cooldown>1</Cooldown>
@@ -13374,7 +13380,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>2</BagType>
-		<Activate objectId="Tower5" duration="16" range="8" amount="3" totalDamage="310" radius="3" allyDamage="84" allyShots="1" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower5" duration="16" range="8" amount="3" totalDamage="620" radius="3" allyDamage="168" allyShots="1" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="4">IncrementStat</ActivateOnEquip>
 		<MpCost>70</MpCost>
 		<Cooldown>1</Cooldown>
@@ -13395,7 +13401,7 @@
 		<Sound>spell/light_heal</Sound>
 		<Usable />
 		<BagType>4</BagType>
-		<Activate objectId="Tower6" duration="16" range="8" amount="3" totalDamage="360" radius="3" allyDamage="50" allyShots="2" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower6" duration="16" range="8" amount="3" totalDamage="720" radius="3" allyDamage="100" allyShots="2" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="1">IncrementStat</ActivateOnEquip>
 		<MpCost>80</MpCost>
@@ -13419,7 +13425,7 @@
 		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
-		<Activate objectId="Tower7" duration="18" range="8" amount="3" totalDamage="420" radius="3.5" allyDamage="114" allyShots="1" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower7" duration="18" range="8" amount="3" totalDamage="840" radius="3.5" allyDamage="228" allyShots="1" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
@@ -13445,7 +13451,7 @@
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
-		<Activate objectId="Tower8" duration="18" range="8" amount="3" totalDamage="480" radius="3.5" allyDamage="66" allyShots="2" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower8" duration="18" range="8" amount="3" totalDamage="960" radius="3.5" allyDamage="132" allyShots="2" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
@@ -13472,7 +13478,7 @@
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
-		<Activate objectId="Tower9" duration="20" range="8" amount="3" totalDamage="550" radius="3.5" allyDamage="75" allyShots="2" allyMs="600">BuildTower</Activate>
+		<Activate objectId="Tower9" duration="20" range="8" amount="3" totalDamage="1100" radius="3.5" allyDamage="150" allyShots="2" allyMs="600">BuildTower</Activate>
 		<ActivateOnEquip stat="28" amount="5">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>

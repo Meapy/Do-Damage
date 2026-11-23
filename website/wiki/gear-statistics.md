@@ -121,7 +121,8 @@ Things to know when reading it:
   2026 and do about a quarter more, so "Weapon only" is low for every class now. The Staff of
   Endless Energy (the staves' T15) does 100-135 since then too.
 - The Mechanic's turrets were reworked in 2.6.4 (built where you aim, up to three at once, faster
-  with the Mechanic near, a blast at the end), so the Mechanic's "With 3 abilities" is out of date.
+  with the Mechanic near, a blast at the end), so the Mechanic's "With 3 abilities" is out of date (and since 2.6.5 turrets do double the
+  damage and every shot pierces).
 
 | Class | Weapon | Ability | Armor | Weapon only | With 3 abilities | Change |
 |---|---|---|---|---:|---:|---:|

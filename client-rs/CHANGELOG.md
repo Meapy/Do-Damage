@@ -19,6 +19,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **Hits from the tide now count:** walking through Nerissa's tide (or a clock hand) sometimes showed a damage number without taking any health. It now always takes it.
 - **Vaelith no longer gets stuck in the sky** when the Apex changes shape under him: he's put back on the floor, and in his last phase he comes after you round the halo.
 
+### Mechanic
+- **Turrets hit twice as hard and every shot pierces:** the shots and the blast at the end of every turret do double, and the shots of the lower tiers now go through enemies like the higher ones' do.
+
 ### Pets
 - **Grow your pet:** once your pet reaches its last level, the Pen Keeper can grow it to the next size, for fame or gold (Tiny to Small 1,000 fame or 100 gold, up to Large to Huge for 25,000 or 1,000). It keeps its level, looks bigger and can be fed on to its new size's last level. The biggest size, once called Oryx, is now **Huge**.
 - **Only Huge pets go past 100%:** every other pet now tops out at 100% damage (and 140% healing) at its last level; Huge pets still reach 120% (160%) at level 30. A grown pet never gets weaker: it stays at 100% until it's Huge, then climbs on to 120%.
