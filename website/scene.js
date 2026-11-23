@@ -1,5 +1,6 @@
 // The site's 3D backdrop, drawn with Three.js (vendor/three.min.js): a night over a castle town, and
-// below it Oryx's six stages as glowing portals. The camera follows the page: the home page flies
+// below it Oryx's six stages as glowing portals, each with its boss built in cubes from the game's
+// own sprite (the cards' data-boss, tools/build_wiki.py). The camera follows the page: the home page flies
 // forward through the castle gate and from portal to portal as you read "Six stages down"; every
 // other page keeps a calm drifting sky. Nothing here is needed to read the site: without WebGL the
 // page keeps its plain dark background, and with reduced motion the scene is drawn still.
@@ -206,37 +207,85 @@
   var STAGES = 6, PALETTE = [0x8b5cf6, 0x9a55e6, 0xc2559f, 0xff6a5a, 0xff7a3d, 0xff3d5a];
   var ringZ = function (i) { return -170 - i * 56; };
   var rings = [];
-  var RELICS = ["shield", "sword", "potion", "portal", "bolt", "skull"];
 
-  // The site's pixel sprites (site.js, window.ddSprites) built out of cubes: one cube per pixel,
-  // two deep, lit from the moon's side so the faces read as 3D. Returns a group spun about its middle.
-  scene.add(new T.AmbientLight(0xb8a8ff, 0.55));
+  // Each stage's boss, as the game draws it, built out of cubes: the home page's cards carry the
+  // sprites (<i data-boss="<sheet> x y w h">, from tools/build_wiki.py), and their pixels become one
+  // cube each, a little deep, lit from the moon's side so the faces read as 3D.
+  scene.add(new T.AmbientLight(0xc8b8ff, 0.75));
   var sun = new T.DirectionalLight(0xffe2b0, 0.9);
   sun.position.set(0.6, 0.8, 1);
   scene.add(sun);
-  function voxels(name, unit) {
-    var data = window.ddSprites, rows = data && data.rows[name];
-    if (!rows) return null;
-    var cells = [];
-    for (var y = 0; y < rows.length; y++) {
-      for (var x = 0; x < rows[y].length; x++) {
-        var ch = rows[y].charAt(x);
-        if (data.ink[ch]) cells.push({ x: x, y: y, c: data.ink[ch] });
-      }
+  var sheets = {};
+  function sheet(url, done) {
+    var s = sheets[url];
+    if (!s) {
+      s = sheets[url] = { img: new Image(), ready: false, waiting: [] };
+      s.img.onload = function () { s.ready = true; s.waiting.forEach(function (f) { f(s.img); }); s.waiting = []; };
+      s.img.src = url;
     }
-    var w = rows[0].length, h = rows.length;
-    var im = new T.InstancedMesh(new T.BoxGeometry(unit * 0.96, unit * 0.96, unit * 2),
-      new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x1a0c10 }), cells.length);
-    var col = new T.Color();
-    cells.forEach(function (c, i) {
-      m4.makeTranslation((c.x - w / 2 + 0.5) * unit, (h / 2 - c.y - 0.5) * unit, 0);
-      im.setMatrixAt(i, m4);
-      im.setColorAt(i, col.set(c.c));
-    });
-    var g = new T.Group();
-    g.add(im);
-    return g;
+    if (s.ready) done(s.img); else s.waiting.push(done);
   }
+  function bossVoxels(card, fit, done) {
+    var parts = card ? Array.prototype.map.call(card.querySelectorAll("[data-boss]"), function (el) {
+      var p = el.getAttribute("data-boss").split(" ");
+      return { url: p[0], x: +p[1], y: +p[2], w: +p[3], h: +p[4] };
+    }) : [];
+    if (!parts.length) return;
+    var left = parts.length;
+    parts.forEach(function (p) {
+      sheet(p.url, function (img) {
+        var cv = document.createElement("canvas");
+        cv.width = p.w; cv.height = p.h;
+        var cx = cv.getContext("2d");
+        cx.drawImage(img, p.x, p.y, p.w, p.h, 0, 0, p.w, p.h);
+        try { p.px = cx.getImageData(0, 0, p.w, p.h).data; } catch (e) { p.px = null; }
+        if (--left === 0) build();
+      });
+    });
+    function build() {
+      // the parts side by side, one pixel apart, standing on the same line
+      var cells = [], ox = 0, H = 0;
+      parts.forEach(function (p) { H = Math.max(H, p.h); });
+      parts.forEach(function (p) {
+        if (p.px) {
+          for (var y = 0; y < p.h; y++) for (var x = 0; x < p.w; x++) {
+            var o = (y * p.w + x) * 4;
+            if (p.px[o + 3] > 40) cells.push({ x: ox + x, y: H - p.h + y, r: p.px[o], g: p.px[o + 1], b: p.px[o + 2] });
+          }
+        }
+        ox += p.w + 1;
+      });
+      if (!cells.length) return;
+      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      cells.forEach(function (c) { x0 = Math.min(x0, c.x); x1 = Math.max(x1, c.x); y0 = Math.min(y0, c.y); y1 = Math.max(y1, c.y); });
+      var w = x1 - x0 + 1, h = y1 - y0 + 1, unit = fit / Math.max(w, h);
+      var im = new T.InstancedMesh(new T.BoxGeometry(unit * 0.97, unit * 0.97, unit * 2.2),
+        new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x140a18 }), cells.length);
+      var col = new T.Color();
+      cells.forEach(function (c, i) {
+        m4.makeTranslation((c.x - x0 - w / 2 + 0.5) * unit, (h / 2 - (c.y - y0) - 0.5) * unit, 0);
+        im.setMatrixAt(i, m4);
+        // the sheets' near-black outlines lifted a little, so a dark Oryx still reads against the night
+        im.setColorAt(i, col.setRGB(Math.max(c.r, 26) / 255, Math.max(c.g, 20) / 255, Math.max(c.b, 34) / 255));
+      });
+      var g = new T.Group();
+      g.add(im);
+      done(g);
+    }
+  }
+  // a soft light behind each boss, in its portal's colour
+  var haloTex = (function () {
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = 128;
+    var cx = cv.getContext("2d"), gr = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, "rgba(255,255,255,1)");
+    gr.addColorStop(0.45, "rgba(255,255,255,.35)");
+    gr.addColorStop(1, "rgba(255,255,255,0)");
+    cx.fillStyle = gr;
+    cx.fillRect(0, 0, 128, 128);
+    return new T.CanvasTexture(cv);
+  })();
+  var cards = Array.prototype.slice.call(document.querySelectorAll("#descent .stop-card"));
 
   if (HOME) {
     for (var i = 0; i < STAGES; i++) {
@@ -253,15 +302,18 @@
         return { x: Math.cos(a) * rr, y: Math.sin(a) * rr, z: (rand() - 0.5) * 3, s: 0.45 + rand() * 0.4, c: sparkCol, sp: 1 + rand() * 3 };
       });
       g.add(sparks);
-      var core = null;
-      if (i === STAGES - 1) {
-        core = new T.Mesh(new T.IcosahedronGeometry(9, 1), new T.MeshBasicMaterial({ color: 0xff3d5a, wireframe: true, transparent: true }));
-        g.add(core);
-      }
-      var relic = voxels(RELICS[i], i === STAGES - 1 ? 0.95 : 0.6);
-      if (relic) g.add(relic);
+      var halo = new T.Mesh(new T.PlaneGeometry(R * 1.6, R * 1.6), new T.MeshBasicMaterial({
+        map: haloTex, color: new T.Color(col).lerp(new T.Color(0xffffff), 0.25), transparent: true, opacity: 0.3,
+        depthWrite: false, blending: T.AdditiveBlending, fog: true }));
+      halo.position.z = -1.6;
+      g.add(halo);
       scene.add(g);
-      rings.push({ g: g, outer: outer, inner: inner, disc: disc, sparks: sparks, core: core, relic: relic, glow: 0.3, R: R });
+      var ring = { g: g, outer: outer, inner: inner, disc: disc, sparks: sparks, halo: halo, relic: null, glow: 0.3, R: R };
+      rings.push(ring);
+      // the boss stands in the middle of the ring, inside its inner circle
+      bossVoxels(cards[i], R * 1.15, (function (rg) {
+        return function (boss) { rg.relic = boss; rg.g.add(boss); };
+      })(ring));
     }
     // a road of light from the gate down through the portals
     var grid = new T.GridHelper(800, 130, 0x5b3cb0, 0x2a1a4a);
@@ -310,14 +362,18 @@
       tz = ringZ(STAGES - 1) + 120; ty = 30; tx = 0;
     } else {
       phase = "in";
-      var seen = -1;
+      // the stage whose card is nearest the middle of the screen, so its portal is the one beside it
+      var seen = 0, best = 1e9;
       for (var k = 0; k < stops.length; k++) {
-        var b = stops[k].getBoundingClientRect();
-        if (b.top < vh * 0.55) seen = k;
+        var b = (cards[k] || stops[k]).getBoundingClientRect();
+        var off = Math.abs((b.top + b.bottom) / 2 - vh / 2);
+        if (off < best) { best = off; seen = k; }
       }
-      stage = Math.max(0, seen);
+      stage = seen;
       var R0 = rings[stage].R;
-      tz = ringZ(stage) + R0 * (wide ? 2.9 : 3.6); ty = wide ? R0 + 1 : R0 * 0.25; tx = wide ? -R0 * 0.75 : 0;
+      // wide: the portal whole in the right half of the screen, clear of the card on the left;
+      // narrow: above the card, which fills the bottom of the screen
+      tz = ringZ(stage) + R0 * (wide ? 4.3 : 3.6); ty = wide ? R0 + 1 : R0 * 0.25; tx = wide ? -R0 * 1.7 : 0;
     }
   }
 
@@ -393,14 +449,12 @@
       ring.inner.material.opacity = 0.1 + ring.glow * 0.5;
       ring.disc.material.opacity = 0.03 + ring.glow * 0.14;
       ring.g.scale.setScalar(pulse * (0.96 + ring.glow * 0.06));
+      ring.halo.rotation.z = -ring.g.rotation.z;
+      ring.halo.material.opacity = 0.12 + ring.glow * 0.4;
       if (ring.relic) {
+        // upright, turned towards the camera (which stands off to the left on wide screens), swaying
         ring.relic.rotation.z = -ring.g.rotation.z;
-        ring.relic.rotation.y = still ? 0.5 : clock * 0.8 + r;
-      }
-      if (ring.core) {
-        ring.core.rotation.x += still ? 0 : dt * 0.7;
-        ring.core.rotation.y += still ? 0 : dt * 0.9;
-        ring.core.material.opacity = 0.2 + ring.glow * 0.8;
+        ring.relic.rotation.y = (innerWidth > 900 ? -0.35 : 0) + (still ? 0 : Math.sin(clock * 0.6 + r) * 0.25);
       }
     }
 

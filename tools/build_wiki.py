@@ -1495,10 +1495,48 @@ def sections(page_title, url, body):
     return [e for e in out if e["t"] or e["h"]]
 
 
+# The home page's "Six stages down": the boss of each stage, as the game draws it.
+STAGE_BOSSES = [["Oryx Stone Guardian Left", "Oryx Stone Guardian Right"], ["Oryx the Mad God 1"],
+                ["Oryx the Mad God 2"], ["Oryx the Mad God 3"], ["Oryx the Mad God 4"], ["Oryx the Ascended God"]]
+STAGE_LABELS = ["Oryx's two Stone Guardians", "Oryx the Mad God 1", "Oryx the Mad God 2", "Oryx the Mad God 3",
+                "Oryx the Mad God 4", "Oryx the Ascended God"]
+
+
+def stage_bosses(d, out_root):
+    """Copies the bosses' sprite sheets to <out_root>/oryx/ and gives {{BOSS_1}}..{{BOSS_6}}: each
+    stage's boss, its first frame cut from its sheet with CSS, each part with
+    data-boss="<sheet url> x y w h" so scene.js builds the same pixels in 3D."""
+    sets = wd.image_sets()
+    os.makedirs(os.path.join(out_root, "oryx"), exist_ok=True)
+    out = {}
+    for n, names in enumerate(STAGE_BOSSES):
+        parts, big = [], False
+        for name in names:
+            tex = d.texture(name)
+            if not tex or tex[0] not in sets:
+                raise SystemExit("site: no sprite for %s" % name)
+            path, tw, th, bw, bh = sets[tex[0]]
+            full = os.path.join(ROOT, "client", "src", path.replace("/", os.sep))
+            sw, _ = wiki_gear.png_size(full)
+            with open(full, "rb") as f:
+                stamp = hashlib.sha1(f.read()).hexdigest()[:8]
+            shutil.copy2(full, os.path.join(out_root, "oryx", tex[0] + ".png"))
+            cols = max(1, sw // bw)
+            x, y = (tex[1] % cols) * bw, (tex[1] // cols) * bh
+            url = "oryx/%s.png?v=%s" % (tex[0], stamp)
+            big = big or th > 16
+            parts.append('<i style="background-image:url(%s);background-position:-%dpx -%dpx;width:%dpx;height:%dpx"'
+                         ' data-boss="%s %d %d %d %d"></i>' % (url, x, y, tw, th, url, x, y, tw, th))
+        out["BOSS_%d" % (n + 1)] = '<span class="boss%s%s" role="img" aria-label="%s">%s</span>' % (
+            " big" if big else "", " pair" if len(parts) > 1 else "", esc(STAGE_LABELS[n]), "".join(parts))
+    return out
+
+
 def build(out_root, values=None):
     """Writes <out_root>/wiki. `values` fills {{NAME}} and the like as build_site.py does. Returns
     the game's counts for the home page: DUNGEONS, CLASSES and GEAR (as text): the dungeons the
-    wiki lists, the classes, and the gear players can get; and INDEX, the search index's ?v=."""
+    wiki lists, the classes, and the gear players can get; INDEX, the search index's ?v=; and
+    BOSS_1..BOSS_6, the six stages' bosses (stage_bosses)."""
     values = values or {}
     out = os.path.join(out_root, "wiki")
     os.makedirs(out, exist_ok=True)
@@ -1634,7 +1672,8 @@ def build(out_root, values=None):
     return {"DUNGEONS": str(len(gen.dungeons())), "CLASSES": str(len(gen.d.classes())), "INDEX": stamp,
             # gear players can get: not the future, set, reward, admin or retired items
             "GEAR": "{:,}".format(sum(1 for it in gen.equip.items if it["group"] in
-                                      ("tiered", "untiered", "legendary", "ascended", "ethereal")))}
+                                      ("tiered", "untiered", "legendary", "ascended", "ethereal"))),
+            **stage_bosses(gen.d, out_root)}
 
 
 def main():

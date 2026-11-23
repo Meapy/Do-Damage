@@ -384,9 +384,6 @@
     if (svg) marks[i].innerHTML = svg;
   }
 
-  // the sprites as data, for scene.js to build them out of voxels
-  window.ddSprites = { rows: SPRITES, ink: INK };
-
   // --- The menu on phones: the top bar's links fold behind a button ---------------------------
   var bar = document.querySelector(".bar");
   var links = bar && bar.querySelector(".links");

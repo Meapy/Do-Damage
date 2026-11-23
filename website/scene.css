@@ -55,27 +55,45 @@ html.has-scene body { background: transparent; }
 .has-scene .descent .path { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); gap: 0; }
 .has-scene .descent .path::before { display: none; }
 .has-scene .stop {
-  min-height: 78vh; display: flex; align-items: center; gap: 22px;
+  min-height: 78vh; display: flex; align-items: center;
   background: none; border: 0; box-shadow: none; padding: 0;
   opacity: .32; transition: opacity .5s ease;
 }
-.has-scene .stop > div {
-  max-width: 440px; padding: 24px 26px;
+/* the card: the stage's number and danger on top, its boss (as in the game) beside the words */
+.has-scene .stop-card {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "boss meta" "boss text";
+  column-gap: 22px; row-gap: 10px; align-items: center;
+  width: 100%; max-width: 480px; padding: 22px 24px;
   background: rgba(10, 7, 20, .8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(120, 96, 180, .3); border-left: 4px solid var(--violet);
+  border: 1px solid rgba(120, 96, 180, .3); border-left: 4px solid var(--heat);
 }
+.has-scene .stop .depth {
+  grid-area: meta; justify-self: start; display: block; white-space: nowrap; width: auto; height: auto; padding: 3px 9px;
+  font-size: .72rem; letter-spacing: .12em; box-shadow: none; border-width: 2px;
+}
+.has-scene .stop .depth::before { content: "Stage "; }
+.has-scene .stop .danger { grid-area: meta; justify-self: end; }
+.has-scene .stop-text { grid-area: text; }
+.has-scene .stop .boss {
+  grid-area: boss; align-self: center; width: 104px; height: 104px; align-items: center;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--heat) 30%, transparent), transparent);
+}
+.has-scene .stop .boss i { zoom: 5; }
+.has-scene .stop .boss.big i { zoom: 3; }
+.has-scene .stop .boss.pair i { zoom: 3; }
 .has-scene .stop.active { opacity: 1; }
-.has-scene .stop.active > div { border-left-color: var(--ember); box-shadow: 0 0 48px rgba(255, 122, 61, .12); }
-.has-scene .stop.final > div { border-left-color: var(--blood); }
+.has-scene .stop.active .stop-card { box-shadow: 0 0 48px color-mix(in oklab, var(--heat) 18%, transparent); }
+.has-scene .stop.final .stop-card { border-left-color: var(--blood); }
 .has-scene .stop h3 { font: 400 1.4rem var(--pixel); }
 .has-scene .stop p { font-size: 1rem; }
-.has-scene .stop .depth { align-self: flex-start; margin-top: 26vh; position: static; }
-.has-scene .stop .danger { display: none; }
 .has-scene .stop.final { background: none; box-shadow: none; }
 @media (max-width: 900px) {
   .has-scene .stop { min-height: 70vh; align-items: flex-end; padding-bottom: 8vh; }
-  .has-scene .stop .depth { display: none; }
-  .has-scene .stop > div { max-width: none; width: 100%; }
+  .has-scene .stop-card { max-width: none; column-gap: 16px; padding: 18px; }
+  .has-scene .stop .boss { width: 76px; height: 76px; }
+  .has-scene .stop .boss i { zoom: 4; }
+  .has-scene .stop .boss.big i { zoom: 2.2; }
+  .has-scene .stop .boss.pair i { zoom: 2.2; }
 }
 
 /* --- Quick search palette ---------------------------------------------------------------------- */
