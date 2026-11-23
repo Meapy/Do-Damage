@@ -302,6 +302,9 @@ namespace WorldServer.logic.loot
                 // the Hall of Champions' boards (in dungeons, the Weekly Dungeons board's too)
                 var champion = player.Champion.Loot(!(player.World is RealmWorld));
                 var boosts = LootBoosts.Total(player.LDBoostTime > 0, player.IsLegend, wkndBoost, eventBoost, champion, player.GuildBuffs.Loot);
+                // the Hall of Champions' Crucible boards, on the Crucible's monsters (outside the boards' cap)
+                if (player.World is WorldServer.core.worlds.impl.crucible.CrucibleWorld)
+                    boosts += player.Champion.CrucibleLoot;
                 var totalBoost = 1 + (boosts + dmgBoost + enemyBoost);
 
                 var gameData = enemy.GameServer.Resources.GameData;

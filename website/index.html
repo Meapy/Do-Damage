@@ -31,6 +31,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css?v={{BUILD}}">
+  <link rel="stylesheet" href="scene.css?v={{BUILD}}">
 </head>
 <body>
   <header class="bar">
@@ -50,10 +51,9 @@
   </header>
 
   <main>
-    <!-- An animated night over a pixel skyline, drawn by site.js -->
+    <!-- The night, the castle and the six portals are a Three.js scene behind the page (scene.js) -->
     <section class="hero">
-      <canvas class="sky" id="sky" aria-hidden="true"></canvas>
-      <div class="hero-copy">
+        <div class="hero-copy">
         <p class="live" id="status"><span class="beacon"></span><span id="status-text">Looking for the realm…</span></p>
         <h1><span class="h-small">Enter</span> {{NAME}}</h1>
         <p class="tagline">A Realm of the Mad God (RotMG) private server. Free to play, right here in your browser.</p>
@@ -142,12 +142,12 @@
           Oryx's Elysium at the end. The best loot is waiting there.</p>
       </header>
       <ol class="path">
-        <li class="stop" style="--d:1"><span class="depth">I</span><div><h3>Oryx's Castle</h3><p>Opens when a realm closes. Get past the Stone Guardians to reach him.</p></div><span class="danger" role="img" aria-label="Danger 1 of 6"></span></li>
-        <li class="stop" style="--d:2"><span class="depth">II</span><div><h3>Oryx's Chamber</h3><p>Oryx 1 and his dance. His fall leaves the way down open.</p></div><span class="danger" role="img" aria-label="Danger 2 of 6"></span></li>
-        <li class="stop" style="--d:3"><span class="depth">III</span><div><h3>Wine Cellar</h3><p>Oryx 2. He calls his guards at half health, and leaves the way to his Sanctuary open.</p></div><span class="danger" role="img" aria-label="Danger 3 of 6"></span></li>
-        <li class="stop" style="--d:4"><span class="depth">IV</span><div><h3>Oryx's Sanctuary</h3><p>Oryx 3 and his court. Get far away when he shouts "KNEEL!".</p></div><span class="danger" role="img" aria-label="Danger 4 of 6"></span></li>
-        <li class="stop" style="--d:5"><span class="depth">V</span><div><h3>Oryx's Inferno</h3><p>Oryx 4. Your first real chance at the Oryx set.</p></div><span class="danger" role="img" aria-label="Danger 5 of 6"></span></li>
-        <li class="stop final" style="--d:6"><span class="depth">VI</span><div><h3>Oryx's Elysium</h3><p>Oryx 5, ascended. Fell his twelve Trees of Doom and his guardians to open the Holy Gates. Every kill is announced to the server.</p></div><span class="danger" role="img" aria-label="Danger 6 of 6"></span></li>
+        <li class="stop" style="--d:1"><div class="stop-card"><span class="depth">I</span>{{BOSS_1}}<div class="stop-text"><h3>Oryx's Castle</h3><p>Opens when a realm closes. Get past the Stone Guardians to reach him.</p></div><span class="danger" role="img" aria-label="Danger 1 of 6"></span></div></li>
+        <li class="stop" style="--d:2"><div class="stop-card"><span class="depth">II</span>{{BOSS_2}}<div class="stop-text"><h3>Oryx's Chamber</h3><p>Oryx 1 and his dance. His fall leaves the way down open.</p></div><span class="danger" role="img" aria-label="Danger 2 of 6"></span></div></li>
+        <li class="stop" style="--d:3"><div class="stop-card"><span class="depth">III</span>{{BOSS_3}}<div class="stop-text"><h3>Wine Cellar</h3><p>Oryx 2. He calls his guards at half health, and leaves the way to his Sanctuary open.</p></div><span class="danger" role="img" aria-label="Danger 3 of 6"></span></div></li>
+        <li class="stop" style="--d:4"><div class="stop-card"><span class="depth">IV</span>{{BOSS_4}}<div class="stop-text"><h3>Oryx's Sanctuary</h3><p>Oryx 3 and his court. Get far away when he shouts "KNEEL!".</p></div><span class="danger" role="img" aria-label="Danger 4 of 6"></span></div></li>
+        <li class="stop" style="--d:5"><div class="stop-card"><span class="depth">V</span>{{BOSS_5}}<div class="stop-text"><h3>Oryx's Inferno</h3><p>Oryx 4. Your first real chance at the Oryx set.</p></div><span class="danger" role="img" aria-label="Danger 5 of 6"></span></div></li>
+        <li class="stop final" style="--d:6"><div class="stop-card"><span class="depth">VI</span>{{BOSS_6}}<div class="stop-text"><h3>Oryx's Elysium</h3><p>Oryx 5, ascended. Fell his twelve Trees of Doom and his guardians to open the Holy Gates. Every kill is announced to the server.</p></div><span class="danger" role="img" aria-label="Danger 6 of 6"></span></div></li>
       </ol>
     </section>
 
@@ -293,5 +293,8 @@
   </footer>
 
   <script src="site.js?v={{BUILD}}"></script>
+  <script src="palette.js?v={{BUILD}}" data-index="wiki/search-index.js?v={{INDEX}}"></script>
+  <script src="vendor/three.min.js" defer></script>
+  <script src="scene.js?v={{BUILD}}" defer></script>
 </body>
 </html>

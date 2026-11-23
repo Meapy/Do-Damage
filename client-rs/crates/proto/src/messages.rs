@@ -284,8 +284,9 @@ messages! {
         // The Pen Keeper's answer (after PetPenAct): the pet (0 for none), its size (0 Tiny to 3
         // Large, 255 any other; base_size the same), the shards he keeps for the account and how
         // many an Ambrosia takes, whether the act worked and what to say about it (empty for a plain
-        // ask); then its level and what it does (from 2.6.4; older servers leave it out).
-        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String, level: Option<PetLevel> },
+        // ask); then its level and what it does (from 2.6.4; older servers leave it out), then its
+        // size as grown and what growing it costs (from 2.6.5).
+        139 => PetPen { pet: u16, base_size: u8, size: u8, shards: i32, shards_needed: u8, ok: bool, message: String, level: Option<PetLevel>, grow: Option<PetGrow> },
         // The Nexus's places for the minimap (after NexusPlacesRequest): its NPCs and portals.
         141 => NexusPlaces { places: List16<NexusPlace> },
         // The answer to Corrupt (the Cosmic Anvil): whether it worked, the inventory slot, what went

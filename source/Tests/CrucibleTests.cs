@@ -174,7 +174,7 @@ namespace Tests
         [Fact]
         public void EveryCueHasAName()
         {
-            for (byte c = 1; c <= 23; c++)
+            for (byte c = 1; c <= 28; c++)
                 Assert.False(string.IsNullOrEmpty(CrucibleCues.Name(c)), "cue " + c);
             Assert.Equal(CrucibleCues.Names.Count, CrucibleCues.Names.Values.Distinct().Count());
         }
@@ -307,6 +307,14 @@ namespace Tests
             var run = DbCrucibleRuns.Parse("1763700000000|734|Alpha, Beta", DbCrucibleRuns.Score(5, 734));
             Assert.Equal((5, 734), (run.Floors, run.Seconds));
             Assert.Equal(new[] { "Alpha", "Beta" }, run.Players);
+            Assert.False(run.Solo);
+            Assert.True(DbCrucibleRuns.Parse("1|60|Alpha", DbCrucibleRuns.Score(5, 60)).Solo);
+            // from 2.6.5 a climb says whether it began as a group: one left of a group stays a group's
+            var lone = DbCrucibleRuns.Parse(DbCrucibleRuns.Member(1, 900, new[] { "Alpha" }, group: true), DbCrucibleRuns.Score(3, 900));
+            Assert.Equal((3, 900, true), (lone.Floors, lone.Seconds, lone.Group));
+            Assert.Equal(new[] { "Alpha" }, lone.Players);
+            var solo = DbCrucibleRuns.Parse(DbCrucibleRuns.Member(1, 60, new[] { "Beta" }, group: false), DbCrucibleRuns.Score(5, 60));
+            Assert.True(solo.Solo && solo.Players.Single() == "Beta");
         }
     }
 }

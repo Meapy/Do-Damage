@@ -1,7 +1,7 @@
 ---
 title: Realm 2
 nav: 4
-parent: getting-started
+section: Start here
 sprite: portal
 eyebrow: Realm
 summary: A realm made afresh every time: the shore, the midlands and a great Godlands, where each realm event brings a land of its own when it comes.

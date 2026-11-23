@@ -144,6 +144,10 @@ namespace WorldServer.core.worlds
 
         public void Invite(int accountId) => _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
 
+        // an instance only joined at its start, now under way (a Crucible climb): /visit, /summon
+        // and /help can't bring anyone in, and an invitation from before it began no longer counts
+        public virtual bool Begun => false;
+
         // every account that has had a character here (or been let in by a player's /visit), so
         // /visit never takes anyone back into an instance they've already been in
         private readonly ConcurrentDictionary<int, byte> _beenIn = new ConcurrentDictionary<int, byte>();
@@ -162,7 +166,7 @@ namespace WorldServer.core.worlds
         // AllowedAccess, or an invitation that hasn't run out
         public bool CanEnter(Client client)
         {
-            if (_invited.TryGetValue(client.Account.AccountId, out var until))
+            if (!Begun && _invited.TryGetValue(client.Account.AccountId, out var until))
             {
                 if (DateTime.UtcNow < until)
                     return true;
@@ -601,6 +605,26 @@ namespace WorldServer.core.worlds
         /// <summary>Whether a monster may stand at (x, y): the Arena keeps its fights inside its
         /// ring (DoomedBattleArena); anywhere else, wherever its movement takes it.</summary>
         public virtual bool MonsterMayStand(float x, float y) => true;
+
+        // Ground that hurt and was just painted over (the Crucible's moving hazards, CrucibleFloor):
+        // a client says it was hit on a square only once its message arrives, by when a quick
+        // hazard (a tide rolling across, a clock hand) may have moved on, and the hit the player
+        // saw was refused. For a moment after, the square's old ground still counts.
+        private readonly Dictionary<(int, int), (ushort Tile, long At)> _wasDamaging = new();
+        public const int RecentGroundMs = 1500;
+
+        public void GroundPaintedOver(int x, int y, ushort was)
+        {
+            var now = Environment.TickCount64;
+            if (_wasDamaging.Count > 4096)
+                foreach (var k in _wasDamaging.Where(e => now - e.Value.At > RecentGroundMs).Select(e => e.Key).ToList())
+                    _wasDamaging.Remove(k);
+            _wasDamaging[(x, y)] = (was, now);
+        }
+
+        /// <summary>The damaging ground square (x, y) had until moments ago, or 0.</summary>
+        public ushort RecentDamagingGround(int x, int y) =>
+            _wasDamaging.TryGetValue((x, y), out var w) && Environment.TickCount64 - w.At <= RecentGroundMs ? w.Tile : (ushort)0;
 
         /// <summary>IsPassable for a player at height z.</summary>
         public bool IsPassableAt(double x, double y, float z)

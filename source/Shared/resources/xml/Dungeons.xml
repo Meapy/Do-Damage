@@ -401,7 +401,7 @@
 		<VisibilityType>1</VisibilityType>
 		<!-- each floor whole in view (they are 70 tiles apart, out of sight of each other) -->
 		<MinSightRadius>24</MinSightRadius>
-		<Capacity>6</Capacity>
+		<Capacity>4</Capacity>
 		<DefeatToNexus/>
 		<Music>
 			<Track>the_crucible</Track>

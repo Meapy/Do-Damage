@@ -4,7 +4,7 @@ PermaPet (petHp, petHpMs, petMp, petMpMs; Shared.pets.PetLevels grows it to 160%
     python tools/pet_healing.py [--check]
 
 Before, every pet of a size healed the same, as much MP as HP. Now each pet heals its own way:
-- its size gives the HP a second at level 1: Tiny 4.5, Small 6, Medium 9, Large 16, Oryx 22;
+- its size gives the HP a second at level 1: Tiny 4.5, Small 6, Medium 9, Large 16, Huge 22;
 - a pet that hits hard for its size heals less, a gentle one more (by the square root of how its
   damage a second, petDps, compares with its size's: 50, 125, 250, 500, 2,000), from 75% to 130%;
 - healers (priests, angels, fairies, unicorns...) heal half again as much HP;
@@ -32,7 +32,7 @@ FILES = [
     "client/src/kabam/rotmg/assets/prod/xmls/Permapets.xml",
 ]
 
-SIZES = ["Tiny", "Small", "Medium", "Large", "Oryx"]
+SIZES = ["Tiny", "Small", "Medium", "Large", "Huge"]
 HP_A_SECOND = [4.5, 6, 9, 16, 22]
 DPS_NORM = [50, 125, 250, 500, 2000]
 HP_MS = [1500, 2000, 2500, 3000]

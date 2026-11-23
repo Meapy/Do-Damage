@@ -77,15 +77,21 @@ namespace Tests
         [Fact]
         public void EachBoardGivesItsOwnReward()
         {
-            // every reward comes from one board, but the Arena's (both Arena boards) and the loot boost
-            // (Fame, Account Fame and the two guild boards)
-            Assert.Equal(ChampionBoards.All.Length - 4, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
+            // every reward comes from one board, but the Arena's and the Crucible's (both of each's
+            // boards) and the loot boost (Fame, Account Fame and the two guild boards)
+            Assert.Equal(ChampionBoards.All.Length - 5, ChampionBoards.All.Select(b => b.Reward).Distinct().Count());
             var p = ChampionPlaces.None.With(ChampionTab.WeeklyFame, 2).With(ChampionTab.ArenaSolo, 1).With(ChampionTab.ArenaGroup, 4);
             Assert.Equal(0.06, p.Experience, 10);
             Assert.Equal(0.20, p.ArenaFame, 10);
             Assert.Equal(0, p.Loot(true));
             Assert.Equal("+6% experience and fame", ChampionBoards.Of(ChampionTab.WeeklyFame).RewardText(1));
             Assert.Equal("Bronze glow", ChampionBoards.Of(ChampionTab.Stars).RewardText(2));
+            // the Crucible's two boards add up, outside the boards' loot cap
+            var c = ChampionPlaces.None.With(ChampionTab.CrucibleSolo, 1).With(ChampionTab.CrucibleGroup, 2).With(ChampionTab.Fame, 1);
+            Assert.Equal(0.16, c.CrucibleLoot, 10);
+            Assert.Equal(0.03, c.Loot(true), 10);
+            Assert.Equal("+10% loot in the Crucible", ChampionBoards.Of(ChampionTab.CrucibleSolo).RewardText(0));
+            Assert.Equal(ChampionTab.CrucibleGroup, ChampionBoards.ById("crucibleGroup").Tab);
         }
 
         [Fact]

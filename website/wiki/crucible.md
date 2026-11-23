@@ -1,12 +1,12 @@
 ---
 title: The Crucible
-nav: 5
-parent: dungeons
+nav: 11
+section: Dungeons and loot
 sprite: anvil
 eyebrow: Bosses only
 summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the white bags and the climb's leaderboard.
 ---
-The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to six of you
+The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to four of you
 together, and on each floor a champion arrives to stop you. There are no waves of monsters. Each
 champion fights in phases, and the floor fights with them: blades sweep the ground, the tide rises,
 lava runs through the cracks, the clock strikes. Beat all five and the Crucible is conquered.
@@ -28,9 +28,11 @@ lava runs through the cracks, the clock strikes. Beat all five and the Crucible 
 Before the portal lets you in, it reminds you of the above and asks whether to climb.
 
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
-the lobby can say **GO** to start it sooner. Once it begins, nobody else can join.
+the lobby can say **GO** to start it sooner. Once it begins, nobody else can join: not through
+the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. A lobby holds four;
+the next to come in starts a lobby of their own.
 
-**Bring friends.** The champions are made for a group of up to six. Each player after the first adds
+**Bring friends.** The champions are made for a group of up to four. Each player after the first adds
 only about a sixth to a champion's health, so a full group has far more damage for each point of
 health than someone climbing alone.
 
@@ -63,16 +65,22 @@ Every floor has a shape of its own, and each champion's aura grows as you wear i
 its floor joins in once a third of its health is gone, and more again at two thirds.
 
 The floors are big, with room to move round the champions. As each phase begins a floor reshapes
-itself in a wave out from its middle: ground that goes cracks for over a second first and falls
-into the sky, new ground rises out of it, and pillars rise and fall with it. Most shapes then keep
-turning slowly until the next phase (the gear, the star fort, the wheel of isles, the coral arms,
-the grate, the anvil, the crucible, the hourglass, the coil, the Apex's rings, shards and halo),
-so the ground under you keeps changing: what is about to fall still cracks first. Lockdown's
+itself: all the ground that will go cracks at once, then falls into the sky in a wave out from
+the middle, new ground rises out of it, and pillars rise and fall with it. Most shapes then keep
+turning until the next phase (the gear, the star fort, the wheel of isles, the coral arms, the
+grate, the anvil, the crucible, the hourglass, the coil, the Apex's rings, shards and halo), a step
+every few seconds and still in between: what is about to fall cracks first, then the floor shifts
+at once. Lockdown's
 towers, the petals, the Apex's fortress and its cross hold still. Anyone left standing where the ground falls, or cut off from the rest
 of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
 
 The real danger is the champions' shots: each phase has patterns of its own to read and slip
-through. The floor adds at most one hazard at a time, quick but always shown before it strikes.
+through. The floor adds at most one hazard at a time (two only at Chronarch's zero hour), quick
+but always shown before it strikes.
+
+Every champion makes a **last stand** at the end of its health (12%, Vaelith at 8%): a moment
+untouchable while its floor changes one last time, then a phase of its own, harder than any before
+it.
 
 The shots aimed at you hit hard, about as hard as Oryx's last form, and carry each champion's
 afflictions; dodge them rather than stand in them. The big rings and spirals are lighter and carry
@@ -126,6 +134,10 @@ hammer.
   pointing out from each corner. A banner on each bastion guards him and his hammer whirls,
   dragging two blades of fire round the fort the other way, while two spirals of shards turning
   opposite ways weave a lattice round him.
+- **Last Bastion** (12%): the fort falls back to its inner keep, square, a tower at each corner,
+  and he holds its middle. Its walls close in on him one after another, molten, each with two
+  gates on opposite sides that keep their place as the wall closes: slip out through a gate, or
+  be caught inside with him, his anvil's cross and his double rings.
 
 ### II. The Drowned Sanctum: Nerissa, the Tidecaller
 
@@ -133,7 +145,7 @@ An atoll with a ragged coast and tide pools, five coral isles across it.
 
 A sea-queen with a serpent's tail, a coral crown and a golden trident.
 
-- **Tidal Lanes:** a band of surging tide rushes across the floor, shown first at its edge.
+- **Tidal Lanes:** a band of surging tide rolls across the floor, shown first at its edge.
   Step through one of its two wide gaps. She throws rings of swaying orbs, each turned half a gap.
 - **Rising Tide** (66%): the atoll sinks to a wheel: five dry isles, one in the middle and four on
   the rim, a ring of deep sea round it and channels out to them, Riptide Eels hunting in the deep.
@@ -142,6 +154,10 @@ A sea-queen with a serpent's tail, a coral crown and a golden trident.
   across them, and her bubbles spiral out the same way.
 - **Maelstrom** (33%): a ring of coral round a vortex, an islet in its eye reached by three
   shallows. The tide's arms turn the other way, and two spirals of bubbles cross round her.
+- **Tsunami** (12%): a lagoon, her islet in the middle of deep water crossed by four shallows, a
+  ring of reef round it. Great waves roll over the whole floor one after another, each from a new
+  side, with a single dry lane through it, shown first at its edge: find the lane. Two eels hunt
+  the lagoon, and she rings out tide orbs from her islet.
 
 ### III. The Ember Foundry: Pyrrhax, the Forge Tyrant
 
@@ -161,6 +177,10 @@ A horned demon of rock and fire with wings of ash and a hammer of lava.
   drifting round, lava pouring in from the edge and embers raining over what's left.
 - **Molten Core:** his body goes molten, a meteor falls on each of you now and then, and a
   spiral of magma turns out from him.
+- **Molten Sea** (12%): the crucible fills. Everything but an island of floor, rimmed with slag,
+  glows, then floods with molten metal for six seconds while the island drifts across it: get
+  onto it and stay on it. It drains, then fills again with the island somewhere else. He stands
+  in the melt, throwing magma and slag at you.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
@@ -171,7 +191,7 @@ A hooded thief of time with a clock for a face and an hourglass for a heart. Fou
 blades made of a clock's hands, and an orrery's ring wheels round him.
 
 - **Hour Hands:** the clock's two hands sweep round the floor and burn whoever they cross: the
-  broad hour hand, and the thin minute hand nearly three times as fast.
+  broad hour hand, and the narrower minute hand a little over twice as fast.
 - **Midnight Chime** (70%): the dial splits into twelve petals, one for each hour, and the hours
   light up in turn, half the floor at a time, with a rest between. Stand on a petal that isn't lit
   when it strikes, while a clock hand of blades sweeps round him.
@@ -182,13 +202,16 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
   less than in his other phases, and sends no rushers.
 - **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
   backwards, both hands with it and faster, and two hands of gears sweep backwards round him.
+- **Zero Hour** (12%): the dial splits into its twelve petals again and counts down: every third
+  hour burns at once, the next three a step round each time, while both hands sweep slowly round
+  over them. He blinks about, ringing out the hours in gears.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
 The biggest floor: a star of marble with eight points, the tower's sigil inlaid in gold. It
 doesn't stay a star. With each phase it reshapes itself in a wave out from its middle: ground that
 goes cracks first and falls into the sky, new ground rises out of it, and anyone left standing where
-it falls is thrown onto what's left (and hurt).
+it falls is thrown onto what's left (and hurt). Vaelith too: he never stays over the sky.
 
 The tower's maker: a crowned champion in white and gold with wings of fire and a ring of gold
 set with the four floors' gems.
@@ -207,8 +230,11 @@ set with the four floors' gems.
 - **The Crucible Breaks** (20%): the Apex shatters. Only a disc of its middle is left, with its
   shards floating round it, all four echoes return at once and flame feathers bloom out of him.
 - **Unbound:** the Apex re-forms as a halo of void marble round the void itself, rays of gold
-  across it, with Vaelith hovering in the middle, his wings turned to the void. Two slow arms of
+  across it, Vaelith coming after you round the halo, his wings turned to the void. Two slow arms of
   flame turn across it, and he fires double rings of void embers.
+- **Final Aria** (8%): he sings the tower down. Three arms of flame turn the other way round the
+  halo, gold falls on each of you, marked first, and he throws a crown of stars, four arms
+  spiralling out, with his lances through it.
 
 ## The white bags
 
@@ -237,6 +263,17 @@ Vaelith's a second, at their last level), and each helps you in its champion's w
 
 ## The leaderboard
 
-Every climb that clears at least one floor goes on the Crucible's board: the most floors first,
-then the quickest. `/crucible status` shows the top three, and the realm is told when a climb
-takes first place.
+The **Crucible Leaderboard** trophy stands in the Arena court, beside the Arena Leaderboard. Its
+sign shows the best solo climb and the best group climb; press **View** for the top ten of each.
+Climbs rank by the **floors cleared**, then the **quicker time** to the last of them. Solo and
+group climbs are kept apart (a climb begun by a group stays a group's, however many are left).
+
+- **Who is on it:** only those there when the climb's last floor fell who never fell themselves.
+  Fall on the way and that climb isn't yours, even if the others go on.
+- **What counts:** a climb that cleared at least one floor. A climb with an admin in it doesn't count.
+- The board began again with the 2.6.5 update: climbs from before aren't on it.
+- `/crucible status` shows the top three, and the realm is told when a climb takes first place,
+  solo or group.
+
+The [Hall of Champions](champions.html) ranks the same climbs on its **Crucible Solo** and
+**Crucible Group** boards, whose top ten get more loot in the Crucible.

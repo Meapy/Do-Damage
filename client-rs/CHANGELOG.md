@@ -12,6 +12,30 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.5 (2026-11-23)
+
+### The Crucible
+- **Calmer floors, as hard as before:** a floor that changes shape now cracks everywhere it will fall at once, and the floors that keep turning move in a step every few seconds and hold still in between, instead of crumbling at the edges all the time. The blades, tides, lava veins and clock hands move slower but are wider, so they're easier to follow.
+- **Hits from the tide now count:** walking through Nerissa's tide (or a clock hand) sometimes showed a damage number without taking any health. It now always takes it.
+- **Every champion has a last stand:** at the end of its health (12%, Vaelith at 8%) each changes its floor one last time and fights a new phase, harder than any before: Ferrogrim's **Last Bastion** (the keep's walls close in on him; slip out through their gates), Nerissa's **Tsunami** (great waves over a lagoon, one dry lane through each), Pyrrhax's **Molten Sea** (the crucible floods but for a drifting island), Chronarch's **Zero Hour** (the hours burn in thirds while the hands sweep over them) and Vaelith's **Final Aria** (three arms of flame, gold falling on you and a crown of stars).
+- **Vaelith no longer gets stuck in the sky** when the Apex changes shape under him: he's put back on the floor, and in his last phase he comes after you round the halo.
+- **Climbs are for up to four**, and only from the start: once a climb begins nobody can join it, by the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. When a lobby is full, the next player starts a new one.
+- **The Crucible Leaderboard** stands beside the Arena Leaderboard in the Arena court: the best solo and group climbs, by floors cleared and then time. Only players who were there when the climb's last floor fell, and never fell themselves, are on it, and climbs with an admin in them don't count. It starts fresh with this update. The Hall of Champions has **Crucible Solo** and **Crucible Group** boards too, whose top ten get up to +10% loot in the Crucible.
+
+### Mechanic
+- **Turrets hit twice as hard and every shot pierces:** the shots and the blast at the end of every turret do double, and the shots of the lower tiers now go through enemies like the higher ones' do.
+
+### Game
+- **Armored protection:** players get half their defense added instead of having it doubled; mobs and bosses are unchanged.
+
+### Pets
+- **Grow your pet:** once your pet reaches its last level, the Pen Keeper can grow it to the next size, for fame or gold (Tiny to Small 1,000 fame or 100 gold, up to Large to Huge for 25,000 or 1,000). It keeps its level, looks bigger and can be fed on to its new size's last level. The biggest size, once called Oryx, is now **Huge**.
+- **Only Huge pets go past 100%:** every other pet now tops out at 100% damage (and 140% healing) at its last level; Huge pets still reach 120% (160%) at level 30. A grown pet never gets weaker: it stays at 100% until it's Huge, then climbs on to 120%.
+
+### Website
+- **dodmg.com is redone in 3D:** fly through the castle town, past the gate and down through Oryx's six stages as you scroll the home page (each portal holding that stage's boss as the game draws it), under a night sky that follows you onto the wiki, the gold store and the changelog. Press **Ctrl+K** (or **/**) on any page to search the wiki, and on phones the menu button opens every link.
+- **The wiki is easier to get around:** every page is listed under four sections, shows where it sits, and leads on to the next in order; long pages keep "On this page" beside them on wide screens and have a button back to the top, the wiki home has a card for every page, and pages load faster.
+
 ## 2.6.4 (2026-11-22)
 
 ### The Crucible

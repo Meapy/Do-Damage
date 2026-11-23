@@ -1,6 +1,6 @@
 // The site's live parts: the server status from the account server's app/status (through the
 // gateway's /api), the visitor's own download first, a warning when the browser can't run the
-// game, the pixel sprites, and the hero's night sky.
+// game, and the pixel sprites. The 3D night is scene.js.
 (function () {
   "use strict";
 
@@ -384,233 +384,26 @@
     if (svg) marks[i].innerHTML = svg;
   }
 
-  // --- The hero's night sky -------------------------------------------------------------------
-  // Drawn at a third of the screen's resolution and scaled up without smoothing, so everything is
-  // chunky pixels: banded sky, twinkling stars, a moon, shooting stars, a castle skyline with lit
-  // windows, and embers rising from below. Still when the visitor asks for reduced motion.
-  var canvas = document.getElementById("sky");
-  if (canvas && canvas.getContext) sky(canvas);
-
-  function sky(canvas) {
-    var ctx = canvas.getContext("2d");
-    var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var W = 0, H = 0, stars = [], windows = [], embers = [], meteor = null, land = null, last = 0;
-
-    function rng(seed) {
-      return function () {
-        seed = (seed * 1664525 + 1013904223) >>> 0;
-        return seed / 4294967296;
-      };
-    }
-
-    function build() {
-      var px = innerWidth < 640 ? 2 : 3;
-      W = Math.ceil(canvas.clientWidth / px);
-      H = Math.ceil(canvas.clientHeight / px);
-      if (!W || !H) return;
-      canvas.width = W;
-      canvas.height = H;
-
-      var r = rng(7);
-      stars = [];
-      for (var n = Math.round(W * H / 90); n > 0; n--) {
-        stars.push({ x: Math.floor(r() * W), y: Math.floor(Math.pow(r(), 1.4) * H * .72), big: r() < .08,
-          phase: r() * 6.28, speed: .6 + r() * 1.8, tint: r() < .15 ? "#ffd99a" : r() < .3 ? "#c6b4ff" : "#ffffff" });
-      }
-
-      // The skyline, drawn once into its own canvas: far hills, a town of towers, the castle.
-      land = document.createElement("canvas");
-      land.width = W;
-      land.height = H;
-      var g = land.getContext("2d");
-      windows = [];
-      var base = H - 1;
-
-      // far hills
-      g.fillStyle = "#24163a";
-      for (var x = 0; x < W; x++) {
-        var hgt = H * .2 + Math.sin(x / 23) * 6 + Math.sin(x / 9 + 1) * 3 + Math.sin(x / 61 + 2) * 10;
-        g.fillRect(x, Math.round(base - hgt), 1, Math.round(hgt) + 1);
-      }
-
-      // the town: blocks with battlements and the odd spire
-      r = rng(11);
-      g.fillStyle = "#170e26";
-      var cx = Math.round(W * .5), cw = Math.max(46, Math.round(Math.min(W * .3, 120)));
-      for (x = -4; x < W;) {
-        var bw = 6 + Math.floor(r() * 12), bh = Math.round(H * (.08 + r() * .14));
-        if (x + bw > cx - cw / 2 - 4 && x < cx + cw / 2 + 4) bh = Math.round(bh * .7);
-        var top = base - bh;
-        g.fillRect(x, top, bw, bh + 1);
-        for (var k = 0; k < bw; k += 2) g.fillRect(x + k, top - 2, 1, 2);
-        if (r() < .3) {
-          var sx = x + Math.floor(bw / 2);
-          for (var s = 0; s < 8; s++) g.fillRect(sx - Math.floor((8 - s) / 3), top - 10 + s, 1 + 2 * Math.floor((8 - s) / 3), 1);
-          g.fillRect(sx, top - 13, 1, 3);
-        }
-        for (var wy = top + 3; wy < base - 3; wy += 4) {
-          for (var wx = x + 2; wx < x + bw - 2; wx += 3) {
-            if (r() < .16) windows.push({ x: wx, y: wy, w: 1, h: 2, phase: r() * 6.28, flick: r() < .3 });
-          }
-        }
-        x += bw + Math.floor(r() * 3);
-      }
-
-      // the castle in the middle: a keep, two towers, a gate with a glow
-      g.fillStyle = "#100a1c";
-      var keepH = Math.round(Math.min(H * .2, 70)), keepTop = base - keepH;
-      var kx = cx - Math.round(cw / 2);
-      g.fillRect(kx, keepTop + 10, cw, keepH);
-      for (k = 0; k < cw; k += 4) g.fillRect(kx + k, keepTop + 6, 2, 4);
-      for (k = 6; k < cw - 6; k += 7) {
-        windows.push({ x: kx + k, y: keepTop + 18, w: 2, h: 3, phase: k, flick: true });
-      }
-      var tw = Math.max(8, Math.round(cw * .16));
-      [kx - tw + 2, kx + cw - 2, cx - Math.round(tw / 2)].forEach(function (tx, idx) {
-        var th = idx === 2 ? keepH + 18 : keepH + 6, tt = base - th;
-        g.fillRect(tx, tt, tw, th + 1);
-        for (var y = 0; y < tw; y++) {
-          var half = Math.max(0, Math.round((y / tw) * (tw / 2 + 1)));
-          g.fillRect(tx + Math.floor(tw / 2) - half, tt - tw + y, half * 2, 1);
-        }
-        g.fillRect(tx + Math.floor(tw / 2) - 1, tt - tw - 4, 1, 4);
-        windows.push({ x: tx + Math.floor(tw / 2) - 1, y: tt + 6, w: 2, h: 3, phase: idx * 2, flick: true, hot: true });
-      });
-      g.fillStyle = "#ff7a3d";
-      windows.push({ x: cx - 4, y: base - 12, w: 8, h: 12, phase: 0, flick: true, hot: true, gate: true });
-
-      // the near ground, the page's own colour
-      g.fillStyle = "#0c0915";
-      for (x = 0; x < W; x++) {
-        var gh = 3 + Math.round(Math.sin(x / 13) * 1.5 + Math.sin(x / 5) * .8);
-        g.fillRect(x, base - gh, 1, gh + 1);
-      }
-
-      embers = [];
-      for (n = Math.round(W / 14); n > 0; n--) embers.push(ember(true));
-    }
-
-    function ember(anywhere) {
-      return { x: Math.random() * W, y: anywhere ? H * (.5 + Math.random() * .5) : H + 2,
-        v: .08 + Math.random() * .22, sway: Math.random() * 6.28, life: 1 };
-    }
-
-    function band(y0, y1, colours) {
-      // a gradient in flat steps, like an old palette
-      var steps = colours.length, h = (y1 - y0) / steps;
-      for (var i = 0; i < steps; i++) {
-        ctx.fillStyle = colours[i];
-        ctx.fillRect(0, Math.floor(y0 + i * h), W, Math.ceil(h) + 1);
-      }
-    }
-
-    function moon(mx, my, rad) {
-      for (var y = -rad - 3; y <= rad + 3; y++) {
-        for (var x = -rad - 3; x <= rad + 3; x++) {
-          var d = Math.sqrt(x * x + y * y);
-          if (d <= rad) {
-            var lit = x + y * .4 < rad * .5;
-            ctx.fillStyle = lit ? "#fbeed2" : "#d9c39c";
-            ctx.fillRect(mx + x, my + y, 1, 1);
-          } else if (d <= rad + 3 && (x + y) % 2 === 0) {
-            ctx.fillStyle = "rgba(255, 220, 160, .14)";
-            ctx.fillRect(mx + x, my + y, 1, 1);
-          }
-        }
-      }
-      ctx.fillStyle = "#cdb48a";
-      ctx.fillRect(mx - 2, my - 3, 2, 2);
-      ctx.fillRect(mx + 2, my + 1, 3, 2);
-      ctx.fillRect(mx - 4, my + 3, 2, 1);
-    }
-
-    function frame(t) {
-      var dt = Math.min(64, t - (last || t));
-      last = t;
-      var s = t / 1000;
-
-      band(0, H * .8, ["#06040c", "#0a0716", "#0f0a1f", "#150d29", "#1c1033", "#26123b", "#33143f", "#45183f"]);
-      band(H * .8, H, ["#5a1d3e", "#6e2438"]);
-
-      for (var i = 0; i < stars.length; i++) {
-        var st = stars[i];
-        var a = still ? .8 : .45 + .55 * Math.max(0, Math.sin(s * st.speed + st.phase));
-        ctx.globalAlpha = a;
-        ctx.fillStyle = st.tint;
-        ctx.fillRect(st.x, st.y, 1, 1);
-        if (st.big && a > .8) {
-          ctx.globalAlpha = a * .5;
-          ctx.fillRect(st.x - 1, st.y, 3, 1);
-          ctx.fillRect(st.x, st.y - 1, 1, 3);
-        }
-      }
-      ctx.globalAlpha = 1;
-
-      moon(Math.round(W * .82), Math.round(H * .17), Math.max(5, Math.round(Math.min(W, H) * .045)));
-
-      if (!still) {
-        if (!meteor && Math.random() < dt / 7000) {
-          meteor = { x: W * (.1 + Math.random() * .6), y: H * Math.random() * .25, len: 10 + Math.random() * 10, t: 0 };
-        }
-        if (meteor) {
-          meteor.t += dt / 1000;
-          var mx = meteor.x + meteor.t * W * .5, my = meteor.y + meteor.t * W * .22;
-          for (var k = 0; k < meteor.len; k++) {
-            ctx.globalAlpha = (1 - k / meteor.len) * Math.max(0, 1 - meteor.t * 1.4);
-            ctx.fillStyle = k < 2 ? "#ffffff" : "#ffd99a";
-            ctx.fillRect(Math.round(mx - k * 2.2), Math.round(my - k), 1, 1);
-          }
-          ctx.globalAlpha = 1;
-          if (meteor.t > .75) meteor = null;
-        }
-      }
-
-      if (land) ctx.drawImage(land, 0, 0);
-
-      for (i = 0; i < windows.length; i++) {
-        var w = windows[i];
-        var glow = w.flick && !still ? .7 + .3 * Math.sin(s * 3 + w.phase) * Math.sin(s * 7.3 + w.phase) : 1;
-        ctx.globalAlpha = glow;
-        ctx.fillStyle = w.gate ? "#ff7a3d" : w.hot ? "#ff9a4d" : "#ffc65c";
-        if (w.gate) {
-          ctx.fillRect(w.x + 2, w.y, w.w - 4, 1);
-          ctx.fillRect(w.x + 1, w.y + 1, w.w - 2, 1);
-          ctx.fillRect(w.x, w.y + 2, w.w, w.h - 2);
-          ctx.globalAlpha = glow * .25;
-          ctx.fillRect(w.x - 3, w.y - 2, w.w + 6, w.h + 2);
-        } else {
-          ctx.fillRect(w.x, w.y, w.w, w.h);
-        }
-      }
-      ctx.globalAlpha = 1;
-
-      for (i = 0; i < embers.length; i++) {
-        var e = embers[i];
-        if (!still) {
-          e.y -= e.v * dt / 16;
-          e.sway += dt / 900;
-          e.life = Math.min(1, (e.y / H - .35) * 2.2);
-          if (e.life <= 0) embers[i] = e = ember(false);
-        }
-        ctx.globalAlpha = Math.max(0, e.life);
-        ctx.fillStyle = e.life > .6 ? "#ffb066" : "#ff5a2a";
-        ctx.fillRect(Math.round(e.x + Math.sin(e.sway) * 3), Math.round(e.y), 1, 1);
-      }
-      ctx.globalAlpha = 1;
-
-      if (!still) requestAnimationFrame(frame);
-    }
-
-    var timer;
-    addEventListener("resize", function () {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        build();
-        if (still) frame(0);
-      }, 120);
-    });
-    build();
-    if (still) frame(0); else requestAnimationFrame(frame);
+  // --- The menu on phones: the top bar's links fold behind a button ---------------------------
+  var bar = document.querySelector(".bar");
+  var links = bar && bar.querySelector(".links");
+  if (bar && links) {
+    links.id = links.id || "site-links";
+    var menu = document.createElement("button");
+    menu.type = "button";
+    menu.className = "menu-btn";
+    menu.setAttribute("aria-label", "Menu");
+    menu.setAttribute("aria-expanded", "false");
+    menu.setAttribute("aria-controls", links.id);
+    menu.innerHTML = "<span></span><span></span><span></span>";
+    bar.appendChild(menu);
+    var setMenu = function (open) {
+      bar.classList.toggle("open", open);
+      menu.setAttribute("aria-expanded", String(open));
+    };
+    menu.addEventListener("click", function () { setMenu(!bar.classList.contains("open")); });
+    links.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
   }
 
   // --- Screenshots: a lightbox over the page, with arrows, keys and swipes ---------------------

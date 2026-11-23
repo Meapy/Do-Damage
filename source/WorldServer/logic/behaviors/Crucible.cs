@@ -5,6 +5,7 @@ using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.structures;
+using WorldServer.core.terrain;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl.crucible;
 using WorldServer.networking.packets.outgoing;
@@ -107,8 +108,7 @@ namespace WorldServer.logic.behaviors
                 {
                     if (t.TileId == now)
                     {
-                        t.TileId = was;
-                        t.UpdateCount++;
+                        Set(host, cx + key.X, cy + key.Y, t, was);
                         changed = true;
                     }
                     r.Painted.Remove(key);
@@ -131,8 +131,7 @@ namespace WorldServer.logic.behaviors
                         r.Painted.Remove(key); // something else has it now
                         continue;
                     }
-                    t.TileId = want;
-                    t.UpdateCount++;
+                    Set(host, x, y, t, want);
                     r.Painted[key] = (p.Was, want);
                     changed = true;
                     continue;
@@ -142,13 +141,22 @@ namespace WorldServer.logic.behaviors
                 if (t.ObjType != 0 && t.ObjDesc != null && (t.ObjDesc.FullOccupy || t.ObjDesc.OccupySquare))
                     continue;
                 r.Painted[key] = (t.TileId, want);
-                t.TileId = want;
-                t.UpdateCount++;
+                Set(host, x, y, t, want);
                 changed = true;
             }
             if (changed)
                 Floor.Refresh(host);
             After(host, r, time);
+        }
+
+        // the square's ground changed; if it hurt, the world remembers it did for a moment, so a
+        // hit the client took on it just before still counts (World.RecentDamagingGround)
+        private static void Set(Entity host, int x, int y, WmapTile t, ushort to)
+        {
+            if (host.GameServer.Resources.GameData.Tiles.TryGetValue(t.TileId, out var d) && d.Damaging)
+                host.World.GroundPaintedOver(x, y, t.TileId);
+            t.TileId = to;
+            t.UpdateCount++;
         }
 
         private static void Restore(Entity host, Run r)
@@ -162,8 +170,7 @@ namespace WorldServer.logic.behaviors
                 var t = map[(int)c.X + dx, (int)c.Y + dy];
                 if (t.TileId != now)
                     continue;
-                t.TileId = was;
-                t.UpdateCount++;
+                Set(host, (int)c.X + dx, (int)c.Y + dy, t, was);
             }
             r.Painted.Clear();
             Floor.Refresh(host);
@@ -182,7 +189,7 @@ namespace WorldServer.logic.behaviors
         private readonly int _warnMs;
 
         public SweepingArms(string tile, int arms, double inner, double outer, double width, double degPerSec,
-            int warnMs = 1500, string warnTile = "Crucible Warning", double curve = 0, int stepMs = 150) : base(stepMs)
+            int warnMs = 1500, string warnTile = "Crucible Warning", double curve = 0, int stepMs = 100) : base(stepMs)
         {
             _tile = tile;
             _warnTile = warnTile;
@@ -280,7 +287,7 @@ namespace WorldServer.logic.behaviors
         private readonly int _gaps, _warnMs, _everyMs;
 
         public TideSweep(string tile, double reach, double band, double speed, int gaps, double gapWidth, int warnMs = 1400,
-            int everyMs = 5500, string warnTile = "Crucible Warning") : base(120)
+            int everyMs = 5500, string warnTile = "Crucible Warning") : base(100)
         {
             _tile = tile;
             _warnTile = warnTile;
@@ -603,6 +610,174 @@ namespace WorldServer.logic.behaviors
                     c.From[s] = (by, (int)Math.Floor(by.X) - cx, (int)Math.Floor(by.Y) - cy);
                 Strike.Bolt(by, Far(host, s), _color);
                 Strike.Mark(by, new Position(cx + c.From[s].Dx + 0.5f, cy + c.From[s].Dy + 0.5f), 1.4, _warnMs, _color);
+            }
+        }
+    }
+
+    // Square walls of `tile` closing in on the centre: each starts as a ring `outer` squares out
+    // (by the larger of the two offsets, so it's square, like a keep's walls), shown first as
+    // `warnTile` for `warnMs`, then closes in at `speed` squares a second, `thickness` thick, and
+    // is gone once it reaches `inner`; a new one every `everyMs`. Each has `gaps` gates
+    // `gapWidth` wide, on opposite sides, that keep their place along the wall as it closes: slip
+    // out through one or be caught. Ferrogrim's Last Bastion.
+    internal class ClosingWalls : CrucibleFloor
+    {
+        private readonly string _tile, _warnTile;
+        private readonly double _outer, _inner, _thickness, _speed, _gapWidth;
+        private readonly int _gaps, _everyMs, _warnMs;
+
+        public ClosingWalls(string tile, double outer, double inner, double speed, int gaps, double gapWidth, int everyMs,
+            int warnMs = 1500, double thickness = 1.6, string warnTile = "Crucible Warning") : base(100)
+        {
+            _tile = tile;
+            _warnTile = warnTile;
+            _outer = outer;
+            _inner = inner;
+            _speed = speed;
+            _gaps = gaps;
+            _gapWidth = gapWidth;
+            _everyMs = everyMs;
+            _warnMs = warnMs;
+            _thickness = thickness;
+        }
+
+        protected internal override void Begin(Entity host, Run r)
+        {
+            var n = (int)Math.Ceiling(_outer + _thickness);
+            var squares = new List<(int, int)>();
+            for (var dy = -n; dy <= n; dy++)
+                for (var dx = -n; dx <= n; dx++)
+                    squares.Add((dx, dy));
+            r.Data = (squares, new List<(int Side, double U)[]>());
+        }
+
+        protected internal override void Shape(Entity host, Run r)
+        {
+            var (squares, gates) = ((List<(int Dx, int Dy)>, List<(int Side, double U)[]>))r.Data;
+            var n = r.Elapsed / _everyMs + 1;
+            while (gates.Count < n)
+            {
+                // the gates on opposite sides (and the sides between for a third and fourth), each
+                // somewhere along its side, as a share of the side, so it stays on it as it closes
+                var first = r.Rng.Next(4);
+                gates.Add(Enumerable.Range(0, _gaps)
+                    .Select(g => ((first + (g % 2) * 2 + g / 2) % 4, (r.Rng.NextDouble() - 0.5) * 1.2)).ToArray());
+            }
+            var wall = Tile(host, _tile);
+            var warn = Tile(host, _warnTile);
+            var travel = (_outer - _inner) / _speed * 1000;
+            for (var k = 0; k < gates.Count; k++)
+            {
+                var age = r.Elapsed - k * _everyMs;
+                if (age < 0 || age > _warnMs + travel)
+                    continue;
+                var d = age < _warnMs ? _outer : _outer - _speed * (age - _warnMs) / 1000.0;
+                var tile = age < _warnMs ? warn : wall;
+                foreach (var (dx, dy) in squares)
+                {
+                    var (ax, ay) = (Math.Abs(dx), Math.Abs(dy));
+                    if (Math.Abs(Math.Max(ax, ay) - d) > _thickness / 2)
+                        continue;
+                    var (side, along) = ax >= ay ? (dx > 0 ? 0 : 2, (double)dy) : (dy > 0 ? 1 : 3, (double)dx);
+                    if (gates[k].Any(g => g.Side == side && Math.Abs(along - g.U * d) <= _gapWidth / 2))
+                        continue;
+                    r.Want[(dx, dy)] = tile;
+                }
+            }
+        }
+    }
+
+    // The floor within `reach` flooded with `tile` but for an island `radius` squares across,
+    // rimmed with `edgeTile`: each pour the island is put somewhere within `wander` of the middle,
+    // everything else glows (`warnTile`) for `warnMs` so there's time to get to it, then floods for
+    // `pourMs` while the island drifts at `speed` squares a second (stay on it), then drains for
+    // `restMs`. Pyrrhax's Molten Sea.
+    internal class SafeIsland : CrucibleFloor
+    {
+        private readonly string _tile, _edgeTile, _warnTile;
+        private readonly double _reach, _radius, _wander, _speed;
+        private readonly int _warnMs, _pourMs, _restMs;
+
+        public SafeIsland(string tile, string edgeTile, double reach, double radius, double wander, double speed,
+            int warnMs = 2000, int pourMs = 6000, int restMs = 3500, string warnTile = "Crucible Warning") : base(100)
+        {
+            _tile = tile;
+            _edgeTile = edgeTile;
+            _warnTile = warnTile;
+            _reach = reach;
+            _radius = radius;
+            _wander = wander;
+            _speed = speed;
+            _warnMs = warnMs;
+            _pourMs = pourMs;
+            _restMs = restMs;
+        }
+
+        private sealed class Isle
+        {
+            public List<(int Dx, int Dy, double R, double A)> Disc;
+            public int Cycle = -1, Moved;
+            public double X, Y, Tx, Ty;
+        }
+
+        protected internal override void Begin(Entity host, Run r) => r.Data = new Isle { Disc = Disc(0, _reach) };
+
+        // somewhere within `wander` of the middle that can be stood on now
+        private (double, double) Pick(Entity host, Run r)
+        {
+            var map = host.World.Map;
+            var tiles = host.GameServer.Resources.GameData.Tiles;
+            var c = host.SpawnPoint.Value;
+            for (var i = 0; i < 30; i++)
+            {
+                var a = r.Rng.NextDouble() * 2 * Math.PI;
+                var d = Math.Sqrt(r.Rng.NextDouble()) * _wander;
+                var (x, y) = (Math.Cos(a) * d, Math.Sin(a) * d);
+                var (mx, my) = ((int)Math.Floor(c.X + x), (int)Math.Floor(c.Y + y));
+                if (map.Contains(mx, my) && tiles.TryGetValue(map[mx, my].TileId, out var desc) && !desc.NoWalk)
+                    return (x, y);
+            }
+            return (0, 0);
+        }
+
+        protected internal override void Shape(Entity host, Run r)
+        {
+            var isle = (Isle)r.Data;
+            var cycle = _warnMs + _pourMs + _restMs;
+            var k = r.Elapsed / cycle;
+            var at = r.Elapsed % cycle;
+            if (isle.Cycle != k)
+            {
+                isle.Cycle = k;
+                (isle.X, isle.Y) = Pick(host, r);
+                (isle.Tx, isle.Ty) = Pick(host, r);
+                isle.Moved = r.Elapsed;
+            }
+            if (at >= _warnMs + _pourMs)
+                return;
+            if (at >= _warnMs)
+            {
+                // drifting towards somewhere else, and on from there
+                var step = _speed * (r.Elapsed - isle.Moved) / 1000.0;
+                var (ex, ey) = (isle.Tx - isle.X, isle.Ty - isle.Y);
+                var left = Math.Sqrt(ex * ex + ey * ey);
+                if (left <= step)
+                {
+                    (isle.X, isle.Y) = (isle.Tx, isle.Ty);
+                    (isle.Tx, isle.Ty) = Pick(host, r);
+                }
+                else
+                    (isle.X, isle.Y) = (isle.X + ex / left * step, isle.Y + ey / left * step);
+            }
+            isle.Moved = r.Elapsed;
+            var tile = Tile(host, at < _warnMs ? _warnTile : _tile);
+            var edge = Tile(host, _edgeTile);
+            foreach (var (dx, dy, _, _) in isle.Disc)
+            {
+                var d = Math.Sqrt((dx - isle.X) * (dx - isle.X) + (dy - isle.Y) * (dy - isle.Y));
+                if (d <= _radius - 1)
+                    continue;
+                r.Want[(dx, dy)] = d <= _radius ? edge : tile;
             }
         }
     }

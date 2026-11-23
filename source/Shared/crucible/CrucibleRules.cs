@@ -17,7 +17,7 @@ namespace Shared.crucible
         public const string PortalName = "Crucible Portal";
 
         /// How many may climb together.
-        public const int MaxClimbers = 6;
+        public const int MaxClimbers = 4;
 
         /// Whether an account may climb: it reached round 50 of the Arena, holds this month's
         /// Gilded Realm Pass, or is an admin's.
@@ -110,6 +110,8 @@ namespace Shared.crucible
             // V. Vaelith
             [17] = "Sovereign's Decree", [18] = "Echo of Iron", [19] = "Echo of the Tide", [20] = "Echo of the Forge",
             [21] = "Echo of the Hours", [22] = "The Crucible Breaks", [23] = "Unbound",
+            // the champions' last stands (2.6.5), one each, in the order of the floors
+            [24] = "Last Bastion", [25] = "Tsunami", [26] = "Molten Sea", [27] = "Zero Hour", [28] = "Final Aria",
         };
 
         public static string Name(byte cue) => Names.TryGetValue(cue, out var n) ? n : "";

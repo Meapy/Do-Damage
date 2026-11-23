@@ -47,6 +47,7 @@ pub fn value_text(board: &ChampionBoard, value: i64) -> String {
         "fame" => tn!(value, "{n} fame|{n} fame", n),
         "stars" => tn!(value, "{n} star|{n} stars", n),
         "tiers" => tn!(value, "{n} tier|{n} tiers", n),
+        "floors" => tn!(value, "{n} floor|{n} floors", n),
         unit => format!("{n} {unit}"),
     }
 }
@@ -332,6 +333,8 @@ fn hint(board: &ChampionBoard) -> &'static str {
         "achievements" => tr("Claim achievement tiers in the quest log (J)."),
         "arenaSolo" => tr("Survive waves in the Arena (/arena) on your own."),
         "arenaGroup" => tr("Survive waves in the Arena (/arena) with others."),
+        "crucibleSolo" => tr("Climb the Crucible (/crucible) alone, and don't fall before the last floor you clear."),
+        "crucibleGroup" => tr("Climb the Crucible (/crucible) with others, and don't fall before the last floor you clear."),
         "weeklyFame" => tr("Earn fame this week: anything counts."),
         "weeklyDungeons" => tr("Clear dungeons this week: be near a boss when the last one falls."),
         "guildLiving" => tr("Join a guild (or make one at the Guild Register): the living fame of members who played in the last two weeks counts."),

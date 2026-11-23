@@ -127,6 +127,18 @@ impl Endpoint {
         http::post_form(&format!("{}/arena/leaderboard", self.account), &[("count", &n), ("players", players), ("season", &season)])
     }
 
+    /// `/crucible/leaderboard`: the best `count` Crucible climbs, only solo or group ones when
+    /// `solo` says.
+    pub fn crucible_leaderboard(&self, count: usize, solo: Option<bool>) -> Pending<http::Response> {
+        let n = count.to_string();
+        let players = match solo {
+            Some(true) => "solo",
+            Some(false) => "group",
+            None => "",
+        };
+        http::post_form(&format!("{}/crucible/leaderboard", self.account), &[("count", &n), ("players", players)])
+    }
+
     /// `/champions/board`: the Hall of Champions, with `name`'s own places (empty: none).
     pub fn champions(&self, name: &str) -> Pending<http::Response> {
         http::post_form(&format!("{}/champions/board", self.account), &[("name", name)])

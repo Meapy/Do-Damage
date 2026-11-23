@@ -23,16 +23,22 @@ namespace WorldServer.core.objects
     // a raise instead (PetUpgrade: a Superburger or an Ambrosia), turned into food once
     // (PetLevels.MigratedXp). Feeding costs fame, more as the pet grows (PetLevels.FameCost), and
     // he feeds only pets of the sizes the account's pen takes (DbAccount.PenSize): Tiny at first,
-    // each bigger size bought with fame or gold (PetLevels.PenPrice). Any pet can be put in.
+    // each bigger size bought with fame or gold (PetLevels.PenPrice). Any pet can be put in. A pet
+    // at its last level can be grown to the next size, for fame or gold (PetLevels.GrowPrice): it
+    // levels on to the new size's last (PetGrown, kept with its food).
     partial class Player
     {
         // the shards he trades for an Ambrosia (PetPenData.ShardsNeeded)
         public const int ShardsForAmbrosia = 25;
-        // how each size is drawn at level 1, in a character's heights
-        private static readonly float[] SizeHeights = { 0.5f, 0.75f, 1.0f, 1.4f, 1.4f };
+        // how each size is drawn, in a character's heights: a grown pet is drawn its new size's
+        // height against its stone's
+        private static readonly float[] SizeHeights = { 0.5f, 0.75f, 1.0f, 1.4f, 1.7f };
 
         /// <summary>The food the pet out has eaten (PetLevels).</summary>
         public int PetXp { get; set; }
+
+        /// <summary>The sizes the pet out was grown past its stone's (PetLevels.GrownSize).</summary>
+        public int PetGrown { get; set; }
         // the data of a pet stone being used (UseItem takes the item out of its slot first)
         private ItemData _usedPetData;
 
@@ -54,28 +60,46 @@ namespace WorldServer.core.objects
         public ActivateEffect PetStone(int petType) =>
             PetGenerator(petType)?.ActivateEffects.FirstOrDefault(e => e.Effect == ActivateEffects.PermaPet);
 
-        /// <summary>The last level this pet reaches (1 for an unsized one, which doesn't level).</summary>
-        public int PetMaxLevel(int petType) => PetLevels.MaxLevel(PetStone(petType)?.PetSize);
+        /// <summary>This pet's size, grown `grown` sizes past its stone's (null for an unsized one).</summary>
+        public string PetSizeOf(int petType, int grown = 0) => PetLevels.GrownSize(PetStone(petType)?.PetSize, grown);
+
+        /// <summary>The last level this pet reaches, grown `grown` sizes (1 for an unsized one,
+        /// which doesn't level).</summary>
+        public int PetMaxLevel(int petType, int grown = 0) => PetLevels.MaxLevel(PetSizeOf(petType, grown));
 
         /// <summary>The food a pet stone's data brings: its own, else a raise from before levels.</summary>
         public int PetXpOf(int petType, ItemData data) =>
             data?.PetXp ?? (data?.PetUpgrade is > 0 ? PetLevels.MigratedXp(data.PetUpgrade.Value, PetMaxLevel(petType)) : 0);
 
         /// <summary>The pet out's level.</summary>
-        public int PetLevel => PetLevels.LevelFor(PetXp, PetMaxLevel(PetId));
+        public int PetLevel => PetLevels.LevelFor(PetXp, PetMaxLevel(PetId, PetGrown));
 
         /// <summary>What its level makes of the pet out: its damage times, its healing of HP and
-        /// MP (null: its behaviour's own), and how much bigger it's drawn.</summary>
+        /// MP (null: its behaviour's own), and how much bigger it's drawn (its level's growth,
+        /// and a grown pet its new size's height against its stone's).</summary>
         public (float Damage, (int Amount, int Ms)? Hp, (int Amount, int Ms)? Mp, float Draw) PetPower()
         {
             var stone = PetStone(PetId);
-            var max = PetLevels.MaxLevel(stone?.PetSize);
+            var size = PetLevels.GrownSize(stone?.PetSize, PetGrown);
+            var max = PetLevels.MaxLevel(size);
             if (stone == null || max <= 1)
                 return (1, null, null, 1);
             var level = PetLevels.LevelFor(PetXp, max);
-            (int, int)? Heal(int amount, int ms) => amount > 0 && ms > 0 ? (PetLevels.Heal(amount, level, max), ms) : null;
-            return (PetLevels.DamageScale(level, max), Heal(stone.PetHp, stone.PetHpMs), Heal(stone.PetMp, stone.PetMpMs),
-                PetLevels.DrawScale(level, max));
+            var baseMax = PetLevels.MaxLevel(stone.PetSize);
+            (int, int)? Heal(int amount, int ms) => amount > 0 && ms > 0 ? (PetLevels.Heal(amount, level, max, baseMax), ms) : null;
+            var grown = SizeHeights[PetLevels.SizeIndex(size)] / SizeHeights[PetLevels.SizeIndex(stone.PetSize)];
+            return (PetLevels.DamageScale(level, max, baseMax), Heal(stone.PetHp, stone.PetHpMs), Heal(stone.PetMp, stone.PetMpMs),
+                PetLevels.DrawScale(level, max, baseMax) * grown);
+        }
+
+        /// <summary>What growing the pet out to the next size costs in fame and gold, (0, 0) when
+        /// it can't be: none out, unsized, not at its last level, or Huge already.</summary>
+        public (int Fame, int Gold) PetGrowPrice()
+        {
+            var size = PetLevels.SizeIndex(PetId == 0 ? null : PetSizeOf(PetId, PetGrown));
+            if (size < 0 || PetXp < PetLevels.XpAt(PetLevels.MaxLevel(PetLevels.Sizes[size])))
+                return (0, 0);
+            return PetLevels.GrowPrice(size + 1);
         }
 
         /// <summary>The Pen Keeper's answer: the pet out and its level, what it does now and at
@@ -84,14 +108,20 @@ namespace WorldServer.core.objects
         {
             var data = new PetPenData { Pet = (ushort)PetId, Shards = PenShards, ShardsNeeded = ShardsForAmbrosia, Ok = ok, Message = message ?? "" };
             var stone = PetId == 0 ? null : PetStone(PetId);
-            var size = PetLevels.SizeIndex(stone?.PetSize);
-            // the size as before levels, for older clients (0 Tiny to 3 Large, 255 any other)
-            data.BaseSize = data.Size = (byte)(size is >= 0 and <= 3 ? size : 255);
+            var baseSize = PetLevels.SizeIndex(stone?.PetSize);
+            var size = PetLevels.SizeIndex(PetLevels.GrownSize(stone?.PetSize, PetGrown));
+            // the sizes as before levels, for older clients (0 Tiny to 3 Large, 255 any other):
+            // its stone's, and as grown
+            data.BaseSize = (byte)(baseSize is >= 0 and <= 3 ? baseSize : 255);
+            data.Size = (byte)(size is >= 0 and <= 3 ? size : 255);
             data.PenSize = (byte)PenSize;
             (data.PenFame, data.PenGold) = PetLevels.PenPrice(PenSize + 1);
+            data.PetSize = (byte)(size >= 0 ? size : 255);
+            (data.GrowFame, data.GrowGold) = PetGrowPrice();
             if (stone == null)
                 return data;
-            var max = PetLevels.MaxLevel(stone.PetSize);
+            var max = PetLevels.MaxLevel(PetLevels.GrownSize(stone.PetSize, PetGrown));
+            var baseMax = PetLevels.MaxLevel(stone.PetSize);
             var level = PetLevels.LevelFor(PetXp, max);
             data.Level = (byte)level;
             data.MaxLevel = (byte)max;
@@ -100,13 +130,13 @@ namespace WorldServer.core.objects
             data.XpNext = PetLevels.XpAt(Math.Min(level + 1, max));
             // what it really does: its level's, times PetLevels.Effectiveness (as Pet.Hit and PetHeal do)
             var dps = PetDps(stone);
-            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max) * PetLevels.Effectiveness);
-            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max) * PetLevels.Effectiveness);
-            data.Hp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, level, max));
-            data.HpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, max, max));
+            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max, baseMax) * PetLevels.Effectiveness);
+            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max, baseMax) * PetLevels.Effectiveness);
+            data.Hp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, level, max, baseMax));
+            data.HpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, max, max, baseMax));
             data.HpMs = (short)stone.PetHpMs;
-            data.Mp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, level, max));
-            data.MpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, max, max));
+            data.Mp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, level, max, baseMax));
+            data.MpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, max, max, baseMax));
             data.MpMs = (short)stone.PetMpMs;
             return data;
         }
@@ -118,7 +148,8 @@ namespace WorldServer.core.objects
         /// the pet of the stone in inventory slot `slot`, 7 feeds the pet the item in `slot`, 8 feeds
         /// it the shards he keeps, 4 gives him the inventory's shards (fed to the pet, if one is out
         /// and still growing), 6 trades 25 of the shards he keeps for an Ambrosia, 9 and 10 make the
-        /// pen take the next size of pets, for fame and for gold. From before levels: 3 and 5 (raise
+        /// pen take the next size of pets, for fame and for gold, 11 and 12 grow the pet out (at its
+        /// last level) to the next size, for fame and for gold. From before levels: 3 and 5 (raise
         /// for a Superburger, an Ambrosia) feed it the first of those.</summary>
         public PetPenData PetPenAct(int action, int slot)
         {
@@ -150,6 +181,7 @@ namespace WorldServer.core.objects
                             RemovePet();
                         PetId = petType;
                         PetXp = PetXpOf(petType, data);
+                        PetGrown = Math.Max(0, data?.PetGrown ?? 0);
                         SpawnPetIfAttached(World);
                         return PetPenState(true, $"{GameServer.Resources.GameData.ObjectDescs[petType].DisplayName} is yours now.");
                     }
@@ -162,6 +194,9 @@ namespace WorldServer.core.objects
                 case 9:
                 case 10:
                     return GrowPen(action == 10);
+                case 11:
+                case 12:
+                    return GrowPet(action == 12);
                 case 4:
                     {
                         var slots = Enumerable.Range(4, Inventory.Length - 4).Where(s => Inventory[s]?.ObjectId?.StartsWith(PetFood.ShardPrefix) == true).ToList();
@@ -213,12 +248,12 @@ namespace WorldServer.core.objects
         {
             if (PetId == 0)
                 return "Put a pet in first.";
-            var max = PetMaxLevel(PetId);
+            var max = PetMaxLevel(PetId, PetGrown);
             if (max <= 1)
                 return "This pet doesn't grow.";
             if (PetXp >= PetLevels.XpAt(max))
                 return "Your pet is at its last level already.";
-            var size = PetLevels.SizeIndex(PetStone(PetId)?.PetSize);
+            var size = PetLevels.SizeIndex(PetSizeOf(PetId, PetGrown));
             if (size > PenSize)
                 return $"Your pen only takes {PetLevels.Sizes[PenSize]} pets: grow it to feed {PetLevels.Sizes[size]} ones.";
             return null;
@@ -232,10 +267,23 @@ namespace WorldServer.core.objects
                 return PetPenState(false, "Your pen already takes every pet.");
             var (fame, credits) = PetLevels.PenPrice(next);
             var acc = Client.Account;
+            var unpaid = PayPen("Growing the pen", fame, credits, gold);
+            if (unpaid != null)
+                return PetPenState(false, unpaid);
+            acc.PenSize = next;
+            acc.FlushAsync();
+            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> grew the pen to {PetLevels.Sizes[next]} for {(gold ? $"{credits} gold" : $"{fame} fame")}");
+            return PetPenState(true, $"Your pen takes {PetLevels.Sizes[next]} pets now: the Pen Keeper will feed them.");
+        }
+
+        // takes `fame` or `gold` for `what`; why it can't, or null
+        private string PayPen(string what, int fame, int credits, bool gold)
+        {
+            var acc = Client.Account;
             if (gold)
             {
                 if (Credits < credits)
-                    return PetPenState(false, $"Growing the pen costs {credits:N0} gold: you have {Credits:N0}.");
+                    return $"{what} costs {credits:N0} gold: you have {Credits:N0}.";
                 // taken at once, so a second press before the database answers can't spend it again
                 Credits -= credits;
                 GameServer.Database.UpdateCurrency(acc, -credits, CurrencyType.Gold).ContinueWith(_ => Credits = acc.Credits);
@@ -243,14 +291,39 @@ namespace WorldServer.core.objects
             else
             {
                 if (CurrentFame < fame)
-                    return PetPenState(false, $"Growing the pen costs {fame:N0} fame: you have {CurrentFame:N0}.");
+                    return $"{what} costs {fame:N0} fame: you have {CurrentFame:N0}.";
                 CurrentFame -= fame;
                 DoomedWorlds.GiveFame(this, -fame);
             }
-            acc.PenSize = next;
-            acc.FlushAsync();
-            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> grew the pen to {PetLevels.Sizes[next]} for {(gold ? $"{credits} gold" : $"{fame} fame")}");
-            return PetPenState(true, $"Your pen takes {PetLevels.Sizes[next]} pets now: the Pen Keeper will feed them.");
+            return null;
+        }
+
+        // the pet out, at its last level, grows to the next size, for fame or gold
+        private PetPenData GrowPet(bool gold)
+        {
+            if (PetId == 0)
+                return PetPenState(false, "Put a pet in first.");
+            var size = PetLevels.SizeIndex(PetSizeOf(PetId, PetGrown));
+            if (size < 0)
+                return PetPenState(false, "This pet doesn't grow.");
+            if (size >= PetLevels.Sizes.Length - 1)
+                return PetPenState(false, "Your pet is as big as pets get.");
+            var (fame, credits) = PetGrowPrice();
+            if (fame <= 0)
+                return PetPenState(false, "Feed your pet to its last level first.");
+            var unpaid = PayPen("Growing your pet", fame, credits, gold);
+            if (unpaid != null)
+                return PetPenState(false, unpaid);
+            PetGrown++;
+            var next = PetLevels.Sizes[size + 1];
+            SpawnPetIfAttached(World);
+            if (Pet != null)
+                World.BroadcastIfVisible(new ShowEffect { EffectType = EffectType.AreaBlast, TargetObjectId = Pet.Id, Pos1 = new Position { X = 2.5f }, Color = new ARGB(0xffffd24a) }, Pet);
+            var name = GameServer.Resources.GameData.ObjectDescs.TryGetValue((ushort)PetId, out var d) ? d.DisplayName : "Your pet";
+            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> grew {name} to {next} for {(gold ? $"{credits} gold" : $"{fame} fame")}");
+            return PetPenState(true, size + 1 > PenSize
+                ? $"{name} is a {next} pet now, up to level {PetLevels.MaxLevel(next)}: grow your pen to feed it."
+                : $"{name} is a {next} pet now: feed it up to level {PetLevels.MaxLevel(next)}!");
         }
 
         private PetPenData FeedFirst(string id)
@@ -309,7 +382,7 @@ namespace WorldServer.core.objects
         }
 
         /// <summary>The fame feeding the pet out `xp` of food costs (PetLevels.FameCost).</summary>
-        public int FeedFame(int xp) => PetLevels.FameCost(PetXp, xp, PetMaxLevel(PetId));
+        public int FeedFame(int xp) => PetLevels.FameCost(PetXp, xp, PetMaxLevel(PetId, PetGrown));
 
         // takes the fame for `xp` of food; why it can't, or null
         private string Unpaid(int xp)
@@ -332,7 +405,7 @@ namespace WorldServer.core.objects
         // the pet out eats `xp` of food (no further than its last level) and grows
         private PetPenData Grow(int xp, string what)
         {
-            var max = PetMaxLevel(PetId);
+            var max = PetMaxLevel(PetId, PetGrown);
             var before = PetLevel;
             PetXp = Math.Min(PetXp + xp, PetLevels.XpAt(max));
             var after = PetLevel;
@@ -343,7 +416,7 @@ namespace WorldServer.core.objects
                 if (Pet != null)
                     World.BroadcastIfVisible(new ShowEffect { EffectType = EffectType.AreaBlast, TargetObjectId = Pet.Id, Pos1 = new Position { X = 1.5f }, Color = new ARGB(0xffffd24a) }, Pet);
                 return PetPenState(true, after >= max
-                    ? $"{name} ate {what}{Paid()} and reached its last level, {max}!"
+                    ? $"{name} ate {what}{Paid()} and reached its last level, {max}!{(PetGrowPrice().Fame > 0 ? " It can grow to the next size now." : "")}"
                     : $"{name} ate {what}{Paid()} and grew to level {after}!");
             }
             return PetPenState(true, $"{name} ate {what} (+{xp:N0}){Paid()}.");
@@ -388,12 +461,14 @@ namespace WorldServer.core.objects
         {
             var petType = PetId;
             var xp = PetXp;
+            var grown = PetGrown;
             PetId = 0;
             PetXp = 0;
+            PetGrown = 0;
             if (Pet != null)
                 World.LeaveWorld(Pet);
             Pet = null;
-            if (!GivePetGeneratorBack(petType, xp))
+            if (!GivePetGeneratorBack(petType, xp, grown))
                 SendInfo("Your pet runs away.");
         }
     }

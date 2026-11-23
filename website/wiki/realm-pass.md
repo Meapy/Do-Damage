@@ -1,6 +1,7 @@
 ---
 title: Realm Pass
-nav: 4
+nav: 31
+section: Every day
 sprite: crown
 eyebrow: A new road every month
 summary: The Realm Pass: a monthly season of 40 tiers earned by playing as you already do, the free track everyone has with its pets and white bags, the Gilded track for gold with its hand-drawn skins, boss and Oryx pets, Necromantic items, auras and name colours, Momentum for catching up, the Wayfarer's Caches past the last tier, and every season's rewards tier by tier. Built from the game's data.

@@ -6,7 +6,9 @@
 //! food). He keeps the account's Shards of the Mad God (given in his window, or used anywhere),
 //! feeds them to the pet, or trades 25 of them for an Ambrosia. Feeding costs fame, more as the pet
 //! grows (`petlevels::fame_cost`): the window says what before you feed. He feeds only pets of the
-//! sizes the account's pen takes: Tiny at first, each bigger size bought with fame or gold.
+//! sizes the account's pen takes: Tiny at first, each bigger size bought with fame or gold. A pet
+//! at its last level can be grown to the next size, for fame or gold, and levels on (at 100% until
+//! it's Huge, then up to 120%).
 //!
 //! The window asks as it opens and after each act (`PetPenAct`); the server answers with the pet
 //! as it is (`PetPen`).
@@ -31,6 +33,9 @@ pub const FEED_KEPT: u8 = 8;
 /// Grow the pen to take the next size of pets, for fame or for gold (from 2.6.4).
 pub const PEN_FAME: u8 = 9;
 pub const PEN_GOLD: u8 = 10;
+/// Grow the pet out, at its last level, to the next size, for fame or for gold (from 2.6.5).
+pub const GROW_FAME: u8 = 11;
+pub const GROW_GOLD: u8 = 12;
 
 const SHARD: &str = "Shard of the Mad God x";
 
@@ -62,13 +67,7 @@ fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
 }
 
 fn size_name(size: &str) -> &str {
-    match size {
-        "Tiny" => tr("Tiny"),
-        "Small" => tr("Small"),
-        "Medium" => tr("Medium"),
-        "Large" => tr("Large"),
-        _ => size,
-    }
+    crate::hud::pet_size_name(size)
 }
 
 /// A heal as "22 every 2s".
@@ -85,6 +84,8 @@ struct Food {
     food: i32,
     stone: bool,
     xp: i32,
+    /// The sizes a stone's pet was grown.
+    grown: i32,
 }
 
 impl PetPen {
@@ -193,7 +194,13 @@ impl PetPen {
         // the pen (sent with or without a pet): the biggest pets he feeds, and what the next costs
         let pen = state.as_ref().and_then(|p| p.level).unwrap_or_default();
         let pen_size = pen.pen_size as usize;
-        let pet_size = stone.and_then(|st| petlevels::stone(ui.data, st)).and_then(|a| petlevels::size_index(a.attr("petSize")));
+        // the pet's size as grown (an older server: its stone's), and what growing it costs
+        let grow = state.as_ref().and_then(|p| p.grow).filter(|_| pet != 0);
+        let pet_size = match grow {
+            Some(g) => (g.pet_size as usize).lt(&petlevels::SIZES.len()).then_some(g.pet_size as usize),
+            None => stone.and_then(|st| petlevels::stone(ui.data, st)).and_then(|a| petlevels::size_index(a.attr("petSize"))),
+        };
+        let grow = grow.filter(|g| g.fame > 0 && pet_size.is_some_and(|i| i + 1 < petlevels::SIZES.len()));
         let fed_here = pet_size.is_none_or(|i| i <= pen_size);
         // whether he'll feed the pet out
         let feedable = growing && fed_here;
@@ -215,8 +222,7 @@ impl PetPen {
                 let tw = card[0] + card[2] - 18.0 * s - tx;
                 let name = ui.data.objects.get(&p.pet).map_or(String::new(), |d| d.display_id.clone());
                 ui.label_fit(&name, tx, card[1] + 14.0 * s, tw, font(18.0), true, color::TEXT);
-                let size = stone.and_then(|st| petlevels::stone(ui.data, st)).and_then(|a| a.attr("petSize").map(str::to_owned));
-                let size = size.as_deref().map(size_name).unwrap_or("");
+                let size = pet_size.map_or("", |i| size_name(petlevels::SIZES[i]));
                 match level {
                     Some(l) if l.max_level > 1 => {
                         let line = tf!("{size} · Level {level} of {max}", size, level = l.level, max = l.max_level);
@@ -235,14 +241,35 @@ impl PetPen {
                         theme::fill(ui.renderer, all, 1.5 * s, color::TRACK, 1.0);
                         let last = petlevels::xp_at(l.max_level as i32).max(1);
                         theme::fill(ui.renderer, [all[0], all[1], all[2] * (l.xp as f32 / last as f32).clamp(0.0, 1.0), all[3]], 1.5 * s, color::GOLD, 0.6);
-                        let (text, c) = if !growing {
+                        let (text, c) = if let (false, Some(g), Some(i)) = (growing, grow, pet_size) {
+                            // at its last level and able to grow: to the next size, for fame or gold
+                            let bw = 100.0 * s;
+                            for (k, (act, label, on)) in [
+                                (GROW_FAME, tf!("{fame} fame", fame = group_digits(g.fame)), fame >= g.fame),
+                                (GROW_GOLD, tf!("{gold} gold", gold = group_digits(g.gold)), gold >= g.gold),
+                            ]
+                            .into_iter()
+                            .enumerate()
+                            {
+                                let br = [tx + tw - (2 - k) as f32 * bw - (1 - k) as f32 * 6.0 * s, card[1] + 94.0 * s, bw, 26.0 * s];
+                                ui.button(br, &label, if on { Kind::Primary } else { Kind::Secondary }, on && inside(br, mouse), s * 0.62);
+                                if on {
+                                    self.hits.push((Hit::Act(act, 0), br));
+                                }
+                            }
+                            let line = tf!("Grow it to a {size} pet:", size = size_name(petlevels::SIZES[i + 1]));
+                            ui.label_fit(&line, tx, card[1] + 99.0 * s, tw - 2.0 * bw - 14.0 * s, font(12.5), true, color::GOLD);
+                            (String::new(), color::GOOD)
+                        } else if !growing {
                             (tr("At its last level: as strong as it gets.").to_owned(), color::GOOD)
                         } else if !fed_here {
                             (tf!("Your pen only takes {size} pets: grow it to feed this one.", size = size_name(petlevels::SIZES[pen_size])), color::DANGER)
                         } else {
                             (tf!("{have} / {need} food to level {next}", have = group_digits(l.xp - l.xp_level), need = group_digits(span), next = l.level + 1), color::TEXT_DIM)
                         };
-                        ui.label_fit(&text, tx, card[1] + 96.0 * s, tw, font(12.5), false, c);
+                        if !text.is_empty() {
+                            ui.label_fit(&text, tx, card[1] + 96.0 * s, tw, font(12.5), false, c);
+                        }
                     }
                     _ => {
                         ui.label(size, tx, card[1] + 42.0 * s, font(14.0), true, color::ACCENT);
@@ -295,7 +322,8 @@ impl PetPen {
                 let food = petlevels::slot_food(ui.data, item, json);
                 if food > 0 || stone {
                     let xp = if stone { petlevels::stone_xp(ui.data, item, json) } else { 0 };
-                    foods.push(Food { slot, item, food, stone, xp });
+                    let grown = if stone { petlevels::stone_grown(json) } else { 0 };
+                    foods.push(Food { slot, item, food, stone, xp, grown });
                 }
             }
         }
@@ -312,7 +340,7 @@ impl PetPen {
         if foods.is_empty() {
             ui.label_fit(tr("Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones."), x0, y + 36.0 * s, w, font(12.5), false, color::TEXT_MUTED);
         }
-        let mut hover: Option<(i32, i32, i32)> = None;
+        let mut hover: Option<(i32, i32, (i32, i32))> = None;
         for (k, f) in foods.iter().enumerate().take(cols * 2) {
             let sr = [x0 + (k % cols) as f32 * (cell + gap), y + (k / cols) as f32 * (cell + gap), cell, cell];
             let over = inside(sr, mouse);
@@ -324,7 +352,7 @@ impl PetPen {
             ui.item_icon(f.item, 80, sr[0] + sr[2] / 2.0, sr[1] + sr[3] / 2.0, s);
             if f.stone {
                 // a stone's pet's level, in the corner
-                let lv = petlevels::level_for(f.xp, petlevels::stone_max_level(ui.data, f.item));
+                let lv = petlevels::level_for(f.xp, petlevels::stone_max_level(ui.data, f.item, f.grown));
                 if lv > 1 {
                     let tag = lv.to_string();
                     let tw = ui.measure(&tag, font(10.5), true);
@@ -332,7 +360,7 @@ impl PetPen {
                 }
             }
             if over {
-                hover = Some((f.item, f.food, f.xp));
+                hover = Some((f.item, f.food, (f.xp, f.grown)));
             }
             self.hits.push((Hit::Pick(f.slot), sr));
         }

@@ -1,7 +1,7 @@
 ---
 title: Classes
-nav: 6
-group: Characters
+nav: 20
+section: Classes and gear
 sprite: shield
 eyebrow: Who to play
 summary: Every class with its weapon, ability, armor, starting gear, what /gear gives it, and its highest stats.
@@ -61,9 +61,9 @@ Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own
 8 tiles away, and it unfolds into a turret that turns to the nearest enemy in reach (about 9
 tiles), leads it as it moves and keeps to it. Up to **three** stand at once: a fourth makes the
 oldest blow up. While you're within 7 tiles of a turret it's **overclocked**, linked to you by a
-cable of light, and fires half again as often; the higher tiers fire pairs, and some pierce
-through enemies. When its time runs out (12 seconds at T0 up to 20 at T8) it **blows up**,
-hitting every enemy round it (150 damage at T0 up to 550 at T8), a ring warning of it for its
+cable of light, and fires half again as often; the higher tiers fire pairs, and every turret's
+shots pierce through enemies. When its time runs out (12 seconds at T0 up to 20 at T8) it **blows up**,
+hitting every enemy round it (300 damage at T0 up to 1,100 at T8), a ring warning of it for its
 last 3 seconds. A blueprint can be used once a second; the War Turret fires little shots very
 fast. The Armoire sells the Mechanic four skins at 200 gold (the Steamwright, the Scrapper, the
 Arcwright and the Clockwork Mechanic) and the 16 by 16 Titan Artificer at 800.

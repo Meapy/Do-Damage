@@ -1,7 +1,7 @@
 ---
 title: Dungeons
-nav: 5
-group: Dungeons
+nav: 10
+section: Dungeons and loot
 sprite: portal
 eyebrow: Where to go
 summary: Every dungeon you can get into, where its portal or key comes from, how hard it is and what it drops. Built from the game's data.

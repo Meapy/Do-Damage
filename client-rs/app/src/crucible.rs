@@ -56,7 +56,7 @@ const FLOOR_NAMES: [&str; 6] = [
 ];
 
 /// The champions' phases (`CrucibleCues` on the server): never renumbered.
-const CUES: [&str; 24] = [
+const CUES: [&str; 29] = [
     "",
     mark("Hammerfall"),
     mark("Lockdown"),
@@ -81,6 +81,11 @@ const CUES: [&str; 24] = [
     mark("Echo of the Hours"),
     mark("The Crucible Breaks"),
     mark("Unbound"),
+    mark("Last Bastion"),
+    mark("Tsunami"),
+    mark("Molten Sea"),
+    mark("Zero Hour"),
+    mark("Final Aria"),
 ];
 
 pub fn floor_name(floor: u8) -> &'static str {

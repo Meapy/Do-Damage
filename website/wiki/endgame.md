@@ -1,7 +1,7 @@
 ---
 title: The Oryx chain
-nav: 4
-parent: getting-started
+nav: 5
+section: Start here
 sprite: skull
 eyebrow: Endgame
 summary: From a closing realm to Oryx's Elysium: every stage, its boss, and how you get into the next.

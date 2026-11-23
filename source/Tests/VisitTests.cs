@@ -51,6 +51,20 @@ namespace Tests
             Assert.Null(VisitRules.Refusal(Dungeon(), "Bob", realm: true));
         }
 
+        // a Crucible climb once it has begun: nobody new, by /visit, /summon or /help (a summon
+        // request is a help call's too), the Scrying Glass's Ask to join included
+        [Fact]
+        public void NoJoiningAClimbThatHasBegun()
+        {
+            var p = new VisitRules.Place { Kind = VisitRules.Kind.Instance, Name = "The Crucible", Begun = true };
+            Assert.Contains("has begun", VisitRules.Refusal(p, "Bob"));
+            Assert.Contains("has begun", VisitRules.Refusal(p, "Bob", summon: true));
+            Assert.Contains("has begun", VisitRules.Refusal(p, "Bob", realm: true));
+            p.Begun = false;
+            Assert.Null(VisitRules.Refusal(p, "Bob"));
+            Assert.Null(VisitRules.Refusal(p, "Bob", summon: true));
+        }
+
         [Fact]
         public void NeverBackIntoAnInstanceYouveBeenIn()
         {

@@ -437,7 +437,7 @@ wire_struct! {
     /// A pet's level (`PetPen`, last; the server's `Shared.pets.PetLevels`): its level and last,
     /// the food it has eaten, the food at its level and at the next (the same at its last), and
     /// what it does now and at its last level: damage a second, HP and MP a heal, how often (ms);
-    /// then the biggest pets the account's pen takes (0 Tiny to 4 Oryx) and what growing it to
+    /// then the biggest pets the account's pen takes (0 Tiny to 4 Huge) and what growing it to
     /// the next size costs in fame and in gold (0 at the last).
     #[derive(Copy, Eq)]
     pub struct PetLevel {
@@ -457,6 +457,18 @@ wire_struct! {
         pub pen_size: u8,
         pub pen_fame: i32,
         pub pen_gold: i32,
+    }
+}
+
+wire_struct! {
+    /// Growing the pet out (`PetPen`, after `PetLevel`; from 2.6.5): its size as grown (0 Tiny to
+    /// 4 Huge, 255 none) and what growing it to the next size costs in fame and in gold (0 unless
+    /// it's at its last level and can grow; the server's `PetLevels.GrowPrice`).
+    #[derive(Copy, Eq)]
+    pub struct PetGrow {
+        pub pet_size: u8,
+        pub fame: i32,
+        pub gold: i32,
     }
 }
 

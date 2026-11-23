@@ -1,7 +1,7 @@
 ---
 title: Imprints
-nav: 11
-parent: forge
+nav: 25
+section: Classes and gear
 sprite: anvil
 eyebrow: Gear and stuff
 summary: The Enchanter beside the Divine Forge puts imprints on Enthroned gear: an Offensive, a Defensive, a Misc and an Apotheosis slot on each piece, what each imprint does and what it costs.

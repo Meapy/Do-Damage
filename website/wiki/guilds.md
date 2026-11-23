@@ -1,6 +1,7 @@
 ---
 title: Guilds
-nav: 4
+nav: 34
+section: Every day
 sprite: shield
 eyebrow: Play together
 summary: Guilds: the loot, experience and stats every member gets from the guild hall, the shared guild vault, the four guild halls and their upgrades, the two guild boards in the Hall of Champions, ranks and commands.
