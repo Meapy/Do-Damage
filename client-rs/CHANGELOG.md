@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.6 (2026-11-23)
 
 ### The Crucible
 - **New shots for every champion:** each throws shots that look like its own (hot iron, the sea, the melt, clockwork, gold and flame), the ones aimed at you trailing sparks, and some new ones that don't fly straight: Ferrogrim's hammers and Chronarch's blades spin out and come back, Nerissa's tide crests wash back, Pyrrhax's meteor fragments weave and Vaelith's halo shards loop round him. The quieter phases (Lockdown, the Tidal Lanes, Rising Tide, Meteor Storm, the Crucible Pours, Midnight, the Crucible Breaks and more) now throw more at you, and every champion bursts out two rings of shots as it rises into a new phase.

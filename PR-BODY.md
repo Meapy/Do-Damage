@@ -1,4 +1,4 @@
-Release 2.6.6: 
+Release 2.6.6: Crucible shots and tower caches, a 60-tier Realm Pass with pet effects, and a redesigned website. Deploys the world and account servers, client and website; nobody is disconnected. The Crucible and Pass changes need the client and server together.
 
 ## For players
 
