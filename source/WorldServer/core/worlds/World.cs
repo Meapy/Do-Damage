@@ -142,7 +142,18 @@ namespace WorldServer.core.worlds
         // AllowedAccess would turn them away (an arena game that has already started)
         private readonly ConcurrentDictionary<int, DateTime> _invited = new ConcurrentDictionary<int, DateTime>();
 
-        public void Invite(int accountId) => _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
+        // accounts an admin's /summon brought here: whatever the instance counts against a player
+        // (a Crucible climb of the day) it doesn't count against them
+        private readonly ConcurrentDictionary<int, byte> _comped = new ConcurrentDictionary<int, byte>();
+
+        public void Invite(int accountId, bool free = false)
+        {
+            _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
+            if (free)
+                _comped[accountId] = 1;
+        }
+
+        public bool IsComped(int accountId) => _comped.ContainsKey(accountId);
 
         // an instance only joined at its start, now under way (a Crucible climb): /visit, /summon
         // and /help can't bring anyone in, and an invitation from before it began no longer counts

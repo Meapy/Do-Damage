@@ -426,7 +426,8 @@ namespace WorldServer.core.worlds.impl.crucible
             {
                 _climbers.Add(p.Name);
                 _staff |= CrucibleAccess.IsAdmin(p.Client?.Account);
-                CrucibleAccess.Spend(p); // one of the day's climbs
+                if (!IsComped(p.Client.Account.AccountId)) // brought in by an admin's /summon: free
+                    CrucibleAccess.Spend(p); // one of the day's climbs
             }
             StaticLogger.Instance.Info($"The Crucible: a climb begins with {string.Join(", ", _climbers)}");
             OpenWay(1);
