@@ -20,19 +20,24 @@ namespace WorldServer.logic.behaviors
 
         public static readonly Dictionary<string, Dictionary<string, string>> ByHeart = new()
         {
-            // Ferrogrim: the keep, then its towers with the drawbridges raised, an iron gear, a star fort
-            ["Bastion Heart"] = new() { ["Lockdown"] = "towers", ["Blades"] = "gear",["Tempest"] = "starfort" },
-            // Nerissa: the atoll, then a wheel of isles and channels, arms of coral, a ring round a vortex
-            ["Sanctum Heart"] = new() { ["Flood"] = "wheel", ["Whirlpool"] = "spiral", ["Maelstrom"] = "maelstrom" },
-            // Pyrrhax: the cross, then a grate over the sky, an anvil, the crucible itself
+            // Ferrogrim: the keep, then its towers with the drawbridges raised, an iron gear, a star fort,
+            // and at the last the inner keep, square, its walls closing in
+            ["Bastion Heart"] = new() { ["Lockdown"] = "towers", ["Blades"] = "gear",["Tempest"] = "starfort", ["Bastion"] = "keep" },
+            // Nerissa: the atoll, then a wheel of isles and channels, arms of coral, a ring round a
+            // vortex, and at the last a lagoon, an islet in it and a ring of reef round it
+            ["Sanctum Heart"] = new() { ["Flood"] = "wheel", ["Whirlpool"] = "spiral", ["Maelstrom"] = "maelstrom", ["Tsunami"] = "lagoon" },
+            // Pyrrhax: the cross, then a grate over the sky, an anvil, the crucible itself (filling
+            // with molten metal at the last)
             ["Foundry Heart"] = new() { ["Meteors"] = "grate", ["Hammer"] = "anvil", ["Broken"] = "crucible" },
-            // Chronarch: the orrery, then twelve hours as petals, an hourglass, a coil
-            ["Orrery Heart"] = new() { ["Chime"] = "petals", ["Fracture"] = "hourglass", ["Reversal"] = "coil" },
-            // Vaelith: each echo's floor in turn, then shattered, then a halo round the void
+            // Chronarch: the orrery, then twelve hours as petals, an hourglass, a coil, and the petals
+            // again at zero hour
+            ["Orrery Heart"] = new() { ["Chime"] = "petals", ["Fracture"] = "hourglass", ["Reversal"] = "coil", ["Zero"] = "petals" },
+            // Vaelith: each echo's floor in turn, then shattered, then a halo round the void (still
+            // for the final aria)
             ["Apex Heart"] = new()
             {
                 ["Decree"] = null, ["Iron"] = "fort", ["Tide"] = "isles", ["Forge"] = "cross",
-                ["Hours"] = "orrery", ["Breaks"] = "shards", ["Unbound"] = "halo",
+                ["Hours"] = "orrery", ["Breaks"] = "shards", ["Unbound"] = "halo", ["Aria"] = "halo",
             },
         };
 
@@ -141,7 +146,18 @@ namespace WorldServer.logic.behaviors
             return major <= 14 && minor <= 14 - major;
         }
 
+        // Last Bastion: the inner keep, square, a round tower at each corner
+        private static bool Keep(int dx, int dy)
+        {
+            var (ax, ay) = (Math.Abs(dx), Math.Abs(dy));
+            return Math.Max(ax, ay) <= 9 || Hyp(ax - 9, ay - 9) <= 2.6;
+        }
+
         // ---- Nerissa's Drowned Sanctum ----
+
+        // Tsunami: an islet in the middle, a lagoon of deep sea round it crossed by four shallows,
+        // and a ring of reef round that, out to the rim
+        private static bool Lagoon(int dx, int dy) => Hyp(dx, dy) <= 15;
 
         private static bool WheelIsle(int dx, int dy) =>
             Hyp(dx, dy) <= 4.2 || Hyp(Math.Abs(dx) - 9, Math.Abs(dy) - 9) <= 3.6;
@@ -397,7 +413,9 @@ namespace WorldServer.logic.behaviors
             "towers" => Towers(dx, dy),
             "gear" => Gear(dx, dy, ms),
             "starfort" => StarFort(dx, dy),
+            "keep" => Keep(dx, dy),
             "wheel" => Wheel(dx, dy),
+            "lagoon" => Lagoon(dx, dy),
             "spiral" => Spiral(dx, dy, ms, out _),
             "maelstrom" => Maelstrom(dx, dy, ms, out _),
             "grate" => Grate(dx, dy, out _),
@@ -499,6 +517,33 @@ namespace WorldServer.logic.behaviors
                         return new Look("Bastion Rim", obj);
                     var inlay = major == 9 && minor >= 3 || major == 3 && minor <= 3 || ax == ay && major >= 12;
                     return new Look(inlay ? "Bastion Inlay" : "Bastion Flagstone", obj);
+                }
+                case "keep":
+                {
+                    var obj = ax == 9 && ay == 9 ? "Bastion Pillar" : null;
+                    if (edge)
+                        return new Look("Bastion Rim", obj);
+                    var inlay = major == 5 || ax == ay && major >= 2 && major <= 7;
+                    return new Look(inlay ? "Bastion Inlay" : "Bastion Flagstone", obj);
+                }
+                case "lagoon":
+                {
+                    if (edge)
+                        return new Look("Sanctum Rim");
+                    if (r <= 4)
+                        return new Look(r > 3.2 ? "Coral Isle" : "Sanctum Mosaic");
+                    if (r < 8.5)
+                    {
+                        for (var k = 0; k < 4; k++)
+                            if (Ang(a, Math.PI / 2 * k + Math.PI / 4) * r <= 1.2)
+                                return new Look("Sanctum Shallows");
+                        return new Look("Deep Tide");
+                    }
+                    string spire = null;
+                    for (var k = 0; k < 4; k++)
+                        if (dx == (int)Math.Round(Math.Cos(Math.PI / 2 * k) * 12) && dy == (int)Math.Round(Math.Sin(Math.PI / 2 * k) * 12))
+                            spire = "Coral Spire";
+                    return new Look(r < 9.3 ? "Coral Isle" : "Sanctum Mosaic", spire);
                 }
                 case "wheel":
                 {

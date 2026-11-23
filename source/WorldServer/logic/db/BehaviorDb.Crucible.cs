@@ -50,6 +50,10 @@ namespace WorldServer.logic
             //   other way; two spirals of shards turning opposite ways weave a lattice round him,
             //   hounds run at you; three Bastion Banners rise, and while any
             //   stands he is armoured.
+            // - 12%: Last Bastion: the floor falls back to the inner keep, square, and he holds its
+            //   middle; its walls close in on him one after another, molten, each with two gates on
+            //   opposite sides that keep their place as it closes: slip out through one. He throws
+            //   his anvil's cross and double rings at whoever is caught inside with him.
             .Init("Bastion Heart",
                 new State(
                     new State("Idle"),
@@ -64,7 +68,9 @@ namespace WorldServer.logic
                         ),
                         new State("Blades", new SweepingArms("Grinding Blade", 2, G(3), G(15.5), 2.2, 22)),
                         // the whirlwind drags two blades round the star fort, against his spirals
-                        new State("Tempest", new SweepingArms("Grinding Blade", 2, G(4), G(17), 2.2, -22))
+                        new State("Tempest", new SweepingArms("Grinding Blade", 2, G(4), G(17), 2.2, -22)),
+                        // the keep's walls closing in, one at a time, two gates in each
+                        new State("Bastion", new ClosingWalls("Molten Grate", G(9), G(2), G(1.6), 2, 3.2, everyMs: 6500))
                     )
                 )
             )
@@ -166,6 +172,8 @@ namespace WorldServer.logic
                         new TimedTransition(2200, "Tempest")
                     ),
                     new State("Tempest",
+                        new HpLessTransition(0.12, "Bastion Rise"),
+                        new RemoveEntitiesOnExit(40, "Bastion Banner"),
                         new SetAltTexture(1),
                         new Order(40, "Bastion Heart", "Tempest"),
                         new SpawnRing("Bastion Banner", 4, G(17), 45, aroundSpawn: true), // on the star fort's bastions
@@ -185,6 +193,26 @@ namespace WorldServer.logic
                             new Taunt(true, "My standards... no matter. I need no banner.") { Bubble = false },
                             new LeapStrike(CrucibleSight, 2.8, 320, 1500, 6000, 2, 14)
                         )
+                    ),
+                    new State("Bastion Rise",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ReturnToSpawn(1.5),
+                        new SetAltTexture(1),
+                        new CrucibleCue(24, shake: true),
+                        new Flash(IronGlow, 0.15, 14),
+                        new Taunt(true, "The last wall stands. So do I.") { Bubble = false },
+                        new Order(40, "Bastion Heart", "Bastion"),
+                        new TimedTransition(2600, "Last Bastion")
+                    ),
+                    new State("Last Bastion",
+                        new SetAltTexture(1),
+                        new Order(40, "Bastion Heart", "Bastion"),
+                        // he holds the keep's middle, where its walls close in on him
+                        new StayCloseToSpawn(0.6, Gi(2)),
+                        IronKit(0.85),
+                        AnvilCross(2200),
+                        DoubleRing(14, 2, 3400, 300),
+                        new Shoot(CrucibleSight, 1, projectileIndex: 3, predictive: 0.8, coolDown: 2000, coolDownOffset: 1000)
                     )
                 ),
                 new Threshold(0.01,
@@ -234,6 +262,10 @@ namespace WorldServer.logic
             //   bubbles spiral out the same way.
             // - 33%: Maelstrom: the whirlpool turns the other way, the lanes stay quiet; two spirals
             //   of bubbles turning opposite ways cross round her.
+            // - 12%: Tsunami: the floor becomes a lagoon, her islet in the middle of deep water, a
+            //   reef round it; one great wave after another rolls over the whole floor from a new
+            //   side, each with a single dry lane through it, shown first at its edge: find the
+            //   lane. Two eels hunt the lagoon, and she rings out tide orbs from her islet.
             .Init("Sanctum Heart",
                 new State(
                     new State("Idle"),
@@ -246,7 +278,13 @@ namespace WorldServer.logic
                             new RemoveEntitiesOnExit(25, "Riptide Eel")
                         ),
                         new State("Whirlpool", new SweepingArms("Surging Tide", 2, G(3), G(17), 2.2, 24, curve: 10)),
-                        new State("Maelstrom", new SweepingArms("Surging Tide", 2, G(3), G(16.5), 2.2, -28, curve: -11))
+                        new State("Maelstrom", new SweepingArms("Surging Tide", 2, G(3), G(16.5), 2.2, -28, curve: -11)),
+                        // great waves, one lane through each
+                        new State("Tsunami",
+                            new TideSweep("Surging Tide", G(15.5), 4, 4.5, 1, 5, warnMs: 1800, everyMs: 6500),
+                            new SpawnRing("Riptide Eel", 2, G(6), 45, aroundSpawn: true),
+                            new RemoveEntitiesOnExit(25, "Riptide Eel")
+                        )
                     )
                 )
             )
@@ -310,6 +348,7 @@ namespace WorldServer.logic
                         new TimedTransition(2200, "Maelstrom")
                     ),
                     new State("Maelstrom",
+                        new HpLessTransition(0.12, "Tsunami Rise"),
                         new SetAltTexture(1),
                         new Order(40, "Sanctum Heart", "Maelstrom"),
                         new Prioritize(new StayCloseToSpawn(0.8, Gi(7)), new Wander(0.6)),
@@ -319,6 +358,26 @@ namespace WorldServer.logic
                         new Shoot(0, 3, 120, fixedAngle: 60, rotateAngle: -12, projectileIndex: 2, coolDown: 500, coolDownOffset: 250),
                         // quick tridents thrown where you're going
                         new Shoot(CrucibleSight, 3, 8, projectileIndex: 3, predictive: 0.8, coolDown: 1600, coolDownOffset: 800)
+                    ),
+                    new State("Tsunami Rise",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ReturnToSpawn(1.5),
+                        new SetAltTexture(1),
+                        new CrucibleCue(25, shake: true),
+                        new Flash(TideGlow, 0.15, 14),
+                        new Taunt(true, "Then the sea itself will stand up and fall on you.") { Bubble = false },
+                        new Order(40, "Sanctum Heart", "Tsunami"),
+                        new TimedTransition(2600, "Tsunami")
+                    ),
+                    new State("Tsunami",
+                        new SetAltTexture(1),
+                        new Order(40, "Sanctum Heart", "Tsunami"),
+                        // on her islet
+                        new StayCloseToSpawn(0.6, Gi(2)),
+                        TideKit(0.85),
+                        // rings of swaying tide orbs, each turned half a gap, out over the lagoon
+                        new Shoot(0, 12, 30, fixedAngle: 0, rotateAngle: 15, projectileIndex: 1, coolDown: 2000),
+                        new Shoot(CrucibleSight, 3, 8, projectileIndex: 3, predictive: 0.8, coolDown: 1800, coolDownOffset: 900)
                     )
                 ),
                 new Threshold(0.01,
@@ -353,6 +412,10 @@ namespace WorldServer.logic
             // - 35%: The Crucible Pours: the floor's edge cracks and falls away into the sky, for the
             //   rest of the fight, embers raining over what's left; then Molten Core: a meteor on each of you now and then, and a
             //   spiral of magma.
+            // - 12%: Molten Sea: the crucible fills. Everything but an island of slag-rimmed floor
+            //   glows, then floods with molten metal, and the island drifts across it: get onto it
+            //   and stay on it; it drains, and fills again with the island somewhere else. He
+            //   stands in the melt, throwing magma and slag at you.
             .Init("Foundry Heart",
                 new State(
                     new State("Idle"),
@@ -370,7 +433,9 @@ namespace WorldServer.logic
                             new State("Pour", new Starfall(Starfall.Area.Scatter, G(9), 1.8, 280, 600, color: LavaGlow)),
                             new State("Molten",
                                 new Starfall(Starfall.Area.Players, CrucibleSight, 1.8, 300, 3200, color: LavaGlow)
-                            )
+                            ),
+                            // the crucible fills but for a drifting island (the spout and all)
+                            new State("Sea", new SafeIsland("Forge Lava", "Cooling Slag", G(14.5), G(3.2), G(5.5), G(1)))
                         )
                     )
                 )
@@ -434,6 +499,7 @@ namespace WorldServer.logic
                         new TimedTransition(1800, "Molten")
                     ),
                     new State("Molten",
+                        new HpLessTransition(0.12, "Sea Rise"),
                         new SetAltTexture(1),
                         new Order(40, "Foundry Heart", "Molten"),
                         new Prioritize(new StayCloseToSpawn(0.6, Gi(5)), new Follow(0.5, CrucibleSight, 3)),
@@ -441,6 +507,26 @@ namespace WorldServer.logic
                         new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 13, projectileIndex: 3, coolDown: 600),
                         // cinders flung where you're going
                         new Shoot(CrucibleSight, 3, 10, projectileIndex: 1, predictive: 0.8, coolDown: 1500, coolDownOffset: 700)
+                    ),
+                    new State("Sea Rise",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ReturnToSpawn(1.5),
+                        new SetAltTexture(1),
+                        new CrucibleCue(26, shake: true),
+                        new Flash(LavaGlow, 0.15, 14),
+                        new Taunt(true, "The crucible is full. Swim in it!") { Bubble = false },
+                        new Order(40, "Foundry Heart", "Sea"),
+                        new TimedTransition(2600, "Sea")
+                    ),
+                    new State("Sea",
+                        new SetAltTexture(1),
+                        new Order(40, "Foundry Heart", "Sea"),
+                        // he stands in the melt
+                        new StayCloseToSpawn(0.6, Gi(2)),
+                        ForgeKit(0.85),
+                        // a slow spiral of magma, and heavy slag lobbed where you're going
+                        new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 11, projectileIndex: 3, coolDown: 700),
+                        new Shoot(CrucibleSight, 1, projectileIndex: 4, predictive: 0.8, coolDown: 2400, coolDownOffset: 1200)
                     )
                 ),
                 new Threshold(0.01,
@@ -478,6 +564,9 @@ namespace WorldServer.logic
             //   shoot. He blinks about with a lighter kit and no rushers.
             // - 35%: Reversal: the clock's hands run backwards and faster, and so do his: two hands of gears
             //   sweeping back round him.
+            // - 12%: Zero Hour: the dial is cut into its twelve hours again and counts down: every
+            //   third hour burns at once, the next three a step round each time, while both hands
+            //   sweep slowly round over them. He blinks about and throws his kit faster.
             .Init("Orrery Heart",
                 new State(
                     new State("Idle"),
@@ -492,7 +581,12 @@ namespace WorldServer.logic
                         // Hour Echo blinking onto it, with time to get off it
                         new State("Fracture", new SectorChime("Chime Light", 12, G(3), G(16.5), null, warnMs: 2800, litMs: 1100, gapMs: 1400,
                             casters: "Hour Echo", color: ChronoGlow)),
-                        new State("Reversal", ClockHands(G(17.5), -1.15))
+                        new State("Reversal", ClockHands(G(17.5), -1.15)),
+                        // the hours counting down in thirds, the hands slowly over them
+                        new State("Zero", new FloorLayers(
+                            new SectorChime("Chime Light", 12, G(3), G(15.8), new[] { "100100100100", "010010010010", "001001001001" },
+                                warnMs: 1400, litMs: 1300, gapMs: 1300),
+                            ClockHands(G(15.8), 0.7)))
                     )
                 )
             )
@@ -554,6 +648,7 @@ namespace WorldServer.logic
                         new TimedTransition(2200, "Reversal")
                     ),
                     new State("Reversal",
+                        new HpLessTransition(0.12, "Zero Rise"),
                         new SetAltTexture(1),
                         new Order(40, "Orrery Heart", "Reversal"),
                         new Prioritize(new StayCloseToSpawn(0.5, Gi(5)), new Wander(0.4)),
@@ -562,6 +657,33 @@ namespace WorldServer.logic
                         new Shoot(0, 2, 180, fixedAngle: -90, rotateAngle: -8, projectileIndex: 3, coolDown: 220),
                         // hand-blades thrown where you'll be
                         new Shoot(CrucibleSight, 2, 10, projectileIndex: 1, predictive: 0.8, coolDown: 1400, coolDownOffset: 700)
+                    ),
+                    new State("Zero Rise",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new ReturnToSpawn(1.5),
+                        new SetAltTexture(1),
+                        new CrucibleCue(27, shake: true),
+                        new Flash(ChronoGlow, 0.15, 14),
+                        new Taunt(true, "Zero hour. There is no after.") { Bubble = false },
+                        new Order(40, "Orrery Heart", "Zero"),
+                        new TimedTransition(2600, "Zero")
+                    ),
+                    new State("Zero",
+                        new SetAltTexture(1),
+                        new Order(40, "Orrery Heart", "Zero"),
+                        new State("Zero Fight",
+                            new Prioritize(new StayCloseToSpawn(0.5, Gi(4)), new Wander(0.4)),
+                            ClockKit(0.8, rushers: false),
+                            // the twelve hours rung out in gears
+                            new Shoot(0, 12, 30, fixedAngle: 15, projectileIndex: 3, coolDown: 2400),
+                            new TimedTransition(6000, "Zero Blink")
+                        ),
+                        new State("Zero Blink",
+                            new BlinkAround(G(3), G(8)),
+                            new Flash(ChronoGlow, 0.2, 2),
+                            new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 300),
+                            new TimedTransition(500, "Zero Fight")
+                        )
                     )
                 ),
                 new Threshold(0.01,
@@ -613,6 +735,9 @@ namespace WorldServer.logic
             // - Then Unbound to the end: the Apex re-forms as a halo of void marble round the void
             //   itself (Vaelith on the halo, set on it if the void opens under him), two slow arms
             //   of flame turning across it, double rings of void embers.
+            // - 8%: Final Aria: he sings the tower down. Three arms of flame turn the other way
+            //   round the halo, gold strikes fall on each of you, and he throws a crown of stars,
+            //   four arms spiralling out, with his lances through it.
             .Init("Apex Heart",
                 new State(
                     new State("Idle"),
@@ -642,7 +767,12 @@ namespace WorldServer.logic
                             new State("Breaks",
                                 new Starfall(Starfall.Area.Scatter, G(8), 1.8, 300, 1400, color: SovereignGlow)
                             ),
-                            new State("Unbound", new SweepingArms("Sovereign Flame", 2, G(5), G(16), 2.2, 24))
+                            new State("Unbound", new SweepingArms("Sovereign Flame", 2, G(5), G(16), 2.2, 24)),
+                            // three arms the other way, and gold falling on each of you
+                            new State("Aria",
+                                new SweepingArms("Sovereign Flame", 3, G(5), G(16), 2.0, -20),
+                                new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 2800, color: SovereignGlow)
+                            )
                         )
                     )
                 )
@@ -700,6 +830,7 @@ namespace WorldServer.logic
                         new TimedTransition(2500, "Unbound")
                     ),
                     new State("Unbound",
+                        new HpLessTransition(0.08, "Aria Rise"),
                         new SetAltTexture(2),
                         new Order(40, "Apex Heart", "Unbound"),
                         // on the halo (the void in its middle is sky: ArenaForm sets him on the halo
@@ -710,6 +841,24 @@ namespace WorldServer.logic
                         // then a fan of quick feathers at you
                         DoubleRing(12, 3, 3000, 350),
                         new Shoot(CrucibleSight, 7, 9, projectileIndex: 4, predictive: 0.7, coolDown: 2200, coolDownOffset: 1000)
+                    ),
+                    new State("Aria Rise",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new SetAltTexture(2),
+                        new CrucibleCue(28, shake: true),
+                        new Flash(SovereignGlow, 0.15, 16),
+                        new Taunt(true, "Hear it, then. The last song this tower will ever sing.") { Bubble = false },
+                        new Order(40, "Apex Heart", "Aria"),
+                        new TimedTransition(3000, "Aria")
+                    ),
+                    new State("Aria",
+                        new SetAltTexture(2),
+                        new Order(40, "Apex Heart", "Aria"),
+                        new Prioritize(new StayCloseToSpawn(0.6, Gi(13)), new Follow(0.5, CrucibleSight, 3)),
+                        SovereignKit(0.85),
+                        // the crown of stars: four arms spiralling out, and lances through it
+                        new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 9, projectileIndex: 2, coolDown: 300),
+                        new Shoot(CrucibleSight, 5, 8, projectileIndex: 0, predictive: 0.7, coolDown: 1800, coolDownOffset: 900)
                     )
                 ),
                 new Threshold(0.01,

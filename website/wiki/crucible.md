@@ -75,7 +75,12 @@ towers, the petals, the Apex's fortress and its cross hold still. Anyone left st
 of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
 
 The real danger is the champions' shots: each phase has patterns of its own to read and slip
-through. The floor adds at most one hazard at a time, quick but always shown before it strikes.
+through. The floor adds at most one hazard at a time (two only at Chronarch's zero hour), quick
+but always shown before it strikes.
+
+Every champion makes a **last stand** at the end of its health (12%, Vaelith at 8%): a moment
+untouchable while its floor changes one last time, then a phase of its own, harder than any before
+it.
 
 The shots aimed at you hit hard, about as hard as Oryx's last form, and carry each champion's
 afflictions; dodge them rather than stand in them. The big rings and spirals are lighter and carry
@@ -129,6 +134,10 @@ hammer.
   pointing out from each corner. A banner on each bastion guards him and his hammer whirls,
   dragging two blades of fire round the fort the other way, while two spirals of shards turning
   opposite ways weave a lattice round him.
+- **Last Bastion** (12%): the fort falls back to its inner keep, square, a tower at each corner,
+  and he holds its middle. Its walls close in on him one after another, molten, each with two
+  gates on opposite sides that keep their place as the wall closes: slip out through a gate, or
+  be caught inside with him, his anvil's cross and his double rings.
 
 ### II. The Drowned Sanctum: Nerissa, the Tidecaller
 
@@ -145,6 +154,10 @@ A sea-queen with a serpent's tail, a coral crown and a golden trident.
   across them, and her bubbles spiral out the same way.
 - **Maelstrom** (33%): a ring of coral round a vortex, an islet in its eye reached by three
   shallows. The tide's arms turn the other way, and two spirals of bubbles cross round her.
+- **Tsunami** (12%): a lagoon, her islet in the middle of deep water crossed by four shallows, a
+  ring of reef round it. Great waves roll over the whole floor one after another, each from a new
+  side, with a single dry lane through it, shown first at its edge: find the lane. Two eels hunt
+  the lagoon, and she rings out tide orbs from her islet.
 
 ### III. The Ember Foundry: Pyrrhax, the Forge Tyrant
 
@@ -164,6 +177,10 @@ A horned demon of rock and fire with wings of ash and a hammer of lava.
   drifting round, lava pouring in from the edge and embers raining over what's left.
 - **Molten Core:** his body goes molten, a meteor falls on each of you now and then, and a
   spiral of magma turns out from him.
+- **Molten Sea** (12%): the crucible fills. Everything but an island of floor, rimmed with slag,
+  glows, then floods with molten metal for six seconds while the island drifts across it: get
+  onto it and stay on it. It drains, then fills again with the island somewhere else. He stands
+  in the melt, throwing magma and slag at you.
 
 ### IV. The Clockwork Orrery: Chronarch, the Hour Thief
 
@@ -185,6 +202,9 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
   less than in his other phases, and sends no rushers.
 - **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
   backwards, both hands with it and faster, and two hands of gears sweep backwards round him.
+- **Zero Hour** (12%): the dial splits into its twelve petals again and counts down: every third
+  hour burns at once, the next three a step round each time, while both hands sweep slowly round
+  over them. He blinks about, ringing out the hours in gears.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 
@@ -212,6 +232,9 @@ set with the four floors' gems.
 - **Unbound:** the Apex re-forms as a halo of void marble round the void itself, rays of gold
   across it, Vaelith coming after you round the halo, his wings turned to the void. Two slow arms of
   flame turn across it, and he fires double rings of void embers.
+- **Final Aria** (8%): he sings the tower down. Three arms of flame turn the other way round the
+  halo, gold falls on each of you, marked first, and he throws a crown of stars, four arms
+  spiralling out, with his lances through it.
 
 ## The white bags
 

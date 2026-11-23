@@ -174,7 +174,7 @@ namespace Tests
         [Fact]
         public void EveryCueHasAName()
         {
-            for (byte c = 1; c <= 23; c++)
+            for (byte c = 1; c <= 28; c++)
                 Assert.False(string.IsNullOrEmpty(CrucibleCues.Name(c)), "cue " + c);
             Assert.Equal(CrucibleCues.Names.Count, CrucibleCues.Names.Values.Distinct().Count());
         }

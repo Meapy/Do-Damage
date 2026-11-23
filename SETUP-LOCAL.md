@@ -862,6 +862,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   The Hall of Champions has **Crucible Solo** and **Crucible Group** boards (`ChampionTab` 10 and
   11, statues on the tower's balcony: `STATUE_BOARDS`), rewarding `CrucibleLoot`, more loot from
   the Crucible's monsters outside the boards' loot cap (`Loots.cs`).
+- **The Crucible's last stands** (2026-11-23): each champion's last phase (12%, Vaelith 8%),
+  cues 24 to 28 (`CrucibleCues`, the client's `crucible.rs`). Ferrogrim's Last Bastion: the `keep`
+  form and `ClosingWalls` (square walls closing on the middle, gates that keep their place);
+  Nerissa's Tsunami: the `lagoon` form and a one-lane `TideSweep`; Pyrrhax's Molten Sea:
+  `SafeIsland` (the floor flooded but for a drifting island) in the crucible; Chronarch's Zero
+  Hour: a `SectorChime` in thirds under slow `ClockHands` on the petals; Vaelith's Final Aria:
+  three arms of `Sovereign Flame` and `Starfall` on the halo (`BehaviorDb.Crucible.cs`,
+  `Crucible.cs`, `CrucibleArenas.cs`).
 - **Calmer Crucible floors** (2026-11-23): a reshaping floor cracks everything that will fall at
   once; moving forms step every 4 s (`ArenaForm`'s `beatMs`); the hazards are slower and wider.
   Ground hits on squares a Crucible painter has just painted over count for 1.5 s
