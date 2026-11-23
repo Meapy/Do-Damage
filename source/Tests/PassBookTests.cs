@@ -81,7 +81,9 @@ namespace Tests
             Assert.Equal(100, book.XpIntoTier);
             book.Gain(data.Tiers * data.XpPerTier, book.Season.StartsAt);
             Assert.Equal(data.Tiers, book.Tier);
-            Assert.Equal(1, book.CachesReady);
+            // what's past the last tier, a Cache every BonusXp
+            Assert.Equal((2 * data.XpPerTier + 100) / data.BonusXp, book.CachesReady);
+            Assert.True(book.CachesReady >= 1);
         }
 
         [Fact]

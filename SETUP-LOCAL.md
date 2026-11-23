@@ -719,7 +719,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 - **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
   `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
-  `petfx.rs` and `pass.rs`): 60 tiers (1,000 XP each, as before), a reward on every free tier, the Burning Amulet
+  `petfx.rs` and `pass.rs`): 60 tiers of 2,000 XP (was 1,000), a reward on every free tier, the Burning Amulet
   and the season's grand pet effect at tier 60 Gilded. Pet effects are a cosmetic like auras
   (`pass.json`'s `petEffects`, ids never renumbered; the account's `pass` JSON `pets` and `pet`),
   worn through `PassAct` 7 and sent on the pet as stat 223 `PetEffect`; the Rust client draws them

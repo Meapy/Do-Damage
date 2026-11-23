@@ -11,7 +11,7 @@
   ],
   "price": 1000,
   "tiers": 60,
-  "xpPerTier": 1000,
+  "xpPerTier": 2000,
   "bonusXp": 1500,
   "pace": 0.75,
   "momentum": 50,
