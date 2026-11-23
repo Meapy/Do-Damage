@@ -316,8 +316,8 @@ messages! {
         // The Realm Pass window (after PassAct 0, and after each act): the season (empty while
         // none runs) and our place in it, every tier's rewards and claims, the Wayfarer's Cache's
         // possible rewards, what earns pass XP, the auras and name colours, the next season, and
-        // what a Gilded pass adds to the community goals' loot, and whether the Gilded chat title
-        // shows (older servers leave it out).
+        // what a Gilded pass adds to the community goals' loot, whether the Gilded chat title
+        // shows, and the pet effects and the one worn (older servers leave the last ones out).
         172 => PassData {
             now: i32, active: bool, season_key: String, season_name: String, theme: String,
             accent: i32, dark: i32, light: i32, starts_at: i32, ends_at: i32,
@@ -328,6 +328,7 @@ messages! {
             next_name: String, next_theme: String, next_starts_at: i32,
             community_luck: u8, community_rolls: u8,
             show_title: Option<bool>,
+            pet_effects: Option<List8<PassCosmetic>>, pet_effect: Option<u8>,
         },
         // Pass XP gained (after PassAct 0): how much, from what (`pass::source`), the total and
         // tier now, and whether Momentum added to it.

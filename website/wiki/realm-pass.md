@@ -4,19 +4,22 @@ nav: 31
 section: Every day
 sprite: crown
 eyebrow: A new road every month
-summary: The Realm Pass: a monthly season of 40 tiers earned by playing as you already do, the free track everyone has with its pets and white bags, the Gilded track for gold with its hand-drawn skins, boss and Oryx pets, Necromantic items, auras and name colours, Momentum for catching up, the Wayfarer's Caches past the last tier, and every season's rewards tier by tier. Built from the game's data.
+summary: The Realm Pass: a monthly season of 60 tiers earned by playing as you already do, the free track everyone has with its pets, white bags, pet food and a pet effect, the Gilded track for gold with its hand-drawn skins, boss and Oryx pets, Necromantic items, Growth Tonics, auras, pet effects and the Burning Amulet, Momentum for catching up, the Wayfarer's Caches past the last tier, and every season's rewards tier by tier. Built from the game's data.
 ---
 Every month the realm opens a new **season** of the **Realm Pass**: a road of
 **{{v:pass_tiers}} tiers**, each {{v:pass_tier_xp}} **pass XP**, earned by the things you do
 already: quests, the daily reward, dungeons, bosses, realms and fame. There's no list of chores and
 no tier slower than the one before.
 
-Everyone walks the **free track**: fame, Potions of Max, Elder keys and clovers, two pets (a small
-one and a medium one) and two white bags from the realm's dungeons. For **{{v:pass_price}} gold** a
-season you can gild it: the **Gilded track** pays a reward at every tier, among them the season's
-hand-drawn skins, two boss pets, a **Lil' Oryx**, two **Necromantic items** (the white bags of the
-Empowered Elder bosses), a **Potion of Maxy**, gold back, Elder keys, Potions of Max, a character
-slot, a name colour and the season's grand aura.
+Everyone walks the **free track**, a reward at every tier: fame, Potions of Max, Elder keys and
+clovers, **pet food**, three pets (two small and a medium one), three white bags from the realm's
+dungeons, the season's aura at tier 40 and a **pet effect** at tier 50. For **{{v:pass_price}} gold** a
+season you can gild it: the **Gilded track** pays more at every tier, among them the season's
+hand-drawn skins, four more pets (three of them boss pets), a **Lil' Oryx**, two **Necromantic items**
+and a white bag, two
+**Potions of Maxy**, **Royal Pet Feasts** and two **Growth Tonics**, a **Backpack**, gold back,
+Elder keys, Potions of Max, a character slot, a name colour, the season's grand aura, and at the last
+tier the season's grand **pet effect** and the **Burning Amulet**.
 
 > **Never too late.** Gilding is retroactive: every Gilded reward of a tier you've already reached
 > is ready the moment you buy it. And if you fall behind, **Momentum** speeds you up (below).
@@ -29,7 +32,7 @@ slot, a name colour and the season's grand aura.
   of the Warcaller at the north point of the Nexus's spawn island. He greets you with what waits.
 - `/pass` in the chat tells your tier, the XP to the next and the time left.
 
-The window has four tabs:
+The window has five tabs:
 
 - **Rewards**: the season's road, six tiers at a time (scroll with the wheel or the arrows). The
   free reward is above each tier and the Gilded one below; what you've reached and not claimed
@@ -37,6 +40,8 @@ The window has four tabs:
 - **Earn XP**: what gives pass XP, today's first-dungeon bonus, Momentum and the Gilded boost to
   the community goals.
 - **Looks**: the auras and name colours you own, each playing live, to wear or take off.
+- **Pets**: the pet effects you own, each shown on your pet, to put on it or take off, and the
+  season's pet food.
 - **Gilded perks**: everything the Gilded pass does while you hold it, beside its track, each
   marked Active once your pass is Gilded.
 
@@ -107,6 +112,19 @@ already, coming round again, pays {{v:pass_repeat_fame}} fame instead.
 Auras are hidden while you're invisible, and Options, Visuals turns particles (auras among them)
 off.
 
+## Pet effects and pet food
+
+**Pet effects** are a look for your pet, as an aura is for you: frosty paw prints, a crown of ice
+shards over its head, wings of fire, little moons circling it. Each season has two, one on each track
+(tier 50 free, tier 60 Gilded), and the Wayfarer's Cache now and then holds the rare **Prismatic**.
+Put one on your pet from the pass's **Pets** tab; it goes with whichever pet you have out, and
+everyone sees it. The first one you win goes on at once.
+
+**Pet food** is the pass's treats for the [Pen Keeper](pets.html): a **Pet Biscuit** (750 food), a
+**Hearty Pet Stew** (2,500) and a **Royal Pet Feast** (7,500). Unlike anything else, they cost **no
+fame** to feed. A **Growth Tonic** (two on the Gilded track) grows a Tiny, Small or Medium pet at its
+last level to the next size for free, where growing it would cost fame or gold.
+
 ## Past the last tier: the Wayfarer's Cache
 
 Reaching tier {{v:pass_tiers}} isn't the end: every {{v:pass_cache_xp}} pass XP more fills a
@@ -128,6 +146,6 @@ and name colours stay yours for good.
 ## Every tier
 
 The rewards of every season, tier by tier. Items go to the gift chest in your vault; fame and gold
-to your account. A highlighted row has a skin or an aura.
+to your account. A highlighted row has a skin, an aura or a pet effect.
 
 {{gen:pass_tracks}}

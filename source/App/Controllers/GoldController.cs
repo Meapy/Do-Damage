@@ -248,7 +248,7 @@ namespace App.Controllers
                 switch (r)
                 {
                     case GoldStore.CreditResult.Credited:
-                        _core.Logger.Info($"Gold: paid {order.Gold} gold into account {order.AccountId} (order {order.OrderId}, capture {c.CaptureId}, {order.Price} {order.Currency})".ForLog());
+                        _core.Logger.Info($"Gold: paid {order.Gold} gold into <{_core.Database.GetAccount(order.AccountId)?.Name}-{order.AccountId}> (order {order.OrderId}, capture {c.CaptureId}, {order.Price} {order.Currency})".ForLog());
                         _core.ISManager.Publish(Channel.Gold, new GoldMsg { AccountId = order.AccountId, Gold = order.Gold });
                         return new Outcome { Status = "credited", Balance = balance };
                     case GoldStore.CreditResult.AlreadyCredited:

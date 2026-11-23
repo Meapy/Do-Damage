@@ -25,7 +25,9 @@ namespace WorldServer.core.objects
     // he feeds only pets of the sizes the account's pen takes (DbAccount.PenSize): Tiny at first,
     // each bigger size bought with fame or gold (PetLevels.PenPrice). Any pet can be put in. A pet
     // at its last level can be grown to the next size, for fame or gold (PetLevels.GrowPrice): it
-    // levels on to the new size's last (PetGrown, kept with its food).
+    // levels on to the new size's last (PetGrown, kept with its food). The Realm Pass's treats
+    // (PetFood.Free) are fed without fame, and its Growth Tonic grows a Tiny, Small or Medium pet
+    // at its last level for nothing (13).
     partial class Player
     {
         // the shards he trades for an Ambrosia (PetPenData.ShardsNeeded)
@@ -149,8 +151,9 @@ namespace WorldServer.core.objects
         /// it the shards he keeps, 4 gives him the inventory's shards (fed to the pet, if one is out
         /// and still growing), 6 trades 25 of the shards he keeps for an Ambrosia, 9 and 10 make the
         /// pen take the next size of pets, for fame and for gold, 11 and 12 grow the pet out (at its
-        /// last level) to the next size, for fame and for gold. From before levels: 3 and 5 (raise
-        /// for a Superburger, an Ambrosia) feed it the first of those.</summary>
+        /// last level) to the next size, for fame and for gold, 13 grows it with the Growth Tonic in
+        /// `slot` (since 2.6.6). From before levels: 3 and 5 (raise for a Superburger, an Ambrosia)
+        /// feed it the first of those.</summary>
         public PetPenData PetPenAct(int action, int slot)
         {
             switch (action)
@@ -197,6 +200,8 @@ namespace WorldServer.core.objects
                 case 11:
                 case 12:
                     return GrowPet(action == 12);
+                case 13:
+                    return GrowWithTonic(slot);
                 case 4:
                     {
                         var slots = Enumerable.Range(4, Inventory.Length - 4).Where(s => Inventory[s]?.ObjectId?.StartsWith(PetFood.ShardPrefix) == true).ToList();
@@ -314,16 +319,43 @@ namespace WorldServer.core.objects
             var unpaid = PayPen("Growing your pet", fame, credits, gold);
             if (unpaid != null)
                 return PetPenState(false, unpaid);
+            return Grown(size, gold ? $"{credits} gold" : $"{fame} fame");
+        }
+
+        // the pet out (of size index `size`) grows to the next size, paid with `paid`
+        private PetPenData Grown(int size, string paid)
+        {
             PetGrown++;
             var next = PetLevels.Sizes[size + 1];
             SpawnPetIfAttached(World);
             if (Pet != null)
                 World.BroadcastIfVisible(new ShowEffect { EffectType = EffectType.AreaBlast, TargetObjectId = Pet.Id, Pos1 = new Position { X = 2.5f }, Color = new ARGB(0xffffd24a) }, Pet);
             var name = GameServer.Resources.GameData.ObjectDescs.TryGetValue((ushort)PetId, out var d) ? d.DisplayName : "Your pet";
-            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> grew {name} to {next} for {(gold ? $"{credits} gold" : $"{fame} fame")}");
+            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> grew {name} to {next} for {paid}");
             return PetPenState(true, size + 1 > PenSize
                 ? $"{name} is a {next} pet now, up to level {PetLevels.MaxLevel(next)}: grow your pen to feed it."
                 : $"{name} is a {next} pet now: feed it up to level {PetLevels.MaxLevel(next)}!");
+        }
+
+        // the pet out, at its last level, grows to the next size with the Growth Tonic in `slot`
+        // (a Tiny, Small or Medium pet: PetFood.TonicGrows)
+        private PetPenData GrowWithTonic(int slot)
+        {
+            if (slot < 4 || slot >= Inventory.Length || Inventory[slot]?.ObjectId != PetFood.GrowthTonic)
+                return PetPenState(false, "Pick a Growth Tonic from your inventory.");
+            if (PetId == 0)
+                return PetPenState(false, "Put a pet in first.");
+            var size = PetLevels.SizeIndex(PetSizeOf(PetId, PetGrown));
+            if (size < 0)
+                return PetPenState(false, "This pet doesn't grow.");
+            if (!PetFood.TonicGrows(size))
+                return PetPenState(false, "A Growth Tonic only grows Tiny, Small and Medium pets.");
+            if (PetGrowPrice().Fame <= 0)
+                return PetPenState(false, "Feed your pet to its last level first.");
+            Inventory[slot] = null;
+            if (slot < Inventory.Data.Length)
+                Inventory.Data[slot] = null;
+            return Grown(size, "a Growth Tonic");
         }
 
         private PetPenData FeedFirst(string id)
@@ -353,7 +385,8 @@ namespace WorldServer.core.objects
                 xp += value;
                 what = slots.Count == 1 ? Inventory[slot].DisplayName : $"{slots.Count} stacks of shards";
             }
-            var unpaid = Unpaid(xp);
+            // the Realm Pass's treats are fed without fame
+            var unpaid = slots.All(slot => PetFood.Free(Inventory[slot])) ? null : Unpaid(xp);
             if (unpaid != null)
                 return PetPenState(false, unpaid);
             foreach (var slot in slots)

@@ -88,6 +88,8 @@ RS_ONLY_SETS = [
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
     # the Quests and Nexus buttons' pictures and the Herald's week (tools/draw_ui_icons.py)
     ("uiIcons16x16", "kabam/rotmg/assets/custom/images/UiIcons16x16.png", 16, 16),
+    # the Realm Pass's pet food and Growth Tonic (tools/draw_pet_treats.py)
+    ("petTreats8x8", "kabam/rotmg/assets/custom/images/PetTreats8x8.png", 8, 8),
     # the Infernal potions, which take a stat past its maximum (tools/build_infernal_potions.py)
     ("infernalPotions8x8", "kabam/rotmg/assets/custom/images/InfernalPotions8x8.png", 8, 8),
     # Oryx 4's red-shaded daggers, Oryx 5's Ascended gems, and his weapons' shots and helpers

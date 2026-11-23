@@ -19,6 +19,7 @@ namespace Shared.pass
     public enum PassCode : byte
     {
         Claimed = 0, ClaimedAll = 1, Unlocked = 2, CacheOpened = 3, AuraWorn = 4, AuraOff = 5, ColorWorn = 6, ColorOff = 7, TitleShown = 8, TitleHidden = 9,
+        PetFxWorn = 10, PetFxOff = 11,
         NoSeason = 20, Guest = 21, NotReached = 22, AlreadyClaimed = 23, NothingToClaim = 24, NotEnoughGold = 25,
         AlreadyGilded = 26, PriceChanged = 27, NotOwned = 28, NoCache = 29, Failed = 30, NotHere = 31, Busy = 32, NotGilded = 33,
     }
@@ -82,12 +83,17 @@ namespace Shared.pass
             if (Season == null || Season.Key != season.Key)
                 Season = season;
             if (State.Season == season.Key)
+            {
+                Rescale(season.Def, season.Key);
+                Unmark(season);
                 return leftover;
+            }
             if (State.Season != null)
             {
                 var old = DefOf(State.Season);
                 if (old != null)
                 {
+                    Rescale(old, State.Season);
                     var tier = TierOf(State.Xp);
                     for (var t = 0; t < tier; t++)
                     {
@@ -107,7 +113,40 @@ namespace Shared.pass
             State.GildedClaimed = 0;
             State.CachesOpened = 0;
             State.FameCarry = 0;
+            // a season begun afresh has no marks from before its tiers were filled, and no XP
+            // earned at another XP per tier
+            State.FilledFor = season.Key;
+            State.RescaledFor = season.Key;
             return Grant(leftover);
+        }
+
+        // Once a season whose XP per tier changed while it ran (SeasonDef.XpPerTierWas): the XP
+        // earned towards its tiers is scaled to the new cost, so everyone stays on the tier they
+        // reached, as far into it; XP past the last tier (towards caches) is kept as it was.
+        private void Rescale(SeasonDef def, string key)
+        {
+            if (State.RescaledFor == key)
+                return;
+            var was = def?.XpPerTierWas ?? 0;
+            if (was > 0 && Data.XpPerTier > 0 && was != Data.XpPerTier && State.Xp > 0)
+            {
+                long top = (long)Data.Tiers * was;
+                long inTiers = Math.Min(State.Xp, top), past = State.Xp - inTiers;
+                State.Xp = (int)Math.Min(int.MaxValue, inTiers * Data.XpPerTier / was + past);
+            }
+            State.RescaledFor = key;
+        }
+
+        // Once a season: the marks on free tiers filled since they were set (SeasonDef.Filled) are
+        // cleared, so their new rewards wait to be claimed.
+        private void Unmark(Season season)
+        {
+            if (State.FilledFor == season.Key)
+                return;
+            foreach (var t in season.Def.Filled)
+                if (t >= 1 && t <= Data.Tiers)
+                    State.FreeClaimed &= ~(1L << (t - 1));
+            State.FilledFor = season.Key;
         }
 
         // A season's definition by the key a state holds: its id, or "<id>-yyyy-MM".
@@ -291,8 +330,8 @@ namespace Shared.pass
                 State.GildedSeasons.Add(Season.Key);
         }
 
-        // Auras and name colours become the account's (the first of each is worn at once); one it
-        // has already pays fame instead. Other rewards pass as they are.
+        // Auras, name colours and pet effects become the account's (the first aura and pet effect
+        // are worn at once); one it has already pays fame instead. Other rewards pass as they are.
         public List<PassReward> Grant(List<PassReward> rewards)
         {
             var paid = new List<PassReward>();
@@ -317,6 +356,17 @@ namespace Shared.pass
                         continue;
                     }
                     State.Colors.Add(r.Color);
+                }
+                else if (r.PetFx > 0)
+                {
+                    if (State.PetEffects.Contains(r.PetFx))
+                    {
+                        paid.Add(new PassReward { Fame = Data.RepeatFame });
+                        continue;
+                    }
+                    State.PetEffects.Add(r.PetFx);
+                    if (State.PetEffect == 0)
+                        State.PetEffect = r.PetFx;
                 }
                 paid.Add(r);
             }
@@ -349,6 +399,19 @@ namespace Shared.pass
             return new PassClaim { Ok = true, Code = PassCode.ColorWorn, Count = id, Message = $"Your name shows in {Data.Color(id).Name}." };
         }
 
+        public PassClaim WearPetEffect(int id)
+        {
+            if (id == 0)
+            {
+                State.PetEffect = 0;
+                return new PassClaim { Ok = true, Code = PassCode.PetFxOff, Message = "Your pet wears no effect." };
+            }
+            if (!State.PetEffects.Contains(id) || Data.PetEffect(id) == null)
+                return PassClaim.Fail(PassCode.NotOwned, "You don't have that pet effect.");
+            State.PetEffect = id;
+            return new PassClaim { Ok = true, Code = PassCode.PetFxWorn, Count = id, Message = $"Your pet wears {Data.PetEffect(id).Name}." };
+        }
+
         // The Gilded pass's [Gilded] title in chat, shown or hidden (only while the pass is Gilded).
         public PassClaim ShowTitle(bool show)
         {
@@ -365,5 +428,8 @@ namespace Shared.pass
 
         // The worn aura (0: none, or one the data no longer has).
         public int WornAura => State.Aura > 0 && Data.Aura(State.Aura) != null && State.Auras.Contains(State.Aura) ? State.Aura : 0;
+
+        // The worn pet effect (0: none, or one the data no longer has).
+        public int WornPetEffect => State.PetEffect > 0 && Data.PetEffect(State.PetEffect) != null && State.PetEffects.Contains(State.PetEffect) ? State.PetEffect : 0;
     }
 }

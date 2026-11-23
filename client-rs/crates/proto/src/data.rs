@@ -243,7 +243,8 @@ wire_struct! {
 }
 
 wire_struct! {
-    /// An aura or name colour of the Realm Pass: its id, name, colour, and whether we have it.
+    /// An aura, name colour or pet effect of the Realm Pass: its id, name, colour, and whether we
+    /// have it.
     pub struct PassCosmetic {
         pub id: u8,
         pub name: String,
@@ -587,6 +588,8 @@ pub mod stat {
     pub const GHOST: u8 = 220;
     /// The Realm Pass aura a player wears (its id; `auras.rs` draws it).
     pub const AURA: u8 = 222;
+    /// The Realm Pass effect a pet wears (its id; `petfx.rs` draws it).
+    pub const PET_FX: u8 = 223;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

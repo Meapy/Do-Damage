@@ -717,6 +717,34 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Crucible's caches** (2026-11-23; `logic/behaviors/CrucibleCaches.cs`, `BehaviorDb.Crucible.cs`,
+  `tools/build_crucible.py` `CACHES`, `tools/crucible/small.py` `caches()`, the Rust client's
+  `particles/cache.rs`): while a champion can be hurt, `CrucibleCaches` drops a cache beside a
+  climber (every 18 s, the first at 10 s, two with 3+ climbers, 3 standing at most); broken, its
+  `CacheCharge` launches the charge at the champion, which lands for a share of its max health from
+  the breaker (no defense) and afflictions forced past its immunities (`Entity.ForceConditionEffect`).
+  Six kinds (`CrucibleCache.Kinds`, in the same order in the script and the client): Powder Keg,
+  Stormglass Jar, Frost Cask, Rending Crate, Hex Urn, Gilded Reliquary. Drawn by relic looks 58-60;
+  the callouts over the champion are translated by the client (`cache::callout`).
+
+- **`/resetcrucible`** (2026-11-23; `commands/admin/Command.ResetCrucible.cs`,
+  `Shared/crucible/CrucibleReset.cs`, `CrucibleAccess.ResetAll` and `OnReset`): an admin gives
+  everyone their Crucible climbs back for the UTC day. Every account that began a climb today
+  (`crucibleDay`) gets `crucibleClimbs` 0 in Redis, online or not, and the admin is told how many;
+  then an inter-server message (`Channel.Crucible`, `CrucibleMsg`) has every world server on that
+  Redis reload the field for the players it holds (their accounts keep their own copy) and tell
+  those who had climbed. Climbs begun after it count again as usual.
+- **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
+  `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
+  `petfx.rs` and `pass.rs`): 60 tiers of 2,000 XP (was 1,000: a season's `xpPerTierWas` scales the XP earned at the old cost once, `PassBook.Rescale`, so nobody's tier moves), a reward on every free tier, the Burning Amulet
+  and the season's grand pet effect at tier 60 Gilded. Pet effects are a cosmetic like auras
+  (`pass.json`'s `petEffects`, ids never renumbered; the account's `pass` JSON `pets` and `pet`),
+  worn through `PassAct` 7 and sent on the pet as stat 223 `PetEffect`; the Rust client draws them
+  by id (`petfx.rs`). A season's `filled` lists the free tiers filled while it runs, whose old
+  claim marks are cleared once per state (`filled` in the JSON). Pet food (Pet Biscuit, Hearty
+  Pet Stew, Royal Pet Feast) feeds without fame (`PetFood.Free`); a Growth Tonic grows a Tiny,
+  Small or Medium pet a size for free (Pen Keeper act 13). Art by `tools/draw_pet_treats.py`.
+  `/passadmin petfx <id>`.
 - **Growing a pet, Huge pets, 100% for the rest** (2026-11-23; `PetLevels.cs` `GrowPrice`,
   `GrownSize` and `Power`, `Player.PetPen.cs` `GrowPet`, the client's `petlevels.rs` and
   `petpen.rs`): a pet at its last level can be grown to the next size at the Pen Keeper (acts 11

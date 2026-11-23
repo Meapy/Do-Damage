@@ -35,6 +35,11 @@ namespace Shared.isc
         // the gold store paid or took back gold (App GoldController): the server the account
         // plays on updates its gold and tells it (WorldServer GoldNews)
         [Description("Gold")]
-        Gold
+        Gold,
+
+        // an admin gave everyone their Crucible climbs back for today (/resetcrucible): each world
+        // server reloads them for the players it holds (WorldServer CrucibleAccess.OnReset)
+        [Description("Crucible")]
+        Crucible
     }
 }

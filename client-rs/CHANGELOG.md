@@ -12,6 +12,28 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.6 (2026-11-23)
+
+### The Crucible
+- **New shots for every champion:** each throws shots that look like its own (hot iron, the sea, the melt, clockwork, gold and flame), the ones aimed at you trailing sparks, and some new ones that don't fly straight: Ferrogrim's hammers and Chronarch's blades spin out and come back, Nerissa's tide crests wash back, Pyrrhax's meteor fragments weave and Vaelith's halo shards loop round him. The quieter phases (Lockdown, the Tidal Lanes, Rising Tide, Meteor Storm, the Crucible Pours, Midnight, the Crucible Breaks and more) now throw more at you, and every champion bursts out two rings of shots as it rises into a new phase.
+- **The tower's caches:** in every champion's fight the Crucible now drops caches beside you out of the sky: Powder Kegs, Stormglass Jars, Frost Casks, Rending Crates, Hex Urns and the rare Gilded Reliquary. Break one (any weapon, blade or ability) and its charge launches at the champion, homing on it: a big chunk of its health and, by kind, a stun, a freeze, broken armor, a hex or all of them at once, straight through its immunities. The small ones break in a few blows, so melee classes can grab them too.
+
+### Gold Store
+- PayPal receipts for gold now name the account the gold went to ("1,000 Gold for <your name>").
+
+### Scrying Glass
+- **See the boss fight:** the big view shows the boss the player you watch is after, as their own corner does: its health, and who has done how much damage to it.
+
+### Realm Pass
+- **60 tiers, a reward at every one:** the pass now goes to tier 60, each tier taking 2,000 XP (was 1,000), and the free track pays something at every tier: pet food, fame, potions, another pet, another white bag and, at tier 50, a pet effect. The Gilded track adds more pets, a second Potion of Maxy, Royal Pet Feasts, Growth Tonics, a Backpack and, at tier 60, the season's grand pet effect and the **Burning Amulet**. Nobody drops a tier: the XP you've earned this season is doubled to match, so you stay on the tier you reached.
+- **Pet effects:** frosty paw prints, a crown of ice shards, a flickering flame, wings of fire, a trail of stars, little moons circling your pet, and the rare Prismatic from the Wayfarer's Cache. Put one on from the pass's new **Pets** tab; everyone sees it on whichever pet you have out.
+
+### Pets
+- **Pet food from the Realm Pass:** Pet Biscuits, Hearty Pet Stews and Royal Pet Feasts feed your pet at the Pen Keeper without costing any fame. A **Growth Tonic** grows a Tiny, Small or Medium pet at its last level to the next size for free.
+
+### Website
+- **dodmg.com is redesigned:** a new layout in the site's own pixel type, violet, ember and gold, with Oryx the Ascended God's fight playing at the top of the home page in 3D, built from the game's own sprites: his Wardens, his Host and his Ichor Sprites walking about, a party of six classes dodging and fighting him, and his whole fight from the Radiant Cross to his Apotheosis, the Last Judgement and his fall, with his taunts as he says them. The screenshots, the six Oryx stages, the features and the downloads are laid out anew, and the wiki, gold store and changelog share the new look.
+
 ## 2.6.5 (2026-11-23)
 
 ### The Crucible

@@ -9,11 +9,14 @@ status, the downloads and the newest changes, the full changelog page and the wi
 - {{DOWNLOADS}} lists the desktop client zips in dist/ (Do-Damage-<os>.zip, from
   tools/build_client_rs.py --package), which are copied into downloads/. Build them with the
   account server the site's players use (--account http://<public address>:8080).
-- Everything else in website/ (style.css, scene.css, site.js, scene.js, palette.js, vendor/,
-  favicon.svg, and the gallery's screenshots/) is copied as it is. scene.js draws the 3D backdrop
-  with Three.js (vendor/three.min.js, r149, kept here so no page loads a script from elsewhere);
-  palette.js is the Ctrl+K search over the wiki's index. The sprites are drawn by site.js; the screenshots are WebP files taken with the
-  Rust client's --shot on a test stack: <name>.webp at 1600x900 and <name>-small.webp at 640x360.
+- Everything else in website/ (style.css, site.js, scene.js, palette.js, vendor/, favicon.svg,
+  and the gallery's screenshots/) is copied as it is. scene.js draws the home page's hero with
+  Three.js (vendor/three.min.js, r149, kept here so no page loads a script from elsewhere): Oryx
+  the Ascended God's fight, his minions and a party of players built in cubes from their sprites
+  ({{BOSS_6}} and {{HERO_HOST}}, see build_wiki.stage_bosses).
+  palette.js is the Ctrl+K search over the wiki's index. The small pixel icons are drawn by
+  site.js; the screenshots are WebP files taken with the Rust client's --shot on a test stack:
+  <name>.webp at 1600x900 and <name>-small.webp at 640x360.
 - website/wiki/ is the wiki's guides, which tools/build_wiki.py builds into wiki/ with the
   sections it generates from the game's data (see its docstring).
 - For search engines: {{URL}} is the site's address (--url); every page gets a canonical link and

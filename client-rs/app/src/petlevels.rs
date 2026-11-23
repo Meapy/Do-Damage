@@ -204,6 +204,21 @@ const LONG_TIERS: [i32; 9] = [1, 2, 3, 6, 7, 8, 14, 17, 24];
 /// Untiered gear's food by its bag (BagType 0-9, white 6 the rarest), Ascended gear's.
 const UNTIERED_XP: [i32; 10] = [150, 200, 300, 400, 600, 800, 2000, 1000, 1200, 1500];
 const ASCENDED_XP: i32 = 3000;
+/// The Realm Pass's treats (from 2.6.6): fed without fame.
+const TREATS: [(&str, i32); 3] = [("Pet Biscuit", 750), ("Hearty Pet Stew", 2500), ("Royal Pet Feast", 7500)];
+/// The Realm Pass's Growth Tonic: not food; the Pen Keeper grows a Tiny, Small or Medium pet at
+/// its last level a size with it, for nothing (`tonic_grows`).
+pub const GROWTH_TONIC: &str = "Growth Tonic";
+
+/// Whether feeding the item `id` costs no fame (the Realm Pass's treats).
+pub fn treat_free(id: &str) -> bool {
+    TREATS.iter().any(|(t, _)| *t == id)
+}
+
+/// Whether a Growth Tonic grows a pet of size index `size` (`SIZES`): Tiny, Small and Medium.
+pub fn tonic_grows(size: usize) -> bool {
+    size < 3
+}
 
 /// One of `item` fed to a pet, 0 if pets don't eat it.
 pub fn food(data: &GameData, item: i32) -> i32 {
@@ -214,6 +229,9 @@ pub fn food(data: &GameData, item: i32) -> i32 {
     }
     if id == "Ambrosia" {
         return 5000;
+    }
+    if let Some((_, xp)) = TREATS.iter().find(|(t, _)| *t == id) {
+        return *xp;
     }
     if let Some(n) = id.strip_prefix(SHARD) {
         let quantity = xml.int("Quantity", 0);
@@ -345,5 +363,12 @@ mod tests {
         assert_eq!((grown_size(Some("Tiny"), 2), grown_size(Some("Large"), 3), grown_size(None, 1)), (Some("Medium"), Some("Huge"), None));
         assert_eq!(stack(r#"{"Stack":5,"MaxStack":10}"#), 5);
         assert_eq!(stack(""), 0);
+    }
+
+    #[test]
+    fn the_realm_pass_treats_are_free_and_the_tonic_grows_small_pets() {
+        assert!(treat_free("Royal Pet Feast") && treat_free("Pet Biscuit"));
+        assert!(!treat_free("Superburger") && !treat_free(GROWTH_TONIC));
+        assert_eq!((0..5).map(tonic_grows).collect::<Vec<_>>(), [true, true, true, false, false]);
     }
 }

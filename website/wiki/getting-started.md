@@ -226,7 +226,9 @@ the stone water basins at its corners do. From there:
   Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on
   them, and beside it a chat for everyone watching: the player you watch sees what you say there,
   and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. The corner of
-  the picture shows the gear they wear (hover an item for its details), and **Ask to join** asks
+  the picture shows the gear they wear (hover an item for its details), its top corner the boss
+  they're after once it's in sight (its health, and the top five by damage, with their own share
+  when they're not among them), and **Ask to join** asks
   them to let you in where they are, as [`/visit`](commands.html) does, and into a realm too:
   if they say Yes you go straight there. Players in the Nexus, a vault or a guild hall
   aren't shown, and `/glass off` keeps you out of it.

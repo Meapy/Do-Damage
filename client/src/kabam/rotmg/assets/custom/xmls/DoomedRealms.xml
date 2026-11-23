@@ -9890,8 +9890,7 @@
 			<Index>0</Index>
 		</Texture>
 		<SlotType>9</SlotType>
-		<Unobtainable />
-		<Description>Lost in time and space, till now.</Description>
+		<Description>Lost in time and space, till now: the last prize of the Gilded Realm Pass.</Description>
 		<ActivateOnEquip stat="20" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="15">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>

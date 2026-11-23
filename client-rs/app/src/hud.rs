@@ -3748,7 +3748,8 @@ pub fn draw_quest(
     let below = match (q, desc) {
         (Some(q), Some(desc)) if boss_showing(world, quest) => {
             let (hp, max) = (q.stat_int(stat::HP).unwrap_or(0), q.stat_int(stat::MAX_HP).unwrap_or(0));
-            draw_boss(ui, lay, world, q, desc, hp, max, dealt, top.filter(|_| near), near) + GAP * lay.s
+            let me = world.player().map(|p| (p, tr("You")));
+            draw_boss(ui, lay, [0.0, 0.0], me, q, desc, hp, max, dealt, top.filter(|_| near), near) + GAP * lay.s
         }
         _ => 0.0,
     };
@@ -3818,14 +3819,28 @@ fn draw_quest_arrow(ui: &mut Ui, lay: &Layout, camera: &crate::view::Camera, q: 
     object_icon(ui, q.object_type, ax - ca * 30.0 * s, ay - sa * 30.0 * s, 34.0 * s);
 }
 
-/// The boss's box at the top left: its picture, its name and a health bar; under it, a
-/// see-through box with the five who did the most damage (their class, damage and share) and
-/// ours. Returns how far down they reach.
+/// The Scrying Glass's picture: the watched player's quest (`world`'s object `quest`), as their
+/// own top left shows it, from `at`: its health and the five who did the most damage, and the
+/// watched player's share under their name when they're not among them. Returns how far down it
+/// reaches, or nothing when the quest isn't in sight.
+pub fn draw_watched_boss(ui: &mut Ui, lay: &Layout, at: [f32; 2], world: &World, quest: Option<i32>, top: Option<&crate::game::QuestDamage>, watched: Option<&GameObj>) -> Option<f32> {
+    let q = quest.and_then(|id| world.objects.get(&id)).filter(|_| boss_showing(world, quest))?;
+    let desc = ui.data.objects.get(&q.object_type).filter(|d| d.enemy)?;
+    let (hp, max) = (q.stat_int(stat::HP).unwrap_or(0), q.stat_int(stat::MAX_HP).unwrap_or(0));
+    let me = watched.map(|p| (p, p.name().unwrap_or("")));
+    Some(draw_boss(ui, lay, at, me, q, desc, hp, max, &HashMap::new(), top, true))
+}
+
+/// The boss's box at the top left (or from `at`): its picture, its name and a health bar; under
+/// it, a see-through box with the five who did the most damage (their class, damage and share)
+/// and `me`'s (us, or the one the Scrying Glass shows: their object and how their row is
+/// labelled). Returns how far down they reach.
 #[allow(clippy::too_many_arguments)]
 fn draw_boss(
     ui: &mut Ui,
     lay: &Layout,
-    world: &World,
+    at: [f32; 2],
+    me: Option<(&GameObj, &str)>,
     q: &GameObj,
     desc: &ObjectDesc,
     hp: i32,
@@ -3835,9 +3850,11 @@ fn draw_boss(
     near: bool,
 ) -> f32 {
     let s = lay.s;
-    let r = [0.0, 0.0, HISTORY_W * s, 52.0 * s];
+    let r = [at[0], at[1], HISTORY_W * s, 52.0 * s];
     hud_box(ui, r, s);
-    square_corner(ui, color::PANEL_TOP, s);
+    if at == [0.0, 0.0] {
+        square_corner(ui, color::PANEL_TOP, s);
+    }
     // The picture, in a slot at the left.
     let slot = within(r, s, 6.0, 6.0, 40.0, 40.0);
     ui.slot_box(slot, Some(color::DANGER), false, s);
@@ -3876,7 +3893,7 @@ fn draw_boss(
     // Who did the most of it (the server's count, when it sends one), then how much we did
     // (BossHealthBar.setDamageInflicted), unless we're among them.
     let top = top.filter(|t| t.object_id == q.id);
-    let me = world.player();
+    let (me, me_label) = (me.map(|m| m.0), me.map_or("", |m| m.1));
     let my_name = me.and_then(|p| p.name()).unwrap_or("");
     let shown: Vec<&crate::game::Hitter> = top.map(|t| t.hitters.iter().take(BOSS_TOP).collect()).unwrap_or_default();
     // our damage and assist credit
@@ -3898,7 +3915,7 @@ fn draw_boss(
         }
         if let (Some(d), false) = (mine, me_listed) {
             let class = me.map_or(0, |p| p.object_type);
-            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], None, tr("You"), class, d, max, color::ACCENT_HI);
+            hitter_row(ui, lay, [box_r[0] + 4.0 * s, y, box_r[2] - 8.0 * s, row_h], None, me_label, class, d, max, color::ACCENT_HI);
         }
         bottom = box_r[1] + box_r[3];
     }

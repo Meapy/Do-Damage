@@ -134,6 +134,7 @@ namespace WorldServer.core
             ChatManager.Initialize();
             Marketplace.Init();
             GoldNews.Init();
+            core.worlds.impl.crucible.CrucibleAccess.Listen(this);
             WeeklyStats.Start(Database.Conn);
             // the Arena season this server plays has begun, if it hadn't (its leaderboard's dates)
             Shared.database.leaderboard.ArenaSeasons.Begin(Database.Conn);

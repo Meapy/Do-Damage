@@ -1466,6 +1466,12 @@
    "h": 16
   },
   {
+   "name": "petTreats8x8",
+   "file": "kabam/rotmg/assets/custom/images/PetTreats8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "infernalPotions8x8",
    "file": "kabam/rotmg/assets/custom/images/InfernalPotions8x8.png",
    "w": 8,

@@ -31,6 +31,7 @@ mod market;
 mod particles;
 mod pass;
 mod petlevels;
+mod petfx;
 mod petpen;
 mod petals;
 mod pings;
@@ -3367,6 +3368,7 @@ impl App {
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
                 game.particles.champion_auras(world, data, dt);
+                game.particles.cache_auras(world, data, dt);
                 game.particles.crucible_ground(world, data);
                 game.particles.trails(world, data, dt);
             }
@@ -3694,7 +3696,9 @@ impl App {
                 let inv: Vec<(u8, [f32; 4])> = p.slots.iter().filter(|s| matches!(s.kind, hud::SlotKind::Inventory(_))).map(|s| (s.index, s.rect())).collect();
                 self.vault.draw(&mut ui, &lay, world.player(), &inv, mouse, now);
                 self.quests.draw(&mut ui, &lay, world.player(), mouse, now);
-                self.pass.draw(&mut ui, &lay, world.player(), mouse, now);
+                // our pet out, for the pass's Pets tab
+                let my_pet = world.me.and_then(|me| world.objects.values().find(|o| o.pet_owner() == Some(me))).map(|o| o.object_type);
+                self.pass.draw(&mut ui, &lay, world.player(), my_pet, mouse, now);
                 // the toasts and banners wait while we die
                 if game.dying.is_none() {
                     self.quests.draw_toasts(&mut ui, &lay, now);
