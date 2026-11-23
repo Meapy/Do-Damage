@@ -1,6 +1,7 @@
 ---
 title: Quests and Achievements
-nav: 4
+nav: 30
+section: Every day
 sprite: chest
 eyebrow: Every day
 summary: Daily, weekly and monthly quests, the daily login reward and achievements: how they work, every quest that can come up, the reward track, every achievement and the ranks with their name colours. Built from the game's data.

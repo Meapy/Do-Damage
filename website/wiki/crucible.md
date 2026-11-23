@@ -1,7 +1,7 @@
 ---
 title: The Crucible
-nav: 5
-parent: dungeons
+nav: 11
+section: Dungeons and loot
 sprite: anvil
 eyebrow: Bosses only
 summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the white bags and the climb's leaderboard.

@@ -1,6 +1,7 @@
 // The wiki's live parts: the search over every page (window.WIKI_INDEX, written by
-// tools/build_wiki.py), the filters on the dungeon, pet and gear lists, the tabs on the class gear
-// pages, and the page menu on phones.
+// tools/build_wiki.py and loaded by palette.js the first time someone searches), the filters on the
+// dungeon, pet and gear lists, the tabs on the class gear pages, the page menu on phones, the
+// "On this page" list following the reader, and the button back to the top.
 (function () {
   "use strict";
 
@@ -10,12 +11,28 @@
   function fold() { if (nav) nav.open = !narrow.matches; }
   fold();
   if (narrow.addEventListener) narrow.addEventListener("change", fold);
+  // the list scrolls on its own beside the page: start it at this page
+  var here = nav && nav.querySelector("[aria-current]");
+  var navBox = nav && nav.querySelector("nav");
+  if (here && navBox && !narrow.matches && navBox.scrollHeight > navBox.clientHeight) {
+    var at = here.getBoundingClientRect().top - navBox.getBoundingClientRect().top;
+    navBox.scrollTop = Math.max(0, at - navBox.clientHeight / 3);
+  }
 
   // --- Search ---------------------------------------------------------------------------------
   var input = document.getElementById("wiki-q");
   var list = document.getElementById("wiki-results");
-  var index = window.WIKI_INDEX || [];
+  var index = window.WIKI_INDEX || null;
   var picked = -1;
+  function need() {
+    if (index) return;
+    var got = function (all) { index = all; if (input && input.value) show(); };
+    if (window.ddWikiIndex) { window.ddWikiIndex(got); return; }
+    var s = document.createElement("script");  // palette.js didn't load: fetch it here
+    s.src = root + "search-index.js";
+    s.onload = function () { got(window.WIKI_INDEX || []); };
+    document.head.appendChild(s);
+  }
   // the index's links are from the wiki's root; pages in gear/ and classes/ are one folder down
   // (only ever "" or "../" steps: anything else in the attribute is not used as a link)
   var root = document.body.getAttribute("data-wiki") || "";
@@ -79,6 +96,15 @@
     list.innerHTML = "";
     picked = -1;
     if (!terms.length) { list.hidden = true; return; }
+    if (!index) {
+      need();
+      var wait = document.createElement("li");
+      wait.className = "none";
+      wait.textContent = "Loading the search…";
+      list.appendChild(wait);
+      list.hidden = false;
+      return;
+    }
     var hits = [];
     index.forEach(function (e) {
       var s = score(e, terms);
@@ -115,7 +141,7 @@
 
   if (input && list) {
     input.addEventListener("input", show);
-    input.addEventListener("focus", function () { if (input.value) show(); });
+    input.addEventListener("focus", function () { need(); if (input.value) show(); });
     input.addEventListener("keydown", function (e) {
       if (e.key === "ArrowDown") { move(1); e.preventDefault(); }
       else if (e.key === "ArrowUp") { move(-1); e.preventDefault(); }
@@ -138,6 +164,52 @@
     var q = new URLSearchParams(location.search).get("q");
     if (q) { input.value = q; show(); }
   }
+
+  // --- "On this page": the section being read is marked, and the list keeps it in view -------------
+  var heads = [], byId = {};
+  document.querySelectorAll(".toc a[href^='#']").forEach(function (a) {
+    var h = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
+    if (h) { byId[h.id] = a; heads.push(h); }
+  });
+  var lit = null, queued = false;
+  function markToc() {
+    queued = false;
+    // the last heading above a line a third of the way down the window
+    var line = innerHeight / 3, now = null;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i].getBoundingClientRect().top <= line) now = heads[i]; else break;
+    }
+    var a = now ? byId[now.id] : null;
+    if (a === lit) return;
+    if (lit) lit.removeAttribute("aria-current");
+    lit = a;
+    if (!a) return;
+    a.setAttribute("aria-current", "true");
+    var box = a.closest("ul");
+    if (box && box.scrollHeight > box.clientHeight) {
+      var top = a.getBoundingClientRect().top - box.getBoundingClientRect().top;
+      if (top < 0 || top > box.clientHeight - 30) box.scrollTop += top - box.clientHeight / 3;
+    }
+  }
+
+  // --- Back to the top, once the page has been scrolled a long way ---------------------------------
+  var toTop = document.createElement("button");
+  toTop.type = "button";
+  toTop.className = "to-top";
+  toTop.setAttribute("aria-label", "Back to the top");
+  toTop.textContent = "↑";
+  toTop.hidden = true;
+  toTop.addEventListener("click", function () {
+    var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scrollTo({ top: 0, behavior: still ? "auto" : "smooth" });
+  });
+  document.body.appendChild(toTop);
+
+  addEventListener("scroll", function () {
+    toTop.hidden = scrollY < innerHeight * 1.5;
+    if (heads.length && !queued) { queued = true; requestAnimationFrame(markToc); }
+  }, { passive: true });
+  if (heads.length) markToc();
 
   // --- Tabs on a class's gear page: one panel at a time, picked by the address's #weapon, #ability...
   // Without the script every panel shows, one under the other. --------------------------------------

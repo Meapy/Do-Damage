@@ -1,6 +1,7 @@
 ---
 title: Community Goals
-nav: 4
+nav: 32
+section: Every day
 sprite: crown
 eyebrow: Every week, together
 summary: The community goals: what the whole server works towards each week, the Warcaller on the Nexus's Arena island, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.

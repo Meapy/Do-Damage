@@ -1,6 +1,7 @@
 ---
 title: Hall of Champions
-nav: 4
+nav: 33
+section: Every day
 sprite: crown
 eyebrow: The living's leaderboard
 summary: The Hall of Champions in the Nexus: nine boards (fame, stars, achievements, the Arena solo and in groups, weekly fame and dungeons, and guilds' living and dead fame), how each is ranked, and the reward each board's top 10 hold while they stay there.

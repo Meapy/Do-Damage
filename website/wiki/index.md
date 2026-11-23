@@ -1,6 +1,7 @@
 ---
 title: The Do Damage wiki
 nav: 0
+section: Start here
 sprite: crown
 eyebrow: Wiki
 summary: What to do, how to get stronger, and what everything does, for new players and old hands.
@@ -49,4 +50,8 @@ the site updates, so they match what you'll see in game.
 6. Put what you want to keep in your vault: when a character dies, it and everything it carries
    are gone, but its fame is yours to keep.
 
-Use the search box to find anything on these pages: a dungeon, a boss, an item or a command.
+## Every page
+
+Or search: press <kbd>/</kbd> or <kbd>Ctrl</kbd> <kbd>K</kbd> and type a dungeon, a boss, an item or a command.
+
+{{gen:wiki-map}}

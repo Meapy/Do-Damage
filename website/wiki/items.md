@@ -1,7 +1,7 @@
 ---
 title: Items
-nav: 7
-parent: classes
+nav: 21
+section: Classes and gear
 sprite: chest
 eyebrow: Gear and stuff
 summary: Item tiers and their colours, UT and ST items, keys and mystery boxes, your vault and potion storage, trading, the marketplace and the shops.

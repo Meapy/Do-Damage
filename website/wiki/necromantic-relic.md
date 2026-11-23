@@ -1,7 +1,7 @@
 ---
 title: Raising an Elder boss: the Necromantic Relic
-nav: 5
-parent: dungeons
+nav: 12
+section: Dungeons and loot
 sprite: skull
 eyebrow: Elder dungeons
 summary: How a Necromantic Relic brings a fallen Elder boss back in its Empowered form, and each boss's health, soul attacks, untiered item and drops. Built from the game's data.

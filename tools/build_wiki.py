@@ -11,9 +11,12 @@ with a sidebar, links between the pages and a search over all of them.
   (GENERATORS below: the dungeon list, the classes, the commands, the Oryx chain, the shops, the
   pets and more), and `{{v:<name>}}` in the text by a number read from the code (VALUES), so the
   pages stay true as the game changes. Run `python tools/wiki_data.py` to see what the data says.
-- The sidebar groups pages: one with `group: <name>` in its front matter heads a group of that
-  name and opens on itself; pages with `parent: <its slug>` are listed under it while one of the
-  group is showing.
+- Every page names its `section:` in the front matter, and `nav:` orders the pages (a section
+  comes where its first page does). The sidebar lists every page under its section, the
+  breadcrumbs and the wiki home's page map ({{gen:wiki-map}}) follow the sections, and Previous
+  and Next walk the pages in that order. A page with three or more ## headings gets an "On this
+  page" list, beside the page on wide screens.
+- The search index is loaded only when someone searches (palette.js loads it, wiki.js uses it).
 - The Gear statistics page (gear-statistics.md) takes its tables from tools/wiki_balance.py.
 - The Loot Simulation page (loot-simulation.md) takes its bosses' drops from tools/wiki_loot.py, and
   wiki/loot.js shows and rolls them.
@@ -1420,20 +1423,22 @@ TEMPLATE = """<!doctype html>
     <a class="pill-play" href="{site}play/">Play now</a>
   </header>
 
-  <div class="wiki-layout">
+  <div class="wiki-layout{layout}">
     <aside class="wiki-side">
       <div class="wiki-search" role="search">
         <label class="sr-only" for="wiki-q">Search the wiki</label>
         <input id="wiki-q" type="search" placeholder="Search the wiki" autocomplete="off" spellcheck="false">
+        <kbd class="wiki-key" aria-hidden="true">/</kbd>
         <ol class="wiki-results" id="wiki-results" hidden></ol>
       </div>
       <details class="wiki-nav" open>
-        <summary>Wiki pages</summary>
-        <nav aria-label="Wiki pages"><ul>{nav}</ul></nav>
+        <summary>Wiki pages <span>{section_now}</span></summary>
+        <nav aria-label="Wiki pages">{nav}</nav>
       </details>
     </aside>
 
     <main class="wiki-main">
+      <nav class="crumbs" aria-label="You are here"><ol>{crumbs}</ol></nav>
       <header class="wiki-head">
         <p class="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
@@ -1443,7 +1448,7 @@ TEMPLATE = """<!doctype html>
       <article class="prose">
 {body}
       </article>
-      <nav class="wiki-pager">{pager}</nav>
+      <nav class="wiki-pager" aria-label="Previous and next page">{pager}</nav>
     </main>
   </div>
 
@@ -1454,10 +1459,9 @@ TEMPLATE = """<!doctype html>
   </footer>
 
   <script src="{site}site.js?v={{{{BUILD}}}}"></script>
-  <script src="{site}palette.js?v={{{{BUILD}}}}"></script>
+  <script src="{site}palette.js?v={{{{BUILD}}}}" data-index="{wiki}search-index.js?v=@INDEX@"></script>
   <script src="{site}vendor/three.min.js" defer></script>
   <script src="{site}scene.js?v={{{{BUILD}}}}" defer></script>
-  <script src="{wiki}search-index.js?v=@INDEX@"></script>
   <script src="{wiki}wiki.js?v={{{{BUILD}}}}"></script>
 </body>
 </html>
@@ -1494,7 +1498,7 @@ def sections(page_title, url, body):
 def build(out_root, values=None):
     """Writes <out_root>/wiki. `values` fills {{NAME}} and the like as build_site.py does. Returns
     the game's counts for the home page: DUNGEONS, CLASSES and GEAR (as text): the dungeons the
-    wiki lists, the classes, and the gear players can get."""
+    wiki lists, the classes, and the gear players can get; and INDEX, the search index's ?v=."""
     values = values or {}
     out = os.path.join(out_root, "wiki")
     os.makedirs(out, exist_ok=True)
@@ -1512,6 +1516,41 @@ def build(out_root, values=None):
         elif os.path.isfile(path):
             shutil.copy2(path, os.path.join(out, name))
     pages.sort()
+    # the sections, in the order their first pages come
+    section_of, sec_order = {}, []
+    for _, slug, meta, _ in pages:
+        sec = meta.get("section")
+        if not sec:
+            raise SystemExit("wiki: %s.md names no section: in its front matter" % slug)
+        section_of[slug] = sec
+        if sec not in sec_order:
+            sec_order.append(sec)
+        elif sec_order[-1] != sec:
+            raise SystemExit("wiki: %s.md's nav: puts it apart from the rest of %s" % (slug, sec))
+    by_slug = {slug: meta for _, slug, meta, _ in pages}
+
+    def page_href(slug, up=""):
+        return up + ("./" if slug == "index" else slug + ".html")
+
+    def wiki_map(used):
+        """{{gen:wiki-map}}: every page as a card, under its section."""
+        out = ['<div class="wmap">']
+        for sec in sec_order:
+            ident = slugify(sec)
+            used.add(ident)
+            cards = "".join(
+                '<a class="wcard" href="%s"><i class="sprite" data-sprite="%s" data-px="3"></i>'
+                '<b>%s</b><span>%s</span></a>' % (
+                    page_href(s), esc(m.get("sprite", "portal")), esc(fill(m.get("title", s))),
+                    esc(fill(m.get("summary", ""))))
+                for _, s, m, _ in pages if section_of[s] == sec and s != "index")
+            out.append('<section class="wmap-sec"><h3 id="%s">%s</h3><div class="wmap-cards">%s</div></section>' % (
+                ident, esc(sec), cards))
+        out.append("</div>")
+        return "".join(out)
+
+    def generate(name, used):
+        return wiki_map(used) if name == "wiki-map" else gen(name, used)
 
     def fill(text):
         def val(m):
@@ -1521,38 +1560,43 @@ def build(out_root, values=None):
         return re.sub(r"\{\{v:(\w+)\}\}", val, text)
 
     def render(url, current, title, summary, body, pager, eyebrow, toc=""):
-        """A page at wiki/<url>; `current` is the guide it's marked under in the page list."""
+        """A page at wiki/<url>; `current` is the guide it's marked under in the page list (the
+        page itself, or the guide a generated gear page belongs to)."""
         up = "../" * url.count("/")
-        def item(s2, m2, label=None):
-            u2 = up + ("./" if s2 == "index" else s2 + ".html")
-            cur = ' aria-current="page"' if s2 == current else ""
-            return '<a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a>' % (
-                u2, cur, esc(m2.get("sprite", "portal")), esc(label or m2.get("title", s2)))
+        own = url == page_href(current).replace("./", "index.html")
 
-        # A page with `group:` heads a group named that, and opens on itself; the pages with
-        # `parent: <it>` are its sub-pages, listed under it while one of the group is showing.
+        def item(s2, m2):
+            cur = (' aria-current="page"' if own else ' aria-current="location"') if s2 == current else ""
+            return '<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
+                page_href(s2, up), cur, esc(m2.get("sprite", "portal")), esc(fill(m2.get("title", s2))))
+
         nav = []
-        for _, s2, m2, _ in pages:
-            if m2.get("parent"):
-                continue
-            kids = [(s3, m3) for _, s3, m3, _ in pages if m3.get("parent") == s2]
-            if not kids:
-                nav.append("<li>%s</li>" % item(s2, m2))
-                continue
-            here = current == s2 or any(s3 == current for s3, _ in kids)
-            sub = "".join("<li>%s</li>" % item(s3, m3) for s3, m3 in kids) if here else ""
-            nav.append('<li class="group%s">%s%s</li>' % (" open" if here else "", item(s2, m2, m2.get("group")),
-                                                          '<ul class="sub">%s</ul>' % sub if sub else ""))
+        for sec in sec_order:
+            here = section_of[current] == sec
+            nav.append('<div class="nav-sec%s"><p>%s</p><ul>%s</ul></div>' % (
+                " here" if here else "", esc(sec),
+                "".join(item(s2, m2) for _, s2, m2, _ in pages if section_of[s2] == sec)))
+
+        # Wiki > section > (the guide, for a gear page) > this page
+        crumbs = ['<li><a href="%s">Wiki</a></li>' % (up or "./")]
+        if current != "index":
+            crumbs.append('<li><a href="%s#%s">%s</a></li>' % (up or "./", slugify(section_of[current]), esc(section_of[current])))
+            if not own:
+                crumbs.append('<li><a href="%s">%s</a></li>' % (page_href(current, up), esc(fill(by_slug[current].get("title", current)))))
+            crumbs.append('<li aria-current="page">%s</li>' % title)
+
         head_title = "{{NAME}} wiki: a RotMG private server guide" if url == "index.html" else title + ": {{NAME}} wiki"
         page = TEMPLATE.format(head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
-                               body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./")
+                               body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./",
+                               layout=" has-toc" if toc else "", crumbs="".join(crumbs),
+                               section_now=esc(section_of[current]))
         return re.sub(r"\{\{(\w+)\}\}", lambda m: values.get(m.group(1), m.group(0)), page)
 
     index = []
     written = []
     for n, (order, slug, meta, text) in enumerate(pages):
         url = "index.html" if slug == "index" else slug + ".html"
-        body = markdown(fill(text), gen)
+        body = markdown(fill(text), generate)
         title = fill(meta.get("title", slug))
         summary = fill(meta.get("summary", ""))
         heads = re.findall(r'<h2 id="([^"]+)"><a[^>]*>#</a>(.*?)</h2>', body)
@@ -1560,14 +1604,13 @@ def build(out_root, values=None):
         if len(heads) > 2:
             toc = '<nav class="toc" aria-label="On this page"><p>On this page</p><ul>%s</ul></nav>' % "".join(
                 '<li><a href="#%s">%s</a></li>' % (h, t) for h, t in heads)
-        prev_p = pages[n - 1] if n > 0 else None
-        next_p = pages[n + 1] if n + 1 < len(pages) else None
         pager = ""
-        if prev_p:
-            pager += '<a class="prev" href="%s"><span>Previous</span>%s</a>' % (
-                "./" if prev_p[1] == "index" else prev_p[1] + ".html", esc(prev_p[2].get("title", "")))
-        if next_p:
-            pager += '<a class="next" href="%s"><span>Next</span>%s</a>' % (next_p[1] + ".html", esc(next_p[2].get("title", "")))
+        for cls, word, k in (("prev", "Previous", n - 1), ("next", "Next", n + 1)):
+            if 0 <= k < len(pages):
+                other = pages[k]
+                where = "" if section_of[other[1]] == section_of[slug] else " &middot; " + esc(section_of[other[1]])
+                pager += '<a class="%s" href="%s"><span>%s%s</span>%s</a>' % (
+                    cls, page_href(other[1]), word, where, esc(fill(other[2].get("title", ""))))
         written.append((url, render(url, slug, esc(title), summary, body, pager, esc(meta.get("eyebrow", "Wiki")), toc)))
         index.extend(sections(title, url, body))
 
@@ -1588,7 +1631,7 @@ def build(out_root, values=None):
             f.write(page.replace("@INDEX@", stamp))
     print("wiki: %d pages, %d dungeons, %d gear items on %d gear pages, %d search entries" % (
         len(pages), len(gen.dungeons()), len(gen.equip.items), len(written) - len(pages), len(index)))
-    return {"DUNGEONS": str(len(gen.dungeons())), "CLASSES": str(len(gen.d.classes())),
+    return {"DUNGEONS": str(len(gen.dungeons())), "CLASSES": str(len(gen.d.classes())), "INDEX": stamp,
             # gear players can get: not the future, set, reward, admin or retired items
             "GEAR": "{:,}".format(sum(1 for it in gen.equip.items if it["group"] in
                                       ("tiered", "untiered", "legendary", "ascended", "ethereal")))}

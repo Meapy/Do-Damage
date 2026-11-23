@@ -1,6 +1,7 @@
 ---
 title: Pets
-nav: 10
+nav: 26
+section: Classes and gear
 sprite: potion
 eyebrow: Companions
 summary: Every pet you can get, its size, how hard it hits, what else it does and where it drops, and the items that summon a helper for a while.

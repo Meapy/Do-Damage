@@ -1,6 +1,7 @@
 ---
 title: Loot Simulation
-nav: 5
+nav: 13
+section: Dungeons and loot
 sprite: chest
 eyebrow: What drops
 summary: Roll kills of Oryx 3, Oryx 4 and Oryx 5 and see what you'd get, with your share of the damage and your loot boosts: every drop's chance, the bags a kill gives, and a simulator. Built from the game's data.

@@ -1,13 +1,28 @@
 // Quick search on every page: press Ctrl+K (or / outside a text box), or the Search button in the top
-// bar. It reads the wiki's search index (wiki/search-index.js, loaded the first time) and opens the
-// page you pick. The site's address is taken from where this script itself was loaded.
+// bar. It reads the wiki's search index (wiki/search-index.js, loaded the first time anyone searches,
+// here or in the wiki's own box) and opens the page you pick. The site's address is taken from where
+// this script itself was loaded.
 (function () {
   "use strict";
-  if (typeof HTMLDialogElement !== "function") return;
   var me = document.currentScript;
   var base = me && me.src ? me.src.replace(/[^\/]*$/, "") : "";
-  var version = me && me.src && /\?v=([\w]+)/.exec(me.src);
-  var dialog, input, list, index = null, loading = false, picked = -1;
+  // the index's address, with its own ?v= (the page gives it); the wiki's own search uses it too
+  var indexUrl = (me && me.getAttribute("data-index")) || base + "wiki/search-index.js";
+  var dialog, input, list, index = null, picked = -1, waiting = [], loading = false;
+
+  // window.ddWikiIndex(callback): loads the search index once, the first time anyone searches
+  window.ddWikiIndex = function (done) {
+    if (window.WIKI_INDEX) { done(window.WIKI_INDEX); return; }
+    waiting.push(done);
+    if (loading) return;
+    loading = true;
+    var s = document.createElement("script");
+    s.src = indexUrl;
+    s.onload = function () { var all = waiting; waiting = []; all.forEach(function (f) { f(window.WIKI_INDEX || []); }); };
+    s.onerror = function () { loading = false; };
+    document.head.appendChild(s);
+  };
+  if (typeof HTMLDialogElement !== "function") return;  // the wiki's own box still searches
 
   function words(q) {
     return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });
@@ -82,13 +97,7 @@
   }
 
   function load() {
-    if (index || loading) return;
-    loading = true;
-    var s = document.createElement("script");
-    s.src = base + "wiki/search-index.js" + (version ? "?v=" + version[1] : "");
-    s.onload = function () { index = window.WIKI_INDEX || []; render(); };
-    s.onerror = function () { loading = false; };
-    document.head.appendChild(s);
+    if (!index) window.ddWikiIndex(function (all) { index = all; if (dialog && dialog.open) render(); });
   }
 
   function move(step) {
@@ -142,6 +151,7 @@
   document.addEventListener("keydown", function (e) {
     var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || "")) || e.target.isContentEditable;
     if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); open(); }
-    else if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey) { e.preventDefault(); open(); }
+    // on the wiki, "/" goes to the search box beside the page (wiki.js)
+    else if (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey && !document.getElementById("wiki-q")) { e.preventDefault(); open(); }
   });
 })();

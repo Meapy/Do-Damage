@@ -1,6 +1,7 @@
 ---
 title: The Divine Forge
-nav: 11
+nav: 24
+section: Classes and gear
 sprite: anvil
 eyebrow: Gear and stuff
 summary: Forging items at the Divine Forge in the Nexus: two of a tier make one of the next, what each tier costs, forge shards and the Ascended items, every other recipe, and selling items for fame.

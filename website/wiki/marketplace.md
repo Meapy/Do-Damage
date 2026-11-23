@@ -1,6 +1,7 @@
 ---
 title: Marketplace
-nav: 7
+nav: 35
+section: Every day
 sprite: chest
 eyebrow: Players selling to players
 summary: The Marketplace in the Nexus: listing items from your inventory or vault for fame or gold, browsing and buying, the market square's stalls, the taxes and limits, and your box and history.
