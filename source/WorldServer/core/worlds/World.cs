@@ -602,6 +602,26 @@ namespace WorldServer.core.worlds
         /// ring (DoomedBattleArena); anywhere else, wherever its movement takes it.</summary>
         public virtual bool MonsterMayStand(float x, float y) => true;
 
+        // Ground that hurt and was just painted over (the Crucible's moving hazards, CrucibleFloor):
+        // a client says it was hit on a square only once its message arrives, by when a quick
+        // hazard (a tide rolling across, a clock hand) may have moved on, and the hit the player
+        // saw was refused. For a moment after, the square's old ground still counts.
+        private readonly Dictionary<(int, int), (ushort Tile, long At)> _wasDamaging = new();
+        public const int RecentGroundMs = 1500;
+
+        public void GroundPaintedOver(int x, int y, ushort was)
+        {
+            var now = Environment.TickCount64;
+            if (_wasDamaging.Count > 4096)
+                foreach (var k in _wasDamaging.Where(e => now - e.Value.At > RecentGroundMs).Select(e => e.Key).ToList())
+                    _wasDamaging.Remove(k);
+            _wasDamaging[(x, y)] = (was, now);
+        }
+
+        /// <summary>The damaging ground square (x, y) had until moments ago, or 0.</summary>
+        public ushort RecentDamagingGround(int x, int y) =>
+            _wasDamaging.TryGetValue((x, y), out var w) && Environment.TickCount64 - w.At <= RecentGroundMs ? w.Tile : (ushort)0;
+
         /// <summary>IsPassable for a player at height z.</summary>
         public bool IsPassableAt(double x, double y, float z)
         {

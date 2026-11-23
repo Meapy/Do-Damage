@@ -661,10 +661,13 @@ namespace WorldServer.logic.behaviors
     // A floor changing shape through its champion's fight (BehaviorDb.Crucible.cs: on each Heart's
     // "Fight" state, ArenaForms has the shapes): each of the Heart's states has a form of its own,
     // and as the Heart moves into one, the floor turns into it in a wave out from the middle over
-    // `spreadMs`: ground that stays takes the form's stone, ground that goes cracks (`warnMs` before)
-    // and falls into the sky, ground that comes rises out of it, and pillars rise and fall with their
-    // squares. Once formed, a moving form (ArenaForms.Moves) keeps turning until the next, its
-    // squares cracking `warnMs` before they go. `reach` is at design size (ArenaForms.Grow).
+    // `spreadMs`: all the ground that will go cracks at once, then falls into the sky in that wave
+    // (`warnMs` after the cracks for the middle, `warnMs` + `spreadMs` for the rim), ground that
+    // stays takes the form's stone, ground that comes rises out of it, and pillars rise and fall with
+    // their squares. Once formed, a moving form (ArenaForms.Moves) keeps turning until the next, in
+    // steps rather than all the while, so the floor holds still between them: every `beatMs` it
+    // moves on as far as it has turned since, what goes cracking `warnMs` before and what comes
+    // rising as it does. `reach` is at design size (ArenaForms.Grow).
     // Whoever stands where the ground falls, or is left cut off from the rest of the floor
     // once it has formed (on a shard drifting off it, say), is thrown onto the nearest ground that is
     // part of it (`damage`), never under a pillar; with `moveFoes` monsters are set back on it too. Squares a hazard painter
@@ -673,16 +676,17 @@ namespace WorldServer.logic.behaviors
     // the floor goes back as the map has it.
     internal class ArenaForm : Behavior
     {
-        private readonly int _reach, _spreadMs, _warnMs, _damage;
+        private readonly int _reach, _spreadMs, _warnMs, _damage, _beatMs;
         private readonly bool _moveFoes;
 
-        public ArenaForm(int reach = 22, int spreadMs = 2400, int warnMs = 1600, int damage = 50, bool moveFoes = true)
+        public ArenaForm(int reach = 22, int spreadMs = 2400, int warnMs = 1600, int damage = 50, bool moveFoes = true, int beatMs = 4000)
         {
             _reach = (int)Math.Ceiling(reach * ArenaForms.Grow);
             _spreadMs = spreadMs;
             _warnMs = warnMs;
             _damage = damage;
             _moveFoes = moveFoes;
+            _beatMs = Math.Max(beatMs, warnMs + 500);
         }
 
         private sealed class S
@@ -691,11 +695,10 @@ namespace WorldServer.logic.behaviors
             public int Now, Began;
             public Dictionary<(int, int), (ushort G, ushort O)> Map0;
             public Dictionary<(int, int), (ushort G, ushort O, bool Decor)> Shown;
-            public readonly Dictionary<(int, int), (int At, ushort G, ushort O, bool Crack, ushort WasO)> Pending = new();
-            public readonly Random Rng = new Random();
+            public readonly Dictionary<(int, int), (int At, int CrackAt, ushort G, ushort O, bool Crack, ushort WasO)> Pending = new();
             // the form's layout worked out
             public (string Form, int Ms, Dictionary<(int, int), ArenaForms.Look> Layout) Last;
-            // how far into it a moving form was last set
+            // the step a moving form was last set to
             public int Moved;
         }
 
@@ -741,30 +744,30 @@ namespace WorldServer.logic.behaviors
                 {
                     var (g, o, decor) = Target(host, s, key);
                     var r = Math.Sqrt(key.Item1 * key.Item1 + key.Item2 * key.Item2);
-                    Schedule(s, key, g, o, decor, s.Now + _warnMs + (int)(r / _reach * _spreadMs) + s.Rng.Next(220), sky);
+                    Schedule(s, key, g, o, decor, s.Now + _warnMs + (int)(Math.Min(1, r / _reach) * _spreadMs), s.Now, sky);
                 }
                 s.Moved = 0;
             }
-            else if (ArenaForms.Moves(form) && s.Now - s.Began >= _spreadMs + _warnMs + Step)
+            else if (ArenaForms.Moves(form))
             {
-                // formed, it keeps turning: every Step it is set to where it will be `_warnMs` on, so
-                // what goes cracks that long before it falls, and what comes rises at once
-                var ms = (s.Now - s.Began - _spreadMs - _warnMs) / Step * Step;
-                if (ms != s.Moved)
+                // formed, it keeps turning in steps: `_warnMs` before each, it is set to where it
+                // will be then, so what goes cracks that long before it falls and what comes rises
+                // with the step
+                var formed = s.Began + _spreadMs + _warnMs;
+                var beat = (s.Now - formed + _warnMs) / _beatMs;
+                if (s.Now - formed + _warnMs >= _beatMs && beat != s.Moved)
                 {
-                    s.Moved = ms;
+                    s.Moved = beat;
+                    var at = formed + beat * _beatMs;
                     foreach (var key in s.Map0.Keys)
                     {
-                        var (g, o, decor) = Target(host, s, key, ms + _warnMs);
-                        Schedule(s, key, g, o, decor, g == sky ? s.Now + _warnMs : s.Now, sky);
+                        var (g, o, decor) = Target(host, s, key, beat * _beatMs);
+                        Schedule(s, key, g, o, decor, at, at - _warnMs, sky);
                     }
                 }
             }
             Apply(host, s, time, sky);
         }
-
-        // how often a moving form is moved on
-        private const int Step = 250;
 
         private Dictionary<(int, int), ArenaForms.Look> Layout(S s, int ms)
         {
@@ -784,8 +787,8 @@ namespace WorldServer.logic.behaviors
             return (look.Ground == null ? Ground(host, "Empty") : Ground(host, look.Ground), Obj(host, look.Obj), look.Decor);
         }
 
-        // `at` the square becomes (g, o); going to the sky, it cracks `_warnMs` before
-        private static void Schedule(S s, (int, int) key, ushort g, ushort o, bool decor, int at, ushort sky)
+        // `at` the square becomes (g, o); going to the sky, it cracks from `crackAt`
+        private static void Schedule(S s, (int, int) key, ushort g, ushort o, bool decor, int at, int crackAt, ushort sky)
         {
             var shown = s.Shown[key];
             if (shown.G == g && shown.O == o)
@@ -796,7 +799,7 @@ namespace WorldServer.logic.behaviors
             }
             var falls = g == sky && shown.G != sky;
             var wasO = s.Pending.TryGetValue(key, out var p) ? p.WasO : shown.O;
-            s.Pending[key] = (at, g, o, falls, wasO);
+            s.Pending[key] = (at, crackAt, g, o, falls, wasO);
             s.Shown[key] = (g, o, decor);
         }
 
@@ -812,7 +815,7 @@ namespace WorldServer.logic.behaviors
             {
                 var (x, y) = ((int)c.X + key.Item1, (int)c.Y + key.Item2);
                 var t = map[x, y];
-                if (p.Crack && s.Now >= p.At - _warnMs && s.Now < p.At)
+                if (p.Crack && s.Now >= p.CrackAt && s.Now < p.At)
                 {
                     if (t.TileId != crack && t.TileId != sky)
                     {

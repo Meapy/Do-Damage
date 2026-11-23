@@ -63,11 +63,12 @@ Every floor has a shape of its own, and each champion's aura grows as you wear i
 its floor joins in once a third of its health is gone, and more again at two thirds.
 
 The floors are big, with room to move round the champions. As each phase begins a floor reshapes
-itself in a wave out from its middle: ground that goes cracks for over a second first and falls
-into the sky, new ground rises out of it, and pillars rise and fall with it. Most shapes then keep
-turning slowly until the next phase (the gear, the star fort, the wheel of isles, the coral arms,
-the grate, the anvil, the crucible, the hourglass, the coil, the Apex's rings, shards and halo),
-so the ground under you keeps changing: what is about to fall still cracks first. Lockdown's
+itself: all the ground that will go cracks at once, then falls into the sky in a wave out from
+the middle, new ground rises out of it, and pillars rise and fall with it. Most shapes then keep
+turning until the next phase (the gear, the star fort, the wheel of isles, the coral arms, the
+grate, the anvil, the crucible, the hourglass, the coil, the Apex's rings, shards and halo), a step
+every few seconds and still in between: what is about to fall cracks first, then the floor shifts
+at once. Lockdown's
 towers, the petals, the Apex's fortress and its cross hold still. Anyone left standing where the ground falls, or cut off from the rest
 of the floor, is thrown back onto it (with a light hit), so watch for the cracks.
 
@@ -133,7 +134,7 @@ An atoll with a ragged coast and tide pools, five coral isles across it.
 
 A sea-queen with a serpent's tail, a coral crown and a golden trident.
 
-- **Tidal Lanes:** a band of surging tide rushes across the floor, shown first at its edge.
+- **Tidal Lanes:** a band of surging tide rolls across the floor, shown first at its edge.
   Step through one of its two wide gaps. She throws rings of swaying orbs, each turned half a gap.
 - **Rising Tide** (66%): the atoll sinks to a wheel: five dry isles, one in the middle and four on
   the rim, a ring of deep sea round it and channels out to them, Riptide Eels hunting in the deep.
@@ -171,7 +172,7 @@ A hooded thief of time with a clock for a face and an hourglass for a heart. Fou
 blades made of a clock's hands, and an orrery's ring wheels round him.
 
 - **Hour Hands:** the clock's two hands sweep round the floor and burn whoever they cross: the
-  broad hour hand, and the thin minute hand nearly three times as fast.
+  broad hour hand, and the narrower minute hand a little over twice as fast.
 - **Midnight Chime** (70%): the dial splits into twelve petals, one for each hour, and the hours
   light up in turn, half the floor at a time, with a rest between. Stand on a petal that isn't lit
   when it strikes, while a clock hand of blades sweeps round him.
@@ -188,7 +189,7 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
 The biggest floor: a star of marble with eight points, the tower's sigil inlaid in gold. It
 doesn't stay a star. With each phase it reshapes itself in a wave out from its middle: ground that
 goes cracks first and falls into the sky, new ground rises out of it, and anyone left standing where
-it falls is thrown onto what's left (and hurt).
+it falls is thrown onto what's left (and hurt). Vaelith too: he never stays over the sky.
 
 The tower's maker: a crowned champion in white and gold with wings of fire and a ring of gold
 set with the four floors' gems.
@@ -207,7 +208,7 @@ set with the four floors' gems.
 - **The Crucible Breaks** (20%): the Apex shatters. Only a disc of its middle is left, with its
   shards floating round it, all four echoes return at once and flame feathers bloom out of him.
 - **Unbound:** the Apex re-forms as a halo of void marble round the void itself, rays of gold
-  across it, with Vaelith hovering in the middle, his wings turned to the void. Two slow arms of
+  across it, Vaelith coming after you round the halo, his wings turned to the void. Two slow arms of
   flame turn across it, and he fires double rings of void embers.
 
 ## The white bags

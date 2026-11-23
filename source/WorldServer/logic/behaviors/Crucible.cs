@@ -5,6 +5,7 @@ using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
 using WorldServer.core.structures;
+using WorldServer.core.terrain;
 using WorldServer.core.worlds;
 using WorldServer.core.worlds.impl.crucible;
 using WorldServer.networking.packets.outgoing;
@@ -107,8 +108,7 @@ namespace WorldServer.logic.behaviors
                 {
                     if (t.TileId == now)
                     {
-                        t.TileId = was;
-                        t.UpdateCount++;
+                        Set(host, cx + key.X, cy + key.Y, t, was);
                         changed = true;
                     }
                     r.Painted.Remove(key);
@@ -131,8 +131,7 @@ namespace WorldServer.logic.behaviors
                         r.Painted.Remove(key); // something else has it now
                         continue;
                     }
-                    t.TileId = want;
-                    t.UpdateCount++;
+                    Set(host, x, y, t, want);
                     r.Painted[key] = (p.Was, want);
                     changed = true;
                     continue;
@@ -142,13 +141,22 @@ namespace WorldServer.logic.behaviors
                 if (t.ObjType != 0 && t.ObjDesc != null && (t.ObjDesc.FullOccupy || t.ObjDesc.OccupySquare))
                     continue;
                 r.Painted[key] = (t.TileId, want);
-                t.TileId = want;
-                t.UpdateCount++;
+                Set(host, x, y, t, want);
                 changed = true;
             }
             if (changed)
                 Floor.Refresh(host);
             After(host, r, time);
+        }
+
+        // the square's ground changed; if it hurt, the world remembers it did for a moment, so a
+        // hit the client took on it just before still counts (World.RecentDamagingGround)
+        private static void Set(Entity host, int x, int y, WmapTile t, ushort to)
+        {
+            if (host.GameServer.Resources.GameData.Tiles.TryGetValue(t.TileId, out var d) && d.Damaging)
+                host.World.GroundPaintedOver(x, y, t.TileId);
+            t.TileId = to;
+            t.UpdateCount++;
         }
 
         private static void Restore(Entity host, Run r)
@@ -162,8 +170,7 @@ namespace WorldServer.logic.behaviors
                 var t = map[(int)c.X + dx, (int)c.Y + dy];
                 if (t.TileId != now)
                     continue;
-                t.TileId = was;
-                t.UpdateCount++;
+                Set(host, (int)c.X + dx, (int)c.Y + dy, t, was);
             }
             r.Painted.Clear();
             Floor.Refresh(host);
@@ -182,7 +189,7 @@ namespace WorldServer.logic.behaviors
         private readonly int _warnMs;
 
         public SweepingArms(string tile, int arms, double inner, double outer, double width, double degPerSec,
-            int warnMs = 1500, string warnTile = "Crucible Warning", double curve = 0, int stepMs = 150) : base(stepMs)
+            int warnMs = 1500, string warnTile = "Crucible Warning", double curve = 0, int stepMs = 100) : base(stepMs)
         {
             _tile = tile;
             _warnTile = warnTile;
@@ -280,7 +287,7 @@ namespace WorldServer.logic.behaviors
         private readonly int _gaps, _warnMs, _everyMs;
 
         public TideSweep(string tile, double reach, double band, double speed, int gaps, double gapWidth, int warnMs = 1400,
-            int everyMs = 5500, string warnTile = "Crucible Warning") : base(120)
+            int everyMs = 5500, string warnTile = "Crucible Warning") : base(100)
         {
             _tile = tile;
             _warnTile = warnTile;

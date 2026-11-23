@@ -55,16 +55,16 @@ namespace WorldServer.logic
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Hammerfall", new FloorWave("Molten Grate", G(13.5), 8, 3, 80, everyMs: 3000)),
+                        new State("Hammerfall", new FloorWave("Molten Grate", G(13.5), 6.5, 3, 80, everyMs: 3000)),
                         new State("Lockdown",
                             // the drawbridges raised: nobody reaches him on his dais
                             new Rampart("Bastion Grate", G(13.5), (dx, dy) => Drawbridge(ArenaForms.Design(dx), ArenaForms.Design(dy))),
                             new SpawnRing("Iron Sentinel", 4, G(14), 45, aroundSpawn: true),
                             new RemoveEntitiesOnExit(20, "Iron Sentinel")
                         ),
-                        new State("Blades", new SweepingArms("Grinding Blade", 2, G(3), G(15.5), 1.6, 28)),
+                        new State("Blades", new SweepingArms("Grinding Blade", 2, G(3), G(15.5), 2.2, 22)),
                         // the whirlwind drags two blades round the star fort, against his spirals
-                        new State("Tempest", new SweepingArms("Grinding Blade", 2, G(4), G(17), 1.6, -26))
+                        new State("Tempest", new SweepingArms("Grinding Blade", 2, G(4), G(17), 2.2, -22))
                     )
                 )
             )
@@ -239,14 +239,14 @@ namespace WorldServer.logic
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Lanes", new TideSweep("Surging Tide", G(15), 2.5, 9.5, 2, 3.5, warnMs: 1500, everyMs: 5000)),
+                        new State("Lanes", new TideSweep("Surging Tide", G(15), 3, 7.5, 2, 3.5, warnMs: 1700, everyMs: 5500)),
                         // the wheel's ring and channels are the deep sea (ArenaForms), the eels in it
                         new State("Flood",
                             new SpawnRing("Riptide Eel", 3, G(12.5), 0, aroundSpawn: true),
                             new RemoveEntitiesOnExit(25, "Riptide Eel")
                         ),
-                        new State("Whirlpool", new SweepingArms("Surging Tide", 2, G(3), G(17), 1.7, 30, curve: 10)),
-                        new State("Maelstrom", new SweepingArms("Surging Tide", 2, G(3), G(16.5), 1.6, -36, curve: -11))
+                        new State("Whirlpool", new SweepingArms("Surging Tide", 2, G(3), G(17), 2.2, 24, curve: 10)),
+                        new State("Maelstrom", new SweepingArms("Surging Tide", 2, G(3), G(16.5), 2.2, -28, curve: -11))
                     )
                 )
             )
@@ -358,7 +358,7 @@ namespace WorldServer.logic
                     new State("Idle"),
                     new State("Fight",
                         new ArenaForm(),
-                        new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(11), G(15), everyMs: 3800, growMs: 40, warnMs: 900)),
+                        new State("Veins", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(11), G(15), everyMs: 3800, growMs: 60, warnMs: 1100)),
                         new State("Meteors",
                             new Starfall(Starfall.Area.Scatter, G(15), 2.2, 340, 900, color: LavaGlow)
                         ),
@@ -492,7 +492,7 @@ namespace WorldServer.logic
                         // Hour Echo blinking onto it, with time to get off it
                         new State("Fracture", new SectorChime("Chime Light", 12, G(3), G(16.5), null, warnMs: 2800, litMs: 1100, gapMs: 1400,
                             casters: "Hour Echo", color: ChronoGlow)),
-                        new State("Reversal", ClockHands(G(17.5), -1.3))
+                        new State("Reversal", ClockHands(G(17.5), -1.15))
                     )
                 )
             )
@@ -611,27 +611,28 @@ namespace WorldServer.logic
             //   left with its shards floating round it, the four ghosts together, gold raining, a
             //   flower of flame feathers.
             // - Then Unbound to the end: the Apex re-forms as a halo of void marble round the void
-            //   itself, two slow arms of flame turning across it, double rings of void embers.
+            //   itself (Vaelith on the halo, set on it if the void opens under him), two slow arms
+            //   of flame turning across it, double rings of void embers.
             .Init("Apex Heart",
                 new State(
                     new State("Idle"),
                     new State("Fight",
-                        new ArenaForm(reach: 25, spreadMs: 2600, moveFoes: false), // Vaelith hovers over the void
+                        new ArenaForm(reach: 25, spreadMs: 2600),
                         new State("Decree",
                             new Starfall(Starfall.Area.Players, CrucibleSight, 1.7, 320, 3200, color: SovereignGlow)
                         ),
                         // each echo brings back one thing of its floor, slowly
                         new State("Iron",
                             new State("Iron Turn", new TimedTransition(3800, "Iron Go")),
-                            new State("Iron Go", new SweepingArms("Grinding Blade", 2, G(3), G(19), 1.6, 28))
+                            new State("Iron Go", new SweepingArms("Grinding Blade", 2, G(3), G(19), 2.2, 22))
                         ),
                         new State("Tide",
                             new State("Tide Turn", new TimedTransition(3800, "Tide Go")),
-                            new State("Tide Go", new TideSweep("Surging Tide", G(20), 2.5, 10, 2, 3.5, warnMs: 1500, everyMs: 5000))
+                            new State("Tide Go", new TideSweep("Surging Tide", G(20), 3, 7.5, 2, 3.5, warnMs: 1700, everyMs: 6500))
                         ),
                         new State("Forge",
                             new State("Forge Turn", new TimedTransition(3800, "Forge Go")),
-                            new State("Forge Go", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(14), G(21), everyMs: 3800, growMs: 40, warnMs: 900))
+                            new State("Forge Go", new LavaVeins("Forge Lava", "Cooling Slag", 2, (int)G(14), G(21), everyMs: 3800, growMs: 60, warnMs: 1100))
                         ),
                         new State("Hours",
                             new State("Hours Turn", new TimedTransition(3800, "Hours Go")),
@@ -641,7 +642,7 @@ namespace WorldServer.logic
                             new State("Breaks",
                                 new Starfall(Starfall.Area.Scatter, G(8), 1.8, 300, 1400, color: SovereignGlow)
                             ),
-                            new State("Unbound", new SweepingArms("Sovereign Flame", 2, G(5), G(16), 1.6, 30))
+                            new State("Unbound", new SweepingArms("Sovereign Flame", 2, G(5), G(16), 2.2, 24))
                         )
                     )
                 )
@@ -701,7 +702,9 @@ namespace WorldServer.logic
                     new State("Unbound",
                         new SetAltTexture(2),
                         new Order(40, "Apex Heart", "Unbound"),
-                        new Prioritize(new StayCloseToSpawn(0.6, Gi(4)), new Follow(0.5, CrucibleSight, 3)),
+                        // on the halo (the void in its middle is sky: ArenaForm sets him on the halo
+                        // if he's left over it), after the players round it
+                        new Prioritize(new StayCloseToSpawn(0.6, Gi(13)), new Follow(0.5, CrucibleSight, 3)),
                         SovereignKit(0.9),
                         // a double ring of void embers, the second in the first's gaps, and now and
                         // then a fan of quick feathers at you
@@ -811,11 +814,11 @@ namespace WorldServer.logic
         private static double G(double squares) => squares * ArenaForms.Grow;
         private static int Gi(int squares) => (int)Math.Round(squares * ArenaForms.Grow);
 
-        // Chronarch's clock: its broad hour hand sweeping slowly, its thin minute hand three times as
-        // fast, `pace` times (negative: backwards); both hurt whoever they cross
+        // Chronarch's clock: its broad hour hand sweeping slowly, its narrower minute hand a little
+        // over twice as fast, `pace` times (negative: backwards); both hurt whoever they cross
         private static FloorLayers ClockHands(double outer, double pace) => new FloorLayers(
-            new SweepingArms("Hour Hand", 1, G(2.5), outer, 2.4, 18 * pace),
-            new SweepingArms("Hour Hand", 1, G(2.5), outer, 1.4, 50 * pace));
+            new SweepingArms("Hour Hand", 1, G(2.5), outer, 2.8, 14 * pace),
+            new SweepingArms("Hour Hand", 1, G(2.5), outer, 2.0, 32 * pace));
 
         // Lockdown's raised drawbridges (the towers form's), in its design squares
         // (a gate two squares deep across each bridge, not the whole bridge: grown, that was a solid

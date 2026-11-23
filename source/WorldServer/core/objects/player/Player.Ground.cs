@@ -45,6 +45,14 @@ namespace WorldServer.core.objects
                 return;
             var objDesc = tile.ObjType == 0 ? null : GameServer.Resources.GameData.ObjectDescs[tile.ObjType];
             var tileDesc = GameServer.Resources.GameData.Tiles[tile.TileId];
+            // a hazard that has just moved off the square (the Crucible's tides and clock hands):
+            // the client was hit by it before it went (World.RecentDamagingGround)
+            if (!tileDesc.Damaging)
+            {
+                var was = World.RecentDamagingGround((int)pos.X, (int)pos.Y);
+                if (was != 0 && GameServer.Resources.GameData.Tiles.TryGetValue(was, out var wasDesc) && wasDesc.Damaging)
+                    tileDesc = wasDesc;
+            }
 
             // The client rolled this damage from the sequence it shares with Client.Random, so the
             // roll is used up even when the hit is refused, as a refused shot's is (SkipShotRoll).

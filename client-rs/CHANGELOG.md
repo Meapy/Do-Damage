@@ -14,6 +14,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Crucible
+- **Calmer floors, as hard as before:** a floor that changes shape now cracks everywhere it will fall at once, and the floors that keep turning move in a step every few seconds and hold still in between, instead of crumbling at the edges all the time. The blades, tides, lava veins and clock hands move slower but are wider, so they're easier to follow.
+- **Hits from the tide now count:** walking through Nerissa's tide (or a clock hand) sometimes showed a damage number without taking any health. It now always takes it.
+- **Vaelith no longer gets stuck in the sky** when the Apex changes shape under him: he's put back on the floor, and in his last phase he comes after you round the halo.
+
 ### Website
 - **dodmg.com is redone in 3D:** fly through the castle town, past the gate and down through Oryx's six stages as you scroll the home page (each portal holding that stage's boss as the game draws it), under a night sky that follows you onto the wiki, the gold store and the changelog. Press **Ctrl+K** (or **/**) on any page to search the wiki, and on phones the menu button opens every link.
 - **The wiki is easier to get around:** every page is listed under four sections, shows where it sits, and leads on to the next in order; long pages keep "On this page" beside them on wide screens and have a button back to the top, the wiki home has a card for every page, and pages load faster.
