@@ -279,6 +279,11 @@ namespace WorldServer.core.objects
             _conditionEffectManager.AddCondition((byte)effect, durationMs);
         }
 
+        // past the entity's immunities: what breaks through them on purpose (the Crucible's caches
+        // landing on a champion, CrucibleCaches.cs)
+        public void ForceConditionEffect(ConditionEffectIndex effect, int durationMs) =>
+            _conditionEffectManager.AddCondition((byte)effect, durationMs);
+
         public void ExtendConditionEffect(ConditionEffectIndex effect, int durationMs)
         {
             if (!CanApplyCondition(effect))

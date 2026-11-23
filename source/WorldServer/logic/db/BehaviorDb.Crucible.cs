@@ -23,6 +23,10 @@ namespace WorldServer.logic
     // point is the middle, and every one sees the whole floor (Sight). Health scales with players
     // (BossStats, 0.35 a player after the first, halved for the Crucible as in the other hardest
     // places, GroupScaling: each player after the first adds about a sixth).
+    //
+    // Every champion also carries CrucibleCaches: while it can be hurt, the tower drops caches
+    // beside the climbers to break, each launching its charge at the champion for a share of its
+    // health and an affliction past its immunities (behaviors/CrucibleCaches.cs).
     partial class BehaviorDb
     {
         private const double CrucibleSight = 40;
@@ -77,6 +81,7 @@ namespace WorldServer.logic
             .Init("Ferrogrim, the Iron Warden",
                 new State(
                     new BossStats(150000, 60, 1.0, 0.35),
+                    new CrucibleCaches(), // the tower's caches beside the climbers (CrucibleCaches.cs)
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(IronGlow, 0.3, 6),
@@ -238,6 +243,13 @@ namespace WorldServer.logic
                     new ItemLoot("Lil' Ferrogrim Generator", 0.02)
                 )
             )
+            // the tower's caches (CrucibleCaches.cs): broken, each launches its charge at the champion
+            .Init("Powder Keg", new State(new CacheCharge()))
+            .Init("Stormglass Jar", new State(new CacheCharge()))
+            .Init("Frost Cask", new State(new CacheCharge()))
+            .Init("Rending Crate", new State(new CacheCharge()))
+            .Init("Hex Urn", new State(new CacheCharge()))
+            .Init("Gilded Reliquary", new State(new CacheCharge()))
             // the white bags' allies (Player.CruciblePowers.cs): the Tidepearl's substitute, a
             // volley of Nerissa's tridents (Ferrogrim's Bastion Turret is a Mechanic's turret,
             // Turret.cs, with no behaviour)
@@ -301,6 +313,7 @@ namespace WorldServer.logic
             .Init("Nerissa, the Tidecaller",
                 new State(
                     new BossStats(180000, 45, 1.0, 0.35),
+                    new CrucibleCaches(), // the tower's caches beside the climbers (CrucibleCaches.cs)
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(TideGlow, 0.3, 6),
@@ -464,6 +477,7 @@ namespace WorldServer.logic
             .Init("Pyrrhax, the Forge Tyrant",
                 new State(
                     new BossStats(210000, 55, 1.0, 0.35),
+                    new CrucibleCaches(), // the tower's caches beside the climbers (CrucibleCaches.cs)
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(LavaGlow, 0.3, 6),
@@ -624,6 +638,7 @@ namespace WorldServer.logic
             .Init("Chronarch, the Hour Thief",
                 new State(
                     new BossStats(240000, 60, 1.0, 0.35),
+                    new CrucibleCaches(), // the tower's caches beside the climbers (CrucibleCaches.cs)
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(BrassGlow, 0.3, 6),
@@ -821,6 +836,7 @@ namespace WorldServer.logic
             .Init("Vaelith, the Crucible Sovereign",
                 new State(
                     new BossStats(340000, 70, 1.0, 0.35),
+                    new CrucibleCaches(), // the tower's caches beside the climbers (CrucibleCaches.cs)
                     new State("Arrive",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new Flash(SovereignGlow, 0.3, 10),

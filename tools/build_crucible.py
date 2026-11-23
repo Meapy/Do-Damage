@@ -443,6 +443,19 @@ MINIONS = {
     "Clockwork Mite": (3000, 20, 80, False, [foe(0, "Gear Shot", 140, 60, 450, effects=[("Dazed", 1.5)])]),
     "Gilded Wisp": (3800, 15, 85, False, [foe(0, "Flame Feather", 170, 60, 450, effects=[("Quiet", 1.5)])]),
 }
+# the tower's caches (16x16, small.caches()), dropped beside the climbers in every champion's fight
+# (CrucibleCaches.cs): broken, each launches its charge at the champion. name -> (health, size,
+# sound). Each is as tough as its payoff is big (CrucibleCache.Kinds, in the same order as here and
+# the Rust client's particles/cache.rs: change all three together): the jar and the urn break in a
+# few blows of a blade, the keg and the crate take a group's fire, the rare reliquary most.
+CACHES = {
+    "Powder Keg": (4500, 100, "wooden_walls"),
+    "Stormglass Jar": (1800, 90, "cubes"),
+    "Frost Cask": (2800, 100, "cubes"),
+    "Rending Crate": (5500, 105, "stone_walls"),
+    "Hex Urn": (2400, 95, "skull_shrine"),
+    "Gilded Reliquary": (8000, 110, "golems"),
+}
 IMMUNE = ("StunImmune", "ParalyzeImmune", "PetrifyImmune", "SlowedImmune", "DazedImmune")
 # who sounds like whom (existing sounds)
 SOUNDS = {
@@ -742,6 +755,26 @@ def objects(types, s8, s16, s32, c16, c32):
         icon = s16.add(bb_small.pet_icon(sprites[champion][0]))
         out += boss_pets.pet_objects(lambda n: types.get(n, OBJECT_TYPES), name, spec, CHARS32[0], row(champion),
                                      [row(f) for f in forms], SHEET16[0], icon)
+
+    # the caches (last on the sheet, so nothing above moves): enemies that never move or fight
+    # back (their behaviour, CacheCharge, only waits), so anything that hurts an enemy breaks them;
+    # not <Static/>, which area damage skips
+    cache_art = small.caches()
+    for name, (hp, size, sound) in CACHES.items():
+        e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
+        sub(e, "Class", "Character")
+        sub(e, "Enemy")
+        animated(e, s16, SHEET16[0], cache_art[name], 0.18)
+        sub(e, "HitSound", "monster/%s_hit" % sound)
+        sub(e, "DeathSound", "monster/%s_death" % sound)
+        sub(e, "Size", size)
+        sub(e, "MaxHitPoints", hp)
+        sub(e, "Defense", 0)
+        sub(e, "StasisImmune")
+        sub(e, "StunImmune")
+        sub(e, "ParalyzeImmune")
+        sub(e, "XpMult", 0)
+        out.append(e)
     return out
 
 

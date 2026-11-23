@@ -331,6 +331,159 @@ def minions():
 
 
 # ------------------------------------------------------------------------------------------------
+# the tower's caches (16x16, CACHE_FRAMES frames each): what the Crucible drops beside its climbers
+# to be broken, each launching its charge at the champion (CrucibleCaches.cs). Each reads at a
+# glance by its shape and colour: the keg's fuse, the jar's storm, the cask's frost, the crate's
+# spikes, the urn's rune, the reliquary's gold.
+
+CACHE_FRAMES = 4
+WOOD = R("#2a160a", "#55301a", "#86522c", "#b47a46")
+POWDER_RED = R("#3a0a06", "#7a160e", "#b42a1a", "#e8583a")
+FROST_WOOD = R("#26405a", "#4a7496", "#86b4d4", "#cfeaff")
+ICE = R("#3a6a8a", "#7ab8d8", "#bfe8ff", "#ffffff")
+GLASS = R("#0a1a2a", "#14304a", "#2a5a7a", "#9ad8f0")
+STORM = "#6ad8ff"
+HEX = R("#1a0a26", "#3a1456", "#62248e", "#9a50d0")
+HEX_GLOW = R("#8a2ac8", "#c060ff", "#e8a8ff", "#ffffff")
+
+
+def _barrel(cv, wood, hoop, top=2, bottom=15):
+    """A barrel standing: bulging staves, two hoops, its lid an ellipse."""
+    body = set()
+    for y in range(top, bottom + 1):
+        t = (y - top) / max(1, bottom - top)
+        half = 4.2 + 1.3 * math.sin(t * math.pi)
+        for x in range(int(8 - half), int(8 + half) + 1):
+            body.add((x, y))
+    cv.shade(body, wood, grad=lambda x, y: 2 if x < 7 else 1)
+    for (x, y) in body:
+        if x in (5, 10) and y % 3:
+            cv.px(x, y, wood[0], 150)          # the gaps between the staves
+    for hy in (top + 3, bottom - 3):
+        for x in range(2, 14):
+            if (x, hy) in body:
+                cv.px(x, hy, hoop[2] if x < 7 else hoop[1])
+    lid = ell_mask(8, top + 0.5, 4.2, 1.3)
+    cv.shade(lid, wood, grad=lambda x, y: 3, rim=False)
+    return body
+
+
+def keg(frame=0):
+    """A Powder Keg: a red-banded barrel of black powder, a fuse fizzing on its lid."""
+    cv = Canvas(16, 16)
+    body = _barrel(cv, WOOD, IRON, top=3)
+    for x in range(3, 13):
+        if (x, 9) in body:
+            cv.px(x, 9, POWDER_RED[2] if x < 7 else POWDER_RED[1])
+            cv.px(x, 10, POWDER_RED[1] if x < 7 else POWDER_RED[0])
+    # a flame painted on it, its warning
+    for (x, y) in ((7, 9), (8, 10), (7, 10), (8, 9)):
+        cv.px(x, y, "#ffd040")
+    # the fuse, and its spark jumping
+    line(cv, 9, 3, 11, 0, "#3a2a1a")
+    sx, sy = [(11, 0), (12, 0), (11, 1), (12, 1)][frame % 4]
+    sparkle(cv, sx, sy, "#ffb040")
+    return cv.img
+
+
+def storm_jar(frame=0):
+    """A Stormglass Jar: a stoppered jar of pale glass, a storm crackling inside it."""
+    cv = Canvas(16, 16)
+    jar = ell_mask(8, 9.5, 5, 5.5) | rect_mask(5, 2, 10, 5)
+    cv.shade(jar, GLASS, grad=lambda x, y: 2 if x + y < 15 else 1)
+    cv.shade(rect_mask(5, 1, 10, 2), BRASS)
+    cv.shade(rect_mask(6, 0, 9, 0), WOOD)
+    rnd = random.Random(frame * 31 + 5)
+    for (gx, gy) in ell_mask(8, 10, 3.6, 3.6):
+        if cv.get(gx, gy)[3] and rnd.random() < 0.22:
+            cv.px(gx, gy, "#2a8ac0", 220)    # the storm's glow behind the glass
+    # the storm: a bolt zigzagging down through the jar, a new one each frame
+    x, y = 8, 5
+    while y < 14:
+        nx = max(5, min(11, x + rnd.choice((-1, 0, 1))))
+        cv.px(nx, y, "#ffffff" if y % 2 else STORM)
+        x, y = nx, y + 1
+    cv.px(5, 7, "#ffffff"); cv.px(5, 8, "#dff8ff")   # the glass's shine
+    return cv.img
+
+
+def frost_cask(frame=0):
+    """A Frost Cask: a barrel frozen through, icicles hanging off its hoops, rime glinting."""
+    cv = Canvas(16, 16)
+    body = _barrel(cv, FROST_WOOD, ICE, top=2)
+    for (x, top) in ((4, 6), (6, 6), (9, 6), (11, 6), (5, 12), (8, 12), (10, 12)):
+        length = 1 + (x * 7 + top) % 2
+        for k in range(length):
+            cv.px(x, top + k, ICE[3] if k == 0 else ICE[2])
+    glint = [(5, 4), (10, 8), (7, 13), (11, 4)][frame % 4]
+    sparkle(cv, glint[0], glint[1], ICE[2])
+    for (x, y) in body:
+        if (x * 5 + y * 3) % 11 == 0:
+            cv.px(x, y, ICE[3], 160)
+    return cv.img
+
+
+def rending_crate(frame=0):
+    """A Rending Crate: a crate of riveted iron, spikes at its corners, embers in its seams."""
+    cv = Canvas(16, 16)
+    cv.shade(rect_mask(2, 4, 13, 15), IRON, grad=lambda x, y: 2 if x + y < 16 else 1)
+    cv.shade(rect_mask(2, 3, 13, 4), IRON, grad=lambda x, y: 3, rim=False)
+    glow = EMBER[1 + frame % 3] if frame % 4 != 3 else EMBER[2]
+    for x in range(3, 13):
+        cv.px(x, 9, glow)                       # its seam, glowing
+    for y in range(5, 15):
+        cv.px(7 + (y % 2), y, IRON_DARK[1])
+    for (x, y) in ((3, 6), (12, 6), (3, 13), (12, 13)):
+        cv.px(x, y, IRON[3])                    # rivets
+    # spikes off its corners
+    for (x0, y0, x1, y1) in ((2, 3, 1, 2), (13, 3, 14, 2), (1, 9, 1, 9), (14, 9, 14, 9), (7, 2, 7, 1), (8, 2, 8, 1)):
+        line(cv, x0, y0, x1, y1, STEEL[3])
+    return cv.img
+
+
+def hex_urn(frame=0):
+    """A Hex Urn: a squat urn of dark violet glaze, its rune pulsing, a hex smoking from its mouth."""
+    cv = Canvas(16, 16)
+    cv.shade(ell_mask(8, 10.5, 5.5, 4.8), HEX, grad=lambda x, y: 2 if x + y < 17 else 1)
+    cv.shade(rect_mask(6, 4, 9, 6), HEX)
+    cv.shade(ell_mask(8, 3.6, 3, 1.2), HEX, grad=lambda x, y: 3, rim=False)
+    cv.shade(rect_mask(5, 15, 10, 15), HEX)
+    pulse = HEX_GLOW[[0, 1, 2, 1][frame % 4]]
+    # the rune: an eye in a ring
+    for (x, y) in ((7, 9), (8, 9), (6, 10), (9, 10), (7, 11), (8, 11)):
+        cv.px(x, y, pulse)
+    cv.px(7, 10, "#ffffff" if frame % 4 == 2 else HEX_GLOW[2]); cv.px(8, 10, HEX_GLOW[0])
+    # the hex rising off it
+    for k in range(3):
+        cv.px(8 + int(round(math.sin(frame * 1.6 + k * 1.4) * 1.4)), 2 - k, HEX_GLOW[1 + k % 2], 210 - k * 50)
+    return cv.img
+
+
+def reliquary(frame=0):
+    """A Gilded Reliquary: a chest of the Sovereign's gold, the tower's sigil on its lid, light
+    spilling from under it."""
+    cv = Canvas(16, 16)
+    cv.shade(rect_mask(1, 8, 14, 15), GOLD, grad=lambda x, y: 2 if x + y < 17 else 1)
+    cv.shade(poly_mask([(1, 9), (3, 4), (12, 4), (14, 9)]), GOLD, grad=lambda x, y: 3 if x < 8 else 2)
+    for x in range(1, 15):
+        cv.px(x, 9, "#fff8d0" if (x + frame) % 4 == 0 else GOLD[3])   # light under the lid
+    for (x, y) in ((7, 11), (8, 11), (7, 12), (8, 12)):
+        cv.px(x, y, ["#ec5cff", "#46c2b4", "#ff9a24", "#4af0ff"][(x + y + frame) % 4])
+    for (x, y) in ((7, 6), (8, 5), (9, 6), (8, 7)):
+        cv.px(x, y, "#ffffff")                  # the sigil
+    tw = [(2, 3), (13, 2), (14, 7), (1, 6)][frame % 4]
+    sparkle(cv, tw[0], tw[1], GOLD[3])
+    return cv.img
+
+
+def caches():
+    """name -> frames, CACHE_FRAMES each (tools/build_crucible.py CACHES)."""
+    draw = {"Powder Keg": keg, "Stormglass Jar": storm_jar, "Frost Cask": frost_cask,
+            "Rending Crate": rending_crate, "Hex Urn": hex_urn, "Gilded Reliquary": reliquary}
+    return {name: [fn(f) for f in range(CACHE_FRAMES)] for name, fn in draw.items()}
+
+
+# ------------------------------------------------------------------------------------------------
 # what stands on the floors, 16x16
 
 def pillar(theme, frame=0):

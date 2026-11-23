@@ -131,7 +131,15 @@ pub mod look {
     pub const TURRET_SEEN: u8 = 56;
     /// A turret blowing up (its time up, or a newer one in its place): pos2.x the blast's radius.
     pub const TURRET_BLAST: u8 = 57;
-    pub const LAST: u8 = 57;
+    /// One of the Crucible's caches (`CrucibleCaches.cs`, drawn by `cache.rs`; `object_type` its
+    /// kind): falling out of the sky onto pos1 over `duration` ms.
+    pub const CACHE_DROP: u8 = 58;
+    /// A cache broken at pos1, its charge launched at the champion (the target) to land in
+    /// `duration` ms, its blast pos2.x across.
+    pub const CACHE_LAUNCH: u8 = 59;
+    /// A cache lost at pos1, never broken.
+    pub const CACHE_LOST: u8 = 60;
+    pub const LAST: u8 = 60;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -371,7 +379,7 @@ impl Particles {
 
     /// Flames licking up from a disc, each shrinking as it rises.
     #[allow(clippy::too_many_arguments)]
-    fn flames(&mut self, x: f64, y: f64, radius: f64, n: usize, colors: &[u32], size: f64, rise: f64, life: i32, spread_ms: i32) {
+    pub(super) fn flames(&mut self, x: f64, y: f64, radius: f64, n: usize, colors: &[u32], size: f64, rise: f64, life: i32, spread_ms: i32) {
         for _ in 0..n {
             let (a, d) = (2.0 * PI * self.random(), radius * self.random().sqrt());
             let color = self.pick(colors);
@@ -399,7 +407,7 @@ impl Particles {
 
     /// Lightning out of the sky onto (x, y): a jagged stroke from seven tiles up, a branch or
     /// two, and a flash where it lands.
-    fn sky_bolt(&mut self, x: f64, y: f64, color: u32, k: f64) {
+    pub(super) fn sky_bolt(&mut self, x: f64, y: f64, color: u32, k: f64) {
         const STEPS: usize = 28;
         let (mut px, mut py) = (x + self.pm(0.8), y + self.pm(0.8));
         for i in 0..=STEPS {
@@ -431,7 +439,7 @@ impl Particles {
 
     /// The Chaos Beam slamming down onto (x, y): a column of violet light round a white-hot core,
     /// falling out of the sky in a few frames, chaos spiralling down round it, then the burst.
-    fn chaos_beam(&mut self, x: f64, y: f64, r: f64, color: u32) {
+    pub(super) fn chaos_beam(&mut self, x: f64, y: f64, r: f64, color: u32) {
         const ROWS: i32 = 48;
         const FALL: i32 = 90;
         let dark = mix(color, 0x000000, 0.55);
@@ -763,6 +771,11 @@ impl Particles {
         // the Mechanic's turrets have a module of their own
         if (look::TURRET_THROW..=look::TURRET_BLAST).contains(&look) {
             self.turret_look(e, look, world, now);
+            return;
+        }
+        // and the Crucible's caches
+        if (look::CACHE_DROP..=look::CACHE_LOST).contains(&look) {
+            self.cache_look(e, look, world, now);
             return;
         }
         match look {

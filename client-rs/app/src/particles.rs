@@ -15,6 +15,7 @@ use bsk_world::{Impact, World};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 
+pub(crate) mod cache;
 pub(crate) mod relic;
 pub(crate) mod turret;
 
@@ -199,6 +200,8 @@ pub struct Particles {
     crucible: relic::GroundWatch,
     /// The Mechanics' turrets standing (`turret.rs`, looks 54 to 57): their plates and links.
     turrets: Vec<turret::TurretLook>,
+    /// The Crucible's caches' charges in flight to their champions (`cache.rs`, look 59).
+    shells: Vec<cache::Shell>,
 }
 
 /// How a player's ward has looked of late: its censer's colour, when it was raised and last
@@ -296,6 +299,7 @@ impl Particles {
         self.fields.clear();
         self.wards.clear();
         self.turrets.clear();
+        self.shells.clear();
         self.ward_on = None;
         self.dusk_on = None;
         self.jitter_since = None;
@@ -672,6 +676,7 @@ impl Particles {
         }
         self.relic_update(world, now);
         self.turret_update(world, now, dt);
+        self.cache_update(world, now);
         // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`), and of
         // pets whose effect leaves a trail (`petfx.rs`)
         for obj in world.objects.values() {
@@ -1471,6 +1476,36 @@ mod tests {
         p.show_effect(&built(8000), &world, now);
         p.show_effect(&effect(41, 7, (5.5, 5.5), (3.5, relic::look::TURRET_BLAST as f32)), &world, now);
         assert!(p.turrets.is_empty() && !p.decals.is_empty());
+    }
+
+    #[test]
+    fn a_cache_charge_flies_to_its_champion_and_lands() {
+        let data = GameData::default();
+        let mut world = World::new(12, 12, "test", 1);
+        let tiles: Vec<_> = (0..144).map(|i| bsk_proto::GroundTile { x: i % 12, y: i / 12, tile_type: 0 }).collect();
+        let champion = bsk_proto::ObjectData { object_type: 0x70a4, status: bsk_proto::ObjectStatus { object_id: 7, pos: WorldPos { x: 9.5, y: 5.5 }, stats: Default::default() } };
+        world.apply_update(&bsk_proto::Update { tiles: tiles.into(), new_objs: vec![champion].into(), drops: Default::default() }, &data, 0);
+        let mut p = Particles::default();
+        // a jar broken at (1.5, 5.5), its charge to land on the champion in 600 ms
+        let launch = ShowEffect { duration: 600, object_type: 1, ..effect(41, 7, (1.5, 5.5), (2.4, relic::look::CACHE_LAUNCH as f32)) };
+        p.show_effect(&launch, &world, 0);
+        assert_eq!(p.shells.len(), 1, "its charge flies");
+        assert!(!p.list.is_empty(), "the cache bursts");
+        let mut now = 0;
+        while now < 500 {
+            now += 50;
+            p.update(&world, now, 50);
+        }
+        assert_eq!(p.shells.len(), 1, "still on its way");
+        let decals = p.decals.len();
+        while now < 700 {
+            now += 50;
+            p.update(&world, now, 50);
+        }
+        assert!(p.shells.is_empty() && p.decals.len() > decals, "it lands, and its blast shows");
+        // with no champion in sight, the cache only bursts
+        p.show_effect(&ShowEffect { target_object_id: 99, ..launch }, &world, now);
+        assert!(p.shells.is_empty());
     }
 
     #[test]

@@ -3368,6 +3368,7 @@ impl App {
             if let Some(world) = &game.world {
                 game.particles.object_effects(world, data, sprites, dt);
                 game.particles.champion_auras(world, data, dt);
+                game.particles.cache_auras(world, data, dt);
                 game.particles.crucible_ground(world, data);
                 game.particles.trails(world, data, dt);
             }

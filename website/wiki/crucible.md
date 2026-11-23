@@ -4,7 +4,7 @@ nav: 11
 section: Dungeons and loot
 sprite: anvil
 eyebrow: Bosses only
-summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the white bags and the climb's leaderboard.
+summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the caches to break, the white bags and the climb's leaderboard.
 ---
 The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to four of you
 together, and on each floor a champion arrives to stop you. There are no waves of monsters. Each
@@ -111,6 +111,34 @@ quick and frail, they run straight at you and bite up close with their champion'
 shoot them on the way in. Ferrogrim's Iron Hounds (bleeding), Nerissa's Brine Darters (slowing),
 Pyrrhax's Cinder Imps (sickening), Chronarch's Clockwork Mites (dazing) and Vaelith's Gilded Wisps
 (quieting).
+
+### The tower's caches
+
+The Crucible fights on your side too. While a champion can be hurt, the tower drops a **cache**
+out of the sky beside one of you every 18 seconds or so (the first 10 seconds into the fight, two
+at a time with three or more climbing, three on the floor at most). A shaft of light marks where
+it lands, always within a few steps of a climber and well away from the champion, so melee classes
+can reach it as easily as anyone. **Break it** (shots, blades, abilities, pets and turrets all
+count) and its charge launches at the champion, arcing over the floor and homing on it wherever it
+goes. Where it lands, the champion loses a share of its health, past its defense and credited to
+whoever broke the cache, and takes the cache's affliction, which breaks through the champions'
+immunities:
+
+| Cache | Toughness | Its blow | Its affliction |
+|---|---|---|---|
+| **Powder Keg** | 4,500 | 3.5% of the champion's health, a fireball | none: the biggest plain blow |
+| **Stormglass Jar** | 1,800 | 1%, lightning out of the sky | **Stunned** 2.5 s: it can't shoot |
+| **Frost Cask** | 2,800 | 1.2%, a burst of frost | **Paralyzed** 3 s, then **Slowed** 6 s |
+| **Rending Crate** | 5,500 | 1.5%, iron shards | **Armor Broken** 6 s: everyone hits it harder |
+| **Hex Urn** | 2,400 | 1%, a hex | **Cursed** 6 s (takes a quarter more damage) and **Dazed** 5 s (fires half its shots) |
+| **Gilded Reliquary** (rare) | 8,000 | 5%, a column of gold | **Stunned** 1.5 s, **Armor Broken** and **Cursed** 8 s |
+
+The jars and urns break in a few blows even from a slow weapon; the kegs and crates take a
+group's fire for a moment. A cache has no defense, never moves and never fights back. While its
+champion is untouchable (a phase turning, Lockdown, the moment before a last stand) a shield holds
+over its caches too, so no charge is wasted; it lifts with the champion's. A cache crumbles if
+it's left for 20 seconds (it blinks faster in its last few), if the floor falls from under it, or
+if its champion falls first.
 
 When a champion falls over the sky (beside an edge, or over a gap one of its phases opened), a
 landing of the floor's own ground rises under its loot, with a bridge back to the floor.

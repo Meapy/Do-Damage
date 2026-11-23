@@ -717,6 +717,16 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Crucible's caches** (2026-11-23; `logic/behaviors/CrucibleCaches.cs`, `BehaviorDb.Crucible.cs`,
+  `tools/build_crucible.py` `CACHES`, `tools/crucible/small.py` `caches()`, the Rust client's
+  `particles/cache.rs`): while a champion can be hurt, `CrucibleCaches` drops a cache beside a
+  climber (every 18 s, the first at 10 s, two with 3+ climbers, 3 standing at most); broken, its
+  `CacheCharge` launches the charge at the champion, which lands for a share of its max health from
+  the breaker (no defense) and afflictions forced past its immunities (`Entity.ForceConditionEffect`).
+  Six kinds (`CrucibleCache.Kinds`, in the same order in the script and the client): Powder Keg,
+  Stormglass Jar, Frost Cask, Rending Crate, Hex Urn, Gilded Reliquary. Drawn by relic looks 58-60;
+  the callouts over the champion are translated by the client (`cache::callout`).
+
 - **`/resetcrucible`** (2026-11-23; `commands/admin/Command.ResetCrucible.cs`,
   `Shared/crucible/CrucibleReset.cs`, `CrucibleAccess.ResetAll` and `OnReset`): an admin gives
   everyone their Crucible climbs back for the UTC day. Every account that began a climb today

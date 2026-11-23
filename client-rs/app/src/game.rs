@@ -1174,7 +1174,13 @@ impl Game {
             ServerMessage::Notification(n) => {
                 // CharacterStatusText: two seconds over the object. The Pirate's luck (a shot that
                 // missed him, `Player.PirateDodged`) is the one the client words itself.
-                let text = if n.text == "Lucky!" { crate::i18n::tr("Lucky!").to_owned() } else { n.text.clone() };
+                // So are the words over a Crucible champion as a cache's charge lands on it
+                // (`particles::cache::callout`).
+                let text = if n.text == "Lucky!" {
+                    crate::i18n::tr("Lucky!").to_owned()
+                } else {
+                    crate::particles::cache::callout(&n.text).map_or_else(|| n.text.clone(), str::to_owned)
+                };
                 self.floaters.push(crate::view::Floater {
                     object_id: n.object_id,
                     text,

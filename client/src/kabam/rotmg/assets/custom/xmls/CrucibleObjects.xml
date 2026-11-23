@@ -1947,4 +1947,262 @@
 		<Activate objectId="Lil' Vaelith" cooldown="10" petDps="1817" petSize="Huge" petEffects="Void embers break armor for 2s; Gold strikes all enemies within 2.5 tiles of its target; Unbound: fans of void embers every 10s; Makes you Damaging for 2s every 10s" petHp="55" petHpMs="2000" petMp="46" petMpMs="3000">PermaPet</Activate>
 		<InvUse />
 	</Object>
+	<Object type="0xC691" id="Powder Keg">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x3c</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x3c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x3d</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x3e</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x3f</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/wooden_walls_hit</HitSound>
+		<DeathSound>monster/wooden_walls_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>4500</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
+	<Object type="0xC692" id="Stormglass Jar">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x40</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x40</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x41</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x42</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x43</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/cubes_hit</HitSound>
+		<DeathSound>monster/cubes_death</DeathSound>
+		<Size>90</Size>
+		<MaxHitPoints>1800</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
+	<Object type="0xC693" id="Frost Cask">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x44</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x44</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x45</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x46</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x47</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/cubes_hit</HitSound>
+		<DeathSound>monster/cubes_death</DeathSound>
+		<Size>100</Size>
+		<MaxHitPoints>2800</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
+	<Object type="0xC694" id="Rending Crate">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x48</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x48</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x49</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4a</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4b</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Size>105</Size>
+		<MaxHitPoints>5500</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
+	<Object type="0xC695" id="Hex Urn">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x4c</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4c</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4d</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4e</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x4f</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/skull_shrine_hit</HitSound>
+		<DeathSound>monster/skull_shrine_death</DeathSound>
+		<Size>95</Size>
+		<MaxHitPoints>2400</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
+	<Object type="0xC696" id="Gilded Reliquary">
+		<Class>Character</Class>
+		<Enemy />
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x50</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x50</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x51</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x52</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.18">
+				<Texture>
+					<File>crucible16x16</File>
+					<Index>0x53</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<HitSound>monster/golems_hit</HitSound>
+		<DeathSound>monster/golems_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>8000</MaxHitPoints>
+		<Defense>0</Defense>
+		<StasisImmune />
+		<StunImmune />
+		<ParalyzeImmune />
+		<XpMult>0</XpMult>
+	</Object>
 </Objects>
