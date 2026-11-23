@@ -155,8 +155,9 @@ dotnet test source\Tests
   `WorldServer/core/pass/PassTracker.cs`, one per player, fed by the same hooks as the quests.
 - **State:** the `pass` field of `account.<id>` (JSON), saved after every claim and purchase
   (before paying), every 30 s while it changes, and on leaving.
-- **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>` and
-  `look <aura> [skin id]` (admins, on a test stack only); the Rust client's `--pass <tab>`.
+- **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>`,
+  `look <aura> [skin id]` and `petfx <id>` (admins, on a test stack only); the Rust client's
+  `--pass <tab>`.
 - **Gilded perks beyond the track:** rallying a community goal (`CommunityGoals.Rally`, Redis set
   `community:<run>:rallied` and the run hash's `boostUntil`/`boostBy`) and the dungeon guide
   (`Player.Guide.cs`, `core/guide/GuidePath.cs`, `GuidePathTests`). Try them with `/passadmin

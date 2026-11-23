@@ -27,7 +27,7 @@ namespace WorldServer.core.pass
     public sealed class PassTracker
     {
         // PASS_ACT's kinds
-        public const byte REQUEST = 0, CLAIM = 1, UNLOCK = 2, AURA = 3, COLOR = 4, CACHE = 5, TITLE = 6;
+        public const byte REQUEST = 0, CLAIM = 1, UNLOCK = 2, AURA = 3, COLOR = 4, CACHE = 5, TITLE = 6, PETFX = 7;
 
         // the relic looks (ShowEffect 41's pos2.y) for a tier reached and the Gilded track bought
         // (the Rust client's particles/relic.rs)
@@ -82,6 +82,7 @@ namespace WorldServer.core.pass
             Book = new PassBook(Data(player.GameServer), PassState.FromJson(_account.Pass));
             Refresh();
             _player.Aura = Book.WornAura;
+            _player.PetEffect = Book.WornPetEffect;
         }
 
         private bool Connected => _player.Client?.Account == _account;
@@ -238,10 +239,13 @@ namespace WorldServer.core.pass
                 state.Aura = old.Aura;
                 state.Colors = old.Colors;
                 state.Color = old.Color;
+                state.PetEffects = old.PetEffects;
+                state.PetEffect = old.PetEffect;
             }
             Book = new PassBook(Book.Data, state);
             Book.Refresh(QuestTracker.Now, _rng);
             _player.Aura = Book.WornAura;
+            _player.PetEffect = Book.WornPetEffect;
             Save();
             if (Subscribed)
                 SendData();
@@ -316,6 +320,7 @@ namespace WorldServer.core.pass
                     UNLOCK => Unlock(value),
                     AURA => Book.WearAura(value),
                     COLOR => Book.WearColor(value),
+                    PETFX => Book.WearPetEffect(value),
                     TITLE => Book.ShowTitle(value != 0),
                     _ => PassClaim.Fail(PassCode.Failed, "Unknown request."),
                 };
@@ -326,6 +331,8 @@ namespace WorldServer.core.pass
                     _player.Aura = Book.WornAura;
                 if (kind == COLOR)
                     ApplyColor();
+                // a claim may have given the first pet effect, worn at once
+                _player.PetEffect = Book.WornPetEffect;
                 // recorded before anything is paid, so nothing is paid twice
                 Save();
                 if (result.Rewards.Count > 0)
@@ -350,6 +357,7 @@ namespace WorldServer.core.pass
             CACHE => $"opened {r.Count} cache{(r.Count == 1 ? "" : "s")}",
             UNLOCK => $"bought the Gilded pass of {Book.Season.Key}",
             AURA => $"wears aura {Book.State.Aura}",
+            PETFX => $"puts pet effect {Book.State.PetEffect} on their pet",
             TITLE => Book.State.HideTitle ? "hides the Gilded title" : "shows the Gilded title",
             _ => $"wears name colour {Book.State.Color}",
         };
@@ -493,6 +501,8 @@ namespace WorldServer.core.pass
                 player.SendInfo($"<Realm Pass> A new aura: {Book.Data.Aura(r.Aura)?.Name}. Wear it from the Looks tab of the Realm Pass (Y).");
             foreach (var r in rewards.Where(r => r.Color > 0))
                 player.SendInfo($"<Realm Pass> A new name colour: {Book.Data.Color(r.Color)?.Name}. Wear it from the Looks tab of the Realm Pass (Y).");
+            foreach (var r in rewards.Where(r => r.PetFx > 0))
+                player.SendInfo($"<Realm Pass> A new pet effect: {Book.Data.PetEffect(r.PetFx)?.Name}. Put it on your pet from the Pets tab of the Realm Pass (Y).");
         }
 
         // Rewards as the window shows them (QuestReward's kinds, and the pass's own).
@@ -519,6 +529,8 @@ namespace WorldServer.core.pass
                     list.Add(new PassRewardInfo { Kind = PassRewardInfo.KindAura, Item = (ushort)r.Aura, Amount = Book.Data.Aura(r.Aura)?.ColorValue ?? 0, Name = Book.Data.Aura(r.Aura)?.Name ?? "" });
                 else if (r.Color > 0)
                     list.Add(new PassRewardInfo { Kind = PassRewardInfo.KindColor, Item = (ushort)r.Color, Amount = Book.Data.Color(r.Color)?.ColorValue ?? 0, Name = Book.Data.Color(r.Color)?.Name ?? "" });
+                else if (r.PetFx > 0)
+                    list.Add(new PassRewardInfo { Kind = PassRewardInfo.KindPetFx, Item = (ushort)r.PetFx, Amount = Book.Data.PetEffect(r.PetFx)?.ColorValue ?? 0, Name = Book.Data.PetEffect(r.PetFx)?.Name ?? "" });
                 else if (r.Slot > 0)
                     list.Add(new PassRewardInfo { Kind = PassRewardInfo.KindSlot, Amount = r.Slot });
             }
@@ -581,6 +593,9 @@ namespace WorldServer.core.pass
             foreach (var c in data.Colors)
                 msg.Colors.Add(new PassCosmeticInfo { Id = (byte)c.Id, Name = c.Name ?? "", Color = c.ColorValue, Owned = book.State.Colors.Contains(c.Id) });
             msg.Color = (byte)(data.Color(book.State.Color) != null ? book.State.Color : 0);
+            foreach (var c in data.PetEffects)
+                msg.PetEffects.Add(new PassCosmeticInfo { Id = (byte)c.Id, Name = c.Name ?? "", Color = c.ColorValue, Owned = book.State.PetEffects.Contains(c.Id) });
+            msg.PetEffect = (byte)book.WornPetEffect;
             msg.CommunityLuck = (byte)Math.Max(0, data.Community.Luck);
             msg.CommunityRolls = (byte)Math.Max(0, data.Community.Rolls);
             msg.ShowTitle = !book.State.HideTitle;

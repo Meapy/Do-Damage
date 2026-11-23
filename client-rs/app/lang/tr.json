@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Ağılın yalnızca {size} evcilleri alıyor: bunu beslemek için büyüt.",
 "{fame} fame": "{fame} şöhret",
 "{fame} fame · {gold} gold": "{fame} şöhret · {gold} altın",
-"{gold} gold": "{gold} altın"
+"{gold} gold": "{gold} altın",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Büyüme Toniği yalnızca minik, küçük ve orta boy evcilleri büyütür.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Evcilinin etrafında, herkesin göreceği bir efekt. Evciller sekmesinden evciline tak. Sonsuza dek senin.",
+"Fed without fame.": "Şöhret harcamadan beslenir.",
+"Feed your pet to its last level first.": "Önce evcilini son seviyesine kadar besle.",
+"Grow it": "Büyüt",
+"Grows a pet a size": "Bir evcili bir boy büyütür",
+"Grows your pet to a {size} pet, for free.": "Evcilini ücretsiz olarak {size} boya büyütür.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "Realm Pass'te. Arena avlusunun yanındaki ağıl bekçisi bunu evciline şöhret almadan yedirir.",
+"Pet effects": "Evcil efektleri",
+"Pet food": "Evcil yemi",
+"Put a pet in first.": "Önce bir evcil çıkar.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Evcilin onu gittiği her yerde taşır, herkes görür. Realm Pass'te kazan.",
+"Your pet wears no effect.": "Evcilinde hiç efekt yok.",
+"Your pet wears {name}.": "Evcilinde {name} var.",
+"{gain}, without fame": "{gain}, şöhretsiz"
 }

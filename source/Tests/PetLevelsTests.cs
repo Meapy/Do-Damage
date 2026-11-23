@@ -186,6 +186,22 @@ namespace Tests
             var oryx = items.Values.First(i => i.ActivateEffects.Any(e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Huge"));
             Assert.Equal(8000, PetFood.Value(oryx));
             Assert.Equal(300, PetFood.Value(items["Potion of Attack"], 5));
+            // the Realm Pass's treats, fed without fame; the Growth Tonic isn't food
+            Assert.Equal(750, PetFood.Value(items["Pet Biscuit"]));
+            Assert.Equal(2500, PetFood.Value(items["Hearty Pet Stew"]));
+            Assert.Equal(7500, PetFood.Value(items["Royal Pet Feast"]));
+            Assert.Equal(1500, PetFood.Value(items["Pet Biscuit"], 2));
+            Assert.True(PetFood.Free(items["Royal Pet Feast"]));
+            Assert.False(PetFood.Free(items[PetFood.Burger]));
+            Assert.Equal(0, PetFood.Value(items[PetFood.GrowthTonic]));
+            Assert.False(PetFood.Free(items[PetFood.GrowthTonic]));
+        }
+
+        [Fact]
+        public void AGrowthTonicGrowsTinySmallAndMediumPets()
+        {
+            Assert.Equal(new[] { true, true, true, false, false }, PetLevels.Sizes.Select((_, i) => PetFood.TonicGrows(i)).ToArray());
+            Assert.False(PetFood.TonicGrows(-1));
         }
 
         [Fact]

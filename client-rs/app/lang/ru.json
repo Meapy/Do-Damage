@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Ваш загон принимает только питомцев размера {size}: расширьте его, чтобы кормить этого.",
 "{fame} fame": "{fame} славы",
 "{fame} fame · {gold} gold": "{fame} славы · {gold} золота",
-"{gold} gold": "{gold} золота"
+"{gold} gold": "{gold} золота",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Тоник роста увеличивает только крошечных, маленьких и средних питомцев.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Эффект вокруг вашего питомца, виден всем. Наденьте его на питомца на вкладке «Питомцы». Ваш навсегда.",
+"Fed without fame.": "Кормление без славы.",
+"Feed your pet to its last level first.": "Сначала откормите питомца до последнего уровня.",
+"Grow it": "Вырастить",
+"Grows a pet a size": "Увеличивает питомца на один размер",
+"Grows your pet to a {size} pet, for free.": "Бесплатно вырастит вашего питомца до размера {size}.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "В Realm Pass. Смотритель загона у двора Арены скормит это вашему питомцу без славы.",
+"Pet effects": "Эффекты питомца",
+"Pet food": "Корм для питомцев",
+"Put a pet in first.": "Сначала выпустите питомца.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Ваш питомец носит его всюду, виден всем. Получайте их в Realm Pass.",
+"Your pet wears no effect.": "На питомце нет эффекта.",
+"Your pet wears {name}.": "На питомце: {name}.",
+"{gain}, without fame": "{gain}, без славы"
 }

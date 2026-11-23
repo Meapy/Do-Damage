@@ -36,6 +36,8 @@ pub const PEN_GOLD: u8 = 10;
 /// Grow the pet out, at its last level, to the next size, for fame or for gold (from 2.6.5).
 pub const GROW_FAME: u8 = 11;
 pub const GROW_GOLD: u8 = 12;
+/// Grow the pet out, at its last level, with the Growth Tonic in a slot (from 2.6.6).
+pub const TONIC: u8 = 13;
 
 const SHARD: &str = "Shard of the Mad God x";
 
@@ -86,6 +88,9 @@ struct Food {
     xp: i32,
     /// The sizes a stone's pet was grown.
     grown: i32,
+    /// The Realm Pass's: a treat fed without fame, or a Growth Tonic.
+    free: bool,
+    tonic: bool,
 }
 
 impl PetPen {
@@ -320,14 +325,15 @@ impl PetPen {
                 }
                 let stone = petlevels::stone(ui.data, item).is_some();
                 let food = petlevels::slot_food(ui.data, item, json);
-                if food > 0 || stone {
+                let tonic = desc.id == petlevels::GROWTH_TONIC;
+                if food > 0 || stone || tonic {
                     let xp = if stone { petlevels::stone_xp(ui.data, item, json) } else { 0 };
                     let grown = if stone { petlevels::stone_grown(json) } else { 0 };
-                    foods.push(Food { slot, item, food, stone, xp, grown });
+                    foods.push(Food { slot, item, food, stone, xp, grown, free: petlevels::treat_free(&desc.id), tonic });
                 }
             }
         }
-        foods.sort_by_key(|f| (f.stone, -f.food, f.slot));
+        foods.sort_by_key(|f| (f.stone, !f.tonic, -f.food, f.slot));
         // what was picked is still there, or nothing is
         self.picked = self.picked.and_then(|(slot, _)| foods.iter().find(|f| f.slot == slot).map(|f| (slot, f.item)));
 
@@ -382,8 +388,16 @@ impl PetPen {
                 let tw = (if f.stone { put_r[0] } else { feed_r[0] }) - 10.0 * s - tx;
                 let name = ui.data.objects.get(&(f.item as u16)).map_or(String::new(), |d| d.display_id.clone());
                 ui.label_fit(&name, tx, bar[1] + 7.0 * s, tw, font(13.0), true, color::TEXT);
-                let price = cost(f.food);
+                // the Realm Pass's treats cost no fame
+                let price = if f.free { 0 } else { cost(f.food) };
                 let what = match level {
+                    _ if f.tonic => match pet_size {
+                        _ if pet == 0 => (tr("Put a pet in first.").to_owned(), color::TEXT_MUTED),
+                        None => (tr("This pet doesn't grow.").to_owned(), color::TEXT_MUTED),
+                        Some(i) if !petlevels::tonic_grows(i) => (tr("A Growth Tonic only grows Tiny, Small and Medium pets.").to_owned(), color::TEXT_MUTED),
+                        Some(_) if grow.is_none() => (tr("Feed your pet to its last level first.").to_owned(), color::TEXT_MUTED),
+                        Some(i) => (tf!("Grows your pet to a {size} pet, for free.", size = size_name(petlevels::SIZES[i + 1])), color::GOLD),
+                    },
                     Some(l) if feedable && f.food > 0 => {
                         let last = petlevels::xp_at(l.max_level as i32);
                         let after = petlevels::level_for((l.xp + f.food).min(last), l.max_level as i32);
@@ -394,7 +408,7 @@ impl PetPen {
                         } else {
                             tf!("+{food} food", food = group_digits(f.food))
                         };
-                        let line = tf!("{gain} for {fame} fame", gain, fame = group_digits(price));
+                        let line = if f.free { tf!("{gain}, without fame", gain) } else { tf!("{gain} for {fame} fame", gain, fame = group_digits(price)) };
                         (line, if price > fame { color::DANGER } else if l.xp + f.food > last { color::GOLD } else { color::GOOD })
                     }
                     _ if f.food == 0 => (tr("Pets won't eat this.").to_owned(), color::TEXT_MUTED),
@@ -403,10 +417,18 @@ impl PetPen {
                     _ => (tr("Your pet doesn't need more food.").to_owned(), color::TEXT_MUTED),
                 };
                 ui.label_fit(&what.0, tx, bar[1] + 27.0 * s, tw, font(12.0), false, what.1);
-                let can_feed = feedable && f.food > 0 && price <= fame;
-                ui.button(feed_r, tr("Feed"), if can_feed { Kind::Primary } else { Kind::Secondary }, can_feed && inside(feed_r, mouse), s * 0.75);
-                if can_feed {
-                    self.hits.push((Hit::Act(FEED, f.slot), feed_r));
+                if f.tonic {
+                    let can_grow = pet != 0 && grow.is_some() && pet_size.is_some_and(petlevels::tonic_grows);
+                    ui.button(feed_r, tr("Grow it"), if can_grow { Kind::Primary } else { Kind::Secondary }, can_grow && inside(feed_r, mouse), s * 0.75);
+                    if can_grow {
+                        self.hits.push((Hit::Act(TONIC, f.slot), feed_r));
+                    }
+                } else {
+                    let can_feed = feedable && f.food > 0 && price <= fame;
+                    ui.button(feed_r, tr("Feed"), if can_feed { Kind::Primary } else { Kind::Secondary }, can_feed && inside(feed_r, mouse), s * 0.75);
+                    if can_feed {
+                        self.hits.push((Hit::Act(FEED, f.slot), feed_r));
+                    }
                 }
                 if f.stone {
                     ui.button(put_r, tr("Put this pet in"), Kind::Secondary, inside(put_r, mouse), s * 0.72);
@@ -507,6 +529,9 @@ impl PetPen {
             if food > 0 {
                 lines.push(Line::gap());
                 lines.push(Line::new(&tf!("Food for your pet: +{food}", food = group_digits(food)), 13.0, true, color::GOOD));
+                if ui.data.objects.get(&(item as u16)).is_some_and(|d| petlevels::treat_free(&d.id)) {
+                    lines.push(Line::new(tr("Fed without fame."), 12.0, false, color::GOLD));
+                }
             }
             crate::hud::draw_tooltip(ui, lay, &lines, Some(item), crate::screens::tier_edge(ui.data, item), mouse);
         }

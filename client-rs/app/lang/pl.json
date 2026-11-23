@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Twoja zagroda mieści tylko zwierzaki {size}: powiększ ją, by nakarmić tego.",
 "{fame} fame": "{fame} sławy",
 "{fame} fame · {gold} gold": "{fame} sławy · {gold} złota",
-"{gold} gold": "{gold} złota"
+"{gold} gold": "{gold} złota",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Tonik wzrostu powiększa tylko maleńkie, małe i średnie zwierzaki.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Efekt wokół twojego zwierzaka, widoczny dla wszystkich. Nałóż go w zakładce Zwierzaki. Twój na zawsze.",
+"Fed without fame.": "Karmienie bez sławy.",
+"Feed your pet to its last level first.": "Najpierw nakarm zwierzaka do jego ostatniego poziomu.",
+"Grow it": "Powiększ",
+"Grows a pet a size": "Powiększa zwierzaka o jeden rozmiar",
+"Grows your pet to a {size} pet, for free.": "Powiększa twojego zwierzaka do rozmiaru {size}, za darmo.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "W Realm Pass. Opiekun zagrody przy dziedzińcu Areny karmi tym twojego zwierzaka bez sławy.",
+"Pet effects": "Efekty zwierzaka",
+"Pet food": "Jedzenie dla zwierzaków",
+"Put a pet in first.": "Najpierw wypuść zwierzaka.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Twój zwierzak nosi go wszędzie, widoczny dla wszystkich. Zdobądź je w Realm Pass.",
+"Your pet wears no effect.": "Twój zwierzak nie ma żadnego efektu.",
+"Your pet wears {name}.": "Twój zwierzak ma {name}.",
+"{gain}, without fame": "{gain}, bez sławy"
 }

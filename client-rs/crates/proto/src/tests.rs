@@ -531,6 +531,12 @@ fn pass_messages_match_pass_tracker() {
     assert_eq!(d.show_title, None);
     let ServerMessage::PassData(d) = ServerMessage::decode(172, &B(b.0.clone()).u8(0).0).unwrap() else { panic!() };
     assert_eq!(d.show_title, Some(false));
+    assert!(d.pet_effects.is_none());
+    // and from 2.6.6 the pet effects and the one worn
+    let body = B(b.0.clone()).u8(1).u8(1).u8(4).utf("Phoenix Wings").i32(0xFF6A2A).u8(1).u8(4).0;
+    let ServerMessage::PassData(d) = ServerMessage::decode(172, &body).unwrap() else { panic!() };
+    let fx = d.pet_effects.unwrap();
+    assert_eq!((fx[0].id, fx[0].name.as_str(), fx[0].owned, d.pet_effect), (4, "Phoenix Wings", true, Some(4)));
     // PassXp.Write and PassResult.Write
     let ServerMessage::PassXp(x) = ServerMessage::decode(173, &B::default().i32(150).u8(0).i32(2_650).u8(2).u8(1).0).unwrap() else { panic!() };
     assert_eq!((x.gained, x.source, x.xp, x.tier, x.momentum), (150, 0, 2_650, 2, true));

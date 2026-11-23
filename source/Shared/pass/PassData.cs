@@ -14,7 +14,8 @@ namespace Shared.pass
     // reads it at start; PassBook does the work.
 
     // One reward: fame or gold to the account, an item (to the vault's gift chest), a skin (by
-    // its id: tools/draw_pass_skins.py draws them), an aura, a name colour, or a character slot.
+    // its id: tools/draw_pass_skins.py draws them), an aura, a name colour, a pet effect, or a
+    // character slot.
     public sealed class PassReward
     {
         public int Fame { get; set; }
@@ -24,9 +25,10 @@ namespace Shared.pass
         public string Skin { get; set; }
         public int Aura { get; set; }
         public int Color { get; set; }
+        public int PetFx { get; set; }
         public int Slot { get; set; }
 
-        public bool IsCosmetic => Skin != null || Aura > 0 || Color > 0;
+        public bool IsCosmetic => Skin != null || Aura > 0 || Color > 0 || PetFx > 0;
 
         public override string ToString() =>
             Fame > 0 ? $"{Fame} fame"
@@ -34,12 +36,13 @@ namespace Shared.pass
             : Skin != null ? $"the {Skin} skin"
             : Aura > 0 ? $"aura {Aura}"
             : Color > 0 ? $"name colour {Color}"
+            : PetFx > 0 ? $"pet effect {PetFx}"
             : Slot > 0 ? $"{Slot} character slot{(Slot == 1 ? "" : "s")}"
             : Count > 1 ? $"{Count}x {Item}" : Item;
     }
 
-    // An aura or name colour a season gives: its number (kept for good: accounts own them by it),
-    // its name and colour.
+    // An aura, name colour or pet effect a season gives: its number (kept for good: accounts own
+    // them by it), its name and colour.
     public sealed class PassCosmetic
     {
         public int Id { get; set; }
@@ -107,6 +110,10 @@ namespace Shared.pass
         // each tier's rewards on each track (an empty list: nothing on that track there)
         public List<List<PassReward>> Free { get; set; } = new List<List<PassReward>>();
         public List<List<PassReward>> Gilded { get; set; } = new List<List<PassReward>>();
+        // free tiers (from 1) that were empty and were given rewards while the season ran: an
+        // empty tier is marked claimed when its Gilded reward is, so those marks are cleared once
+        // (PassBook.Refresh) and the new rewards can be claimed
+        public List<int> Filled { get; set; } = new List<int>();
 
         [JsonIgnore] public DateTime StartsAt => Day(From) ?? DateTime.MinValue;
         [JsonIgnore] public DateTime EndsAt => Day(Until)?.AddDays(1) ?? DateTime.MinValue;
@@ -164,12 +171,15 @@ namespace Shared.pass
         public List<CacheLine> Cache { get; set; } = new List<CacheLine>();
         public List<PassCosmetic> Auras { get; set; } = new List<PassCosmetic>();
         public List<PassCosmetic> Colors { get; set; } = new List<PassCosmetic>();
+        // the effects round a pet (since 2.6.6; the Rust client's petfx.rs draws them by id)
+        public List<PassCosmetic> PetEffects { get; set; } = new List<PassCosmetic>();
         public List<SeasonDef> Seasons { get; set; } = new List<SeasonDef>();
         public List<string> Rotation { get; set; } = new List<string>();
 
         public SeasonDef Def(string id) => Seasons.FirstOrDefault(s => s.Id == id);
         public PassCosmetic Aura(int id) => Auras.FirstOrDefault(a => a.Id == id);
         public PassCosmetic Color(int id) => Colors.FirstOrDefault(c => c.Id == id);
+        public PassCosmetic PetEffect(int id) => PetEffects.FirstOrDefault(c => c.Id == id);
 
         // The season running at `now`, or null (before the first, or none defined).
         public Season At(DateTime now)
@@ -239,6 +249,8 @@ namespace Shared.pass
                         problems.Add($"{where}: no aura {r.Aura}");
                     else if (r.Color > 0 && Color(r.Color) == null)
                         problems.Add($"{where}: no name colour {r.Color}");
+                    else if (r.PetFx > 0 && PetEffect(r.PetFx) == null)
+                        problems.Add($"{where}: no pet effect {r.PetFx}");
                 }
             }
             foreach (var s in Seasons)
@@ -266,6 +278,10 @@ namespace Shared.pass
                 problems.Add($"aura id {dup.Key} is used twice");
             foreach (var dup in Colors.GroupBy(a => a.Id).Where(g => g.Count() > 1))
                 problems.Add($"name colour id {dup.Key} is used twice");
+            foreach (var dup in PetEffects.GroupBy(a => a.Id).Where(g => g.Count() > 1))
+                problems.Add($"pet effect id {dup.Key} is used twice");
+            if (Tiers > 63)
+                problems.Add($"{Tiers} tiers: a season's claims hold 63 at most");
             return problems;
         }
     }

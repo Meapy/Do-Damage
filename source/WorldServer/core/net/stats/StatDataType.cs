@@ -141,6 +141,9 @@
         // the Realm Pass aura a player wears (Shared.pass, its id; sent only when there is one),
         // drawn round them by the Rust client (auras.rs); an older client ignores it.
         Aura = 222,
+        // the Realm Pass pet effect a pet wears (Shared.pass, its id; sent only when there is one),
+        // drawn round it by the Rust client (petfx.rs); an older client ignores it.
+        PetEffect = 223,
         None = 255
     }
 }

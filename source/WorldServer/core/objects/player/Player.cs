@@ -40,6 +40,19 @@ namespace WorldServer.core.objects
         public pass.PassTracker Pass { get; private set; }
         public ConcurrentQueue<InboundBuffer> IncomingMessages { get; private set; } = new ConcurrentQueue<InboundBuffer>();
         public Pet Pet { get; set; }
+
+        // the Realm Pass pet effect worn (PassTracker sets it), shown on the pet out
+        private int _petEffect;
+        public int PetEffect
+        {
+            get => _petEffect;
+            set
+            {
+                _petEffect = value;
+                if (Pet != null)
+                    Pet.Effect = value;
+            }
+        }
         public int PetId { get; set; }
         public int[] SlotTypes { get; private set; }
         public int? GuildInvite { get; set; }
@@ -766,6 +779,7 @@ namespace WorldServer.core.objects
                 float draw;
                 (pet.DamageScale, pet.HealHp, pet.HealMp, draw) = PetPower();
                 pet.OwnHealing = PetMaxLevel(petId, PetGrown) > 1;
+                pet.Effect = PetEffect;
                 owner.EnterWorld(pet);
                 // it grows with its level (PetLevels.DrawScale)
                 if (petDesc.Size > 0)

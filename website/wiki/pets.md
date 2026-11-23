@@ -39,7 +39,9 @@ level, the food to its next level, and what it does now and at its last level. T
 
 - **Feed your pet**: pick anything in your inventory or backpack and he says how much food it is
   and what level it takes your pet to, then feed it (a whole stack at once). Pets eat:
-  - **treats**: a Superburger 1,500, an Ambrosia 5,000, a Shard of the Mad God 200;
+  - **treats**: a Superburger 1,500, an Ambrosia 5,000, a Shard of the Mad God 200, and the
+    [Realm Pass](realm-pass.html)'s pet food, which costs **no fame** to feed: a Pet Biscuit 750,
+    a Hearty Pet Stew 2,500 and a Royal Pet Feast 7,500;
   - **untiered gear** by how rare its bag is: brown 150, pink 200, purple 300, cyan 600, blue
     800, up to 1,500 for the rarer bags, a white bag's 2,000, and Ascended gear 3,000;
   - **tiered gear**: 20 and 15 a tier (abilities and rings 20 and 30 a tier);
@@ -54,7 +56,8 @@ level, the food to its next level, and what it does now and at its last level. T
   or 200, Medium to Large 8,500 or 450, and Large to Huge 25,000 or 1,000. It never gets weaker
   for it: it stays at 100% through Small, Medium and Large, and once it's Huge it climbs on to
   120% at level 30. It's drawn the new size's height, and your pen must take its new size for him
-  to feed it.
+  to feed it. A **Growth Tonic** from the [Realm Pass](realm-pass.html) grows a Tiny, Small or
+  Medium pet a size for nothing: pick it in his window and press **Grow it**.
 - **Grow your pen** to feed bigger pets. Every account's pen feeds Tiny pets; each bigger size is
   bought once, for fame or gold: Small 2,000 fame or 200 gold, Medium 5,000 or 400, Large 10,000
   or 700, and Huge (the Lil' Oryxes and the boss pets) 20,000 or 1,000. Any pet can still be put
@@ -68,6 +71,10 @@ level, the food to its next level, and what it does now and at its last level. T
 
 A fed pet's generator shows its level in the corner, and its tooltip shows its size, level, damage and
 healing now (in green once it's grown) and at its last level.
+
+**Pet effects** from the [Realm Pass](realm-pass.html) dress your pet up for everyone to see: frosty
+paw prints, a crown of ice shards, wings of fire, little moons circling it and more. Put one on from
+the pass's **Pets** tab; your pet wears it wherever it goes, whichever pet it is.
 
 ### Sizes
 

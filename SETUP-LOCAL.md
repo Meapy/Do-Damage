@@ -717,6 +717,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
+  `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
+  `petfx.rs` and `pass.rs`): 60 tiers of 750 XP, a reward on every free tier, the Burning Amulet
+  and the season's grand pet effect at tier 60 Gilded. Pet effects are a cosmetic like auras
+  (`pass.json`'s `petEffects`, ids never renumbered; the account's `pass` JSON `pets` and `pet`),
+  worn through `PassAct` 7 and sent on the pet as stat 223 `PetEffect`; the Rust client draws them
+  by id (`petfx.rs`). A season's `filled` lists the free tiers filled while it runs, whose old
+  claim marks are cleared once per state (`filled` in the JSON). Pet food (Pet Biscuit, Hearty
+  Pet Stew, Royal Pet Feast) feeds without fame (`PetFood.Free`); a Growth Tonic grows a Tiny,
+  Small or Medium pet a size for free (Pen Keeper act 13). Art by `tools/draw_pet_treats.py`.
+  `/passadmin petfx <id>`.
 - **Growing a pet, Huge pets, 100% for the rest** (2026-11-23; `PetLevels.cs` `GrowPrice`,
   `GrownSize` and `Power`, `Player.PetPen.cs` `GrowPet`, the client's `petlevels.rs` and
   `petpen.rs`): a pet at its last level can be grown to the next size at the Pen Keeper (acts 11

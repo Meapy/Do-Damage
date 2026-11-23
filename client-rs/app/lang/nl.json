@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Je hok neemt alleen {size} huisdieren: breid het uit om dit te voeren.",
 "{fame} fame": "{fame} roem",
 "{fame} fame · {gold} gold": "{fame} roem · {gold} goud",
-"{gold} gold": "{gold} goud"
+"{gold} gold": "{gold} goud",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Een Groeitonicum laat alleen piepkleine, kleine en middelgrote huisdieren groeien.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Een effect om je huisdier, voor iedereen zichtbaar. Geef het je huisdier via het tabblad Huisdieren. Voorgoed van jou.",
+"Fed without fame.": "Gevoerd zonder roem.",
+"Feed your pet to its last level first.": "Voer je huisdier eerst tot zijn laatste niveau.",
+"Grow it": "Laten groeien",
+"Grows a pet a size": "Laat een huisdier een maat groeien",
+"Grows your pet to a {size} pet, for free.": "Laat je huisdier gratis groeien tot {size}.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "In de Realm Pass. De hoedster van de kooi bij het Arenaplein voert het je huisdier zonder roem.",
+"Pet effects": "Huisdiereffecten",
+"Pet food": "Huisdiervoer",
+"Put a pet in first.": "Plaats eerst een huisdier.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Je huisdier draagt het overal, voor iedereen zichtbaar. Verdien ze met de Realm Pass.",
+"Your pet wears no effect.": "Je huisdier draagt geen effect.",
+"Your pet wears {name}.": "Je huisdier draagt {name}.",
+"{gain}, without fame": "{gain}, zonder roem"
 }

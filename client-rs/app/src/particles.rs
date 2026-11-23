@@ -672,9 +672,11 @@ impl Particles {
         }
         self.relic_update(world, now);
         self.turret_update(world, now, dt);
-        // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`)
+        // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`), and of
+        // pets whose effect leaves a trail (`petfx.rs`)
         for obj in world.objects.values() {
-            if obj.stat_int(76).unwrap_or(0) != 0 {
+            let pet_trail = || obj.stat_int(bsk_proto::stat::PET_FX).is_some_and(|fx| (0..=255).contains(&fx) && crate::petfx::trails(fx as u8));
+            if obj.stat_int(76).unwrap_or(0) != 0 || pet_trail() {
                 self.trails.walk(obj.id, obj.x, obj.y, now);
             }
         }

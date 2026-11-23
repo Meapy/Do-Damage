@@ -111,7 +111,7 @@ impl Trails {
     }
 
     /// A wearer's marks: where, how old (0 to 1), and which foot.
-    fn marks(&self, id: i32, now: i32) -> Vec<(f64, f64, f32, bool)> {
+    pub(crate) fn marks(&self, id: i32, now: i32) -> Vec<(f64, f64, f32, bool)> {
         self.by.get(&id).map_or_else(Vec::new, |t| {
             t.marks.iter().map(|&(x, y, at, foot)| (x, y, ((now - at) as f32 / MARK_MS as f32).clamp(0.0, 1.0), foot)).collect()
         })
@@ -122,7 +122,7 @@ impl Trails {
 pub const TILE: f32 = 50.0;
 
 /// A number in 0..1 from two, the same each time.
-fn h(a: u32, b: u32) -> f32 {
+pub(crate) fn h(a: u32, b: u32) -> f32 {
     let mut x = a.wrapping_mul(0x9E37_79B1) ^ b.wrapping_mul(0x85EB_CA77);
     x ^= x >> 15;
     x = x.wrapping_mul(0x2C1B_3C6D);
@@ -132,12 +132,12 @@ fn h(a: u32, b: u32) -> f32 {
 
 /// Where a repeating particle `i` of `n` is in its life of `period` ms: (0..1 through it, which
 /// life it's on).
-fn cycle(now: i32, i: u32, period: i32) -> (f32, u32) {
+pub(crate) fn cycle(now: i32, i: u32, period: i32) -> (f32, u32) {
     let t = now as i64 + (i as i64 * 7919) % period as i64;
     ((t.rem_euclid(period as i64)) as f32 / period as f32, (t.div_euclid(period as i64)) as u32)
 }
 
-fn mix(a: u32, b: u32, t: f32) -> u32 {
+pub(crate) fn mix(a: u32, b: u32, t: f32) -> u32 {
     let t = t.clamp(0.0, 1.0);
     let ch = |s: u32| -> u32 {
         let (x, y) = (((a >> s) & 0xFF) as f32, ((b >> s) & 0xFF) as f32);
@@ -147,19 +147,19 @@ fn mix(a: u32, b: u32, t: f32) -> u32 {
 }
 
 /// Through a list of colours, 0 the first and 1 the last.
-fn ramp(colors: &[u32], t: f32) -> u32 {
+pub(crate) fn ramp(colors: &[u32], t: f32) -> u32 {
     let t = t.clamp(0.0, 1.0) * (colors.len() - 1) as f32;
     let i = (t.floor() as usize).min(colors.len() - 2);
     mix(colors[i], colors[i + 1], t - i as f32)
 }
 
-struct Pen<'a> {
-    r: &'a mut Renderer,
-    alpha: f32,
+pub(crate) struct Pen<'a> {
+    pub(crate) r: &'a mut Renderer,
+    pub(crate) alpha: f32,
 }
 
 impl Pen<'_> {
-    fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, a: f32) {
+    pub(crate) fn tri(&mut self, pts: [[f32; 2]; 3], rgb: u32, a: f32) {
         let a = a * self.alpha;
         if a > 0.004 {
             let white = self.r.white();
@@ -168,7 +168,7 @@ impl Pen<'_> {
     }
 
     /// A square dot.
-    fn dot(&mut self, x: f32, y: f32, size: f32, rgb: u32, a: f32) {
+    pub(crate) fn dot(&mut self, x: f32, y: f32, size: f32, rgb: u32, a: f32) {
         let a = a * self.alpha;
         if a > 0.004 && size > 0.2 {
             self.r.fill(x - size / 2.0, y - size / 2.0, size, size, rgb, a.min(1.0));
@@ -176,7 +176,7 @@ impl Pen<'_> {
     }
 
     /// A twinkle: a plus of light, its arms `len` long, a bright heart.
-    fn twinkle(&mut self, x: f32, y: f32, len: f32, rgb: u32, a: f32) {
+    pub(crate) fn twinkle(&mut self, x: f32, y: f32, len: f32, rgb: u32, a: f32) {
         let t = (len * 0.22).max(1.0);
         let a = a * self.alpha;
         if a <= 0.004 || len < 0.5 {
@@ -188,7 +188,7 @@ impl Pen<'_> {
     }
 
     /// A soft glow: brightest in the middle, nothing at the edge (an ellipse).
-    fn glow(&mut self, x: f32, y: f32, rx: f32, ry: f32, rgb: u32, a: f32) {
+    pub(crate) fn glow(&mut self, x: f32, y: f32, rx: f32, ry: f32, rgb: u32, a: f32) {
         let a = a * self.alpha;
         if a <= 0.004 {
             return;
@@ -207,7 +207,7 @@ impl Pen<'_> {
 
     /// An ellipse's band, from `k0` to `k1` of its radii, from angle `from` to `to`.
     #[allow(clippy::too_many_arguments)]
-    fn band(&mut self, x: f32, y: f32, rx: f32, ry: f32, k0: f32, k1: f32, from: f32, to: f32, rgb: u32, a: f32) {
+    pub(crate) fn band(&mut self, x: f32, y: f32, rx: f32, ry: f32, k0: f32, k1: f32, from: f32, to: f32, rgb: u32, a: f32) {
         let n = (((to - from).abs() / TAU) * 32.0).ceil().max(2.0) as usize;
         let at = |ang: f32, k: f32| [x + rx * k * ang.cos(), y + ry * k * ang.sin()];
         for i in 0..n {
@@ -220,7 +220,7 @@ impl Pen<'_> {
 
     /// A diamond (an ice shard), `w` wide and `ht` tall, tilted by `tilt`.
     #[allow(clippy::too_many_arguments)]
-    fn diamond(&mut self, x: f32, y: f32, w: f32, ht: f32, tilt: f32, rgb: u32, light: u32, a: f32) {
+    pub(crate) fn diamond(&mut self, x: f32, y: f32, w: f32, ht: f32, tilt: f32, rgb: u32, light: u32, a: f32) {
         let (s, c) = tilt.sin_cos();
         let p = |dx: f32, dy: f32| [x + dx * c - dy * s, y + dx * s + dy * c];
         let (top, bot, l, r) = (p(0.0, -ht / 2.0), p(0.0, ht / 2.0), p(-w / 2.0, 0.0), p(w / 2.0, 0.0));
@@ -229,7 +229,7 @@ impl Pen<'_> {
     }
 
     /// A line of light from one point to another, `w` thick.
-    fn line(&mut self, a: [f32; 2], b: [f32; 2], w: f32, rgb: u32, al: f32) {
+    pub(crate) fn line(&mut self, a: [f32; 2], b: [f32; 2], w: f32, rgb: u32, al: f32) {
         let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
         let len = (dx * dx + dy * dy).sqrt().max(0.001);
         let (nx, ny) = (-dy / len * w / 2.0, dx / len * w / 2.0);
@@ -239,7 +239,7 @@ impl Pen<'_> {
     }
 
     /// A strip of light standing up from (x, y), `ht` tall, fading out at the top.
-    fn curtain(&mut self, x: f32, y: f32, w: f32, ht: f32, rgb: u32, a: f32) {
+    pub(crate) fn curtain(&mut self, x: f32, y: f32, w: f32, ht: f32, rgb: u32, a: f32) {
         let a = a * self.alpha;
         if a <= 0.004 {
             return;
@@ -253,10 +253,10 @@ impl Pen<'_> {
     }
 }
 
-const FROST: [u32; 4] = [0x3C8CE0, 0x8FD0FF, 0xCFEFFF, 0xFFFFFF];
-const FIRE: [u32; 4] = [0xFFF2A0, 0xFFB040, 0xFF6020, 0xB02010];
-const STARS: [u32; 3] = [0xFFFFFF, 0xE6D8FF, 0xFFE9A8];
-const VIOLET: u32 = 0xB89BFF;
+pub(crate) const FROST: [u32; 4] = [0x3C8CE0, 0x8FD0FF, 0xCFEFFF, 0xFFFFFF];
+pub(crate) const FIRE: [u32; 4] = [0xFFF2A0, 0xFFB040, 0xFF6020, 0xB02010];
+pub(crate) const STARS: [u32; 3] = [0xFFFFFF, 0xE6D8FF, 0xFFE9A8];
+pub(crate) const VIOLET: u32 = 0xB89BFF;
 const AURORA: [u32; 4] = [0x6EF0BA, 0x30AA96, 0x7FA0FF, 0xA478F0];
 
 /// What lies on the ground under a wearer, and their marks behind them. `to_screen` puts a world

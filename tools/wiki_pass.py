@@ -1,5 +1,5 @@
 """The wiki's Realm Pass page tables (website/wiki/realm-pass.md): the seasons, every tier's free and
-Gilded rewards, what earns pass XP, the Wayfarer's Cache and the auras and name colours, read from
+Gilded rewards, what earns pass XP, the Wayfarer's Cache, the auras, name colours and pet effects, read from
 the game's own data (source/Shared/resources/data/pass.json, which the world server's PassTracker
 reads), so the page stays true when the pass is tuned. build_wiki.py calls it for {{gen:pass_*}}
 and {{v:pass_*}}.
@@ -42,6 +42,17 @@ AURA_TEXT = {
     6: "A turning constellation of joined stars beneath you",
 }
 
+# what each pet effect looks like (client-rs/app/src/petfx.rs), by its id
+PET_FX_TEXT = {
+    1: "Frosty paw prints behind your pet, and snowflakes drifting round it",
+    2: "Five ice shards wheeling over your pet's head, a ring of frost beneath it",
+    3: "Embers rising off your pet over a warm glow",
+    4: "Two wings of fire beating behind your pet, shaking off sparks",
+    5: "Stars twinkling in and out round your pet",
+    6: "Three little moons circling your pet",
+    7: "A rainbow trail behind your pet, and sparkles of every colour",
+}
+
 
 def load():
     with open(PATH, encoding="utf-8") as f:
@@ -74,6 +85,9 @@ class Pass:
         if r.get("color"):
             c = self.cosmetic("colors", r["color"]) or {}
             return '<span class="q-fame" style="color:%s"><b>%s</b> name colour</span>' % (self.color(c), esc(c.get("name", "?")))
+        if r.get("petFx"):
+            c = self.cosmetic("petEffects", r["petFx"]) or {}
+            return '<span class="q-fame" style="color:%s"><b>%s</b> pet effect</span>' % (self.color(c), esc(c.get("name", "?")))
         if r.get("slot"):
             n = r["slot"]
             return '<span class="q-fame"><b>%d</b> character slot%s</span>' % (n, "" if n == 1 else "s")
@@ -110,7 +124,7 @@ class Pass:
             for t in range(self.p.get("tiers", 30)):
                 f = free[t] if t < len(free) else []
                 g = gilded[t] if t < len(gilded) else []
-                star = any(r.get("skin") or r.get("aura") for r in f + g)
+                star = any(r.get("skin") or r.get("aura") or r.get("petFx") for r in f + g)
                 rows.append('<tr%s><td><b>%d</b></td><td>%s</td><td>%s</td></tr>'
                             % (' class="q-ready"' if star else "", t + 1, self.rewards(f), self.rewards(g)))
             out.append('<h3 id="track-%s">%s</h3>\n<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Free</th>'
@@ -150,6 +164,8 @@ class Pass:
             rows.append('<tr><td><b style="color:%s">%s</b></td><td>Aura</td><td>%s</td></tr>' % (self.color(a), esc(a["name"]), esc(AURA_TEXT.get(a["id"], ""))))
         for c in self.p.get("colors", []):
             rows.append('<tr><td><b style="color:%s">%s</b></td><td>Name colour</td><td>Your name in chat</td></tr>' % (self.color(c), esc(c["name"])))
+        for c in self.p.get("petEffects", []):
+            rows.append('<tr><td><b style="color:%s">%s</b></td><td>Pet effect</td><td>%s</td></tr>' % (self.color(c), esc(c["name"]), esc(PET_FX_TEXT.get(c["id"], ""))))
         return ('<div class="table-wrap"><table><thead><tr><th>Look</th><th>Kind</th><th>What it is</th></tr></thead>'
                 "<tbody>%s</tbody></table></div>" % "".join(rows))
 
@@ -164,4 +180,5 @@ class Pass:
             "pass_luck": com.get("luck", 1), "pass_rolls": com.get("rolls", 1),
             "pass_rally_mult": com.get("rallyMultiplier", 2),
             "pass_auras": len(p.get("auras", [])), "pass_colors": len(p.get("colors", [])),
+            "pass_pet_effects": len(p.get("petEffects", [])),
         }

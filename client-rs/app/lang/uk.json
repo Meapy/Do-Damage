@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Ваш загін приймає лише улюбленців розміру {size}: розширте його, щоб годувати цього.",
 "{fame} fame": "{fame} слави",
 "{fame} fame · {gold} gold": "{fame} слави · {gold} золота",
-"{gold} gold": "{gold} золота"
+"{gold} gold": "{gold} золота",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Тонік росту збільшує лише крихітних, малих і середніх улюбленців.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Ефект навколо вашого улюбленця, видно всім. Надягніть його на улюбленця на вкладці «Улюбленці». Ваш назавжди.",
+"Fed without fame.": "Годування без слави.",
+"Feed your pet to its last level first.": "Спершу нагодуйте улюбленця до останнього рівня.",
+"Grow it": "Виростити",
+"Grows a pet a size": "Збільшує улюбленця на один розмір",
+"Grows your pet to a {size} pet, for free.": "Безкоштовно виростить вашого улюбленця до розміру {size}.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "У Realm Pass. Доглядач загону біля двору Арени згодує це вашому улюбленцю без слави.",
+"Pet effects": "Ефекти улюбленця",
+"Pet food": "Корм для улюбленців",
+"Put a pet in first.": "Спершу випустіть улюбленця.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Ваш улюбленець носить його всюди, видно всім. Здобувайте їх у Realm Pass.",
+"Your pet wears no effect.": "На улюбленці немає ефекту.",
+"Your pet wears {name}.": "На улюбленці: {name}.",
+"{gain}, without fame": "{gain}, без слави"
 }

@@ -6,11 +6,13 @@
 //! The client asks once in each world (`PassAct` 0) and from then on hears every gain
 //! (`PassXp`), so the HUD's button shows the tier and what waits even while the window is shut,
 //! and pills of XP rise beside it. A tier reached shows a banner (and the server a column of
-//! light round the player, `relic::look::PASS_TIER`). The window has three tabs: the rewards
-//! track, how XP is earned, and the looks (the auras, drawn by `auras.rs`, and the name colours)
-//! to wear. The server checks every act; the window only asks.
+//! light round the player, `relic::look::PASS_TIER`). The window's tabs: the rewards track, how XP
+//! is earned, the looks (the auras, drawn by `auras.rs`, and the name colours) to wear, the pet
+//! effects (`petfx.rs`) and pet food, and the Gilded perks. The server checks every act; the
+//! window only asks.
 
 use crate::auras;
+use crate::petfx;
 use crate::hud::{group_digits, object_icon, ui_icon, Layout, Line, SlotKind, Ui};
 use crate::i18n::{mark, tf, tn, tr};
 use crate::quests::{check, countdown, glow, inside, locked};
@@ -30,6 +32,8 @@ pub mod act {
     pub const COLOR: u8 = 4;
     pub const CACHE: u8 = 5;
     pub const TITLE: u8 = 6;
+    /// A pet effect put on (from 2.6.6).
+    pub const PET_FX: u8 = 7;
 }
 
 /// `PassReward` kinds (`PassRewardInfo.Kind*`).
@@ -41,6 +45,8 @@ pub mod kind {
     pub const AURA: u8 = 5;
     pub const COLOR: u8 = 6;
     pub const SLOT: u8 = 7;
+    /// A pet effect (from 2.6.6): its id, colour and name.
+    pub const PET_FX: u8 = 8;
 }
 
 /// `PassResult` codes (`PassCode`).
@@ -55,6 +61,8 @@ mod code {
     pub const COLOR_OFF: u8 = 7;
     pub const TITLE_SHOWN: u8 = 8;
     pub const TITLE_HIDDEN: u8 = 9;
+    pub const PET_FX_WORN: u8 = 10;
+    pub const PET_FX_OFF: u8 = 11;
     pub const NO_SEASON: u8 = 20;
     pub const GUEST: u8 = 21;
     pub const NOT_REACHED: u8 = 22;
@@ -116,6 +124,7 @@ pub enum Act {
     Caches,
     /// The Gilded chat title shown (true) or hidden.
     Title(bool),
+    PetFx(u8),
 }
 
 impl Act {
@@ -129,6 +138,7 @@ impl Act {
             Act::Color(id) => (act::COLOR, id as i32),
             Act::Caches => (act::CACHE, 0),
             Act::Title(show) => (act::TITLE, show as i32),
+            Act::PetFx(id) => (act::PET_FX, id as i32),
         }
     }
 }
@@ -147,6 +157,7 @@ pub enum Tab {
     Rewards,
     Earn,
     Looks,
+    Pets,
     Perks,
 }
 
@@ -157,14 +168,26 @@ impl Tab {
             "rewards" | "track" | "" => Tab::Rewards,
             "earn" | "xp" => Tab::Earn,
             "looks" | "auras" => Tab::Looks,
+            "pets" | "pet" => Tab::Pets,
             "perks" | "gilded" => Tab::Perks,
             _ => return None,
         })
     }
 }
 
-const TABS: [(Tab, &str); 4] =
-    [(Tab::Rewards, mark("Rewards")), (Tab::Earn, mark("Earn XP")), (Tab::Looks, mark("Looks")), (Tab::Perks, mark("Gilded perks"))];
+const TABS: [(Tab, &str); 5] = [
+    (Tab::Rewards, mark("Rewards")),
+    (Tab::Earn, mark("Earn XP")),
+    (Tab::Looks, mark("Looks")),
+    (Tab::Pets, mark("Pets")),
+    (Tab::Perks, mark("Gilded perks")),
+];
+
+/// The Realm Pass's pet food and Growth Tonic (`Shared.pets.PetFood`), as the Pets tab shows them:
+/// the item, and the food it is (0: the tonic).
+const PET_FOOD: [(&str, i32); 4] = [("Pet Biscuit", 750), ("Hearty Pet Stew", 2500), ("Royal Pet Feast", 7500), ("Growth Tonic", 0)];
+/// The pet a pet effect is shown on when none is out.
+const SAMPLE_PET: &str = "Black Cat (Doomed)";
 
 /// `/visit` and `/summon` trips into one instance, without and with the Gilded pass (the
 /// server's `VisitRules.Trips` and `GildedTrips`).
@@ -186,6 +209,7 @@ enum Hit {
     Jump(usize),
     Aura(u8),
     Color(u8),
+    PetFx(u8),
     /// The Gilded chat title's switch.
     Title,
     Dismiss,
@@ -430,6 +454,8 @@ impl Pass {
             code::AURA_OFF => tr("You wear no aura.").into(),
             code::COLOR_WORN => tf!("Your name shines in {name}.", name = name_of(d.map(|d| &d.colors[..]), r.count)),
             code::COLOR_OFF => tr("Your name takes its achievement colour again.").into(),
+            code::PET_FX_WORN => tf!("Your pet wears {name}.", name = name_of(d.and_then(|d| d.pet_effects.as_ref()).map(|l| &l[..]), r.count)),
+            code::PET_FX_OFF => tr("Your pet wears no effect.").into(),
             code::NO_SEASON => tr("No season is running right now.").into(),
             code::GUEST => tr("Register your account to play the Realm Pass.").into(),
             code::NOT_REACHED => tr("You haven't reached that tier yet.").into(),
@@ -480,6 +506,7 @@ impl Pass {
             }
             Hit::Aura(id) => return Some(Act::Aura(id)),
             Hit::Color(id) => return Some(Act::Color(id)),
+            Hit::PetFx(id) => return Some(Act::PetFx(id)),
             Hit::Title => return d.and_then(|d| d.show_title).map(|shown| Act::Title(!shown)),
             Hit::Dismiss => self.reveal = None,
         }
@@ -512,7 +539,10 @@ impl Pass {
         }
     }
 
-    pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, mouse: (f64, f64), now: i32) {
+    /// The window, if it's open. `pet` is the type of our pet out, if one is (the Pets tab shows
+    /// the effects on it).
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw(&mut self, ui: &mut Ui, lay: &Layout, me: Option<&GameObj>, pet: Option<u16>, mouse: (f64, f64), now: i32) {
         self.now = now;
         self.hits.clear();
         self.hover = None;
@@ -570,6 +600,7 @@ impl Pass {
                 Tab::Rewards => self.draw_track(ui, &d, body, s, mouse, now),
                 Tab::Earn => self.draw_earn(ui, &d, body, s),
                 Tab::Looks => self.draw_looks(ui, &d, me, body, s, mouse, now),
+                Tab::Pets => self.draw_pets(ui, &d, pet, body, s, mouse, now),
                 Tab::Perks => self.draw_perks(ui, &d, body, s, mouse, now),
             }
         }
@@ -859,7 +890,7 @@ impl Pass {
         for t in 0..n {
             let ti = &d.tiers[t];
             let waiting = t < tier && ((!ti.free.is_empty() && !ti.free_claimed) || (d.gilded && !ti.gilded.is_empty() && !ti.gilded_claimed));
-            let skin = ti.gilded.iter().chain(ti.free.iter()).any(|r| r.kind == kind::SKIN || r.kind == kind::AURA);
+            let skin = ti.gilded.iter().chain(ti.free.iter()).any(|r| r.kind == kind::SKIN || r.kind == kind::AURA || r.kind == kind::PET_FX);
             let c = if waiting { mix(GILD, 0xFFFFFF, 0.3 * pulse) } else if t < tier { accent } else { 0x2A2240 };
             let mr = [x0 + t as f32 * seg + 1.0 * s, sy, seg - 2.0 * s, 8.0 * s];
             theme::fill(ui.renderer, mr, 2.0 * s, c, if t < tier || waiting { 1.0 } else { 0.9 });
@@ -1222,6 +1253,76 @@ impl Pass {
         }
     }
 
+    /// The pet effects to put on our pet, each shown on it (or on a cat, with none out), and the
+    /// Realm Pass's pet food.
+    #[allow(clippy::too_many_arguments)]
+    fn draw_pets(&mut self, ui: &mut Ui, d: &PassData, pet: Option<u16>, body: [f32; 4], s: f32, mouse: (f64, f64), now: i32) {
+        let font = |size: f32| (size * s).round().max(9.0);
+        let title = tr("Pet effects");
+        ui.label(title, body[0], body[1], font(16.0), true, color::GOLD);
+        let tw = ui.measure(title, font(16.0), true) + 14.0 * s;
+        ui.label_fit(tr("Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass."), body[0] + tw, body[1] + 3.0 * s, body[2] - tw, font(12.0), false, color::TEXT_MUTED);
+        let effects: &[bsk_proto::PassCosmetic] = d.pet_effects.as_ref().map_or(&[], |l| &l[..]);
+        let worn = d.pet_effect.unwrap_or(0);
+        let figure = pet.or_else(|| ui.data.object_ids.get(SAMPLE_PET).copied());
+        let n = effects.len() + 1;
+        let gap = 10.0 * s;
+        let cw = ((body[2] - gap * (n - 1) as f32) / n as f32).min(130.0 * s);
+        let ch = 168.0 * s;
+        let y = body[1] + 28.0 * s;
+        let empty = auras::Trails::default();
+        for i in 0..n {
+            let (id, name, owned) = if i == 0 { (0u8, tr("None").to_owned(), true) } else { let e = &effects[i - 1]; (e.id, e.name.clone(), e.owned) };
+            let cr = [body[0] + i as f32 * (cw + gap), y, cw, ch];
+            let on = id == worn;
+            let hover = inside(cr, mouse) && owned;
+            let edge = if on { GILD } else if hover { color::BORDER_HI } else { color::BORDER };
+            theme::frame(ui.renderer, cr, 8.0 * s, s.max(1.0), (edge, 1.0), ((0x141026, 1.0), (0x0A0814, 1.0)));
+            // the effect round the pet
+            let (fx, fy) = (cr[0] + cw / 2.0, cr[1] + 110.0 * s);
+            let w = petfx::PetWearer { id: -1, x: fx, y: fy, tile: 52.0 * s, size: 1.0, fx: id, alpha: if owned { 1.0 } else { 0.35 } };
+            petfx::ground(ui.renderer, &w, &empty, &|_, _| [fx, fy], now);
+            if let Some(t) = figure {
+                object_icon(ui, t, fx, fy - 20.0 * s, 40.0 * s);
+            }
+            petfx::air(ui.renderer, &w, now);
+            let ls = font(12.0);
+            let lw = ui.measure(&name, ls, true).min(cw - 10.0 * s);
+            ui.label_fit(&name, cr[0] + (cw - lw) / 2.0, cr[1] + ch - 26.0 * s, cw - 10.0 * s, ls, true, if on { GILD } else if owned { color::TEXT } else { color::TEXT_MUTED });
+            if !owned {
+                locked(ui, [cr[0] + cw - 30.0 * s, cr[1] + 6.0 * s, 24.0 * s, 18.0 * s], s * 0.7);
+            } else {
+                self.hits.push((Hit::PetFx(id), cr));
+            }
+        }
+        // the pet food: what each is to the pet
+        let y = y + ch + 22.0 * s;
+        let title = tr("Pet food");
+        ui.label(title, body[0], y, font(16.0), true, color::GOLD);
+        let tw = ui.measure(title, font(16.0), true) + 14.0 * s;
+        ui.label_fit(tr("On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame."), body[0] + tw, y + 3.0 * s, body[2] - tw, font(12.0), false, color::TEXT_MUTED);
+        let y = y + 30.0 * s;
+        let fw = (body[2] - gap * 3.0) / 4.0;
+        for (k, (id, food)) in PET_FOOD.iter().enumerate() {
+            let Some(&item) = ui.data.object_ids.get(*id) else { continue };
+            let fr = [body[0] + k as f32 * (fw + gap), y, fw, 58.0 * s];
+            let hover = inside(fr, mouse);
+            theme::frame(ui.renderer, fr, 8.0 * s, s.max(1.0), (if hover { color::BORDER_HI } else { color::BORDER }, 1.0), ((color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0)));
+            let side = 42.0 * s;
+            let ir = [fr[0] + 8.0 * s, fr[1] + (fr[3] - side) / 2.0, side, side];
+            ui.slot_box(ir, crate::screens::tier_edge(ui.data, item as i32), false, (side / 46.0).max(0.4));
+            ui.item_icon(item as i32, 60, ir[0] + side / 2.0, ir[1] + side / 2.0, side / 46.0);
+            let tx = ir[0] + side + 10.0 * s;
+            let name = ui.data.objects.get(&item).map_or(String::new(), |o| if o.display_id.is_empty() { o.id.clone() } else { o.display_id.clone() });
+            ui.label_fit(&name, tx, fr[1] + 10.0 * s, fr[0] + fr[2] - tx - 6.0 * s, font(13.0), true, color::TEXT);
+            let what = if *food > 0 { tf!("+{food} food", food = group_digits(*food)) } else { tr("Grows a pet a size").to_owned() };
+            ui.label_fit(&what, tx, fr[1] + 32.0 * s, fr[0] + fr[2] - tx - 6.0 * s, font(12.0), false, if *food > 0 { color::GOOD } else { GILD });
+            if hover {
+                self.hover = Some(Hover::Reward(PassReward { kind: kind::ITEM, item, amount: 1, name: String::new() }));
+            }
+        }
+    }
+
     /// Gilding the pass: the price, what it gives, and Yes.
     #[allow(clippy::too_many_arguments)]
     fn draw_confirm(&mut self, ui: &mut Ui, d: &PassData, me: Option<&GameObj>, r: [f32; 4], s: f32, mouse: (f64, f64), now: i32) {
@@ -1381,6 +1482,7 @@ impl Pass {
                     }
                     kind::AURA => tr("An aura round your character, on every character, for everyone to see. Wear it from the Looks tab. Yours for good."),
                     kind::COLOR => tr("A colour for your name in chat. Wear it from the Looks tab. Yours for good."),
+                    kind::PET_FX => tr("An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good."),
                     kind::SLOT => tr("Room for another character."),
                     _ => "",
                 };
@@ -1505,7 +1607,7 @@ fn reward_color(r: &PassReward) -> u32 {
         kind::FAME => color::ACCENT,
         kind::GOLD => GILD,
         kind::SKIN => 0x8FD0FF,
-        kind::AURA | kind::COLOR => rgb(r.amount, color::TEXT),
+        kind::AURA | kind::COLOR | kind::PET_FX => rgb(r.amount, color::TEXT),
         _ => color::TEXT,
     }
 }
@@ -1573,6 +1675,20 @@ fn draw_reward(ui: &mut Ui, rw: &PassReward, r: [f32; 4], s: f32, now: i32, alph
         kind::SLOT => {
             theme::frame(ui.renderer, [r[0] + side * 0.12, r[1] + side * 0.12, side * 0.76, side * 0.76], side * 0.12, 1.5, (color::BORDER_HI, alpha), ((color::SLOT_TOP, alpha), (color::SLOT_BOTTOM, alpha)));
             theme::cross(ui.renderer, cx, cy, side * 0.18, (side * 0.07).max(1.5), color::GOOD);
+        }
+        kind::PET_FX => {
+            // a paw print in the effect's colour, sparkles going round it
+            let c = rgb(rw.amount, 0xFFD24A);
+            glow_disc(ui.renderer, cx, cy, side * 0.5, c, 0.4 * alpha);
+            disc(ui.renderer, cx, cy + side * 0.1, side * 0.14, mix(c, 0xFFFFFF, 0.45), alpha);
+            for (k, (dx, dy)) in [(-0.17f32, -0.06f32), (-0.06, -0.16), (0.06, -0.16), (0.17, -0.06)].into_iter().enumerate() {
+                disc(ui.renderer, cx + dx * side, cy + dy * side, side * if k == 0 || k == 3 { 0.055 } else { 0.065 }, mix(c, 0xFFFFFF, 0.6), alpha);
+            }
+            let spin = now as f32 * 0.0025;
+            for i in 0..3 {
+                let a = spin + i as f32 * TAU / 3.0;
+                sparkle(ui.renderer, cx + side * 0.34 * a.cos(), cy + side * 0.2 * a.sin(), side * 0.06, 0xFFFFFF, alpha);
+            }
         }
         _ => {}
     }
@@ -1880,6 +1996,8 @@ mod tests {
         p.hits = vec![(Hit::Claim(3), [20.0, 0.0, 10.0, 10.0])];
         assert_eq!(p.click((25.0, 5.0)), Some(Act::Claim(3)));
         assert_eq!(Tab::named("looks"), Some(Tab::Looks));
+        assert_eq!(Tab::named("pets"), Some(Tab::Pets));
+        assert_eq!(Act::PetFx(4).wire(), (7, 4));
         // the Gilded chat title's switch asks for the other state; an older server has none
         assert_eq!(Act::Title(false).wire(), (act::TITLE, 0));
         p.hits = vec![(Hit::Title, [0.0, 0.0, 10.0, 10.0])];

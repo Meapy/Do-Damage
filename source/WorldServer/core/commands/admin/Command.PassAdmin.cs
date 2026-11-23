@@ -23,7 +23,7 @@ namespace WorldServer.core.commands
                 var parts = (args ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 if (pass == null || parts.Length == 0)
                 {
-                    player.SendInfo("Usage: /passadmin xp <n> | tier <n> | gilded | reset [all] | time <hours> | look <aura> [skin]");
+                    player.SendInfo("Usage: /passadmin xp <n> | tier <n> | gilded | reset [all] | time <hours> | look <aura> [skin] | petfx <id>");
                     return true;
                 }
                 var book = pass.Book;
@@ -59,7 +59,7 @@ namespace WorldServer.core.commands
                         break;
                     case "reset":
                         pass.ResetState(parts.Length > 1 && parts[1] == "all");
-                        player.SendInfo("Your pass starts afresh" + (parts.Length > 1 && parts[1] == "all" ? ", cosmetics and all." : "; your auras and name colours are kept."));
+                        player.SendInfo("Your pass starts afresh" + (parts.Length > 1 && parts[1] == "all" ? ", cosmetics and all." : "; your auras, name colours and pet effects are kept."));
                         break;
                     case "time":
                         if (parts.Length < 2 || !double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var hours))
@@ -96,6 +96,24 @@ namespace WorldServer.core.commands
                         if (pass.Subscribed)
                             pass.SendData();
                         player.SendInfo($"Aura {aura}, skin {player.Skin}.");
+                        break;
+                    }
+                    case "petfx":
+                    {
+                        // a pet effect, granted and put on the pet (0 none)
+                        if (parts.Length < 2 || !int.TryParse(parts[1], out var fx) || (fx != 0 && book.Data.PetEffect(fx) == null))
+                        {
+                            player.SendInfo("Usage: /passadmin petfx <pet effect id, 0 none>");
+                            return true;
+                        }
+                        if (fx != 0 && !book.State.PetEffects.Contains(fx))
+                            book.State.PetEffects.Add(fx);
+                        book.WearPetEffect(fx);
+                        player.PetEffect = book.WornPetEffect;
+                        pass.Save();
+                        if (pass.Subscribed)
+                            pass.SendData();
+                        player.SendInfo($"Pet effect {fx}.");
                         break;
                     }
                     default:

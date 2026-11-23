@@ -4,11 +4,11 @@ using Shared;
 namespace WorldServer.networking.packets.outgoing.pass
 {
     // A Realm Pass reward as the window shows it: fame (kind 0, amount), an item (1: its type and
-    // how many), gold (3), a skin (4: its type, its class's type, its name), an aura (5: its id, colour and name), a name colour (6: the same)
-    // or character slots (7).
+    // how many), gold (3), a skin (4: its type, its class's type, its name), an aura (5: its id, colour and name), a name colour (6: the same),
+    // character slots (7) or a pet effect (8: its id, colour and name; since 2.6.6).
     public sealed class PassRewardInfo
     {
-        public const byte KindFame = 0, KindItem = 1, KindGold = 3, KindSkins = 4, KindAura = 5, KindColor = 6, KindSlot = 7;
+        public const byte KindFame = 0, KindItem = 1, KindGold = 3, KindSkins = 4, KindAura = 5, KindColor = 6, KindSlot = 7, KindPetFx = 8;
 
         public byte Kind;
         public ushort Item;
@@ -38,7 +38,7 @@ namespace WorldServer.networking.packets.outgoing.pass
         public bool FreeClaimed, GildedClaimed;
     }
 
-    // An aura or name colour: its id, name, colour, and whether the account has it.
+    // An aura, name colour or pet effect: its id, name, colour, and whether the account has it.
     public sealed class PassCosmeticInfo
     {
         public byte Id;
@@ -76,6 +76,10 @@ namespace WorldServer.networking.packets.outgoing.pass
         public byte CommunityLuck, CommunityRolls;
         // the [Gilded] chat title shown (PassAct 6 turns it on and off; older clients leave it unread)
         public bool ShowTitle = true;
+        // the pet effects and the one worn (since 2.6.6; PassAct 7 puts one on, older clients leave
+        // them unread)
+        public List<PassCosmeticInfo> PetEffects = new List<PassCosmeticInfo>();
+        public byte PetEffect;
 
         public override MessageId MessageId => MessageId.PASS_DATA;
 
@@ -127,6 +131,8 @@ namespace WorldServer.networking.packets.outgoing.pass
             wtr.Write(CommunityLuck);
             wtr.Write(CommunityRolls);
             wtr.Write(ShowTitle);
+            WriteCosmetics(wtr, PetEffects);
+            wtr.Write(PetEffect);
         }
 
         private static void WriteCosmetics(NetworkWriter wtr, List<PassCosmeticInfo> list)

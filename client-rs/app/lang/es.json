@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Tu corral solo admite mascotas {size}: amplíalo para alimentar a esta.",
 "{fame} fame": "{fame} de fama",
 "{fame} fame · {gold} gold": "{fame} de fama · {gold} de oro",
-"{gold} gold": "{gold} de oro"
+"{gold} gold": "{gold} de oro",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Un Tónico de crecimiento solo hace crecer mascotas diminutas, pequeñas y medianas.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Un efecto alrededor de tu mascota, a la vista de todos. Pónselo a tu mascota desde la pestaña Mascotas. Tuyo para siempre.",
+"Fed without fame.": "Se le da sin gastar fama.",
+"Feed your pet to its last level first.": "Primero alimenta a tu mascota hasta su último nivel.",
+"Grow it": "Hacerla crecer",
+"Grows a pet a size": "Hace crecer una talla a una mascota",
+"Grows your pet to a {size} pet, for free.": "Hace crecer a tu mascota a {size}, gratis.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "En el Realm Pass. El cuidador del corral, junto al patio de la Arena, se lo da a tu mascota sin gastar fama.",
+"Pet effects": "Efectos de mascota",
+"Pet food": "Comida para mascotas",
+"Put a pet in first.": "Pon una mascota primero.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Tu mascota lo lleva allá donde va, a la vista de todos. Gánalos en el Realm Pass.",
+"Your pet wears no effect.": "Tu mascota no lleva ningún efecto.",
+"Your pet wears {name}.": "Tu mascota lleva {name}.",
+"{gain}, without fame": "{gain}, sin gastar fama"
 }

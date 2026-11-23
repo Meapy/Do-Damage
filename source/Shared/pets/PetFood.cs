@@ -13,7 +13,11 @@ namespace Shared.pets
     //   untiered (UTs and such) by how rare its bag is (Loots.LOOT_BAG_WEIGHTS' order): brown 150,
     //   pink 200, purple 300, 400, cyan 600, blue 800, 1,000, 1,200, 1,500, white 2,000, and
     //   Ascended gear 3,000;
-    // - potions: a stat potion 60, a Greater one 150, Life and Mana 200.
+    // - potions: a stat potion 60, a Greater one 150, Life and Mana 200;
+    // - the Realm Pass's treats (since 2.6.6): a Pet Biscuit 750, a Hearty Pet Stew 2,500, a Royal
+    //   Pet Feast 7,500, and feeding them costs no fame (Free). The Growth Tonic isn't food: the
+    //   Pen Keeper grows a Tiny, Small or Medium pet at its last level a size with it, for nothing
+    //   (Player.PetPen.cs, TonicGrows).
     public static class PetFood
     {
         public const string Burger = "Superburger";
@@ -27,6 +31,17 @@ namespace Shared.pets
         // untiered gear's food by its bag (BagType 0-9; the bags' rank is Loots.LOOT_BAG_WEIGHTS)
         private static readonly int[] UntieredXp = { 150, 200, 300, 400, 600, 800, 2000, 1000, 1200, 1500 };
         public const int AscendedXp = 3000;
+        // the Realm Pass's treats, fed without fame
+        private static readonly (string Id, int Xp)[] Treats = { ("Pet Biscuit", 750), ("Hearty Pet Stew", 2500), ("Royal Pet Feast", 7500) };
+        public const string GrowthTonic = "Growth Tonic";
+        // the sizes (PetLevels.Sizes' index) a Growth Tonic grows from: Tiny, Small and Medium
+        public const int TonicGrowsBelow = 3;
+
+        /// <summary>Whether feeding `item` costs no fame (the Realm Pass's treats).</summary>
+        public static bool Free(Item item) => item != null && Array.Exists(Treats, t => t.Id == item.ObjectId);
+
+        /// <summary>Whether a Growth Tonic grows a pet of size index `size` (PetLevels.Sizes).</summary>
+        public static bool TonicGrows(int size) => size >= 0 && size < TonicGrowsBelow;
 
         /// <summary>One of `item` fed to a pet (a stack counts each), 0 if pets don't eat it.</summary>
         public static int Value(Item item)
@@ -38,6 +53,9 @@ namespace Shared.pets
                 return 1500;
             if (id == Ambrosia)
                 return 5000;
+            foreach (var (treat, xp) in Treats)
+                if (id == treat)
+                    return xp;
             // "Shard of the Mad God x5" is five shards
             if (id.StartsWith(ShardPrefix))
                 return ShardXp * (item.Quantity > 0 ? item.Quantity : Math.Max(1, ParseCount(id.Substring(ShardPrefix.Length))));

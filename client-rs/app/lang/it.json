@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Il tuo recinto accoglie solo famigli {size}: ingrandiscilo per nutrire questo.",
 "{fame} fame": "{fame} di fama",
 "{fame} fame · {gold} gold": "{fame} di fama · {gold} d'oro",
-"{gold} gold": "{gold} d'oro"
+"{gold} gold": "{gold} d'oro",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Un Tonico della crescita fa crescere solo famigli minuscoli, piccoli e medi.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Un effetto attorno al tuo famiglio, visibile a tutti. Applicalo al tuo famiglio dalla scheda Famigli. Tuo per sempre.",
+"Fed without fame.": "Dato senza spendere fama.",
+"Feed your pet to its last level first.": "Prima nutri il tuo famiglio fino al suo ultimo livello.",
+"Grow it": "Fallo crescere",
+"Grows a pet a size": "Fa crescere un famiglio di una taglia",
+"Grows your pet to a {size} pet, for free.": "Fa crescere il tuo famiglio a {size}, gratis.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "Nel Realm Pass. Il guardiano del recinto, vicino al cortile dell'Arena, lo dà al tuo famiglio senza fama.",
+"Pet effects": "Effetti del famiglio",
+"Pet food": "Cibo per famigli",
+"Put a pet in first.": "Prima metti un famiglio.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Il tuo famiglio lo porta ovunque vada, visibile a tutti. Ottienili con il Realm Pass.",
+"Your pet wears no effect.": "Il tuo famiglio non ha nessun effetto.",
+"Your pet wears {name}.": "Il tuo famiglio ha {name}.",
+"{gain}, without fame": "{gain}, senza fama"
 }

@@ -1576,5 +1576,20 @@
 "Your pen only takes {size} pets: grow it to feed this one.": "Dein Gehege nimmt nur {size}-Haustiere: erweitere es, um dieses zu füttern.",
 "{fame} fame": "{fame} Ruhm",
 "{fame} fame · {gold} gold": "{fame} Ruhm · {gold} Gold",
-"{gold} gold": "{gold} Gold"
+"{gold} gold": "{gold} Gold",
+"A Growth Tonic only grows Tiny, Small and Medium pets.": "Ein Wachstumstonikum lässt nur winzige, kleine und mittlere Haustiere wachsen.",
+"An effect round your pet, for everyone to see. Put it on your pet from the Pets tab. Yours for good.": "Ein Effekt um dein Haustier, für alle sichtbar. Leg ihn deinem Haustier im Reiter Haustiere an. Für immer deins.",
+"Fed without fame.": "Ohne Ruhm gefüttert.",
+"Feed your pet to its last level first.": "Füttere dein Haustier erst bis zu seiner letzten Stufe.",
+"Grow it": "Wachsen lassen",
+"Grows a pet a size": "Lässt ein Haustier eine Größe wachsen",
+"Grows your pet to a {size} pet, for free.": "Lässt dein Haustier kostenlos zu {size} wachsen.",
+"On the Realm Pass. The Pen Keeper by the Arena court feeds it to your pet without fame.": "Im Realm Pass. Der Tierpfleger am Arenahof verfüttert es ohne Ruhm an dein Haustier.",
+"Pet effects": "Haustier-Effekte",
+"Pet food": "Haustierfutter",
+"Put a pet in first.": "Setze zuerst ein Haustier ein.",
+"Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Dein Haustier trägt ihn überall, für alle sichtbar. Verdien sie im Realm Pass.",
+"Your pet wears no effect.": "Dein Haustier trägt keinen Effekt.",
+"Your pet wears {name}.": "Dein Haustier trägt {name}.",
+"{gain}, without fame": "{gain}, ohne Ruhm"
 }

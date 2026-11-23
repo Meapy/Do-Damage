@@ -6,7 +6,19 @@ namespace WorldServer.core.objects
 {
     public class Pet : Entity, IPlayer
     {
-        public Pet(GameServer manager, Player player, ushort objType) : base(manager, objType) => PlayerOwner = player;
+        public Pet(GameServer manager, Player player, ushort objType) : base(manager, objType)
+        {
+            PlayerOwner = player;
+            _effect = new StatTypeValue<int>(this, StatDataType.PetEffect, 0);
+        }
+
+        // the Realm Pass pet effect it wears (its owner's: Player.PetEffect)
+        private readonly StatTypeValue<int> _effect;
+        public int Effect
+        {
+            get => _effect.GetValue();
+            set => _effect.SetValue(value);
+        }
 
         public Player PlayerOwner { get; set; }
 
@@ -30,6 +42,8 @@ namespace WorldServer.core.objects
             base.ExportStats(stats, isOtherPlayer);
             if (PlayerOwner != null)
                 stats[StatDataType.PetOwner] = PlayerOwner.Id;
+            if (Effect != 0)
+                stats[StatDataType.PetEffect] = Effect;
         }
     }
 }

@@ -2675,4 +2675,58 @@
 		<Soulbound/>
 	</Object>
 	<!-- END Father's censers -->
+	<!-- The Realm Pass's pet food (Shared/pets/PetFood.cs: fed at the Pen Keeper without fame) and Growth Tonic; art by tools/draw_pet_treats.py -->
+	<Object type="0x58A9" id="Pet Biscuit">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>petTreats8x8</File>
+			<Index>0</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A crunchy treat baked for pets. The Pen Keeper feeds it to your pet for 750 food, and feeding it costs no fame.</Description>
+		<BagType>2</BagType>
+		<PetFood/>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58AA" id="Hearty Pet Stew">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>petTreats8x8</File>
+			<Index>1</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A steaming bowl of stew, thick with meat and greens. The Pen Keeper feeds it to your pet for 2,500 food, and feeding it costs no fame.</Description>
+		<BagType>4</BagType>
+		<PetFood/>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58AB" id="Royal Pet Feast">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>petTreats8x8</File>
+			<Index>2</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A roast fit for a king's hound, on a golden platter. The Pen Keeper feeds it to your pet for 7,500 food, and feeding it costs no fame.</Description>
+		<BagType>5</BagType>
+		<PetFood/>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58AC" id="Growth Tonic">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>petTreats8x8</File>
+			<Index>3</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A bubbling green draught. The Pen Keeper gives it to a Tiny, Small or Medium pet at its last level, and it grows to the next size for free.</Description>
+		<BagType>7</BagType>
+		<PetFood/>
+		<Soulbound/>
+	</Object>
+	<!-- END The Realm Pass's pet food -->
 </Objects>

@@ -4,7 +4,8 @@ using Newtonsoft.Json;
 namespace Shared.pass
 {
     // An account's Realm Pass, kept as JSON in the account's "pass" field (DbAccount.Pass): this
-    // season's XP and claims, and the cosmetics the account owns for good. Short names keep it small.
+    // season's XP and claims, and the cosmetics the account owns for good (auras, name colours,
+    // pet effects). Short names keep it small.
     public sealed class PassState
     {
         [JsonProperty("v")] public int Version { get; set; } = 1;
@@ -26,6 +27,11 @@ namespace Shared.pass
         [JsonProperty("aura")] public int Aura { get; set; }
         [JsonProperty("colors")] public List<int> Colors { get; set; } = new List<int>();
         [JsonProperty("color")] public int Color { get; set; }
+        // the pet effects owned, by id, and the one worn (0: none; since 2.6.6)
+        [JsonProperty("pets")] public List<int> PetEffects { get; set; } = new List<int>();
+        [JsonProperty("pet")] public int PetEffect { get; set; }
+        // the season (its key) whose filled tiers' old marks were cleared (SeasonDef.Filled)
+        [JsonProperty("filled")] public string FilledFor { get; set; }
         // seasons whose Gilded track the account had (for the record and the Wayfarer's greetings)
         [JsonProperty("past")] public List<string> GildedSeasons { get; set; } = new List<string>();
         // the Gilded pass's [Gilded] chat title turned off (kept from season to season)
@@ -45,6 +51,7 @@ namespace Shared.pass
                 var s = JsonConvert.DeserializeObject<PassState>(json) ?? new PassState();
                 s.Auras ??= new List<int>();
                 s.Colors ??= new List<int>();
+                s.PetEffects ??= new List<int>();
                 s.GildedSeasons ??= new List<string>();
                 return s;
             }

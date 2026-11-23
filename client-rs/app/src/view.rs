@@ -1437,6 +1437,11 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
                 let z = scene.height(obj);
                 crate::auras::ground(renderer, &w, &scene.particles.trails, &|x, y| cam.to_screen(x, y, z), scene.time);
             }
+            // and the pets' effects (`petfx.rs`)
+            if let Some(w) = pet_wearer(scene, obj, desc, k).filter(|_| !hidden(obj)) {
+                let z = scene.height(obj);
+                crate::petfx::ground(renderer, &w, &scene.particles.trails, &|x, y| cam.to_screen(x, y, z), scene.time);
+            }
         }
         if let Some(shadow) = redrawer.shadow(renderer).filter(|_| scene.show.shadows) {
             for (_, item) in items.iter().filter(|(_, i)| !under(i) && here(i)) {
@@ -1496,6 +1501,9 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let Item::Sprite { obj, desc } = item else { continue };
         if let Some(w) = wearer(scene, obj, desc, world.me, k).filter(|_| !hidden(obj)) {
             crate::auras::air(renderer, &w, scene.time);
+        }
+        if let Some(w) = pet_wearer(scene, obj, desc, k).filter(|_| !hidden(obj)) {
+            crate::petfx::air(renderer, &w, scene.time);
         }
     }
     // the Father's ward round whoever has one: a shell of steel plates (`ward.rs`)
@@ -1783,6 +1791,28 @@ fn wearer(scene: &Scene, obj: &GameObj, desc: &ObjectDesc, me: Option<i32>, k: f
     let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0 * if skin.is_some() { 2.0 } else { 1.0 };
     let [x, y] = scene.stand(obj);
     Some(crate::auras::Wearer { id: obj.id, x, y, tile: crate::auras::TILE * k, size, aura, skin, alpha })
+}
+
+/// A pet wearing a Realm Pass pet effect (`petfx.rs`), as it's drawn round it; none while
+/// particles are off, or for one faded out (`fade`: others' pets as faint as the options say).
+fn pet_wearer(scene: &Scene, obj: &GameObj, desc: &ObjectDesc, k: f32) -> Option<crate::petfx::PetWearer> {
+    if scene.particles.disabled {
+        return None;
+    }
+    let fx = obj.stat_int(bsk_proto::stat::PET_FX).unwrap_or(0);
+    if fx <= 0 || fx > crate::petfx::LAST as i32 {
+        return None;
+    }
+    obj.pet_owner()?;
+    let alpha = fade(scene, obj, desc);
+    if alpha <= 0.0 {
+        return None;
+    }
+    // as tall as it's drawn: a 16-pixel pet (the boss pets, the Lil' Oryxes) twice an 8-pixel one
+    let px = scene.look(obj, desc).map_or(8.0, |l| l.src.w as f32);
+    let size = obj.stat_int(2).unwrap_or(desc.min_size) as f32 / 100.0 * (px / 8.0);
+    let [x, y] = scene.stand(obj);
+    Some(crate::petfx::PetWearer { id: obj.id, x, y, tile: crate::auras::TILE * k, size, fx: fx as u8, alpha })
 }
 
 fn is_ghost(scene: &Scene, obj: &GameObj, desc: &ObjectDesc) -> bool {

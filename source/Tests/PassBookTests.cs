@@ -28,6 +28,20 @@ namespace Tests
             var data = Data;
             Assert.Empty(data.Validate(_ => true, _ => true));
             Assert.All(data.Seasons, s => Assert.Equal(data.Tiers, s.Gilded.Count(g => g.Count > 0)));
+            // every free tier has something too, since 2.6.6
+            Assert.All(data.Seasons, s => Assert.Equal(data.Tiers, s.Free.Count(g => g.Count > 0)));
+            // the Gilded track's last tier: the season's pet effect and the Burning Amulet
+            Assert.All(data.Seasons, s =>
+            {
+                Assert.Contains(s.Gilded[^1], r => r.PetFx > 0);
+                Assert.Contains(s.Gilded[^1], r => r.Item == "Burning Amulet");
+            });
+            // every pet effect is given somewhere
+            Assert.All(data.PetEffects, fx => Assert.True(
+                data.Seasons.Any(s => s.Free.Concat(s.Gilded).SelectMany(t => t).Any(r => r.PetFx == fx.Id))
+                || data.Cache.Any(l => l.Rewards.Any(r => r.PetFx == fx.Id)), fx.Name));
+            // a season's filled tiers have rewards on the free track
+            Assert.All(data.Seasons, s => Assert.All(s.Filled, t => Assert.NotEmpty(s.FreeAt(t - 1))));
             // the Gilded track gives back some of its price, never all of it
             foreach (var s in data.Seasons)
             {
@@ -61,10 +75,10 @@ namespace Tests
             var data = Data;
             // at the season's start nobody is behind, so no Momentum
             var book = Book(data.At(Launch).StartsAt);
-            var g = book.Gain(2500, book.Season.StartsAt);
+            var g = book.Gain(2 * data.XpPerTier + 100, book.Season.StartsAt);
             Assert.False(g.Momentum);
             Assert.Equal(2, g.TierAfter);
-            Assert.Equal(500, book.XpIntoTier);
+            Assert.Equal(100, book.XpIntoTier);
             book.Gain(data.Tiers * data.XpPerTier, book.Season.StartsAt);
             Assert.Equal(data.Tiers, book.Tier);
             Assert.Equal(1, book.CachesReady);
@@ -92,11 +106,12 @@ namespace Tests
         {
             var book = Book(Launch);
             book.Gain(3 * Data.XpPerTier, book.Season.StartsAt);
-            Assert.Equal(2, book.ReadyCount);     // tiers 1 and 3 have free rewards
+            Assert.Equal(3, book.ReadyCount);     // tiers 1, 2 and 3 have free rewards
             var c = book.Claim(0);
             Assert.True(c.Ok);
             Assert.Equal(100, c.Rewards.Sum(r => r.Fame));
             Assert.False(book.Claim(0).Ok);
+            Assert.True(book.Claim(1).Ok);
             Assert.Equal(PassCode.NotReached, book.Claim(5).Code);
             // Gilded: the tiers reached are ready at once, tier 1's too
             Assert.True(book.CanUnlock(Data.Price).Ok);
@@ -107,6 +122,7 @@ namespace Tests
             var all = book.Claim(-1);
             Assert.True(all.Ok);
             Assert.Equal(3, all.Count);
+            Assert.Contains(all.Rewards, r => r.Item == "Potion of Max Defense");
             Assert.Contains(all.Rewards, r => r.Skin == "Frostcrown Archmage");
             Assert.Equal(0, book.ReadyCount);
             Assert.Equal(PassCode.NothingToClaim, book.Claim(-1).Code);
@@ -126,6 +142,47 @@ namespace Tests
             Assert.False(book.WearAura(4).Ok);
             Assert.True(book.WearAura(0).Ok);
             Assert.Equal(0, book.WornAura);
+        }
+
+        [Fact]
+        public void PetEffectsOwnedOnceWornAtFirstThenFame()
+        {
+            var book = Book(Launch);
+            Assert.Equal(PassCode.NotOwned, book.WearPetEffect(2).Code);
+            var first = book.Grant(new[] { new PassReward { PetFx = 2 }, new PassReward { PetFx = 5 } }.ToList());
+            Assert.Equal(2, first.Count(r => r.IsCosmetic));
+            Assert.Equal(2, book.WornPetEffect);    // the first is put on at once
+            Assert.Equal(Data.RepeatFame, book.Grant(new[] { new PassReward { PetFx = 2 } }.ToList()).Single().Fame);
+            Assert.Equal(PassCode.PetFxWorn, book.WearPetEffect(5).Code);
+            Assert.Equal(5, book.WornPetEffect);
+            Assert.Equal(PassCode.PetFxOff, book.WearPetEffect(0).Code);
+            Assert.Equal(0, book.WornPetEffect);
+            var copy = PassState.FromJson(book.State.ToJson());
+            Assert.Equal(new[] { 2, 5 }, copy.PetEffects);
+            Assert.Empty(PassState.FromJson("{\"v\":1}").PetEffects);
+        }
+
+        [Fact]
+        public void FilledFreeTiersCanBeClaimedOnce()
+        {
+            var data = Data;
+            var def = data.Def("frostfall");
+            Assert.Contains(2, def.Filled);
+            // before the free track was filled: a Gilded claim of tier 2 marked the empty free tier too
+            var state = new PassState { Season = "frostfall", Xp = 3 * data.XpPerTier, Gilded = true, FreeClaimed = 0b11, GildedClaimed = 0b11 };
+            var book = Book(Launch, state);
+            Assert.False(state.FreeTaken(1));
+            Assert.True(state.FreeTaken(0));
+            Assert.Equal("frostfall", state.FilledFor);
+            var c = book.Claim(1);
+            Assert.True(c.Ok);
+            Assert.Contains(c.Rewards, r => r.Item == "Pet Biscuit");
+            // only once: claimed again it stays claimed
+            book.Refresh(Launch.AddDays(1), new Random(1));
+            Assert.True(state.FreeTaken(1));
+            // a season begun afresh has nothing to clear
+            var fresh = Book(Launch);
+            Assert.Equal("frostfall", fresh.State.FilledFor);
         }
 
         [Fact]
@@ -190,7 +247,7 @@ namespace Tests
             Assert.False(state.Gilded);
             Assert.Contains("frostfall", state.GildedSeasons);
             // tier 1's free reward was claimed; the rest of both tracks, and the cache, come now
-            Assert.DoesNotContain(left, r => r.Fame == 100);
+            Assert.Single(left, r => r.Fame == 100);   // tier 4's
             Assert.Contains(left, r => r.Skin == "Frostcrown Archmage");
             Assert.Contains(left, r => r.Slot == 1);
             // Snowfall was owned already: fame instead
