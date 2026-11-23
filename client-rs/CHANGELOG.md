@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Crucible
+- **New shots for every champion:** each throws shots that look like its own (hot iron, the sea, the melt, clockwork, gold and flame), the ones aimed at you trailing sparks, and some new ones that don't fly straight: Ferrogrim's hammers and Chronarch's blades spin out and come back, Nerissa's tide crests wash back, Pyrrhax's meteor fragments weave and Vaelith's halo shards loop round him. The quieter phases (Lockdown, the Tidal Lanes, Rising Tide, Meteor Storm, the Crucible Pours, Midnight, the Crucible Breaks and more) now throw more at you, and every champion bursts out two rings of shots as it rises into a new phase.
+
 ### Gold Store
 - PayPal receipts for gold now name the account the gold went to ("1,000 Gold for <your name>").
 

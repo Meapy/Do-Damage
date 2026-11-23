@@ -101,6 +101,8 @@ namespace WorldServer.logic
                             ),
                             new State("SC Run",
                                 new Charge(2.6, (float)CrucibleSight, 6000),
+                                // rivets shaken off his armour as he runs
+                                new Shoot(0, 6, 60, fixedAngle: 0, rotateAngle: 30, projectileIndex: 2, coolDown: 300),
                                 new TimedTransition(1100, "SC Burst")
                             ),
                             new State("SC Burst",
@@ -130,6 +132,8 @@ namespace WorldServer.logic
                         new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 9, projectileIndex: 2, coolDown: 320),
                         // and his anvil's cross of hammer waves through it, so the quarters aren't safe
                         AnvilCross(2000),
+                        // and his hammer thrown over the walls, spinning back to his hand
+                        new Shoot(CrucibleSight, 1, projectileIndex: 3, predictive: 0.5, coolDown: 2800, coolDownOffset: 1400),
                         new State("Lockdown Rise", new TimedTransition(2000, "Lockdown Hold")),
                         new State("Lockdown Hold",
                             new EntityNotExistsTransition("Iron Sentinel", 30, "Blades Rise"),
@@ -138,6 +142,7 @@ namespace WorldServer.logic
                     ),
                     new State("Blades Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(16, 2),
                         new Order(40, "Bastion Heart", "Blades"),
                         new CrucibleCue(3),
                         new Taunt(true, "Then the Bastion itself will grind you down.") { Bubble = false },
@@ -158,11 +163,14 @@ namespace WorldServer.logic
                             DoubleRing(16, 2, 2000, 300),
                             AnvilCross(1600),
                             new Shoot(CrucibleSight, 1, projectileIndex: 1, coolDown: 2400),
+                            // two hammers thrown wide of you, coming back
+                            new Shoot(CrucibleSight, 2, 40, projectileIndex: 3, coolDown: 3500, coolDownOffset: 1200),
                             new TimedTransition(7000, "Blades Fight")
                         )
                     ),
                     new State("Tempest Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(16, 2),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(4, shake: true),
@@ -179,10 +187,11 @@ namespace WorldServer.logic
                         new SpawnRing("Bastion Banner", 4, G(17), 45, aroundSpawn: true), // on the star fort's bastions
                         new Prioritize(new StayCloseToSpawn(0.5, Gi(6)), new Follow(0.45, CrucibleSight, 2)),
                         // the whirling hammer: two spirals of shards turning opposite ways weave a
-                        // lattice to slip through, a hammer wave at each of you now and then
+                        // lattice to slip through, three hammers thrown at each of you now and
+                        // then, spinning out and back
                         new Shoot(0, 3, 120, fixedAngle: 0, rotateAngle: 13, projectileIndex: 2, coolDown: 480),
                         new Shoot(0, 3, 120, fixedAngle: 60, rotateAngle: -13, projectileIndex: 2, coolDown: 480, coolDownOffset: 240),
-                        new Shoot(CrucibleSight, 1, projectileIndex: 3, predictive: 0.8, coolDown: 1800),
+                        new Shoot(CrucibleSight, 3, 30, projectileIndex: 3, predictive: 0.8, coolDown: 1800),
                         Rushers("Iron Hound", 0.9),
                         new State("Tempest Banners",
                             new ConditionEffectBehavior(ConditionEffectIndex.Armored),
@@ -196,6 +205,7 @@ namespace WorldServer.logic
                     ),
                     new State("Bastion Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(18, 2),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(24, shake: true),
@@ -312,6 +322,8 @@ namespace WorldServer.logic
                             new ReturnToSpawn(0.8),
                             new Shoot(CrucibleSight, 3, 10, projectileIndex: 3, predictive: 0.4, coolDown: 1500),
                             new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 1, coolDown: 1600),
+                            // wave crests rolling out and washing back
+                            new Shoot(0, 6, 60, fixedAngle: 30, rotateAngle: 20, projectileIndex: 5, coolDown: 2800, coolDownOffset: 1400),
                             new TimedTransition(13000, "Current Fight")
                         )
                     ),
@@ -326,6 +338,9 @@ namespace WorldServer.logic
                         new Shoot(0, 8, 45, fixedAngle: 0, rotateAngle: 22.5, projectileIndex: 1, coolDown: 1400),
                         new Shoot(0, 2, 180, fixedAngle: 90, rotateAngle: 11, projectileIndex: 2, coolDown: 380),
                         new Shoot(CrucibleSight, 3, 10, projectileIndex: 0, predictive: 0.3, coolDown: 2200),
+                        // the tide's crests out over the isles and back, an undertow now and then
+                        new Shoot(0, 4, 90, fixedAngle: 45, rotateAngle: 15, projectileIndex: 5, coolDown: 3200, coolDownOffset: 1600),
+                        new Shoot(CrucibleSight, 1, projectileIndex: 4, coolDown: 4500, coolDownOffset: 2000),
                         new TimedTransition(20000, "Whirl")
                     ),
                     new State("Whirl",
@@ -336,10 +351,13 @@ namespace WorldServer.logic
                         TideKit(1.0),
                         // her bubbles spiral out with the whirlpool
                         new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 10, projectileIndex: 2, coolDown: 450),
+                        // three crests at you, washing back
+                        new Shoot(CrucibleSight, 3, 25, projectileIndex: 5, coolDown: 3400, coolDownOffset: 1700),
                         new Spawn("Riptide Eel", 2, 0, 12000)
                     ),
                     new State("Maelstrom Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(12, 1),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(8, shake: true),
@@ -361,6 +379,7 @@ namespace WorldServer.logic
                     ),
                     new State("Tsunami Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(14, 1),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(25, shake: true),
@@ -377,7 +396,9 @@ namespace WorldServer.logic
                         TideKit(0.85),
                         // rings of swaying tide orbs, each turned half a gap, out over the lagoon
                         new Shoot(0, 12, 30, fixedAngle: 0, rotateAngle: 15, projectileIndex: 1, coolDown: 2000),
-                        new Shoot(CrucibleSight, 3, 8, projectileIndex: 3, predictive: 0.8, coolDown: 1800, coolDownOffset: 900)
+                        new Shoot(CrucibleSight, 3, 8, projectileIndex: 3, predictive: 0.8, coolDown: 1800, coolDownOffset: 900),
+                        // a ring of crests rolling out over the lagoon and back to her islet
+                        new Shoot(0, 8, 45, fixedAngle: 22.5, projectileIndex: 5, coolDown: 4000, coolDownOffset: 2000)
                     )
                 ),
                 new Threshold(0.01,
@@ -455,6 +476,8 @@ namespace WorldServer.logic
                         new Order(40, "Foundry Heart", "Veins"),
                         new Prioritize(new StayCloseToSpawn(0.6, Gi(8)), new Follow(0.5, CrucibleSight, 4)),
                         ForgeKit(1.0),
+                        // a fan of meteor fragments now and then, weaving as they burn
+                        new Shoot(CrucibleSight, 3, 20, projectileIndex: 5, coolDown: 3300, coolDownOffset: 2600),
                         new LeapStrike(CrucibleSight, 3, 350, 1400, 7500, 2, 16)
                     ),
                     new State("Storm",
@@ -468,6 +491,9 @@ namespace WorldServer.logic
                         // he erupts: rings of slow magma, each turned half a gap, cinders between
                         new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 3, coolDown: 1800),
                         new Shoot(0, 10, 36, fixedAngle: 9, rotateAngle: 18, projectileIndex: 2, coolDown: 1800, coolDownOffset: 900),
+                        // the meteors' fragments flung out in a turning star, a slag boulder at you
+                        new Shoot(0, 5, 72, fixedAngle: 0, rotateAngle: 29, projectileIndex: 5, coolDown: 1200, coolDownOffset: 600),
+                        new Shoot(CrucibleSight, 1, projectileIndex: 4, predictive: 0.5, coolDown: 3500, coolDownOffset: 1700),
                         new TimedTransition(14000, "Hammer")
                     ),
                     new State("Hammer",
@@ -489,10 +515,14 @@ namespace WorldServer.logic
                         new Flash(LavaGlow, 0.2, 14),
                         new Taunt(true, "Into the crucible with you!") { Bubble = false },
                         new Shoot(0, 12, fixedAngle: 0, rotateAngle: 15, projectileIndex: 1, coolDown: 1500),
+                        // the melt pouring off him in two arms, fragments at you
+                        new Shoot(0, 2, 180, fixedAngle: 0, rotateAngle: 14, projectileIndex: 3, coolDown: 450),
+                        new Shoot(CrucibleSight, 3, 18, projectileIndex: 5, coolDown: 1800, coolDownOffset: 900),
                         new TimedTransition(7000, "Molten Rise")
                     ),
                     new State("Molten Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(16, 2),
                         new SetAltTexture(1),
                         new CrucibleCue(12),
                         new Taunt(true, "Burn with me. MOLTEN CORE!") { Bubble = false },
@@ -510,6 +540,7 @@ namespace WorldServer.logic
                     ),
                     new State("Sea Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(18, 2),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(26, shake: true),
@@ -605,6 +636,8 @@ namespace WorldServer.logic
                         new Order(40, "Orrery Heart", "Hands"),
                         new Prioritize(new StayCloseToSpawn(0.5, Gi(5)), new Wander(0.3)),
                         ClockKit(1.0),
+                        // blades that run out and back again
+                        new Shoot(CrucibleSight, 3, 18, projectileIndex: 5, coolDown: 3000, coolDownOffset: 1500),
                         new Spawn("Clockwork Sentry", 2, 0, 12000)
                     ),
                     new State("Midnight",
@@ -617,6 +650,7 @@ namespace WorldServer.logic
                         // a clock hand of blades sweeping round him, and the twelve hours in gears
                         new Shoot(0, 1, fixedAngle: -90, rotateAngle: 9, projectileIndex: 1, coolDown: 160),
                         new Shoot(0, 12, 30, fixedAngle: 0, projectileIndex: 3, coolDown: 2600),
+                        new Shoot(CrucibleSight, 3, 15, projectileIndex: 5, coolDown: 2200, coolDownOffset: 1100),
                         new TimedTransition(16000, "Fracture")
                     ),
                     new State("Fracture",
@@ -629,6 +663,8 @@ namespace WorldServer.logic
                         new State("Fracture Fight",
                             new Prioritize(new StayCloseToSpawn(0.6, Gi(9)), new Wander(0.4)),
                             ClockKit(1.2, rushers: false),
+                            // a ring of blades out and back, turning a little each time
+                            new Shoot(0, 6, 60, fixedAngle: 0, rotateAngle: 12, projectileIndex: 5, coolDown: 2600, coolDownOffset: 800),
                             new TimedTransition(5000, "Fracture Blink")
                         ),
                         new State("Fracture Blink",
@@ -640,6 +676,7 @@ namespace WorldServer.logic
                     ),
                     new State("Reversal Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(14, 3),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(16, shake: true),
@@ -656,10 +693,13 @@ namespace WorldServer.logic
                         // two hands of gears sweeping backwards round him
                         new Shoot(0, 2, 180, fixedAngle: -90, rotateAngle: -8, projectileIndex: 3, coolDown: 220),
                         // hand-blades thrown where you'll be
-                        new Shoot(CrucibleSight, 2, 10, projectileIndex: 1, predictive: 0.8, coolDown: 1400, coolDownOffset: 700)
+                        new Shoot(CrucibleSight, 2, 10, projectileIndex: 1, predictive: 0.8, coolDown: 1400, coolDownOffset: 700),
+                        // and everything comes back: a ring of blades rewinding, turning backwards
+                        new Shoot(0, 8, 45, fixedAngle: 22.5, rotateAngle: -11, projectileIndex: 5, coolDown: 2800, coolDownOffset: 1400)
                     ),
                     new State("Zero Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(16, 3),
                         new ReturnToSpawn(1.5),
                         new SetAltTexture(1),
                         new CrucibleCue(27, shake: true),
@@ -676,6 +716,7 @@ namespace WorldServer.logic
                             ClockKit(0.8, rushers: false),
                             // the twelve hours rung out in gears
                             new Shoot(0, 12, 30, fixedAngle: 15, projectileIndex: 3, coolDown: 2400),
+                            new Shoot(CrucibleSight, 2, 20, projectileIndex: 5, coolDown: 2000, coolDownOffset: 1000),
                             new TimedTransition(6000, "Zero Blink")
                         ),
                         new State("Zero Blink",
@@ -797,7 +838,9 @@ namespace WorldServer.logic
                         new CrucibleCue(17),
                         new Order(40, "Apex Heart", "Decree"),
                         new Prioritize(new StayCloseToSpawn(0.7, Gi(8)), new Follow(0.6, CrucibleSight, 4)),
-                        SovereignKit(1.0)
+                        SovereignKit(1.0),
+                        // halo shards looping round where he stood: don't follow him in close
+                        new Shoot(0, 6, 60, fixedAngle: 0, rotateAngle: 15, projectileIndex: 6, coolDown: 3400, coolDownOffset: 1700)
                     ),
                     Echo("Echo Iron", "Echo Tide", 0.65, 18, "Iron", "Echo of Ferrogrim", "Iron, rise again!", IronGlow),
                     Echo("Echo Tide", "Echo Forge", 0.5, 19, "Tide", "Echo of Nerissa", "Tide, drown them once more!", TideGlow),
@@ -816,12 +859,17 @@ namespace WorldServer.logic
                         new SpawnRing("Echo of Pyrrhax", 1, G(7), 45, aroundSpawn: true),
                         new SpawnRing("Echo of Chronarch", 1, G(7), 135, aroundSpawn: true),
                         new RemoveEntitiesOnExit(40, "Echo of Ferrogrim", "Echo of Nerissa", "Echo of Pyrrhax", "Echo of Chronarch"),
-                        // a flower of flame feathers, each ring turned half a gap
+                        // a flower of flame feathers, each ring turned half a gap, four arms of
+                        // stars turning through it, quills at you and his halo shards looping
                         new Shoot(0, 10, 36, fixedAngle: 0, rotateAngle: 18, projectileIndex: 1, coolDown: 1800),
+                        new Shoot(0, 4, 90, fixedAngle: 45, rotateAngle: -8, projectileIndex: 2, coolDown: 450),
+                        new Shoot(CrucibleSight, 3, 12, projectileIndex: 4, predictive: 0.5, coolDown: 2200, coolDownOffset: 1100),
+                        new Shoot(0, 8, 45, fixedAngle: 0, rotateAngle: 22.5, projectileIndex: 6, coolDown: 3000, coolDownOffset: 1500),
                         new TimedTransition(13000, "Unbound Rise")
                     ),
                     new State("Unbound Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(14, 3),
                         new SetAltTexture(2),
                         new CrucibleCue(23, shake: true),
                         new Flash(VoidGlow, 0.2, 12),
@@ -844,6 +892,7 @@ namespace WorldServer.logic
                     ),
                     new State("Aria Rise",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        RiseBurst(18, 2),
                         new SetAltTexture(2),
                         new CrucibleCue(28, shake: true),
                         new Flash(SovereignGlow, 0.15, 16),
@@ -858,7 +907,8 @@ namespace WorldServer.logic
                         SovereignKit(0.85),
                         // the crown of stars: four arms spiralling out, and lances through it
                         new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 9, projectileIndex: 2, coolDown: 300),
-                        new Shoot(CrucibleSight, 5, 8, projectileIndex: 0, predictive: 0.7, coolDown: 1800, coolDownOffset: 900)
+                        new Shoot(CrucibleSight, 5, 8, projectileIndex: 0, predictive: 0.7, coolDown: 1800, coolDownOffset: 900),
+                        new Shoot(0, 6, 60, fixedAngle: 30, rotateAngle: 20, projectileIndex: 6, coolDown: 3000, coolDownOffset: 1500)
                     )
                 ),
                 new Threshold(0.01,
@@ -1011,6 +1061,13 @@ namespace WorldServer.logic
             new Shoot(3, 3, 20, projectileIndex: 0, coolDown: 800)
         );
 
+        // a champion rising into a new phase throws out a ring of its shots and, 0.7 s after, a second
+        // in the first's gaps (once each time it rises)
+        private static IStateChildren RiseBurst(int count, int projectileIndex) => new State(
+            new Shoot(0, count, 360.0 / count, fixedAngle: 0, projectileIndex: projectileIndex, coolDown: 90000000, coolDownOffset: 500),
+            new Shoot(0, count, 360.0 / count, fixedAngle: 180.0 / count, projectileIndex: projectileIndex, coolDown: 90000000, coolDownOffset: 1200)
+        );
+
         // Ferrogrim's anvil: four hammer waves in a cross, turned 45 degrees each throw (+, x, +...)
         private static IStateChildren AnvilCross(int coolDown) =>
             new Shoot(0, 4, 90, fixedAngle: 0, rotateAngle: 45, projectileIndex: 1, coolDown: coolDown);
@@ -1085,7 +1142,9 @@ namespace WorldServer.logic
                 new TossObject(ghost, G(11), 270, coolDown: 90000000),
                 new RemoveEntitiesOnExit(40, ghost),
                 new Prioritize(new StayCloseToSpawn(0.6, Gi(5)), new Wander(0.4)),
-                SovereignKit(1.15)
+                SovereignKit(1.15),
+                // a turning ring of stars while the ghost fights
+                new Shoot(0, 8, 45, fixedAngle: 0, rotateAngle: 22.5, projectileIndex: 2, coolDown: 2800, coolDownOffset: 1400)
             );
 
         // a champion's pet: it follows and heals its owner (heal HP and MP every 1.5 s) and fights

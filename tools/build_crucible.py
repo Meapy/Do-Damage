@@ -163,8 +163,12 @@ def texture(parent, file, index, tag="Texture"):
     return t
 
 
-def foe(pid, obj, damage, speed, life, size=100, effects=(), amplitude=None, frequency=None, piercing=False):
-    """An enemy's shot: it goes on through whoever it hits (MultiHit), so each player has to dodge it."""
+def foe(pid, obj, damage, speed, life, size=100, effects=(), amplitude=None, frequency=None, piercing=False,
+        trail=None, boomerang=False, loop=None):
+    """An enemy's shot: it goes on through whoever it hits (MultiHit), so each player has to dodge it.
+    trail: (colour, how thick, ms each spark lasts), sparks left behind it (<ParticleTrail>);
+    boomerang: it flies half its way out and comes back; loop: it loops a figure of eight that many
+    tiles across round where it was thrown (<Parametric>), never going further."""
     p = ET.Element("Projectile", {"id": str(pid)})
     sub(p, "ObjectId", obj)
     sub(p, "Damage", damage)
@@ -174,11 +178,19 @@ def foe(pid, obj, damage, speed, life, size=100, effects=(), amplitude=None, fre
     if amplitude is not None:
         sub(p, "Amplitude", amplitude)
         sub(p, "Frequency", frequency)
+    if boomerang:
+        sub(p, "Boomerang")
+    if loop is not None:
+        sub(p, "Parametric")
+        sub(p, "Magnitude", loop)
     sub(p, "MultiHit")
     if piercing:
         sub(p, "ArmorPiercing")
     for effect, duration in effects:
         sub(p, "ConditionEffect", effect, duration=duration)
+    if trail:
+        colour, intensity, ms = trail
+        sub(p, "ParticleTrail", colour, intensity=intensity, lifetimeMS=ms)
     return p
 
 
@@ -268,43 +280,67 @@ def grounds(types, sheet):
 # list is the champion's signature (BehaviorDb.Crucible.cs: Rending Volley, Undertow, Slag Ball,
 # Stolen Moment, Final Decree).
 ARMOR_BROKEN = ("Armor Broken", 2)
+# each champion's trails, so a shot that's coming for you leaves its colour behind it
+T_IRON, T_BLOOD = "0xFF9A2A", "0xFF3A1A"
+T_FOAM, T_RIPTIDE = "0xBFF4FF", "0xA070FF"
+T_LAVA, T_FLAME = "0xFF6A14", "0xFFA024"
+T_CHRONO = "0x4AF0FF"
+T_GOLD, T_VOID = "0xFFD04A", "0xE040FF"
 CHAMPIONS = {
+    # Ferrogrim: hot iron shards, rings of rivets, hammer waves, and in his Tempest a hammer he
+    # throws that spins out and comes back to his hand
     "Ferrogrim, the Iron Warden": ("Ferrogrim, the Iron Warden", 120, 150000, 60, ["Ferrogrim, Iron Tempest"], [
-        foe(0, "Iron Shard", 210, 80, 2200, effects=[("Bleeding", 1.5)]),
-        foe(1, "Hammer Wave", 270, 55, 3000, 160, effects=[("Armor Broken", 3), ("Dazed", 1.5)]),
-        foe(2, "Iron Shard", 140, 60, 2600),
-        foe(3, "Hammer Wave", 240, 70, 2400, 140, effects=[ARMOR_BROKEN, ("Stunned", 1)]),
-        foe(4, "Iron Shard", 130, 115, 1300, 90, effects=[("Bleeding", 3)]),
+        foe(0, "Iron Shard", 210, 80, 2200, effects=[("Bleeding", 1.5)], trail=(T_IRON, 0.5, 400)),
+        foe(1, "Hammer Wave", 270, 55, 3000, 160, effects=[("Armor Broken", 3), ("Dazed", 1.5)], trail=(T_IRON, 0.8, 500)),
+        foe(2, "Iron Rivet", 140, 60, 2600),
+        foe(3, "Forge Hammer", 240, 75, 3000, 140, effects=[ARMOR_BROKEN, ("Stunned", 1)], boomerang=True,
+            trail=(T_IRON, 1.0, 600)),
+        foe(4, "Rending Splinter", 130, 115, 1300, 90, effects=[("Bleeding", 3)], trail=(T_BLOOD, 0.4, 300)),
     ]),
+    # Nerissa: tridents, swaying orbs, bubbles; riptide tridents that spin you round, the
+    # Undertow's whirlpools, and wave crests that roll out and wash back like the tide
     "Nerissa, the Tidecaller": ("Nerissa, the Tidecaller", 115, 180000, 50, ["Nerissa, Maelstrom"], [
-        foe(0, "Trident Bolt", 230, 95, 2200, effects=[("Bleeding", 2)]),
+        foe(0, "Trident Bolt", 230, 95, 2200, effects=[("Bleeding", 2)], trail=(T_FOAM, 0.5, 400)),
         foe(1, "Tide Orb", 150, 50, 3600, 120, effects=[("Slowed", 1.5)], amplitude=1.0, frequency=0.6),
         foe(2, "Bubble", 125, 40, 4000, 110, effects=[("Slowed", 1)]),
-        foe(3, "Trident Bolt", 210, 120, 1800, effects=[("Confused", 1)]),
-        foe(4, "Tide Orb", 260, 42, 3800, 150, effects=[("Quiet", 2), ("Paralyzed", 0.8)], amplitude=0.6, frequency=0.4),
+        foe(3, "Riptide Trident", 210, 120, 1800, effects=[("Confused", 1)], trail=(T_RIPTIDE, 0.6, 400)),
+        foe(4, "Undertow", 260, 42, 3800, 150, effects=[("Quiet", 2), ("Paralyzed", 0.8)], amplitude=0.6, frequency=0.4,
+            trail=(T_FOAM, 1.0, 700)),
+        foe(5, "Wave Crest", 170, 55, 3600, 150, effects=[("Slowed", 1)], boomerang=True, trail=(T_FOAM, 0.5, 500)),
     ]),
+    # Pyrrhax: magma, cinders, rings of embers, drops of the melt, slag boulders, and the pieces of
+    # his meteors, weaving as they burn
     "Pyrrhax, the Forge Tyrant": ("Pyrrhax, the Forge Tyrant", 125, 210000, 70, ["Pyrrhax, Molten Core"], [
-        foe(0, "Magma Ball", 290, 60, 2800, 150, effects=[("Weak", 2.5)]),
-        foe(1, "Cinder", 200, 100, 1800, effects=[("Sick", 2)]),
-        foe(2, "Cinder", 150, 70, 2400),
-        foe(3, "Magma Ball", 175, 45, 3600, 120),
-        foe(4, "Magma Ball", 330, 38, 4200, 180, effects=[("Paralyzed", 1), ("Armor Broken", 2)]),
+        foe(0, "Magma Ball", 290, 60, 2800, 150, effects=[("Weak", 2.5)], trail=(T_LAVA, 0.8, 600)),
+        foe(1, "Cinder", 200, 100, 1800, effects=[("Sick", 2)], trail=(T_FLAME, 0.5, 350)),
+        foe(2, "Ember", 150, 70, 2400),
+        foe(3, "Molten Drop", 175, 45, 3600, 120),
+        foe(4, "Slag Boulder", 330, 38, 4200, 180, effects=[("Paralyzed", 1), ("Armor Broken", 2)], trail=(T_LAVA, 1.2, 800)),
+        foe(5, "Meteor Fragment", 180, 80, 2400, 120, effects=[("Sick", 1)], amplitude=0.7, frequency=1.0,
+            trail=(T_FLAME, 0.9, 500)),
     ]),
+    # Chronarch: brass gears, steel cogs, hand-blades, chrono orbs, the Stolen Moment's pocket
+    # watch, and blades that run out and back again, time rewinding
     "Chronarch, the Hour Thief": ("Chronarch, the Hour Thief", 115, 240000, 80, ["Chronarch, Reversal"], [
         foe(0, "Gear Shot", 155, 60, 3000, 110),
-        foe(1, "Hand Blade", 240, 110, 2000, effects=[("Bleeding", 2)]),
-        foe(2, "Chrono Orb", 220, 45, 4000, 120, effects=[("Slowed", 2), ("Dazed", 2)]),
-        foe(3, "Gear Shot", 150, 75, 2600),
-        foe(4, "Chrono Orb", 210, 85, 2000, 100, effects=[("Silenced", 2.5), ("Paralyzed", 0.6)]),
+        foe(1, "Hand Blade", 240, 110, 2000, effects=[("Bleeding", 2)], trail=(T_BLOOD, 0.4, 300)),
+        foe(2, "Chrono Orb", 220, 45, 4000, 120, effects=[("Slowed", 2), ("Dazed", 2)], trail=(T_CHRONO, 0.8, 700)),
+        foe(3, "Cog", 150, 75, 2600),
+        foe(4, "Stolen Moment", 210, 85, 2000, 110, effects=[("Silenced", 2.5), ("Paralyzed", 0.6)], trail=(T_CHRONO, 1.0, 600)),
+        foe(5, "Rewind Blade", 190, 95, 2600, effects=[("Slowed", 1)], boomerang=True, trail=(T_CHRONO, 0.5, 400)),
     ]),
+    # Vaelith: lances, flame feathers, stars, void embers, gilded quills, the Final Decree's winged
+    # lance, and halo shards that loop round where he threw them
     "Vaelith, the Crucible Sovereign": ("Vaelith, the Crucible Sovereign", 125, 340000, 90,
                                         ["Vaelith, Ascendant", "Vaelith, Unbound"], [
-        foe(0, "Sovereign Lance", 280, 120, 2200, effects=[("Exposed", 3)]),
+        foe(0, "Sovereign Lance", 280, 120, 2200, effects=[("Exposed", 3)], trail=(T_GOLD, 0.5, 400)),
         foe(1, "Flame Feather", 175, 70, 3000, 110, amplitude=1.2, frequency=0.5),
         foe(2, "Sovereign Star", 165, 60, 3400),
-        foe(3, "Void Ember", 250, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN, ("Curse", 2)]),
-        foe(4, "Flame Feather", 220, 130, 1600, effects=[("Quiet", 1.5)]),
-        foe(5, "Sovereign Lance", 380, 50, 4000, 200, effects=[("Stunned", 1.5), ("Armor Broken", 3)], piercing=True),
+        foe(3, "Void Ember", 250, 55, 3800, 120, effects=[("Darkness", 1.5), ARMOR_BROKEN, ("Curse", 2)], trail=(T_VOID, 0.8, 600)),
+        foe(4, "Gilded Quill", 220, 130, 1600, effects=[("Quiet", 1.5)], trail=(T_GOLD, 0.4, 300)),
+        foe(5, "Decree Lance", 380, 50, 4000, 200, effects=[("Stunned", 1.5), ("Armor Broken", 3)], piercing=True,
+            trail=(T_GOLD, 1.4, 800)),
+        foe(6, "Halo Shard", 180, 60, 3200, 120, loop=4.5, trail=(T_GOLD, 0.4, 500)),
     ]),
 }
 # the champions' pets (tools/boss_pets.py), each a little copy that fights as its champion does,
@@ -496,9 +532,9 @@ ALLIES = {
 def projectile(types, sheet, name, img):
     e = ET.Element("Object", {"type": types.get(name, OBJECT_TYPES), "id": name})
     sub(e, "Class", "Projectile")
-    texture(e, SHEET8[0], sheet.add(img))
-    if name in ("Gear Shot", "Sovereign Star"):
-        sub(e, "Rotation", 60)  # they spin as they fly
+    texture(e, SHEET16[0], sheet.add(img))
+    if name in small.SPIN:
+        sub(e, "Rotation", small.SPIN[name])  # they spin as they fly
     return e
 
 
@@ -513,7 +549,7 @@ def animated(e, sheet, file, frames, time):
 def objects(types, s8, s16, s32, c16, c32):
     out = []
     for name, img in small.shots().items():
-        out.append(projectile(types, s8, name, img))
+        out.append(projectile(types, s16, name, img))
 
     sprites = bosses.all_sprites()
     sprites.update(bosses.echoes(sprites))

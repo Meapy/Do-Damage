@@ -16,7 +16,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from black_between.bosses import Canvas, R, poly_mask, ell_mask, sparkle, orb  # noqa: E402
 from black_between.small import put  # noqa: E402
 from crucible.bosses import (IRON, IRON_DARK, EMBER, SCALE, CORAL, GOLD, OBSIDIAN, LAVA, BRASS, STEEL,  # noqa: E402
-                             PLATE, FLAME, SIGILS, cog, thick, line, rect_mask, glow_ring)
+                             PLATE, FLAME, SIGILS, WAVE, ROCK, DIAL, VOID_FLAME, cog, thick, line, rect_mask,
+                             glow_ring)
 
 
 def _tile(fn, seed):
@@ -513,30 +514,331 @@ def sigil(frame=0):
 
 
 # ------------------------------------------------------------------------------------------------
-# shots, 8x8, pointing right
+# shots, 16x16 (twice an 8x8's detail at the same size on the ground), pointing right. Each
+# champion's shots are its own and each kind looks like what it does: what's aimed at you (and
+# carries an affliction) is sharp and bright, the rings and spirals to weave through are rounder
+# and plainer, the signatures the biggest. SPIN: the ones that turn as they fly (ms a radian).
 
-def _shot(fn):
-    cv = Canvas(8, 8)
+CHRONO = R("#0a4a5a", "#1a8aa8", "#4af0ff", "#d8ffff")
+BLADE = R("#5a0a0a", "#b01818", "#e83a2a", "#ffd0a0")
+RIPTIDE = R("#1a0a3a", "#4a2a8a", "#8a5ad8", "#e0c8ff")
+WOOD = R("#2a160a", "#4a2a14", "#6a4020", "#9a6a3a")
+SPIN = {"Forge Hammer": 45, "Undertow": 70, "Slag Boulder": 90, "Gear Shot": 60, "Cog": 80,
+        "Stolen Moment": 140, "Sovereign Star": 60, "Halo Shard": 50, "Iron Rivet": 70}
+
+
+def _s16(fn):
+    cv = Canvas(16, 16)
     fn(cv)
     return cv.img
 
 
+def _halo(cv, m, c, a=80, r=1):
+    """A soft glow `r` pixels round a shape, under nothing already drawn (a bright colour: it's
+    faint)."""
+    a = min(255, a + 40)
+    ring = {(x + dx, y + dy) for (x, y) in m for dx in range(-r, r + 1) for dy in range(-r, r + 1)} - m
+    for (x, y) in ring:
+        if not cv.get(x, y)[3]:
+            cv.px(x, y, c, a)
+
+
+def _iron_shard(cv):
+    m = poly_mask([(1, 5.5), (7, 4), (12, 5), (15.5, 8), (12, 11), (7, 12), (1, 10.5), (4, 8)])
+    cv.shade(m, IRON)
+    for (x, y) in m:  # its edge still hot from the forge
+        if x >= 12:
+            cv.px(x, y, EMBER[2] if x < 14 else EMBER[3])
+    _halo(cv, m, EMBER[2], 70)
+
+
+def _rending_splinter(cv):
+    # a jagged sliver of red-hot iron, barbed along both edges so it tears
+    m = poly_mask([(0, 7.5), (3, 6), (4, 7), (7, 5.5), (8, 6.8), (11, 6), (15.5, 8), (11, 10), (8, 9.2),
+                   (7, 10.5), (4, 9), (3, 10), (0, 8.5)])
+    cv.shade(m, BLADE)
+    line(cv, 2, 8, 14, 8, BLADE[3])
+    cv.px(15, 8, "#ffffff"); cv.px(14, 8, "#ffffff")
+    _halo(cv, m, "#ff5a2a", 70)
+
+
+def _iron_rivet(cv):
+    m = ell_mask(8, 8, 4.2, 4.2)
+    cv.shade(m, IRON)
+    for (x, y) in ell_mask(8, 8, 1.6, 1.6):
+        cv.px(x, y, EMBER[2])
+    cv.px(8, 8, EMBER[3])
+    cv.px(5, 8, IRON_DARK[0]); cv.px(11, 8, IRON_DARK[0])  # its slot, so its turning shows
+    _halo(cv, m, EMBER[2], 60)
+
+
+def _hammer_wave(cv):
+    m = ell_mask(5, 8, 9, 7.5) - ell_mask(2, 8, 8, 6.4)
+    cv.shade(m, EMBER)
+    for (x, y) in m - ell_mask(5, 8, 8.2, 6.8):
+        cv.px(x, y, EMBER[3])  # the front of the wave white-hot
+    _halo(cv, m, EMBER[2], 90)
+
+
+def _forge_hammer(cv):
+    thick(cv, 1, 8, 10, 8, 2.2, WOOD)
+    head = rect_mask(9, 3, 13, 12)
+    cv.shade(head, IRON)
+    for y in range(4, 12):  # its face glowing from the anvil
+        cv.px(14, y, EMBER[2] if 5 < y < 10 else EMBER[1])
+    cv.px(14, 7, EMBER[3]); cv.px(14, 8, EMBER[3])
+    _halo(cv, head | {(14, y) for y in range(4, 12)}, EMBER[2], 70)
+
+
+def _trident(cv, shaft, prong, foam):
+    for x in range(0, 3):
+        for y in range(6, 11):
+            cv.px(x, y, foam, 70 + x * 30)
+    thick(cv, 1, 8, 11, 8, 2, shaft)
+    line(cv, 10, 4, 10, 12, shaft[2])
+    line(cv, 10, 8, 15, 8, prong)
+    line(cv, 10, 4, 14, 4, prong)
+    line(cv, 10, 12, 14, 12, prong)
+    for y in (4, 8, 12):
+        cv.px(15 if y == 8 else 14, y, "#ffffff")
+
+
+def _tide_orb(cv):
+    orb(cv, 8, 8, 5.2, SCALE, glow="#7ae0d0")
+    for k in range(9):  # a curl of foam in it
+        a = 0.4 + k * 0.32
+        cv.px(8 + math.cos(a) * (3.2 - k * 0.2), 8 + math.sin(a) * (3.2 - k * 0.2), WAVE[3])
+    cv.px(6, 5, "#ffffff"); cv.px(5, 6, "#ffffff")
+
+
+def _bubble(cv):
+    for (x, y) in ell_mask(8, 8, 4.6, 4.6):
+        cv.px(x, y, "#7ad8e0", 60)
+    glow_ring(cv, 8, 8, 4.6, "#bff4ff", 230)
+    cv.px(6, 5, "#ffffff"); cv.px(5, 6, "#ffffff"); cv.px(6, 6, "#e8ffff")
+    glow_ring(cv, 12.5, 3.5, 1.0, "#bff4ff", 180)
+
+
+def _undertow(cv):
+    m = ell_mask(8, 8, 6.4, 6.4)
+    for (x, y) in m:
+        cv.px(x, y, WAVE[0])
+    for k in range(3):  # three arms of a whirlpool, drawing in
+        for i in range(24):
+            t = i / 23
+            a = k * 2 * math.pi / 3 + t * 3.6
+            r = 0.8 + t * 5.6
+            cv.px(8 + math.cos(a) * r, 8 + math.sin(a) * r, WAVE[3] if t < 0.35 else WAVE[2])
+    cv.px(8, 8, "#e0fff8")
+    _halo(cv, m, "#46c2b4", 90)
+
+
+def _wave_crest(cv):
+    m = ell_mask(5, 8, 9.5, 7.2) - ell_mask(1.5, 8.6, 8.6, 6.2)
+    cv.shade(m, WAVE)
+    for (x, y) in m - ell_mask(5, 8, 8.6, 6.4):
+        cv.px(x, y, "#e8ffff")  # the foam along its crest
+    for (x, y) in ((13, 2), (15, 5), (15, 11), (13, 14)):
+        cv.px(x, y, "#bff4ff", 200)
+    _halo(cv, m, "#46c2b4", 70)
+
+
+def _magma_ball(cv):
+    orb(cv, 8, 8, 5.4, LAVA, glow=LAVA[2])
+    for (x, y) in ((5, 10), (6, 10), (6, 11), (10, 5), (11, 6), (11, 10), (10, 11), (4, 7)):
+        cv.px(x, y, OBSIDIAN[2])  # its crust breaking
+    cv.px(7, 6, "#ffffff")
+
+
+def _cinder(cv):
+    for (x, y) in ((1, 6), (2, 10), (3, 7), (0, 9)):
+        cv.px(x, y, LAVA[1], 160)
+    m = poly_mask([(1.5, 8), (6, 5), (11, 5.5), (15.5, 8), (11, 10.5), (6, 11)])
+    cv.shade(m, LAVA)
+    for (x, y) in ell_mask(11, 8, 2.4, 1.6):
+        cv.px(x, y, LAVA[3])
+    cv.px(13, 8, "#ffffff")
+    _halo(cv, m, LAVA[2], 60)
+
+
+def _ember(cv):
+    m = ell_mask(8, 8, 3.2, 3.2)
+    cv.shade(m, LAVA)
+    cv.px(8, 8, "#ffffff"); cv.px(7, 7, LAVA[3])
+    for (x, y) in ((8, 3), (13, 8), (8, 13), (3, 8)):
+        cv.px(x, y, LAVA[3], 200)  # sparks flying off it
+    _halo(cv, m, LAVA[2], 90)
+
+
+def _molten_drop(cv):
+    m = ell_mask(10, 8, 4.4, 4.4) | poly_mask([(0.5, 8), (9, 4), (9, 12)])
+    cv.shade(m, LAVA)
+    cv.px(11, 6, "#ffffff"); cv.px(12, 7, LAVA[3])
+    for x in (3, 6):
+        cv.px(x, 11, LAVA[2], 200)
+    _halo(cv, m, LAVA[2], 70)
+
+
+def _slag_boulder(cv):
+    m = poly_mask([(3, 4.5), (7, 1.5), (12, 2.5), (14.5, 7), (13.5, 12), (8, 14.5), (3, 12.5), (1.5, 8)])
+    cv.shade(m, ROCK)
+    for a, b in (((4, 6), (8, 8)), ((8, 8), (12, 5)), ((8, 8), (9, 13)), ((12, 5), (13, 9))):
+        line(cv, a[0], a[1], b[0], b[1], LAVA[2])  # the melt in its cracks
+    cv.px(8, 8, LAVA[3])
+    _halo(cv, m, LAVA[2], 60)
+
+
+def _meteor_fragment(cv):
+    tail = poly_mask([(0, 8), (8, 4.5), (9, 11.5)])
+    cv.shade(tail, FLAME, rim=False)
+    for (x, y) in tail:
+        if x < 4:
+            cv.px(x, y, FLAME[1], 150)
+    cv.shade(ell_mask(11, 8, 3.6, 3.6), ROCK)
+    cv.px(13, 7, LAVA[3]); cv.px(12, 9, LAVA[2])
+
+
+def _gear_shot(cv):
+    cog(cv, 8, 8, 4.4, BRASS, teeth=8)
+    cv.px(8, 8, "#3a220a")
+
+
+def _cog(cv):
+    cog(cv, 8, 8, 5.2, STEEL, teeth=10)
+    for k in range(4):  # spokes, a brass hub
+        a = k * math.pi / 2 + 0.4
+        line(cv, 8, 8, 8 + math.cos(a) * 3.6, 8 + math.sin(a) * 3.6, STEEL[3])
+    for (x, y) in ell_mask(8, 8, 1.4, 1.4):
+        cv.px(x, y, BRASS[3])
+
+
+def _chrono_orb(cv):
+    orb(cv, 8, 8, 5.4, CHRONO, glow="#4af0ff")
+    for (x, y) in ((8, 3), (13, 8), (8, 13), (3, 8)):
+        cv.px(x, y, "#ffffff")  # the hours
+    line(cv, 8, 8, 8, 5, "#0a3a4a")
+    line(cv, 8, 8, 11, 8, "#0a3a4a")
+    cv.px(8, 8, "#ffffff")
+
+
+def _clock_hand(cv, ramp, glow):
+    m = poly_mask([(4, 7), (11, 6.5), (11, 9.5), (4, 9)]) | poly_mask([(10.5, 4.5), (15.5, 8), (10.5, 11.5)])
+    cv.shade(m, ramp)
+    cv.px(14, 8, "#ffffff")
+    _halo(cv, m, glow, 60)
+    return m
+
+
+def _hand_blade(cv):
+    _clock_hand(cv, BLADE, "#ff3a1a")
+    glow_ring(cv, 3, 8, 1.6, BRASS[3], 230)  # the hand's counterweight
+
+
+def _rewind_blade(cv):
+    _clock_hand(cv, CHRONO, "#4af0ff")
+    for k in range(8):  # an arrow curling back on itself: time running the wrong way
+        a = math.pi * 0.55 + k * 0.28
+        cv.px(4 + math.cos(a) * 3.2, 8 + math.sin(a) * 3.2, "#ffffff" if k == 7 else "#4af0ff", 220)
+
+
+def _stolen_moment(cv):
+    case = ell_mask(8, 9, 5.6, 5.6)
+    cv.shade(case, BRASS)
+    for (x, y) in ell_mask(8, 9, 4, 4):
+        cv.px(x, y, DIAL[2])
+    cv.shade(rect_mask(7, 1, 8, 3), BRASS)  # the crown
+    line(cv, 8, 9, 8, 6, "#1a1a1a")
+    line(cv, 8, 9, 10, 10, "#1a1a1a")
+    cv.px(8, 9, BLADE[2])
+    _halo(cv, case, "#4af0ff", 80)
+
+
+def _lance(cv, ramp, head, big=False):
+    thick(cv, 0, 8, 11, 8, 2.4 if big else 2, ramp)
+    m = poly_mask([(10, 4 if big else 5), (16, 8), (10, 12 if big else 11)])
+    cv.shade(m, head)
+    line(cv, 10, 4, 10, 12, ramp[3])  # the guard
+    cv.px(14, 8, "#ffffff"); cv.px(15, 8, "#ffffff")
+    if big:  # the Sovereign's wings on it
+        for (x, y) in ((8, 3), (7, 2), (6, 2), (8, 13), (7, 14), (6, 14), (9, 4), (9, 12)):
+            cv.px(x, y, PLATE[3])
+        for (x, y) in ((7, 3), (6, 3), (7, 13), (6, 13)):
+            cv.px(x, y, PLATE[2])
+    _halo(cv, m, FLAME[2], 80)
+
+
+def _star(cv):
+    m = poly_mask([(8, 0.5), (9.6, 6.4), (15.5, 8), (9.6, 9.6), (8, 15.5), (6.4, 9.6), (0.5, 8), (6.4, 6.4)])
+    cv.shade(m, FLAME)
+    for (x, y) in ell_mask(8, 8, 1.8, 1.8):
+        cv.px(x, y, "#ffffff")
+    _halo(cv, m, GOLD[3], 60)
+
+
+def _feather(cv, ramp, tip):
+    # a feather flying point first: a long vane, notched at the back, its barbs swept back
+    m = poly_mask([(1, 4), (6, 5), (12, 5.5), (15.5, 8), (12, 10.5), (6, 11), (1, 12), (3.5, 8)])
+    cv.shade(m, ramp)
+    for x0 in (7, 10, 13):
+        line(cv, x0, 8, x0 - 3, 5.5, ramp[1])
+        line(cv, x0, 8, x0 - 3, 10.5, ramp[1])
+    line(cv, 2, 8, 14, 8, ramp[3])
+    cv.px(15, 8, tip); cv.px(14, 8, tip)
+    _halo(cv, m, ramp[2], 50)
+
+
+def _void_ember(cv):
+    cv.shade(poly_mask([(0.5, 8), (7, 3.5), (7, 12.5)]), VOID_FLAME, rim=False)
+    orb(cv, 10, 8, 4.4, VOID_FLAME, glow="#e040ff")
+    for (x, y) in ell_mask(10, 8, 1.7, 1.7):
+        cv.px(x, y, "#14041a")  # the void in its heart
+    cv.px(12, 6, "#ffffff")
+
+
+def _halo_shard(cv):
+    glow_ring(cv, 8, 8, 6.2, "#ffd04a", 90)
+    cv.shade(poly_mask([(8, 2), (13.5, 8), (8, 14), (2.5, 8)]), GOLD)
+    for (x, y) in ell_mask(8, 8, 1.6, 1.6):
+        cv.px(x, y, "#ffffff")
+
+
 def shots():
     return {
-        "Iron Shard": _shot(lambda cv: (cv.shade(poly_mask([(0, 3), (5, 2), (8, 4), (5, 6), (0, 5)]), IRON), cv.px(6, 4, EMBER[3]))),
-        "Hammer Wave": _shot(lambda cv: [cv.px(4 + int(math.cos(a) * 3), 4 + int(math.sin(a) * 3.6), EMBER[2 + (i % 2)]) for i, a in enumerate([k * 0.35 - 1.4 for k in range(9)])]),
-        "Trident Bolt": _shot(lambda cv: (line(cv, 0, 4, 6, 4, GOLD[2]), line(cv, 5, 2, 7, 4, "#bff4ff"), line(cv, 5, 6, 7, 4, "#bff4ff"), cv.px(7, 4, "#ffffff"))),
-        "Tide Orb": _shot(lambda cv: orb(cv, 4, 4, 2.6, SCALE, glow="#7ae0d0")),
-        "Bubble": _shot(lambda cv: (glow_ring(cv, 4, 4, 2.2, "#bff4ff", 230), cv.px(3, 3, "#ffffff"))),
-        "Magma Ball": _shot(lambda cv: orb(cv, 4, 4, 2.8, LAVA, glow=LAVA[2])),
-        "Cinder": _shot(lambda cv: (cv.shade(poly_mask([(0, 3), (6, 3), (8, 4), (6, 5), (0, 5)]), LAVA), cv.px(7, 4, LAVA[3]))),
-        "Gear Shot": _shot(lambda cv: cog(cv, 4, 4, 2.2, BRASS, teeth=6)),
-        "Chrono Orb": _shot(lambda cv: (orb(cv, 4, 4, 2.6, R("#0a4a5a", "#1a8aa8", "#4af0ff", "#d8ffff"), glow="#4af0ff"))),
-        "Hand Blade": _shot(lambda cv: (cv.shade(poly_mask([(0, 3.5), (6, 3), (8, 4), (6, 5), (0, 4.5)]), R("#5a0a0a", "#b01818", "#e83a2a", "#ffd0a0")))),
-        "Sovereign Lance": _shot(lambda cv: (line(cv, 0, 4, 7, 4, FLAME[2]), line(cv, 2, 3, 6, 3, FLAME[3]), line(cv, 2, 5, 6, 5, FLAME[1]), cv.px(7, 4, "#ffffff"))),
-        "Sovereign Star": _shot(lambda cv: sparkle(cv, 4, 4, FLAME[2], big=True)),
-        "Flame Feather": _shot(lambda cv: (cv.shade(poly_mask([(0, 4), (3, 2), (8, 4), (3, 6)]), FLAME), cv.px(6, 4, FLAME[3]))),
-        "Void Ember": _shot(lambda cv: orb(cv, 4, 4, 2.6, R("#24062e", "#5a0e7a", "#a828d8", "#f0a0ff"), glow="#e040ff")),
+        # Ferrogrim: iron and the forge's fire
+        "Iron Shard": _s16(_iron_shard),
+        "Rending Splinter": _s16(_rending_splinter),
+        "Iron Rivet": _s16(_iron_rivet),
+        "Hammer Wave": _s16(_hammer_wave),
+        "Forge Hammer": _s16(_forge_hammer),
+        # Nerissa: the sea
+        "Trident Bolt": _s16(lambda cv: _trident(cv, GOLD, "#bff4ff", "#bff4ff")),
+        "Riptide Trident": _s16(lambda cv: _trident(cv, RIPTIDE, "#c8a0ff", "#8a5ad8")),
+        "Tide Orb": _s16(_tide_orb),
+        "Bubble": _s16(_bubble),
+        "Undertow": _s16(_undertow),
+        "Wave Crest": _s16(_wave_crest),
+        # Pyrrhax: the melt
+        "Magma Ball": _s16(_magma_ball),
+        "Cinder": _s16(_cinder),
+        "Ember": _s16(_ember),
+        "Molten Drop": _s16(_molten_drop),
+        "Slag Boulder": _s16(_slag_boulder),
+        "Meteor Fragment": _s16(_meteor_fragment),
+        # Chronarch: brass, steel and stolen time
+        "Gear Shot": _s16(_gear_shot),
+        "Cog": _s16(_cog),
+        "Chrono Orb": _s16(_chrono_orb),
+        "Hand Blade": _s16(_hand_blade),
+        "Rewind Blade": _s16(_rewind_blade),
+        "Stolen Moment": _s16(_stolen_moment),
+        # Vaelith: gold, flame and the void
+        "Sovereign Lance": _s16(lambda cv: _lance(cv, GOLD, FLAME)),
+        "Decree Lance": _s16(lambda cv: _lance(cv, GOLD, R("#9a6a14", "#ffd04a", "#fff0a0", "#ffffff"), big=True)),
+        "Sovereign Star": _s16(_star),
+        "Flame Feather": _s16(lambda cv: _feather(cv, FLAME, FLAME[3])),
+        "Gilded Quill": _s16(lambda cv: _feather(cv, GOLD, "#ffffff")),
+        "Void Ember": _s16(_void_ember),
+        "Halo Shard": _s16(_halo_shard),
     }
 
 

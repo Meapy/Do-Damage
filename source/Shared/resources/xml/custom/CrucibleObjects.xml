@@ -3,102 +3,221 @@
 	<Object type="0xC640" id="Iron Shard">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x63</Index>
+			<File>crucible16x16</File>
+			<Index>0x00</Index>
 		</Texture>
+	</Object>
+	<Object type="0xC681" id="Rending Splinter">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x01</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC682" id="Iron Rivet">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x02</Index>
+		</Texture>
+		<Rotation>70</Rotation>
 	</Object>
 	<Object type="0xC641" id="Hammer Wave">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x64</Index>
+			<File>crucible16x16</File>
+			<Index>0x03</Index>
 		</Texture>
+	</Object>
+	<Object type="0xC683" id="Forge Hammer">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x04</Index>
+		</Texture>
+		<Rotation>45</Rotation>
 	</Object>
 	<Object type="0xC642" id="Trident Bolt">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x65</Index>
+			<File>crucible16x16</File>
+			<Index>0x05</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC684" id="Riptide Trident">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x06</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC643" id="Tide Orb">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x66</Index>
+			<File>crucible16x16</File>
+			<Index>0x07</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC644" id="Bubble">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x67</Index>
+			<File>crucible16x16</File>
+			<Index>0x08</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC685" id="Undertow">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x09</Index>
+		</Texture>
+		<Rotation>70</Rotation>
+	</Object>
+	<Object type="0xC686" id="Wave Crest">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x0a</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC645" id="Magma Ball">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x68</Index>
+			<File>crucible16x16</File>
+			<Index>0x0b</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC646" id="Cinder">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x69</Index>
+			<File>crucible16x16</File>
+			<Index>0x0c</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC687" id="Ember">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x0d</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC688" id="Molten Drop">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x0e</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC689" id="Slag Boulder">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x0f</Index>
+		</Texture>
+		<Rotation>90</Rotation>
+	</Object>
+	<Object type="0xC68A" id="Meteor Fragment">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x10</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC647" id="Gear Shot">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6a</Index>
+			<File>crucible16x16</File>
+			<Index>0x11</Index>
 		</Texture>
 		<Rotation>60</Rotation>
+	</Object>
+	<Object type="0xC68B" id="Cog">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x12</Index>
+		</Texture>
+		<Rotation>80</Rotation>
 	</Object>
 	<Object type="0xC648" id="Chrono Orb">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6b</Index>
+			<File>crucible16x16</File>
+			<Index>0x13</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC649" id="Hand Blade">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6c</Index>
+			<File>crucible16x16</File>
+			<Index>0x14</Index>
 		</Texture>
+	</Object>
+	<Object type="0xC68C" id="Rewind Blade">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x15</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC68D" id="Stolen Moment">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x16</Index>
+		</Texture>
+		<Rotation>140</Rotation>
 	</Object>
 	<Object type="0xC64A" id="Sovereign Lance">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6d</Index>
+			<File>crucible16x16</File>
+			<Index>0x17</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC68E" id="Decree Lance">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x18</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC64B" id="Sovereign Star">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6e</Index>
+			<File>crucible16x16</File>
+			<Index>0x19</Index>
 		</Texture>
 		<Rotation>60</Rotation>
 	</Object>
 	<Object type="0xC64C" id="Flame Feather">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x6f</Index>
+			<File>crucible16x16</File>
+			<Index>0x1a</Index>
+		</Texture>
+	</Object>
+	<Object type="0xC68F" id="Gilded Quill">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x1b</Index>
 		</Texture>
 	</Object>
 	<Object type="0xC64D" id="Void Ember">
 		<Class>Projectile</Class>
 		<Texture>
-			<File>crucible8x8</File>
-			<Index>0x70</Index>
+			<File>crucible16x16</File>
+			<Index>0x1c</Index>
 		</Texture>
+	</Object>
+	<Object type="0xC690" id="Halo Shard">
+		<Class>Projectile</Class>
+		<Texture>
+			<File>crucible16x16</File>
+			<Index>0x1d</Index>
+		</Texture>
+		<Rotation>50</Rotation>
 	</Object>
 	<Object type="0xC64E" id="Ferrogrim, the Iron Warden">
 		<Class>Character</Class>
@@ -138,6 +257,7 @@
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="1.5">Bleeding</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="400">0xFF9A2A</ParticleTrail>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Hammer Wave</ObjectId>
@@ -148,9 +268,10 @@
 			<MultiHit />
 			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
 			<ConditionEffect duration="1.5">Dazed</ConditionEffect>
+			<ParticleTrail intensity="0.8" lifetimeMS="500">0xFF9A2A</ParticleTrail>
 		</Projectile>
 		<Projectile id="2">
-			<ObjectId>Iron Shard</ObjectId>
+			<ObjectId>Iron Rivet</ObjectId>
 			<Damage>140</Damage>
 			<Speed>60</Speed>
 			<LifetimeMS>2600</LifetimeMS>
@@ -158,23 +279,26 @@
 			<MultiHit />
 		</Projectile>
 		<Projectile id="3">
-			<ObjectId>Hammer Wave</ObjectId>
+			<ObjectId>Forge Hammer</ObjectId>
 			<Damage>240</Damage>
-			<Speed>70</Speed>
-			<LifetimeMS>2400</LifetimeMS>
+			<Speed>75</Speed>
+			<LifetimeMS>3000</LifetimeMS>
 			<Size>140</Size>
+			<Boomerang />
 			<MultiHit />
 			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 			<ConditionEffect duration="1">Stunned</ConditionEffect>
+			<ParticleTrail intensity="1.0" lifetimeMS="600">0xFF9A2A</ParticleTrail>
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Iron Shard</ObjectId>
+			<ObjectId>Rending Splinter</ObjectId>
 			<Damage>130</Damage>
 			<Speed>115</Speed>
 			<LifetimeMS>1300</LifetimeMS>
 			<Size>90</Size>
 			<MultiHit />
 			<ConditionEffect duration="3">Bleeding</ConditionEffect>
+			<ParticleTrail intensity="0.4" lifetimeMS="300">0xFF3A1A</ParticleTrail>
 		</Projectile>
 	</Object>
 	<Object type="0xC64F" id="Nerissa, the Tidecaller">
@@ -215,6 +339,7 @@
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="2">Bleeding</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="400">0xBFF4FF</ParticleTrail>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Tide Orb</ObjectId>
@@ -237,16 +362,17 @@
 			<ConditionEffect duration="1">Slowed</ConditionEffect>
 		</Projectile>
 		<Projectile id="3">
-			<ObjectId>Trident Bolt</ObjectId>
+			<ObjectId>Riptide Trident</ObjectId>
 			<Damage>210</Damage>
 			<Speed>120</Speed>
 			<LifetimeMS>1800</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="1">Confused</ConditionEffect>
+			<ParticleTrail intensity="0.6" lifetimeMS="400">0xA070FF</ParticleTrail>
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Tide Orb</ObjectId>
+			<ObjectId>Undertow</ObjectId>
 			<Damage>260</Damage>
 			<Speed>42</Speed>
 			<LifetimeMS>3800</LifetimeMS>
@@ -256,6 +382,18 @@
 			<MultiHit />
 			<ConditionEffect duration="2">Quiet</ConditionEffect>
 			<ConditionEffect duration="0.8">Paralyzed</ConditionEffect>
+			<ParticleTrail intensity="1.0" lifetimeMS="700">0xBFF4FF</ParticleTrail>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Wave Crest</ObjectId>
+			<Damage>170</Damage>
+			<Speed>55</Speed>
+			<LifetimeMS>3600</LifetimeMS>
+			<Size>150</Size>
+			<Boomerang />
+			<MultiHit />
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="500">0xBFF4FF</ParticleTrail>
 		</Projectile>
 	</Object>
 	<Object type="0xC650" id="Pyrrhax, the Forge Tyrant">
@@ -296,6 +434,7 @@
 			<Size>150</Size>
 			<MultiHit />
 			<ConditionEffect duration="2.5">Weak</ConditionEffect>
+			<ParticleTrail intensity="0.8" lifetimeMS="600">0xFF6A14</ParticleTrail>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Cinder</ObjectId>
@@ -305,9 +444,10 @@
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="2">Sick</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="350">0xFFA024</ParticleTrail>
 		</Projectile>
 		<Projectile id="2">
-			<ObjectId>Cinder</ObjectId>
+			<ObjectId>Ember</ObjectId>
 			<Damage>150</Damage>
 			<Speed>70</Speed>
 			<LifetimeMS>2400</LifetimeMS>
@@ -315,7 +455,7 @@
 			<MultiHit />
 		</Projectile>
 		<Projectile id="3">
-			<ObjectId>Magma Ball</ObjectId>
+			<ObjectId>Molten Drop</ObjectId>
 			<Damage>175</Damage>
 			<Speed>45</Speed>
 			<LifetimeMS>3600</LifetimeMS>
@@ -323,7 +463,7 @@
 			<MultiHit />
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Magma Ball</ObjectId>
+			<ObjectId>Slag Boulder</ObjectId>
 			<Damage>330</Damage>
 			<Speed>38</Speed>
 			<LifetimeMS>4200</LifetimeMS>
@@ -331,6 +471,19 @@
 			<MultiHit />
 			<ConditionEffect duration="1">Paralyzed</ConditionEffect>
 			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
+			<ParticleTrail intensity="1.2" lifetimeMS="800">0xFF6A14</ParticleTrail>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Meteor Fragment</ObjectId>
+			<Damage>180</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>2400</LifetimeMS>
+			<Size>120</Size>
+			<Amplitude>0.7</Amplitude>
+			<Frequency>1.0</Frequency>
+			<MultiHit />
+			<ConditionEffect duration="1">Sick</ConditionEffect>
+			<ParticleTrail intensity="0.9" lifetimeMS="500">0xFFA024</ParticleTrail>
 		</Projectile>
 	</Object>
 	<Object type="0xC651" id="Chronarch, the Hour Thief">
@@ -379,6 +532,7 @@
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="2">Bleeding</ConditionEffect>
+			<ParticleTrail intensity="0.4" lifetimeMS="300">0xFF3A1A</ParticleTrail>
 		</Projectile>
 		<Projectile id="2">
 			<ObjectId>Chrono Orb</ObjectId>
@@ -389,9 +543,10 @@
 			<MultiHit />
 			<ConditionEffect duration="2">Slowed</ConditionEffect>
 			<ConditionEffect duration="2">Dazed</ConditionEffect>
+			<ParticleTrail intensity="0.8" lifetimeMS="700">0x4AF0FF</ParticleTrail>
 		</Projectile>
 		<Projectile id="3">
-			<ObjectId>Gear Shot</ObjectId>
+			<ObjectId>Cog</ObjectId>
 			<Damage>150</Damage>
 			<Speed>75</Speed>
 			<LifetimeMS>2600</LifetimeMS>
@@ -399,14 +554,26 @@
 			<MultiHit />
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Chrono Orb</ObjectId>
+			<ObjectId>Stolen Moment</ObjectId>
 			<Damage>210</Damage>
 			<Speed>85</Speed>
 			<LifetimeMS>2000</LifetimeMS>
-			<Size>100</Size>
+			<Size>110</Size>
 			<MultiHit />
 			<ConditionEffect duration="2.5">Silenced</ConditionEffect>
 			<ConditionEffect duration="0.6">Paralyzed</ConditionEffect>
+			<ParticleTrail intensity="1.0" lifetimeMS="600">0x4AF0FF</ParticleTrail>
+		</Projectile>
+		<Projectile id="5">
+			<ObjectId>Rewind Blade</ObjectId>
+			<Damage>190</Damage>
+			<Speed>95</Speed>
+			<LifetimeMS>2600</LifetimeMS>
+			<Size>100</Size>
+			<Boomerang />
+			<MultiHit />
+			<ConditionEffect duration="1">Slowed</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="400">0x4AF0FF</ParticleTrail>
 		</Projectile>
 	</Object>
 	<Object type="0xC652" id="Vaelith, the Crucible Sovereign">
@@ -453,6 +620,7 @@
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="3">Exposed</ConditionEffect>
+			<ParticleTrail intensity="0.5" lifetimeMS="400">0xFFD04A</ParticleTrail>
 		</Projectile>
 		<Projectile id="1">
 			<ObjectId>Flame Feather</ObjectId>
@@ -482,18 +650,20 @@
 			<ConditionEffect duration="1.5">Darkness</ConditionEffect>
 			<ConditionEffect duration="2">Armor Broken</ConditionEffect>
 			<ConditionEffect duration="2">Curse</ConditionEffect>
+			<ParticleTrail intensity="0.8" lifetimeMS="600">0xE040FF</ParticleTrail>
 		</Projectile>
 		<Projectile id="4">
-			<ObjectId>Flame Feather</ObjectId>
+			<ObjectId>Gilded Quill</ObjectId>
 			<Damage>220</Damage>
 			<Speed>130</Speed>
 			<LifetimeMS>1600</LifetimeMS>
 			<Size>100</Size>
 			<MultiHit />
 			<ConditionEffect duration="1.5">Quiet</ConditionEffect>
+			<ParticleTrail intensity="0.4" lifetimeMS="300">0xFFD04A</ParticleTrail>
 		</Projectile>
 		<Projectile id="5">
-			<ObjectId>Sovereign Lance</ObjectId>
+			<ObjectId>Decree Lance</ObjectId>
 			<Damage>380</Damage>
 			<Speed>50</Speed>
 			<LifetimeMS>4000</LifetimeMS>
@@ -502,6 +672,18 @@
 			<ArmorPiercing />
 			<ConditionEffect duration="1.5">Stunned</ConditionEffect>
 			<ConditionEffect duration="3">Armor Broken</ConditionEffect>
+			<ParticleTrail intensity="1.4" lifetimeMS="800">0xFFD04A</ParticleTrail>
+		</Projectile>
+		<Projectile id="6">
+			<ObjectId>Halo Shard</ObjectId>
+			<Damage>180</Damage>
+			<Speed>60</Speed>
+			<LifetimeMS>3200</LifetimeMS>
+			<Size>120</Size>
+			<Parametric />
+			<Magnitude>4.5</Magnitude>
+			<MultiHit />
+			<ParticleTrail intensity="0.4" lifetimeMS="500">0xFFD04A</ParticleTrail>
 		</Projectile>
 	</Object>
 	<Object type="0xC653" id="Hour Echo">
@@ -908,19 +1090,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x00</Index>
+			<Index>0x1e</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x00</Index>
+					<Index>0x1e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x01</Index>
+					<Index>0x1f</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -933,25 +1115,25 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x02</Index>
+			<Index>0x20</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x02</Index>
+					<Index>0x20</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x03</Index>
+					<Index>0x21</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x04</Index>
+					<Index>0x22</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -964,31 +1146,31 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x05</Index>
+			<Index>0x23</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x05</Index>
+					<Index>0x23</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x06</Index>
+					<Index>0x24</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x07</Index>
+					<Index>0x25</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x08</Index>
+					<Index>0x26</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1001,31 +1183,31 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x09</Index>
+			<Index>0x27</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x09</Index>
+					<Index>0x27</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0a</Index>
+					<Index>0x28</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0b</Index>
+					<Index>0x29</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0c</Index>
+					<Index>0x2a</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1038,19 +1220,19 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x0d</Index>
+			<Index>0x2b</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0d</Index>
+					<Index>0x2b</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0e</Index>
+					<Index>0x2c</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1063,25 +1245,25 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x0f</Index>
+			<Index>0x2d</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x0f</Index>
+					<Index>0x2d</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x10</Index>
+					<Index>0x2e</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.35">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x11</Index>
+					<Index>0x2f</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1095,7 +1277,7 @@
 		<Item />
 		<Texture>
 			<File>crucible8x8</File>
-			<Index>0x71</Index>
+			<Index>0x63</Index>
 		</Texture>
 		<SlotType>32</SlotType>
 		<Description>Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor broken, and allies beside it are Armored while it holds. When its time is up it blows apart.</Description>
@@ -1121,7 +1303,7 @@
 		<Item />
 		<Texture>
 			<File>crucible8x8</File>
-			<Index>0x72</Index>
+			<Index>0x64</Index>
 		</Texture>
 		<SlotType>30</SlotType>
 		<Description>A pearl of the Drowned Sanctum's sea. It calls up a substitute that hurls five of Nerissa's tridents and heals you, and the tide answers: three waves roll out from you, each striking your enemies and washing over your allies.</Description>
@@ -1147,7 +1329,7 @@
 		<Item />
 		<Texture>
 			<File>crucible8x8</File>
-			<Index>0x73</Index>
+			<Index>0x65</Index>
 		</Texture>
 		<SlotType>5005</SlotType>
 		<Description>The Forge Tyrant's mortar. Its shell arcs to where you aim and bursts in a crater of slag, and the sky follows it down: four meteors fall round the crater, while the slag burns on in it.</Description>
@@ -1173,7 +1355,7 @@
 		<Item />
 		<Texture>
 			<File>crucible8x8</File>
-			<Index>0x74</Index>
+			<Index>0x66</Index>
 		</Texture>
 		<SlotType>37</SlotType>
 		<Description>The Hour Thief's coat, its clock still running. Time stops round you: your enemies slow, you quicken, and the clock's hand sweeps twice round you, cutting all it passes.</Description>
@@ -1201,7 +1383,7 @@
 		<Item />
 		<Texture>
 			<File>crucible8x8</File>
-			<Index>0x75</Index>
+			<Index>0x67</Index>
 		</Texture>
 		<SlotType>28</SlotType>
 		<Description>The Sovereign's own lute, strung with the light of the Apex. Its chord inspires your allies, and the aria rings on: four verses, each a wider ring of light from you, harder than the last, and the last a crescendo that breaks armor and drives allies into a fury.</Description>
@@ -1260,25 +1442,25 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x12</Index>
+			<Index>0x30</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.2">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x12</Index>
+					<Index>0x30</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x13</Index>
+					<Index>0x31</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.2">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x14</Index>
+					<Index>0x32</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1293,31 +1475,31 @@
 		<Class>GameObject</Class>
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x15</Index>
+			<Index>0x33</Index>
 		</Texture>
 		<Animation prob="1.0">
 			<Frame time="0.12">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x15</Index>
+					<Index>0x33</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.12">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x16</Index>
+					<Index>0x34</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.12">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x17</Index>
+					<Index>0x35</Index>
 				</Texture>
 			</Frame>
 			<Frame time="0.12">
 				<Texture>
 					<File>crucible16x16</File>
-					<Index>0x18</Index>
+					<Index>0x36</Index>
 				</Texture>
 			</Frame>
 		</Animation>
@@ -1495,7 +1677,7 @@
 		<Item />
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x19</Index>
+			<Index>0x37</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -1561,7 +1743,7 @@
 		<Item />
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x1a</Index>
+			<Index>0x38</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -1624,7 +1806,7 @@
 		<Item />
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x1b</Index>
+			<Index>0x39</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -1687,7 +1869,7 @@
 		<Item />
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x1c</Index>
+			<Index>0x3a</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
@@ -1754,7 +1936,7 @@
 		<Item />
 		<Texture>
 			<File>crucible16x16</File>
-			<Index>0x1d</Index>
+			<Index>0x3b</Index>
 		</Texture>
 		<SlotType>10</SlotType>
 		<Soulbound />
