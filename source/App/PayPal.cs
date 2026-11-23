@@ -135,7 +135,9 @@ namespace App
             {
                 ["reference_id"] = pack.id,
                 ["custom_id"] = accountId + ":" + pack.id,
-                ["invoice_id"] = "DD-" + requestId,
+                // the in-game name in the invoice id and the item's name, which PayPal shows in the
+                // store's activity list, a payment's details and the "you received a payment" email
+                ["invoice_id"] = $"DD-{accountName}-{requestId}",
                 ["description"] = $"{pack.gold:N0} gold for {accountName}",
                 ["soft_descriptor"] = "DODAMAGE GOLD",
                 ["amount"] = new JObject
@@ -146,7 +148,7 @@ namespace App
                 },
                 ["items"] = new JArray(new JObject
                 {
-                    ["name"] = $"{pack.gold:N0} Gold",
+                    ["name"] = $"{pack.gold:N0} Gold for {accountName}",
                     ["description"] = $"Do Damage gold for the account {accountName}",
                     ["sku"] = "gold-" + pack.id,
                     ["quantity"] = "1",
