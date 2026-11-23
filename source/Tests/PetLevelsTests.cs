@@ -20,7 +20,7 @@ namespace Tests
         {
             Assert.Equal(new[] { 10, 15, 20, 25, 30 }, PetLevels.Sizes.Select(PetLevels.MaxLevel));
             Assert.Equal(1, PetLevels.MaxLevel(null));
-            Assert.Equal(1, PetLevels.MaxLevel("Huge"));
+            Assert.Equal(1, PetLevels.MaxLevel("Giant"));
             // 30 x level^1.5, to the nearest 5
             Assert.Equal(30, PetLevels.XpToNext(1));
             Assert.Equal(85, PetLevels.XpToNext(2));
@@ -45,12 +45,18 @@ namespace Tests
         [Fact]
         public void PowerGrowsFromItsFirstLevelToItsLast()
         {
+            // every size but Huge stops at 100% damage (140% healing); Huge goes on to 120% (160%)
             Assert.Equal(0.6f, PetLevels.DamageScale(1, 20), 3);
-            Assert.Equal(1.2f, PetLevels.DamageScale(20, 20), 3);
+            Assert.Equal(1f, PetLevels.DamageScale(20, 20), 3);
             Assert.Equal(1f, PetLevels.HealScale(1, 20), 3);
-            Assert.Equal(1.6f, PetLevels.HealScale(20, 20), 3);
-            Assert.Equal(1.25f, PetLevels.DrawScale(20, 20), 3);
-            Assert.Equal(16, PetLevels.Heal(10, 25, 25));
+            Assert.Equal(1.4f, PetLevels.HealScale(20, 20), 3);
+            Assert.Equal(14, PetLevels.Heal(10, 25, 25));
+            Assert.Equal(0.6f, PetLevels.DamageScale(1, 30), 3);
+            Assert.Equal(1.2f, PetLevels.DamageScale(30, 30), 3);
+            Assert.Equal(1.6f, PetLevels.HealScale(30, 30), 3);
+            Assert.Equal(1.25f, PetLevels.DrawScale(30, 30), 3);
+            for (var max = 10; max < 30; max += 5)
+                Assert.Equal(1f, PetLevels.DamageScale(max, max), 3);
             // an unsized pet is as it always was
             Assert.Equal(1f, PetLevels.DamageScale(1, 1));
             Assert.Equal(1f, PetLevels.HealScale(1, 1));
@@ -79,7 +85,7 @@ namespace Tests
             var late = PetLevels.FameCost(PetLevels.XpAt(28), 1500, 30);
             Assert.InRange(early, 45, 75);
             Assert.InRange(late, 210, 270);
-            // the whole climb, not absurd: about 185 fame for a Tiny pet, 6,820 for an Oryx
+            // the whole climb, not absurd: about 185 fame for a Tiny pet, 6,820 for a Huge one
             Assert.InRange(PetLevels.FameCost(0, int.MaxValue / 2, 10), 170, 200);
             Assert.InRange(PetLevels.FameCost(0, int.MaxValue / 2, 30), 6600, 7000);
             // in one feed or many, about the same
@@ -104,14 +110,51 @@ namespace Tests
         }
 
         [Fact]
+        public void APetGrowsOneSizeAtATimeFrom1000To25000Fame()
+        {
+            Assert.Equal((0, 0), PetLevels.GrowPrice(0));
+            Assert.Equal((1000, 100), PetLevels.GrowPrice(1));
+            Assert.Equal((25000, 1000), PetLevels.GrowPrice(4));
+            Assert.Equal((0, 0), PetLevels.GrowPrice(5));
+            for (var size = 2; size < PetLevels.Sizes.Length; size++)
+            {
+                Assert.True(PetLevels.GrowPrice(size).Fame > PetLevels.GrowPrice(size - 1).Fame);
+                Assert.True(PetLevels.GrowPrice(size).Gold > PetLevels.GrowPrice(size - 1).Gold);
+            }
+            Assert.Equal("Tiny", PetLevels.GrownSize("Tiny", 0));
+            Assert.Equal("Medium", PetLevels.GrownSize("Tiny", 2));
+            Assert.Equal("Huge", PetLevels.GrownSize("Large", 3));
+            Assert.Null(PetLevels.GrownSize(null, 2));
+            // growing never weakens a pet: a Tiny one at level 10 (100%) stays at 100% as a Small,
+            // Medium or Large one, and climbs on to 120% only once it's Huge
+            for (var grown = 1; grown <= 4; grown++)
+            {
+                var max = PetLevels.MaxLevel(PetLevels.GrownSize("Tiny", grown));
+                for (var level = 1; level <= max; level++)
+                {
+                    Assert.True(PetLevels.DamageScale(level, max, 10) >= PetLevels.DamageScale(Math.Min(level, 10), 10) - 1e-4f);
+                    if (level > 1)
+                        Assert.True(PetLevels.DamageScale(level, max, 10) >= PetLevels.DamageScale(level - 1, max, 10));
+                }
+                Assert.Equal(grown < 4 ? 1f : 1.2f, PetLevels.DamageScale(max, max, 10), 3);
+            }
+            Assert.Equal(1f, PetLevels.DamageScale(10, 30, 10), 3);
+            Assert.Equal(1.1f, PetLevels.DamageScale(20, 30, 10), 3);
+            Assert.Equal(1f, PetLevels.DamageScale(25, 25, 10), 3);
+        }
+
+        [Fact]
         public void PetsFromBeforeLevelsKeepTheirStrength()
         {
             for (var max = 10; max <= 30; max += 5)
             {
-                // a raised one at its last level; any other about as strong as it was (100%)
+                // a raised one at its last level; any other two thirds of the way (as strong as
+                // it was in 2.6.4, when 100% was two thirds of the way for every size)
                 Assert.Equal(max, PetLevels.LevelFor(PetLevels.MigratedXp(1, max), max));
                 var level = PetLevels.LevelFor(PetLevels.MigratedXp(0, max), max);
-                Assert.InRange(PetLevels.DamageScale(level, max), 0.95f, 1.05f);
+                Assert.Equal((int)Math.Round(1 + (max - 1) * 2 / 3.0), level);
+                if (max == 30)
+                    Assert.InRange(PetLevels.DamageScale(level, max), 0.95f, 1.05f);
             }
             Assert.Equal(0, PetLevels.MigratedXp(2, 1));
         }
@@ -140,7 +183,7 @@ namespace Tests
             var ascended = items.Values.First(i => i.Ascended && i.SlotType > 0 && i.SlotType != 10 && !i.Consumable && i.Tier < 0);
             Assert.Equal(PetFood.AscendedXp, PetFood.Value(ascended));
             // another pet's stone, by its size
-            var oryx = items.Values.First(i => i.ActivateEffects.Any(e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Oryx"));
+            var oryx = items.Values.First(i => i.ActivateEffects.Any(e => e.Effect == ActivateEffects.PermaPet && e.PetSize == "Huge"));
             Assert.Equal(8000, PetFood.Value(oryx));
             Assert.Equal(300, PetFood.Value(items["Potion of Attack"], 5));
         }

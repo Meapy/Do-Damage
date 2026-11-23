@@ -341,6 +341,7 @@ namespace WorldServer.core.objects
             PetId = character.PetId;
             // a pet from before levels: its raise turned into food, once
             PetXp = character.PetXp >= 0 ? character.PetXp : PetLevels.MigratedXp(character.PetUpgrade, PetMaxLevel(PetId));
+            PetGrown = character.PetGrown;
 
             InitializePotionStacks(character, settings);
             InitializeInventory(gameData, character);
@@ -527,6 +528,7 @@ namespace WorldServer.core.objects
             chr.HasBackpack = HasBackpack;
             chr.PetId = PetId;
             chr.PetXp = PetXp;
+            chr.PetGrown = PetGrown;
             chr.PetUpgrade = 0;
             chr.Items = Inventory.GetItemTypes();
             chr.XPBoostTime = XPBoostTime;
@@ -763,7 +765,7 @@ namespace WorldServer.core.objects
                 pet.Z = Z;
                 float draw;
                 (pet.DamageScale, pet.HealHp, pet.HealMp, draw) = PetPower();
-                pet.OwnHealing = PetMaxLevel(petId) > 1;
+                pet.OwnHealing = PetMaxLevel(petId, PetGrown) > 1;
                 owner.EnterWorld(pet);
                 // it grows with its level (PetLevels.DrawScale)
                 if (petDesc.Size > 0)

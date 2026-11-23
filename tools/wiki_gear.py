@@ -80,9 +80,15 @@ def png_size(path):
 
 
 # Pet levels (Shared.pets.PetLevels): a sized pet grows from level 1 to its size's last as the Pen
-# Keeper feeds it, its damage from 60% of its stone's petDps to 120%, its healing from its stone's
-# petHp and petMp to 160%.
-PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Oryx": 30}
+# Keeper feeds it, its damage from 60% of its stone's petDps to 100% (Huge pets 120%), its healing
+# from its stone's petHp and petMp to 140% (Huge 160%).
+PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Huge": 30}
+
+
+def _pet_top(size):
+    """Its damage and healing at its last level, times level 1's kit (PetLevels.Power: only Huge
+    pets go past 100% damage)."""
+    return (1.2, 1.6) if size == "Huge" else (1.0, 1.4)
 
 
 def _pet_effective_percent():
@@ -741,16 +747,15 @@ class Gear:
         ids = set()
         cards = []
         # by size, the biggest first, then the strongest
-        order = {"Oryx": 0, "Large": 1, "Medium": 2, "Small": 3, "Tiny": 4}
+        order = {"Huge": 0, "Large": 1, "Medium": 2, "Small": 3, "Tiny": 4}
         for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -p["dps"], p["name"].lower())):
             oid = p["item"]
             last = PET_MAX_LEVEL.get(p["size"])
             if last and p["dps"]:
-                # level 1 to its last (PetLevels.DamageScale)
                 # level 1 to its last (PetLevels.DamageScale), times PetLevels.Effectiveness
                 lines = ['<p class="it-nums">Damage a second <b>%s</b> &rarr; <b>%s</b></p>' % (
                     "{:,}".format(_pet_round(p["dps"] * 0.6 * PET_EFFECTIVENESS)),
-                    "{:,}".format(_pet_round(p["dps"] * 1.2 * PET_EFFECTIVENESS)))]
+                    "{:,}".format(_pet_round(p["dps"] * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)))]
             else:
                 lines = (['<p class="it-nums">Damage a second <b>%d</b></p>' % _pet_round(p["dps"] * PET_EFFECTIVENESS)]
                          if p["dps"] else [])
@@ -763,7 +768,7 @@ class Gear:
             # (as every pet really does it: PetLevels.Effective)
             def grown(amount):
                 nums = [int(x) for x in re.findall(r"\d+", amount or "")]
-                return _pet_effective(_pet_round(nums[0] * 1.6)) if last and len(nums) == 1 else None
+                return _pet_effective(_pet_round(nums[0] * _pet_top(p["size"])[1])) if last and len(nums) == 1 else None
             def effective(amount):
                 return re.sub(r"\d+", lambda m: str(_pet_effective(int(m.group(0)))), amount or "")
             heals = [r for r in (_heal_row(effective(p["hp"]), "HP", p["hpms"], grown(p["hp"])),
@@ -785,7 +790,7 @@ class Gear:
                 continue
             flags = ["Soulbound"] if d.objects[oid]["soulbound"] else []
             search = " ".join([p["name"], pet, "pet generator", p["size"]] + effects + [re.sub(r"<[^>]+>", "", v) for _, v in src])
-            dps_tag = (("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * 1.2 * PET_EFFECTIVENESS)), last) if last
+            dps_tag = (("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)), last) if last
                         else "%d DPS" % _pet_round(p["dps"] * PET_EFFECTIVENESS)) if p["dps"] else "")
             tag = " · ".join(x for x in (p["size"], dps_tag) if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,

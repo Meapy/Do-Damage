@@ -8,7 +8,7 @@ namespace Shared.pets
     // takes), 0 for what a pet won't eat. The Rust client shows the same numbers
     // (client-rs/app/src/petlevels.rs): change both together.
     // - the treats: a Superburger 1,500, an Ambrosia 5,000, each Shard of the Mad God 200;
-    // - another pet's stone, by its size: Tiny 150, Small 400, Medium 1,200, Large 3,000, Oryx 8,000;
+    // - another pet's stone, by its size: Tiny 150, Small 400, Medium 1,200, Large 3,000, Huge 8,000;
     // - gear: tiered 20 + 15 a tier (abilities and rings, whose tiers stop at 7, 20 + 30 a tier);
     //   untiered (UTs and such) by how rare its bag is (Loots.LOOT_BAG_WEIGHTS' order): brown 150,
     //   pink 200, purple 300, 400, cyan 600, blue 800, 1,000, 1,200, 1,500, white 2,000, and

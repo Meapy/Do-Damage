@@ -1817,6 +1817,7 @@ namespace WorldServer.core.objects
             {
                 PetId = oryx;
                 PetXp = PetLevels.XpAt(PetMaxLevel(oryx));
+                PetGrown = 0;
             }
         }
 
@@ -1829,13 +1830,16 @@ namespace WorldServer.core.objects
             // its generator: swapping pets never loses one
             var old = PetId;
             var oldXp = PetXp;
+            var oldGrown = PetGrown;
             PetId = desc.ObjectType;
-            // a stone given back brings its pet's food (or a raise from before levels) back
+            // a stone given back brings its pet's food (or a raise from before levels) and the
+            // sizes it was grown back
             PetXp = PetXpOf(PetId, _usedPetData);
+            PetGrown = Math.Max(0, _usedPetData?.PetGrown ?? 0);
             _usedPetData = null;
             SpawnPetIfAttached(World);
             if (old != 0 && old != PetId)
-                GivePetGeneratorBack(old, oldXp);
+                GivePetGeneratorBack(old, oldXp, oldGrown);
         }
 
         // The item that gives this pet (a PermaPet activate for it): a "... Generator" before the
@@ -1872,16 +1876,16 @@ namespace WorldServer.core.objects
         /// <summary>Whether a pet that has eaten can go back into its stone here: its food rides in
         /// the stone's slot data, which the gift chest doesn't keep, so it needs a free slot.</summary>
         public bool RoomForPetStone(int petType) =>
-            PetXp <= 0 || PetGenerator(petType) is not { } g || Inventory.GetAvailableInventorySlot(g) != -1;
+            PetXp <= 0 && PetGrown <= 0 || PetGenerator(petType) is not { } g || Inventory.GetAvailableInventorySlot(g) != -1;
 
         // Puts the pet's generator in the inventory (the gift chest when it's full); false when the
         // pet has no generator to give back.
-        public bool GivePetGeneratorBack(int petType, int xp = 0)
+        public bool GivePetGeneratorBack(int petType, int xp = 0, int grown = 0)
         {
             var generator = PetGenerator(petType);
             if (generator == null)
                 return false;
-            if (xp <= 0)
+            if (xp <= 0 && grown <= 0)
             {
                 GiveItem(generator);
                 return true;
@@ -1894,7 +1898,7 @@ namespace WorldServer.core.objects
                 GiveItem(generator);
                 return true;
             }
-            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetXp = xp };
+            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetXp = xp, PetGrown = grown > 0 ? grown : null };
             Inventory[slot] = generator;
             SendInfo($"You received {generator.DisplayName}!");
             return true;

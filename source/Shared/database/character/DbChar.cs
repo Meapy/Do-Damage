@@ -33,6 +33,8 @@ namespace Shared.database.character
         // the food the pet out has eaten (Shared.pets.PetLevels); -1 for a character saved before
         // levels, whose pet's raise (PetUpgrade) is turned into food once
         public int PetXp { get => GetValue<int>("petXp", -1); set => SetValue("petXp", value); }
+        // the sizes the pet out was grown past its stone's (PetLevels.GrownSize; 0 none)
+        public int PetGrown { get => GetValue<int>("petGrown"); set => SetValue("petGrown", value); }
         public int Skin { get => GetValue<int>("skin"); set => SetValue("skin", value); }
 
         public int[] Stats { get => GetValue<int[]>("stats"); set => SetValue("stats", value); }

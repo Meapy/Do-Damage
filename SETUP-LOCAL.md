@@ -717,6 +717,18 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Growing a pet, Huge pets, 100% for the rest** (2026-11-23; `PetLevels.cs` `GrowPrice`,
+  `GrownSize` and `Power`, `Player.PetPen.cs` `GrowPet`, the client's `petlevels.rs` and
+  `petpen.rs`): a pet at its last level can be grown to the next size at the Pen Keeper (acts 11
+  fame, 12 gold: Tiny to Small 1,000 or 100, Small to Medium 3,000 or 200, Medium to Large 8,500 or
+  450, Large to Huge 25,000 or 1,000), keeping its kit and food, its last level now the new
+  size's, drawn the new size's height (`SizeHeights`); the pen must take the new size to feed it.
+  The sizes grown live on the character (`petGrown`) or the generator's data
+  (`ItemData.PetGrown`). Only Huge pets (the size once called Oryx: `petSize="Huge"` in the XML,
+  the Lil' Oryxes and the boss pets) go past 100%: every other size climbs 60% to 100% damage
+  (140% healing) to its stone's last level, a grown pet stays at 100% until it's Huge, then climbs
+  to 120% at 30 (`PetLevels.Power`), so growing never weakens it. `PetPenData` sends the size as
+  grown and the price at its end (2.6.5).
 - **Pet levels, food, the pen and each pet's own healing** (2026-11-22; `source/Shared/pets/`
   `PetLevels.cs` and `PetFood.cs`, `Player.PetPen.cs`, `tools/pet_healing.py`, the client's
   `petlevels.rs` and `petpen.rs`): every sized pet starts at level 1 and grows as the Pen Keeper
@@ -747,7 +759,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   shrunk to 16x16 (`black_between/small.pet_icon`, on the dungeon's 16x16 sheet), and fires its
   boss's shots in its patterns: fans, rings that turn (`rotateAngle`: the first volley aims, each
   after turns on), `PetNova`s for mines, lightning, meteors and the black hole, and for the
-  champions every 10 s their last form and spiral for 4 s. All are `petSize="Oryx"` (out of the
+  champions every 10 s their last form and spiral for 4 s. All are `petSize="Huge"` (once "Oryx"; out of the
   Mystery Pet Stones; level 1 to 30), healing their own way (`tools/pet_healing.py`); damage a
   second at 100% (60% at level 1, 120% at 30), written into each generator (`petDps`) and worked out in `PETS`'
   comments as `boss_pets.py` explains: Ferrogrim 988, Nerissa 1,104, Pyrrhax 1,196, Chronarch

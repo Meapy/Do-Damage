@@ -9,7 +9,9 @@ namespace WorldServer.networking.packets.outgoing
     // (Shared.pets.PetLevels): its level and last, the food it has eaten, the food at its level and
     // at the next, and what it does now and at its last level: damage a second, HP and MP healed
     // and how often (ms); then the biggest pets the account's pen takes (PetLevels.Sizes' index)
-    // and what growing it to the next size costs in fame and in gold (0 at the last).
+    // and what growing it to the next size costs in fame and in gold (0 at the last). Then, from
+    // 2.6.5, the pet's size as grown (PetLevels.Sizes' index, 255 none) and what growing the pet
+    // to the next size costs in fame and in gold (0 unless it's at its last level and can grow).
     public class PetPenData : OutgoingMessage
     {
         public ushort Pet { get; set; }
@@ -36,6 +38,9 @@ namespace WorldServer.networking.packets.outgoing
         public byte PenSize { get; set; }
         public int PenFame { get; set; }
         public int PenGold { get; set; }
+        public byte PetSize { get; set; } = 255;
+        public int GrowFame { get; set; }
+        public int GrowGold { get; set; }
 
         public override MessageId MessageId => MessageId.PET_PEN;
 
@@ -64,6 +69,9 @@ namespace WorldServer.networking.packets.outgoing
             wtr.Write(PenSize);
             wtr.Write(PenFame);
             wtr.Write(PenGold);
+            wtr.Write(PetSize);
+            wtr.Write(GrowFame);
+            wtr.Write(GrowGold);
         }
     }
 }

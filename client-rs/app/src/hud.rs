@@ -629,16 +629,20 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 
 /// The imprints on the item in an object's slot.
 /// The food in the pet stone in an object's slot (`petlevels::stone_xp`, from its slot's data).
-pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> i32 {
-    crate::petlevels::stone_xp(data, item, o.stat_str(slot_data_stat(slot)).unwrap_or(""))
+/// With the sizes its pet was grown (`petlevels::stone_grown`).
+pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> (i32, i32) {
+    let json = o.stat_str(slot_data_stat(slot)).unwrap_or("");
+    (crate::petlevels::stone_xp(data, item, json), crate::petlevels::stone_grown(json))
 }
 
-fn pet_size_name(size: &str) -> &str {
+/// A pet size's name, as players read it.
+pub fn pet_size_name(size: &str) -> &str {
     match size {
         "Tiny" => tr("Tiny"),
         "Small" => tr("Small"),
         "Medium" => tr("Medium"),
         "Large" => tr("Large"),
+        "Huge" => tr("Huge"),
         _ => size,
     }
 }
@@ -2643,7 +2647,7 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        let xp = me.filter(|m| m.id == slot.owner).map_or(0, |m| pet_xp(ui.data, m, slot.index, slot.item));
+        let xp = me.filter(|m| m.id == slot.owner).map_or((0, 0), |m| pet_xp(ui.data, m, slot.index, slot.item));
         let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
@@ -3110,12 +3114,13 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
-    item_tooltip_pet(data, item, me, kind, imprints, 0)
+    item_tooltip_pet(data, item, me, kind, imprints, (0, 0))
 }
 
-/// `item_tooltip_imprinted` for a pet stone holding `xp` of food (`pet_xp`): its pet's level, and
-/// its damage and healing at that level and at its last (`petlevels`), in green once it's grown.
-pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], xp: i32) -> Vec<Line> {
+/// `item_tooltip_imprinted` for a pet stone holding `xp` of food, its pet grown `grown` sizes
+/// (`pet_xp`): its pet's size and level, and its damage and healing at that level and at its last
+/// (`petlevels`), in green once it's grown.
+pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], (xp, grown): (i32, i32)) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -3169,13 +3174,16 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             out.push(Line::gap());
             out.push(Line::new(tr("Permanent pet"), 13.0, true, ABILITY));
             // its level (sized pets only): what it does now, and at its last level
-            let max = crate::petlevels::max_level(a.attr("petSize"));
+            let size = crate::petlevels::grown_size(a.attr("petSize"), grown);
+            let max = crate::petlevels::max_level(size);
+            // its stone's own last level: a grown pet stays at 100% until it's Oryx-sized
+            let base_max = crate::petlevels::max_level(a.attr("petSize"));
             let level = crate::petlevels::level_for(xp, max);
-            let grown = if level > 1 { color::GOOD } else { VALUE };
             let up_to = |now: String, last: String| if level < max { tf!("{now}, up to {last}", now, last) } else { now };
-            if let Some(size) = a.attr("petSize") {
-                out.push(Line::stat(&format!("    {}", tr("Size")), pet_size_name(size), VALUE));
+            if let Some(size) = size {
+                out.push(Line::stat(&format!("    {}", tr("Size")), pet_size_name(size), if grown > 0 { color::GOOD } else { VALUE }));
             }
+            let grown = if level > 1 { color::GOOD } else { VALUE };
             if max > 1 {
                 let text = if level < max { tf!("{level} of {max}", level, max) } else { tf!("{level}, its last", level) };
                 out.push(Line::stat(&format!("    {}", tr("Level")), &text, grown));
@@ -3184,7 +3192,7 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
                 let text = match dps.parse::<i32>() {
                     Ok(d) => {
                         // what it really does (every pet 90% of its level's)
-                        let (now, last) = (crate::petlevels::effective_dps(d, level, max), crate::petlevels::effective_dps(d, max, max));
+                        let (now, last) = (crate::petlevels::effective_dps(d, level, max, base_max), crate::petlevels::effective_dps(d, max, max, base_max));
                         up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }
                     Err(_) => tf!("{dps} per second", dps),
@@ -3194,7 +3202,7 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
                 let Some(amount) = a.attr(key).and_then(|v| v.parse::<i32>().ok()).filter(|&v| v > 0) else { continue };
                 let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max));
+                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max, base_max));
                 let text = tf!("{amount} {what} every {secs}s", amount = heal(level), what, secs);
                 out.push(Line::stat(&format!("    {verb}"), &up_to(text, heal(max).to_string()), grown));
             }

@@ -1503,7 +1503,7 @@
 		<Description>The Iron Warden, Bastion and all, cut down to a size that fits at your heel. It still holds the line.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Ferrogrim" cooldown="10" petDps="988" petSize="Oryx" petEffects="Hammer waves and Hammerfall break armor; Hammerfall strikes all enemies within 2.5 tiles of its target; Iron Tempest: a spiral of hammer waves every 10s; Makes you Armored for 2s every 10s" petHp="58" petHpMs="2000" petMp="32" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lil' Ferrogrim" cooldown="10" petDps="988" petSize="Huge" petEffects="Hammer waves and Hammerfall break armor; Hammerfall strikes all enemies within 2.5 tiles of its target; Iron Tempest: a spiral of hammer waves every 10s; Makes you Armored for 2s every 10s" petHp="58" petHpMs="2000" petMp="32" petMpMs="2000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0xC674" id="Lil' Nerissa">
@@ -1569,7 +1569,7 @@
 		<Description>The Tidecaller, with a sea of her own in a shell. The tide still answers to her.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Nerissa" cooldown="10" petDps="1104" petSize="Oryx" petEffects="Tide orbs, bubbles and her waves slow; Her waves strike all enemies within 3 tiles of its target; Maelstrom: a whirl of bubbles every 10s; Heals you over 2s every 8s" petHp="48" petHpMs="2000" petMp="21" petMpMs="2000">PermaPet</Activate>
+		<Activate objectId="Lil' Nerissa" cooldown="10" petDps="1104" petSize="Huge" petEffects="Tide orbs, bubbles and her waves slow; Her waves strike all enemies within 3 tiles of its target; Maelstrom: a whirl of bubbles every 10s; Heals you over 2s every 8s" petHp="48" petHpMs="2000" petMp="21" petMpMs="2000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0xC676" id="Lil' Pyrrhax">
@@ -1632,7 +1632,7 @@
 		<Description>The Forge Tyrant, still hot from the furnace. It burns whatever stands between you and the loot.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Pyrrhax" cooldown="10" petDps="1196" petSize="Oryx" petEffects="Meteors strike all enemies within 2.2 tiles of its target; Molten Core: a spiral of magma every 10s; Makes you Berserk for 2s every 10s" petHp="43" petHpMs="1500" petMp="45" petMpMs="3000">PermaPet</Activate>
+		<Activate objectId="Lil' Pyrrhax" cooldown="10" petDps="1196" petSize="Huge" petEffects="Meteors strike all enemies within 2.2 tiles of its target; Molten Core: a spiral of magma every 10s; Makes you Berserk for 2s every 10s" petHp="43" petHpMs="1500" petMp="45" petMpMs="3000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0xC678" id="Lil' Chronarch">
@@ -1695,7 +1695,7 @@
 		<Description>The Hour Thief, small enough for a pocket watch. It steals a little time for you now and then.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Chronarch" cooldown="10" petDps="1301" petSize="Oryx" petEffects="Chrono orbs and the chime slow; The chime strikes all enemies within 2.5 tiles of its target; Reversal: a spiral of gears every 10s; Makes you Speedy for 2s every 8s" petHp="44" petHpMs="1500" petMp="49" petMpMs="4000">PermaPet</Activate>
+		<Activate objectId="Lil' Chronarch" cooldown="10" petDps="1301" petSize="Huge" petEffects="Chrono orbs and the chime slow; The chime strikes all enemies within 2.5 tiles of its target; Reversal: a spiral of gears every 10s; Makes you Speedy for 2s every 8s" petHp="44" petHpMs="1500" petMp="49" petMpMs="4000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 	<Object type="0xC67A" id="Lil' Vaelith">
@@ -1762,7 +1762,7 @@
 		<Description>The Crucible Sovereign. He built a tower to find the worthy, and it seems he found you.</Description>
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
-		<Activate objectId="Lil' Vaelith" cooldown="10" petDps="1817" petSize="Oryx" petEffects="Void embers break armor for 2s; Gold strikes all enemies within 2.5 tiles of its target; Unbound: fans of void embers every 10s; Makes you Damaging for 2s every 10s" petHp="55" petHpMs="2000" petMp="46" petMpMs="3000">PermaPet</Activate>
+		<Activate objectId="Lil' Vaelith" cooldown="10" petDps="1817" petSize="Huge" petEffects="Void embers break armor for 2s; Gold strikes all enemies within 2.5 tiles of its target; Unbound: fans of void embers every 10s; Makes you Damaging for 2s every 10s" petHp="55" petHpMs="2000" petMp="46" petMpMs="3000">PermaPet</Activate>
 		<InvUse />
 	</Object>
 </Objects>

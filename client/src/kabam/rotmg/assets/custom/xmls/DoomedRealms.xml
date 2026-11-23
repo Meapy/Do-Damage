@@ -6915,7 +6915,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="1001" petSize="Oryx" petHp="46" petHpMs="1500" petMp="49" petMpMs="3000">PermaPet</Activate>
+		<Activate objectId="Lil' Oryx (Doomed)" cooldown="10" petDps="1001" petSize="Huge" petHp="46" petHpMs="1500" petMp="49" petMpMs="3000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>
@@ -22514,7 +22514,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Ascended Oryx" cooldown="10" petDps="3000" petSize="Oryx" petHp="37" petHpMs="2500" petMp="34" petMpMs="4000">PermaPet</Activate>
+		<Activate objectId="Lil' Ascended Oryx" cooldown="10" petDps="3000" petSize="Huge" petHp="37" petHpMs="2500" petMp="34" petMpMs="4000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>
@@ -22535,7 +22535,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Celestial Oryx" cooldown="10" petDps="2000" petSize="Oryx" petHp="33" petHpMs="1500" petMp="22" petMpMs="2500">PermaPet</Activate>
+		<Activate objectId="Lil' Celestial Oryx" cooldown="10" petDps="2000" petSize="Huge" petHp="33" petHpMs="1500" petMp="22" petMpMs="2500">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>
@@ -22556,7 +22556,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Infernal Oryx" cooldown="10" petDps="2501" petSize="Oryx" petHp="47" petHpMs="2000" petMp="47" petMpMs="4000">PermaPet</Activate>
+		<Activate objectId="Lil' Infernal Oryx" cooldown="10" petDps="2501" petSize="Huge" petHp="47" petHpMs="2000" petMp="47" petMpMs="4000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>
@@ -22577,7 +22577,7 @@
 		<BagType>6</BagType>
 		<Sound>spell/light_heal</Sound>
 		<Consumable />
-		<Activate objectId="Lil' Wine Cellar Oryx" cooldown="10" petDps="1503" petSize="Oryx" petHp="74" petHpMs="3000" petMp="51" petMpMs="4000">PermaPet</Activate>
+		<Activate objectId="Lil' Wine Cellar Oryx" cooldown="10" petDps="1503" petSize="Huge" petHp="74" petHpMs="3000" petMp="51" petMpMs="4000">PermaPet</Activate>
 		<OldSound>use_potion</OldSound>
 		<Shop>
 			<Name>donor</Name>

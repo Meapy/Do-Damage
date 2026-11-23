@@ -26,6 +26,11 @@ namespace Shared.database.character.inventory
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PetXp { get; set; }
 
+        // a pet stone given back: the sizes its pet was grown past the stone's
+        // (PetLevels.GrownSize); left out when none
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? PetGrown { get; set; }
+
         // a pet stone given back before levels (2.6.4): the sizes the Pen Keeper raised its pet by,
         // turned into food when it's used (PetLevels.MigratedXp)
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

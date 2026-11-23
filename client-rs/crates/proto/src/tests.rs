@@ -315,6 +315,12 @@ fn collection_and_pet_pen_match_their_handlers() {
     assert_eq!((l.level, l.max_level, l.xp, l.xp_level, l.xp_next, l.dps, l.dps_max), (3, 15, 130, 115, 270, 90, 180));
     assert_eq!((l.hp, l.hp_max, l.hp_ms, l.mp, l.mp_max, l.mp_ms), (12, 19, 2000, 5, 8, 3000));
     assert_eq!((l.pen_size, l.pen_fame, l.pen_gold), (2, 5000, 350));
+    assert!(p.grow.is_none());
+    // from 2.6.5 growing the pet follows: its size as grown, the fame and the gold
+    let body = [body, B::default().u8(1).i32(3000).i32(200).0].concat();
+    let ServerMessage::PetPen(p) = ServerMessage::decode(139, &body).unwrap() else { panic!() };
+    let g = p.grow.unwrap();
+    assert_eq!((g.pet_size, g.fame, g.gold), (1, 3000, 200));
     assert_eq!(ClientMessage::from(PetPenAct { action: 2, slot: 5 }).to_frame(), B::default().u8(2).u8(5).frame(138));
     // NexusPlacesMessage.Write: a short count of places (name, kind, x, y, icon).
     let body = B::default().i16(1).utf("Divine Forge").u8(0).f32(164.5).f32(94.5).i16(0x497a).0;

@@ -13,7 +13,7 @@ both together.
 Damage a second is what it does to one boss-sized enemy: shots within 8 degrees of where a volley
 aims all hit, a ring hits with one, a turning ring or spiral with its share of a full turn (23
 degrees, a boss at 5 tiles), each counted for the share of the time its phase lasts; a nova hits
-for its average. Every one is "Oryx" sized, as the Lil' Oryxes are: no Mystery Pet Stone gives
+for its average. Every one is "Huge" sized, as the Lil' Oryxes are: no Mystery Pet Stone gives
 one, and it grows to level 30 as it's fed (Shared.pets.PetLevels).
 """
 import xml.etree.ElementTree as ET
@@ -84,10 +84,10 @@ def pet_objects(type_of, name, spec, chars_file, row, alt_rows, icon_file, icon_
     _sub(gen, "Description", spec["description"])
     _sub(gen, "BagType", 6)
     _sub(gen, "Sound", "spell/light_heal")
-    attrs = {"objectId": name, "cooldown": 10, "petDps": spec["dps"], "petSize": "Oryx"}
+    attrs = {"objectId": name, "cooldown": 10, "petDps": spec["dps"], "petSize": "Huge"}
     if spec.get("effects"):
         attrs["petEffects"] = "; ".join(spec["effects"])
-    hp, hp_ms, mp, mp_ms = healing(name, "Oryx", spec["dps"])
+    hp, hp_ms, mp, mp_ms = healing(name, "Huge", spec["dps"])
     attrs.update(petHp=hp, petHpMs=hp_ms, petMp=mp, petMpMs=mp_ms)
     _sub(gen, "Activate", "PermaPet", **attrs)
     _sub(gen, "InvUse")
