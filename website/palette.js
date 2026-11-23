@@ -7,7 +7,17 @@
   var me = document.currentScript;
   var base = me && me.src ? me.src.replace(/[^\/]*$/, "") : "";
   // the index's address, with its own ?v= (the page gives it); the wiki's own search uses it too
-  var indexUrl = (me && me.getAttribute("data-index")) || base + "wiki/search-index.js";
+  function safeIndexUrl(raw, fallback) {
+    if (!raw) return fallback;
+    try {
+      var u = new URL(raw, document.baseURI);
+      if ((u.protocol === "http:" || u.protocol === "https:") && u.origin === window.location.origin) {
+        return u.href;
+      }
+    } catch (e) {}
+    return fallback;
+  }
+  var indexUrl = safeIndexUrl(me && me.getAttribute("data-index"), base + "wiki/search-index.js");
   var dialog, input, list, index = null, picked = -1, waiting = [], loading = false;
 
   // window.ddWikiIndex(callback): loads the search index once, the first time anyone searches

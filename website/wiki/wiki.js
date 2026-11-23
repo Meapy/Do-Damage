@@ -34,9 +34,9 @@
     document.head.appendChild(s);
   }
   // the index's links are from the wiki's root; pages in gear/ and classes/ are one folder down
-  // (only ever "" or "../" steps: anything else in the attribute is not used as a link)
-  var root = document.body.getAttribute("data-wiki") || "";
-  if (!/^(\.\.\/)*$/.test(root)) root = "";
+  // derive only the needed prefix from location instead of reading it from DOM text
+  var path = (window.location && window.location.pathname) || "";
+  var root = /\/wiki\/(?:gear|classes)\//.test(path) ? "../" : "";
 
   function words(q) {
     return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });
