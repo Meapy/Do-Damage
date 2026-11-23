@@ -1,4 +1,4 @@
-Release 2.6.5: a last stand for every Crucible champion, calmer Crucible floors, tide hits that count and Vaelith kept off the sky, a Crucible Leaderboard and Hall of Champions boards, climbs of up to four joined only at the start; pets grown to the next size at the Pen Keeper (only Huge pets, once Oryx-sized, past 100%); dodmg.com redone in 3D (a flight through Oryx's six stages), Ctrl+K search and a phone menu on every page, and a wiki that's easier to get around; deploys the world server, the account server, the client and the website (nobody is disconnected; growing a pet needs both client and server)
+Release 2.6.5: Crucible last stands and leaderboard, pet growth, and a redesigned website. Deploys the world and account servers, client, and website; nobody is disconnected. Pet growth requires the client and server together.
 
 ## For players
 

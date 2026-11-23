@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.5 (2026-11-23)
 
 ### The Crucible
 - **Calmer floors, as hard as before:** a floor that changes shape now cracks everywhere it will fall at once, and the floors that keep turning move in a step every few seconds and hold still in between, instead of crumbling at the edges all the time. The blades, tides, lava veins and clock hands move slower but are wider, so they're easier to follow.
@@ -26,7 +26,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **Turrets hit twice as hard and every shot pierces:** the shots and the blast at the end of every turret do double, and the shots of the lower tiers now go through enemies like the higher ones' do.
 
 ### Game
-- ** Updated Armored protection** the Armored effect now adds half their defense on players.
+- **Armored protection:** players get half their defense added instead of having it doubled; mobs and bosses are unchanged.
 
 ### Pets
 - **Grow your pet:** once your pet reaches its last level, the Pen Keeper can grow it to the next size, for fame or gold (Tiny to Small 1,000 fame or 100 gold, up to Large to Huge for 25,000 or 1,000). It keeps its level, looks bigger and can be fed on to its new size's last level. The biggest size, once called Oryx, is now **Huge**.
