@@ -30,6 +30,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Pets
 - **Pet food from the Realm Pass:** Pet Biscuits, Hearty Pet Stews and Royal Pet Feasts feed your pet at the Pen Keeper without costing any fame. A **Growth Tonic** grows a Tiny, Small or Medium pet at its last level to the next size for free.
 
+### Website
+- **dodmg.com is redesigned:** a calmer, darker look in large serif type, with Oryx the Mad God standing in 3D at the top of the home page, built from his sprite in the game and firing his rings and spirals across the floor (click to make him fire). The screenshots, the six Oryx stages, the features and the downloads are laid out anew, and the wiki, gold store and changelog share the new look.
+
 ## 2.6.5 (2026-11-23)
 
 ### The Crucible

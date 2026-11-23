@@ -1,6 +1,7 @@
 // The site's live parts: the server status from the account server's app/status (through the
 // gateway's /api), the visitor's own download first, a warning when the browser can't run the
-// game, and the pixel sprites. The 3D night is scene.js.
+// game, the pixel sprites, the screenshots' lightbox, and on the home page the top bar and things
+// rising into view as you scroll. The hero's Oryx is scene.js.
 (function () {
   "use strict";
 
@@ -357,7 +358,7 @@
 
   // --- Patch notes on the home page --------------------------------------------------------
   // A long release folds to its first lines under a fade, with a button to open it all.
-  var notes = document.querySelectorAll(".notes .release");
+  var notes = document.querySelectorAll(".home .notes .release");
   for (var n = 0; n < notes.length; n++) {
     var rel = notes[n];
     if (rel.scrollHeight < 520) continue;
@@ -485,6 +486,29 @@
   }
 
   gallery(Array.prototype.slice.call(document.querySelectorAll(".gallery .shot")));
+
+  // --- The home page: the top bar darkens once the hero is behind it, and things rise into view --
+  if (document.body.classList.contains("home") && bar) {
+    var onScroll = function () { bar.classList.toggle("scrolled", scrollY > 40); };
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+  if ("IntersectionObserver" in window && document.body.classList.contains("home")) {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); seen.unobserve(en.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    var groups = document.querySelectorAll(".sec-body > h2, .lede, .gallery, .path, .feats, .ways, .keys, .notes, .faq");
+    Array.prototype.forEach.call(groups, function (g) {
+      var kids = /^(UL|OL|DL|DIV)$/.test(g.tagName) ? g.children : [g];
+      Array.prototype.forEach.call(kids, function (el, i) {
+        el.classList.add("reveal");
+        el.style.setProperty("--i", Math.min(i, 6));
+        seen.observe(el);
+      });
+    });
+  }
 
   // For tests: window.bskSite.parseServers(xml)
   window.bskSite = { parseServers: parseServers, showStatus: showStatus, showStats: showStats };

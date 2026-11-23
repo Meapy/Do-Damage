@@ -1,520 +1,338 @@
-// The site's 3D backdrop, drawn with Three.js (vendor/three.min.js): a night over a castle town, and
-// below it Oryx's six stages as glowing portals, each with its boss built in cubes from the game's
-// own sprite (the cards' data-boss, tools/build_wiki.py). The camera follows the page: the home page flies
-// forward through the castle gate and from portal to portal as you read "Six stages down"; every
-// other page keeps a calm drifting sky. Nothing here is needed to read the site: without WebGL the
-// page keeps its plain dark background, and with reduced motion the scene is drawn still.
+// The home page's hero, drawn with Three.js (vendor/three.min.js): Oryx the Mad God built in cubes,
+// one per pixel of his sprite in the game (the hero's <i data-boss="<sheet> x y w h">, written by
+// tools/build_wiki.py), thicker towards the middle so he has a body when he turns. He floats over a
+// dark floor in a red glow and fires his patterns around himself: rings, spirals and double rings,
+// as in the fight. He follows the mouse, and a click on the hero makes him fire at once.
+// Nothing here is needed to read the page: without WebGL the sprite itself stands in the hero, with
+// reduced motion one still frame is drawn, and nothing is drawn while the hero is off screen.
 (function () {
   "use strict";
   var T = window.THREE;
-  if (!T) return;
+  var stageEl = document.querySelector(".hero-stage");
+  var art = stageEl && stageEl.querySelector("[data-boss]");
+  if (!T || !stageEl || !art) return;
 
-  var calm = document.body.classList.contains("sub-page");
   var reduce = matchMedia("(prefers-reduced-motion: reduce)");
   var canvas = document.createElement("canvas");
-  canvas.id = "scene";
-  canvas.setAttribute("aria-hidden", "true");
   var renderer;
   try {
-    renderer = new T.WebGLRenderer({ canvas: canvas, antialias: false, powerPreference: "low-power" });
+    renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
   } catch (e) {
     return;
   }
-  document.body.insertBefore(canvas, document.body.firstChild);
+  stageEl.appendChild(canvas);
   document.documentElement.classList.add("has-scene");
 
-  var pr = Math.min(devicePixelRatio || 1, 1.5);
-  var quality = 1; // lowered when the frame rate is poor
-  renderer.setPixelRatio(pr);
+  var INK = 0x0b0a0a;
+  var pr = Math.min(devicePixelRatio || 1, 1.75);
+  var quality = 1; // lowered when frames are slow
+  renderer.setClearColor(INK, 1);
   var scene = new T.Scene();
-  scene.fog = new T.FogExp2(0x0a0614, 0.0062);
-  var camera = new T.PerspectiveCamera(58, 1, 0.5, 1800);
+  scene.fog = new T.Fog(INK, 85, 210);
+  var camera = new T.PerspectiveCamera(30, 1, 0.5, 400);
 
-  function rng(seed) {
-    return function () {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      return seed / 4294967296;
-    };
-  }
-  var rand = rng(20261122);
+  // --- Light: a warm key from the upper left, a red rim from behind, red from the floor ----------
+  scene.add(new T.HemisphereLight(0xd9d0c2, 0x1c0d0b, 0.5));
+  var key = new T.DirectionalLight(0xfff1dc, 1.6);
+  key.position.set(-1.2, 1.4, 1.6);
+  scene.add(key);
+  var rim = new T.DirectionalLight(0xff3b2b, 2.4);
+  rim.position.set(1.6, 0.5, -1.6);
+  scene.add(rim);
+  var pool = new T.PointLight(0xff3a26, 2.2, 46, 1.6);
+  scene.add(pool);
 
-  // --- Soft glowing points: stars, windows, embers, portal sparks --------------------------------
-  var uniforms = { uTime: { value: 0 }, uScale: { value: 600 } };
-  function pointsMaterial(fixed) {
-    return new T.ShaderMaterial({
-      uniforms: uniforms,
-      transparent: true, depthWrite: false, blending: T.AdditiveBlending,
-      vertexShader:
-        "attribute float aSize; attribute float aPhase; attribute float aSpeed; attribute vec3 aColor;" +
-        "uniform float uTime; uniform float uScale; varying vec3 vC; varying float vA;" +
-        "void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0);" +
-        "float tw = 0.65 + 0.35 * sin(uTime * aSpeed + aPhase);" +
-        "vA = tw; vC = aColor;" +
-        (fixed ? "gl_PointSize = aSize * uScale * 0.0025;"
-               : "gl_PointSize = clamp(aSize * uScale / -mv.z, 1.0, 40.0);") +
-        "gl_Position = projectionMatrix * mv; }",
-      fragmentShader:
-        "varying vec3 vC; varying float vA;" +
-        "void main(){ float d = length(gl_PointCoord - 0.5);" +
-        "float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vC * a * vA, a * vA); }"
-    });
-  }
-  function points(n, fill, fixed) {
-    var pos = new Float32Array(n * 3), size = new Float32Array(n), phase = new Float32Array(n),
-      speed = new Float32Array(n), col = new Float32Array(n * 3), c = new T.Color();
-    for (var i = 0; i < n; i++) {
-      var o = fill(i);
-      pos[i * 3] = o.x; pos[i * 3 + 1] = o.y; pos[i * 3 + 2] = o.z;
-      size[i] = o.s; phase[i] = rand() * 6.28; speed[i] = o.sp || 0.6 + rand() * 2;
-      c.set(o.c);
-      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-    }
-    var g = new T.BufferGeometry();
-    g.setAttribute("position", new T.BufferAttribute(pos, 3));
-    g.setAttribute("aSize", new T.BufferAttribute(size, 1));
-    g.setAttribute("aPhase", new T.BufferAttribute(phase, 1));
-    g.setAttribute("aSpeed", new T.BufferAttribute(speed, 1));
-    g.setAttribute("aColor", new T.BufferAttribute(col, 3));
-    var p = new T.Points(g, pointsMaterial(fixed));
-    p.frustumCulled = false;
-    return p;
-  }
+  // --- The floor: dark stone, a grid of faint points, and a soft shadow under him ---------------
+  var floor = new T.Mesh(new T.PlaneGeometry(400, 400), new T.MeshStandardMaterial({ color: 0x110f0e, roughness: 0.92, metalness: 0 }));
+  floor.rotation.x = -Math.PI / 2;
+  scene.add(floor);
 
-  // --- Sky: a gradient dome, the moon and the stars; all follow the camera ------------------------
-  var sky = new T.Group();
-  scene.add(sky);
-  var domeU = { top: { value: new T.Color(0x05030b) }, mid: { value: new T.Color(0x1a0f33) }, glow: { value: new T.Color(0x6a2446) } };
-  var dome = new T.Mesh(new T.SphereGeometry(1200, 24, 16), new T.ShaderMaterial({
-    side: T.BackSide, depthWrite: false, fog: false, uniforms: domeU,
-    vertexShader: "varying float vY; void main(){ vY = normalize(position).y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
-    fragmentShader: "uniform vec3 top; uniform vec3 mid; uniform vec3 glow; varying float vY;" +
-      "void main(){ float h = clamp(vY, -0.2, 1.0);" +
-      "vec3 c = mix(glow, mid, smoothstep(0.0, 0.28, h)); c = mix(c, top, smoothstep(0.2, 0.85, h));" +
-      "c = mix(c * 0.35, c, smoothstep(-0.2, 0.0, h)); gl_FragColor = vec4(c, 1.0); }"
-  }));
-  sky.add(dome);
-
-  sky.add(points(calm ? 1400 : 2600, function () {
-    var u = rand() * 2 - 1, a = rand() * 6.283, r = Math.sqrt(1 - u * u), d = 900;
-    var y = Math.abs(u) * 0.95 + 0.05; // stars sit above the horizon
-    var cc = rand();
-    return { x: Math.cos(a) * r * d, y: y * d, z: Math.sin(a) * r * d, s: rand() < 0.06 ? 3.4 : 1.1 + rand() * 1.2,
-      c: cc < 0.15 ? 0xffd99a : cc < 0.3 ? 0xc6b4ff : 0xffffff };
-  }, true));
-
-  function glowTexture(inner, outer) {
+  function radial(stops) {
     var c = document.createElement("canvas");
     c.width = c.height = 128;
-    var g = c.getContext("2d"), grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    grad.addColorStop(0, inner);
-    grad.addColorStop(1, outer);
-    g.fillStyle = grad;
+    var g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    stops.forEach(function (s) { gr.addColorStop(s[0], s[1]); });
+    g.fillStyle = gr;
     g.fillRect(0, 0, 128, 128);
     return new T.CanvasTexture(c);
   }
-  var moon = new T.Mesh(new T.SphereGeometry(34, 32, 24), new T.MeshBasicMaterial({ color: 0xfbeed2, fog: false }));
-  moon.position.set(300, 280, -820);
-  sky.add(moon);
-  var halo = new T.Sprite(new T.SpriteMaterial({ map: glowTexture("rgba(255,226,170,.55)", "rgba(255,226,170,0)"),
-    blending: T.AdditiveBlending, depthWrite: false, fog: false }));
-  halo.scale.set(360, 360, 1);
-  halo.position.copy(moon.position);
-  sky.add(halo);
+  var shadow = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({
+    map: radial([[0, "rgba(0,0,0,.85)"], [0.6, "rgba(0,0,0,.35)"], [1, "rgba(0,0,0,0)"]]), transparent: true, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.02;
+  scene.add(shadow);
 
-  // --- The town and the castle ------------------------------------------------------------------
-  var ground = new T.Mesh(new T.PlaneGeometry(2400, 2400), new T.MeshBasicMaterial({ color: 0x0a0713 }));
-  ground.rotation.x = -Math.PI / 2;
-  scene.add(ground);
+  var dotsG = new T.BufferGeometry(), dots = [];
+  for (var gx = -60; gx <= 60; gx += 3) for (var gz = -60; gz <= 30; gz += 3) dots.push(gx, 0.03, gz);
+  dotsG.setAttribute("position", new T.Float32BufferAttribute(dots, 3));
+  var grid = new T.Points(dotsG, new T.PointsMaterial({ color: 0x4a403b, size: 0.16, sizeAttenuation: true, transparent: true, opacity: 0.8 }));
+  scene.add(grid);
 
-  var HOME = !calm;
-  var boxes = [], roofs = [], lights = [];
-  function building(x, z, w, h, d, roof) {
-    boxes.push({ x: x, y: h / 2, z: z, w: w, h: h, d: d });
-    if (roof) roofs.push({ x: x, y: h + roof / 2, z: z, r: Math.min(w, d) * 0.78, h: roof });
-    var rows = Math.floor(h / 3.2), cols = Math.max(1, Math.floor(w / 2.6));
-    for (var ry = 1; ry < rows; ry++) {
-      for (var cx = 0; cx < cols; cx++) {
-        if (rand() < 0.2) {
-          lights.push({ x: x - w / 2 + (cx + 0.5) * (w / cols), y: ry * 3.2, z: z + d / 2 + 0.1,
-            s: 0.9, c: rand() < 0.2 ? 0xff9a4d : 0xffc65c, sp: rand() < 0.3 ? 5 + rand() * 4 : 0.3 });
-        }
-      }
+  // --- Oryx, from his sprite ---------------------------------------------------------------------
+  var oryx = new T.Group();
+  scene.add(oryx);
+  var body = new T.Group(); // turned by the mouse inside oryx, which is placed and bobs
+  oryx.add(body);
+  var SIZE = 20; // how tall he stands, in scene units
+  var m4 = new T.Matrix4();
+
+  function build(px, w, h) {
+    // keep the opaque pixels, and for each how far it is from the edge of the silhouette
+    var solid = [], depth = new Int16Array(w * h).fill(-1), queue = [];
+    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+      var o = (y * w + x) * 4;
+      solid[y * w + x] = px[o + 3] > 40;
     }
-  }
-  if (HOME) {
-    for (var x = -420; x < 420; x += 6 + rand() * 7) {
-      if (Math.abs(x) < 17) continue; // the road to the gate stays clear
-      for (var layer = 0; layer < 3; layer++) {
-        if (rand() < 0.35) continue;
-        var w = 5 + rand() * 7, h = 5 + Math.pow(rand(), 1.7) * (10 + layer * 9);
-        building(x + rand() * 4, -62 - layer * 34 - rand() * 12, w, h, 5 + rand() * 6, rand() < 0.35 ? 4 + rand() * 8 : 0);
-      }
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      if (!solid[y * w + x]) continue;
+      var edge = x === 0 || y === 0 || x === w - 1 || y === h - 1 ||
+        !solid[y * w + x - 1] || !solid[y * w + x + 1] || !solid[(y - 1) * w + x] || !solid[(y + 1) * w + x];
+      if (edge) { depth[y * w + x] = 0; queue.push(y * w + x); }
     }
-    // the castle: a wall with two keeps either side of the gate
-    [-1, 1].forEach(function (side) {
-      building(side * 17, -120, 10, 40, 10, 18);
-      building(side * 32, -120, 20, 17, 6, 0);
-      building(side * 52, -120, 20, 17, 6, 0);
-      building(side * 70, -120, 10, 30, 10, 14);
-      for (var k = 0; k < 8; k++) boxes.push({ x: side * (24 + k * 5.2), y: 18.2, z: -120, w: 2.2, h: 2.4, d: 6 });
-      for (var wy = 10; wy < 38; wy += 8) {
-        lights.push({ x: side * 17, y: wy, z: -114.9, s: 1.4, c: 0xff9a4d, sp: 4 });
-      }
-    });
-    boxes.push({ x: 0, y: 27, z: -120, w: 24, h: 3, d: 8 }); // the lintel over the gate
-  } else {
-    for (var cx2 = -300; cx2 < 300; cx2 += 8 + rand() * 9) {
-      if (Math.abs(cx2) < 30) continue;
-      building(cx2, -90 - rand() * 90, 6 + rand() * 8, 8 + Math.pow(rand(), 1.8) * 40, 6 + rand() * 6, rand() < 0.3 ? 5 + rand() * 8 : 0);
-    }
-  }
-
-  var shade = new T.Color();
-  var mesh = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffffff }), boxes.length);
-  var m4 = new T.Matrix4(), q = new T.Quaternion(), v3 = new T.Vector3(), s3 = new T.Vector3();
-  boxes.forEach(function (b, i) {
-    m4.compose(v3.set(b.x, b.y, b.z), q, s3.set(b.w, b.h, b.d));
-    mesh.setMatrixAt(i, m4);
-    var k = 0.05 + rand() * 0.07;
-    mesh.setColorAt(i, shade.setRGB(k * 0.8, k * 0.55, k * 1.5));
-  });
-  scene.add(mesh);
-  if (roofs.length) {
-    var rm = new T.InstancedMesh(new T.ConeGeometry(1, 1, 4), new T.MeshBasicMaterial({ color: 0xffffff }), roofs.length);
-    var qy = new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 1, 0), Math.PI / 4);
-    roofs.forEach(function (r, i) {
-      m4.compose(v3.set(r.x, r.y, r.z), qy, s3.set(r.r, r.h, r.r));
-      rm.setMatrixAt(i, m4);
-      rm.setColorAt(i, shade.setRGB(0.06, 0.03, 0.1));
-    });
-    scene.add(rm);
-  }
-  scene.add(points(lights.length, function (i) {
-    var l = lights[i];
-    return { x: l.x, y: l.y, z: l.z, s: l.s, c: l.c, sp: l.sp };
-  }));
-
-  // --- Embers drifting up ------------------------------------------------------------------------
-  var EMBERS = calm ? 90 : 260, emberData = [];
-  var embers = points(EMBERS, function (i) {
-    emberData.push({ x: (rand() - 0.5) * 90, y: rand() * 40, z: (rand() - 0.5) * 120, v: 0.8 + rand() * 2.2, sw: rand() * 6.28 });
-    return { x: 0, y: 0, z: 0, s: 0.34 + rand() * 0.3, c: rand() < 0.5 ? 0xffb066 : 0xff5a2a, sp: 1 + rand() * 3 };
-  });
-  scene.add(embers);
-  var emberPos = embers.geometry.attributes.position;
-
-  // --- The six stages: a portal each, violet turning to blood -------------------------------------
-  var STAGES = 6, PALETTE = [0x8b5cf6, 0x9a55e6, 0xc2559f, 0xff6a5a, 0xff7a3d, 0xff3d5a];
-  var ringZ = function (i) { return -170 - i * 56; };
-  var rings = [];
-
-  // Each stage's boss, as the game draws it, built out of cubes: the home page's cards carry the
-  // sprites (<i data-boss="<sheet> x y w h">, from tools/build_wiki.py), and their pixels become one
-  // cube each, a little deep, lit from the moon's side so the faces read as 3D.
-  scene.add(new T.AmbientLight(0xc8b8ff, 0.75));
-  var sun = new T.DirectionalLight(0xffe2b0, 0.9);
-  sun.position.set(0.6, 0.8, 1);
-  scene.add(sun);
-  var sheets = {};
-  function sheet(url, done) {
-    var s = sheets[url];
-    if (!s) {
-      s = sheets[url] = { img: new Image(), ready: false, waiting: [] };
-      s.img.onload = function () { s.ready = true; s.waiting.forEach(function (f) { f(s.img); }); s.waiting = []; };
-      s.img.src = url;
-    }
-    if (s.ready) done(s.img); else s.waiting.push(done);
-  }
-  function bossVoxels(card, fit, done) {
-    var parts = card ? Array.prototype.map.call(card.querySelectorAll("[data-boss]"), function (el) {
-      var p = el.getAttribute("data-boss").split(" ");
-      return { url: p[0], x: +p[1], y: +p[2], w: +p[3], h: +p[4] };
-    }) : [];
-    if (!parts.length) return;
-    var left = parts.length;
-    parts.forEach(function (p) {
-      sheet(p.url, function (img) {
-        var cv = document.createElement("canvas");
-        cv.width = p.w; cv.height = p.h;
-        var cx = cv.getContext("2d");
-        cx.drawImage(img, p.x, p.y, p.w, p.h, 0, 0, p.w, p.h);
-        try { p.px = cx.getImageData(0, 0, p.w, p.h).data; } catch (e) { p.px = null; }
-        if (--left === 0) build();
+    for (var q = 0; q < queue.length; q++) {
+      var i = queue[q], cx = i % w, cy = (i - cx) / w;
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+        var nx = cx + d[0], ny = cy + d[1];
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h) return;
+        var n = ny * w + nx;
+        if (solid[n] && depth[n] < 0) { depth[n] = depth[i] + 1; queue.push(n); }
       });
-    });
-    function build() {
-      // the parts side by side, one pixel apart, standing on the same line
-      var cells = [], ox = 0, H = 0;
-      parts.forEach(function (p) { H = Math.max(H, p.h); });
-      parts.forEach(function (p) {
-        if (p.px) {
-          for (var y = 0; y < p.h; y++) for (var x = 0; x < p.w; x++) {
-            var o = (y * p.w + x) * 4;
-            if (p.px[o + 3] > 40) cells.push({ x: ox + x, y: H - p.h + y, r: p.px[o], g: p.px[o + 1], b: p.px[o + 2] });
-          }
-        }
-        ox += p.w + 1;
-      });
-      if (!cells.length) return;
-      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-      cells.forEach(function (c) { x0 = Math.min(x0, c.x); x1 = Math.max(x1, c.x); y0 = Math.min(y0, c.y); y1 = Math.max(y1, c.y); });
-      var w = x1 - x0 + 1, h = y1 - y0 + 1, unit = fit / Math.max(w, h);
-      var im = new T.InstancedMesh(new T.BoxGeometry(unit * 0.97, unit * 0.97, unit * 2.2),
-        new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x140a18 }), cells.length);
-      var col = new T.Color();
-      cells.forEach(function (c, i) {
-        m4.makeTranslation((c.x - x0 - w / 2 + 0.5) * unit, (h / 2 - (c.y - y0) - 0.5) * unit, 0);
-        im.setMatrixAt(i, m4);
-        // the sheets' near-black outlines lifted a little, so a dark Oryx still reads against the night
-        im.setColorAt(i, col.setRGB(Math.max(c.r, 26) / 255, Math.max(c.g, 20) / 255, Math.max(c.b, 34) / 255));
-      });
-      var g = new T.Group();
-      g.add(im);
-      done(g);
     }
+    var cells = [], x0 = w, x1 = 0, y0 = h, y1 = 0;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      if (!solid[y * w + x]) continue;
+      var k = (y * w + x) * 4;
+      cells.push({ x: x, y: y, d: depth[y * w + x], r: px[k], g: px[k + 1], b: px[k + 2] });
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    if (!cells.length) return;
+    var cw = x1 - x0 + 1, ch = y1 - y0 + 1, unit = SIZE / ch;
+    var mesh = new T.InstancedMesh(new T.BoxGeometry(unit * 0.94, unit * 0.94, unit),
+      new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55, metalness: 0.12 }), cells.length);
+    var col = new T.Color(), s3 = new T.Vector3(), p3 = new T.Vector3(), q4 = new T.Quaternion();
+    cells.forEach(function (c, n) {
+      var thick = 1.2 + Math.min(c.d, 5) * 0.85; // a rounded body: thin at the outline, deep in the middle
+      m4.compose(p3.set((c.x - x0 - cw / 2 + 0.5) * unit, (ch - (c.y - y0) - 0.5) * unit, 0), q4, s3.set(1, 1, thick));
+      mesh.setMatrixAt(n, m4);
+      // the sheets' near-black outline lifted a little, so his edge still reads against the night
+      col.setRGB(Math.max(c.r, 30) / 255, Math.max(c.g, 24) / 255, Math.max(c.b, 24) / 255);
+      mesh.setColorAt(n, col);
+    });
+    body.add(mesh);
+    ready = true;
+    if (still) draw();
   }
-  // a soft light behind each boss, in its portal's colour
-  var haloTex = (function () {
-    var cv = document.createElement("canvas");
-    cv.width = cv.height = 128;
-    var cx = cv.getContext("2d"), gr = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    gr.addColorStop(0, "rgba(255,255,255,1)");
-    gr.addColorStop(0.45, "rgba(255,255,255,.35)");
-    gr.addColorStop(1, "rgba(255,255,255,0)");
-    cx.fillStyle = gr;
-    cx.fillRect(0, 0, 128, 128);
-    return new T.CanvasTexture(cv);
+
+  var ready = false;
+  (function load() {
+    var p = art.getAttribute("data-boss").split(" ");
+    var img = new Image();
+    img.onload = function () {
+      var w = +p[3], h = +p[4], c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      var g = c.getContext("2d");
+      g.drawImage(img, +p[1], +p[2], w, h, 0, 0, w, h);
+      try { build(g.getImageData(0, 0, w, h).data, w, h); } catch (e) { /* a tainted sheet: no Oryx */ }
+    };
+    img.src = p[0];
   })();
-  var cards = Array.prototype.slice.call(document.querySelectorAll("#descent .stop-card"));
 
-  if (HOME) {
-    for (var i = 0; i < STAGES; i++) {
-      var R = i === STAGES - 1 ? 16 : 11, col = PALETTE[i];
-      var g = new T.Group();
-      g.position.set(0, R + 1, ringZ(i));
-      var outer = new T.Mesh(new T.TorusGeometry(R, 0.42, 8, 72), new T.MeshBasicMaterial({ color: col, transparent: true, fog: true }));
-      var inner = new T.Mesh(new T.TorusGeometry(R * 0.8, 0.14, 6, 64), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, fog: true }));
-      var disc = new T.Mesh(new T.CircleGeometry(R * 0.96, 48), new T.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.07, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide }));
-      g.add(outer, inner, disc);
-      var sparkCol = new T.Color(col).lerp(new T.Color(0xffffff), 0.35).getHex();
-      var sparks = points(110, function () {
-        var a = rand() * 6.283, rr = R * (0.9 + rand() * 0.25);
-        return { x: Math.cos(a) * rr, y: Math.sin(a) * rr, z: (rand() - 0.5) * 3, s: 0.45 + rand() * 0.4, c: sparkCol, sp: 1 + rand() * 3 };
-      });
-      g.add(sparks);
-      var halo = new T.Mesh(new T.PlaneGeometry(R * 1.6, R * 1.6), new T.MeshBasicMaterial({
-        map: haloTex, color: new T.Color(col).lerp(new T.Color(0xffffff), 0.25), transparent: true, opacity: 0.3,
-        depthWrite: false, blending: T.AdditiveBlending, fog: true }));
-      halo.position.z = -1.6;
-      g.add(halo);
-      scene.add(g);
-      var ring = { g: g, outer: outer, inner: inner, disc: disc, sparks: sparks, halo: halo, relic: null, glow: 0.3, R: R };
-      rings.push(ring);
-      // the boss stands in the middle of the ring, inside its inner circle
-      bossVoxels(cards[i], R * 1.15, (function (rg) {
-        return function (boss) { rg.relic = boss; rg.g.add(boss); };
-      })(ring));
+  // --- His shots: a pool of glowing squares that fly out from him -------------------------------
+  var MAX = 1400;
+  var bPos = new Float32Array(MAX * 3), bCol = new Float32Array(MAX * 3), bSize = new Float32Array(MAX);
+  var shots = [];
+  for (var n = 0; n < MAX; n++) shots.push({ on: false, x: 0, y: 0, z: 0, vx: 0, vz: 0, t: 0 });
+  var bGeo = new T.BufferGeometry();
+  bGeo.setAttribute("position", new T.BufferAttribute(bPos, 3));
+  bGeo.setAttribute("aColor", new T.BufferAttribute(bCol, 3));
+  bGeo.setAttribute("aSize", new T.BufferAttribute(bSize, 1));
+  var bUni = { uScale: { value: 600 } };
+  var bullets = new T.Points(bGeo, new T.ShaderMaterial({
+    uniforms: bUni, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    vertexShader:
+      "attribute vec3 aColor; attribute float aSize; uniform float uScale; varying vec3 vC; varying float vF;" +
+      "void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); vC = aColor;" +
+      "vF = clamp((210.0 + mv.z) / 90.0, 0.0, 1.0);" +
+      "gl_PointSize = aSize * uScale / -mv.z; gl_Position = projectionMatrix * mv; }",
+    fragmentShader:
+      "varying vec3 vC; varying float vF;" +
+      "void main(){ vec2 p = abs(gl_PointCoord - 0.5);" +
+      "float core = step(max(p.x, p.y), 0.13);" +             // a square shot, as the game draws them
+      "float glow = smoothstep(0.5, 0.0, length(gl_PointCoord - 0.5)) * 0.55;" +
+      "float a = (core + glow) * vF; gl_FragColor = vec4(mix(vC, vec3(1.0), core * 0.6) * a, a); }"
+  }));
+  bullets.frustumCulled = false;
+  scene.add(bullets);
+
+  var RED = [1, 0.27, 0.2], BONE = [0.96, 0.9, 0.82], GOLD = [1, 0.74, 0.4];
+  var free = 0;
+  function fire(angle, speed, y, c, size) {
+    for (var tries = 0; tries < MAX; tries++) {
+      var s = shots[free];
+      free = (free + 1) % MAX;
+      if (!s.on) {
+        s.on = true; s.t = 0;
+        s.x = oryx.position.x; s.y = y; s.z = oryx.position.z;
+        s.vx = Math.cos(angle) * speed; s.vz = Math.sin(angle) * speed;
+        s.c = c; s.s = size;
+        return;
+      }
     }
-    // a road of light from the gate down through the portals
-    var grid = new T.GridHelper(800, 130, 0x5b3cb0, 0x2a1a4a);
-    grid.position.set(0, 0.05, -545);
-    grid.material.transparent = true;
-    grid.material.opacity = 0.35;
-    scene.add(grid);
+  }
+  function ring(count, speed, y, c, offset, size) {
+    for (var i = 0; i < count; i++) fire(offset + i / count * Math.PI * 2, speed, y, c, size || 1);
   }
 
-  // --- State: where the camera is going --------------------------------------------------------------
+  // the patterns he cycles through, each a few seconds long
+  var pattern = 0, pTime = 0, pStep = 0, spin = 0;
+  var PATTERNS = [
+    { len: 2.6, every: 0.65, step: function (k, y) { ring(30, 10, y, k % 2 ? BONE : RED, k * 0.1); } },
+    { len: 2.4, every: 0.07, step: function (k, y) { spin += 0.21; for (var a = 0; a < 4; a++) fire(spin + a * Math.PI / 2, 12, y, a % 2 ? GOLD : RED, 0.9); } },
+    { len: 2.8, every: 0.9, step: function (k, y) { ring(22, 8, y, RED, 0); ring(22, 11, y - 0.3, BONE, Math.PI / 22, 0.8); } },
+    { len: 2.2, every: 0.11, step: function (k, y) { spin -= 0.37; fire(spin, 15, y, BONE, 1.1); fire(spin + Math.PI, 15, y, BONE, 1.1); fire(-spin * 0.7, 9, y - 0.3, RED, 0.8); } }
+  ];
+  function shoot(dt) {
+    var P = PATTERNS[pattern], y = 1.4;
+    pTime += dt;
+    while (pStep * P.every <= pTime && pTime < P.len) { P.step(pStep, y); pStep++; }
+    if (pTime > P.len + 0.6) { pattern = (pattern + 1) % PATTERNS.length; pTime = 0; pStep = 0; }
+  }
+
+  function moveShots(dt) {
+    for (var i = 0; i < MAX; i++) {
+      var s = shots[i];
+      if (s.on) {
+        s.t += dt;
+        s.x += s.vx * dt; s.z += s.vz * dt;
+        if (s.t > 7) s.on = false;
+      }
+      bPos[i * 3] = s.x; bPos[i * 3 + 1] = s.on ? s.y : -999; bPos[i * 3 + 2] = s.z;
+      if (s.on) {
+        var fade = Math.min(1, s.t * 6);
+        bCol[i * 3] = s.c[0] * fade; bCol[i * 3 + 1] = s.c[1] * fade; bCol[i * 3 + 2] = s.c[2] * fade;
+        bSize[i] = s.s * 2.6;
+      }
+    }
+    bGeo.attributes.position.needsUpdate = true;
+    bGeo.attributes.aColor.needsUpdate = true;
+    bGeo.attributes.aSize.needsUpdate = true;
+  }
+
+  // --- Dust in the air --------------------------------------------------------------------------
+  var DUST = 220, dPos = new Float32Array(DUST * 3), dust = [];
+  for (n = 0; n < DUST; n++) dust.push({ x: (Math.random() - 0.5) * 120, y: Math.random() * 40, z: (Math.random() - 0.7) * 90, v: 0.2 + Math.random() * 0.6 });
+  var dGeo = new T.BufferGeometry();
+  dGeo.setAttribute("position", new T.BufferAttribute(dPos, 3));
+  var motes = new T.Points(dGeo, new T.PointsMaterial({ color: 0x8a7d72, size: 0.12, transparent: true, opacity: 0.7, depthWrite: false }));
+  motes.frustumCulled = false;
+  scene.add(motes);
+
+  // --- Layout: beside the words on wide screens, above them on narrow ones -------------------------
+  var wide = true, look = new T.Vector3(), DIST = 90;
+  function place() {
+    var w = stageEl.clientWidth || innerWidth, h = stageEl.clientHeight || innerHeight, aspect = w / h;
+    wide = aspect > 1.05;
+    // wide: in the right half, clear of the words; narrow: in the middle, above them
+    var halfW = Math.tan(15 * Math.PI / 180) * DIST * aspect;
+    oryx.position.set(wide ? halfW * 0.5 : 0, 3.5, 0);
+    oryx.scale.setScalar(wide ? 1 : 0.66);
+    renderer.setPixelRatio(pr * quality);
+    renderer.setSize(w, h, false);
+    camera.aspect = aspect;
+    camera.fov = wide ? 30 : 34;
+    // narrow: the picture moves up, so he stands in the room left above the words
+    if (wide) camera.clearViewOffset(); else camera.setViewOffset(w, h, 0, Math.min(h * 0.3, h / 2 - 190), w, h);
+    camera.updateProjectionMatrix();
+    bUni.uScale.value = h * pr * quality * 0.9;
+    shadow.position.x = oryx.position.x;
+    shadow.scale.set(SIZE * 1.1, SIZE * 0.55, 1);
+    pool.position.set(oryx.position.x, 4, 4);
+  }
+
   var mouse = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener("pointermove", function (e) {
     mouse.x = e.clientX / innerWidth * 2 - 1;
     mouse.y = e.clientY / innerHeight * 2 - 1;
   }, { passive: true });
-
-  var descent = document.getElementById("descent");
-  var stops = descent ? Array.prototype.slice.call(descent.querySelectorAll(".stop")) : [];
-  var stage = -1;      // the stop being read, or -1 outside the section
-  var phase = "before"; // before, in, after
-  var camZ = 34, camX = 0, camY = 7, tz = 34, tx = 0, ty = 7;
-  var skyTints = [
-    [0x05030b, 0x1a0f33, 0x6a2446], [0x05030b, 0x1d1036, 0x5a2a6e], [0x07030d, 0x24103a, 0x7a2a6a],
-    [0x0a030a, 0x2a0f32, 0x8a2a4a], [0x0c0306, 0x330c26, 0x94301e], [0x0e0204, 0x3a0a18, 0xa81c2a]
-  ];
-  var fogCols = [0x0a0614, 0x0c0618, 0x10061a, 0x14061a, 0x170616, 0x1c0510];
-  var tint = 0; // 0..5, eased
-
-  function aim() {
-    var vh = innerHeight || 800, y = scrollY;
-    var wide = innerWidth > 900;
-    if (!HOME || !descent) {
-      tz = 34 - Math.min(y, 6000) * 0.012;
-      tx = 0; ty = 8;
-      phase = "before"; stage = -1;
-      return;
-    }
-    var r = descent.getBoundingClientRect();
-    if (r.top > vh * 0.55) {
-      phase = "before"; stage = -1;
-      var f = Math.min(1, y / (vh * 0.9));
-      tz = 34 - f * 18; ty = 7 + f * 4; tx = 0;
-      tint = tint; // set below
-    } else if (r.bottom < vh * 0.45) {
-      phase = "after"; stage = -1;
-      tz = ringZ(STAGES - 1) + 120; ty = 30; tx = 0;
-    } else {
-      phase = "in";
-      // the stage whose card is nearest the middle of the screen, so its portal is the one beside it
-      var seen = 0, best = 1e9;
-      for (var k = 0; k < stops.length; k++) {
-        var b = (cards[k] || stops[k]).getBoundingClientRect();
-        var off = Math.abs((b.top + b.bottom) / 2 - vh / 2);
-        if (off < best) { best = off; seen = k; }
-      }
-      stage = seen;
-      var R0 = rings[stage].R;
-      // wide: the portal whole in the right half of the screen, clear of the card on the left;
-      // narrow: above the card, which fills the bottom of the screen
-      tz = ringZ(stage) + R0 * (wide ? 4.3 : 3.6); ty = wide ? R0 + 1 : R0 * 0.25; tx = wide ? -R0 * 1.7 : 0;
-    }
-  }
-
-  function mark() {
-    stops.forEach(function (s, k) { s.classList.toggle("active", k === stage); });
-  }
-
-  function resize() {
-    var w = innerWidth || 1, h = innerHeight || 1;
-    renderer.setPixelRatio(pr * quality);
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.fov = w < 700 ? 70 : 58;
-    camera.updateProjectionMatrix();
-    uniforms.uScale.value = h * pr * quality * 0.55;
-  }
+  var hero = stageEl.parentNode;
+  hero.addEventListener("pointerdown", function (e) {
+    if (e.target.closest("a, button, input, .stats")) return;
+    var y = 1.4;
+    ring(40, 14, y, GOLD, Math.random(), 1.1);
+    ring(40, 10, y - 0.3, RED, Math.random(), 0.9);
+    if (still) { moveShots(0.4); draw(); }
+  });
 
   // --- The loop ------------------------------------------------------------------------------------
-  var last = 0, clock = 0, frames = 0, slow = 0, lastStage = -2;
-  var still = reduce.matches, running = false;
-  var cA = new T.Color(), cB = new T.Color();
+  var still = reduce.matches, running = false, visible = true, last = 0, clock = 0, frames = 0, slow = 0;
 
   function frame(t) {
-    var dt = Math.min(0.1, (t - (last || t)) / 1000);
+    var dt = Math.min(0.05, (t - (last || t)) / 1000);
     last = t;
     if (!still) clock += dt;
-    uniforms.uTime.value = clock;
-    aim();
-    if (stage !== lastStage) { lastStage = stage; mark(); }
+    var e = still ? 1 : 1 - Math.exp(-dt * 3);
+    mouse.sx += (mouse.x - mouse.sx) * e;
+    mouse.sy += (mouse.y - mouse.sy) * e;
 
-    var ease = still ? 1 : 1 - Math.exp(-dt * 2.4);
-    camZ += (tz - camZ) * ease;
-    camY += (ty - camY) * ease;
-    camX += (tx - camX) * ease;
-    mouse.sx += (mouse.x - mouse.sx) * (still ? 1 : 1 - Math.exp(-dt * 3));
-    mouse.sy += (mouse.y - mouse.sy) * (still ? 1 : 1 - Math.exp(-dt * 3));
-    var bob = still ? 0 : Math.sin(clock * 0.35) * 0.35;
-    camera.position.set(camX + mouse.sx * 2.6, camY + bob - mouse.sy * 1.2, camZ);
-    camera.lookAt((phase === "in" ? camX : camX * 0.35) + mouse.sx * 4, camY + (phase === "in" ? 1 : phase === "after" ? 14 : 9) - mouse.sy * 2, camZ - 60);
+    var scroll = Math.min(1, scrollY / (innerHeight || 800));
+    oryx.position.y = 3.5 + Math.sin(clock * 0.9) * 0.6;
+    body.rotation.y = mouse.sx * 0.55 + Math.sin(clock * 0.35) * 0.18 - (wide ? 0.12 : 0);
+    body.rotation.x = mouse.sy * 0.08;
+    pool.intensity = 2 + Math.sin(clock * 2.1) * 0.35;
 
-    sky.position.copy(camera.position);
-    ground.position.set(camera.position.x, 0, camera.position.z);
-
-    // the sky and fog warm towards blood the deeper you go
-    var want = !HOME ? 0 : phase === "before" ? 0 : phase === "after" ? 3 : stage;
-    tint += (want - tint) * (still ? 1 : 1 - Math.exp(-dt * 1.6));
-    var lo = Math.max(0, Math.min(STAGES - 2, Math.floor(tint))), f2 = tint - lo;
-    ["top", "mid", "glow"].forEach(function (name, n) {
-      domeU[name].value.set(skyTints[lo][n]).lerp(cB.set(skyTints[lo + 1][n]), Math.min(1, f2));
-    });
-    scene.fog.color.set(fogCols[lo]).lerp(cA.set(fogCols[lo + 1]), Math.min(1, f2));
-    scene.background = scene.fog.color;
-
-    // embers rise around the camera
-    for (var i = 0; i < EMBERS; i++) {
-      var e = emberData[i];
-      if (!still) {
-        e.y += e.v * dt * 2.2;
-        e.sw += dt;
-      }
-      if (e.y > 46) e.y = 0;
-      emberPos.setXYZ(i, camera.position.x + e.x + Math.sin(e.sw) * 1.6, e.y, camera.position.z - 20 + e.z);
+    if (!still && ready) shoot(dt);
+    if (!still) moveShots(dt);
+    for (var i = 0; i < DUST; i++) {
+      var d = dust[i];
+      if (!still) { d.y += d.v * dt; if (d.y > 40) d.y = 0; }
+      dPos[i * 3] = d.x + Math.sin(clock * 0.3 + i) * 0.8; dPos[i * 3 + 1] = d.y; dPos[i * 3 + 2] = d.z;
     }
-    emberPos.needsUpdate = true;
+    dGeo.attributes.position.needsUpdate = true;
 
-    for (var r = 0; r < rings.length; r++) {
-      var ring = rings[r], on = r === stage, past = phase === "after" || (phase === "in" && r < stage);
-      var goal = on ? 1 : past ? 0.5 : 0.28;
-      ring.glow += (goal - ring.glow) * (still ? 1 : 1 - Math.exp(-dt * 3));
-      var pulse = on && !still ? 1 + Math.sin(clock * 3) * 0.04 : 1;
-      ring.g.rotation.z += still ? 0 : dt * (0.12 + r * 0.04);
-      ring.outer.material.opacity = 0.35 + ring.glow * 0.65;
-      ring.inner.material.opacity = 0.1 + ring.glow * 0.5;
-      ring.disc.material.opacity = 0.03 + ring.glow * 0.14;
-      ring.g.scale.setScalar(pulse * (0.96 + ring.glow * 0.06));
-      ring.halo.rotation.z = -ring.g.rotation.z;
-      ring.halo.material.opacity = 0.12 + ring.glow * 0.4;
-      if (ring.relic) {
-        // upright, turned towards the camera (which stands off to the left on wide screens), swaying
-        ring.relic.rotation.z = -ring.g.rotation.z;
-        ring.relic.rotation.y = (innerWidth > 900 ? -0.35 : 0) + (still ? 0 : Math.sin(clock * 0.6 + r) * 0.25);
-      }
-    }
+    // the camera stands back and a little above, drifts with the mouse, and lifts as you scroll away
+    var ox = oryx.position.x;
+    camera.position.set(mouse.sx * 3, (wide ? 30 : 34) + scroll * 10 - mouse.sy * 1.5, (wide ? DIST : 100) + scroll * 14);
+    look.set(0, wide ? 9 : 10, 0);
+    camera.lookAt(look);
 
     renderer.render(scene, camera);
 
-    // too slow: draw fewer pixels
-    if (!still && ++frames > 30) {
-      if (dt > 1 / 24) slow++; else slow = Math.max(0, slow - 1);
-      if (slow > 40 && quality > 0.55) {
-        quality -= 0.2;
-        slow = 0;
-        resize();
-      }
-      frames = 31;
+    if (!still && ++frames > 40) {
+      if (dt > 1 / 28) slow++; else slow = Math.max(0, slow - 1);
+      if (slow > 45 && quality > 0.5) { quality -= 0.25; slow = 0; place(); }
+      frames = 41;
     }
-    if (!still && !document.hidden) requestAnimationFrame(frame); else running = false;
+    if (!still && visible && !document.hidden) requestAnimationFrame(frame); else running = false;
   }
-
   function start() {
-    if (running) return;
+    if (running || still || !visible) return;
     running = true;
     last = 0;
     requestAnimationFrame(frame);
   }
-  function draw() { if (still) { last = 0; frame(performance.now()); } }
+  function draw() { last = 0; frame(performance.now()); }
 
-  addEventListener("resize", function () { resize(); draw(); });
-  addEventListener("scroll", function () { if (still) draw(); }, { passive: true });
-  document.addEventListener("visibilitychange", function () { if (!document.hidden && !still) start(); });
-  var onMotion = function () { still = reduce.matches; if (still) draw(); else start(); };
-  if (reduce.addEventListener) reduce.addEventListener("change", onMotion);
-
-  resize();
-  // the first frame jumps to where the page is, instead of flying there
-  aim(); camZ = tz; camY = ty; camX = tx; tint = HOME && phase === "after" ? 3 : HOME && phase === "in" ? stage : 0;
-  if (still) draw(); else start();
-
-  // --- Cards rise into view as the page scrolls --------------------------------------------------
   if ("IntersectionObserver" in window) {
-    var seen = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add("in"); seen.unobserve(en.target); }
-      });
-    }, { rootMargin: "0px 0px -6% 0px" });
-    document.querySelectorAll(".tile, .way, .faq details, .keys > div, .shot, .notes .release").forEach(function (el, i) {
-      el.classList.add("reveal");
-      el.style.setProperty("--i", i % 4);
-      seen.observe(el);
-    });
+    new IntersectionObserver(function (en) {
+      visible = en[0].isIntersecting;
+      if (visible) start();
+    }).observe(hero);
+  }
+  addEventListener("resize", function () { place(); if (still) draw(); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) start(); });
+  if (reduce.addEventListener) reduce.addEventListener("change", function () { still = reduce.matches; if (still) draw(); else start(); });
+
+  place();
+  if (still) {
+    // one still frame, with a ring of his shots already in the air
+    ring(30, 10, 1.4, RED, 0);
+    ring(30, 7, 1.2, BONE, 0.1, 0.8);
+    moveShots(1.6);
+    draw();
+  } else {
+    start();
   }
 
-  // for tests and screenshots: put the camera where the page is now and draw at once
-  function jump() {
-    aim();
-    camZ = tz; camY = ty; camX = tx;
-    tint = phase === "after" ? 3 : phase === "in" ? stage : 0;
-    rings.forEach(function (rg, k) { rg.glow = k === stage ? 1 : 0.3; });
-    var was = still, run = running;
-    var keep = last; still = true; last = 0; frame(performance.now()); still = was; running = run; last = keep;
-  }
-
-  window.dodScene = { jump: jump, renderer: renderer, camera: camera, scene: scene, state: function () { return { stage: stage, phase: phase, z: camZ, quality: quality }; } };
+  window.dodScene = { renderer: renderer, scene: scene, camera: camera, draw: draw,
+    state: function () { return { ready: ready, quality: quality, running: running, shots: shots.filter(function (s) { return s.on; }).length }; } };
 })();
