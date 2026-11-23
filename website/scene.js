@@ -902,7 +902,8 @@
     wide = aspect > 1.05;
     var halfW = Math.tan(15 * Math.PI / 180) * DIST * aspect;
     var was = home.clone();
-    home.set(0, 0, wide ? 0 : -6);
+    // in the middle of the page; on smaller wide screens a little right, so the party keeps off the title
+    home.set(wide ? halfW * Math.max(0, Math.min(0.28, (2000 - w) / 2000)) : 0, 0, wide ? 0 : -6);
     oryx.position.add(home).sub(was);
     party.forEach(function (m) { m.x += home.x - was.x; m.z += home.z - was.z; });
     renderer.setPixelRatio(pr * quality);

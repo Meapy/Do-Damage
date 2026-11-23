@@ -21,8 +21,9 @@
   --display: "Silkscreen", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --pixel: "Silkscreen", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --gutter: clamp(16px, 4vw, 48px);
-  --max: 1280px;
+  --gutter: clamp(16px, 4vw, 64px);
+  /* the page grows with the screen, so big screens aren't mostly empty sides */
+  --max: clamp(1280px, 88vw, 2000px);
   --wiki-max: 1680px; /* the wiki grows wider on big screens, for its wide tables and card grids */
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
@@ -30,12 +31,15 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; background: var(--bg); }
+/* and its type with it */
+@media (min-width: 1800px) { html { font-size: 17px; } }
+@media (min-width: 2200px) { html { font-size: 18px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.6 var(--body);
+  font: 1rem/1.6 var(--body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
@@ -159,7 +163,7 @@ code { font: .86em var(--pixel); padding: .1em .35em; background: var(--surface)
 .hero-copy { position: relative; max-width: 640px; padding-bottom: 56px; }
 .hero h1 {
   margin: 0 0 .22em;
-  font-size: clamp(2.8rem, 7.4vw, 6.6rem);
+  font-size: clamp(2.8rem, 7.4vw, 8rem);
   line-height: 1;
   letter-spacing: 0;
   color: var(--text);
@@ -318,8 +322,7 @@ body.lb-open { overflow: hidden; }
 .stop.final h3 { color: var(--text); }
 
 /* --- What's different: two columns of short notes ------------------------------------------- */
-.feats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 56px; margin-top: 52px; }
-.feat { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 18px; padding: 26px 0 24px; border-top: 1px solid var(--line); }
+.feats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 56px; margin-top: 52px; }.feat { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 18px; padding: 26px 0 24px; border-top: 1px solid var(--line); }
 .feat .sprite { grid-row: span 2; margin-top: 2px; opacity: .9; }
 .feat h3 { margin-bottom: .35em; font-size: 1.12rem; font-weight: 600; color: var(--text); }
 .feat p { margin: 0; color: var(--text-dim); font-size: .96rem; }
