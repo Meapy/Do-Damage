@@ -114,6 +114,10 @@ namespace Shared.pass
         // empty tier is marked claimed when its Gilded reward is, so those marks are cleared once
         // (PassBook.Refresh) and the new rewards can be claimed
         public List<int> Filled { get; set; } = new List<int>();
+        // the XP a tier cost while the season ran, when 'xpPerTier' changed during it (0: never):
+        // what the players had earned is scaled to the new cost once (PassBook.Rescale), so nobody's
+        // tier moves
+        public int XpPerTierWas { get; set; }
 
         [JsonIgnore] public DateTime StartsAt => Day(From) ?? DateTime.MinValue;
         [JsonIgnore] public DateTime EndsAt => Day(Until)?.AddDays(1) ?? DateTime.MinValue;

@@ -188,6 +188,37 @@ namespace Tests
         }
 
         [Fact]
+        public void ChangedXpPerTierKeepsEveryonesTier()
+        {
+            var data = Data;
+            var def = data.Def("frostfall");
+            Assert.True(def.XpPerTierWas > 0 && def.XpPerTierWas != data.XpPerTier);
+            // tier 30 and half way into 31, earned at the old cost
+            var state = new PassState { Season = "frostfall", Xp = 30 * def.XpPerTierWas + def.XpPerTierWas / 2 };
+            var book = Book(Launch, state);
+            Assert.Equal(30, book.Tier);
+            Assert.Equal(data.XpPerTier / 2, book.XpIntoTier);
+            Assert.Equal("frostfall", state.RescaledFor);
+            // only once
+            var xp = state.Xp;
+            book.Refresh(Launch.AddDays(1), new Random(1));
+            Assert.Equal(xp, state.Xp);
+            Assert.Equal("frostfall", PassState.FromJson(state.ToJson()).RescaledFor);
+            // past the last tier, the XP towards caches is kept as it was
+            var top = new PassState { Season = "frostfall", Xp = data.Tiers * def.XpPerTierWas + data.BonusXp + 10 };
+            var full = Book(Launch, top);
+            Assert.Equal(data.Tiers, full.Tier);
+            Assert.Equal(1, full.CachesReady);
+            Assert.Equal(10, full.XpIntoTier);
+            // a season begun afresh isn't scaled
+            var fresh = Book(Launch);
+            Assert.Equal("frostfall", fresh.State.RescaledFor);
+            fresh.Gain(5 * data.XpPerTier, Launch);
+            fresh.Refresh(Launch.AddDays(1), new Random(1));
+            Assert.Equal(5, fresh.Tier);
+        }
+
+        [Fact]
         public void GildedTitleTurnsOffAndOnAndOutlastsTheSeason()
         {
             var book = Book(Launch);

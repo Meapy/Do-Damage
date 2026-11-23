@@ -84,6 +84,7 @@ namespace Shared.pass
                 Season = season;
             if (State.Season == season.Key)
             {
+                Rescale(season.Def, season.Key);
                 Unmark(season);
                 return leftover;
             }
@@ -92,6 +93,7 @@ namespace Shared.pass
                 var old = DefOf(State.Season);
                 if (old != null)
                 {
+                    Rescale(old, State.Season);
                     var tier = TierOf(State.Xp);
                     for (var t = 0; t < tier; t++)
                     {
@@ -111,9 +113,28 @@ namespace Shared.pass
             State.GildedClaimed = 0;
             State.CachesOpened = 0;
             State.FameCarry = 0;
-            // a season begun afresh has no marks from before its tiers were filled
+            // a season begun afresh has no marks from before its tiers were filled, and no XP
+            // earned at another XP per tier
             State.FilledFor = season.Key;
+            State.RescaledFor = season.Key;
             return Grant(leftover);
+        }
+
+        // Once a season whose XP per tier changed while it ran (SeasonDef.XpPerTierWas): the XP
+        // earned towards its tiers is scaled to the new cost, so everyone stays on the tier they
+        // reached, as far into it; XP past the last tier (towards caches) is kept as it was.
+        private void Rescale(SeasonDef def, string key)
+        {
+            if (State.RescaledFor == key)
+                return;
+            var was = def?.XpPerTierWas ?? 0;
+            if (was > 0 && Data.XpPerTier > 0 && was != Data.XpPerTier && State.Xp > 0)
+            {
+                long top = (long)Data.Tiers * was;
+                long inTiers = Math.Min(State.Xp, top), past = State.Xp - inTiers;
+                State.Xp = (int)Math.Min(int.MaxValue, inTiers * Data.XpPerTier / was + past);
+            }
+            State.RescaledFor = key;
         }
 
         // Once a season: the marks on free tiers filled since they were set (SeasonDef.Filled) are

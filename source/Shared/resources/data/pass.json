@@ -2,7 +2,7 @@
   "_about": [
     "The Realm Pass (Shared/pass/PassData.cs reads this; tools/wiki_pass.py builds the wiki's Realm Pass page from it).",
     "Seasons: 'from' and 'until' are UTC days (yyyy-MM-dd), both included, and mustn't overlap. After the last dated season the 'rotation' runs a calendar month each, round and round ('Frostfall II'...).",
-    "'free' and 'gilded': each of the 'tiers' tiers' rewards on that track ([] for none). A season's claims are kept by its id, so give a new season a new id. Filling a free tier that was empty while its season runs: list it in the season's 'filled' (an empty tier is marked claimed with its Gilded reward; those marks are cleared once).",
+    "'free' and 'gilded': each of the 'tiers' tiers' rewards on that track ([] for none). A season's claims are kept by its id, so give a new season a new id. Filling a free tier that was empty while its season runs: list it in the season's 'filled' (an empty tier is marked claimed with its Gilded reward; those marks are cleared once). Changing 'xpPerTier' while a season runs: set the season's 'xpPerTierWas' to the old cost, and everyone's XP is scaled to the new one once, so nobody's tier moves.",
     "Rewards: {\"fame\": n} and {\"gold\": n} to the account, {\"item\": \"<id>\", \"count\": n} to the vault's gift chest, {\"skin\": \"<id>\"} a skin (tools/draw_pass_skins.py draws them; one the account has already pays 'repeatFame'), {\"aura\": id}, {\"color\": id}, {\"petFx\": id} (from 'auras', 'colors' and 'petEffects'), {\"slot\": n} character slots.",
     "An aura, name colour or pet effect the account owns already pays 'repeatFame' fame instead. Never renumber one: accounts own them by id (and the Rust client draws auras and pet effects by it: auras.rs, petfx.rs).",
     "'xp': pass XP for each thing (before Momentum). 'pace': every tier by this share of the season; behind it, XP comes 'momentum' percent faster. Past the last tier, every 'bonusXp' is a Wayfarer's Cache: a roll of 'cache' by weight.",
@@ -90,6 +90,7 @@
       "dark": "0x12233F",
       "light": "0xEAF7FF",
       "filled": [ 2, 4, 6, 10, 12, 14, 18, 20, 22, 24, 26, 28, 31, 33, 35, 37, 39 ],
+      "xpPerTierWas": 1000,
       "free": [
         [ { "fame": 100 } ],
         [ { "item": "Pet Biscuit" } ],

@@ -32,6 +32,8 @@ namespace Shared.pass
         [JsonProperty("pet")] public int PetEffect { get; set; }
         // the season (its key) whose filled tiers' old marks were cleared (SeasonDef.Filled)
         [JsonProperty("filled")] public string FilledFor { get; set; }
+        // the season (its key) whose XP was scaled to a changed XP per tier (SeasonDef.XpPerTierWas)
+        [JsonProperty("rescaled")] public string RescaledFor { get; set; }
         // seasons whose Gilded track the account had (for the record and the Wayfarer's greetings)
         [JsonProperty("past")] public List<string> GildedSeasons { get; set; } = new List<string>();
         // the Gilded pass's [Gilded] chat title turned off (kept from season to season)
