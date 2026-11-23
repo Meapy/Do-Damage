@@ -175,6 +175,15 @@ code { font: .86em var(--pixel); padding: .1em .35em; background: var(--surface)
   text-align: right; font: 500 .72rem/1.7 var(--pixel); letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim);
 }
 .hero-fig span { color: var(--text-muted); }
+/* his taunts, as the game's chat shows a boss's: his name in gold, then what he says (scene.js) */
+.hero-say {
+  position: absolute; right: max(var(--gutter), calc((100% - var(--max)) / 2)); top: 152px; margin: 0;
+  max-width: 340px; text-align: right; font: 500 .9rem/1.45 var(--body); color: var(--text);
+  text-shadow: 0 1px 0 #000, 0 0 12px rgba(8, 6, 15, .9);
+  opacity: 0; transform: translateY(-4px); transition: opacity .4s ease, transform .4s ease;
+}
+.hero-say.on { opacity: 1; transform: none; }
+.hero-say b { color: var(--gold); font-weight: 700; }
 
 .live {
   display: inline-flex; align-items: center; gap: .7em;
@@ -836,7 +845,7 @@ body.lb-open { overflow: hidden; }
   .danger { grid-column: 3; justify-self: start; margin-top: 14px; }
   .depth { font-size: 1.7rem; }
   .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero-fig { display: none; }
+  .hero-fig, .hero-say { display: none; }
 }
 @media (max-width: 900px) {
   .pill-play { margin-left: auto; }

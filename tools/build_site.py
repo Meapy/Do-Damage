@@ -12,7 +12,8 @@ status, the downloads and the newest changes, the full changelog page and the wi
 - Everything else in website/ (style.css, site.js, scene.js, palette.js, vendor/, favicon.svg,
   and the gallery's screenshots/) is copied as it is. scene.js draws the home page's hero with
   Three.js (vendor/three.min.js, r149, kept here so no page loads a script from elsewhere): Oryx
-  built in cubes from his sprite ({{BOSS_4}}, see build_wiki.stage_bosses) firing his patterns.
+  the Ascended God's fight, his minions and a party of players built in cubes from their sprites
+  ({{BOSS_6}} and {{HERO_HOST}}, see build_wiki.stage_bosses).
   palette.js is the Ctrl+K search over the wiki's index. The small pixel icons are drawn by
   site.js; the screenshots are WebP files taken with the Rust client's --shot on a test stack:
   <name>.webp at 1600x900 and <name>-small.webp at 640x360.

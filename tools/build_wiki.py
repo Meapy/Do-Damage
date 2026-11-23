@@ -1499,33 +1499,64 @@ STAGE_LABELS = ["Oryx's two Stone Guardians", "Oryx the Mad God 1", "Oryx the Ma
                 "Oryx the Mad God 4", "Oryx the Ascended God"]
 
 
+# The home page's hero (website/scene.js): Oryx the Ascended God's fight in his Elysium, with those
+# who fight beside him: his Wardens, his Host (called at 80%), the Noble and Cardinal who rise under
+# him in the Hunt once he has transcended, and the Ichor Sprites his splats hatch; and a party of
+# players fighting him (HERO_PARTY, their sprites facing right).
+HERO_PARTY = ["Wizard", "Archer", "Priest", "Knight", "Warrior", "Rogue"]
+HERO_HOST = ["Ascended Warden", "Ascended Officer", "Ascended Cleric", "Ascended Aristocrat", "Ascended Sergeant",
+             "Ascended Noble", "Ascended Cardinal", "Ichor Sprite", "Divine Ichor"]
+
+
+def _sprite(d, sets, name, out_root):
+    """The first frame of a monster's sprite: (sheet url, x, y, w, h, animated), its sheet copied to
+    <out_root>/oryx/. An animated one (a character sheet) has its walk and attack frames beside it."""
+    tex = d.texture(name)
+    if not tex or tex[0] not in sets:
+        raise SystemExit("site: no sprite for %s" % name)
+    path, tw, th, bw, bh = sets[tex[0]]
+    full = os.path.join(ROOT, "client", "src", path.replace("/", os.sep))
+    sw, _ = wiki_gear.png_size(full)
+    with open(full, "rb") as f:
+        stamp = hashlib.sha1(f.read()).hexdigest()[:8]
+    shutil.copy2(full, os.path.join(out_root, "oryx", tex[0] + ".png"))
+    cols = max(1, sw // bw)
+    x, y = (tex[1] % cols) * bw, (tex[1] // cols) * bh
+    return "oryx/%s.png?v=%s" % (tex[0], stamp), x, y, tw, th, bw > tw
+
+
+def _size(d, name):
+    el = d.elements.get(name)
+    try:
+        return int(el.findtext("Size")) if el is not None and el.findtext("Size") else 100
+    except ValueError:
+        return 100
+
+
 def stage_bosses(d, out_root):
     """Copies the bosses' sprite sheets to <out_root>/oryx/ and gives {{BOSS_1}}..{{BOSS_6}}: each
     stage's boss, its first frame cut from its sheet with CSS, each part with
-    data-boss="<sheet url> x y w h" so scene.js builds the same pixels in 3D."""
+    data-boss="<sheet url> x y w h" so scene.js builds the same pixels in 3D; and {{HERO_HOST}},
+    the hero's minions and players (HERO_HOST, HERO_PARTY) for scene.js alone: data-host (the name), data-boss, data-size
+    (the game's Size, in %) and data-anim (walk and attack frames beside the first)."""
     sets = wd.image_sets()
     os.makedirs(os.path.join(out_root, "oryx"), exist_ok=True)
     out = {}
     for n, names in enumerate(STAGE_BOSSES):
         parts, big = [], False
         for name in names:
-            tex = d.texture(name)
-            if not tex or tex[0] not in sets:
-                raise SystemExit("site: no sprite for %s" % name)
-            path, tw, th, bw, bh = sets[tex[0]]
-            full = os.path.join(ROOT, "client", "src", path.replace("/", os.sep))
-            sw, _ = wiki_gear.png_size(full)
-            with open(full, "rb") as f:
-                stamp = hashlib.sha1(f.read()).hexdigest()[:8]
-            shutil.copy2(full, os.path.join(out_root, "oryx", tex[0] + ".png"))
-            cols = max(1, sw // bw)
-            x, y = (tex[1] % cols) * bw, (tex[1] // cols) * bh
-            url = "oryx/%s.png?v=%s" % (tex[0], stamp)
+            url, x, y, tw, th, _ = _sprite(d, sets, name, out_root)
             big = big or th > 16
             parts.append('<i style="background-image:url(%s);background-position:-%dpx -%dpx;width:%dpx;height:%dpx"'
                          ' data-boss="%s %d %d %d %d"></i>' % (url, x, y, tw, th, url, x, y, tw, th))
         out["BOSS_%d" % (n + 1)] = '<span class="boss%s%s" role="img" aria-label="%s">%s</span>' % (
             " big" if big else "", " pair" if len(parts) > 1 else "", esc(STAGE_LABELS[n]), "".join(parts))
+    host = []
+    for name in HERO_HOST + HERO_PARTY + ["Oryx the Ascended God"]:
+        url, x, y, tw, th, anim = _sprite(d, sets, name, out_root)
+        host.append('<i data-host="%s" data-boss="%s %d %d %d %d" data-size="%d"%s></i>' % (
+            esc(name), url, x, y, tw, th, _size(d, name), ' data-anim="1"' if anim else ""))
+    out["HERO_HOST"] = '<span class="host" hidden>%s</span>' % "".join(host)
     return out
 
 
@@ -1533,7 +1564,7 @@ def build(out_root, values=None):
     """Writes <out_root>/wiki. `values` fills {{NAME}} and the like as build_site.py does. Returns
     the game's counts for the home page: DUNGEONS, CLASSES and GEAR (as text): the dungeons the
     wiki lists, the classes, and the gear players can get; INDEX, the search index's ?v=; and
-    BOSS_1..BOSS_6, the six stages' bosses (stage_bosses)."""
+    BOSS_1..BOSS_6, the six stages' bosses, and HERO_HOST, the hero's minions and players (stage_bosses)."""
     values = values or {}
     out = os.path.join(out_root, "wiki")
     os.makedirs(out, exist_ok=True)

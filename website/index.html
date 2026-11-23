@@ -50,10 +50,10 @@
   </header>
 
   <main>
-    <!-- Oryx, built in cubes from the game's own sprite, firing his patterns (scene.js, Three.js);
-         without WebGL the sprite itself stands there -->
+    <!-- Oryx the Ascended God, built in cubes from the game's own sprite, going through his fight
+         (scene.js, Three.js); without WebGL the sprite itself stands there -->
     <section class="hero">
-      <div class="hero-stage" aria-hidden="true"><div class="hero-art">{{BOSS_4}}</div></div>
+      <div class="hero-stage" aria-hidden="true"><div class="hero-art">{{BOSS_6}}</div>{{HERO_HOST}}</div>
       <div class="hero-copy">
         <p class="live" id="status"><span class="beacon"></span><span id="status-text">Looking for the realm…</span></p>
         <h1>Do <em>Damage</em></h1>
@@ -70,7 +70,8 @@
           <span class="stat">Uptime, 7 days <span class="uptime" id="stat-days"></span></span>
         </p>
       </div>
-      <p class="hero-fig" aria-hidden="true">Oryx the Mad God<br><span>Stage IV · Oryx's Sanctuary</span></p>
+      <p class="hero-fig" aria-hidden="true">Oryx the Ascended God<br><span id="hero-phase">Stage VI · Oryx's Elysium</span></p>
+      <p class="hero-say" id="hero-say" aria-hidden="true"></p>
       <!-- The game in numbers, counted from its data by tools/build_site.py -->
       <ul class="facts" aria-label="The game in numbers">
         <li><b>{{DUNGEONS}}</b> dungeons</li>
