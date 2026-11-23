@@ -24,7 +24,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **See the boss fight:** the big view shows the boss the player you watch is after, as their own corner does: its health, and who has done how much damage to it.
 
 ### Realm Pass
-- **60 tiers, a reward at every one:** the pass now goes to tier 60, each tier a little quicker to earn, and the free track pays something at every tier: pet food, fame, potions, another pet, another white bag and, at tier 50, a pet effect. The Gilded track adds more pets, a second Potion of Maxy, Royal Pet Feasts, Growth Tonics, a Backpack and, at tier 60, the season's grand pet effect and the **Burning Amulet**. Tiers you've already reached this season keep what you claimed.
+- **60 tiers, a reward at every one:** the pass now goes to tier 60, and the free track pays something at every tier: pet food, fame, potions, another pet, another white bag and, at tier 50, a pet effect. The Gilded track adds more pets, a second Potion of Maxy, Royal Pet Feasts, Growth Tonics, a Backpack and, at tier 60, the season's grand pet effect and the **Burning Amulet**. Tiers you've already reached this season keep what you claimed.
 - **Pet effects:** frosty paw prints, a crown of ice shards, a flickering flame, wings of fire, a trail of stars, little moons circling your pet, and the rare Prismatic from the Wayfarer's Cache. Put one on from the pass's new **Pets** tab; everyone sees it on whichever pet you have out.
 
 ### Pets
