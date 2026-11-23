@@ -1,7 +1,7 @@
 // The home page's hero, drawn with Three.js (vendor/three.min.js): Oryx the Mad God built in cubes,
 // one per pixel of his sprite in the game (the hero's <i data-boss="<sheet> x y w h">, written by
 // tools/build_wiki.py), thicker towards the middle so he has a body when he turns. He floats over a
-// dark floor in a red glow and fires his patterns around himself: rings, spirals and double rings,
+// dark floor in an ember glow and fires his patterns around himself: rings, spirals and double rings,
 // as in the fight. He follows the mouse, and a click on the hero makes him fire at once.
 // Nothing here is needed to read the page: without WebGL the sprite itself stands in the hero, with
 // reduced motion one still frame is drawn, and nothing is drawn while the hero is off screen.
@@ -23,7 +23,7 @@
   stageEl.appendChild(canvas);
   document.documentElement.classList.add("has-scene");
 
-  var INK = 0x0b0a0a;
+  var INK = 0x0c0915;
   var pr = Math.min(devicePixelRatio || 1, 1.75);
   var quality = 1; // lowered when frames are slow
   renderer.setClearColor(INK, 1);
@@ -31,19 +31,19 @@
   scene.fog = new T.Fog(INK, 85, 210);
   var camera = new T.PerspectiveCamera(30, 1, 0.5, 400);
 
-  // --- Light: a warm key from the upper left, a red rim from behind, red from the floor ----------
-  scene.add(new T.HemisphereLight(0xd9d0c2, 0x1c0d0b, 0.5));
+  // --- Light: a warm key from the upper left, a violet rim from behind, ember from the floor ------
+  scene.add(new T.HemisphereLight(0xd8ccff, 0x1a0f2e, 0.55));
   var key = new T.DirectionalLight(0xfff1dc, 1.6);
   key.position.set(-1.2, 1.4, 1.6);
   scene.add(key);
-  var rim = new T.DirectionalLight(0xff3b2b, 2.4);
+  var rim = new T.DirectionalLight(0x8b5cf6, 2.6);
   rim.position.set(1.6, 0.5, -1.6);
   scene.add(rim);
-  var pool = new T.PointLight(0xff3a26, 2.2, 46, 1.6);
+  var pool = new T.PointLight(0xff7a3d, 2.2, 46, 1.6);
   scene.add(pool);
 
   // --- The floor: dark stone, a grid of faint points, and a soft shadow under him ---------------
-  var floor = new T.Mesh(new T.PlaneGeometry(400, 400), new T.MeshStandardMaterial({ color: 0x110f0e, roughness: 0.92, metalness: 0 }));
+  var floor = new T.Mesh(new T.PlaneGeometry(400, 400), new T.MeshStandardMaterial({ color: 0x120d20, roughness: 0.92, metalness: 0 }));
   floor.rotation.x = -Math.PI / 2;
   scene.add(floor);
 
@@ -65,7 +65,7 @@
   var dotsG = new T.BufferGeometry(), dots = [];
   for (var gx = -60; gx <= 60; gx += 3) for (var gz = -60; gz <= 30; gz += 3) dots.push(gx, 0.03, gz);
   dotsG.setAttribute("position", new T.Float32BufferAttribute(dots, 3));
-  var grid = new T.Points(dotsG, new T.PointsMaterial({ color: 0x4a403b, size: 0.16, sizeAttenuation: true, transparent: true, opacity: 0.8 }));
+  var grid = new T.Points(dotsG, new T.PointsMaterial({ color: 0x44365f, size: 0.16, sizeAttenuation: true, transparent: true, opacity: 0.8 }));
   scene.add(grid);
 
   // --- Oryx, from his sprite ---------------------------------------------------------------------
@@ -115,7 +115,7 @@
       m4.compose(p3.set((c.x - x0 - cw / 2 + 0.5) * unit, (ch - (c.y - y0) - 0.5) * unit, 0), q4, s3.set(1, 1, thick));
       mesh.setMatrixAt(n, m4);
       // the sheets' near-black outline lifted a little, so his edge still reads against the night
-      col.setRGB(Math.max(c.r, 30) / 255, Math.max(c.g, 24) / 255, Math.max(c.b, 24) / 255);
+      col.setRGB(Math.max(c.r, 30) / 255, Math.max(c.g, 22) / 255, Math.max(c.b, 40) / 255);
       mesh.setColorAt(n, col);
     });
     body.add(mesh);
@@ -164,7 +164,7 @@
   bullets.frustumCulled = false;
   scene.add(bullets);
 
-  var RED = [1, 0.27, 0.2], BONE = [0.96, 0.9, 0.82], GOLD = [1, 0.74, 0.4];
+  var EMBER = [1, 0.48, 0.24], BONE = [0.95, 0.92, 1], GOLD = [1, 0.78, 0.36];
   var free = 0;
   function fire(angle, speed, y, c, size) {
     for (var tries = 0; tries < MAX; tries++) {
@@ -186,10 +186,10 @@
   // the patterns he cycles through, each a few seconds long
   var pattern = 0, pTime = 0, pStep = 0, spin = 0;
   var PATTERNS = [
-    { len: 2.6, every: 0.65, step: function (k, y) { ring(30, 10, y, k % 2 ? BONE : RED, k * 0.1); } },
-    { len: 2.4, every: 0.07, step: function (k, y) { spin += 0.21; for (var a = 0; a < 4; a++) fire(spin + a * Math.PI / 2, 12, y, a % 2 ? GOLD : RED, 0.9); } },
-    { len: 2.8, every: 0.9, step: function (k, y) { ring(22, 8, y, RED, 0); ring(22, 11, y - 0.3, BONE, Math.PI / 22, 0.8); } },
-    { len: 2.2, every: 0.11, step: function (k, y) { spin -= 0.37; fire(spin, 15, y, BONE, 1.1); fire(spin + Math.PI, 15, y, BONE, 1.1); fire(-spin * 0.7, 9, y - 0.3, RED, 0.8); } }
+    { len: 2.6, every: 0.65, step: function (k, y) { ring(30, 10, y, k % 2 ? BONE : EMBER, k * 0.1); } },
+    { len: 2.4, every: 0.07, step: function (k, y) { spin += 0.21; for (var a = 0; a < 4; a++) fire(spin + a * Math.PI / 2, 12, y, a % 2 ? GOLD : EMBER, 0.9); } },
+    { len: 2.8, every: 0.9, step: function (k, y) { ring(22, 8, y, EMBER, 0); ring(22, 11, y - 0.3, BONE, Math.PI / 22, 0.8); } },
+    { len: 2.2, every: 0.11, step: function (k, y) { spin -= 0.37; fire(spin, 15, y, BONE, 1.1); fire(spin + Math.PI, 15, y, BONE, 1.1); fire(-spin * 0.7, 9, y - 0.3, EMBER, 0.8); } }
   ];
   function shoot(dt) {
     var P = PATTERNS[pattern], y = 1.4;
@@ -223,7 +223,7 @@
   for (n = 0; n < DUST; n++) dust.push({ x: (Math.random() - 0.5) * 120, y: Math.random() * 40, z: (Math.random() - 0.7) * 90, v: 0.2 + Math.random() * 0.6 });
   var dGeo = new T.BufferGeometry();
   dGeo.setAttribute("position", new T.BufferAttribute(dPos, 3));
-  var motes = new T.Points(dGeo, new T.PointsMaterial({ color: 0x8a7d72, size: 0.12, transparent: true, opacity: 0.7, depthWrite: false }));
+  var motes = new T.Points(dGeo, new T.PointsMaterial({ color: 0xffb066, size: 0.12, transparent: true, opacity: 0.7, depthWrite: false }));
   motes.frustumCulled = false;
   scene.add(motes);
 
@@ -259,7 +259,7 @@
     if (e.target.closest("a, button, input, .stats")) return;
     var y = 1.4;
     ring(40, 14, y, GOLD, Math.random(), 1.1);
-    ring(40, 10, y - 0.3, RED, Math.random(), 0.9);
+    ring(40, 10, y - 0.3, EMBER, Math.random(), 0.9);
     if (still) { moveShots(0.4); draw(); }
   });
 
@@ -325,7 +325,7 @@
   place();
   if (still) {
     // one still frame, with a ring of his shots already in the air
-    ring(30, 10, 1.4, RED, 0);
+    ring(30, 10, 1.4, EMBER, 0);
     ring(30, 7, 1.2, BONE, 0.1, 0.8);
     moveShots(1.6);
     draw();
