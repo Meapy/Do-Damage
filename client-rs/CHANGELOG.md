@@ -51,6 +51,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Game
 - A **Gold Store** button opens the gold store on the website: the little gold **+** beside your gold (in the game and on the character screen), and **Gold Store** on the main menu and the Escape menu.
 
+### Website
+- **dodmg.com is redone in 3D:** fly through the castle town, past the gate and down through Oryx's six stages as you scroll the home page, under a night sky that follows you onto the wiki, the gold store and the changelog. Press **Ctrl+K** (or **/**) on any page to search the wiki, and on phones the menu button opens every link.
+
 ## 2.6.3 (2026-11-21)
 
 ### Skins

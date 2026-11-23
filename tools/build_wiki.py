@@ -1402,6 +1402,7 @@ TEMPLATE = """<!doctype html>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="{site}style.css?v={{{{BUILD}}}}">
+  <link rel="stylesheet" href="{site}scene.css?v={{{{BUILD}}}}">
   <link rel="stylesheet" href="{wiki}icons.css?v=@INDEX@">
 </head>
 <body class="sub-page wiki" data-wiki="{wiki}">
@@ -1453,6 +1454,9 @@ TEMPLATE = """<!doctype html>
   </footer>
 
   <script src="{site}site.js?v={{{{BUILD}}}}"></script>
+  <script src="{site}palette.js?v={{{{BUILD}}}}"></script>
+  <script src="{site}vendor/three.min.js" defer></script>
+  <script src="{site}scene.js?v={{{{BUILD}}}}" defer></script>
   <script src="{wiki}search-index.js?v=@INDEX@"></script>
   <script src="{wiki}wiki.js?v={{{{BUILD}}}}"></script>
 </body>

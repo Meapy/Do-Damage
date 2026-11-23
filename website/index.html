@@ -31,6 +31,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css?v={{BUILD}}">
+  <link rel="stylesheet" href="scene.css?v={{BUILD}}">
 </head>
 <body>
   <header class="bar">
@@ -50,10 +51,9 @@
   </header>
 
   <main>
-    <!-- An animated night over a pixel skyline, drawn by site.js -->
+    <!-- The night, the castle and the six portals are a Three.js scene behind the page (scene.js) -->
     <section class="hero">
-      <canvas class="sky" id="sky" aria-hidden="true"></canvas>
-      <div class="hero-copy">
+        <div class="hero-copy">
         <p class="live" id="status"><span class="beacon"></span><span id="status-text">Looking for the realm…</span></p>
         <h1><span class="h-small">Enter</span> {{NAME}}</h1>
         <p class="tagline">A Realm of the Mad God (RotMG) private server. Free to play, right here in your browser.</p>
@@ -293,5 +293,8 @@
   </footer>
 
   <script src="site.js?v={{BUILD}}"></script>
+  <script src="palette.js?v={{BUILD}}"></script>
+  <script src="vendor/three.min.js" defer></script>
+  <script src="scene.js?v={{BUILD}}" defer></script>
 </body>
 </html>

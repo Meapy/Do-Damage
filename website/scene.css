@@ -1,0 +1,127 @@
+/* The 3D layer (scene.js) and what sits on it: glass panels over a fixed Three.js canvas, a scroll
+   story for the six stages, and the quick-search palette (palette.js). Loaded after style.css; every
+   rule that needs the canvas is under .has-scene, so without WebGL the old flat look stays. */
+
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; pointer-events: none; }
+html { background: #07050f; }
+html.has-scene body { background: transparent; }
+
+/* --- Top bar: floats over the scene ------------------------------------------------------- */
+.has-scene .bar { background: rgba(10, 7, 20, .55); border-bottom-color: rgba(120, 96, 180, .22); }
+.bar .quick {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: .4em .7em; margin-left: 6px;
+  background: rgba(241, 236, 255, .07); color: var(--text-dim);
+  border: 1px solid var(--line-hi); border-radius: 8px; font: 500 .85rem var(--body); cursor: pointer;
+}
+.bar .quick:hover { color: var(--text); border-color: var(--ember); }
+.bar .quick kbd { margin: 0; min-width: 0; padding: .05em .4em; font-size: .72rem; }
+.links + .quick { margin-left: 0; }
+
+/* --- Hero ---------------------------------------------------------------------------------- */
+.has-scene .hero { background: none; min-height: 100svh; padding-bottom: 14vh; overflow: visible; }
+.has-scene .hero::after { display: none; }
+.has-scene .sky { display: none; }
+.has-scene .hero h1 {
+  background: linear-gradient(180deg, #fff1c9 10%, var(--gold) 45%, var(--ember) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; filter: drop-shadow(0 6px 0 rgba(8, 6, 15, .55)) drop-shadow(0 0 34px rgba(255, 122, 61, .35));
+}
+.has-scene .tagline, .has-scene .fine { text-shadow: 0 2px 14px rgba(5, 3, 11, .95); }
+.scroll-cue { position: absolute; left: 50%; bottom: 26px; width: 26px; height: 42px; margin-left: -13px; border: 2px solid rgba(241, 236, 255, .5); border-radius: 14px; }
+.scroll-cue span { position: absolute; left: 50%; top: 8px; width: 4px; height: 8px; margin-left: -2px; background: var(--gold); border-radius: 2px; animation: cue 1.8s ease-in-out infinite; }
+@keyframes cue { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+
+/* --- Glass ---------------------------------------------------------------------------------- */
+.has-scene .tile, .has-scene .way, .has-scene .faq details, .has-scene .release, .has-scene .shot,
+.has-scene .dl, .has-scene .facts, .has-scene .live, .has-scene .stats {
+  background: rgba(16, 11, 30, .58);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(120, 96, 180, .28);
+}
+.has-scene .tile:hover { background: rgba(31, 23, 51, .72); }
+.has-scene .foot { background: rgba(6, 4, 12, .88); }
+.has-scene .block-head h2 { text-shadow: 0 3px 24px rgba(5, 3, 11, .9); }
+.has-scene .block-head .sub { text-shadow: 0 1px 12px rgba(5, 3, 11, .95); }
+
+/* Cards rise into view */
+.has-scene .reveal { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--i, 0) * 45ms); }
+.has-scene .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .has-scene .reveal { opacity: 1; transform: none; transition: none; } .scroll-cue span { animation: none; } }
+
+/* --- The descent: one tall card per stage, the camera flies to its portal -------------------- */
+.has-scene .descent { max-width: none; padding-top: 120px; }
+.has-scene .descent .block-head { max-width: var(--max); margin-left: auto; margin-right: auto; padding: 0 var(--gutter); }
+.has-scene .descent .path { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); gap: 0; }
+.has-scene .descent .path::before { display: none; }
+.has-scene .stop {
+  min-height: 78vh; display: flex; align-items: center; gap: 22px;
+  background: none; border: 0; box-shadow: none; padding: 0;
+  opacity: .32; transition: opacity .5s ease;
+}
+.has-scene .stop > div {
+  max-width: 440px; padding: 24px 26px;
+  background: rgba(10, 7, 20, .8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(120, 96, 180, .3); border-left: 4px solid var(--violet);
+}
+.has-scene .stop.active { opacity: 1; }
+.has-scene .stop.active > div { border-left-color: var(--ember); box-shadow: 0 0 48px rgba(255, 122, 61, .12); }
+.has-scene .stop.final > div { border-left-color: var(--blood); }
+.has-scene .stop h3 { font: 400 1.4rem var(--pixel); }
+.has-scene .stop p { font-size: 1rem; }
+.has-scene .stop .depth { align-self: flex-start; margin-top: 26vh; position: static; }
+.has-scene .stop .danger { display: none; }
+.has-scene .stop.final { background: none; box-shadow: none; }
+@media (max-width: 900px) {
+  .has-scene .stop { min-height: 70vh; align-items: flex-end; padding-bottom: 8vh; }
+  .has-scene .stop .depth { display: none; }
+  .has-scene .stop > div { max-width: none; width: 100%; }
+}
+
+/* --- Quick search palette ---------------------------------------------------------------------- */
+.palette { border: 1px solid var(--line-hi); border-radius: 14px; padding: 0; width: min(620px, calc(100vw - 24px)); margin-top: 12vh; background: rgba(14, 10, 26, .96); color: var(--text); box-shadow: 0 30px 90px rgba(0, 0, 0, .7); }
+.palette::backdrop { background: rgba(5, 3, 11, .7); backdrop-filter: blur(4px); }
+.palette input { width: 100%; padding: 18px 20px; font: 500 1.05rem var(--body); color: var(--text); background: transparent; border: 0; border-bottom: 1px solid var(--line); outline: none; }
+.palette ol { list-style: none; margin: 0; padding: 6px; max-height: 52vh; overflow: auto; }
+.palette li a { display: block; padding: 10px 14px; border-radius: 8px; color: var(--text); }
+.palette li a.on, .palette li a:hover { background: rgba(255, 122, 61, .16); }
+.palette .p-head { display: block; font-weight: 600; }
+.palette .p-page { color: var(--ember-hi); font-size: .78rem; margin-left: 8px; font-weight: 500; }
+.palette .p-text { display: block; color: var(--text-muted); font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.palette .p-none, .palette .p-hint { padding: 14px 18px; color: var(--text-muted); font-size: .9rem; }
+.palette mark { background: none; color: var(--gold); }
+
+/* --- Wiki, gold and changelog: calm panels over the sky -------------------------------------------- */
+.has-scene .sub-page .block.page, .has-scene.sub-page .block.page { background: none; }
+.has-scene .wiki-main { background: rgba(10, 7, 20, .78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(120, 96, 180, .2); padding: 28px clamp(16px, 3vw, 40px); }
+.has-scene .wiki-side { background: rgba(10, 7, 20, .6); }
+.has-scene .gold-card { background: rgba(16, 11, 30, .72); backdrop-filter: blur(10px); }
+.has-scene .timeline .release { background: rgba(16, 11, 30, .7); }
+
+/* --- The menu on phones (site.js adds the button) -------------------------------------------- */
+.menu-btn { display: none; width: 40px; height: 36px; padding: 9px 8px; background: none; border: 1px solid var(--line-hi); border-radius: 8px; cursor: pointer; flex-direction: column; justify-content: space-between; }
+.menu-btn span { display: block; height: 2px; background: var(--text); transition: transform .2s ease, opacity .2s ease; }
+.bar.open .menu-btn span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.bar.open .menu-btn span:nth-child(2) { opacity: 0; }
+.bar.open .menu-btn span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+.links a { white-space: nowrap; }
+@media (max-width: 1180px) {
+  .links { display: none; gap: 0; }
+  .bar-link { display: inline; margin-left: auto; }
+  .menu-btn { display: flex; }
+  .bar .quick { display: none; }
+  .bar.open .links {
+    display: flex; flex-direction: column; gap: 0;
+    position: absolute; top: 100%; left: 0; right: 0;
+    padding: 8px var(--gutter) 16px; background: #0a0714;
+    border-bottom: 1px solid var(--line-hi);
+  }
+  .bar.open .links a { padding: 12px 4px; font-size: 1.05rem; border-bottom: 1px solid var(--line); }
+  .bar.open .links a[aria-current] { box-shadow: none; color: var(--gold); }
+}
+.menu-btn { flex: none; }
+@media (max-width: 640px) {
+  .bar { gap: 12px; }
+  .bar .bar-link { display: none; }
+  .bar .pill-play { margin-left: auto; }
+}
