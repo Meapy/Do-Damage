@@ -45,6 +45,8 @@ pub enum NpcKind {
     Market,
     /// The Arena Leaderboard trophy in the Nexus's south yard: the best arena runs.
     ArenaLeaderboard,
+    /// The Crucible Leaderboard beside it: the best Crucible climbs.
+    CrucibleLeaderboard,
     /// The Divine Forge in the Nexus's forge hall: forging, and selling items for fame.
     Forge,
     /// The Enchanter beside it: imprinting gear.
@@ -85,6 +87,7 @@ impl NpcKind {
             "PotionStorage" => Self::PotionStorage,
             "MarketNPC" => Self::Market,
             "ArenaLeaderboard" => Self::ArenaLeaderboard,
+            "CrucibleLeaderboard" => Self::CrucibleLeaderboard,
             "Forge" => Self::Forge,
             "Enchanter" => Self::Enchanter,
             "QuestMaster" => Self::QuestMaster,
@@ -160,6 +163,7 @@ pub fn interact_text(kind: NpcKind, me: &GameObj, rank_req: i32, price: Option<i
         NpcKind::PotionStorage => open(tr("Store stat potions"), tr("Open")),
         NpcKind::Market => open(tr("Buy and sell items"), tr("Manage")),
         NpcKind::ArenaLeaderboard => open(tr("The arena's best runs"), tr("View")),
+        NpcKind::CrucibleLeaderboard => open(tr("The Crucible's best climbs"), tr("View")),
         NpcKind::Forge | NpcKind::Enchanter => open(tr("The Divine Workbench"), tr("Open")),
         NpcKind::CosmicAnvil => open(tr("Corrupt Enthroned gear"), tr("Open")),
         NpcKind::QuestMaster => open(tr("Daily, weekly and monthly quests"), tr("Quests")),
@@ -253,8 +257,9 @@ pub enum Window {
     Members { list: Option<Guild>, page: usize, error: Option<String> },
     Potions { counts: Option<(Vec<i32>, i32)>, error: Option<String> },
     /// `/arena/leaderboard`, best first, once it has come: solo runs or group runs, of a season
-    /// (None: the current one), with every season (kept while another tab loads).
-    Leaderboard { solo: bool, season: Option<i32>, board: Option<ArenaBoard>, seasons: Vec<ArenaSeason>, error: Option<String> },
+    /// (None: the current one), with every season (kept while another tab loads). With
+    /// `crucible`, `/crucible/leaderboard`'s climbs instead (no seasons; a run's wave its floors).
+    Leaderboard { solo: bool, season: Option<i32>, board: Option<ArenaBoard>, seasons: Vec<ArenaSeason>, error: Option<String>, crucible: bool },
     /// `/champions/board`: the Hall of Champions.
     Champions(Box<crate::champions::View>),
     /// `/stats/weekly`: the server's week, once it has come.
@@ -602,7 +607,8 @@ impl Npcs {
             Window::Board { .. } => tr("Guild board").to_owned(),
             Window::Members { list, .. } => list.as_ref().map_or(tr("Guild members").to_owned(), |l| l.name.clone()),
             Window::Potions { .. } => tr("Potion storage").to_owned(),
-            Window::Leaderboard { .. } => tr("Arena Leaderboard").to_owned(),
+            Window::Leaderboard { crucible: false, .. } => tr("Arena Leaderboard").to_owned(),
+            Window::Leaderboard { crucible: true, .. } => tr("Crucible Leaderboard").to_owned(),
             Window::Champions(_) => tr("Hall of Champions").to_owned(),
             Window::Weekly { .. } => tr("This week in the realm").to_owned(),
         };
@@ -866,7 +872,7 @@ impl Npcs {
                     }
                 }
             }
-            Window::Leaderboard { solo, season, board, seasons, error } => {
+            Window::Leaderboard { solo, season, board, seasons, error, crucible } => {
                 let ts = font(12.5);
                 // the seasons' tabs on the left (when the server has seasons), the Solo and Group
                 // tabs on the right, then the season's line and the runs under them
@@ -903,6 +909,8 @@ impl Npcs {
                     }
                     Some(b) if b.runs.is_empty() => {
                         let t = match (past, *solo) {
+                            _ if *crucible && *solo => tr("No solo climbs yet. Climb the Crucible (/crucible) alone and live to get on the board."),
+                            _ if *crucible => tr("No group climbs yet. Climb the Crucible (/crucible) with others and live to get on the board."),
                             (true, true) => tr("No solo runs were made that season."),
                             (true, false) => tr("No group runs were made that season."),
                             (false, true) => tr("No solo runs yet. Survive waves in the Arena (/arena) alone to get on the board."),
@@ -913,7 +921,7 @@ impl Npcs {
                             ui.label(line, body[0], body[1] + i as f32 * ts * 1.3, ts, false, color::TEXT_MUTED);
                         }
                     }
-                    Some(b) => draw_runs(ui, &b.runs, body, s, me.and_then(|m| m.name()).unwrap_or("")),
+                    Some(b) => draw_runs(ui, &b.runs, body, s, me.and_then(|m| m.name()).unwrap_or(""), crucible.then_some(b.floors)),
                 }
             }
             Window::Champions(view) => {
@@ -1052,10 +1060,21 @@ fn draw_season_line(ui: &mut Ui, se: &ArenaSeason, live: bool, body: [f32; 4], s
     ui.label(&detail, x, body[1] + (ns - ds) * 0.7, ds, false, if live { color::GOOD } else { color::TEXT_MUTED });
 }
 
+/// What a run reached: "Wave 31", or for the Crucible's climbs (`crucible`, its floors) "Floor 3"
+/// or "Conquered".
+pub fn run_reached(wave: i32, crucible: Option<i32>) -> String {
+    match crucible {
+        Some(floors) if wave >= floors => tr("Conquered").to_owned(),
+        Some(_) => tf!("Floor {floor}", floor = wave),
+        None => tf!("Wave {wave}", wave),
+    }
+}
+
 /// The leaderboard's runs in `body`: the best one in a gold-edged card (its wave, time, arena
 /// and everyone who took part; from Season 2 the Empowered bosses it slew and the round it ended
-/// in), then the rest a row each. The viewer's own name stands out.
-fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
+/// in), then the rest a row each. The viewer's own name stands out. With `crucible` (its
+/// floors), the Crucible's climbs: the floors each cleared, its time and who saw it through.
+fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str, crucible: Option<i32>) {
     const GOLD: u32 = 0xFFD24A;
     const EMPOWERED: u32 = 0xFF4FD8;
     let font = |size: f32| (size * s).round().max(9.0);
@@ -1069,7 +1088,7 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
     let (x, mut y) = (card[0] + 16.0 * s, card[1] + 12.0 * s);
     let big = font(22.0);
     ui.label("#1", x, y, big, true, GOLD);
-    let wave = tf!("Wave {wave}", wave = best.wave);
+    let wave = run_reached(best.wave, crucible);
     let wx = x + ui.measure("#1", big, true) + 14.0 * s;
     ui.label(&wave, wx, y, big, true, color::TEXT);
     let tx = wx + ui.measure(&wave, big, true) + 14.0 * s;
@@ -1086,7 +1105,13 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
         ui.label(&t, ex, y + (big - es) * 0.8, es, true, EMPOWERED);
     }
     y += big * 1.35;
-    let caption = if best.fell.is_empty() { tr("Time taken and the players who took part").to_owned() } else { tf!("Fell at {round}", round = best.fell) };
+    let caption = if crucible.is_some() {
+        tr("Time to the last floor cleared, and the players who lived to see it").to_owned()
+    } else if best.fell.is_empty() {
+        tr("Time taken and the players who took part").to_owned()
+    } else {
+        tf!("Fell at {round}", round = best.fell)
+    };
     let caption = fit(ui, &caption, font(10.5), card[2] - 32.0 * s);
     ui.label(&caption, x, y, font(10.5), true, if best.fell.is_empty() { color::TEXT_MUTED } else { color::TEXT_DIM });
     y += font(10.5) * 1.5;
@@ -1111,7 +1136,7 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str) {
         let ty = ry + (28.0 * s - ts * 1.22) / 2.0;
         let c = if mine(r) { color::ACCENT_HI } else { color::TEXT };
         ui.label(&format!("#{}", i + 1), body[0], ty, ts, true, color::TEXT_DIM);
-        ui.label(&tf!("Wave {wave}", wave = r.wave), body[0] + 40.0 * s, ty, ts, true, c);
+        ui.label(&run_reached(r.wave, crucible), body[0] + 40.0 * s, ty, ts, true, c);
         ui.label(&run_time(r.seconds), body[0] + 122.0 * s, ty, ts, false, color::TEXT_DIM);
         let mut px = body[0] + 190.0 * s;
         if r.empowered > 0 {

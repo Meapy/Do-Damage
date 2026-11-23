@@ -13,7 +13,8 @@ namespace Shared.champions
     // few minutes. Cheap on Redis: it reads accounts in pipelined batches, and keeps what it read,
     // so later rankings read again only the accounts seen since (their lastSeen moved: saving a
     // character, dying, a name change all come with a save) plus everything once an hour. The
-    // weekly boards and the Arena's runs are read whole each time (sorted sets, small).
+    // weekly boards and the Arena's runs and the Crucible's climbs are read whole each time (sorted
+    // sets, small).
     public sealed class ChampionSweep
     {
         private const int Batch = 200;
@@ -73,6 +74,13 @@ namespace Shared.champions
             var runs = DbArenaRuns.Top(_db, ArenaSeasons.Current, ArenaRuns);
             boards[(int)ChampionTab.ArenaSolo] = Rank(ArenaBests(live, runs.Where(r => r.Solo).ToList()));
             boards[(int)ChampionTab.ArenaGroup] = ChampionBoards.Rank(ArenaGroups(live, runs.Where(r => !r.Solo).ToList()));
+            // the Crucible's climbs, ranked as the Arena's runs: the floors cleared, then the
+            // quicker; a group's climb stays a group's with one of it left on it
+            var climbs = DbCrucibleRuns.Top(_db, ArenaRuns);
+            List<DbArenaRun> AsRuns(bool solo) => climbs.Where(c => c.Solo == solo)
+                .Select(c => new DbArenaRun { Wave = c.Floors, Seconds = c.Seconds, Time = c.Time, Players = c.Players }).ToList();
+            boards[(int)ChampionTab.CrucibleSolo] = Rank(ArenaBests(live, AsRuns(true)));
+            boards[(int)ChampionTab.CrucibleGroup] = ChampionBoards.Rank(ArenaGroups(live, AsRuns(false), least: 1));
             DbChampions.SeedGuildDead(_db, weekNow.Year);
             var guilds = Guilds(live, weekNow).ToList();
             boards[(int)ChampionTab.GuildLiving] = ChampionBoards.Rank(guilds.Select(g => g.Living));
@@ -139,7 +147,7 @@ namespace Shared.champions
         // The Arena's group runs, a place for each group (the same players, in whatever order: its
         // best run), its members in the run's order. A run with a player who isn't ranked (a guest,
         // an admin, a name no account has now) isn't counted.
-        private IEnumerable<ChampionRanked> ArenaGroups(Dictionary<int, Account> live, List<DbArenaRun> runs)
+        private IEnumerable<ChampionRanked> ArenaGroups(Dictionary<int, Account> live, List<DbArenaRun> runs, int least = 2)
         {
             var byName = AccountsByName(live, runs);
             var seen = new HashSet<string>();
@@ -149,7 +157,7 @@ namespace Shared.champions
                 foreach (var p in run.Players)
                     if (byName.TryGetValue(p.ToUpperInvariant(), out var id) && !ids.Contains(id))
                         ids.Add(id);
-                if (ids.Count < 2 || ids.Count != run.Players.Length || !seen.Add(string.Join(",", ids.OrderBy(i => i))))
+                if (ids.Count < least || ids.Count != run.Players.Length || !seen.Add(string.Join(",", ids.OrderBy(i => i))))
                     continue;
                 var quick = run.Seconds < 0 ? 0L : 1_000_000L - run.Seconds;
                 var members = ids.Select(i => Entry(live, i, run.Wave, quick)).ToList();

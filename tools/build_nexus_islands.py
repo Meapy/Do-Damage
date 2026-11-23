@@ -172,6 +172,7 @@ COURT = (153, 88, 169, 100)
 SAMURAI = (158, 94)
 HERALD = (166, 92)
 LEADERBOARD = (162, 92)
+CRUCIBLE_LEADERBOARD = (160, 92)     # the Crucible's, beside it
 # the pet pen east of the court (PetPen.cs): packed earth in a bamboo fence, its gate west towards
 # the Warcaller and the Herald, the Pen Keeper outside it; pets come and go on its floor
 PEN = (174, 89, 188, 99)
@@ -675,10 +676,15 @@ def round_spot(bearing, r):
     return int(math.floor(TOWER[0] + r * math.cos(a))), int(math.floor(TOWER[1] + r * math.sin(a)))
 
 
+# the Hall of Champions' boards with a statue on the balcony: the garden's, then the Crucible's
+STATUE_BOARDS = [board for _, board in bn.CHAMPION_STATUES] + ["crucibleSolo", "crucibleGroup"]
+
+
 def plinths():
     """The Hall of Champions' plinths, one a board, evenly round the balcony from the south-east
     to the north-east, leaving its east side to the bar."""
-    return [round_spot(60 + 30 * i, PLINTH_R) for i in range(len(bn.CHAMPION_STATUES))]
+    n = len(STATUE_BOARDS)
+    return [round_spot(60 + 240 * i / (n - 1), PLINTH_R) for i in range(n)]
 
 
 def lay_pen(g):
@@ -726,6 +732,7 @@ def lay_arena(levels):
     for x in (ax1 - 6, ax1 - 4, ax1 - 2):
         g.place(x, ay1 - 2, "NG Straw Dummy")
     g.place(*LEADERBOARD, "Arena Leaderboard")
+    g.place(*CRUCIBLE_LEADERBOARD, "Crucible Leaderboard")
     g.place(ax1 - 2, ay0 + 2, "NG Taiko")
     g.put(*HERALD, region="Nexus Herald")
     g.put(*WARCALLER, region="Nexus Warcaller")
@@ -759,7 +766,7 @@ def lay_arena(levels):
     # on the balcony: the Hall of Champions' plinths round the tower (build_nexus's ring, open
     # to the east where the bar is), its monument, the telescope; lanterns
     tx, ty = TOWER
-    for (x, y), (_, board) in zip(plinths(), bn.CHAMPION_STATUES):
+    for (x, y), board in zip(plinths(), STATUE_BOARDS):
         top.place(x, y, "Champion Statue", name="name:%s" % board)
     top.place(*CHAMPIONS, "Champions Monument")
     top.place(*round_spot(TELESCOPE_AT, PLINTH_R), "NI Telescope")

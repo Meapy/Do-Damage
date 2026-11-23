@@ -17,7 +17,7 @@ namespace Shared.crucible
         public const string PortalName = "Crucible Portal";
 
         /// How many may climb together.
-        public const int MaxClimbers = 6;
+        public const int MaxClimbers = 4;
 
         /// Whether an account may climb: it reached round 50 of the Arena, holds this month's
         /// Gilded Realm Pass, or is an admin's.

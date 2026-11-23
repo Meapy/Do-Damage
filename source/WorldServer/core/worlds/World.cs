@@ -144,6 +144,10 @@ namespace WorldServer.core.worlds
 
         public void Invite(int accountId) => _invited[accountId] = DateTime.UtcNow.AddSeconds(60);
 
+        // an instance only joined at its start, now under way (a Crucible climb): /visit, /summon
+        // and /help can't bring anyone in, and an invitation from before it began no longer counts
+        public virtual bool Begun => false;
+
         // every account that has had a character here (or been let in by a player's /visit), so
         // /visit never takes anyone back into an instance they've already been in
         private readonly ConcurrentDictionary<int, byte> _beenIn = new ConcurrentDictionary<int, byte>();
@@ -162,7 +166,7 @@ namespace WorldServer.core.worlds
         // AllowedAccess, or an invitation that hasn't run out
         public bool CanEnter(Client client)
         {
-            if (_invited.TryGetValue(client.Account.AccountId, out var until))
+            if (!Begun && _invited.TryGetValue(client.Account.AccountId, out var until))
             {
                 if (DateTime.UtcNow < until)
                     return true;

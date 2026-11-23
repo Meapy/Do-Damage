@@ -529,6 +529,8 @@ pub struct ArenaRun {
     /// not kept, and from older servers).
     pub empowered: i32,
     pub fell: String,
+    /// A Crucible climb begun by a group (`/crucible/leaderboard`); false for the Arena's runs.
+    pub group: bool,
 }
 
 /// One Arena season (`/arena/leaderboard`): its number and name, and when it began and ended
@@ -542,13 +544,16 @@ pub struct ArenaSeason {
 }
 
 /// `/arena/leaderboard`: the season these runs are of and the current one (0 from an older
-/// server, which has no seasons), every season, and the runs, best first.
+/// server, which has no seasons), every season, and the runs, best first. From
+/// `/crucible/leaderboard` (`parse_crucible_board`): no seasons, each run's `wave` the floors it
+/// cleared, and `floors` the Crucible's (a climb that cleared them all conquered it).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ArenaBoard {
     pub season: i32,
     pub current: i32,
     pub seasons: Vec<ArenaSeason>,
     pub runs: Vec<ArenaRun>,
+    pub floors: i32,
 }
 
 /// `/arena/leaderboard`: the best arena runs, best first.
@@ -583,8 +588,39 @@ pub fn parse_arena_board(xml: &str) -> Result<ArenaBoard, String> {
                 players: r.children().filter(|p| p.has_tag_name("Player")).filter_map(|p| p.text()).map(str::to_owned).collect(),
                 empowered: int(r, "empowered", 0) as i32,
                 fell: r.attribute("fell").unwrap_or("").to_owned(),
+                group: false,
             })
             .collect(),
+        floors: 0,
+    })
+}
+
+/// `/crucible/leaderboard`: the best Crucible climbs, best first, as a board of runs whose `wave`
+/// is the floors each cleared.
+pub fn parse_crucible_board(xml: &str) -> Result<ArenaBoard, String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    let int = |n: roxmltree::Node, a: &str, or: i64| n.attribute(a).and_then(parse_int).unwrap_or(or);
+    Ok(ArenaBoard {
+        floors: int(root, "floors", 5) as i32,
+        runs: root
+            .children()
+            .filter(|c| c.has_tag_name("Run"))
+            .map(|r| ArenaRun {
+                wave: int(r, "floors", 0) as i32,
+                seconds: int(r, "seconds", -1) as i32,
+                time: int(r, "time", 0),
+                arena: String::new(),
+                players: r.children().filter(|p| p.has_tag_name("Player")).filter_map(|p| p.text()).map(str::to_owned).collect(),
+                empowered: 0,
+                fell: String::new(),
+                group: int(r, "group", 0) != 0,
+            })
+            .collect(),
+        ..ArenaBoard::default()
     })
 }
 
@@ -1060,6 +1096,20 @@ mod tests {
         assert_eq!(c.boards[1].rewards[0].1, 0xFFD24A);
         assert!(c.boards[1].entries.is_empty() && c.boards[1].me.is_none());
         assert!(parse_champions(r#"<Champions pending="1" now="5"/>"#).unwrap().pending);
+    }
+
+    #[test]
+    fn crucible_runs() {
+        let b = parse_crucible_board(
+            r#"<CrucibleRuns floors="5"><Run floors="5" seconds="734" time="1763700000000" group="1"><Player>Ann</Player><Player>Bo</Player></Run><Run floors="3" seconds="400" time="1"><Player>Cy</Player></Run></CrucibleRuns>"#,
+        )
+        .unwrap();
+        assert_eq!(b.floors, 5);
+        assert_eq!(b.runs.len(), 2);
+        assert_eq!((b.runs[0].wave, b.runs[0].seconds, b.runs[0].players.len()), (5, 734, 2));
+        assert_eq!((b.runs[1].wave, b.runs[1].players[0].as_str()), (3, "Cy"));
+        assert!(b.runs[0].group && !b.runs[1].group);
+        assert!(parse_crucible_board(r#"<CrucibleRuns floors="5"/>"#).unwrap().runs.is_empty());
     }
 
     #[test]

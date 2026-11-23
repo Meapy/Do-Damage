@@ -135,8 +135,9 @@ enum NpcRequest {
     SetBoard,
     Members,
     Potions,
-    /// the Arena Leaderboard's solo (true) or group runs, of a season (None: the current one)
-    Leaderboard(bool, Option<i32>),
+    /// the Arena Leaderboard's solo (true) or group runs, of a season (None: the current one);
+    /// with the last true, the Crucible Leaderboard's climbs
+    Leaderboard(bool, Option<i32>, bool),
     Champions,
     Weekly,
 }
@@ -455,7 +456,8 @@ fn npc_open(kind: npc::NpcKind, game: &Game, npcs: &mut npc::Npcs, market: &mut 
         NpcKind::GuildBoard => Window::Board { text: None, edit: None, error: None },
         NpcKind::GuildChronicle => Window::Members { list: None, page: 0, error: None },
         NpcKind::PotionStorage => Window::Potions { counts: None, error: None },
-        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, season: None, board: None, seasons: Vec::new(), error: None },
+        NpcKind::ArenaLeaderboard => Window::Leaderboard { solo: true, season: None, board: None, seasons: Vec::new(), error: None, crucible: false },
+        NpcKind::CrucibleLeaderboard => Window::Leaderboard { solo: true, season: None, board: None, seasons: Vec::new(), error: None, crucible: true },
         NpcKind::ChampionsBoard => Window::Champions(Box::default()),
         NpcKind::Herald => Window::Weekly { stats: None, error: None },
         // a statue: the Hall at its board (the nearest statue's)
@@ -1640,6 +1642,16 @@ impl App {
                 self.signs.set_arena(&board.runs, board.season);
             }
         }
+        // the Crucible Leaderboard's: its best solo and group climbs
+        if self.signs.want_crucible(now) {
+            self.signs.crucible_request = Some(endpoint.crucible_leaderboard(50, None));
+        }
+        if let Some(response) = self.signs.crucible_request.as_ref().and_then(|p| p.take()) {
+            self.signs.crucible_request = None;
+            if let Ok(board) = login::reached(response).and_then(|x| bsk_net::account::parse_crucible_board(&x)) {
+                self.signs.set_crucible(&board);
+            }
+        }
         // ... and the Hall of Champions' statues
         if self.hall.want(now, game.map_name() == "Nexus") {
             self.hall.request = Some(endpoint.champions(""));
@@ -1657,8 +1669,11 @@ impl App {
                 Some(npc::Window::Board { .. }) => Some((NpcRequest::Board, endpoint.guild_board(email, password))),
                 Some(npc::Window::Members { .. }) => Some((NpcRequest::Members, endpoint.guild_members(email, password))),
                 Some(npc::Window::Potions { .. }) => Some((NpcRequest::Potions, endpoint.potions(email, password))),
+                Some(npc::Window::Leaderboard { solo, crucible: true, .. }) => {
+                    Some((NpcRequest::Leaderboard(solo, None, true), endpoint.crucible_leaderboard(npc::LEADERBOARD_RUNS, Some(solo))))
+                }
                 Some(npc::Window::Leaderboard { solo, season, .. }) => {
-                    Some((NpcRequest::Leaderboard(solo, season), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo), season)))
+                    Some((NpcRequest::Leaderboard(solo, season, false), endpoint.arena_leaderboard(npc::LEADERBOARD_RUNS, Some(solo), season)))
                 }
                 Some(npc::Window::Champions(_)) => Some((NpcRequest::Champions, endpoint.champions(&my_name))),
                 Some(npc::Window::Weekly { .. }) => Some((NpcRequest::Weekly, endpoint.weekly_stats())),
@@ -1691,10 +1706,11 @@ impl App {
                 Err(e) => *error = Some(e),
             },
             // an answer for another tab, from before a switch, is dropped (the switch asked again)
-            (NpcRequest::Leaderboard(asked, asked_season), Some(npc::Window::Leaderboard { solo, season, board, seasons, error }))
-                if asked == *solo && asked_season == *season =>
+            (NpcRequest::Leaderboard(asked, asked_season, asked_crucible), Some(npc::Window::Leaderboard { solo, season, board, seasons, error, crucible }))
+                if asked == *solo && asked_season == *season && asked_crucible == *crucible =>
             {
-                match response.and_then(|x| acc::parse_arena_board(&x)) {
+                let parsed = response.and_then(|x| if asked_crucible { acc::parse_crucible_board(&x) } else { acc::parse_arena_board(&x) });
+                match parsed {
                     Ok(b) => {
                         if !b.seasons.is_empty() {
                             *seasons = b.seasons.clone();

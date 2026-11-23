@@ -38,6 +38,8 @@ namespace Shared
             public bool SinglePlayer;
             // a realm closing (Oryx is coming): no one new gets in
             public bool Closed;
+            // an instance only joined at its start (a Crucible climb), now under way
+            public bool Begun;
         }
 
         // Why the visitor can't join `target` there, or null when they may; with `summon`, why the
@@ -70,6 +72,8 @@ namespace Shared
             }
             if (p.Same)
                 return $"You're already with {target}.";
+            if (p.Begun)
+                return $"{target}'s climb of {p.Name} has begun: it can only be joined at the start.";
             if (p.BeenIn || (p.Allowed > 0 && p.Trips >= p.Allowed))
                 return $"You've already been in that {p.Name}: /visit can't take you back in.";
             if (p.SinglePlayer)
@@ -89,6 +93,8 @@ namespace Shared
             }
             if (p.Same)
                 return $"{target} is already with you.";
+            if (p.Begun)
+                return $"Your climb of {p.Name} has begun: nobody can join it now.";
             if (p.BeenIn || (p.Allowed > 0 && p.Trips >= p.Allowed))
                 return $"{target} has already been in this {p.Name}: /summon can't bring them back in.";
             if (p.SinglePlayer)

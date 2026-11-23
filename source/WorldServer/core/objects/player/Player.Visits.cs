@@ -96,6 +96,7 @@ namespace WorldServer.core.objects
             p.SinglePlayer = world != null && world.MaxPlayers <= 1;
             p.Full = world != null && world.IsPlayersMax();
             p.Closed = world is RealmWorld realm && realm.Closed;
+            p.Begun = world != null && world.Begun;
             return p;
         }
 
@@ -161,6 +162,11 @@ namespace WorldServer.core.objects
             if (VisitPlace(world, this).Kind != VisitRules.Kind.Instance)
             {
                 SendError("You can only call for help from a dungeon or instance.");
+                return new List<VisitBook.Request>();
+            }
+            if (world.Begun)
+            {
+                SendError($"Your climb of {world.GetDisplayName()} has begun: nobody can join it now.");
                 return new List<VisitBook.Request>();
             }
 

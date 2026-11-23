@@ -4,9 +4,9 @@ nav: 33
 section: Every day
 sprite: crown
 eyebrow: The living's leaderboard
-summary: The Hall of Champions in the Nexus: nine boards (fame, stars, achievements, the Arena solo and in groups, weekly fame and dungeons, and guilds' living and dead fame), how each is ranked, and the reward each board's top 10 hold while they stay there.
+summary: The Hall of Champions in the Nexus: twelve boards (fame, stars, achievements, the Arena and the Crucible solo and in groups, weekly fame and dungeons, guilds' living and dead fame, and account fame), how each is ranked, and the reward each board's top 10 hold while they stay there.
 ---
-The **Legends** remember the dead. The **Hall of Champions** honours the living: nine boards, each
+The **Legends** remember the dead. The **Hall of Champions** honours the living: twelve boards, each
 ranking every account (or guild) by one thing, and each giving its **top 10** a reward of its own while they
 hold the place. Lose the place and the reward goes; win it back and it returns.
 
@@ -38,6 +38,8 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
 | **Guild Living** | a [guild](guilds.html)'s living fame: its members' living characters, counting members who played in the last two weeks | +2% loot for every member | +1% | +0.5% |
 | **Guild Dead** | a guild's dead fame: every character that died in it this year (afresh each 1 January, UTC) | +2% loot for every member | +1% | +0.5% |
 | **Account Fame** | the fame of all your living characters together | +3% loot | +2% loot | +1% loot |
+| **Crucible Solo** | your best [Crucible](crucible.html#the-leaderboard) climb alone: the floors cleared, then the quicker time (fall on the way and it isn't yours) | +10% loot in the Crucible | +6% | +3% |
+| **Crucible Group** | the best Crucible climbs with others: each place is a **whole group**, those who were there for its last floor and never fell | +10% loot in the Crucible | +6% | +3% |
 
 - **Loot:** the boards' loot boosts add up to **at most +4%** (Fame's, Account Fame's, the guild boards'
   and, in a dungeon, Weekly Dungeons' together). The Legends' +1% and a guild hall's own (1% to 3%) come on top of that.
@@ -49,6 +51,8 @@ The rewards come in three steps: **#1**, **#2-3** and **#4-10**.
   the whole group.
 - **Arena fame:** the two Arena boards' rewards add up, so #1 on both gives +30% fame from Arena
   waves.
+- **Crucible loot:** the two Crucible boards' rewards add up too, and come on top of the +4% cap:
+  #1 on both gives +20% loot from the Crucible's champions.
 - **Experience** at level 20 turns into fame, so Weekly Fame's reward is more fame too.
 - **Glow and name colour:** the **Customize** window (Escape, then Customize) picks where each comes
   from. Your name: an achievement rank's colour, or the Achievements board's while you hold a place

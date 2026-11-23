@@ -18,6 +18,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **Calmer floors, as hard as before:** a floor that changes shape now cracks everywhere it will fall at once, and the floors that keep turning move in a step every few seconds and hold still in between, instead of crumbling at the edges all the time. The blades, tides, lava veins and clock hands move slower but are wider, so they're easier to follow.
 - **Hits from the tide now count:** walking through Nerissa's tide (or a clock hand) sometimes showed a damage number without taking any health. It now always takes it.
 - **Vaelith no longer gets stuck in the sky** when the Apex changes shape under him: he's put back on the floor, and in his last phase he comes after you round the halo.
+- **Climbs are for up to four**, and only from the start: once a climb begins nobody can join it, by the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. When a lobby is full, the next player starts a new one.
+- **The Crucible Leaderboard** stands beside the Arena Leaderboard in the Arena court: the best solo and group climbs, by floors cleared and then time. Only players who were there when the climb's last floor fell, and never fell themselves, are on it, and climbs with an admin in them don't count. It starts fresh with this update. The Hall of Champions has **Crucible Solo** and **Crucible Group** boards too, whose top ten get up to +10% loot in the Crucible.
 
 ### Mechanic
 - **Turrets hit twice as hard and every shot pierces:** the shots and the blast at the end of every turret do double, and the shots of the lower tiers now go through enemies like the higher ones' do.

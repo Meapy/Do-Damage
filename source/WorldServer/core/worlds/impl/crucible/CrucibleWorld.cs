@@ -47,7 +47,10 @@ namespace WorldServer.core.worlds.impl.crucible
     //   is taken away; everyone healed (Cleared); the Ascension Sigil turns in the middle, and a
     //   moment later the way up opens. Everyone is safe from the clear until the next champion.
     // After the Sovereign on the fifth floor: the victory (Victory), its time announced to everyone,
-    // and a portal home. Every climb goes on the Crucible's leaderboard (DbCrucibleRuns). Admins'
+    // and a portal home. A climb goes on the Crucible's leaderboard (DbCrucibleRuns) by the floors
+    // it cleared and the time to the last of them, with the players there when that floor fell
+    // who never fell themselves (Fell), solo or group as it began; not a climb that cleared
+    // nothing, nor one an admin was in, before it began or after (_staff). Admins'
     // /crucible floor still jumps (the ascent: CrucibleMessage.Ascend, everyone moved up at once).
     public sealed class CrucibleWorld : DoomedMinigame
     {
@@ -69,6 +72,10 @@ namespace WorldServer.core.worlds.impl.crucible
         private bool _counting;
         private int _floor;                   // 0: the Threshold
         private int _cleared;
+        // when the last floor cleared fell (seconds into the climb), who was there, and who has fallen
+        private int _clearedSecs;
+        private readonly List<string> _atLastClear = new List<string>();
+        private readonly HashSet<string> _fallen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<int, (Entity Heart, Position Centre)> _hearts = new Dictionary<int, (Entity, Position)>();
         private Enemy _champion;
         private Entity _sigil;
@@ -77,6 +84,7 @@ namespace WorldServer.core.worlds.impl.crucible
         private readonly List<string> _climbers = new List<string>();
         private bool _recorded;
         private bool _forced; // an admin's /crucible floor: a test, kept off the board and out of the announcements
+        private bool _staff;  // an admin was in the climb: kept off the board
         private TickTime _time;
 
         public CrucibleWorld(GameServer gameServer, int id, WorldResource resource, World parent)
@@ -86,7 +94,11 @@ namespace WorldServer.core.worlds.impl.crucible
             MaxPlayers = CrucibleRules.MaxClimbers;
         }
 
-        public override bool Joinable => _stage == Stage.Lobby;
+        // open while it waits to begin and has room (MaxClimbers): full, the portal and /crucible
+        // open the next climb (DoomedWorlds.RefreshPortal)
+        public override bool Joinable => _stage == Stage.Lobby && !IsPlayersMax();
+        // nobody new once the climb has begun, by /visit, /summon or /help either (World.Begun)
+        public override bool Begun => _stage != Stage.Lobby;
 
         public override bool AllowedAccess(Client client) =>
             base.AllowedAccess(client) && (CrucibleAccess.IsAdmin(client.Account) || Joinable && CrucibleAccess.MayEnter(client, out _));
@@ -347,6 +359,8 @@ namespace WorldServer.core.worlds.impl.crucible
             base.AddToWorld(entity);
             if (entity is Player p)
             {
+                if (_stage != Stage.Lobby && CrucibleAccess.IsAdmin(p.Client?.Account))
+                    _staff = true;
                 Send(StatusFor(), p);
                 if (_stage == Stage.Lobby && !_counting)
                     p.SendInfo("The Crucible: five floors, five champions. The climb begins a minute after the first arrives; say GO to begin sooner. " +
@@ -411,6 +425,7 @@ namespace WorldServer.core.worlds.impl.crucible
             foreach (var p in Players.Values)
             {
                 _climbers.Add(p.Name);
+                _staff |= CrucibleAccess.IsAdmin(p.Client?.Account);
                 CrucibleAccess.Spend(p); // one of the day's climbs
             }
             StaticLogger.Instance.Info($"The Crucible: a climb begins with {string.Join(", ", _climbers)}");
@@ -708,6 +723,9 @@ namespace WorldServer.core.worlds.impl.crucible
             var floor = _floor;
             var spec = CrucibleRules.Floor(floor);
             _cleared = floor;
+            _clearedSecs = Seconds(_climbStart);
+            _atLastClear.Clear();
+            _atLastClear.AddRange(Players.Values.Select(p => p.Name));
             var fell = _champion == null ? (Position?)null : new Position(_champion.X, _champion.Y);
             _champion = null;
             ResetFloor(floor);
@@ -753,27 +771,33 @@ namespace WorldServer.core.worlds.impl.crucible
                 StartNewTimer(4000, (w, t) => Spawn("Nexus Portal", h.Centre.X, h.Centre.Y + 3));
         }
 
+        // a climber defeated (Player.HandleDefeat): off the board for this climb
+        public void Fell(Player player) => _fallen.Add(player.Name);
+
         private void Record()
         {
             if (_recorded || _climbers.Count == 0)
                 return;
             _recorded = true;
-            var secs = Seconds(_climbStart);
-            try
-            {
-                var db = GameServer.Database.Conn;
-                // a climb that cleared nothing isn't one for the board
-                var best = _cleared > 0 && DbCrucibleRuns.RankOf(db, _cleared, secs) == 0;
-                if (_cleared > 0)
-                    DbCrucibleRuns.Add(db, _cleared, secs, _climbers);
-                if (best)
-                    GameServer.ChatManager.Arena($"New Crucible record: {(_cleared >= CrucibleRules.Floors.Count ? "all five floors" : $"floor {_cleared}")} in {DbArenaRuns.FormatTime(secs)} by {string.Join(", ", _climbers)}!");
-            }
-            catch (Exception e)
-            {
-                StaticLogger.Instance.Error($"The Crucible: recording the climb failed: {e.Message}");
-            }
-            StaticLogger.Instance.Info($"The Crucible: a climb ended at floor {_cleared} after {secs} s ({string.Join(", ", _climbers)})");
+            // the floors cleared and the time to the last of them, for those there when it fell who
+            // never fell themselves; solo or group as the climb began
+            var finishers = _atLastClear.Where(n => !_fallen.Contains(n)).ToList();
+            var group = _climbers.Count > 1;
+            if (_cleared > 0 && finishers.Count > 0 && !_staff)
+                try
+                {
+                    var db = GameServer.Database.Conn;
+                    var best = DbCrucibleRuns.RankOf(db, _cleared, _clearedSecs, group) == 0;
+                    DbCrucibleRuns.Add(db, _cleared, _clearedSecs, finishers, group);
+                    if (best)
+                        GameServer.ChatManager.Arena($"New {(group ? "group" : "solo")} Crucible record: {(_cleared >= CrucibleRules.Floors.Count ? "conquered" : $"floor {_cleared}")} in {DbArenaRuns.FormatTime(_clearedSecs)} by {string.Join(", ", finishers)}!");
+                }
+                catch (Exception e)
+                {
+                    StaticLogger.Instance.Error($"The Crucible: recording the climb failed: {e.Message}");
+                }
+            var why = _cleared == 0 ? "nothing cleared" : _staff ? "an admin in it" : finishers.Count == 0 ? "everyone there fell" : $"on the board for {string.Join(", ", finishers)}";
+            StaticLogger.Instance.Info($"The Crucible: a climb ended at floor {_cleared} ({_clearedSecs} s to it; {string.Join(", ", _climbers)}): {why}");
         }
 
         // ---- the floors ----

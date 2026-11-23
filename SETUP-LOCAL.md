@@ -794,7 +794,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `HelloHandler` and `MessageHandlers.IsEnabledOrAdminOnly`).
 - **The Crucible** (2026-11-21): a boss-only tower over the Arena, five floors of one map
   (`Dungeons/The Crucible/The Crucible.jm`, 56x460, `<World id="The Crucible">` in Dungeons.xml:
-  Background 9, DefeatToNexus, Capacity 6, music `the_crucible`). Everything of its own is made by
+  Background 9, DefeatToNexus, Capacity 4 (`CrucibleRules.MaxClimbers`), music `the_crucible`). Everything of its own is made by
   `tools/build_crucible.py` (the map, `CrucibleGrounds.xml` and `CrucibleObjects.xml` in both
   copies, the sheets `Crucible8x8`, `Crucible16x16`, `Crucible32x32`, `CrucibleChars16x16`, `CrucibleChars32x32`;
   art in `tools/crucible/bosses.py` and `small.py`, type numbers kept in `tools/crucible/types.json`,
@@ -847,6 +847,26 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   allies (enemies with their `AllyOwnerId`) come up with them and a floor's reset leaves them
   (`CrucibleWorld.BringAllies`). Tests: `CrucibleTests`.
 
+- **The Crucible's joining and leaderboard** (2026-11-23): at most four climb together
+  (`CrucibleRules.MaxClimbers`); a full lobby isn't `Joinable`, so the portal and `/crucible` open
+  the next climb. Once a climb begins (`World.Begun`) `/visit`, `/summon`, `/help` and the Scrying
+  Glass are refused (`VisitRules.Place.Begun`) and invitations no longer let anyone in
+  (`World.CanEnter`). The board is the Redis sorted set `crucible.climbs` (`DbCrucibleRuns`; the
+  climbs before 2.6.5, in `crucible.runs`, are kept and not read): floors cleared, then the time to
+  the last of them, members `<ms>|<seconds>|solo or group|<players>`, the players those there when
+  the last floor fell who never fell (`CrucibleWorld.Fell`, from `Player.HandleDefeat`); a climb an
+  admin was in (`_staff`) isn't added. The account server's `/crucible/leaderboard`
+  (`CrucibleController`) serves it to the Nexus's **Crucible Leaderboard** (0x498f, class
+  `CrucibleLeaderboard`, beside the Arena Leaderboard in the Arena court: `CRUCIBLE_LEADERBOARD` in
+  `tools/build_nexus_islands.py`), whose window and sign are the Arena's (`npc.rs`, `signs.rs`).
+  The Hall of Champions has **Crucible Solo** and **Crucible Group** boards (`ChampionTab` 10 and
+  11, statues on the tower's balcony: `STATUE_BOARDS`), rewarding `CrucibleLoot`, more loot from
+  the Crucible's monsters outside the boards' loot cap (`Loots.cs`).
+- **Calmer Crucible floors** (2026-11-23): a reshaping floor cracks everything that will fall at
+  once; moving forms step every 4 s (`ArenaForm`'s `beatMs`); the hazards are slower and wider.
+  Ground hits on squares a Crucible painter has just painted over count for 1.5 s
+  (`World.GroundPaintedOver`, `RecentDamagingGround`). The Apex moves monsters off the sky too, so
+  Vaelith no longer sticks over it.
 - **Skins sold at the Armoire** (2026-11-20): a `Reskin` for a skin the account lacks buys it
   (`ReskinHandler`): the same rules as `/account/purchaseSkin` (not a Realm Pass skin, the class
   at the skin's `<UnlockLevel>`, counting the character's own level, and `<Cost>` gold, 200 by

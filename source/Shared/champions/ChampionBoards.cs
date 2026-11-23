@@ -12,7 +12,7 @@ namespace Shared.champions
     // everyone every few minutes (ChampionSweep) and writes who holds what into Redis
     // (DbChampions); the world servers read that and apply it (ChampionCache, Player.Champion).
     // This file is only the rules, so dotnet test source\Tests covers them.
-    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6, GuildLiving = 7, GuildDead = 8, AccountFame = 9 }
+    public enum ChampionTab : byte { Fame = 0, Stars = 1, Achievements = 2, ArenaSolo = 3, ArenaGroup = 4, WeeklyFame = 5, WeeklyDungeons = 6, GuildLiving = 7, GuildDead = 8, AccountFame = 9, CrucibleSolo = 10, CrucibleGroup = 11 }
 
     public enum ChampionReward : byte
     {
@@ -22,6 +22,7 @@ namespace Shared.champions
         Experience,     // more experience, which at level 20 is fame (Value: a share)
         DungeonLoot,    // a loot boost in dungeons, anywhere but the realms (Value: a share)
         ArenaFame,      // more fame from the Arena's waves (Value: a share)
+        CrucibleLoot,   // more loot from the Crucible's monsters (Value: a share), outside LootCap
     }
 
     public sealed class ChampionBoardDef
@@ -55,6 +56,7 @@ namespace Shared.champions
                 ChampionReward.Experience => $"+{Percent(v)} experience and fame",
                 ChampionReward.DungeonLoot => $"+{Percent(v)} loot in dungeons",
                 ChampionReward.ArenaFame => $"+{Percent(v)} fame from Arena waves",
+                ChampionReward.CrucibleLoot => $"+{Percent(v)} loot in the Crucible",
                 _ => "",
             };
         }
@@ -132,16 +134,30 @@ namespace Shared.champions
                 Description = "A guild's dead fame: the fame of every character that died in it this year.",
                 Reward = ChampionReward.Loot, Values = new[] { 0.02, 0.01, 0.005 },
             },
-            // last, as the tabs are numbered (ChampionTab): the boards' order is the tabs'
+            // in the tabs' order (ChampionTab): the boards' order is the tabs'
             new ChampionBoardDef
             {
                 Tab = ChampionTab.AccountFame, Id = "accountFame", Name = "Account Fame", Unit = "fame",
                 Description = "The fame of all your living characters together.",
                 Reward = ChampionReward.Loot, Values = new[] { 0.03, 0.02, 0.01 },
             },
+            // the Crucible's leaderboard (DbCrucibleRuns), alone and together, as the Arena's
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.CrucibleSolo, Id = "crucibleSolo", Name = "Crucible Solo", Unit = "floors",
+                Description = "Your best Crucible climb alone: the floors cleared, then the quicker climb. Fall on the way and it isn't yours.",
+                Reward = ChampionReward.CrucibleLoot, Values = new[] { 0.10, 0.06, 0.03 },
+            },
+            new ChampionBoardDef
+            {
+                Tab = ChampionTab.CrucibleGroup, Id = "crucibleGroup", Name = "Crucible Group", Unit = "floors",
+                Description = "Your group's best Crucible climb: the floors cleared, then the quicker climb. Those who fell on the way aren't on it.",
+                Reward = ChampionReward.CrucibleLoot, Values = new[] { 0.10, 0.06, 0.03 },
+            },
         };
 
         public static ChampionBoardDef Of(ChampionTab tab) => All[(int)tab];
+
 
         public static ChampionBoardDef ById(string id) =>
             All.FirstOrDefault(b => string.Equals(b.Id, id, StringComparison.OrdinalIgnoreCase));
@@ -251,6 +267,9 @@ namespace Shared.champions
 
         // the two Arena boards' together
         public double ArenaFame => Sum(ChampionReward.ArenaFame);
+
+        // the two Crucible boards' together
+        public double CrucibleLoot => Sum(ChampionReward.CrucibleLoot);
 
         public int Glow => (int)Best(ChampionReward.Glow);
 

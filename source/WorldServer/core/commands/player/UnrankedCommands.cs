@@ -644,6 +644,8 @@ namespace WorldServer.core.commands.player
             // the Hall of Champions' other rewards
             if (player.Champion.ArenaFame > 0)
                 player.SendInfo($"You get {ChampionBoardDef.Percent(player.Champion.ArenaFame)} more fame from Arena waves (the Hall of Champions).");
+            if (player.Champion.CrucibleLoot > 0)
+                player.SendInfo($"You get {ChampionBoardDef.Percent(player.Champion.CrucibleLoot)} more loot in the Crucible (the Hall of Champions).");
             foreach (var line in player.Champion.Describe())
                 player.SendSubtext($"   {line}");
             return true;

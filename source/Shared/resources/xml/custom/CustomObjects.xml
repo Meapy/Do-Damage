@@ -45,6 +45,18 @@
 		<Static />
 		<ShadowSize>60</ShadowSize>
 	</Object>
+	<!-- beside the Crucible's portal in the Nexus (tools/build_nexus_islands.py): the best
+	     climbs, in the Rust client's window and the sign over it (/crucible/leaderboard) -->
+	<Object type="0x498f" id="Crucible Leaderboard">
+		<Class>CrucibleLeaderboard</Class>
+		<DisplayId>Crucible Leaderboard</DisplayId>
+		<Texture>
+			<File>customAssets8x8</File>
+			<Index>0x60</Index>
+		</Texture>
+		<Static />
+		<ShadowSize>60</ShadowSize>
+	</Object>
 	<!-- the Divine Forge in the Nexus's forge court (tools/build_nexus.py): its window in the
 	     Rust client forges items and sells them for fame (ForgeHandlers.cs); its six frames are in
 	     the sheet tools/draw_forge_sprite.py writes -->

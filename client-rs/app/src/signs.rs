@@ -1,6 +1,7 @@
 //! Signs: small information cards that float over objects in the world while the player is
 //! near, like a speech balloon that stays (and never goes to the chat). The Nexus's Arena
-//! Leaderboard trophy shows the best run on one, and the Arena's chests what they're for.
+//! Leaderboard trophy shows the best run on one, the Crucible Leaderboard beside it the best solo
+//! and group climbs, and the Arena's chests what they're for.
 //!
 //! A sign is a title and a few lines (`Sign`), drawn by `draw` over any object; to give
 //! another object one, fetch what it should say into `Signs` and add it to `Signs::draw`.
@@ -9,7 +10,7 @@ use crate::hud::Ui;
 use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color};
 use bsk_data::ObjectClass;
-use bsk_net::account::ArenaRun;
+use bsk_net::account::{ArenaBoard, ArenaRun};
 use bsk_world::{GameObj, World};
 
 /// Signs show for objects at most this many tiles from the player.
@@ -155,6 +156,27 @@ pub fn arena_sign(best: Option<&ArenaRun>, season: i32) -> Sign {
     Sign { title, accent: GOLD, lines }
 }
 
+/// The Crucible Leaderboard's sign: the best solo climb and the best group climb, each what it
+/// reached, its time and who lived to see it (`floors`: the Crucible's, for "Conquered").
+pub fn crucible_sign(solo: Option<&ArenaRun>, group: Option<&ArenaRun>, floors: i32) -> Sign {
+    const GOLD: u32 = 0xFFD24A;
+    let mut lines = Vec::new();
+    if solo.is_none() && group.is_none() {
+        lines.push(Line::new(tr("No climbs yet"), 15.0, true, color::TEXT));
+        lines.push(Line::new(tr("Be the first: type /crucible"), 12.0, false, color::TEXT_DIM));
+    }
+    for (is_group, run) in [(false, solo), (true, group)] {
+        let Some(run) = run else { continue };
+        let reached = crate::npc::run_reached(run.wave, Some(floors));
+        let time = crate::npc::run_time(run.seconds);
+        let line = if is_group { tf!("Group: {reached}  ·  {time}", reached, time) } else { tf!("Solo: {reached}  ·  {time}", reached, time) };
+        lines.push(Line::new(line, 15.0, true, color::TEXT));
+        let names = if run.players.is_empty() { tr("Unknown").to_owned() } else { run.players.join(", ") };
+        lines.push(Line::new(names, 12.0, true, GOLD).wrapped(2));
+    }
+    Sign { title: tr("CRUCIBLE RECORDS").to_owned(), accent: GOLD, lines }
+}
+
 /// The Arena Chest's sign: shared, kept while the Arena is open, lost when it closes (its XML's
 /// Description says the same).
 pub fn arena_chest_sign() -> Sign {
@@ -178,6 +200,10 @@ fn is_arena_board(world_obj: &GameObj, data: &bsk_data::GameData) -> bool {
     data.objects.get(&world_obj.object_type).is_some_and(|d| matches!(&d.class, ObjectClass::Other(c) if c == "ArenaLeaderboard"))
 }
 
+fn is_crucible_board(world_obj: &GameObj, data: &bsk_data::GameData) -> bool {
+    data.objects.get(&world_obj.object_type).is_some_and(|d| matches!(&d.class, ObjectClass::Other(c) if c == "CrucibleLeaderboard"))
+}
+
 /// What the signs say, fetched from the account server while their objects are near.
 #[derive(Default)]
 pub struct Signs {
@@ -190,6 +216,11 @@ pub struct Signs {
     /// Whether an arena board was in range at the last frame drawn.
     arena_near: bool,
     pub request: Option<bsk_net::Pending<bsk_net::http::Response>>,
+    /// The Crucible's best solo and group climbs and its floors: `None` until fetched.
+    pub crucible: Option<(Option<ArenaRun>, Option<ArenaRun>, i32)>,
+    next_crucible: i32,
+    crucible_near: bool,
+    pub crucible_request: Option<bsk_net::Pending<bsk_net::http::Response>>,
 }
 
 impl Signs {
@@ -203,6 +234,22 @@ impl Signs {
         true
     }
 
+    /// Whether to fetch the Crucible's best climbs now, as `want_arena`.
+    pub fn want_crucible(&mut self, now: i32) -> bool {
+        if self.crucible_request.is_some() || now < self.next_crucible || !self.crucible_near {
+            return false;
+        }
+        self.next_crucible = now + REFRESH_MS;
+        true
+    }
+
+    /// Take the Crucible's climbs, best first: the first solo one and the first group one.
+    pub fn set_crucible(&mut self, board: &ArenaBoard) {
+        let solo = board.runs.iter().find(|r| !r.group).cloned();
+        let group = board.runs.iter().find(|r| r.group).cloned();
+        self.crucible = Some((solo, group, board.floors));
+    }
+
     /// Take the leaderboard's runs (from the sign's own fetch or the leaderboard window's).
     pub fn set_arena(&mut self, runs: &[ArenaRun], season: i32) {
         self.arena = Some(runs.first().cloned());
@@ -212,6 +259,7 @@ impl Signs {
     /// The signs over the objects in range (and note which are, for `want_arena`).
     pub fn draw(&mut self, ui: &mut Ui, world: &World, cam: &crate::view::Camera) {
         self.arena_near = false;
+        self.crucible_near = false;
         let Some(me) = world.player() else { return };
         let k = (cam.scale / crate::view::TILE_PX) as f32;
         // the nearest Arena Chest's sign (they stand side by side: one sign, not two on top of each other)
@@ -226,7 +274,19 @@ impl Signs {
             draw(ui, &arena_chest_sign(), px, py, o.stat_int(2).unwrap_or(100) as f32 / 100.0, k);
         }
         for o in world.objects.values() {
-            if dist(o) > RANGE || !is_arena_board(o, ui.data) || !world.on_my_floor(o) {
+            if dist(o) > RANGE || !world.on_my_floor(o) {
+                continue;
+            }
+            if is_crucible_board(o, ui.data) {
+                self.crucible_near = true;
+                if let Some((solo, group, floors)) = &self.crucible {
+                    let [px, py] = cam.to_screen(o.x, o.y, o.z);
+                    let size_pct = o.stat_int(2).unwrap_or(100) as f32 / 100.0;
+                    draw(ui, &crucible_sign(solo.as_ref(), group.as_ref(), *floors), px, py, size_pct, k);
+                }
+                continue;
+            }
+            if !is_arena_board(o, ui.data) {
                 continue;
             }
             self.arena_near = true;

@@ -259,7 +259,8 @@ the stone water basins at its corners do. From there:
   of raked gravel round the elder cherry in its west, and in its east a quiet clearing with a
   wayside shrine, where the twins Hana and Sora run about.
 - **East**, over the other arched bridge: the **Arena island**. Its court of raked sand holds a
-  samurai's statue, banners, straw dummies, the Arena Leaderboard's golden trophy, the **Herald**
+  samurai's statue, banners, straw dummies, the Arena's and the [Crucible](crucible.html#the-leaderboard)'s
+  leaderboard trophies side by side, the **Herald**
   and the **Warcaller** (the [community goals](community-goals.html)); east of them, the pet pen,
   where pets of every kind come and go, and the **Pen Keeper** at its gate, who
   [feeds and swaps pets](pets.html#levels-and-the-pen-keeper). Beside it rises a round

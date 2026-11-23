@@ -6,7 +6,7 @@ sprite: anvil
 eyebrow: Bosses only
 summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the white bags and the climb's leaderboard.
 ---
-The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to six of you
+The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to four of you
 together, and on each floor a champion arrives to stop you. There are no waves of monsters. Each
 champion fights in phases, and the floor fights with them: blades sweep the ground, the tide rises,
 lava runs through the cracks, the clock strikes. Beat all five and the Crucible is conquered.
@@ -28,9 +28,11 @@ lava runs through the cracks, the clock strikes. Beat all five and the Crucible 
 Before the portal lets you in, it reminds you of the above and asks whether to climb.
 
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
-the lobby can say **GO** to start it sooner. Once it begins, nobody else can join.
+the lobby can say **GO** to start it sooner. Once it begins, nobody else can join: not through
+the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. A lobby holds four;
+the next to come in starts a lobby of their own.
 
-**Bring friends.** The champions are made for a group of up to six. Each player after the first adds
+**Bring friends.** The champions are made for a group of up to four. Each player after the first adds
 only about a sixth to a champion's health, so a full group has far more damage for each point of
 health than someone climbing alone.
 
@@ -238,6 +240,17 @@ Vaelith's a second, at their last level), and each helps you in its champion's w
 
 ## The leaderboard
 
-Every climb that clears at least one floor goes on the Crucible's board: the most floors first,
-then the quickest. `/crucible status` shows the top three, and the realm is told when a climb
-takes first place.
+The **Crucible Leaderboard** trophy stands in the Arena court, beside the Arena Leaderboard. Its
+sign shows the best solo climb and the best group climb; press **View** for the top ten of each.
+Climbs rank by the **floors cleared**, then the **quicker time** to the last of them. Solo and
+group climbs are kept apart (a climb begun by a group stays a group's, however many are left).
+
+- **Who is on it:** only those there when the climb's last floor fell who never fell themselves.
+  Fall on the way and that climb isn't yours, even if the others go on.
+- **What counts:** a climb that cleared at least one floor. A climb with an admin in it doesn't count.
+- The board began again with the 2.6.5 update: climbs from before aren't on it.
+- `/crucible status` shows the top three, and the realm is told when a climb takes first place,
+  solo or group.
+
+The [Hall of Champions](champions.html) ranks the same climbs on its **Crucible Solo** and
+**Crucible Group** boards, whose top ten get more loot in the Crucible.
