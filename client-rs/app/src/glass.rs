@@ -18,6 +18,9 @@
 //! The big view also shows the gear the one watched wears (from the picture's stats: anyone may
 //! see a player's equipment), each item's tooltip on hover, and its Ask to join button (8) asks
 //! them, as `/visit` does, to let us in where they are; the server's replies show under the picture.
+//! Over the picture's top left, the watched player's quest as their own top left shows it: its
+//! health, and who did how much damage (the server's `QuestObjId` and `QuestDamageFull` for them,
+//! in the feed).
 
 use crate::ground::Ground;
 use crate::hud::{ChatChannel, Layout, Ui};
@@ -80,6 +83,9 @@ pub struct Picture {
     /// Where the camera looks: it follows the watched player a little behind, so the picture
     /// glides through the turns and stops of their walk rather than jerking with each tick.
     camera: Option<(f64, f64)>,
+    /// The watched player's quest, and who hit it.
+    quest: Option<i32>,
+    quest_damage: Option<crate::game::QuestDamage>,
 }
 
 impl Picture {
@@ -116,6 +122,17 @@ impl Picture {
                 owner.note_attack(now, a.angle as f64);
                 let (x, y) = (owner.x, owner.y);
                 world.add_projectile(Projectile::new(a.owner_id, a.bullet_id, a.container_type as u16, 0, a.angle as f64, now, x, y, 1.0, 0, false));
+            }
+            ServerMessage::QuestObjId(q) => self.quest = Some(q.object_id),
+            ServerMessage::QuestDamageFull(d) => {
+                let (name, object_type) = world
+                    .objects
+                    .get(&d.object_id)
+                    .map(|o| (o.name().map(str::to_owned).or_else(|| data.objects.get(&o.object_type).map(|d| d.display_id.clone())).unwrap_or_default(), o.object_type))
+                    .unwrap_or_default();
+                let hitters = crate::game::full_hitters(d);
+                let mine_assist = d.mine_assist.unwrap_or(0);
+                self.quest_damage = Some(crate::game::QuestDamage { object_id: d.object_id, name, object_type, hitters, mine: d.mine, mine_assist });
             }
             ServerMessage::ShowEffect(e) => self.particles.show_effect(e, world, now),
             ServerMessage::Aoe(a) => self.particles.aoe(a.pos.x as f64, a.pos.y as f64, a.radius as f64, a.color),
@@ -299,6 +316,8 @@ impl Glass {
                     ground: Ground::default(),
                     particles: Default::default(),
                     camera: None,
+                    quest: None,
+                    quest_damage: None,
                 });
             }
             ServerMessage::SpectateFeed(f) => {
@@ -657,6 +676,10 @@ impl Glass {
         let kw = ui.measure(keys, ss, false).min(pic[2] * 0.38);
         ui.label_fit(keys, pic[0] + pic[2] - kw, fy, kw, ss, false, color::TEXT_MUTED);
 
+        if let Some(p) = &self.picture {
+            let at = [pic[0] + 10.0 * s, pic[1] + 10.0 * s];
+            crate::hud::draw_watched_boss(ui, lay, at, &p.world, p.quest, p.quest_damage.as_ref(), p.target());
+        }
         let hovered = self.draw_gear(ui, pic, s, mouse);
 
         self.draw_chat(ui, [r[0] + r[2] - pad - chat_w, top, chat_w, r[1] + r[3] - top - pad], s, game_chat, me, mouse, now);

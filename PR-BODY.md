@@ -9,6 +9,9 @@ Release 2.6.6:
 ### Gold Store
 - PayPal payments for gold name the account the gold goes to: the item reads "1,000 Gold for <name>" on the receipt and in PayPal.
 
+### Scrying Glass
+- **The boss fight in the big view:** the top left of the picture shows the quest of the player watched, as their own top left shows it once it's in sight: its picture, name and health bar, and under it the five who did the most damage (class, damage, assist credit and share), with the watched player's own row under their name when they're not among them.
+
 ## Details
 
 ### The Crucible: more shots, and new shots for every champion
@@ -27,7 +30,16 @@ Release 2.6.6:
 - **Files:** `source/App/PayPal.cs` (`CreateOrder`), `source/App/Controllers/GoldController.cs` (log line).
 - **Deploys:** the account server only; nobody is disconnected. Orders made before keep their old wording; checking a payment (`custom_id`, amount, currency) is unchanged. No Redis change.
 
+### Scrying Glass: the watched player's boss health and damage
+
+- **Asked:** the glass's big view should show the boss's health and the damage dealt, as the player sees it there, so watchers can see how much of the boss is left and who did how much.
+- **Server:** `SpectatorHub.Step` sends each watcher, every 5 of the watched player's ticks, their quest (`QuestObjId`, when it changes) and everyone who hit it (`QuestDamageFull`, when it changes), wrapped in `SpectateFeed` like the rest of the picture; kept per watcher (`Spectator.QuestId`, `QuestSent`) and reset when the picture changes, so someone who starts watching mid-fight gets it at once. `Player.FullQuestDamage` builds the message (the player's own `SendQuestDamage` now uses it too; unchanged for them).
+- **Client:** `glass.rs`'s `Picture` keeps the quest and its damage from the feed; the big view draws `hud::draw_watched_boss` at the picture's top left. `hud::draw_boss` takes where to draw and whose row is "theirs" (us, labelled You, or the player watched, by name); `game::full_hitters` is shared. No new text.
+- **Redeploys:** world server and client. An older client ignores the new feed messages; a new client on an older server shows no box. Nobody is disconnected. No Redis change.
+- **Not done:** the damage rows weren't seen in the glass in a shot (the test bot couldn't hurt its quest); the health bar was, and the rows are the HUD's own drawing from the same message.
+
 ## Checks
 
 - Crucible shots: `dotnet build` of the world server (0 errors), `dotnet test source\Tests` (509 passed), `cargo test -p bsk-data -p bsk-world` (passed), `python tools\build_wiki.py` into a scratch folder. On an isolated stack (slot 3), a spawned Pyrrhax in a vault: the new 16x16 shots draw at the right size, cinders, fragments and the slag boulder trail sparks, the fragments sway. The other champions and the boomerang and looping shots weren't watched in game.
 - PayPal names: `dotnet build source\App\App.csproj` (0 errors), `dotnet test source\Tests --filter GoldStore` (9 passed). Not tried against PayPal's sandbox.
+- Scrying Glass boss box: `dotnet build` of the world server (0 errors), `dotnet test source\Tests` (509 passed), `cargo test -p bsk-client` (124 passed), `python toolsuild_wiki.py` into a scratch folder. On an isolated stack (slot 1), a bot fighting in the realm watched from the Nexus through the glass's big view: the Avatar of the Forgotten King's box (picture, name, 90,000 / 90,000) at the picture's top left, beside the gear box and arrows. The damage rows weren't seen (nobody hurt the Avatar).

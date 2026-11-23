@@ -182,20 +182,30 @@ namespace WorldServer.core.objects
                 return;
             _questDamageSent = key;
             if (WantsFullQuestDamage)
-                Client.SendPacket(new QuestDamageFull()
-                {
-                    ObjectId = enemy.Id,
-                    ObjectType = enemy.ObjectType,
-                    MaxHp = enemy.MaxHealth,
-                    Dead = dead,
-                    Hitters = shown.Select(h => (h.Item1.Name, h.Item1.ObjectType, h.Item2)).ToArray(),
-                    Mine = mine,
-                    Assists = assists.Select(a => (a.Item1.Name, a.Item1.ObjectType, a.Item2)).ToArray(),
-                    MineAssist = mineAssist
-                });
+                Client.SendPacket(FullQuestDamage(enemy, dead, hitters, assists));
             else
                 Client.SendPacket(new QuestDamage() { ObjectId = enemy.Id, Top = shown.Select(h => (h.Item1.Name, h.Item2)).ToArray(), Mine = mine });
         }
+
+        // Everyone who hit the quest and helped against it, with their classes, and this player's
+        // share (QuestDamageFull): for the player's own client, and for those watching them in
+        // the Scrying Glass (SpectatorHub). Null when nothing counts its damage.
+        public QuestDamageFull FullQuestDamage(Enemy enemy, bool dead) =>
+            enemy.DamageCounter == null ? null : FullQuestDamage(enemy, dead,
+                enemy.DamageCounter.GetPlayerData().OrderByDescending(h => h.Item2).ToArray(),
+                enemy.DamageCounter.GetAssistData().OrderByDescending(a => a.Item2).Take(255).ToArray());
+
+        private QuestDamageFull FullQuestDamage(Enemy enemy, bool dead, Tuple<Player, int>[] hitters, Tuple<Player, int>[] assists) => new QuestDamageFull()
+        {
+            ObjectId = enemy.Id,
+            ObjectType = enemy.ObjectType,
+            MaxHp = enemy.MaxHealth,
+            Dead = dead,
+            Hitters = hitters.Take(255).Select(h => (h.Item1.Name, h.Item1.ObjectType, h.Item2)).ToArray(),
+            Mine = hitters.Where(h => h.Item1 == this).Select(h => h.Item2).FirstOrDefault(),
+            Assists = assists.Select(a => (a.Item1.Name, a.Item1.ObjectType, a.Item2)).ToArray(),
+            MineAssist = assists.Where(a => a.Item1 == this).Select(a => a.Item2).FirstOrDefault()
+        };
 
         // The fame records (FameStats.Write: an id byte and a count each), when they change.
         private void SendFameStats()

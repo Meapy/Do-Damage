@@ -40,6 +40,9 @@ namespace WorldServer.core.spectate
         public readonly HashSet<WmapTile> Statics = new HashSet<WmapTile>();
         public int SightStamp = -1;
         public int Ticks;
+        // the watched player's quest last sent (QuestObjId) and who had hit it (QuestDamageFull)
+        public int QuestId;
+        public string QuestSent;
         public (byte, byte, ushort, bool) Status = (255, 0, 0, false);
         // reused each tick
         public readonly List<Entity> Gone = new List<Entity>();
@@ -439,6 +442,8 @@ namespace WorldServer.core.spectate
             s.Statics.Clear();
             s.SightStamp = -1;
             s.Ticks = 0;
+            s.QuestId = 0;
+            s.QuestSent = null;
             s.Client.SendPacket(new SpectateInfo
             {
                 Serial = s.Serial,
@@ -523,6 +528,33 @@ namespace WorldServer.core.spectate
                 s.Client.SendPacket(new SpectateFeed(s.Serial, update));
 
             s.Client.SendPacket(new SpectateFeed(s.Serial, tick));
+
+            // their quest and who hit it, as their own boss bar shows it, now and then
+            if (s.Ticks % 5 == 1)
+                Quest(s, target);
+        }
+
+        // The watched player's quest (when it's an enemy) and everyone who hit it, when either
+        // changed since last sent: the glass's big view shows its health and the damage done.
+        private static void Quest(Spectator s, Player target)
+        {
+            if (target.Quest is not Enemy quest || quest.Dead)
+                return;
+            if (s.QuestId != quest.Id)
+            {
+                s.QuestId = quest.Id;
+                s.QuestSent = null;
+                s.Client.SendPacket(new SpectateFeed(s.Serial, new QuestObjId { ObjectId = quest.Id }));
+            }
+            var damage = target.FullQuestDamage(quest, false);
+            if (damage == null)
+                return;
+            var key = string.Join(",", damage.Hitters.Select(h => h.Name + "=" + h.Damage)) + ":" + damage.Mine
+                + ":" + string.Join(",", damage.Assists.Select(a => a.Name + "=" + a.Assist));
+            if (key == s.QuestSent)
+                return;
+            s.QuestSent = key;
+            s.Client.SendPacket(new SpectateFeed(s.Serial, damage));
         }
 
         private static void AddStatic(Spectator s, Update update, WmapTile tile, int x, int y)

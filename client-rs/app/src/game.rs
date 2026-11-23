@@ -232,6 +232,20 @@ pub struct QuestDamage {
     pub mine_assist: i32,
 }
 
+/// Everyone in a `QuestDamageFull`: their damage, with assist credit on the damage dealer's row
+/// or a row of its own for a helper who never hit it; most of both first.
+pub fn full_hitters(d: &bsk_proto::QuestDamageFull) -> Vec<Hitter> {
+    let mut hitters: Vec<Hitter> = d.hitters.iter().map(|h| Hitter { name: h.name.clone(), class: h.class, damage: h.damage, assist: 0 }).collect();
+    for a in d.assists.iter().flat_map(|a| a.iter()) {
+        match hitters.iter_mut().find(|h| h.name == a.name) {
+            Some(h) => h.assist = a.damage,
+            None => hitters.push(Hitter { name: a.name.clone(), class: a.class, damage: 0, assist: a.damage }),
+        }
+    }
+    hitters.sort_by_key(|h| std::cmp::Reverse(h.damage + h.assist));
+    hitters
+}
+
 /// A boss we hit that died, and who hit it.
 #[derive(Clone, Debug)]
 pub struct BossFight {
@@ -833,16 +847,7 @@ impl Game {
             }
             ServerMessage::FameStats(f) => self.fame_stats = f.stats.iter().map(|s| (s.id, s.value)).collect(),
             ServerMessage::QuestDamageFull(d) => {
-                let mut hitters: Vec<Hitter> = d.hitters.iter().map(|h| Hitter { name: h.name.clone(), class: h.class, damage: h.damage, assist: 0 }).collect();
-                // assist credit: on the damage dealer's row, or a row of its own for a helper
-                // who never hit it; then most of both first
-                for a in d.assists.iter().flat_map(|a| a.iter()) {
-                    match hitters.iter_mut().find(|h| h.name == a.name) {
-                        Some(h) => h.assist = a.damage,
-                        None => hitters.push(Hitter { name: a.name.clone(), class: a.class, damage: 0, assist: a.damage }),
-                    }
-                }
-                hitters.sort_by_key(|h| std::cmp::Reverse(h.damage + h.assist));
+                let hitters = full_hitters(d);
                 let mine_assist = d.mine_assist.unwrap_or(0);
                 self.set_quest_damage(d.object_id, Some(d.object_type), hitters, (d.mine, mine_assist), data);
                 // It died: kept if we hit it or helped.

@@ -20,6 +20,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Gold Store
 - PayPal receipts for gold now name the account the gold went to ("1,000 Gold for <your name>").
 
+### Scrying Glass
+- **See the boss fight:** the big view shows the boss the player you watch is after, as their own corner does: its health, and who has done how much damage to it.
+
 ## 2.6.5 (2026-11-23)
 
 ### The Crucible
