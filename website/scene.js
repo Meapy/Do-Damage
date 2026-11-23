@@ -240,12 +240,12 @@
   };
   // the party: where each stands round him (degrees, 90 in front; tiles out), its shots, its ability
   var PARTY = {
-    Wizard: { a: 70, r: 7.5, c: [0.8, 0.55, 1], n: 2, spr: 8, speed: 150, every: 0.45, abil: "bomb", cd: 6 },
-    Archer: { a: 112, r: 8, c: [0.7, 1, 0.55], n: 1, spr: 0, speed: 180, every: 0.5, abil: "arrow", cd: 7 },
-    Priest: { a: 92, r: 8.5, c: [1, 0.92, 0.45], n: 1, spr: 0, speed: 150, every: 0.55, abil: "heal", cd: 8 },
-    Knight: { a: 45, r: 4.5, c: [0.62, 0.8, 1], n: 1, spr: 0, speed: 120, every: 0.6, abil: "bash", cd: 8 },
-    Warrior: { a: 135, r: 4, c: [1, 0.45, 0.35], n: 1, spr: 0, speed: 120, every: 0.5, abil: "berserk", cd: 9 },
-    Rogue: { a: 18, r: 6.5, c: [0.88, 0.88, 0.95], n: 1, spr: 0, speed: 150, every: 0.4, abil: "cloak", cd: 9 }
+    Wizard: { a: 80, r: 8, c: [0.8, 0.55, 1], n: 2, spr: 8, speed: 150, every: 0.45, abil: "bomb", cd: 6 },
+    Archer: { a: 130, r: 7.5, c: [0.7, 1, 0.55], n: 1, spr: 0, speed: 180, every: 0.5, abil: "arrow", cd: 7 },
+    Priest: { a: 105, r: 9.5, c: [1, 0.92, 0.45], n: 1, spr: 0, speed: 150, every: 0.55, abil: "heal", cd: 8 },
+    Knight: { a: 52, r: 4.5, c: [0.62, 0.8, 1], n: 1, spr: 0, speed: 120, every: 0.6, abil: "bash", cd: 8 },
+    Warrior: { a: 158, r: 4.5, c: [1, 0.45, 0.35], n: 1, spr: 0, speed: 120, every: 0.5, abil: "berserk", cd: 9 },
+    Rogue: { a: 22, r: 6.5, c: [0.88, 0.88, 0.95], n: 1, spr: 0, speed: 150, every: 0.4, abil: "cloak", cd: 9 }
   };
 
   var mobs = [], party = [];
@@ -361,7 +361,7 @@
       m.age += dt;
       // where it wants to stand: its place round him, strafing; the hunted one runs
       var hunted = huntOn && prey === m;
-      var a = (p.a + Math.sin(m.age * 0.6 + m.seed) * 18) * D2R, r = (p.r + Math.sin(m.age * 1.1 + m.seed) * 1.2 + (hunted ? 4 : 0)) * TILE;
+      var a = (p.a + Math.sin(m.age * 0.6 + m.seed) * 8) * D2R, r = (p.r + Math.sin(m.age * 1.1 + m.seed) * 0.8 + (hunted ? 4 : 0)) * TILE;
       var tx = ox + Math.cos(a) * r, tz = oz + Math.sin(a) * r;
       if (lavaTo > 0) {
         // the lava: everyone crowds in from the rim
@@ -385,6 +385,14 @@
       }
       m.dx *= Math.pow(0.15, dt); m.dz *= Math.pow(0.15, dt);
       tx += m.dx; tz += m.dz;
+      // room to stand: pushed off the others (2.5 tiles apart) and off his body (3.5 tiles)
+      party.forEach(function (o) {
+        if (o === m) return;
+        var ax = m.x - o.x, az = m.z - o.z, ad = Math.hypot(ax, az) || 0.01, room = 2.5 * TILE;
+        if (ad < room) { tx += ax / ad * (room - ad) * 1.5; tz += az / ad * (room - ad) * 1.5; }
+      });
+      var bx = tx - ox, bz = tz - oz, bd = Math.hypot(bx, bz) || 0.01;
+      if (bd < 3.5 * TILE && !oGone) { tx = ox + bx / bd * 3.5 * TILE; tz = oz + bz / bd * 3.5 * TILE; }
       var to = inArena({ x: tx, z: tz }, 0);
       tx = to.x; tz = to.z;
       var dx = tx - m.x, dz = tz - m.z, d = Math.hypot(dx, dz), v = 4 * TILE * dt;
@@ -894,7 +902,7 @@
     wide = aspect > 1.05;
     var halfW = Math.tan(15 * Math.PI / 180) * DIST * aspect;
     var was = home.clone();
-    home.set(wide ? halfW * 0.48 : 0, 0, wide ? 0 : -6);
+    home.set(0, 0, wide ? 0 : -6);
     oryx.position.add(home).sub(was);
     party.forEach(function (m) { m.x += home.x - was.x; m.z += home.z - was.z; });
     renderer.setPixelRatio(pr * quality);
@@ -902,7 +910,8 @@
     camera.aspect = aspect;
     camera.fov = wide ? 30 : 44;
     // narrow: the picture moves up, so the fight is in the room left above the words
-    if (wide) camera.clearViewOffset(); else camera.setViewOffset(w, h, 0, Math.min(h * 0.3, h / 2 - 190), w, h);
+    // wide: in the middle of the page, a little up so the words sit under the fight
+    if (wide) camera.setViewOffset(w, h, 0, h * 0.1, w, h); else camera.setViewOffset(w, h, 0, Math.min(h * 0.3, h / 2 - 190), w, h);
     camera.updateProjectionMatrix();
     bUni.uScale.value = h * pr * quality * 0.9 * (wide ? 1 : 0.7);
   }
