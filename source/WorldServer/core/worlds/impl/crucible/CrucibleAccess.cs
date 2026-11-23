@@ -4,6 +4,8 @@ using System.Linq;
 using Shared.crucible;
 using Shared.database.account;
 using Shared.database.leaderboard;
+using Shared.isc;
+using Shared.isc.data;
 using WorldServer.core.objects;
 using WorldServer.networking;
 
@@ -134,6 +136,49 @@ namespace WorldServer.core.worlds.impl.crucible
             acc.CrucibleClimbs = acc.CrucibleDay == today ? acc.CrucibleClimbs + 1 : 1;
             acc.CrucibleDay = today;
             _ = acc.FlushAsync();
+        }
+
+        // ---- /resetcrucible: everyone's climbs back for today ----
+
+        // gives every account its climbs back in Redis and tells every world server (this one too)
+        // to reload them for its players; returns how many accounts had climbed today
+        public static int ResetAll(GameServer server)
+        {
+            var now = DateTime.UtcNow;
+            var reset = CrucibleReset.ResetAll(server.Database.Conn, now);
+            server.InterServerManager.Publish(Channel.Crucible, new CrucibleMsg { Day = CrucibleRules.Day(now) });
+            return reset.Count;
+        }
+
+        public static void Listen(GameServer server) =>
+            server.InterServerManager.AddHandler<CrucibleMsg>(Channel.Crucible, (_, e) => OnReset(server, e.Content.Day));
+
+        // the accounts held here keep their own copy of the climbs: read them again from Redis,
+        // and tell those who had climbed today that they may again
+        private static void OnReset(GameServer server, int day)
+        {
+            foreach (var client in server.ConnectionManager.Clients.Keys.Where(c => c.Account != null).ToList())
+            {
+                void Reload()
+                {
+                    var acc = client.Account;
+                    if (acc == null)
+                        return;
+                    var had = CrucibleReset.ClimbedToday(day, acc.CrucibleDay, acc.CrucibleClimbs);
+                    acc.Reload(CrucibleReset.ClimbsField);
+                    var player = client.Player;
+                    if (had && player != null)
+                    {
+                        var left = Math.Min(ClimbsLeft(client), DailyClimbs(client)); // admins: unlimited
+                        player.SendInfo($"<Crucible> Your Crucible climbs are back for today: you may climb it {(left == 1 ? "once" : left == 2 ? "twice" : $"{left} times")} more.");
+                    }
+                }
+                var world = client.Player?.World;
+                if (world != null)
+                    world.Post(Reload);
+                else
+                    Reload();
+            }
         }
 
         // an Arena round begins with the player in it: the furthest they've reached, kept; the

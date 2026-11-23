@@ -717,6 +717,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **`/resetcrucible`** (2026-11-23; `commands/admin/Command.ResetCrucible.cs`,
+  `Shared/crucible/CrucibleReset.cs`, `CrucibleAccess.ResetAll` and `OnReset`): an admin gives
+  everyone their Crucible climbs back for the UTC day. Every account that began a climb today
+  (`crucibleDay`) gets `crucibleClimbs` 0 in Redis, online or not, and the admin is told how many;
+  then an inter-server message (`Channel.Crucible`, `CrucibleMsg`) has every world server on that
+  Redis reload the field for the players it holds (their accounts keep their own copy) and tell
+  those who had climbed. Climbs begun after it count again as usual.
 - **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
   `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
   `petfx.rs` and `pass.rs`): 60 tiers of 2,000 XP (was 1,000: a season's `xpPerTierWas` scales the XP earned at the old cost once, `PassBook.Rescale`, so nobody's tier moves), a reward on every free tier, the Burning Amulet

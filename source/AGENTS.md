@@ -169,6 +169,9 @@ dotnet test source\Tests
   partial `Command` class, found by `CommandManager` by reflection. Each overrides
   `RankRequirement`; the account's `admin` flag passes every check.
 - `/sellfame` and `/openarena` are named so to stay clear of `/sell` (the market) and `/arena`.
+- `/resetcrucible` (admins) gives every account its Crucible climbs back for the UTC day, on every
+  world server sharing the Redis: on a test stack it resets the copy's accounts, on the live
+  servers everyone's (`Shared/crucible/CrucibleReset.cs`, `CrucibleResetTests`).
 
 ## Redis data
 
