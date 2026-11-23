@@ -1403,7 +1403,7 @@ TEMPLATE = """<!doctype html>
   <link rel="icon" href="{site}favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="{site}style.css?v={{{{BUILD}}}}">
   <link rel="stylesheet" href="{wiki}icons.css?v=@INDEX@">
 </head>
