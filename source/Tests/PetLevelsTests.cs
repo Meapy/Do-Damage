@@ -125,22 +125,86 @@ namespace Tests
             Assert.Equal("Medium", PetLevels.GrownSize("Tiny", 2));
             Assert.Equal("Huge", PetLevels.GrownSize("Large", 3));
             Assert.Null(PetLevels.GrownSize(null, 2));
-            // growing never weakens a pet: a Tiny one at level 10 (100%) stays at 100% as a Small,
-            // Medium or Large one, and climbs on to 120% only once it's Huge
+            // growing never weakens a pet, and feeding a grown one always makes it stronger
             for (var grown = 1; grown <= 4; grown++)
             {
                 var max = PetLevels.MaxLevel(PetLevels.GrownSize("Tiny", grown));
                 for (var level = 1; level <= max; level++)
                 {
                     Assert.True(PetLevels.DamageScale(level, max, 10) >= PetLevels.DamageScale(Math.Min(level, 10), 10) - 1e-4f);
+                    Assert.True(PetLevels.HealScale(level, max, 10) >= PetLevels.HealScale(Math.Min(level, 10), 10) - 1e-4f);
                     if (level > 1)
-                        Assert.True(PetLevels.DamageScale(level, max, 10) >= PetLevels.DamageScale(level - 1, max, 10));
+                    {
+                        Assert.True(PetLevels.DamageScale(level, max, 10) > PetLevels.DamageScale(level - 1, max, 10));
+                        Assert.True(PetLevels.HealScale(level, max, 10) > PetLevels.HealScale(level - 1, max, 10));
+                    }
                 }
-                Assert.Equal(grown < 4 ? 1f : 1.2f, PetLevels.DamageScale(max, max, 10), 3);
             }
-            Assert.Equal(1f, PetLevels.DamageScale(10, 30, 10), 3);
-            Assert.Equal(1.1f, PetLevels.DamageScale(20, 30, 10), 3);
-            Assert.Equal(1f, PetLevels.DamageScale(25, 25, 10), 3);
+            // just grown, as it was; then towards its new size's kits (since 2.6.7): a Tiny pet
+            // grown to Small 85% of 125 / 50, to Huge 55% of 2,000 / 50 (and 120%)
+            Assert.Equal(1f, PetLevels.DamageScale(10, 15, 10), 3);
+            Assert.Equal(2.125f, PetLevels.DamageScale(15, 15, 10), 3);
+            Assert.Equal(8.5f, PetLevels.DamageScale(25, 25, 10), 3);
+            Assert.Equal(1.1f * 4.25f, PetLevels.DamageScale(20, 30, 10), 3);
+            Assert.Equal(1.2f * 22f, PetLevels.DamageScale(30, 30, 10), 3);
+            // a Large pet grown to Huge: 2.2 times its kit, healing 85% of 22 / 16 more
+            Assert.Equal(1f, PetLevels.DamageScale(25, 30, 25), 3);
+            Assert.Equal(1.2f * 2.2f, PetLevels.DamageScale(30, 30, 25), 3);
+            Assert.Equal(1.6f * 22f / 16f * 0.85f, PetLevels.HealScale(30, 30, 25), 3);
+            // a pet never grown is as it was
+            Assert.Equal(1f, PetLevels.Grown(25, 25, true));
+            Assert.Equal(1f, PetLevels.Grown(1, 1, true));
+        }
+
+        [Fact]
+        public void OryxAndBossPetsStayAheadOfGrownOnes()
+        {
+            // a Huge stone's kit counts as at least 1,400 a second; any other is as it says
+            Assert.Equal(1.4f, PetLevels.Floor("Huge", 1000), 3);
+            Assert.Equal(1f, PetLevels.Floor("Huge", 3000));
+            Assert.Equal(1f, PetLevels.Floor("Large", 100));
+            Assert.Equal(1f, PetLevels.Floor("Huge", 0));
+            var stones = Res.Value.GameData.Items.Values
+                .SelectMany(i => i.ActivateEffects.Where(e => e.Effect == ActivateEffects.PermaPet && PetLevels.SizeIndex(e.PetSize) >= 0))
+                .ToList();
+            // every Huge pet from its own stone at level 30, against every other grown to Huge
+            var weakestHuge = stones.Where(e => e.PetSize == "Huge").Min(e => e.PetDps * PetLevels.Floor(e.PetSize, e.PetDps) * PetLevels.DamageScale(30, 30));
+            foreach (var e in stones.Where(e => e.PetSize != "Huge"))
+            {
+                var grown = e.PetDps * PetLevels.DamageScale(30, 30, PetLevels.MaxLevel(e.PetSize));
+                Assert.True(grown < weakestHuge, $"{e.ObjectId} grown to Huge does {grown:F0}, the weakest Huge pet {weakestHuge:F0}");
+                // and close enough to be worth growing
+                Assert.True(grown > weakestHuge * 0.7, $"{e.ObjectId} grown to Huge does only {grown:F0}");
+            }
+        }
+
+        [Fact]
+        public void AMaxedHugePetIsTunedAStepAtATime()
+        {
+            Assert.True(PetLevels.CanTune("Huge", 30));
+            Assert.False(PetLevels.CanTune("Huge", 29));
+            Assert.False(PetLevels.CanTune("Large", 30));
+            Assert.Equal(new[] { 0, 0, 0 }, PetLevels.Tune(null));
+            Assert.True(PetLevels.Untuned(null) && PetLevels.Untuned(new int[0]) && PetLevels.Untuned(new[] { 0, 0, 0 }));
+            // healing HP for damage: 5% each way a step
+            var tune = PetLevels.Retune(null, 1, 0);
+            Assert.Equal(new[] { 1, -1, 0 }, tune);
+            Assert.Equal(1.05f, PetLevels.TuneScale(tune, 0), 3);
+            Assert.Equal(0.95f, PetLevels.TuneScale(tune, 1), 3);
+            Assert.Equal(1f, PetLevels.TuneScale(tune, 2), 3);
+            Assert.Equal(1f, PetLevels.TuneScale(null, 0));
+            // up to 5 steps either way, and back again
+            for (var i = 1; i < PetLevels.TuneMax; i++)
+                tune = PetLevels.Retune(tune, 1, 0);
+            Assert.Equal(new[] { 5, -5, 0 }, tune);
+            Assert.Equal(1.25f, PetLevels.TuneScale(tune, 0), 3);
+            Assert.Null(PetLevels.Retune(tune, 1, 2));
+            Assert.Null(PetLevels.Retune(tune, 2, 0));
+            Assert.Null(PetLevels.Retune(tune, 0, 0));
+            Assert.Null(PetLevels.Retune(tune, 0, 3));
+            Assert.Equal(new[] { 4, -5, 1 }, PetLevels.Retune(tune, 0, 2));
+            // the heal it tunes
+            Assert.Equal(19, PetLevels.Heal(10, 30, 30, 0, 1.2f));
         }
 
         [Fact]

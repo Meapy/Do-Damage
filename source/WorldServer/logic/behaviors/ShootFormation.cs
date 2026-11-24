@@ -70,7 +70,7 @@ namespace WorldServer.logic.behaviors
                 a = _fixedAngle.Value;
             else
             {
-                var target = host.AttackTarget ?? host.GetNearestEntity(_radius, null);
+                var target = host.AttackTarget ?? host.GetAttackTarget(_radius);
                 if (target == null)
                     return;
                 a = Math.Atan2(target.Y - host.Y, target.X - host.X);

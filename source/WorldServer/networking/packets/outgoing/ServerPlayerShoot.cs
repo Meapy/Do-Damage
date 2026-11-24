@@ -16,6 +16,9 @@ namespace WorldServer.networking.packets.outgoing
 
         // Used for Validation
         public ProjectileDesc ProjectileDesc { get; set; }
+        // a Mechanic's turret's shot: its reach, for its damage falling off over it (Turret.Falloff);
+        // 0 for none. Not sent: the Rust client works it out from the turret's projectile.
+        public float FalloffReach { get; set; }
 
         public override MessageId MessageId => MessageId.SERVERPLAYERSHOOT;
 

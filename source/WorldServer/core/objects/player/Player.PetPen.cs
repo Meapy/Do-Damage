@@ -27,7 +27,9 @@ namespace WorldServer.core.objects
     // at its last level can be grown to the next size, for fame or gold (PetLevels.GrowPrice): it
     // levels on to the new size's last (PetGrown, kept with its food). The Realm Pass's treats
     // (PetFood.Free) are fed without fame, and its Growth Tonic grows a Tiny, Small or Medium pet
-    // at its last level for nothing (13).
+    // at its last level for nothing (13). A Huge pet at its last level can be tuned (14, since
+    // 2.6.7): a step of its damage, HP or MP healing moved to another for fame (PetLevels.Retune;
+    // PetTune, kept with its food).
     partial class Player
     {
         // the shards he trades for an Ambrosia (PetPenData.ShardsNeeded)
@@ -41,6 +43,10 @@ namespace WorldServer.core.objects
 
         /// <summary>The sizes the pet out was grown past its stone's (PetLevels.GrownSize).</summary>
         public int PetGrown { get; set; }
+
+        /// <summary>How the pet out is tuned: steps of damage, HP and MP healing (PetLevels.Tune;
+        /// null none).</summary>
+        public int[] PetTune { get; set; }
         // the data of a pet stone being used (UseItem takes the item out of its slot first)
         private ItemData _usedPetData;
 
@@ -88,9 +94,12 @@ namespace WorldServer.core.objects
                 return (1, null, null, 1);
             var level = PetLevels.LevelFor(PetXp, max);
             var baseMax = PetLevels.MaxLevel(stone.PetSize);
-            (int, int)? Heal(int amount, int ms) => amount > 0 && ms > 0 ? (PetLevels.Heal(amount, level, max, baseMax), ms) : null;
+            // its tuning counts only while it's a Huge pet at its last level
+            var tune = PetLevels.CanTune(size, level) ? PetTune : null;
+            (int, int)? Heal(int amount, int ms, int stat) => amount > 0 && ms > 0 ? (PetLevels.Heal(amount, level, max, baseMax, PetLevels.TuneScale(tune, stat)), ms) : null;
             var grown = SizeHeights[PetLevels.SizeIndex(size)] / SizeHeights[PetLevels.SizeIndex(stone.PetSize)];
-            return (PetLevels.DamageScale(level, max, baseMax), Heal(stone.PetHp, stone.PetHpMs), Heal(stone.PetMp, stone.PetMpMs),
+            var damage = PetLevels.DamageScale(level, max, baseMax) * PetLevels.Floor(stone.PetSize, stone.PetDps) * PetLevels.TuneScale(tune, 0);
+            return (damage, Heal(stone.PetHp, stone.PetHpMs, 1), Heal(stone.PetMp, stone.PetMpMs, 2),
                 PetLevels.DrawScale(level, max, baseMax) * grown);
         }
 
@@ -130,16 +139,26 @@ namespace WorldServer.core.objects
             data.Xp = PetXp;
             data.XpLevel = PetLevels.XpAt(level);
             data.XpNext = PetLevels.XpAt(Math.Min(level + 1, max));
-            // what it really does: its level's, times PetLevels.Effectiveness (as Pet.Hit and PetHeal do)
-            var dps = PetDps(stone);
-            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max, baseMax) * PetLevels.Effectiveness);
-            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max, baseMax) * PetLevels.Effectiveness);
-            data.Hp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, level, max, baseMax));
-            data.HpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, max, max, baseMax));
+            // what it really does: its level's (an Oryx's or a boss's at least PetLevels.Floor),
+            // as tuned, times PetLevels.Effectiveness (as Pet.Hit and PetHeal do)
+            var dps = PetDps(stone) * PetLevels.Floor(stone.PetSize, PetDps(stone));
+            var sizeName = PetLevels.GrownSize(stone.PetSize, PetGrown);
+            var canTune = PetLevels.CanTune(sizeName, level);
+            var tune = canTune ? PetLevels.Tune(PetTune) : null;
+            // its last level's numbers as it would be tuned there (it's tuned only at its last)
+            var lastTune = PetLevels.CanTune(sizeName, max) ? PetTune : null;
+            data.Dps = (int)Math.Round(dps * PetLevels.DamageScale(level, max, baseMax) * PetLevels.TuneScale(tune, 0) * PetLevels.Effectiveness);
+            data.DpsMax = (int)Math.Round(dps * PetLevels.DamageScale(max, max, baseMax) * PetLevels.TuneScale(lastTune, 0) * PetLevels.Effectiveness);
+            data.Hp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, level, max, baseMax, PetLevels.TuneScale(tune, 1)));
+            data.HpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetHp, max, max, baseMax, PetLevels.TuneScale(lastTune, 1)));
             data.HpMs = (short)stone.PetHpMs;
-            data.Mp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, level, max, baseMax));
-            data.MpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, max, max, baseMax));
+            data.Mp = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, level, max, baseMax, PetLevels.TuneScale(tune, 2)));
+            data.MpMax = (short)PetLevels.Effective(PetLevels.Heal(stone.PetMp, max, max, baseMax, PetLevels.TuneScale(lastTune, 2)));
             data.MpMs = (short)stone.PetMpMs;
+            // its tuning (shown once it can be tuned) and what a step costs
+            var kept = PetLevels.Tune(PetTune);
+            (data.TuneDamage, data.TuneHp, data.TuneMp) = ((sbyte)kept[0], (sbyte)kept[1], (sbyte)kept[2]);
+            data.TuneFame = canTune ? PetLevels.TuneFame : 0;
             return data;
         }
 
@@ -152,8 +171,9 @@ namespace WorldServer.core.objects
         /// and still growing), 6 trades 25 of the shards he keeps for an Ambrosia, 9 and 10 make the
         /// pen take the next size of pets, for fame and for gold, 11 and 12 grow the pet out (at its
         /// last level) to the next size, for fame and for gold, 13 grows it with the Growth Tonic in
-        /// `slot` (since 2.6.6). From before levels: 3 and 5 (raise for a Superburger, an Ambrosia)
-        /// feed it the first of those.</summary>
+        /// `slot` (since 2.6.6), 14 tunes a Huge pet at its last level, moving a step from stat
+        /// `slot` / 3 to stat `slot` % 3 (0 damage, 1 HP, 2 MP; since 2.6.7). From before levels: 3
+        /// and 5 (raise for a Superburger, an Ambrosia) feed it the first of those.</summary>
         public PetPenData PetPenAct(int action, int slot)
         {
             switch (action)
@@ -185,6 +205,7 @@ namespace WorldServer.core.objects
                         PetId = petType;
                         PetXp = PetXpOf(petType, data);
                         PetGrown = Math.Max(0, data?.PetGrown ?? 0);
+                        PetTune = PetLevels.Untuned(data?.PetTune) ? null : PetLevels.Tune(data.PetTune);
                         SpawnPetIfAttached(World);
                         return PetPenState(true, $"{GameServer.Resources.GameData.ObjectDescs[petType].DisplayName} is yours now.");
                     }
@@ -202,6 +223,8 @@ namespace WorldServer.core.objects
                     return GrowPet(action == 12);
                 case 13:
                     return GrowWithTonic(slot);
+                case 14:
+                    return TunePet(slot / PetLevels.TuneStats, slot % PetLevels.TuneStats);
                 case 4:
                     {
                         var slots = Enumerable.Range(4, Inventory.Length - 4).Where(s => Inventory[s]?.ObjectId?.StartsWith(PetFood.ShardPrefix) == true).ToList();
@@ -335,6 +358,32 @@ namespace WorldServer.core.objects
             return PetPenState(true, size + 1 > PenSize
                 ? $"{name} is a {next} pet now, up to level {PetLevels.MaxLevel(next)}: grow your pen to feed it."
                 : $"{name} is a {next} pet now: feed it up to level {PetLevels.MaxLevel(next)}!");
+        }
+
+        // the stats' names in the Pen Keeper's answers (PetLevels' tuning order)
+        private static readonly string[] TuneNames = { "damage", "HP healing", "MP healing" };
+
+        // the pet out, Huge and at its last level, moves a step of stat `from` to stat `to`, for fame
+        private PetPenData TunePet(int from, int to)
+        {
+            if (PetId == 0)
+                return PetPenState(false, "Put a pet in first.");
+            var size = PetSizeOf(PetId, PetGrown);
+            if (!PetLevels.CanTune(size, PetLevel))
+                return PetPenState(false, "Only a Huge pet at its last level can be tuned.");
+            var tune = PetLevels.Retune(PetTune, from, to);
+            if (tune == null)
+                return PetPenState(false, from == to || from >= PetLevels.TuneStats || to >= PetLevels.TuneStats
+                    ? "Pick two different things to tune."
+                    : $"Tuning goes {PetLevels.TuneStep * PetLevels.TuneMax}% either way at most.");
+            var unpaid = PayPen("Tuning your pet", PetLevels.TuneFame, 0, false);
+            if (unpaid != null)
+                return PetPenState(false, unpaid);
+            PetTune = PetLevels.Untuned(tune) ? null : tune;
+            SpawnPetIfAttached(World);
+            var name = GameServer.Resources.GameData.ObjectDescs.TryGetValue((ushort)PetId, out var d) ? d.DisplayName : "Your pet";
+            WorldServer.utils.StaticLogger.Instance.Info($"Pet pen: <{Name} {AccountId}> tuned {name} {TuneNames[from]} to {TuneNames[to]} ({string.Join("/", tune)}) for {PetLevels.TuneFame} fame");
+            return PetPenState(true, $"{name} trades {PetLevels.TuneStep}% {TuneNames[from]} for {PetLevels.TuneStep}% {TuneNames[to]}.");
         }
 
         // the pet out, at its last level, grows to the next size with the Growth Tonic in `slot`
@@ -495,13 +544,15 @@ namespace WorldServer.core.objects
             var petType = PetId;
             var xp = PetXp;
             var grown = PetGrown;
+            var tune = PetTune;
             PetId = 0;
             PetXp = 0;
             PetGrown = 0;
+            PetTune = null;
             if (Pet != null)
                 World.LeaveWorld(Pet);
             Pet = null;
-            if (!GivePetGeneratorBack(petType, xp, grown))
+            if (!GivePetGeneratorBack(petType, xp, grown, tune))
                 SendInfo("Your pet runs away.");
         }
     }

@@ -12,6 +12,15 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.7 (2026-11-24)
+
+### Pets
+- **Grown pets catch up:** a pet you grow now gets stronger as you feed it through each new size, towards what pets of that size do: any pet grown all the way to Huge does about 1,190 damage a second at level 30 (Lil' Thessal about 1,310, up from 594; Bes, Nut and Geb about 1,430), and heals more too. The Lil' Oryxes and boss pets stay a step ahead: every one now does at least about 1,510 a second at level 30, so the weaker ones (Lil' Oryx, Ferrogrim, Nerissa, Pyrrhax, Chronarch) hit harder.
+- **Tune a Huge pet:** once a Huge pet reaches level 30, the Pen Keeper can tune it: click the stat to make stronger (damage, HP or MP healing), then the one to take it from, 5% a step for 1,000 fame, up to 25% either way.
+
+### Mechanic
+- **Turrets have health:** instead of a timer, each turret has health (shown in a bar under it and round its plate) that wears down over time, and it blows up when the health runs out. Allies can heal and buff it like a player: heals, Healing, Damaging, Berserk, Armored and seals all work on it, so a turret your priest keeps healed keeps firing. Monsters still go for players first, but one with no player to fight goes after your turrets: its shots and bombs hurt them. Turrets also reach about 2 tiles further, but their shots hit in full only up close and fall off to half damage at the end of their reach.
+
 ## 2.6.6 (2026-11-23)
 
 ### The Crucible

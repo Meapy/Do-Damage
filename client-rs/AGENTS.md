@@ -153,6 +153,17 @@ the gaps between NewTicks. Its flags:
 
 - From Git Bash use `MSYS_NO_PATHCONV=1` and a Windows path for `--credentials`
   (`C:/Users/...`), or it stays on the sign-in screen.
+- `--credentials` plays the first living character in the list (the lowest id), and no flag picks
+  another. To play a different class on an isolated copy, take the others out of the account's
+  living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
+  bytes in: `printf '\x01\x00\x00\x00' | redis-cli -p <port> -x srem alive.1` (`sadd` to put it
+  back). A quoted `"\x01..."` argument or a line on stdin doesn't match and removes nothing.
+- `--size` is in physical pixels: on a scaled display `--size 1280x720` gave 1024x576 shots, and
+  `--mouse` positions are in those. Read them off a `--shot` first. An ability aimed at the HUD
+  bar or off the floor (a Mechanic's blueprint at the sky) is refused without a word.
+- `--hold space:<ms>` didn't use a Mechanic's blueprint in the vault (2026-11-24): four presses, MP
+  still full, cause not found. Check MP in the shot before trusting a scripted ability, and test an
+  ability's logic with a server unit test rather than spending runs on it.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display

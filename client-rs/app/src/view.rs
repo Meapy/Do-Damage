@@ -1584,11 +1584,13 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
     }
 
     crate::prof::mark("v.icons");
-    // HP bars (`GameObject.drawHpBar`) under monsters and players.
+    // HP bars (`GameObject.drawHpBar`) under monsters and players, and under a Mechanic's turrets
+    // (the server's `Turret.cs`: their health wears down, and allies heal it).
     for (_, item) in items.iter().filter(|_| scene.show.hp_bars) {
         let Item::Sprite { obj, desc } = item else { continue };
+        let turret = desc.xml.has("TurretHead");
         // a ghost has no health to show
-        if !(desc.enemy || desc.player) || desc.no_mini_map || fade(scene, obj, desc) <= 0.0 || hidden(obj) || is_ghost(scene, obj, desc) {
+        if !(desc.enemy || desc.player || turret) || (desc.no_mini_map && !turret) || fade(scene, obj, desc) <= 0.0 || hidden(obj) || is_ghost(scene, obj, desc) {
             continue;
         }
         let c = obj.conditions();

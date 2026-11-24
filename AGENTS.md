@@ -65,6 +65,11 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
   attach to its console and send Ctrl+C (`AttachConsole`, `GenerateConsoleCtrlEvent`).
 - **Never drive a player's window** ("Do Damage", or "betterSkillys" for the AIR client). Test
   with the Rust client's scripted flags, in its own window, on an isolated stack.
+- **Write down testing pitfalls.** When a test trips on something not obvious (a flag that doesn't
+  do what it seems to, a setup step, test data to fix first, a cause you couldn't find), add it to
+  the testing notes of the part you tested (client-rs/AGENTS.md, "Testing against the servers";
+  source/AGENTS.md, "Build, test, deploy") in the same commit, with what works instead, so the
+  next session doesn't lose the same time.
 - **Client and server ship together** when a message changes. Keep old clients working with a new
   server where possible, and say in the commit which side needs redeploying.
 - **Client releases** are published by the deploy on merge to `main`, signed with the

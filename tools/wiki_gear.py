@@ -81,8 +81,11 @@ def png_size(path):
 
 # Pet levels (Shared.pets.PetLevels): a sized pet grows from level 1 to its size's last as the Pen
 # Keeper feeds it, its damage from 60% of its stone's petDps to 100% (Huge pets 120%), its healing
-# from its stone's petHp and petMp to 140% (Huge 160%).
+# from its stone's petHp and petMp to 140% (Huge 160%). A Huge stone's kit counts as at least
+# PetLevels.HugeFloor a second; any other pet grown to Huge does its kit times 2,000 / its size's
+# (PetLevels.SizeDps), times GrownHugeShare, at level 30 (and 120%).
 PET_MAX_LEVEL = {"Tiny": 10, "Small": 15, "Medium": 20, "Large": 25, "Huge": 30}
+PET_SIZE_DPS = {"Tiny": 50, "Small": 125, "Medium": 250, "Large": 500, "Huge": 2000}
 
 
 def _pet_top(size):
@@ -103,6 +106,32 @@ def _pet_effective_percent():
 
 PET_EFFECTIVE_PERCENT = _pet_effective_percent()
 PET_EFFECTIVENESS = PET_EFFECTIVE_PERCENT / 100
+
+
+def _pet_levels_number(name, default):
+    """A number PetLevels.cs sets (`HugeFloor = 1500`, `GrownHugeShare = 0.6f`)."""
+    try:
+        with open(os.path.join(wd.SRC, "Shared", "pets", "PetLevels.cs"), encoding="utf-8-sig") as f:
+            m = re.search(r"\b%s\s*=\s*([\d.]+)" % name, f.read())
+        return float(m.group(1)) if m else default
+    except OSError:
+        return default
+
+
+PET_HUGE_FLOOR = _pet_levels_number("HugeFloor", 0)
+PET_GROWN_HUGE_SHARE = _pet_levels_number("GrownHugeShare", 0)
+
+
+def _pet_kit(size, dps):
+    """Its kit's damage a second as its level counts it: a Huge stone's at least the floor."""
+    return max(dps, PET_HUGE_FLOOR) if size == "Huge" and dps > 0 else dps
+
+
+def _pet_grown_huge(size, dps):
+    """What a pet of this size does at level 30 grown to Huge (PetLevels.DamageScale), really."""
+    if size not in PET_SIZE_DPS or size == "Huge" or not dps:
+        return 0
+    return _pet_round(dps * 1.2 * PET_SIZE_DPS["Huge"] / PET_SIZE_DPS[size] * PET_GROWN_HUGE_SHARE * PET_EFFECTIVENESS)
 
 
 def _pet_effective(n):
@@ -506,12 +535,16 @@ class Gear:
         if e == "BuildTower":
             if not g("allyMs"):
                 return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
-            # a Mechanic's turret (Turret.cs): built where you aim, up to `amount` at once, faster
-            # with its Mechanic within 7 tiles (LINK_RANGE, OVERCLOCK_PERCENT), and it blows up
-            # at the end (totalDamage within radius)
-            return ("builds a turret where you aim (up to %s tiles away) for %ss%s; up to %s at once, firing "
-                    "half again as often while you're within 7 tiles; it blows up at the end: %s damage within %s tiles"
-                    % (n("range"), n("duration"), ally_shots(), n("amount"), n("totalDamage"), n("radius")))
+            # a Mechanic's turret (Turret.cs): built where you aim, up to `amount` at once, with
+            # `hp` health worn down over `duration` (allies heal and buff it), faster with its
+            # Mechanic within 7 tiles (LINK_RANGE, OVERCLOCK_PERCENT), its shots weaker past 3 tiles
+            # (FALLOFF_NEAR, FALLOFF_FLOOR), and it blows up when its health runs out (totalDamage
+            # within radius)
+            return ("builds a turret with %s HP where you aim (up to %s tiles away)%s, its health wearing down "
+                    "over %ss unless allies heal it; up to %s at once, firing half again as often while you're "
+                    "within 7 tiles, its shots falling off past 3 tiles to half at their farthest; it blows up "
+                    "when its health runs out: %s damage within %s tiles"
+                    % (n("hp", "600"), n("range"), ally_shots(), n("duration"), n("amount"), n("totalDamage"), n("radius")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1
@@ -748,19 +781,23 @@ class Gear:
         cards = []
         # by size, the biggest first, then the strongest
         order = {"Huge": 0, "Large": 1, "Medium": 2, "Small": 3, "Tiny": 4}
-        for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -p["dps"], p["name"].lower())):
+        for p in sorted(d.pets(), key=lambda p: (order.get(p["size"], 4), -_pet_kit(p["size"], p["dps"]), p["name"].lower())):
             oid = p["item"]
             last = PET_MAX_LEVEL.get(p["size"])
-            if last and p["dps"]:
+            kit = _pet_kit(p["size"], p["dps"])
+            if last and kit:
                 # level 1 to its last (PetLevels.DamageScale), times PetLevels.Effectiveness
                 lines = ['<p class="it-nums">Damage a second <b>%s</b> &rarr; <b>%s</b></p>' % (
-                    "{:,}".format(_pet_round(p["dps"] * 0.6 * PET_EFFECTIVENESS)),
-                    "{:,}".format(_pet_round(p["dps"] * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)))]
+                    "{:,}".format(_pet_round(kit * 0.6 * PET_EFFECTIVENESS)),
+                    "{:,}".format(_pet_round(kit * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)))]
             else:
-                lines = (['<p class="it-nums">Damage a second <b>%d</b></p>' % _pet_round(p["dps"] * PET_EFFECTIVENESS)]
-                         if p["dps"] else [])
+                lines = (['<p class="it-nums">Damage a second <b>%d</b></p>' % _pet_round(kit * PET_EFFECTIVENESS)]
+                         if kit else [])
             if last:
                 lines.append('<p class="it-line"><span>Levels</span> 1 to %d, fed by the Pen Keeper</p>' % last)
+            grown_huge = _pet_grown_huge(p["size"], p["dps"])
+            if grown_huge:
+                lines.append('<p class="it-line"><span>Grown to Huge</span> %s damage a second at level 30</p>' % "{:,}".format(grown_huge))
             pet = d.name(p["pet"]) if p["pet"] else ""
             if pet and pet != p["name"]:
                 lines.append('<p class="it-line"><span>Pet</span> %s</p>' % h.esc(pet))
@@ -790,8 +827,8 @@ class Gear:
                 continue
             flags = ["Soulbound"] if d.objects[oid]["soulbound"] else []
             search = " ".join([p["name"], pet, "pet generator", p["size"]] + effects + [re.sub(r"<[^>]+>", "", v) for _, v in src])
-            dps_tag = (("%s DPS at level %d" % ("{:,}".format(_pet_round(p["dps"] * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)), last) if last
-                        else "%d DPS" % _pet_round(p["dps"] * PET_EFFECTIVENESS)) if p["dps"] else "")
+            dps_tag = (("%s DPS at level %d" % ("{:,}".format(_pet_round(kit * _pet_top(p["size"])[0] * PET_EFFECTIVENESS)), last) if last
+                        else "%d DPS" % _pet_round(kit * PET_EFFECTIVENESS)) if kit else "")
             tag = " · ".join(x for x in (p["size"], dps_tag) if x) or "Pet"
             cards.append(self._pet_card(self._anchor("pet-" + oid, ids), d.texture(p["pet"]) or d.texture(oid), edge,
                                         p["name"], tag, lines,

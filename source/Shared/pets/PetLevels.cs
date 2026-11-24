@@ -12,7 +12,17 @@ namespace Shared.pets
     //   last (Huge 160%), as often;
     // - drawn up to a sixth bigger (Huge a quarter).
     // A pet at its last level can be grown to the next size (GrowPrice, GrownSize): it stays at
-    // 100% until it's Huge, then climbs on to 120%, so growing never weakens it.
+    // 100% until it's Huge, then climbs on to 120%, so growing never weakens it. Since 2.6.7 a
+    // grown pet also climbs towards what pets of its new size do (Grown): as it's fed through each
+    // size it grew to, its damage goes up by how much harder that size's kits hit than its
+    // stone's (SizeDps), times GrownShare (Huge GrownHugeShare), and its healing by how much more
+    // that size heals (SizeHeal), times HealShare. A Large pet grown to Huge does 2.2 times its
+    // kit at level 30 on top of the 120%, a Tiny one 22 times.
+    // Every Huge pet from its own stone (the Oryxes', the bosses') hits at least as hard as a kit
+    // of HugeFloor a second (Floor), so they stay ahead of grown ones (since 2.6.7).
+    // A Huge pet at its last level can be tuned (Retune): each step moves TuneStep percent from
+    // one of its damage, HP healing and MP healing to another, for TuneFame fame, up to TuneMax
+    // steps either way on each (TuneScale).
     // On top of that, every pet, levelled or not, does EffectivePercent (90%) of that
     // damage, healing and bleeding (since 2.6.4).
     // Feeding costs fame, more the stronger the pet is: 3 for each 100 food it eats at level 1,
@@ -94,18 +104,103 @@ namespace Shared.pets
             return FullShare + (1 - FullShare) * Math.Clamp((level - baseMax) / (float)(max - baseMax), 0, 1);
         }
 
-        /// <summary>Its damage, times its kit's (see Power).</summary>
-        public static float DamageScale(int level, int max, int baseMax = 0) =>
-            max <= 1 ? 1 : DamageAtFirst + (DamageAtLast - DamageAtFirst) * Power(level, max, baseMax);
+        // the damage a second each size's kits are made for, and the HP a second each heals at
+        // level 1 (tools/pet_healing.py's DPS_NORM and HP_A_SECOND)
+        private static readonly float[] SizeDps = { 50, 125, 250, 500, 2000 };
+        private static readonly float[] SizeHeal = { 4.5f, 6, 9, 16, 22 };
+        // a grown pet's share of what pets of its new size do more than its stone's: 85% (Huge
+        // 55%) of the damage, 85% of the healing
+        public const float GrownShare = 0.85f, GrownHugeShare = 0.55f, HealShare = 0.85f;
 
-        /// <summary>Its healing, times its generator's.</summary>
-        public static float HealScale(int level, int max, int baseMax = 0) => max <= 1 ? 1 : 1 + (HealAtLast - 1) * Power(level, max, baseMax);
+        // what a pet of stone size `b` grown to size `k` is worth, times its kit
+        private static float GrownAt(int b, int k, bool damage) =>
+            k <= b ? 1 : damage
+                ? SizeDps[k] / SizeDps[b] * (k == Sizes.Length - 1 ? GrownHugeShare : GrownShare)
+                : SizeHeal[k] / SizeHeal[b] * HealShare;
+
+        /// <summary>What growing has made of a pet at `level` whose stone's last level is
+        /// `baseMax`, times its kit's damage (or healing): 1 up to its stone's last level, then
+        /// climbing through each size it grew to, level by level, to that size's worth (GrownAt).
+        /// A pet is never past its size's last level, so this stops at its size's.</summary>
+        public static float Grown(int level, int baseMax, bool damage)
+        {
+            var b = Array.IndexOf(MaxLevels, baseMax);
+            if (b < 0)
+                return 1;
+            var scale = 1f;
+            for (var k = b + 1; k < Sizes.Length && level > MaxLevels[k - 1]; k++)
+            {
+                var t = Math.Clamp((level - MaxLevels[k - 1]) / (float)(MaxLevels[k] - MaxLevels[k - 1]), 0, 1);
+                var from = GrownAt(b, k - 1, damage);
+                scale = from + (GrownAt(b, k, damage) - from) * t;
+            }
+            return scale;
+        }
+
+        // its stone's own last level (0 or out of range: `max`, never grown)
+        private static int BaseMax(int max, int baseMax) => baseMax <= 1 || baseMax > max ? max : baseMax;
+
+        /// <summary>Its damage, times its kit's (see Power and Grown).</summary>
+        public static float DamageScale(int level, int max, int baseMax = 0) =>
+            max <= 1 ? 1 : (DamageAtFirst + (DamageAtLast - DamageAtFirst) * Power(level, max, baseMax)) * Grown(level, BaseMax(max, baseMax), true);
+
+        /// <summary>Its healing, times its generator's (see Power and Grown).</summary>
+        public static float HealScale(int level, int max, int baseMax = 0) =>
+            max <= 1 ? 1 : (1 + (HealAtLast - 1) * Power(level, max, baseMax)) * Grown(level, BaseMax(max, baseMax), false);
+
+        // the least a Huge stone's kit is taken as doing, a second
+        public const int HugeFloor = 1400;
+
+        /// <summary>Times its kit's damage for a pet whose stone is `stoneSize` and says it does
+        /// `dps` a second: a Huge stone's (an Oryx's, a boss's) at least HugeFloor, any other as
+        /// it is.</summary>
+        public static float Floor(string stoneSize, int dps) =>
+            stoneSize == Sizes[^1] && dps > 0 && dps < HugeFloor ? HugeFloor / (float)dps : 1;
+
+        // Tuning a Huge pet at its last level: three stats (0 damage, 1 HP healing, 2 MP healing),
+        // each moved TuneStep percent a step, at most TuneMax steps either way, TuneFame a step
+        public const int TuneStats = 3, TuneStep = 5, TuneMax = 5, TuneFame = 1000;
+
+        /// <summary>Whether a pet of this size (as grown) at this level can be tuned: Huge, at its
+        /// last level.</summary>
+        public static bool CanTune(string size, int level) => size == Sizes[^1] && level >= MaxLevels[^1];
+
+        /// <summary>A pet's tuning as its three steps, from what's kept (null or short: none).</summary>
+        public static int[] Tune(int[] kept)
+        {
+            var tune = new int[TuneStats];
+            for (var i = 0; i < TuneStats && kept != null && i < kept.Length; i++)
+                tune[i] = Math.Clamp(kept[i], -TuneMax, TuneMax);
+            return tune;
+        }
+
+        /// <summary>Times what stat `stat` (0 damage, 1 HP, 2 MP) would be untuned.</summary>
+        public static float TuneScale(int[] kept, int stat) =>
+            kept == null || stat < 0 || stat >= kept.Length ? 1 : 1 + Math.Clamp(kept[stat], -TuneMax, TuneMax) * TuneStep / 100f;
+
+        /// <summary>The tuning `kept` with one step moved from stat `from` to stat `to`, or null
+        /// when it can't be (the same stat, out of range, or past TuneMax either way).</summary>
+        public static int[] Retune(int[] kept, int from, int to)
+        {
+            if (from == to || from < 0 || to < 0 || from >= TuneStats || to >= TuneStats)
+                return null;
+            var tune = Tune(kept);
+            if (tune[from] <= -TuneMax || tune[to] >= TuneMax)
+                return null;
+            tune[from]--;
+            tune[to]++;
+            return tune;
+        }
+
+        /// <summary>Whether a tuning moves nothing (null, or every step 0).</summary>
+        public static bool Untuned(int[] kept) => kept == null || Array.TrueForAll(kept, v => v == 0);
 
         /// <summary>How big it's drawn, times its own size.</summary>
         public static float DrawScale(int level, int max, int baseMax = 0) => max <= 1 ? 1 : 1 + (GrowAtLast - 1) * Power(level, max, baseMax);
 
-        /// <summary>A heal at `level`: the generator's amount, grown.</summary>
-        public static int Heal(int amount, int level, int max, int baseMax = 0) => (int)Math.Round(amount * HealScale(level, max, baseMax));
+        /// <summary>A heal at `level`: the generator's amount, grown, times `tune` (its tuning's
+        /// TuneScale).</summary>
+        public static int Heal(int amount, int level, int max, int baseMax = 0, float tune = 1) => (int)Math.Round(amount * HealScale(level, max, baseMax) * tune);
 
         public const double FamePerFood = 0.03, FameGrowth = 0.15;
 

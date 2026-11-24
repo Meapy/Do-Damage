@@ -44,7 +44,7 @@ namespace WorldServer.logic.behaviors
                 Entity en = null;
 
                 if (tossAngle == null)
-                    en = host.GetNearestEntity(range, null);
+                    en = host.GetAttackTarget(range);
 
                 if (tossAngle == null && en == null)
                     return;

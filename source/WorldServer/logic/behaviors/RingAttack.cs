@@ -51,7 +51,7 @@ namespace WorldServer.logic.behaviors
 
             if (rastate.coolDown.CoolDown <= 0)
             {
-                var entity = _radius == 0 ? null : Host.GetNearestEntity((float)_radius, null, _seeInvis);
+                var entity = _radius == 0 ? null : Host.GetAttackTarget((float)_radius, _seeInvis);
                 var enemy = Host as Enemy;
                 var enemyClasified = enemy.IsLegendary ? 50 : enemy.IsEpic ? 25 : enemy.IsRare ? 10 : 0;
 

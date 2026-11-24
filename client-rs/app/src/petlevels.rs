@@ -5,8 +5,10 @@
 //! 100% (Huge pets 120%), its healing from its stone's `petHp` and `petMp` to 140% (160%),
 //! and it's drawn bigger (`power`). Feeding costs fame, more the stronger it is (`fame_cost`). At
 //! its last level it can be grown to the next size (`grown_size`), levelling on to that size's
-//! last without weakening. The tooltips and the Pen
-//! Keeper's window show these; the server decides.
+//! last without weakening, and climbing towards what pets of its new size do (`grown`). A Huge
+//! stone's kit counts as at least `HUGE_FLOOR` a second (`floor`), and a Huge pet at its last
+//! level can be tuned, 5% of one stat moved to another a step (`tune_scale`). The tooltips and
+//! the Pen Keeper's window show these; the server decides.
 
 use bsk_data::GameData;
 
@@ -103,12 +105,55 @@ pub fn power(level: i32, max: i32, base_max: i32) -> f32 {
     }
 }
 
+/// The damage a second each size's kits are made for, and the HP a second each heals at level 1
+/// (the server's `PetLevels.SizeDps` and `SizeHeal`).
+const SIZE_DPS: [f32; 5] = [50.0, 125.0, 250.0, 500.0, 2000.0];
+const SIZE_HEAL: [f32; 5] = [4.5, 6.0, 9.0, 16.0, 22.0];
+/// A grown pet's share of what pets of its new size do more than its stone's (from 2.6.7).
+const GROWN_SHARE: f32 = 0.85;
+const GROWN_HUGE_SHARE: f32 = 0.55;
+const HEAL_SHARE: f32 = 0.85;
+
+fn grown_at(b: usize, k: usize, damage: bool) -> f32 {
+    if k <= b {
+        1.0
+    } else if damage {
+        SIZE_DPS[k] / SIZE_DPS[b] * if k == SIZES.len() - 1 { GROWN_HUGE_SHARE } else { GROWN_SHARE }
+    } else {
+        SIZE_HEAL[k] / SIZE_HEAL[b] * HEAL_SHARE
+    }
+}
+
+/// What growing has made of a pet at `level` whose stone's last level is `base_max`, times its
+/// kit's damage (or healing): 1 up to its stone's last level, then climbing through each size it
+/// grew to, level by level (the server's `PetLevels.Grown`).
+pub fn grown(level: i32, base_max: i32, damage: bool) -> f32 {
+    let Some(b) = MAX_LEVELS.iter().position(|&m| m == base_max) else { return 1.0 };
+    let mut scale = 1.0;
+    let mut k = b + 1;
+    while k < SIZES.len() && level > MAX_LEVELS[k - 1] {
+        let t = ((level - MAX_LEVELS[k - 1]) as f32 / (MAX_LEVELS[k] - MAX_LEVELS[k - 1]) as f32).clamp(0.0, 1.0);
+        let from = grown_at(b, k - 1, damage);
+        scale = from + (grown_at(b, k, damage) - from) * t;
+        k += 1;
+    }
+    scale
+}
+
+fn base_max_of(max: i32, base_max: i32) -> i32 {
+    if base_max <= 1 || base_max > max {
+        max
+    } else {
+        base_max
+    }
+}
+
 /// Its damage, times its kit's.
 pub fn damage_scale(level: i32, max: i32, base_max: i32) -> f32 {
     if max <= 1 {
         return 1.0;
     }
-    DAMAGE_AT_FIRST + (DAMAGE_AT_LAST - DAMAGE_AT_FIRST) * power(level, max, base_max)
+    (DAMAGE_AT_FIRST + (DAMAGE_AT_LAST - DAMAGE_AT_FIRST) * power(level, max, base_max)) * grown(level, base_max_of(max, base_max), true)
 }
 
 /// Its healing, times its stone's.
@@ -116,17 +161,57 @@ pub fn heal_scale(level: i32, max: i32, base_max: i32) -> f32 {
     if max <= 1 {
         return 1.0;
     }
-    1.0 + (HEAL_AT_LAST - 1.0) * power(level, max, base_max)
+    (1.0 + (HEAL_AT_LAST - 1.0) * power(level, max, base_max)) * grown(level, base_max_of(max, base_max), false)
 }
 
-/// A heal at `level`: its stone's amount, grown.
-pub fn heal(amount: i32, level: i32, max: i32, base_max: i32) -> i32 {
-    ((amount as f32 * heal_scale(level, max, base_max)) as f64).round_ties_even() as i32
+/// A heal at `level`: its stone's amount, grown, times `tune` (its tuning's `tune_scale`).
+pub fn heal(amount: i32, level: i32, max: i32, base_max: i32, tune: f32) -> i32 {
+    ((amount as f32 * heal_scale(level, max, base_max) * tune) as f64).round_ties_even() as i32
 }
 
 /// Its damage a second at `level`, from its stone's.
 pub fn dps(dps: i32, level: i32, max: i32, base_max: i32) -> i32 {
     ((dps as f32 * damage_scale(level, max, base_max)) as f64).round_ties_even() as i32
+}
+
+/// The least a Huge stone's kit is taken as doing, a second (from 2.6.7).
+pub const HUGE_FLOOR: i32 = 1400;
+
+/// Times its kit's damage for a pet whose stone is `size` and says it does `dps` a second: a
+/// Huge stone's (an Oryx's, a boss's) at least `HUGE_FLOOR` (the server's `PetLevels.Floor`).
+pub fn floor(size: Option<&str>, dps: i32) -> f32 {
+    if size == Some(SIZES[SIZES.len() - 1]) && dps > 0 && dps < HUGE_FLOOR {
+        HUGE_FLOOR as f32 / dps as f32
+    } else {
+        1.0
+    }
+}
+
+/// Tuning (from 2.6.7): each step moves `TUNE_STEP`% of one stat (0 damage, 1 HP healing, 2 MP
+/// healing) to another, at most `TUNE_MAX` steps either way on each.
+pub const TUNE_STEP: i32 = 5;
+pub const TUNE_MAX: i32 = 5;
+
+/// Whether a pet of this size (as grown) at this level can be tuned: Huge, at its last level.
+pub fn can_tune(size: Option<&str>, level: i32) -> bool {
+    size == Some(SIZES[SIZES.len() - 1]) && level >= MAX_LEVELS[MAX_LEVELS.len() - 1]
+}
+
+/// Times what stat `stat` would be untuned, for a pet tuned `tune` steps.
+pub fn tune_scale(tune: [i32; 3], stat: usize) -> f32 {
+    1.0 + tune.get(stat).map_or(0, |v| (*v).clamp(-TUNE_MAX, TUNE_MAX)) as f32 * TUNE_STEP as f32 / 100.0
+}
+
+/// How a pet stone's pet was tuned, from its slot's data (`ItemData.PetTune`, `[1,-1,0]`).
+pub fn stone_tune(json: &str) -> [i32; 3] {
+    let mut tune = [0; 3];
+    let Some(i) = json.find("\"PetTune\":[") else { return tune };
+    let rest = &json[i + 11..];
+    let list = &rest[..rest.find(']').unwrap_or(rest.len())];
+    for (k, v) in list.split(',').take(3).enumerate() {
+        tune[k] = v.trim().parse::<i32>().unwrap_or(0).clamp(-TUNE_MAX, TUNE_MAX);
+    }
+    tune
 }
 
 /// A heal or a bleed as the pet really does it: times `EFFECTIVE_PERCENT`, rounded half away from
@@ -136,8 +221,8 @@ pub fn effective(amount: i32) -> i32 {
 }
 
 /// Its damage a second at `level` as it really does it (what the server's Pen Keeper window sends).
-pub fn effective_dps(dps: i32, level: i32, max: i32, base_max: i32) -> i32 {
-    ((dps as f32 * damage_scale(level, max, base_max) * EFFECTIVENESS) as f64).round_ties_even() as i32
+pub fn effective_dps(dps: f32, level: i32, max: i32, base_max: i32) -> i32 {
+    ((dps * damage_scale(level, max, base_max) * EFFECTIVENESS) as f64).round_ties_even() as i32
 }
 
 const FAME_PER_FOOD: f64 = 0.03;
@@ -306,7 +391,7 @@ mod tests {
         assert!((damage_scale(20, 20, 0) - 1.0).abs() < 1e-3);
         assert!((heal_scale(20, 20, 0) - 1.4).abs() < 1e-3);
         assert!((heal_scale(30, 30, 0) - 1.6).abs() < 1e-3);
-        assert_eq!(heal(10, 25, 25, 0), 14);
+        assert_eq!(heal(10, 25, 25, 0, 1.0), 14);
         assert_eq!(dps(1000, 1, 30, 0), 600);
         assert_eq!(dps(1000, 30, 30, 0), 1200);
         assert_eq!((damage_scale(1, 1, 0), heal_scale(1, 1, 0)), (1.0, 1.0));
@@ -314,22 +399,43 @@ mod tests {
 
     #[test]
     fn growing_never_weakens_a_pet() {
-        for grown in 1..=4 {
-            let max = max_level(grown_size(Some("Tiny"), grown));
+        for grown_by in 1..=4 {
+            let max = max_level(grown_size(Some("Tiny"), grown_by));
             for level in 2..=max {
                 assert!(damage_scale(level, max, 10) >= damage_scale(level.min(10), 10, 0) - 1e-4);
-                assert!(damage_scale(level, max, 10) >= damage_scale(level - 1, max, 10));
+                assert!(damage_scale(level, max, 10) > damage_scale(level - 1, max, 10));
+                assert!(heal_scale(level, max, 10) > heal_scale(level - 1, max, 10));
             }
-            let last = if grown < 4 { 1.0 } else { 1.2 };
-            assert!((damage_scale(max, max, 10) - last).abs() < 1e-3);
         }
-        assert!((damage_scale(20, 30, 10) - 1.1).abs() < 1e-3);
+        // just grown, as it was; then towards its new size's kits (the server's checks)
+        let near = |a: f32, b: f32| (a - b).abs() < 1e-3;
+        assert!(near(damage_scale(10, 15, 10), 1.0));
+        assert!(near(damage_scale(15, 15, 10), 2.125));
+        assert!(near(damage_scale(25, 25, 10), 8.5));
+        assert!(near(damage_scale(20, 30, 10), 1.1 * 4.25));
+        assert!(near(damage_scale(30, 30, 10), 1.2 * 22.0));
+        assert!(near(damage_scale(25, 30, 25), 1.0));
+        assert!(near(damage_scale(30, 30, 25), 1.2 * 2.2));
+        assert!(near(heal_scale(30, 30, 25), 1.6 * 22.0 / 16.0 * 0.85));
+        assert!(near(grown(25, 25, true), 1.0));
+    }
+
+    #[test]
+    fn huge_stones_have_a_floor_and_maxed_huge_pets_tune() {
+        assert!((floor(Some("Huge"), 1000) - 1.4).abs() < 1e-3);
+        assert_eq!((floor(Some("Huge"), 3000), floor(Some("Large"), 100), floor(Some("Huge"), 0)), (1.0, 1.0, 1.0));
+        assert!(can_tune(Some("Huge"), 30) && !can_tune(Some("Huge"), 29) && !can_tune(Some("Large"), 30));
+        assert!((tune_scale([5, -5, 0], 0) - 1.25).abs() < 1e-3);
+        assert!((tune_scale([1, -1, 0], 1) - 0.95).abs() < 1e-3);
+        assert_eq!(heal(10, 30, 30, 0, 1.2), 19);
+        assert_eq!(stone_tune(r#"{"Stack":0,"PetXp":56705,"PetGrown":1,"PetTune":[2,-3,1]}"#), [2, -3, 1]);
+        assert_eq!(stone_tune(r#"{"Stack":0,"PetXp":5}"#), [0, 0, 0]);
     }
 
     #[test]
     fn every_pet_does_nine_tenths() {
-        assert_eq!(effective_dps(1000, 30, 30, 0), 1080);
-        assert_eq!(effective_dps(50, 1, 1, 0), 45);
+        assert_eq!(effective_dps(1000.0, 30, 30, 0), 1080);
+        assert_eq!(effective_dps(50.0, 1, 1, 0), 45);
         assert_eq!((effective(15), effective(30), effective(45), effective(60)), (14, 27, 41, 54));
     }
 

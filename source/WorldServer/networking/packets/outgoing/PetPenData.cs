@@ -12,6 +12,8 @@ namespace WorldServer.networking.packets.outgoing
     // and what growing it to the next size costs in fame and in gold (0 at the last). Then, from
     // 2.6.5, the pet's size as grown (PetLevels.Sizes' index, 255 none) and what growing the pet
     // to the next size costs in fame and in gold (0 unless it's at its last level and can grow).
+    // Then, from 2.6.7, how the pet is tuned (PetLevels.Tune: steps of damage, HP and MP healing)
+    // and what a step costs in fame (0 unless it's Huge and at its last level).
     public class PetPenData : OutgoingMessage
     {
         public ushort Pet { get; set; }
@@ -41,6 +43,10 @@ namespace WorldServer.networking.packets.outgoing
         public byte PetSize { get; set; } = 255;
         public int GrowFame { get; set; }
         public int GrowGold { get; set; }
+        public sbyte TuneDamage { get; set; }
+        public sbyte TuneHp { get; set; }
+        public sbyte TuneMp { get; set; }
+        public int TuneFame { get; set; }
 
         public override MessageId MessageId => MessageId.PET_PEN;
 
@@ -72,6 +78,10 @@ namespace WorldServer.networking.packets.outgoing
             wtr.Write(PetSize);
             wtr.Write(GrowFame);
             wtr.Write(GrowGold);
+            wtr.Write(TuneDamage);
+            wtr.Write(TuneHp);
+            wtr.Write(TuneMp);
+            wtr.Write(TuneFame);
         }
     }
 }

@@ -147,6 +147,7 @@ namespace WorldServer.core.objects
             foreach (var p in World.Players.Values)
                 if (!p.Dead && p.DistTo(at.X, at.Y) <= TideRadius)
                     ActivateHealHp(p, TideHeal);
+            HealTurrets(at.X, at.Y, TideRadius, TideHeal);
         }
 
         // the hand's step `step` (of HoursSteps, from north clockwise): the enemies within reach in

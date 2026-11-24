@@ -32,6 +32,8 @@ namespace WorldServer.core.objects
             public int LifetimeMS;
             public bool MultiHit;
             public bool FromWeapon;
+            // a Mechanic's turret's shot: its reach, its damage falling off over it (Turret.Falloff)
+            public float FalloffReach;
 
             public ValidatedProjectile(int objectId, int bulletId, Position startPos, float angle, int containerType, int damage, DamageType damageType, ProjectileDesc projectileDesc, bool spawned)
             {

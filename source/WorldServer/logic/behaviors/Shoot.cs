@@ -81,7 +81,7 @@ namespace WorldServer.logic.behaviors
             if (host.HasConditionEffect(ConditionEffectIndex.Dazed))
                 count = (int)Math.Ceiling(_count / 2.0);
 
-            var player = host.AttackTarget ?? (_shootLowHp ? host.GetLowestHpEntity(_radius, null, _seeInvis) : host.GetNearestEntity(_radius, null, _seeInvis));
+            var player = host.AttackTarget ?? (_shootLowHp ? host.GetLowestHpEntity(_radius, null, _seeInvis) ?? Turret.NearestFor(host, _radius) : host.GetAttackTarget(_radius, _seeInvis));
 
             if (player != null || _defaultAngle != null || _fixedAngle != null)
             {

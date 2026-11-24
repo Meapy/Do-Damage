@@ -629,11 +629,15 @@ pub fn slot_data_stat(slot: u8) -> u8 {
 
 /// The imprints on the item in an object's slot.
 /// The food in the pet stone in an object's slot (`petlevels::stone_xp`, from its slot's data).
-/// With the sizes its pet was grown (`petlevels::stone_grown`).
-pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> (i32, i32) {
+/// With the sizes its pet was grown (`petlevels::stone_grown`) and how it's tuned
+/// (`petlevels::stone_tune`).
+pub fn pet_xp(data: &GameData, o: &GameObj, slot: u8, item: i32) -> PetStone {
     let json = o.stat_str(slot_data_stat(slot)).unwrap_or("");
-    (crate::petlevels::stone_xp(data, item, json), crate::petlevels::stone_grown(json))
+    (crate::petlevels::stone_xp(data, item, json), crate::petlevels::stone_grown(json), crate::petlevels::stone_tune(json))
 }
+
+/// A pet stone's pet: the food it has eaten, the sizes it was grown and how it's tuned.
+pub type PetStone = (i32, i32, [i32; 3]);
 
 /// A pet size's name, as players read it.
 pub fn pet_size_name(size: &str) -> &str {
@@ -2647,7 +2651,7 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
     let Some(slot) = panel.slot_at(mouse) else { return };
     let me = world.player();
     let lines = if slot.item > 0 {
-        let xp = me.filter(|m| m.id == slot.owner).map_or((0, 0), |m| pet_xp(ui.data, m, slot.index, slot.item));
+        let xp = me.filter(|m| m.id == slot.owner).map_or((0, 0, [0; 3]), |m| pet_xp(ui.data, m, slot.index, slot.item));
         let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
@@ -2968,8 +2972,11 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
                 if num("totalDamage") > 0.0 {
                     r.push(row(tr("Self-destructs"), tf!("{n} damage within {range}", n = num("totalDamage"), range = sqrs(num("radius")))));
                 }
+                r.push(row(tr("Falloff"), tf!("full damage within {near}, half at its farthest", near = sqrs(bsk_world::combat::TURRET_FALLOFF_NEAR))));
                 r.push(row(tr("Built"), tf!("where you aim, up to {range} away", range = sqrs(if has("range") { num("range") } else { 8.0 }))));
-                r.push(row(tr("Lasts"), secs(num("duration"))));
+                // its health wears down over its duration (the server's `Turret.cs`)
+                r.push(row(tr("HP"), tf!("{n}, wearing down over {time}", n = turret_hp(a), time = secs(num("duration")))));
+                r.push(row("", tr("Allies' heals and buffs reach it").to_owned()));
                 r.push(row("", tf!("Up to {n} out at once", n = if has("amount") { num("amount") } else { 3.0 })));
             } else {
                 r.push(row(tr("Builds"), text("objectId")));
@@ -3086,6 +3093,11 @@ const MAX_SUMMONS: u32 = 6;
 const TURRET_LINK_RANGE: f64 = 7.0;
 const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
 
+/// A Mechanic's turret's health, its blueprint's `hp` (the server's `Turret.DEFAULT_HP` without).
+fn turret_hp(a: &bsk_data::xml::Element) -> f64 {
+    a.attr_number("hp", 600.0)
+}
+
 /// A summon's or turret's shots, which the port writes on the item's activate (allyDamage a shot,
 /// "min-max" if it varies; allyShots a volley; allyMs between volleys): the damage of a shot and
 /// how often, then on one enemy a second, before its defense.
@@ -3114,13 +3126,13 @@ pub fn item_tooltip(data: &GameData, item: i32, me: Option<&GameObj>, kind: Slot
 /// `item_tooltip` for an item carrying these imprints: its shots' numbers (damage, shots, range,
 /// rate of fire) are the imprinted ones, in the imprints' green.
 pub fn item_tooltip_imprinted(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4]) -> Vec<Line> {
-    item_tooltip_pet(data, item, me, kind, imprints, (0, 0))
+    item_tooltip_pet(data, item, me, kind, imprints, (0, 0, [0; 3]))
 }
 
-/// `item_tooltip_imprinted` for a pet stone holding `xp` of food, its pet grown `grown` sizes
-/// (`pet_xp`): its pet's size and level, and its damage and healing at that level and at its last
-/// (`petlevels`), in green once it's grown.
-pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], (xp, grown): (i32, i32)) -> Vec<Line> {
+/// `item_tooltip_imprinted` for a pet stone holding `xp` of food, its pet grown `grown` sizes and
+/// tuned `tune` (`pet_xp`): its pet's size and level, and its damage and healing at that level and
+/// at its last (`petlevels`), in green once it's grown.
+pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: SlotKind, imprints: [u32; 4], (xp, grown, tune): PetStone) -> Vec<Line> {
     let Some(desc) = data.objects.get(&(item as u16)) else { return vec![Line::new(tr("Unknown item"), 14.0, true, 0xFFFFFF)] };
     let xml = &desc.xml;
     let mut out = Vec::new();
@@ -3179,6 +3191,8 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             // its stone's own last level: a grown pet stays at 100% until it's Oryx-sized
             let base_max = crate::petlevels::max_level(a.attr("petSize"));
             let level = crate::petlevels::level_for(xp, max);
+            // its tuning counts only once it's Huge and at its last level (and would at its last)
+            let tuned = |level: i32, stat: usize| if crate::petlevels::can_tune(size, level) { crate::petlevels::tune_scale(tune, stat) } else { 1.0 };
             let up_to = |now: String, last: String| if level < max { tf!("{now}, up to {last}", now, last) } else { now };
             if let Some(size) = size {
                 out.push(Line::stat(&format!("    {}", tr("Size")), pet_size_name(size), if grown > 0 { color::GOOD } else { VALUE }));
@@ -3191,18 +3205,21 @@ pub fn item_tooltip_pet(data: &GameData, item: i32, me: Option<&GameObj>, kind: 
             if let Some(dps) = a.attr("petDps") {
                 let text = match dps.parse::<i32>() {
                     Ok(d) => {
-                        // what it really does (every pet 90% of its level's)
-                        let (now, last) = (crate::petlevels::effective_dps(d, level, max, base_max), crate::petlevels::effective_dps(d, max, max, base_max));
+                        // what it really does (every pet 90% of its level's; an Oryx's or a boss's
+                        // kit at least `HUGE_FLOOR`), as tuned
+                        let kit = d as f32 * crate::petlevels::floor(a.attr("petSize"), d);
+                        let at = |level: i32| crate::petlevels::effective_dps(kit * tuned(level, 0), level, max, base_max);
+                        let (now, last) = (at(level), at(max));
                         up_to(tf!("{dps} per second", dps = group_digits(now)), group_digits(last))
                     }
                     Err(_) => tf!("{dps} per second", dps),
                 };
                 out.push(Line::stat(&format!("    {}", tr("Damage")), &text, grown));
             }
-            for (key, verb, what) in [("petHp", tr("Heals"), tr("HP")), ("petMp", tr("Restores"), tr("MP"))] {
+            for (stat, key, verb, what) in [(1, "petHp", tr("Heals"), tr("HP")), (2, "petMp", tr("Restores"), tr("MP"))] {
                 let Some(amount) = a.attr(key).and_then(|v| v.parse::<i32>().ok()).filter(|&v| v > 0) else { continue };
                 let secs = a.attr_number(&format!("{key}Ms"), 0.0) / 1000.0;
-                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max, base_max));
+                let heal = |level| crate::petlevels::effective(crate::petlevels::heal(amount, level, max, base_max, tuned(level, stat)));
                 let text = tf!("{amount} {what} every {secs}s", amount = heal(level), what, secs);
                 out.push(Line::stat(&format!("    {verb}"), &up_to(text, heal(max).to_string()), grown));
             }
@@ -3459,7 +3476,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "ObjectToss" => tf!("Throws a {object}", object = text("objectId")),
         "MonsterToss" => tf!("Throws a {object} to fight for you", object = text("objectId")),
         "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
-        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, for {time} secs", time = num("duration")),
+        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, with {hp} HP", hp = turret_hp(a)),
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),

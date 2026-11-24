@@ -25,9 +25,9 @@ or down a floor (the Sky Bar's stair, a teleport), it comes to you on your floor
 Tiny pet, 15 Small, 20 Medium, 25 Large and 30 Huge (the Lil' Oryxes and the boss pets). Along
 the way its damage goes from 60% of its kit's to 100%, its healing to 140% of what it heals at
 level 1, and it grows a little bigger. **Only Huge pets go further**: up to 120% damage and 160%
-healing at level 30, a quarter bigger. A pet keeps its level and size in its generator when you
-take it back, and pets from before levels came back with their food (a raised one at its last
-level).
+healing at level 30, a quarter bigger. A pet keeps its level, size and tuning in its generator
+when you take it back, and pets from before levels came back with their food (a raised one at its
+last level).
 
 **Every pet does 90%** of the damage, healing and bleeding its kit and level make
 (since 2.6.4): the numbers on this page, in the tooltips and in the Pen Keeper's window are what
@@ -54,10 +54,18 @@ level, the food to its next level, and what it does now and at its last level. T
 - **Grow your pet** once it's at its last level: it becomes the next size up, keeps its level and
   levels on to that size's last. Tiny to Small costs 1,000 fame or 100 gold, Small to Medium 3,000
   or 200, Medium to Large 8,500 or 450, and Large to Huge 25,000 or 1,000. It never gets weaker
-  for it: it stays at 100% through Small, Medium and Large, and once it's Huge it climbs on to
-  120% at level 30. It's drawn the new size's height, and your pen must take its new size for him
-  to feed it. A **Growth Tonic** from the [Realm Pass](realm-pass.html) grows a Tiny, Small or
-  Medium pet a size for nothing: pick it in his window and press **Grow it**.
+  for it, and as you feed it through its new size it **catches up with pets of that size**: by
+  the size's last level it hits about 85% as hard as they do (55% once it's Huge) and heals about
+  85% as much. Any pet grown all the way to Huge does about
+  1,190 damage a second at level 30 (Lil' Thessal about 1,310, Bes, Nut and Geb about 1,430),
+  a little less than the weakest Lil' Oryx or boss pet. It's drawn the new size's height, and
+  your pen must take its new size for him to feed it. A **Growth Tonic** from the
+  [Realm Pass](realm-pass.html) grows a Tiny, Small or Medium pet a size for nothing: pick it in
+  his window and press **Grow it**.
+- **Tune a Huge pet** at level 30 (since 2.6.7): click the damage, HP or MP box in his window
+  for what to make stronger, then what to take it from. Each step moves 5% from one to the other
+  for 1,000 fame, up to 25% either way on each, and you can move it back the same way. The boxes
+  show how it's tuned, and the tuning stays with the pet.
 - **Grow your pen** to feed bigger pets. Every account's pen feeds Tiny pets; each bigger size is
   bought once, for fame or gold: Small 2,000 fame or 200 gold, Medium 5,000 or 400, Large 10,000
   or 700, and Huge (the Lil' Oryxes and the boss pets) 20,000 or 1,000. Any pet can still be put
@@ -93,14 +101,14 @@ more), never more than two thirds of it.
 | Small | about 5.4 | about 68 | 15 | three quarters of your height | the rarer critters and the odd ones: wolves, lions, the Karate Penguins, the Leprechaun, Lil' Ghost... |
 | Medium | about 8 | about 135 | 20 | as tall as you | monsters, heroes and gods' look-alikes, and the named pets |
 | Large | about 14 | 270 to 325 | 25 | nearly half again as tall as you | the boss pets |
-| Huge | about 20 | 540 to 1,620 | 30 | as the Large pets | the Lil' Oryxes, the Black Between's and the Crucible's bosses |
+| Huge | about 20 | 760 to 1,620 | 30 | as the Large pets | the Lil' Oryxes, the Black Between's and the Crucible's bosses |
 
 Each pet's card under [Pet generators](#pet-generators) gives its own numbers, at level 1 and at
 its last.
 
 The Tomb of the Ancients' Bes, Nut and Geb hit hardest of the Large pets (about 540 a second at
-their last level, about 650 grown Huge at level 30), then Lil' Thessal, Horrific Creation and
-Pancookie (about 490).
+their last level, about 1,430 grown Huge at level 30), then Lil' Thessal, Horrific Creation and
+Pancookie (about 490, about 1,310 grown Huge).
 
 Every Oryx has a **Lil' Oryx** of his own, drawn as him and shooting his shots. Each Oryx drops
 his generator in a white bag (1%), and the generator is used up when used. They grow stronger along
@@ -108,7 +116,7 @@ the chain (damage a second at level 30; half that at level 1):
 
 | Lil' Oryx | Dropped by | Damage a second |
 |---|---|---|
-| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,080 |
+| Lil' Oryx | Oryx the Mad God, in his Chamber | about 1,510 |
 | Lil' Wine Cellar Oryx | Oryx the Mad God, in his Wine Cellar | about 1,620 |
 | Lil' Celestial Oryx | Oryx the Celestial Mad God | about 2,160 |
 | Lil' Infernal Oryx | Oryx the Infernal Mad God | about 2,700 |
@@ -123,14 +131,15 @@ little copy of itself, in a white bag. It fights as its boss does, with the boss
 its patterns (weaving volleys, rings that turn, its blast on the enemy and everything round it),
 and the champions' pets take on their champion's last form every 10 seconds to throw out its
 spiral. Each is as strong as a Lil' Oryx (damage a second at level 30 below; half that at level
-1), and the champions' pets help you as well:
+1), and the champions' pets help you as well. Since 2.6.7 every Lil' Oryx and boss pet does at
+least about 1,510 a second at level 30, ahead of any pet grown to Huge:
 
 | Pet | Dropped by | Damage a second | Also |
 |---|---|---|---|
-| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 1,080 | breaks armor; makes you Armored for 2 s every 10 s |
-| Lil' Nerissa | Nerissa, the Tidecaller | about 1,170 | slows; heals you over 2 s every 8 s |
-| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,260 | makes you Berserk for 2 s every 10 s |
-| Lil' Chronarch | Chronarch, the Hour Thief | about 1,440 | slows; makes you Speedy for 2 s every 8 s |
+| Lil' Ferrogrim | Ferrogrim, the Iron Warden | about 1,510 | breaks armor; makes you Armored for 2 s every 10 s |
+| Lil' Nerissa | Nerissa, the Tidecaller | about 1,510 | slows; heals you over 2 s every 8 s |
+| Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,510 | makes you Berserk for 2 s every 10 s |
+| Lil' Chronarch | Chronarch, the Hour Thief | about 1,510 | slows; makes you Speedy for 2 s every 8 s |
 | Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,980 | breaks armor; makes you Damaging for 2 s every 10 s |
 | Lil' Vesper | Vesper, the Dusk Star | about 2,430 | slows |
 | Lil' Aurel | Aurel, the Dawn Blade | about 2,790 | breaks armor; the Sunwheel every 9.5 s |

@@ -34,7 +34,7 @@ namespace WorldServer.logic.behaviors.@new.movements
                 return false;
             s.CooldownLeft = Cooldown;
 
-            var target = host.World.FindPlayerTarget(host);
+            var target = host.World.FindAttackTarget(host, 15);
             if (target == null || host.DistTo(target) > Range)
                 return false;
 

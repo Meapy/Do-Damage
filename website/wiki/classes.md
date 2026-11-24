@@ -58,13 +58,25 @@ Palemaster, Father, Adept, Monk, Pirate and Snowman) have abilities of their own
 `/gear` leaves that slot alone.
 
 **The Mechanic's turrets.** A Mechanic's turret blueprint throws a crate to where you aim, up to
-8 tiles away, and it unfolds into a turret that turns to the nearest enemy in reach (about 9
-tiles), leads it as it moves and keeps to it. Up to **three** stand at once: a fourth makes the
-oldest blow up. While you're within 7 tiles of a turret it's **overclocked**, linked to you by a
-cable of light, and fires half again as often; the higher tiers fire pairs, and every turret's
-shots pierce through enemies. When its time runs out (12 seconds at T0 up to 20 at T8) it **blows up**,
-hitting every enemy round it (300 damage at T0 up to 1,100 at T8), a ring warning of it for its
-last 3 seconds. A blueprint can be used once a second; the War Turret fires little shots very
+8 tiles away, and it unfolds into a turret that turns to the nearest enemy in reach (about 11
+tiles), leads it as it moves and keeps to it. Its shots hit in full out to 3 tiles, then less the
+further they fly, down to half at the end of their reach. Up to **three** stand at once: a fourth
+makes the oldest blow up. While you're within 7 tiles of a turret it's **overclocked**, linked to
+you by a cable of light, and fires half again as often; the higher tiers fire pairs, and every
+turret's shots pierce through enemies.
+
+A turret has **health** (400 at T0 up to 1,000 at T8; the War Turret 700, Ferrogrim's Bastion
+Turret 1,100), shown in a bar under it and in the ring round its plate, and it **wears down**: left
+alone it's gone in 12 seconds at T0 up to 20 at T8. Allies' abilities reach it as they reach
+players standing there: a priest's heal, a vampire blast or Nerissa's tide heals it, Healing mends
+it 20 a second, Damaging makes its shots hit a quarter harder, Berserk makes it fire a quarter
+faster, Armored slows its wear by a third and Invulnerable stops it, and a seal's or tome's boosts
+count too (maximum health raises its health as much, attack and dexterity add a percent of damage
+and fire rate a point, defense takes a percent off its wear a point, at most half). Monsters go
+for players first, but a monster with no player in its reach turns on the nearest turret: it
+shoots and chases it, and its shots, their conditions and its bombs hurt it. When its
+health runs out it **blows up**, hitting every enemy round it (300 damage at T0 up to 1,100 at T8),
+a ring warning of it for its last 3 seconds. A blueprint can be used once a second; the War Turret fires little shots very
 fast. The Armoire sells the Mechanic four skins at 200 gold (the Steamwright, the Scrapper, the
 Arcwright and the Clockwork Mechanic) and the 16 by 16 Titan Artificer at 800.
 

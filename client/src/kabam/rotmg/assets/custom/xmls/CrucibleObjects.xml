@@ -1280,13 +1280,13 @@
 			<Index>0x63</Index>
 		</Texture>
 		<SlotType>32</SlotType>
-		<Description>Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor broken, and allies beside it are Armored while it holds. When its time is up it blows apart.</Description>
+		<Description>Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor broken, and allies beside it are Armored while it holds. It wears down over time, and when its health runs out it blows apart.</Description>
 		<ExtraTooltipData>
 			<EffectInfo name="Slam" description="every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored" />
 		</ExtraTooltipData>
 		<Sound>spell/light_heal</Sound>
 		<Usable />
-		<Activate objectId="Bastion Turret" duration="20" range="8" amount="3" totalDamage="600" radius="4" allyDamage="100" allyShots="3" allyMs="700">BuildTower</Activate>
+		<Activate objectId="Bastion Turret" duration="20" range="8" amount="3" totalDamage="600" radius="4" allyDamage="100" allyShots="3" allyMs="700" hp="1100">BuildTower</Activate>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="21" amount="6">IncrementStat</ActivateOnEquip>
@@ -1418,7 +1418,7 @@
 			<ObjectId>Iron Shard</ObjectId>
 			<Speed>120</Speed>
 			<Damage>100</Damage>
-			<LifetimeMS>800</LifetimeMS>
+			<LifetimeMS>960</LifetimeMS>
 		</Projectile>
 		<NoMiniMap />
 	</Object>

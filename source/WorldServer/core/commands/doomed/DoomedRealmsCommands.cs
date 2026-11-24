@@ -269,7 +269,8 @@ namespace WorldServer.core.commands.doomed
                 return true;
             }
             target.SendInfo($"You are being summoned by {player.Name}.");
-            player.World.Invite(target.Client.Account.AccountId); // even into an arena game that has started
+            // even into an arena game that has started, or a Crucible whose climbs they've used up (free)
+            player.World.Invite(target.Client.Account.AccountId, free: true);
             Player.ShieldArrival(target.Client.Account.AccountId);
             target.Client.Reconnect(new Reconnect()
             {

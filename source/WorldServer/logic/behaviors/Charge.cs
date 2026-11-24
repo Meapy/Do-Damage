@@ -33,7 +33,7 @@ namespace WorldServer.logic.behaviors
             {
                 if (s.Direction == Vector2.Zero)
                 {
-                    var player = host.GetNearestEntity(_range, null);
+                    var player = host.GetAttackTarget(_range);
 
                     if (player != null && player.X != host.X && player.Y != host.Y)
                     {

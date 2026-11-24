@@ -734,6 +734,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   then an inter-server message (`Channel.Crucible`, `CrucibleMsg`) has every world server on that
   Redis reload the field for the players it holds (their accounts keep their own copy) and tell
   those who had climbed. Climbs begun after it count again as usual.
+- **Grown pets catch up, Huge floor, tuning** (2026-11-24; `PetLevels.cs` `Grown`, `Floor`,
+  `Retune`, `Player.PetPen.cs` `TunePet`, the client's `petlevels.rs`, `petpen.rs` and `hud.rs`):
+  a grown pet's damage and healing climb, level by level through each size it grew to, towards
+  what that size's kits do (`SizeDps` 50/125/250/500/2,000 and `SizeHeal`, the same norms as
+  `tools/pet_healing.py`), at 85% of the ratio (Huge 55%; healing 85%), folded into
+  `DamageScale` and `HealScale`. A Huge stone's kit counts as at least `HugeFloor` (1,400) a
+  second (`Floor`, applied in `PetPower`, the window, the tooltips and the wiki), so every Lil'
+  Oryx and boss pet (1,512 at 30) stays ahead of any grown pet (Bes 1,426, Thessal 1,307, a
+  typical one 1,188). A Huge pet at level 30 can be tuned (Pen Keeper act 14, `slot` = from x 3
+  + to): 5% a step from damage, HP or MP healing to another, up to 25% either way, 1,000 fame a
+  step; kept on the character (`petTune`, int[3]) or the generator's data (`ItemData.PetTune`),
+  sent at the end of `PetPenData`. `PetLevelsTests.OryxAndBossPetsStayAheadOfGrownOnes` checks
+  the order on every stone.
 - **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
   `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
   `petfx.rs` and `pass.rs`): 60 tiers of 2,000 XP (was 1,000: a season's `xpPerTierWas` scales the XP earned at the old cost once, `PassBook.Rescale`, so nobody's tier moves), a reward on every free tier, the Burning Amulet
@@ -811,6 +824,46 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Player.CruciblePowers.cs`; `AllyBastionSlam` is gone). The Mechanic's
   Armoire skins (`tools/draw_mechanic_skins.py`, `MechanicSkins.xml`, types 0xE200-0xE204) cost
   200 gold, the 16 by 16 Titan Artificer 800 (`<Cost>`).
+- **The Mechanic's turrets have health** (2026-11-24; `Turret.cs`, `Player.Turrets.cs`,
+  `Player.UseItem.cs`, `Player.UseItem.Doomed.cs`, `Player.CruciblePowers.cs`,
+  `Player.Projectiles.cs`, `ActivateEffect.TurretHp`, both `DoomedRealms.xml` copies,
+  `tools/build_crucible.py`; Rust client `particles/turret.rs`, `view.rs`, `hud.rs`, `bsk-world`
+  `combat.rs`): instead of standing for a fixed `duration`, a turret has the blueprint's `hp`
+  (400 at T0 to 1,000 at T8, War Turret 700, Bastion Turret 1,100) and wears all of it down over
+  `duration` (so, unhealed, it lasts as long as before), blowing up at 0. Allies' abilities that
+  reach players reach turrets standing there too (`Turret.TurretsNear`, `HealTurrets`,
+  `BuffTurrets`, `BoostTurrets`): HealNova, VampireBlast and Nerissa's tide heal it;
+  ConditionEffectAura, a tome's shared conditions and Disco Lights give it their condition
+  (Healing 20 HP a second, Damaging x1.25 damage, Berserk x1.25 fire rate, Armored two thirds the
+  wear, Invulnerable none); StatBoostAura and a tome's shared boosts raise its maximum health (and
+  its health with it), attack (+1% damage a point), dexterity (+1% fire rate) or defense (-1% wear,
+  at most half); RemoveNegativeConditions cleanses it. Pets heal only their owner, as before
+  (monsters attacking turrets: the next entry). It sends `MaximumHealth` and `Health` (the client draws a health bar
+  under it and its plate's ring by them), and looks 55/56 carry how long its health lasts at its
+  plain wear. The turrets' shots fly 680 ms (was 560: about 10.9 tiles, from 9; the Bastion's 960,
+  11.5 tiles) and fall off: full damage to 3 tiles, then down to half at the end of their reach
+  (`Turret.Falloff`, which `EnemyHit` applies through `ServerPlayerShoot.FalloffReach` and the Rust
+  client's `turret_falloff` matches). Player shots no longer reach a turret as a vulnerable static
+  object.
+- **Monsters attack turrets** (2026-11-24; `Turret.cs`, `TurretShots.cs`, `World.cs`,
+  `EntityUtils.GetAttackTarget`, the behaviours below, `DoomedRuntime.cs`; Rust client `bsk-world`
+  `combat.rs`): players first. Where a hostile monster aims or chases (`Shoot`, `Grenade`,
+  `Follow`, `Chase`, `Charge`, `ShootFormation`, `RingAttack`, `TossObject`, `TossObject2`,
+  `Swirl`, `NewFollow` and `NewCharge` through `World.FindAttackTarget`, and the second engine's
+  `GetNearestEntity` when not `gate`) and finds no player, it takes the nearest turret in that reach
+  (`Turret.NearestFor`; allies' summons never do). Checks that move a fight on (transitions,
+  `gate`) still look for players only, so a turret wakes no boss. Turrets stay in the enemies'
+  collision map (not the players', where much code walks players) and implement `IPlayer`.
+  Clients report only hits on their own player, so the server follows hostile monsters' shots fired
+  within reach of a turret (`TurretShots`, made per world on the first shot, ticked after the
+  static objects): along `ValidatedProjectile.GetPosition` in 20 ms steps, stopped by walls,
+  objects that take up their square and missing ground (not in open air), hitting within 0.5
+  tiles (the client's `HIT_RADIUS`), through it if `MultiHit`; at most 2,000 followed a world.
+  `Turret.Hurt` takes its defense off (none on the towers), applies the shot's conditions and sends
+  a `DamageMessage` (the client's damage number). `Grenade` and the second engine's `ThrowAttack`
+  hurt the turrets in their blast (`Turret.HurtAround`). The Rust client ends a monster's shot on a
+  turret (`hit_target`), sending OtherHit as for a shot that hits another player. Not covered:
+  `Aoe` (enemies only), the Black Between's blasts, contact damage.
 - **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
   --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
   server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`

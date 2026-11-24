@@ -369,6 +369,12 @@ namespace WorldServer.utils
                 }
         }
 
+        // What a monster aims at or chases: the nearest player within `dist` (GetNearestEntity), or
+        // with none, the nearest of the Mechanic's turrets (Turret.NearestFor): players come first.
+        // Only for aiming and chasing, never for a check that moves a fight on.
+        public static Entity GetAttackTarget(this Entity entity, double dist, bool seeInvis = false) =>
+            entity.GetNearestEntity(dist, null, seeInvis) ?? Turret.NearestFor(entity, dist);
+
         // ignoreInvisible: players under the Invisible effect count (still not hidden or paused ones)
         public static Entity GetNearestEntity(this Entity entity, double dist, ushort? objType, bool seeInvis = false, bool ignoreInvisible = false)   //Null for entity
         {

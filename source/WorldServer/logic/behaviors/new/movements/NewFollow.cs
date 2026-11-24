@@ -44,7 +44,7 @@ namespace WorldServer.logic.behaviors.@new.movements
                 return false;
             }
 
-            var target = host.World.FindPlayerTarget(host); //.FindPlayerTarget(Host);
+            var target = host.World.FindAttackTarget(host, 15); //.FindPlayerTarget(Host);
             if (target == null)
             {
                 if (s.Following)

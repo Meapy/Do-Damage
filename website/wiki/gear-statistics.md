@@ -122,7 +122,8 @@ Things to know when reading it:
   Endless Energy (the staves' T15) does 100-135 since then too.
 - The Mechanic's turrets were reworked in 2.6.4 (built where you aim, up to three at once, faster
   with the Mechanic near, a blast at the end), so the Mechanic's "With 3 abilities" is out of date (and since 2.6.5 turrets do double the
-  damage and every shot pierces).
+  damage and every shot pierces; since 2.6.7 they have health that wears down instead of a fixed
+  time, reach about 11 tiles and do less damage the further their shots fly).
 
 | Class | Weapon | Ability | Armor | Weapon only | With 3 abilities | Change |
 |---|---|---|---|---:|---:|---:|
