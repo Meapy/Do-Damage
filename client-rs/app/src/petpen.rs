@@ -8,7 +8,9 @@
 //! grows (`petlevels::fame_cost`): the window says what before you feed. He feeds only pets of the
 //! sizes the account's pen takes: Tiny at first, each bigger size bought with fame or gold. A pet
 //! at its last level can be grown to the next size, for fame or gold, and levels on (at 100% until
-//! it's Huge, then up to 120%).
+//! it's Huge, then up to 120%), climbing towards what pets of its new size do. A Huge pet at its
+//! last level can be tuned: pick the stat box to make stronger, then the one to take it from, 5% a
+//! step for fame (from 2.6.7).
 //!
 //! The window asks as it opens and after each act (`PetPenAct`); the server answers with the pet
 //! as it is (`PetPen`).
@@ -38,6 +40,9 @@ pub const GROW_FAME: u8 = 11;
 pub const GROW_GOLD: u8 = 12;
 /// Grow the pet out, at its last level, with the Growth Tonic in a slot (from 2.6.6).
 pub const TONIC: u8 = 13;
+/// Tune a Huge pet at its last level: a step from stat `slot / 3` to stat `slot % 3` (0 damage,
+/// 1 HP, 2 MP; from 2.6.7).
+pub const TUNE: u8 = 14;
 
 const SHARD: &str = "Shard of the Mad God x";
 
@@ -46,6 +51,8 @@ enum Hit {
     Close,
     Act(u8, u8),
     Pick(u8),
+    /// A stat box, picked to make stronger by tuning.
+    TuneUp(usize),
 }
 
 /// The Pen Keeper's window.
@@ -59,6 +66,8 @@ pub struct PetPen {
     picked: Option<(u8, i32)>,
     /// The pet out's stone (its type, and its stone's), found once.
     stone: Option<(u16, i32)>,
+    /// The stat picked to make stronger by tuning (0 damage, 1 HP, 2 MP).
+    tune_up: Option<usize>,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
 }
@@ -86,8 +95,9 @@ struct Food {
     food: i32,
     stone: bool,
     xp: i32,
-    /// The sizes a stone's pet was grown.
+    /// The sizes a stone's pet was grown, and how it's tuned.
     grown: i32,
+    tune: [i32; 3],
     /// The Realm Pass's: a treat fed without fame, or a Growth Tonic.
     free: bool,
     tonic: bool,
@@ -125,6 +135,7 @@ impl PetPen {
         match self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h) {
             Some(Hit::Close) => self.open = false,
             Some(Hit::Act(a, slot)) => return Some((a, slot)),
+            Some(Hit::TuneUp(k)) => self.tune_up = if self.tune_up == Some(k) { None } else { Some(k) },
             Some(Hit::Pick(slot)) => {
                 self.picked = match self.picked {
                     Some((s, _)) if s == slot => None,
@@ -170,7 +181,13 @@ impl PetPen {
             self.rect = None;
             return;
         }
-        let (dw, dh) = (600.0, 694.0);
+        // a Huge pet at its last level can be tuned (an older server says nothing of it)
+        let tune = self.state.as_ref().filter(|p| p.pet != 0).and_then(|p| p.tune).filter(|t| t.fame > 0);
+        if tune.is_none() {
+            self.tune_up = None;
+        }
+        let tune_h = if tune.is_some() { 44.0 } else { 0.0 };
+        let (dw, dh) = (600.0, 694.0 + tune_h);
         let s = lay.s * (lay.view_w() * 0.96 / (dw * lay.s)).min(lay.h * 0.96 / (dh * lay.s)).min(1.0);
         let r = [((lay.view_w() - dw * s) / 2.0).round(), ((lay.h - dh * s) / 2.0).round(), dw * s, dh * s];
         self.rect = Some(r);
@@ -265,6 +282,8 @@ impl PetPen {
                             let line = tf!("Grow it to a {size} pet:", size = size_name(petlevels::SIZES[i + 1]));
                             ui.label_fit(&line, tx, card[1] + 99.0 * s, tw - 2.0 * bw - 14.0 * s, font(12.5), true, color::GOLD);
                             (String::new(), color::GOOD)
+                        } else if !growing && tune.is_some() {
+                            (tr("At its last level: tune it below to suit you.").to_owned(), color::GOOD)
                         } else if !growing {
                             (tr("At its last level: as strong as it gets.").to_owned(), color::GOOD)
                         } else if !fed_here {
@@ -290,25 +309,76 @@ impl PetPen {
         // what it does now, and at its last level
         let stats_h = 66.0 * s;
         if let Some(l) = level {
-            let at_last = |v: String| if growing { tf!("Level {max}: {value}", max = l.max_level, value = v) } else { tr("Its best").to_owned() };
+            let steps = tune.map_or([0; 3], |t| [t.damage as i32, t.hp as i32, t.mp as i32]);
+            // under each: its last level's while it grows; once tunable, how it's tuned
+            let at_last = |v: String, k: usize| match steps[k] {
+                _ if growing => (tf!("Level {max}: {value}", max = l.max_level, value = v), color::TEXT_DIM),
+                0 => (tr("Its best").to_owned(), color::GOOD),
+                n => (tf!("Tuned {pct}", pct = format!("{:+}%", n * petlevels::TUNE_STEP)), if n > 0 { color::GOOD } else { color::DANGER }),
+            };
             let boxes = [
-                (tr("Damage"), tf!("{dps} a second", dps = group_digits(l.dps)), at_last(group_digits(l.dps_max)), color::ACCENT_HI),
-                (tr("Heals HP"), if l.hp > 0 { heal_text(l.hp, l.hp_ms) } else { "-".to_owned() }, at_last(l.hp_max.to_string()), color::GOOD),
-                (tr("Restores MP"), if l.mp > 0 { heal_text(l.mp, l.mp_ms) } else { "-".to_owned() }, at_last(l.mp_max.to_string()), 0x6FA8FF),
+                (tr("Damage"), tf!("{dps} a second", dps = group_digits(l.dps)), at_last(group_digits(l.dps_max), 0), color::ACCENT_HI),
+                (tr("Heals HP"), if l.hp > 0 { heal_text(l.hp, l.hp_ms) } else { "-".to_owned() }, at_last(l.hp_max.to_string(), 1), color::GOOD),
+                (tr("Restores MP"), if l.mp > 0 { heal_text(l.mp, l.mp_ms) } else { "-".to_owned() }, at_last(l.mp_max.to_string(), 2), 0x6FA8FF),
             ];
             let bw = (w - 16.0 * s) / 3.0;
-            for (k, (label, now, last, tint)) in boxes.iter().enumerate() {
+            for (k, (label, now, (last, last_c), tint)) in boxes.iter().enumerate() {
                 let br = [x0 + k as f32 * (bw + 8.0 * s), y, bw, stats_h];
-                theme::frame(ui.renderer, br, 8.0 * s, s.max(1.0), (color::BORDER, 1.0), ((color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0)));
+                // a tunable pet's boxes are picked to make that stronger: gold round the pick
+                let up = self.tune_up == Some(k);
+                if tune.is_some() {
+                    if up {
+                        theme::fill(ui.renderer, [br[0] - 2.0 * s, br[1] - 2.0 * s, br[2] + 4.0 * s, br[3] + 4.0 * s], 10.0 * s, color::GOLD, 0.9);
+                    }
+                    self.hits.push((Hit::TuneUp(k), br));
+                }
+                let edge = if tune.is_some() && inside(br, mouse) && !up { color::BORDER_HI } else { color::BORDER };
+                theme::frame(ui.renderer, br, 8.0 * s, s.max(1.0), (edge, 1.0), ((color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0)));
                 theme::fill(ui.renderer, [br[0] + 10.0 * s, br[1] + 10.0 * s, 3.0 * s, 46.0 * s], 1.5 * s, *tint, 0.9);
                 let tx = br[0] + 20.0 * s;
                 let tw = br[2] - 28.0 * s;
                 ui.label_fit(label, tx, br[1] + 8.0 * s, tw, font(11.5), true, color::TEXT_MUTED);
                 ui.label_fit(now, tx, br[1] + 24.0 * s, tw, font(16.0), true, color::TEXT);
-                ui.label_fit(last, tx, br[1] + 46.0 * s, tw, font(11.0), false, if growing { color::TEXT_DIM } else { color::GOOD });
+                ui.label_fit(last, tx, br[1] + 46.0 * s, tw, font(11.0), false, *last_c);
+            }
+            // tuning: what to make stronger is picked above; what it's taken from here
+            if let Some(t) = tune {
+                let ty = y + stats_h + 8.0 * s;
+                let row = [x0, ty, w, 36.0 * s];
+                theme::frame(ui.renderer, row, 8.0 * s, s.max(1.0), (if self.tune_up.is_some() { color::GOLD } else { color::BORDER }, 1.0), ((color::INSET_TOP, 1.0), (color::INSET_BOTTOM, 1.0)));
+                let ly = row[1] + (row[3] - font(12.5) * 1.22) / 2.0;
+                let step = petlevels::TUNE_STEP;
+                match self.tune_up {
+                    None => {
+                        let line = tf!("Tune it: pick what to make stronger ({step}% a step, {fame} fame).", step, fame = group_digits(t.fame));
+                        ui.label_fit(&line, row[0] + 14.0 * s, ly, row[2] - 28.0 * s, font(12.5), true, color::TEXT_DIM);
+                    }
+                    Some(up) => {
+                        let names = [tr("Damage"), tr("HP healing"), tr("MP healing")];
+                        let bw = 112.0 * s;
+                        let mut bx = row[0] + row[2] - 6.0 * s;
+                        for from in (0..3).rev().filter(|&k| k != up) {
+                            bx -= bw;
+                            let br = [bx, row[1] + 4.0 * s, bw, row[3] - 8.0 * s];
+                            let on = steps[up] < petlevels::TUNE_MAX && steps[from] > -petlevels::TUNE_MAX && fame >= t.fame;
+                            ui.button(br, names[from], if on { Kind::Primary } else { Kind::Secondary }, on && inside(br, mouse), s * 0.62);
+                            if on {
+                                self.hits.push((Hit::Act(TUNE, (from * 3 + up) as u8), br));
+                            }
+                            bx -= 6.0 * s;
+                        }
+                        let line = match up {
+                            0 => tf!("More damage, {step}% taken from:", step),
+                            1 => tf!("More HP healing, {step}% taken from:", step),
+                            _ => tf!("More MP healing, {step}% taken from:", step),
+                        };
+                        let c = if steps[up] >= petlevels::TUNE_MAX { color::TEXT_MUTED } else { color::GOLD };
+                        ui.label_fit(&line, row[0] + 14.0 * s, ly, bx - row[0] - 20.0 * s, font(12.5), true, c);
+                    }
+                }
             }
         }
-        y += stats_h + 14.0 * s;
+        y += stats_h + 14.0 * s + tune_h;
 
         // what's in the inventory for him: food and pet stones, best food first
         let mut foods: Vec<Food> = Vec::new();
@@ -329,7 +399,8 @@ impl PetPen {
                 if food > 0 || stone || tonic {
                     let xp = if stone { petlevels::stone_xp(ui.data, item, json) } else { 0 };
                     let grown = if stone { petlevels::stone_grown(json) } else { 0 };
-                    foods.push(Food { slot, item, food, stone, xp, grown, free: petlevels::treat_free(&desc.id), tonic });
+                    let tune = if stone { petlevels::stone_tune(json) } else { [0; 3] };
+                    foods.push(Food { slot, item, food, stone, xp, grown, tune, free: petlevels::treat_free(&desc.id), tonic });
                 }
             }
         }
@@ -346,7 +417,7 @@ impl PetPen {
         if foods.is_empty() {
             ui.label_fit(tr("Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones."), x0, y + 36.0 * s, w, font(12.5), false, color::TEXT_MUTED);
         }
-        let mut hover: Option<(i32, i32, (i32, i32))> = None;
+        let mut hover: Option<(i32, i32, crate::hud::PetStone)> = None;
         for (k, f) in foods.iter().enumerate().take(cols * 2) {
             let sr = [x0 + (k % cols) as f32 * (cell + gap), y + (k / cols) as f32 * (cell + gap), cell, cell];
             let over = inside(sr, mouse);
@@ -366,7 +437,7 @@ impl PetPen {
                 }
             }
             if over {
-                hover = Some((f.item, f.food, (f.xp, f.grown)));
+                hover = Some((f.item, f.food, (f.xp, f.grown, f.tune)));
             }
             self.hits.push((Hit::Pick(f.slot), sr));
         }

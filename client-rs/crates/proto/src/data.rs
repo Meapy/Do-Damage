@@ -474,6 +474,19 @@ wire_struct! {
 }
 
 wire_struct! {
+    /// How the pet out is tuned (`PetPen`, after `PetGrow`; from 2.6.7): its steps of damage, HP
+    /// and MP healing (5% each, the server's `PetLevels.Tune`) and what a step costs in fame (0
+    /// unless it's Huge and at its last level, the only pets that can be tuned).
+    #[derive(Copy, Eq)]
+    pub struct PetTune {
+        pub damage: i8,
+        pub hp: i8,
+        pub mp: i8,
+        pub fame: i32,
+    }
+}
+
+wire_struct! {
     /// The Customize window's choices (`QuestsData`, last): the chat name colour and glow the
     /// Hall of Champions gives now (0: no place), whether the account is a legend (the red
     /// glow), the player's own glow (`/glow`, 0: none), and the sources chosen

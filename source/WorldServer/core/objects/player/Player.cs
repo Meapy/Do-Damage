@@ -355,6 +355,7 @@ namespace WorldServer.core.objects
             // a pet from before levels: its raise turned into food, once
             PetXp = character.PetXp >= 0 ? character.PetXp : PetLevels.MigratedXp(character.PetUpgrade, PetMaxLevel(PetId));
             PetGrown = character.PetGrown;
+            PetTune = PetLevels.Untuned(character.PetTune) ? null : PetLevels.Tune(character.PetTune);
 
             InitializePotionStacks(character, settings);
             InitializeInventory(gameData, character);
@@ -542,6 +543,7 @@ namespace WorldServer.core.objects
             chr.PetId = PetId;
             chr.PetXp = PetXp;
             chr.PetGrown = PetGrown;
+            chr.PetTune = PetTune ?? new int[0];
             chr.PetUpgrade = 0;
             chr.Items = Inventory.GetItemTypes();
             chr.XPBoostTime = XPBoostTime;

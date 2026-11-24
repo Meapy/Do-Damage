@@ -734,6 +734,19 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   then an inter-server message (`Channel.Crucible`, `CrucibleMsg`) has every world server on that
   Redis reload the field for the players it holds (their accounts keep their own copy) and tell
   those who had climbed. Climbs begun after it count again as usual.
+- **Grown pets catch up, Huge floor, tuning** (2026-11-24; `PetLevels.cs` `Grown`, `Floor`,
+  `Retune`, `Player.PetPen.cs` `TunePet`, the client's `petlevels.rs`, `petpen.rs` and `hud.rs`):
+  a grown pet's damage and healing climb, level by level through each size it grew to, towards
+  what that size's kits do (`SizeDps` 50/125/250/500/2,000 and `SizeHeal`, the same norms as
+  `tools/pet_healing.py`), at 85% of the ratio (Huge 55%; healing 85%), folded into
+  `DamageScale` and `HealScale`. A Huge stone's kit counts as at least `HugeFloor` (1,400) a
+  second (`Floor`, applied in `PetPower`, the window, the tooltips and the wiki), so every Lil'
+  Oryx and boss pet (1,512 at 30) stays ahead of any grown pet (Bes 1,426, Thessal 1,307, a
+  typical one 1,188). A Huge pet at level 30 can be tuned (Pen Keeper act 14, `slot` = from x 3
+  + to): 5% a step from damage, HP or MP healing to another, up to 25% either way, 1,000 fame a
+  step; kept on the character (`petTune`, int[3]) or the generator's data (`ItemData.PetTune`),
+  sent at the end of `PetPenData`. `PetLevelsTests.OryxAndBossPetsStayAheadOfGrownOnes` checks
+  the order on every stone.
 - **Realm Pass to 60 tiers, pet effects, pet food, the Burning Amulet** (2026-11-23; `pass.json`,
   `Shared/pass/`, `PassTracker.cs`, `Shared/pets/PetFood.cs`, `Player.PetPen.cs`, the client's
   `petfx.rs` and `pass.rs`): 60 tiers of 2,000 XP (was 1,000: a season's `xpPerTierWas` scales the XP earned at the old cost once, `PassBook.Rescale`, so nobody's tier moves), a reward on every free tier, the Burning Amulet

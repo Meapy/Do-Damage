@@ -219,6 +219,7 @@ namespace WorldServer.core.net.handlers
                 // what else the item carries stays on it (a pet's food, its corruption)
                 PetXp = data?.PetXp,
                 PetGrown = data?.PetGrown,
+                PetTune = data?.PetTune,
                 PetUpgrade = data?.PetUpgrade,
                 Corruption = data?.Corruption,
                 Unique = data?.Unique

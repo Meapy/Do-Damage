@@ -1822,6 +1822,7 @@ namespace WorldServer.core.objects
                 PetId = oryx;
                 PetXp = PetLevels.XpAt(PetMaxLevel(oryx));
                 PetGrown = 0;
+                PetTune = null;
             }
         }
 
@@ -1835,15 +1836,17 @@ namespace WorldServer.core.objects
             var old = PetId;
             var oldXp = PetXp;
             var oldGrown = PetGrown;
+            var oldTune = PetTune;
             PetId = desc.ObjectType;
             // a stone given back brings its pet's food (or a raise from before levels) and the
             // sizes it was grown back
             PetXp = PetXpOf(PetId, _usedPetData);
             PetGrown = Math.Max(0, _usedPetData?.PetGrown ?? 0);
+            PetTune = PetLevels.Untuned(_usedPetData?.PetTune) ? null : PetLevels.Tune(_usedPetData.PetTune);
             _usedPetData = null;
             SpawnPetIfAttached(World);
             if (old != 0 && old != PetId)
-                GivePetGeneratorBack(old, oldXp, oldGrown);
+                GivePetGeneratorBack(old, oldXp, oldGrown, oldTune);
         }
 
         // The item that gives this pet (a PermaPet activate for it): a "... Generator" before the
@@ -1884,7 +1887,7 @@ namespace WorldServer.core.objects
 
         // Puts the pet's generator in the inventory (the gift chest when it's full); false when the
         // pet has no generator to give back.
-        public bool GivePetGeneratorBack(int petType, int xp = 0, int grown = 0)
+        public bool GivePetGeneratorBack(int petType, int xp = 0, int grown = 0, int[] tune = null)
         {
             var generator = PetGenerator(petType);
             if (generator == null)
@@ -1902,7 +1905,7 @@ namespace WorldServer.core.objects
                 GiveItem(generator);
                 return true;
             }
-            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetXp = xp, PetGrown = grown > 0 ? grown : null };
+            Inventory.Data[slot] = new Shared.database.character.inventory.ItemData { PetXp = xp, PetGrown = grown > 0 ? grown : null, PetTune = PetLevels.Untuned(tune) ? null : tune };
             Inventory[slot] = generator;
             SendInfo($"You received {generator.DisplayName}!");
             return true;

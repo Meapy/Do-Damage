@@ -35,6 +35,8 @@ namespace Shared.database.character
         public int PetXp { get => GetValue<int>("petXp", -1); set => SetValue("petXp", value); }
         // the sizes the pet out was grown past its stone's (PetLevels.GrownSize; 0 none)
         public int PetGrown { get => GetValue<int>("petGrown"); set => SetValue("petGrown", value); }
+        // how the pet out is tuned: steps of damage, HP and MP healing (PetLevels.Tune; empty none)
+        public int[] PetTune { get => GetValue<int[]>("petTune"); set => SetValue("petTune", value); }
         public int Skin { get => GetValue<int>("skin"); set => SetValue("skin", value); }
 
         public int[] Stats { get => GetValue<int[]>("stats"); set => SetValue("stats", value); }
