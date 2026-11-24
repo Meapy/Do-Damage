@@ -118,6 +118,21 @@ pub fn stacked_on(a: &Projectile, a_desc: &ProjectileDesc, b: &Projectile, b_des
     (ax - bx).hypot(ay - by) <= STACK_OVERLAP_TILES
 }
 
+/// A Mechanic's turret's shot hits in full out to this many tiles, then weaker and weaker, to this
+/// share of its damage at the end of its reach (the server's `Turret.FALLOFF_NEAR`, `FALLOFF_FLOOR`).
+pub const TURRET_FALLOFF_NEAR: f64 = 3.0;
+pub const TURRET_FALLOFF_FLOOR: f64 = 0.5;
+
+/// A turret's shot's damage `dist` tiles from where it was fired, its reach `reach` (the server's
+/// `Turret.Falloff`).
+pub fn turret_falloff(damage: i32, dist: f64, reach: f64) -> i32 {
+    if reach <= TURRET_FALLOFF_NEAR || dist <= TURRET_FALLOFF_NEAR {
+        return damage;
+    }
+    let f = ((dist - TURRET_FALLOFF_NEAR) / (reach - TURRET_FALLOFF_NEAR)).min(1.0);
+    (damage as f64 * (1.0 - (1.0 - TURRET_FALLOFF_FLOOR) * f)) as i32
+}
+
 /// `Trig.boundToPI`.
 pub fn bound_to_pi(a: f64) -> f64 {
     let mut a = a;
@@ -541,7 +556,13 @@ impl World {
         self.impacts.push(impact);
         if send {
             let defense = target.stat_int(STAT_DEFENSE).unwrap_or_else(|| tdesc.map_or(0, |d| d.xml.int("Defense", 0)));
-            let dmg = damage_with_defense(p.damage, defense, desc.armor_piercing, target.conditions(), tdesc.is_some_and(|d| d.player));
+            // a Mechanic's turret's shot weakens over its reach (the server's `Turret.Falloff`)
+            let damage = if data.objects.get(&p.container_type).is_some_and(|d| d.xml.has("TurretHead")) {
+                turret_falloff(p.damage, (x - p.start_x).hypot(y - p.start_y), desc.speed as f64 * desc.lifetime as f64 / 10000.0)
+            } else {
+                p.damage
+            };
+            let dmg = damage_with_defense(damage, defense, desc.armor_piercing, target.conditions(), tdesc.is_some_and(|d| d.player));
             let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
             if Some(target_id) == me {
                 let (damage, stacked) = self.unstacked_damage(p, desc, dmg, time, data);

@@ -1082,6 +1082,7 @@ namespace WorldServer.core.objects
                 player.ApplyConditionEffect(new ConditionEffect(eff.ConditionEffect.Value, duration));
                 (player as Player)?.BuffedBy(this, duration, eff.ConditionEffect.Value);
             });
+            BuffTurrets(X, Y, range, eff.ConditionEffect.Value, duration);
 
             var color = 0xffffffff;
             if (eff.ConditionEffect.Value == ConditionEffectIndex.Damaging)
@@ -1161,6 +1162,7 @@ namespace WorldServer.core.objects
                 entity.ApplyConditionEffect(new ConditionEffect(effect, duration));
                 (entity as Player)?.BuffedBy(this, duration, effect);
             });
+            BuffTurrets(X, Y, range, SelfCondition(item, eff), duration);
         }
 
         private void ShareTomeStatBoost(Item item, ActivateEffect eff)
@@ -1190,6 +1192,7 @@ namespace WorldServer.core.objects
                     player.Stats.ReCalculateValues();
                 });
             });
+            BoostTurrets(X, Y, range, (StatDataType)eff.Stats, amount, duration, stack);
         }
 
         private void AECreate(TickTime time, Item item, Position target, int slot, ActivateEffect eff)
@@ -1456,6 +1459,7 @@ namespace WorldServer.core.objects
                 if (!player.HasConditionEffect(ConditionEffectIndex.Sick))
                     ActivateHealHp(player as Player, amount, from: this);
             });
+            HealTurrets(X, Y, range, amount);
 
             World.BroadcastIfVisible(new ShowEffect()
             {
@@ -1966,6 +1970,9 @@ namespace WorldServer.core.objects
                 foreach (var effect in NegativeEffs)
                     player.RemoveCondition(effect);
             });
+            foreach (var turret in Turret.TurretsNear(World, X, Y, eff.Range))
+                foreach (var effect in NegativeEffs)
+                    turret.RemoveCondition(effect);
             World.BroadcastIfVisible(new ShowEffect()
             {
                 EffectType = EffectType.AreaBlast,
@@ -2048,6 +2055,7 @@ namespace WorldServer.core.objects
                     ((Player)player).Stats.ReCalculateValues();
                 });
             });
+            BoostTurrets(X, Y, range, (StatDataType)eff.Stats, amount, duration, stack);
 
             World.BroadcastIfVisible(new ShowEffect()
             {
@@ -2155,6 +2163,7 @@ namespace WorldServer.core.objects
                     ActivateHealHp(player as Player, totalDmg, from: this);
                 }
             });
+            HealTurrets(X, Y, eff.Radius, totalDmg);
 
             if (enemies.Count > 0 && players.Count > 0)
             {

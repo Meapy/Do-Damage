@@ -3,16 +3,18 @@
 //! blast; and for as long as each stands, what's drawn round it:
 //!
 //! - its plate on the ground: a ring of gear teeth in its tier's colour, turning (fast while it's
-//!   overclocked), the time it has left running down round it, and in its last seconds the plate
-//!   blinking red with its blast's reach;
+//!   overclocked), its health running down round it (it wears down, and allies heal it: the
+//!   server's `Turret.cs`), and in its last seconds the plate blinking red with its blast's reach;
 //! - while its Mechanic is within `LINK_RANGE` (the server's `Turret.LINK_RANGE`, where it's
 //!   overclocked), a cable of light along the floor from them to it, pulses running down it, and
 //!   sparks crackling off it;
 //! - a flash at its muzzle for each shot (`turret_shot`, from the shots' `ServerPlayerShoot`);
 //! - for our own, its reach in a ring for a moment after it's built.
 //!
-//! Each tier is its colour (`Turret.COLORS`). A turret's plate is kept while its object is out of
-//! view (the server sends look 56 again when it comes back) and goes at its time, or with its blast.
+//! Each tier is its colour (`Turret.COLORS`). Looks 55 and 56 carry how long its health lasts at its
+//! plain wear; while its object is in view, its health (stats 1 and 0) says how long it has left. A
+//! turret's plate is kept while its object is out of view (the server sends look 56 again when it
+//! comes back) and goes when its health would have run out, or with its blast.
 
 use super::relic::{hash, look, mix, DecalKind, Pen, GRAVITY};
 use super::{Motion, Particle, Particles};
@@ -63,6 +65,10 @@ pub(super) struct TurretLook {
     shot: i32,
     /// Which way its head points (world radians): its last shot's way, sweeping slowly when idle.
     aim: f64,
+    /// Its health over its maximum, while its object shows them; and how many ms a point of its
+    /// health lasts at its plain wear (from the look's time left and the health it first shows).
+    health: Option<f64>,
+    ms_per_hp: Option<f64>,
 }
 
 /// How high a turret's head turns over the ground, tiles: the base's turntable at size 80 (row 8
@@ -151,6 +157,8 @@ impl Particles {
                     next: now + 400,
                     shot: i32::MIN / 2,
                     aim: 0.0,
+                    health: None,
+                    ms_per_hp: None,
                 });
                 if built {
                     self.turret_built(x, y, color, now);
@@ -318,6 +326,15 @@ impl Particles {
                     Some(o) => {
                         (t.x, t.y) = (o.x, o.y);
                         t.shown = true;
+                        // its health: how much is left, and so how long it has (healed, it has longer)
+                        if let (Some(hp), Some(max)) = (o.stat_int(1), o.stat_int(0)) {
+                            if max > 0 && hp < i32::MAX {
+                                let hp = hp.max(0) as f64;
+                                t.health = Some((hp / max as f64).clamp(0.0, 1.0));
+                                let per = *t.ms_per_hp.get_or_insert(((t.until - now).max(1) as f64 / hp.max(1.0)).clamp(1.0, 1000.0));
+                                t.until = now + (hp * per) as i32;
+                            }
+                        }
                     }
                     None => t.shown = false,
                 }
@@ -485,8 +502,8 @@ fn draw_turret(pen: &mut Pen, t: &TurretLook, now: i32) {
     if glow > 0.01 {
         pen.disc(r * 0.38, t.color, glow as f32 * fading);
     }
-    // the time it has left, running down round it
-    let frac = left as f64 / total as f64;
+    // its health (or without it, the time it has left), running down round it
+    let frac = t.health.unwrap_or(left as f64 / total as f64);
     let top = -PI / 2.0;
     arc(pen, r * 0.64, r * 0.76, top, top + 2.0 * PI * frac, if blink { 0xFFFFFF } else if warning { red } else { t.color }, 0.95 * fading);
 }

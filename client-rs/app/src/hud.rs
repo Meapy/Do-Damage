@@ -2968,8 +2968,11 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
                 if num("totalDamage") > 0.0 {
                     r.push(row(tr("Self-destructs"), tf!("{n} damage within {range}", n = num("totalDamage"), range = sqrs(num("radius")))));
                 }
+                r.push(row(tr("Falloff"), tf!("full damage within {near}, half at its farthest", near = sqrs(bsk_world::combat::TURRET_FALLOFF_NEAR))));
                 r.push(row(tr("Built"), tf!("where you aim, up to {range} away", range = sqrs(if has("range") { num("range") } else { 8.0 }))));
-                r.push(row(tr("Lasts"), secs(num("duration"))));
+                // its health wears down over its duration (the server's `Turret.cs`)
+                r.push(row(tr("HP"), tf!("{n}, wearing down over {time}", n = turret_hp(a), time = secs(num("duration")))));
+                r.push(row("", tr("Allies' heals and buffs reach it").to_owned()));
                 r.push(row("", tf!("Up to {n} out at once", n = if has("amount") { num("amount") } else { 3.0 })));
             } else {
                 r.push(row(tr("Builds"), text("objectId")));
@@ -3085,6 +3088,11 @@ const MAX_SUMMONS: u32 = 6;
 /// server's `Turret.LINK_RANGE` and `OVERCLOCK_PERCENT`).
 const TURRET_LINK_RANGE: f64 = 7.0;
 const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
+
+/// A Mechanic's turret's health, its blueprint's `hp` (the server's `Turret.DEFAULT_HP` without).
+fn turret_hp(a: &bsk_data::xml::Element) -> f64 {
+    a.attr_number("hp", 600.0)
+}
 
 /// A summon's or turret's shots, which the port writes on the item's activate (allyDamage a shot,
 /// "min-max" if it varies; allyShots a volley; allyMs between volleys): the damage of a shot and
@@ -3459,7 +3467,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "ObjectToss" => tf!("Throws a {object}", object = text("objectId")),
         "MonsterToss" => tf!("Throws a {object} to fight for you", object = text("objectId")),
         "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
-        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, for {time} secs", time = num("duration")),
+        "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, with {hp} HP", hp = turret_hp(a)),
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),

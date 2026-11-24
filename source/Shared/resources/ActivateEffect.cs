@@ -93,6 +93,9 @@ namespace Shared.resources
         // Turret.cs): how many a volley and the ms between volleys
         public readonly int AllyShots;
         public readonly int AllyMs;
+        // a Mechanic's turret's health (`hp`; Turret.cs): it wears all of it down over `duration`
+        // unless it's healed
+        public readonly int TurretHp;
 
         public ActivateEffect(XElement e)
         {
@@ -186,6 +189,7 @@ namespace Shared.resources
             MaxDistance = e.GetAttribute<float>("maxDistance", 4.4f);
             AllyShots = e.GetAttribute<int>("allyShots");
             AllyMs = e.GetAttribute<int>("allyMs");
+            TurretHp = e.GetAttribute<int>("hp");
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

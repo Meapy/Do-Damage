@@ -7,6 +7,7 @@ using Shared.crucible;
 using Shared.database.leaderboard;
 using Shared.resources;
 using WorldServer.core;
+using WorldServer.core.objects;
 using WorldServer.logic;
 using Xunit;
 using Xunit.Abstractions;
@@ -272,6 +273,37 @@ namespace Tests
             var turret = data.IdToObjectType["Bastion Turret"];
             Assert.False(db.Definitions.ContainsKey(turret));
             Assert.True(data.ObjectDescs[turret].Projectiles.ContainsKey(0));
+        }
+
+        // every Mechanic's blueprint gives its turret health to wear down over its duration, and a
+        // reach past the old 9 tiles for its falloff to run over (Turret.cs)
+        [Fact]
+        public void EveryTurretHasHealthAndReach()
+        {
+            var (data, _) = Game.Value;
+            var blueprints = data.Items.Values
+                .SelectMany(i => i.ActivateEffects.Where(e => e.Effect == ActivateEffects.BuildTower && e.AllyMs > 0))
+                .ToList();
+            Assert.True(blueprints.Count >= 11);
+            foreach (var b in blueprints)
+            {
+                Assert.True(b.TurretHp > 0, $"{b.ObjectId} has no hp");
+                Assert.True(b.DurationMS > 0, $"{b.ObjectId} has no duration");
+                var shot = data.ObjectDescs[data.IdToObjectType[b.ObjectId]].Projectiles[0];
+                Assert.True(shot.Speed * shot.LifetimeMS / 10000f > 10, $"{b.ObjectId}'s reach");
+            }
+        }
+
+        // a turret's shot: in full up close, half at the end of its reach (the Rust client's
+        // combat.rs turret_falloff gives the same)
+        [Fact]
+        public void ATurretsShotWeakensOverItsReach()
+        {
+            Assert.Equal(100, Turret.Falloff(100, 0.5f, 10.88f));
+            Assert.Equal(100, Turret.Falloff(100, 3f, 10.88f));
+            Assert.Equal(50, Turret.Falloff(100, 10.88f, 10.88f));
+            Assert.Equal(50, Turret.Falloff(100, 12f, 10.88f));
+            Assert.Equal(750, Turret.Falloff(1000, 7f, 11f));
         }
 
         // every item name a loot table could drop, by reflection (the loot classes keep them private)

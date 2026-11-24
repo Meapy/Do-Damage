@@ -811,6 +811,27 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `Player.CruciblePowers.cs`; `AllyBastionSlam` is gone). The Mechanic's
   Armoire skins (`tools/draw_mechanic_skins.py`, `MechanicSkins.xml`, types 0xE200-0xE204) cost
   200 gold, the 16 by 16 Titan Artificer 800 (`<Cost>`).
+- **The Mechanic's turrets have health** (2026-11-24; `Turret.cs`, `Player.Turrets.cs`,
+  `Player.UseItem.cs`, `Player.UseItem.Doomed.cs`, `Player.CruciblePowers.cs`,
+  `Player.Projectiles.cs`, `ActivateEffect.TurretHp`, both `DoomedRealms.xml` copies,
+  `tools/build_crucible.py`; Rust client `particles/turret.rs`, `view.rs`, `hud.rs`, `bsk-world`
+  `combat.rs`): instead of standing for a fixed `duration`, a turret has the blueprint's `hp`
+  (400 at T0 to 1,000 at T8, War Turret 700, Bastion Turret 1,100) and wears all of it down over
+  `duration` (so, unhealed, it lasts as long as before), blowing up at 0. Allies' abilities that
+  reach players reach turrets standing there too (`Turret.TurretsNear`, `HealTurrets`,
+  `BuffTurrets`, `BoostTurrets`): HealNova, VampireBlast and Nerissa's tide heal it;
+  ConditionEffectAura, a tome's shared conditions and Disco Lights give it their condition
+  (Healing 20 HP a second, Damaging x1.25 damage, Berserk x1.25 fire rate, Armored two thirds the
+  wear, Invulnerable none); StatBoostAura and a tome's shared boosts raise its maximum health (and
+  its health with it), attack (+1% damage a point), dexterity (+1% fire rate) or defense (-1% wear,
+  at most half); RemoveNegativeConditions cleanses it. Pets heal only their owner, as before, and
+  enemies don't target turrets. It sends `MaximumHealth` and `Health` (the client draws a health bar
+  under it and its plate's ring by them), and looks 55/56 carry how long its health lasts at its
+  plain wear. The turrets' shots fly 680 ms (was 560: about 10.9 tiles, from 9; the Bastion's 960,
+  11.5 tiles) and fall off: full damage to 3 tiles, then down to half at the end of their reach
+  (`Turret.Falloff`, which `EnemyHit` applies through `ServerPlayerShoot.FalloffReach` and the Rust
+  client's `turret_falloff` matches). Player shots no longer reach a turret as a vulnerable static
+  object.
 - **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
   --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
   server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`

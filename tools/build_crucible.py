@@ -488,10 +488,10 @@ WHITES = {
         slot=32, sound="spell/light_heal", mp=150, cooldown=1, power="BastionTurret",
         stats=[(0, 60), (3, 60), (21, 6), (28, 4)],
         activate=[("BuildTower", dict(objectId="Bastion Turret", duration=20, range=8, amount=3, totalDamage=600,
-                                      radius=4, allyDamage=100, allyShots=3, allyMs=700))],
+                                      radius=4, allyDamage=100, allyShots=3, allyMs=700, hp=1100))],
         description="Ferrogrim's own sentinel, folded down for a Mechanic to throw. It fires three iron shards at a "
                     "time, and every 3 seconds it slams the ground: the enemies round it are struck and their armor "
-                    "broken, and allies beside it are Armored while it holds. When its time is up it blows apart.",
+                    "broken, and allies beside it are Armored while it holds. It wears down over time, and when its health runs out it blows apart.",
         info=[("Slam", "every 3 secs: 380 to 3.5 sqrs, armor broken for 2 secs; allies within it Armored")]),
     "Nerissa's Tidepearl": dict(
         slot=30, sound="spell/fire_spray", mp=100, cooldown=0, power="Tidepearl",
@@ -537,7 +537,7 @@ WHITES = {
 # base and the head the Rust client turns in tools/draw_turrets.py's row 3) and the pearl's
 # substitute (unseen)
 ALLIES = {
-    "Bastion Turret": dict(turret=(0x1E, 0x1F), shot=("Iron Shard", 100, 120, 800, False)),
+    "Bastion Turret": dict(turret=(0x1E, 0x1F), shot=("Iron Shard", 100, 120, 960, False)),
     "Tidal Substitute": dict(turret=None, shot=("Trident Bolt", 230, 160, 800, True)),
 }
 

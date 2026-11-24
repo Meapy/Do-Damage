@@ -506,12 +506,16 @@ class Gear:
         if e == "BuildTower":
             if not g("allyMs"):
                 return "builds a turret" + (" for %ss" % n("duration") if g("duration") else "") + ally_shots()
-            # a Mechanic's turret (Turret.cs): built where you aim, up to `amount` at once, faster
-            # with its Mechanic within 7 tiles (LINK_RANGE, OVERCLOCK_PERCENT), and it blows up
-            # at the end (totalDamage within radius)
-            return ("builds a turret where you aim (up to %s tiles away) for %ss%s; up to %s at once, firing "
-                    "half again as often while you're within 7 tiles; it blows up at the end: %s damage within %s tiles"
-                    % (n("range"), n("duration"), ally_shots(), n("amount"), n("totalDamage"), n("radius")))
+            # a Mechanic's turret (Turret.cs): built where you aim, up to `amount` at once, with
+            # `hp` health worn down over `duration` (allies heal and buff it), faster with its
+            # Mechanic within 7 tiles (LINK_RANGE, OVERCLOCK_PERCENT), its shots weaker past 3 tiles
+            # (FALLOFF_NEAR, FALLOFF_FLOOR), and it blows up when its health runs out (totalDamage
+            # within radius)
+            return ("builds a turret with %s HP where you aim (up to %s tiles away)%s, its health wearing down "
+                    "over %ss unless allies heal it; up to %s at once, firing half again as often while you're "
+                    "within 7 tiles, its shots falling off past 3 tiles to half at their farthest; it blows up "
+                    "when its health runs out: %s damage within %s tiles"
+                    % (n("hp", "600"), n("range"), ally_shots(), n("duration"), n("amount"), n("totalDamage"), n("radius")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

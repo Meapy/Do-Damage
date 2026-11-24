@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Shared.resources;
 using WorldServer.core.net.datas;
+using WorldServer.core.net.stats;
 using WorldServer.core.structures;
 using WorldServer.core.worlds;
 using WorldServer.networking.packets.outgoing;
@@ -8,10 +10,11 @@ using WorldServer.networking.packets.outgoing;
 namespace WorldServer.core.objects
 {
     // The Mechanic's turrets (Turret.cs). A blueprint
-    // (<Activate objectId duration range amount totalDamage radius allyDamage allyShots allyMs>BuildTower</Activate>)
+    // (<Activate objectId duration range amount totalDamage radius allyDamage allyShots allyMs hp>BuildTower</Activate>)
     // throws a crate to where it was aimed, at most `range` tiles off (UseItem refuses a spot that
     // isn't open floor, before the mana is spent), and the turret stands where it lands
-    // TurretThrowMs later. At most `amount` stand at once: one more blows up the oldest.
+    // TurretThrowMs later, with `hp` health that wears down over `duration` unless it's healed.
+    // At most `amount` stand at once: one more blows up the oldest.
     // Ferrogrim's Bastion Turret (RelicPower BastionTurret, the Crucible's white bag) is one too,
     // in its forge's colour and with his slam (Turret.Slam, the numbers in
     // Player.CruciblePowers.cs), raised where it lands with the Crucible's look. A BuildTower
@@ -25,6 +28,31 @@ namespace WorldServer.core.objects
         private readonly List<Turret> _turrets = new List<Turret>();
 
         private static bool IsMechanicTurret(ActivateEffect eff) => eff.AllyMs > 0;
+
+        // Allies' abilities reach the turrets standing where they reach players (anyone's: a
+        // priest heals a Mechanic's turrets as they heal the Mechanic): heals, the good conditions
+        // and stat boosts (Turret.Heal, Buff, Boost).
+        private void HealTurrets(float x, float y, float range, int amount)
+        {
+            foreach (var t in Turret.TurretsNear(World, x, y, range))
+                t.Heal(amount);
+        }
+
+        private void BuffTurrets(float x, float y, float range, ConditionEffectIndex effect, int durationMs)
+        {
+            if (NegativeEffs.Contains(effect))
+                return;
+            foreach (var t in Turret.TurretsNear(World, x, y, range))
+                t.Buff(effect, durationMs);
+        }
+
+        private void BoostTurrets(float x, float y, float range, StatDataType stat, int amount, int durationMs, bool noStack)
+        {
+            if (amount <= 0)
+                return;
+            foreach (var t in Turret.TurretsNear(World, x, y, range))
+                t.Boost(stat, amount, durationMs, noStack);
+        }
 
         // where a blueprint aimed at `target` throws its turret
         private Position TurretSpot(Position target, ActivateEffect eff) =>

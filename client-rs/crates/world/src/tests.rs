@@ -749,3 +749,16 @@ fn a_railing_stops_us_at_a_drop_we_could_step() {
     assert!(x < 4.0, "stepped down: {x}");
     assert_eq!(w.player().unwrap().z, 0.0);
 }
+
+#[test]
+fn a_turrets_shot_weakens_over_its_reach() {
+    use crate::combat::turret_falloff;
+    // in full up close
+    assert_eq!(turret_falloff(100, 0.5, 10.88), 100);
+    assert_eq!(turret_falloff(100, 3.0, 10.88), 100);
+    // half at the end of its reach, and no less past it
+    assert_eq!(turret_falloff(100, 10.88, 10.88), 50);
+    assert_eq!(turret_falloff(100, 12.0, 10.88), 50);
+    // between, in a line
+    assert_eq!(turret_falloff(1000, 7.0, 11.0), 750);
+}

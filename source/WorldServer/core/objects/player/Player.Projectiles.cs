@@ -54,7 +54,7 @@ namespace WorldServer.core.objects
                 DamageType.Player,
                 serverPlayerShoot.ProjectileDesc,
                 false
-            ));
+            ) { FalloffReach = serverPlayerShoot.FalloffReach });
             PendingShootAcknowlegements.Enqueue(list);
         }
 
@@ -247,7 +247,11 @@ namespace WorldServer.core.objects
                 var entity = e as Enemy;
                 var player = this;
 
-                var dmg = StatsManager.DamageWithDefense(entity, projectile.Damage, projectileDesc.ArmorPiercing, entity.Defense);
+                // a turret's shot weakens over its reach (Turret.Falloff, as the Rust client works it out)
+                var damage = projectile.FalloffReach > 0
+                    ? Turret.Falloff(projectile.Damage, entity.DistTo(projectile.StartX, projectile.StartY), projectile.FalloffReach)
+                    : projectile.Damage;
+                var dmg = StatsManager.DamageWithDefense(entity, damage, projectileDesc.ArmorPiercing, entity.Defense);
                 entity.Health -= dmg;
                 EnterCombat();
 
@@ -297,7 +301,8 @@ namespace WorldServer.core.objects
                 }
             }
 
-            if(e is StaticObject)
+            // a Mechanic's turret is an ally: no player's shot hurts it
+            if(e is StaticObject && e is not Turret)
             {
                 var s = e as StaticObject;
                 if (s.Vulnerable)

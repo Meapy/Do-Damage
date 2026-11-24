@@ -100,6 +100,7 @@ namespace WorldServer.core.objects
                 player.ApplyConditionEffect(effect, eff.DurationMS);
                 (player as Player)?.BuffedBy(this, eff.DurationMS, effect);
             });
+            BuffTurrets(X, Y, eff.Range, effect, eff.DurationMS);
             World.BroadcastIfVisible(new ShowEffect()
             {
                 EffectType = EffectType.AreaBlast,
