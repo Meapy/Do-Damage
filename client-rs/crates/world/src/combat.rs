@@ -614,7 +614,10 @@ impl World {
                 continue;
             }
             let Some(gd) = data.objects.get(&go.object_type) else { continue };
-            if (!p.damages_players && gd.enemy) || (p.damages_players && gd.player) {
+            // a monster's shot stops on a Mechanic's turret too: the server works out the hit
+            // (`TurretShots.cs`) and sends it as a Damage message
+            let turret = p.damages_players && gd.xml.has("TurretHead");
+            if (!p.damages_players && gd.enemy) || (p.damages_players && gd.player) || turret {
                 if Some(go.id) == self.me {
                     return Some(go.id);
                 }

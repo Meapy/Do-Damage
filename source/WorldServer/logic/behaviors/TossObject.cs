@@ -105,7 +105,7 @@ namespace WorldServer.logic.behaviors
                     return;
                 }
 
-                Entity player = host.GetNearestEntity(_range, null);
+                Entity player = host.GetAttackTarget(_range);
                 if (player != null || _angle != null)
                 {
                     if (_densityRange != null && _maxDensity != null)

@@ -37,7 +37,7 @@ namespace WorldServer.logic.behaviors
 
             if (!s.Acquired && s.RemainingTime <= 0 && targeted)
             {
-                var entity = host.GetNearestEntity(acquireRange, null);
+                var entity = host.GetAttackTarget(acquireRange);
 
                 if (entity != null && entity.X != host.X && entity.Y != host.Y)
                 {
@@ -60,7 +60,7 @@ namespace WorldServer.logic.behaviors
                 {
                     s.Acquired = false;
 
-                    var entity = host.GetNearestEntity(acquireRange, null);
+                    var entity = host.GetAttackTarget(acquireRange);
 
                     if (entity != null)
                         s.RemainingTime = 0;

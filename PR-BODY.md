@@ -1,9 +1,10 @@
-Release 2.6.7: the Mechanic's turrets have health that allies can heal and buff, reach further and fall off with range; an admin's /summon brings a player into the Crucible without using one of their climbs. Deploys the world servers and the client (the turret changes need both); nobody is disconnected.
+Release 2.6.7: the Mechanic's turrets have health that allies can heal and buff and monsters can attack, reach further and fall off with range; an admin's /summon brings a player into the Crucible without using one of their climbs. Deploys the world servers and the client (the turret changes need both); nobody is disconnected.
 
 ## For players
 
 ### Mechanic
 - **Turrets have health instead of a timer:** each turret has health (400 at T0 up to 1,000 at T8; the War Turret 700, Ferrogrim's Bastion Turret 1,100), shown in a health bar under it and in the ring round its plate, and wears it all down over the time it used to last (12 seconds at T0 up to 20 at T8). When its health runs out it blows up as before. Allies' abilities reach it as they reach players standing there: heals (a priest's tome, a vampire blast, Nerissa's tide), Healing (20 a second), Damaging (hits a quarter harder), Berserk (fires a quarter faster), Armored (wears a third slower), Invulnerable (doesn't wear), seals and tomes' boosts (maximum health, attack, dexterity, defense), and cleanses. A turret your priest keeps healing keeps firing.
+- **Monsters attack turrets:** monsters still go for players first, but one with no player in its reach turns on the nearest turret: it shoots at it and chases it, and its shots (with their conditions, such as a stun that stops the turret firing) and its bombs hurt it. Their shots stop on the turret instead of flying through it.
 - **Further, but weaker far away:** turrets reach about 11 tiles (were 9; the Bastion Turret 11.5 from 9.6). Their shots hit in full out to 3 tiles, then less the further they fly, down to half at the end of their reach.
 
 ## Details
@@ -23,10 +24,20 @@ Release 2.6.7: the Mechanic's turrets have health that allies can heal and buff,
 - **Redeploy:** world servers and client together. An older client still sees turrets and their shots, but its plate disappears at the old time even if the turret was healed, it shows no health bar and its damage numbers ignore the falloff (the server's are right). Nobody is disconnected. No Redis data changed.
 - **Wiki:** `tools/wiki_gear.py` (the blueprints' line: HP, wear, falloff, blast at 0 health), `website/wiki/classes.md` (the Mechanic's turrets), `crucible.md` (the Bastion Turret), `gear-statistics.md` (a note that the Mechanic's measured row predates this).
 - **Docs:** SETUP-LOCAL.md "Changes from upstream"; AGENTS.md (a ground rule to write down testing pitfalls) and client-rs/AGENTS.md (the pitfalls met here).
-- **Not done:** enemies don't target or damage turrets (only wear does); pets heal only their owner, not turrets. The balance (HP per tier, falloff to half) hasn't been playtested.
+- **Not done:** pets heal only their owner, not turrets. The balance (HP per tier, falloff to half) hasn't been playtested.
+
+### Mechanic: monsters attack turrets
+
+- **What and why:** asked for bosses and minions to attack turrets, still going for players first and turning to turrets only when they can't reach a player.
+- **World server:** `EntityUtils.GetAttackTarget` (the nearest player, else `Turret.NearestFor`, the nearest turret in the same reach; hostile monsters only, never allies' summons) replaces the player lookup where monsters aim or chase: `Shoot` (and its lowest-health form), `Grenade`, `Follow`, `Chase`, `Charge`, `ShootFormation`, `RingAttack`, `TossObject`, `TossObject2`, `Swirl`; `NewFollow` and `NewCharge` through `World.FindAttackTarget` (turrets within 15 tiles); the second engine's (`DoomedRuntime.cs`) `GetNearestEntity` when it isn't a `gate` check. Transitions and gate checks still look for players only, so a turret never wakes a boss or moves a phase on. `Turret` implements `IPlayer` and stays in the enemies' collision map. Clients only report hits on their own player, so `TurretShots.cs` follows each hostile monster's shot fired within reach of a turret on the server (hooked in `World.BroadcastIfVisible` and `BroadcastEnemyShootIfVisible`, ticked in `World.UpdateLogic`): along `ValidatedProjectile.GetPosition` in 20 ms steps, stopped by walls and missing ground as the client stops it, a hit within 0.5 tiles, piercing shots going on; at most 2,000 followed a world. `Turret.Hurt` takes defense off, applies the shot's conditions and sends a `DamageMessage`; `Turret.HurtAround` takes `Grenade`'s and `ThrowAttack`'s blasts. At 0 health the turret blows up as when worn down.
+- **Client:** `bsk-world` `combat.rs` `hit_target`: a monster's shot ends on a turret (the client sends OtherHit, as for a shot hitting another player); the hit's number comes from the server's `DamageMessage`.
+- **Redeploy:** world servers and client together. An older client sees the damage numbers, but monsters' shots fly through turrets on its screen. Nobody is disconnected. No Redis data changed.
+- **Wiki:** `website/wiki/classes.md` (the Mechanic's turrets).
+- **Not done:** `Aoe` (it only hurts enemies), the Black Between's own blasts and monsters' contact damage don't reach turrets. Not tried in game; the server's and the client's idea of a hit can differ by a step on fast shots.
 
 ## Checks
 
 - Turrets: `dotnet test source\Tests` (new `EveryTurretHasHealthAndReach`, `ATurretsShotWeakensOverItsReach`), `cargo test -p bsk-world` (`a_turrets_shot_weakens_over_its_reach`), `cargo test -p bsk-client` (translations), both builds, the wiki built to a scratch folder (the blueprints' lines read right). In game on an isolated stack: the Mechanic joined, but scripted ability presses never built a turret (MP stayed full), so the health bar, plate ring, heals and falloff weren't seen in game.
+- Monsters attacking turrets: `dotnet test source\Tests`, `cargo test -p bsk-world` (new `a_monsters_shot_stops_on_a_turret`), both builds. The server's shot following has no unit test (the tests build no world) and wasn't tried in game.
 
 - `dotnet build source\WorldServer\WorldServer.csproj`: no errors. Not tried in game.

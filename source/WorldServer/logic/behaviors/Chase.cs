@@ -38,7 +38,7 @@ namespace WorldServer.logic.behaviors
             if (host.HasConditionEffect(ConditionEffectIndex.Paralyzed))
                 return;
 
-            var en = host.GetNearestEntity(sightRange, null);
+            var en = host.GetAttackTarget(sightRange);
 
             if (!(en is Player))
                 return;

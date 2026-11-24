@@ -39,7 +39,7 @@ namespace WorldServer.logic.behaviors
             if (host.HasConditionEffect(ConditionEffectIndex.Paralyzed))
                 return;
 
-            var player = host.AttackTarget ?? host.GetNearestEntity(acquireRange, null);
+            var player = host.AttackTarget ?? host.GetAttackTarget(acquireRange);
 
             Vector2 vect;
 

@@ -15,7 +15,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Mechanic
-- **Turrets have health:** instead of a timer, each turret has health (shown in a bar under it and round its plate) that wears down over time, and it blows up when the health runs out. Allies can heal and buff it like a player: heals, Healing, Damaging, Berserk, Armored and seals all work on it, so a turret your priest keeps healed keeps firing. Turrets also reach about 2 tiles further, but their shots hit in full only up close and fall off to half damage at the end of their reach.
+- **Turrets have health:** instead of a timer, each turret has health (shown in a bar under it and round its plate) that wears down over time, and it blows up when the health runs out. Allies can heal and buff it like a player: heals, Healing, Damaging, Berserk, Armored and seals all work on it, so a turret your priest keeps healed keeps firing. Monsters still go for players first, but one with no player to fight goes after your turrets: its shots and bombs hurt them. Turrets also reach about 2 tiles further, but their shots hit in full only up close and fall off to half damage at the end of their reach.
 
 ## 2.6.6 (2026-11-23)
 

@@ -762,3 +762,25 @@ fn a_turrets_shot_weakens_over_its_reach() {
     // between, in a line
     assert_eq!(turret_falloff(1000, 7.0, 11.0), 750);
 }
+
+#[test]
+fn a_monsters_shot_stops_on_a_turret() {
+    // the server works out the turret's hit (TurretShots.cs); here the shot only ends on it, and
+    // doesn't fly on to us behind it
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x40" id="Stopper"><Projectile id="0"><ObjectId>Bolt</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>10</Damage></Projectile></Object>
+            <Object type="0x42" id="Tower"><Class>Character</Class><TurretHead>0x14</TurretHead></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    w.apply_update(&Update { new_objs: vec![obj(3, 0x42, 5.5, 3.5, 0)].into(), ..Default::default() }, &d, 0);
+    w.add_projectile(combat::Projectile::new(7, 1, 0x40, 0, std::f64::consts::FRAC_PI_2, 0, 5.5, 1.5, 1.0, 10, true));
+    let mut hits = Vec::new();
+    for t in (0..600).step_by(10) {
+        hits.extend(w.update_projectiles(t, &d));
+    }
+    assert!(matches!(hits[..], [combat::Hit::Other { target_id: 3, .. }]), "{hits:?}");
+}

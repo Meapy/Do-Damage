@@ -240,6 +240,13 @@ namespace WorldServer.logic.doomed
                     var d = Dist(i, self);
                     if (d < dist) { dist = d; ret = i; }
                 }
+                // to aim at (not a check that moves the fight on): with no player, the nearest of
+                // the Mechanic's turrets (Turret.NearestFor), players first
+                if (ret == null && !gate && Turret.NearestFor(self, dist) is { } turret)
+                {
+                    dist = Dist(turret, self);
+                    ret = turret;
+                }
             }
             else
             {
@@ -1316,6 +1323,7 @@ namespace WorldServer.logic.doomed
             {
                 world.BroadcastIfVisible(new AoeMessage(target, bombRadius, damage, 0, 0, self.ObjectType, new ARGB(0xffff0000)), self);
                 AOE(world, target, bombRadius, true, p => (p as IPlayer)?.Damage(damage, self));
+                Turret.HurtAround(world, target.X, target.Y, bombRadius, damage, self);
             });
             return true;
         }

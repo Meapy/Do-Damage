@@ -212,7 +212,10 @@ namespace WorldServer.core.worlds
         public void BroadcastIfVisible(OutgoingMessage outgoingMessage, Entity host)
         {
             if (outgoingMessage is EnemyShootMessage enemyShoot)
+            {
                 enemyShoot.Damage = GameServer.DamageEvent.Apply(host, enemyShoot.Damage);
+                TurretShots.Fired(enemyShoot, host);
+            }
             else if (outgoingMessage is AoeMessage aoe)
                 aoe.Damage = GameServer.DamageEvent.Apply(host, aoe.Damage);
             foreach (var player in Players.Values)
@@ -227,6 +230,7 @@ namespace WorldServer.core.worlds
         public void BroadcastEnemyShootIfVisible(EnemyShootMessage enemyShoot, Entity host)
         {
             enemyShoot.Damage = GameServer.DamageEvent.Apply(host, enemyShoot.Damage);
+            TurretShots.Fired(enemyShoot, host);
             foreach (var player in Players.Values)
                 if (player.SqDistTo(host) < CULL_RANGE * CULL_RANGE)
                 {
@@ -895,6 +899,16 @@ namespace WorldServer.core.worlds
             Map.CreateEntities();
         }
 
+        // monsters' shots followed against the Mechanic's turrets (TurretShots.cs), made with the
+        // first shot fired in this world
+        private TurretShots _turretShots;
+        public TurretShots TurretShots => _turretShots ??= new TurretShots(this);
+
+        // FindPlayerTarget, or with no player to go for, the nearest turret within `turretRange`
+        // (Turret.NearestFor): monsters go for players first
+        public Entity FindAttackTarget(Entity host, double turretRange) =>
+            FindPlayerTarget(host) ?? Turret.NearestFor(host, turretRange);
+
         public Entity FindPlayerTarget(Entity host)
         {
             Entity closestObj = null;
@@ -1126,6 +1140,8 @@ namespace WorldServer.core.worlds
                 if (stat.Dead)
                     EntitiesToRemove.Add(stat);
             }
+            // monsters' shots against the Mechanic's turrets (TurretShots.cs)
+            _turretShots?.Tick();
 
             foreach (var portal in Portals.Values)
             {

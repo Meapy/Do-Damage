@@ -53,7 +53,7 @@ namespace WorldServer.logic.behaviors
 
                 var enemy = host as Enemy;
                 var enemyClasified = enemy.IsLegendary ? 50 : enemy.IsEpic ? 25 : enemy.IsRare ? 10 : 0;
-                var player = host.AttackTarget ?? host.GetNearestEntity(range, true);
+                var player = host.AttackTarget ?? host.GetNearestEntity(range, true) ?? Turret.NearestFor(host, range);
 
                 if (player != null || fixedAngle != null || scatter > 0)
                 {
@@ -81,6 +81,7 @@ namespace WorldServer.logic.behaviors
                             if (!p.HasConditionEffect(ConditionEffectIndex.Invincible) && !p.HasConditionEffect(ConditionEffectIndex.Stasis))
                                 p.ApplyConditionEffect(new ConditionEffect(effect, effectDuration));
                         });
+                        Turret.HurtAround(world, target.X, target.Y, radius, damage + enemyClasified, host, effect, effectDuration);
                     });
                 }
                 cool = coolDown.Next(Random);

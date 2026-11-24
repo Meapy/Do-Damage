@@ -72,7 +72,9 @@ players standing there: a priest's heal, a vampire blast or Nerissa's tide heals
 it 20 a second, Damaging makes its shots hit a quarter harder, Berserk makes it fire a quarter
 faster, Armored slows its wear by a third and Invulnerable stops it, and a seal's or tome's boosts
 count too (maximum health raises its health as much, attack and dexterity add a percent of damage
-and fire rate a point, defense takes a percent off its wear a point, at most half). When its
+and fire rate a point, defense takes a percent off its wear a point, at most half). Monsters go
+for players first, but a monster with no player in its reach turns on the nearest turret: it
+shoots and chases it, and its shots, their conditions and its bombs hurt it. When its
 health runs out it **blows up**, hitting every enemy round it (300 damage at T0 up to 1,100 at T8),
 a ring warning of it for its last 3 seconds. A blueprint can be used once a second; the War Turret fires little shots very
 fast. The Armoire sells the Mechanic four skins at 200 gold (the Steamwright, the Scrapper, the

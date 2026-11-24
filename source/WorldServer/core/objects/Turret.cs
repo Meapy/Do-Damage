@@ -27,6 +27,13 @@ namespace WorldServer.core.objects
     // place, it blows up: `totalDamage` to every enemy within `radius`. Its Mechanic leaving the
     // world or dying packs it away.
     //
+    // Hostile monsters go for players first: when a monster has no player to aim at or chase, it
+    // takes the nearest turret in its reach instead (NearestFor, from EntityUtils.GetAttackTarget,
+    // World.FindAttackTarget and DoomedRuntime's aim). Their shots and bombs hurt it (TurretShots.cs
+    // follows monsters' shots on the server; Grenade and the second engine's ThrowAttack call
+    // HurtAround): Hurt takes its defense off, applies the shot's conditions and sends the hit as a
+    // DamageMessage. It isn't a player anywhere else: it never wakes a boss or moves a fight on.
+    //
     // The shots are its Mechanic's (ServerPlayerShoot, ids from the Mechanic's ability range, as
     // AllyShoot's), so their hits count as theirs. Its look is the Rust client's
     // (client-rs/app/src/particles/turret.rs, ShowEffect Relic looks 54 to 57): thrown as a crate
@@ -42,7 +49,7 @@ namespace WorldServer.core.objects
     // Radius (its Mechanic's, as its shots are), their armor broken for BrokenMs, and the players
     // within it Armored until the next; its look is the Crucible's (ShowEffect Relic `Look`,
     // objectType 1).
-    public class Turret : StaticObject
+    public class Turret : StaticObject, IPlayer
     {
         public const int LOOK_THROW = 54;
         public const int LOOK_BUILD = 55;
@@ -98,6 +105,40 @@ namespace WorldServer.core.objects
                 return damage;
             var f = Math.Min(1f, (dist - FALLOFF_NEAR) / (reach - FALLOFF_NEAR));
             return (int)(damage * (1 - (1 - FALLOFF_FLOOR) * f));
+        }
+
+        // a hostile monster's target when it has no player to go for: the nearest turret within
+        // `dist` (on its floor). Allies' summons never turn on turrets.
+        public static Turret NearestFor(Entity host, double dist)
+        {
+            if (host?.World == null || host is not Enemy en || en.AllyOwnerId != -1)
+                return null;
+            Turret best = null;
+            var bestSq = dist * dist;
+            foreach (var e in host.World.EnemiesCollision.HitTest(host.X, host.Y, dist))
+            {
+                if (e is not Turret t || t.Gone || t.World != host.World)
+                    continue;
+                var sq = host.SqDistTo(t);
+                if (sq < bestSq)
+                    (best, bestSq) = (t, sq);
+            }
+            return best;
+        }
+
+        // a monster's bomb landing at (x, y): `damage` to the turrets within `radius`, and its
+        // condition for `effectMs`
+        public static void HurtAround(World world, float x, float y, float radius, int damage, Entity by,
+            ConditionEffectIndex effect = ConditionEffectIndex.Nothing, int effectMs = 0)
+        {
+            if (by is Enemy en && en.AllyOwnerId != -1)
+                return;
+            foreach (var t in TurretsNear(world, x, y, radius))
+            {
+                t.Hurt(damage, false, by, -1);
+                if (effect != ConditionEffectIndex.Nothing && effectMs > 0 && !t.Gone)
+                    t.ApplyConditionEffect(effect, effectMs);
+            }
         }
 
         // the turrets standing within `radius` of (x, y): what allies' abilities reach as they
@@ -313,6 +354,32 @@ namespace WorldServer.core.objects
             World.BroadcastIfVisible(new Notification { Color = new ARGB(0xff00ff00), ObjectId = Id, Message = "+" + gained }, this);
             return gained;
         }
+
+        // hurt by a monster (`by`; its shot `bulletId`, -1 for none): its defense taken off, as a
+        // player's is, the hit shown to everyone who sees it. It blows up on its next tick at 0.
+        public int Hurt(int damage, bool pierce, Entity by, int bulletId)
+        {
+            if (Gone || World == null || damage <= 0)
+                return 0;
+            var dmg = StatsManager.DamageWithDefense(this, damage, pierce, ObjectDesc.Defense);
+            if (dmg <= 0)
+                return 0;
+            Health = Math.Max(0, Health - dmg);
+            World.BroadcastIfVisible(new DamageMessage
+            {
+                TargetId = Id,
+                DamageAmount = dmg,
+                Kill = Health <= 0,
+                BulletId = bulletId,
+                ObjectId = by?.Id ?? -1,
+                Pierce = pierce,
+            }, this);
+            return dmg;
+        }
+
+        // IPlayer: what monsters' code asks of a target
+        public bool IsVisibleToEnemy(bool ignoreInvisible = false) => !Gone && World != null;
+        public void Damage(int dmg, Entity src) => Hurt(dmg, false, src, -1);
 
         // a condition from an ally's ability (Damaging, Berserk, Healing, Armored...)
         public void Buff(ConditionEffectIndex effect, int durationMs)

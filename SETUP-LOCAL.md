@@ -824,14 +824,33 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (Healing 20 HP a second, Damaging x1.25 damage, Berserk x1.25 fire rate, Armored two thirds the
   wear, Invulnerable none); StatBoostAura and a tome's shared boosts raise its maximum health (and
   its health with it), attack (+1% damage a point), dexterity (+1% fire rate) or defense (-1% wear,
-  at most half); RemoveNegativeConditions cleanses it. Pets heal only their owner, as before, and
-  enemies don't target turrets. It sends `MaximumHealth` and `Health` (the client draws a health bar
+  at most half); RemoveNegativeConditions cleanses it. Pets heal only their owner, as before
+  (monsters attacking turrets: the next entry). It sends `MaximumHealth` and `Health` (the client draws a health bar
   under it and its plate's ring by them), and looks 55/56 carry how long its health lasts at its
   plain wear. The turrets' shots fly 680 ms (was 560: about 10.9 tiles, from 9; the Bastion's 960,
   11.5 tiles) and fall off: full damage to 3 tiles, then down to half at the end of their reach
   (`Turret.Falloff`, which `EnemyHit` applies through `ServerPlayerShoot.FalloffReach` and the Rust
   client's `turret_falloff` matches). Player shots no longer reach a turret as a vulnerable static
   object.
+- **Monsters attack turrets** (2026-11-24; `Turret.cs`, `TurretShots.cs`, `World.cs`,
+  `EntityUtils.GetAttackTarget`, the behaviours below, `DoomedRuntime.cs`; Rust client `bsk-world`
+  `combat.rs`): players first. Where a hostile monster aims or chases (`Shoot`, `Grenade`,
+  `Follow`, `Chase`, `Charge`, `ShootFormation`, `RingAttack`, `TossObject`, `TossObject2`,
+  `Swirl`, `NewFollow` and `NewCharge` through `World.FindAttackTarget`, and the second engine's
+  `GetNearestEntity` when not `gate`) and finds no player, it takes the nearest turret in that reach
+  (`Turret.NearestFor`; allies' summons never do). Checks that move a fight on (transitions,
+  `gate`) still look for players only, so a turret wakes no boss. Turrets stay in the enemies'
+  collision map (not the players', where much code walks players) and implement `IPlayer`.
+  Clients report only hits on their own player, so the server follows hostile monsters' shots fired
+  within reach of a turret (`TurretShots`, made per world on the first shot, ticked after the
+  static objects): along `ValidatedProjectile.GetPosition` in 20 ms steps, stopped by walls,
+  objects that take up their square and missing ground (not in open air), hitting within 0.5
+  tiles (the client's `HIT_RADIUS`), through it if `MultiHit`; at most 2,000 followed a world.
+  `Turret.Hurt` takes its defense off (none on the towers), applies the shot's conditions and sends
+  a `DamageMessage` (the client's damage number). `Grenade` and the second engine's `ThrowAttack`
+  hurt the turrets in their blast (`Turret.HurtAround`). The Rust client ends a monster's shot on a
+  turret (`hit_target`), sending OtherHit as for a shot that hits another player. Not covered:
+  `Aoe` (enemies only), the Black Between's blasts, contact damage.
 - **Pull requests on Testing** (2026-11-21; `.github/workflows/testing.yml`, `deploy/deploy.py
   --testing-only`, `deploy/remote/install-site.sh --testing-only`): each pull request's world
   server is rolled onto Testing, the admin-only world server, and closing one unmerged puts `main`
