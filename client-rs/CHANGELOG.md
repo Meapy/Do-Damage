@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.7 (2026-11-24)
 
 ### Pets
 - **Grown pets catch up:** a pet you grow now gets stronger as you feed it through each new size, towards what pets of that size do: any pet grown all the way to Huge does about 1,190 damage a second at level 30 (Lil' Thessal about 1,310, up from 594; Bes, Nut and Geb about 1,430), and heals more too. The Lil' Oryxes and boss pets stay a step ahead: every one now does at least about 1,510 a second at level 30, so the weaker ones (Lil' Oryx, Ferrogrim, Nerissa, Pyrrhax, Chronarch) hit harder.
