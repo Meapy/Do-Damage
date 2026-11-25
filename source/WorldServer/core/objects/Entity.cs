@@ -41,6 +41,9 @@ namespace WorldServer.core.objects
 
         private Position? _spawnPoint;
         public Position? SpawnPoint => _spawnPoint ??= new Position(X, Y);
+        // where it returns to from now on (ReturnToSpawn, StayCloseToSpawn): a boss raised off its
+        // arena's middle (VoidArena)
+        public void SetSpawnPoint(Position at) => _spawnPoint = at;
 
         public bool GivesNoXp { get; set; }
         public float? SavedAngle { get; set; }

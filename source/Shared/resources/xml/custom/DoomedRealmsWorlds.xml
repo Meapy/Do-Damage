@@ -223,6 +223,11 @@
 		<Width>65</Width>
 		<Height>65</Height>
 		<MapJM>Doomed/The Elder Void.jm</MapJM>
+		<!-- the Rust client's starry void sky (voidsky.rs SKY_VOID) round the platform, and the
+		     whole platform in view: the projections fire from its landmarks, 18.5 tiles out
+		     (25.5 once the Empowered Entity has widened it, VoidArena.cs) -->
+		<Background>8</Background>
+		<MinSightRadius>28</MinSightRadius>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

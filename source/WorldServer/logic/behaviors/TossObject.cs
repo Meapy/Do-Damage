@@ -32,6 +32,8 @@ namespace WorldServer.logic.behaviors
         private readonly TileRegion _region;
         private readonly double _regionRange;
         private List<IntPoint> _reproduceRegions;
+        // the range worked out at each toss, where the place changes it (VoidArena's widened platform)
+        private readonly Func<Entity, double> _rangeFor;
 
         public TossObject(string child, double range = 5, double? angle = null,
             Cooldown coolDown = new Cooldown(), int coolDownOffset = 0,
@@ -39,7 +41,8 @@ namespace WorldServer.logic.behaviors
             double? minAngle = null, double? maxAngle = null,
             double? minRange = null, double? maxRange = null,
             double? densityRange = null, int? maxDensity = null,
-            TileRegion region = TileRegion.None, double regionRange = 10
+            TileRegion region = TileRegion.None, double regionRange = 10,
+            Func<Entity, double> rangeFor = null
             )
         {
             if (group == null)
@@ -64,6 +67,7 @@ namespace WorldServer.logic.behaviors
             _group = group;
             _region = region;
             _regionRange = regionRange;
+            _rangeFor = rangeFor;
         }
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
@@ -126,7 +130,7 @@ namespace WorldServer.logic.behaviors
 
                     }
 
-                    var r = _range;
+                    var r = _rangeFor?.Invoke(host) ?? _range;
                     if (_minRange != null && _maxRange != null)
                         r = (double)_minRange + Random.NextDouble() * ((double)_maxRange - (double)_minRange);
 

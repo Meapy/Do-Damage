@@ -269,7 +269,9 @@ again, below, they drop a seal that raises marble pillars round you, a skull tha
 pentagram on your target and a bow whose hits open a singularity. Raising the Colossus breaks his
 hall open: its ring of walls cracks apart, the marble floor builds itself outwards half as wide
 again (as far as the halls' other rooms leave space), new walls rise along the rim and he hurls
-the braziers' fire out to it, so the Empowered fight has room to move.
+the braziers' fire out to it, so the Empowered fight has room to move. Raising the Void Entity
+tears a black hole open under it and drives the sea of Pure Evil back: the platform surfaces ring
+by ring out to half as wide again, and its projections take up four new marks further out.
 
 ## The Cultist Hideout and the Void
 
@@ -283,8 +285,16 @@ his cultists' powers for himself and fights you with each in turn.
 
 Malus drops the cult's gear and, half the time, a **Vial of Pure Darkness** for one player in the
 group. Use it in the Lost Halls, where the Marble Colossus fell, to open **the Void**: a platform
-in a sea of Pure Evil (stay on the platform: the evil hurts). The Void Entity rises at its centre
-and, at three quarters and at half its health, throws its projections onto the four marks round
-the platform, from where they fire inwards for half a minute. It drops the Void's gear.
+in a sea of Pure Evil, floating among the stars (stay on the platform: the evil hurts). The Void
+Entity rises at its centre and, at three quarters and at half its health, throws its projections
+onto the four marks round the platform, from where they fire inwards for half a minute. The whole
+platform is in view from anywhere on it. It drops the Void's gear: the Bow of the Void, the
+Quiver of the Shadows, the Armor of Nil and the Sourcestone, and, very rarely, the **Omnipotence
+Ring**, the strongest ring in the game. Besides its stats it calls **Judgement** every 10 seconds
+(light out of the sky on the three enemies nearest you, ignoring defense, and you are Damaging and
+Berserk for 3 seconds) and keeps you **Undying** once every 2 minutes (a hit that would kill you
+leaves you at 1 health, untouchable for 2 seconds, then a third of your health comes back and
+Judgement strikes). The Elder Void Entity drops it twice as often, and raised again more often
+still.
 
 {{gen:dungeons}}
