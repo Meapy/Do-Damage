@@ -288,7 +288,7 @@ namespace WorldServer.core.worlds.impl.doomed
     // alone and nobody is dragged into more than most want. A combined fight spawns every one of
     // its waves' monsters at once and pays each wave's fame and quest progress as it would have
     // one by one, so combining only saves time. From ArenaPools.CombineBeforeWave (Oryx) on,
-    // waves come one at a time. While the votes are open, subscribers see what the next fight
+    // a fight combines at most two waves (a second Oryx stands beside the middle). While the votes are open, subscribers see what the next fight
     // will be (ARENA_ROUND).
     //
     // Two Arena Chests stand inside the ring (ArenaChest): anyone in the Arena can leave items in
@@ -696,6 +696,19 @@ namespace WorldServer.core.worlds.impl.doomed
 
         public (float X, float Y) Middle => (_middle.X + 0.5f, _middle.Y + 0.5f);
 
+        // the Oryx standing in the middle (SpawnMonster), and the floor a second one takes:
+        // the tile nearest BesideMiddleTiles to one side of the middle
+        private Enemy _middleOryx;
+        private const int BesideMiddleTiles = 8;
+
+        private (float X, float Y) BesideMiddle()
+        {
+            var dx = Random.Shared.Next(2) == 0 ? -BesideMiddleTiles : BesideMiddleTiles;
+            var (tx, ty) = (_middle.X + dx, _middle.Y);
+            var f = _floor.OrderBy(f => (f.X - tx) * (f.X - tx) + (f.Y - ty) * (f.Y - ty)).First();
+            return (f.X + 0.5f, f.Y + 0.5f);
+        }
+
         // a round's chat line: "Wave 12 has begun: The Snake Pit (Boss Rush, Elite)."
         public static string RoundLine(ArenaRound r)
         {
@@ -796,9 +809,14 @@ namespace WorldServer.core.worlds.impl.doomed
         private Enemy SpawnMonster(string name, ArenaRound round, bool boss, double capShare)
         {
             var oryx = ArenaPools.IsOryx(name);
-            var (x, y) = oryx ? Middle : SpawnSpot();
+            // an Oryx stands in the middle; a second one while the first lives (a +2 fight from
+            // wave 30) takes a spot to the side, so they don't share it
+            var crowded = oryx && _middleOryx != null && !_middleOryx.Dead && _middleOryx.World == this;
+            var (x, y) = !oryx ? SpawnSpot() : crowded ? BesideMiddle() : Middle;
             if (Spawn(name, x, y) is not Enemy e)
                 return null;
+            if (oryx && !crowded)
+                _middleOryx = e;
             Wake(e);
             var cap = 0;
             if (boss)

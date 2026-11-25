@@ -1,4 +1,4 @@
-Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform; a Pet tab on the character card; the Hall of Judgement, where raised Elder Tomb gods walk to fight together; an admin's /summon brings a player back into a Crucible climb under way; and death replays: the last seconds of any death, from the graveyard, the legends and the death screen, with every hit listed, and downloadable. Deploys the world servers and the client together (the pearls need both), the account server (death replays) and the website; nobody is disconnected.
+Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform; a Pet tab on the character card; the Hall of Judgement, where raised Elder Tomb gods walk to fight together; an admin's /summon brings a player back into a Crucible climb under way; the Arena's waves from 30 on can be combined two at a time; and death replays: the last seconds of any death, from the graveyard, the legends and the death screen, with every hit listed, and downloadable. Deploys the world servers and the client together (the pearls need both), the account server (death replays) and the website; nobody is disconnected.
 
 ## For players
 
@@ -33,6 +33,9 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Easier to get around:** the sidebar has five sections (Start here, Getting stronger, Dungeons and bosses, Classes, gear and pets, Things to do) that fold, with the page you're on open. Getting started puts "Your first hour" up top and splits Options into a line per tab.
 - **Search understands questions:** "how do I get stat potions" finds stat potions (it skips filler words and matches plurals).
 - **The search boxes on long lists work again:** the filter on the Pets, Dungeons, gear, class and Necromantic Relic pages hid nothing you could see; now it hides every card that doesn't match.
+
+### Arena
+- **+2 from wave 30:** the Arena panel's +2 now works from wave 28 to the end of the run, so two waves can be fought as one fight in the Oryx stage too (before, waves from 30 came one at a time). +5 stays for the waves before 30: at 26 it can bring four, at 27 three. Fame and quest progress are paid per wave as before. When both waves bring an Oryx, the second spawns about 8 tiles to the left or right of the middle rather than on top of the first. Solo, the panel notes "From wave 30, at most two waves at a time".
 
 ### The Void
 - **Less health:** the Void Entity has 300,000 health (was 400,000), the Elder Void Entity 500,000 (was 800,000, nearly three times the Elder Marble Colossus) and gains 15% for each extra player, as the other Elder bosses do (was 10% of the higher figure). Raised with a Necromantic Relic it has about 670,000 (was 1,000,000).
@@ -124,6 +127,15 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Memory and CPU:** every player outside the Nexus has their messages written twice (once for the socket, once for the replay), about 25 s of them kept: hundreds of KB a player in a busy fight. Watch "Tick stats" after the deploy.
 - **Not done:** the player's own ability effects that their client draws itself (not sent by the server) don't show; the camera is north-up. The browser build compiles but the Download in a browser wasn't tried. A video (MP4) export isn't done.
 
+### Arena: +2 from wave 30
+
+- **What and why:** asked for +2 combining after wave 30. Combining stopped at wave 29 so that two Oryxes never shared the middle (each spawns there, its patterns centred on where it spawned).
+- **World server:** `ArenaPools.MaxCombineAt` clamps to `LateCombine` (2) instead of 1, so 28 and later offer +2. `DoomedBattleArena.SpawnMonster` keeps the Oryx standing in the middle (`_middleOryx`); another Oryx while it lives spawns at `BesideMiddle`, the floor nearest 8 tiles left or right of the middle. Tests: `ArenaVotesTests.OnlyTwoWavesAtOnceInTheOryxStage`.
+- **Client:** `hud.rs` `draw_arena_votes`: the "From wave 30, waves come one at a time" note became "From wave 30, at most two waves at a time" (solo, from wave 28), retranslated in every `app/lang/*.json`.
+- **Redeploy:** world servers (rolling, nobody disconnected); the client only for the note: an older client's panel already enables +2 from what the server sends. No Redis data changed.
+- **Wiki:** `website/wiki/progression.md` (combining in the Arena). SETUP-LOCAL.md's Arena votes note.
+- **Not done:** not tried in game; two Oryxes side by side in one fight haven't been played, so their patterns overlapping may be hard.
+
 ## Checks
 
 - `dotnet test source\Tests`: 530 passed, with `EveryPearlIsATidePearl` (every pearl and Nerissa's a `TidePearl`, rising by tier, no projectiles) and `ARecalledPearlStrikesAlongItsWay`.
@@ -140,3 +152,4 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - Pet tab: `cargo test -p bsk-client` 129 passed (every new line translated). Isolated stack (slot 1), the Tester at 1280x720: three tabs fit on the card; clicking Pet asked the server (one `PetPenAct`) and showed Lil’ Oryx, Huge, level 30 of 30 in green, 1.5k damage, HP 67/1.5s and MP 70/3s in two columns on the short card. Not seen: a growing pet’s food row, the one-column layout on a taller window, German and Russian.
 - Admin summon into the Crucible: `dotnet build` of the world server and `dotnet test source\Tests` (525 passed before the rebase). Not tried in game.
 - Death replays: `cargo test -p bsk-client` 129 passed (every new line translated), `cargo test -p bsk-net replay` (the format, the answer, a saved file read back), `cargo check --target wasm32-unknown-unknown`; the world and account servers build. Isolated stack (slot 2): a level 20 Wizard at 1 HP sent by the bot to the Godlands died to the Avatar of the Forgotten King; `replay.1.3` was saved (45 KB, 30 days), `/fame/replay` served it, and it holds 22 s: 2,340 messages, 16 hits (Magma's ground at 100, the Avatar's shots at 170, 145 after defense) down to -97 HP. The client (`--screen replay:1:3`, English and German, 1280x720) played it: the world, the shots, the hits list and timeline, "Killed by" at the end; the same file opened from disk with `--replay`. Monsters from `/spawn` never leave a replay: their kills only send you to the Nexus.
+- Arena +2 from wave 30: `dotnet test source\Tests --filter Arena` (95 passed), `cargo test -p bsk-client` (translations). Not tried in game.

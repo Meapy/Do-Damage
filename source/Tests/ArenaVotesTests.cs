@@ -36,13 +36,15 @@ namespace Tests
         }
 
         [Fact]
-        public void NoCombiningIntoTheOryxStage()
+        public void OnlyTwoWavesAtOnceInTheOryxStage()
         {
             Assert.Equal(5, ArenaPools.MaxCombineAt(1));
             Assert.Equal(5, ArenaPools.MaxCombineAt(25));
+            Assert.Equal(3, ArenaPools.MaxCombineAt(27));
             Assert.Equal(2, ArenaPools.MaxCombineAt(28));
-            Assert.Equal(1, ArenaPools.MaxCombineAt(29));
-            Assert.Equal(1, ArenaPools.MaxCombineAt(40));
+            Assert.Equal(2, ArenaPools.MaxCombineAt(29));
+            Assert.Equal(2, ArenaPools.MaxCombineAt(30));
+            Assert.Equal(2, ArenaPools.MaxCombineAt(40));
         }
 
         [Fact]

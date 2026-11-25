@@ -5130,10 +5130,10 @@ pub fn draw_arena_votes(ui: &mut Ui, lay: &Layout, v: &bsk_proto::ArenaVotes, ne
     let fw = ui.measure(&fight, size, true);
     let cx = al.frame[0] + al.frame[2] / 2.0;
     ui.label(&fight, (cx - fw / 2.0).round(), al.summary_y, size, true, if v.combine > 1 { color::ACCENT_HI } else { color::TEXT });
-    let note = if v.max_combine <= 1 {
-        tr("From wave 30, waves come one at a time").to_owned()
-    } else if v.voters.len() > 1 {
+    let note = if v.voters.len() > 1 {
         tf!("A combine needs {needed} of {all} players", needed = v.combine_needed, all = v.voters.len())
+    } else if v.max_combine == 2 && v.next_wave >= 28 {
+        tr("From wave 30, at most two waves at a time").to_owned()
     } else {
         String::new()
     };

@@ -296,8 +296,9 @@ boss rising and a boss rush's next boss get banners of their own.
     most waves that many picked at least, so with picks of +5, +2 and none it's 2 waves. Alone, you
     decide. Your pick stays from break to break until you change it (+1 is no combining).
   - A combined fight pays each wave's fame and counts each wave for quests and achievements, the
-    same as playing them one by one: it only saves time. Waves combine up to wave 29; from wave 30
-    (Oryx) they come one at a time.
+    same as playing them one by one: it only saves time. Up to five waves combine before wave 30;
+    from wave 28 on (Oryx's stage) a fight brings at most two, and when both have an Oryx, the
+    second stands a few tiles to the side of the middle.
 - **The Arena Chests:** two chests stand just south of the middle. Anyone in that Arena can put
   items in or take them out, and they don't vanish like loot bags. They're gone with the Arena,
   though: anything still inside when everyone has left is lost. Soulbound items can't go in.

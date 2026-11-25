@@ -35,6 +35,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Crucible
 - **Admins can bring you back into a climb:** if you drop out of a climb mid-fight, an admin's `/summon` now brings you back in beside the others, even once the climb has begun, the lobby is full or your climbs for the day are used up, and it costs you no climb.
 
+### Arena
+- **+2 from wave 30:** you can combine two waves into one fight from wave 30 on (and from wave 28), instead of facing them one at a time. When both have an Oryx, the second stands a few tiles to the side of the middle.
+
 ### Website
 - **The wiki is remade to be easier to use:** its home page starts with a big search box and "Where do you want to start?" tiles, every guide opens with a short "In short" summary and most with an in-game screenshot (click it to see it full size), the sidebar is in five clear sections that fold away, and search understands questions like "how do I get stat potions". The search boxes on the Pets, Dungeons, gear, class and Necromantic Relic pages work again: they hid nothing before.
 

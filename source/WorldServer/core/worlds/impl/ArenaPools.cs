@@ -73,12 +73,13 @@ namespace WorldServer.core.worlds.impl
         // before is beaten): wave * 10, halved with company, at the Arena's FameRate
         public static int WavePot(int wave, int players, double rate) => FameRates.Fame(wave * 10 / (players == 1 ? 1 : 2), rate);
 
-        // Combining waves (DoomedBattleArena's votes): at most MaxCombine waves in one fight, and
-        // only waves before CombineBeforeWave (from there Oryx comes, and two Oryxes would share the middle)
+        // Combining waves (DoomedBattleArena's votes): at most MaxCombine waves in one fight before
+        // CombineBeforeWave, and from there (Oryx's stage) at most LateCombine (+2)
         public const int MaxCombine = 5;
         public const int CombineBeforeWave = 30;
+        public const int LateCombine = 2;
 
-        public static int MaxCombineAt(int wave) => Math.Clamp(CombineBeforeWave - wave, 1, MaxCombine);
+        public static int MaxCombineAt(int wave) => Math.Clamp(CombineBeforeWave - wave, LateCombine, MaxCombine);
 
         // Next starts the wave once at least half the players want it
         public static int NextVotesNeeded(int players) => Math.Max(1, (players + 1) / 2);
