@@ -25,6 +25,10 @@ namespace WorldServer.logic
             string E(string id) => !elder ? id : N(id) != id ? N(id) : null;
             int Cd(int ms) => elder ? ms * 3 / 4 : ms;
             MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+            // a god raised by a Necromantic Relic (core/resurrection) is its Elder form's Empowered
+            // copy: its artifacts orbit it and live as long as it does, as they do round the Elder one
+            string Risen(string id) => elder && InitGameData.IdToObjectType.ContainsKey("Empowered " + N(id)) ? "Empowered " + N(id) : null;
+            string[] Gods(string id) => Risen(id) is string risen ? new[] { N(id), risen } : new[] { N(id) };
 
             return db
             .Init(E("Tomb Defender"),
@@ -524,11 +528,11 @@ namespace WorldServer.logic
             .Init(E("Pyramid Artifact 1"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Defender"))
                         ),
                     new Follow(0.85, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(3, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Defender"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Defender")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -538,11 +542,11 @@ namespace WorldServer.logic
             .Init(E("Pyramid Artifact 2"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Defender"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(3, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Defender"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Defender")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -552,11 +556,11 @@ namespace WorldServer.logic
             .Init(E("Pyramid Artifact 3"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Defender"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Defender"))
                         ),
                     new Follow(0.85, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(3, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Defender"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Defender")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -566,11 +570,11 @@ namespace WorldServer.logic
             .Init(E("Sphinx Artifact 1"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Support"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Support"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Support")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -580,11 +584,11 @@ namespace WorldServer.logic
             .Init(E("Sphinx Artifact 2"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Support"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Support"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Support")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -594,11 +598,11 @@ namespace WorldServer.logic
             .Init(E("Sphinx Artifact 3"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Support"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Support"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Support"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Support")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -608,11 +612,11 @@ namespace WorldServer.logic
             .Init(E("Nile Artifact 1"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Attacker"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Attacker"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Attacker")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -622,11 +626,11 @@ namespace WorldServer.logic
             .Init(E("Nile Artifact 2"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Attacker"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Attacker"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Attacker")),
                     new State("alive"),
                     new State("die",
                         new Suicide()
@@ -636,11 +640,11 @@ namespace WorldServer.logic
             .Init(E("Nile Artifact 3"),
                 new State(
                     new Prioritize(
-                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5)
+                        new Orbit(3, 2, target: N("Tomb Attacker"), radiusVariance: 0.5, alsoTarget: Risen("Tomb Attacker"))
                         ),
                     new Follow(2, range: 1, duration: 5000, coolDown: Cd(0)),
                     new Shoot(12, 3, 120, coolDown: Cd(2500)),
-                    new EntityNotExistsTransition(N("Tomb Attacker"), 50, "die"),
+                    new EntitiesNotExistsTransition(50, "die", Gods("Tomb Attacker")),
                     new State("alive"),
                     new State("die",
                         new Suicide()

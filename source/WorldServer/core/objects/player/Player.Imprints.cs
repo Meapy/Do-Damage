@@ -221,6 +221,7 @@ namespace WorldServer.core.objects
             World.BroadcastIfVisibleExclude(bolt, this, this);
             if (Spectated)
                 GameServer.Spectators.Forward(this, bolt);
+            Replay.Forward(bolt);
         }
 
         // --- the weapon's hits ---

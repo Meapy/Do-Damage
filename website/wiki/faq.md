@@ -1,11 +1,17 @@
 ---
 title: FAQ and help
-nav: 6
+nav: 2
 section: Start here
 sprite: bolt
 eyebrow: Help
 summary: Browser or desktop, updates, sign-in trouble, and how to report a bug.
+blurb: Quick answers: browser or desktop, updates, sign-in trouble and reporting bugs.
 ---
+> **In short:**
+> - Play in the **browser** (nothing to install) or on the **desktop** (faster); it's the same account.
+> - The desktop game updates itself, and server updates don't kick anyone.
+> - Found a bug? See [How do I report a bug?](#how-do-i-report-a-bug) below.
+
 ## Browser or desktop?
 
 Both are the same game, with the same accounts, characters and vault.

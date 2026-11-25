@@ -1,11 +1,17 @@
 ---
-title: Raising an Elder boss: the Necromantic Relic
+title: Necromantic Relic
 nav: 12
-section: Dungeons and loot
+section: Dungeons and bosses
 sprite: skull
 eyebrow: Elder dungeons
 summary: How a Necromantic Relic brings a fallen Elder boss back in its Empowered form, and each boss's health, soul attacks, untiered item and drops. Built from the game's data.
+blurb: Bring a beaten Elder boss back, stronger, for better loot.
 ---
+> **In short:**
+> - Elder bosses drop a **Necromantic Relic** now and then.
+> - When an Elder boss falls, stand by its remains and use the relic before they fade to raise it again, **Empowered**.
+> - An Empowered boss is much harder, drops everything its Elder form does at double the chance, and has an item of its own.
+
 Every Elder dungeon's boss can be fought twice. When it falls, its souls cling to the body, and
 with a **Necromantic Relic** you can drag it back to life in its **Empowered** form: a much harder
 fight with much better loot, and an item of its own found nowhere else. That's

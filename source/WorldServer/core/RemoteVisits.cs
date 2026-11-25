@@ -80,7 +80,8 @@ namespace WorldServer.core
                     return true;
                 }
                 var here = me.World;
-                here.Invite(them.AccountId); // even into an arena game that has started
+                // even into an arena game or a Crucible climb that has started, free (as /summon here)
+                here.Invite(them.AccountId, free: true);
                 Player.ShieldArrival(them.AccountId);
                 Send(server.instanceId, Ticket(them.AccountId, here, $"You are being summoned by {me.Name}."));
                 me.SendInfo($"Summoned {them.Name}.");

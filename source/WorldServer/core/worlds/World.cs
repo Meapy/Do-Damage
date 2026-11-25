@@ -157,6 +157,7 @@ namespace WorldServer.core.worlds
 
         // an instance only joined at its start, now under way (a Crucible climb): /visit, /summon
         // and /help can't bring anyone in, and an invitation from before it began no longer counts
+        // (but an admin's /summon, CanEnter)
         public virtual bool Begun => false;
 
         // every account that has had a character here (or been let in by a player's /visit), so
@@ -174,14 +175,17 @@ namespace WorldServer.core.worlds
         // arriving (any way): counts a first time only, so the trip that brought them isn't counted twice
         private void NoteEntered(int accountId) => _beenIn.TryAdd(accountId, 1);
 
-        // AllowedAccess, or an invitation that hasn't run out
+        // AllowedAccess, or an invitation that hasn't run out; an admin's /summon (free) gets past
+        // everything, even an instance under way (a Crucible climb) or one they've used up, so a
+        // player who dropped out mid-fight can be brought back
         public bool CanEnter(Client client)
         {
-            if (!Begun && _invited.TryGetValue(client.Account.AccountId, out var until))
+            var id = client.Account.AccountId;
+            if ((!Begun || _comped.ContainsKey(id)) && _invited.TryGetValue(id, out var until))
             {
                 if (DateTime.UtcNow < until)
                     return true;
-                _invited.TryRemove(client.Account.AccountId, out _);
+                _invited.TryRemove(id, out _);
             }
             return AllowedAccess(client);
         }

@@ -65,6 +65,10 @@ namespace WorldServer.core.objects
         public bool Spectated { get; set; }
         // the stats anyone may see of this player (ExportStats(true)'s), once worked out
         internal HashSet<core.net.stats.StatDataType> PublicStats { get; set; }
+
+        // their last seconds, kept for a replay of their death (core/replay/ReplayRecorder.cs)
+        private replay.ReplayRecorder _replay;
+        internal replay.ReplayRecorder Replay => System.Threading.LazyInitializer.EnsureInitialized(ref _replay, () => new replay.ReplayRecorder(this));
         
         public void InitializeUpdate()
         {
@@ -156,6 +160,7 @@ namespace WorldServer.core.objects
 
             HandleUpdate();
             var statuses = HandleNewTick();
+            Replay.Step(statuses);
             if (GameServer.Spectators.Any)
                 GameServer.Spectators.Feed(this, statuses);
             else

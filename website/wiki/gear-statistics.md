@@ -1,11 +1,16 @@
 ---
 title: Gear statistics
 nav: 23
-section: Classes and gear
+section: Classes, gear and pets
 sprite: sword
 eyebrow: Every tier
 summary: Every tiered weapon, ability, armor and ring side by side, with what each tier adds over the one below, each class's damage a second with each weapon tier, each class's effective health with each armor tier, and each class's damage measured on the Training Dummy.
+blurb: Every tier side by side, and each class's damage and toughness.
 ---
+> **In short:**
+> - Every tier of every weapon, ability, armor and ring, side by side.
+> - Also each class's damage a second with each weapon tier, and how much damage it can take.
+
 Every tiered item in the game, side by side, so you can see what each tier adds over the one
 below. The numbers are read from the game's own data, so they stay true as items change. For
 where each item comes from, and the untiered and set items, see [Gear](gear.html).
@@ -120,6 +125,8 @@ Things to know when reading it:
 - The runs used the T14 weapons. The T15 weapons, from Oryx the Ascended God, came on 23 October
   2026 and do about a quarter more, so "Weapon only" is low for every class now. The Staff of
   Endless Energy (the staves' T15) does 100-135 since then too.
+- The Druid's pearls were reworked on 25 November 2026 (thrown into a tide pool that pulses, then
+  called home through the enemies), so the Druid's "With 3 abilities" is out of date.
 - The Mechanic's turrets were reworked in 2.6.4 (built where you aim, up to three at once, faster
   with the Mechanic near, a blast at the end), so the Mechanic's "With 3 abilities" is out of date (and since 2.6.5 turrets do double the
   damage and every shot pierces; since 2.6.7 they have health that wears down instead of a fixed

@@ -97,13 +97,35 @@ namespace WorldServer.core.worlds.impl.crucible
         // open while it waits to begin and has room (MaxClimbers): full, the portal and /crucible
         // open the next climb (DoomedWorlds.RefreshPortal)
         public override bool Joinable => _stage == Stage.Lobby && !IsPlayersMax();
-        // nobody new once the climb has begun, by /visit, /summon or /help either (World.Begun)
+        // nobody new once the climb has begun, by /visit, /summon or /help either (World.Begun),
+        // but those an admin's /summon brings
         public override bool Begun => _stage != Stage.Lobby;
 
         public override bool AllowedAccess(Client client) =>
             base.AllowedAccess(client) && (CrucibleAccess.IsAdmin(client.Account) || Joinable && CrucibleAccess.MayEnter(client, out _));
 
         public int Floor => _floor;
+
+        // someone arriving once the climb is under way (an admin's /summon, World.CanEnter): beside
+        // a climber on solid ground (an admin first), not on the Threshold, long fallen away
+        public override Position GetPlayerSpawnPosition()
+        {
+            if (_stage == Stage.Lobby)
+                return base.GetPlayerSpawnPosition();
+            var host = Players.Values.Where(OnGround)
+                .OrderByDescending(p => CrucibleAccess.IsAdmin(p.Client?.Account)).FirstOrDefault();
+            if (host != null)
+                return new Position(host.X, host.Y);
+            if (_hearts.TryGetValue(_floor, out var h))
+                return new Position(h.Centre.X, h.Centre.Y + (float)Math.Round(8 * ArenaForms.Grow));
+            return base.GetPlayerSpawnPosition();
+        }
+
+        private bool OnGround(Player p)
+        {
+            int x = (int)p.X, y = (int)p.Y;
+            return Map.Contains(x, y) && !_held.ContainsKey((x, y)) && Map[x, y].TileId != _sky && Map[x, y].TileId != _crack;
+        }
 
         public override void Init()
         {

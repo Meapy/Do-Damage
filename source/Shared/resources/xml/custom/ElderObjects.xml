@@ -10096,7 +10096,7 @@
 		</AltTexture>
 		<DisplayId>Elder Void Entity</DisplayId>
 		<Size>200</Size>
-		<MaxHitPoints>800000</MaxHitPoints>
+		<MaxHitPoints>500000</MaxHitPoints>
 		<Exp>100000</Exp>
 		<Defense>70</Defense>
 		<HitSound>weapon/wand_of_dark_magic</HitSound>

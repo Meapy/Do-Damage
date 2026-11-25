@@ -1,11 +1,20 @@
 ---
 title: Getting stronger
-nav: 3
-section: Start here
+nav: 4
+section: Getting stronger
 sprite: potion
 eyebrow: Progress
 summary: Levels and experience, fame and rank stars, stat potions and maxing, the realm, the Godlands, quests and events, and what happens when you die.
+blurb: Levels, fame, stat potions and maxing, and what happens when you die.
+image: potion-storage
+image_alt: Potion storage in the vault: store stat potions, drink them, or max a stat in one go.
 ---
+> **In short:**
+> - Kill monsters to level up to **20**; every 1,000 experience after that is a point of **fame**.
+> - **Stat potions** raise a stat for good, up to your class's highest. All eight at their highest is "maxed" (8/8).
+> - Keep spare potions in your **potion storage** in the vault, so none are wasted.
+> - When a character dies it's gone with what it carries, but its fame goes to your account.
+
 ## Levels and experience
 
 Killing monsters gives experience to every player nearby, not only the one who landed the last
@@ -94,6 +103,8 @@ how many players are inside; `/realm` takes you into Realm 2.
 with a land of its own for every realm event.
 
 ### The Godlands
+
+![The Godlands: the realm's grey heart, where its gods roam](godlands)
 
 The Godlands are the realm's highest ground and its richest. The gods that live there:
 
@@ -285,8 +296,9 @@ boss rising and a boss rush's next boss get banners of their own.
     most waves that many picked at least, so with picks of +5, +2 and none it's 2 waves. Alone, you
     decide. Your pick stays from break to break until you change it (+1 is no combining).
   - A combined fight pays each wave's fame and counts each wave for quests and achievements, the
-    same as playing them one by one: it only saves time. Waves combine up to wave 29; from wave 30
-    (Oryx) they come one at a time.
+    same as playing them one by one: it only saves time. Up to five waves combine before wave 30;
+    from wave 28 on (Oryx's stage) a fight brings at most two, and when both have an Oryx, the
+    second stands a few tiles to the side of the middle.
 - **The Arena Chests:** two chests stand just south of the middle. Anyone in that Arena can put
   items in or take them out, and they don't vanish like loot bags. They're gone with the Arena,
   though: anything still inside when everyone has left is lost. Soulbound items can't go in.
@@ -316,6 +328,15 @@ the last 20 characters to die, with what killed them and where. A player with a 
 top 20 of the week, the month or all time is a legend: their characters glow red in the game and
 get a 1% loot boost (`/boosts` shows it), from the next time they enter a world. Pushed off every
 top 20, they lose both the same way.
+
+Every death can be **replayed**: on the death screen (your own, a grave in your Graveyard, or anyone's
+in Recent Deaths), **Watch replay** shows the character's last 20 seconds or so as they saw them.
+Pause it, slow it down, step through it a second at a time or drag along its timeline. Every hit they
+took is marked on the timeline and listed beside the picture: what dealt it, its damage before and
+after defense, and the health left, with the killing blow outlined, so you can see exactly what
+killed you (and tell the staff if something looks wrong). **Download** saves the replay as a file
+that plays again when you drop it on the game's window. Replays are kept for 30 days, and for good
+when the death makes the all-time Legends.
 
 The living have their own boards: the [Hall of Champions](champions.html) in the Nexus, whose top 10s
 hold rewards of their own.

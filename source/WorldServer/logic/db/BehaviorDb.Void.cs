@@ -1,4 +1,5 @@
 using Shared.resources;
+using WorldServer.core.resurrection;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.loot;
 using WorldServer.logic.transitions;
@@ -50,8 +51,8 @@ namespace WorldServer.logic
                 )
             .Init(E("LH Void Entity"),
                 new State(
-                    // the Elder version gains less health per extra player: its base is far higher
-                    new ScaleHP2(elder ? 10 : 20),
+                    // the Elder version gains 15% per extra player, as the other Elder bosses do
+                    new ScaleHP2(elder ? 15 : 20),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120),
                     // the regular Entity leads on to the Elder Lost Halls half the time
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
@@ -147,15 +148,18 @@ namespace WorldServer.logic
                     new TierLoot(6, ItemType.Ability, 0.2),
                     new TierLoot(6, ItemType.Ring, 0.2)
                     ),
+                // the end of the Lost Halls' chain (hall, vial, Void): its own items at twice
+                // Malus' chances, and the Omnipotence Ring, the rarest of them
                 new Threshold(0.02,
-                    new ItemLoot("Bow of the Void", elder ? 0.008 : 0.004),
-                    new ItemLoot("Quiver of the Shadows", elder ? 0.008 : 0.004),
-                    new ItemLoot("Armor of Nil", elder ? 0.008 : 0.004),
-                    new ItemLoot("Sourcestone", elder ? 0.008 : 0.004)
+                    new ItemLoot("Bow of the Void", elder ? 0.012 : 0.006),
+                    new ItemLoot("Quiver of the Shadows", elder ? 0.012 : 0.006),
+                    new ItemLoot("Armor of Nil", elder ? 0.012 : 0.006),
+                    new ItemLoot("Sourcestone", elder ? 0.012 : 0.006),
+                    new ItemLoot("Omnipotence Ring", elder ? 0.006 : 0.003)
                     ),
                 ElderLoot(0.02,
-                    new ItemLoot("The Hollow Sourcestone", 0.01),
-                    new ItemLoot("Potion of Max Life", 0.025),
+                    new ItemLoot("The Hollow Sourcestone", 0.015),
+                    new ItemLoot("Potion of Max Life", 0.05),
                     new ItemLoot("Elder Lost Halls Key", 0.02),
                     new TierLoot(14, ItemType.Weapon, 0.1),
                     new TierLoot(15, ItemType.Armor, 0.05),
@@ -200,13 +204,13 @@ namespace WorldServer.logic
         }
 
         // the four projections, thrown onto the landmarks 18.5 tiles out once the Entity is back
-        // at the centre
+        // at the centre (further where the Empowered Entity has widened the platform: VoidArena)
         private static IStateChildren[] Projections(System.Func<string, string> N) =>
             [
-                new TossObject(N("LH Void Entity N"), 18.5, 270, coolDown: 9999999, coolDownOffset: 2000),
-                new TossObject(N("LH Void Entity E"), 18.5, 0, coolDown: 9999999, coolDownOffset: 2000),
-                new TossObject(N("LH Void Entity S"), 18.5, 90, coolDown: 9999999, coolDownOffset: 2000),
-                new TossObject(N("LH Void Entity W"), 18.5, 180, coolDown: 9999999, coolDownOffset: 2000)
+                new TossObject(N("LH Void Entity N"), 18.5, 270, coolDown: 9999999, coolDownOffset: 2000, rangeFor: VoidArena.ProjectionRange),
+                new TossObject(N("LH Void Entity E"), 18.5, 0, coolDown: 9999999, coolDownOffset: 2000, rangeFor: VoidArena.ProjectionRange),
+                new TossObject(N("LH Void Entity S"), 18.5, 90, coolDown: 9999999, coolDownOffset: 2000, rangeFor: VoidArena.ProjectionRange),
+                new TossObject(N("LH Void Entity W"), 18.5, 180, coolDown: 9999999, coolDownOffset: 2000, rangeFor: VoidArena.ProjectionRange)
             ];
 
         private static State VoidProjection() =>

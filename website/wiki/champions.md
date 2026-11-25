@@ -1,11 +1,17 @@
 ---
 title: Hall of Champions
 nav: 33
-section: Every day
+section: Things to do
 sprite: crown
 eyebrow: The living's leaderboard
 summary: The Hall of Champions in the Nexus: twelve boards (fame, stars, achievements, the Arena and the Crucible solo and in groups, weekly fame and dungeons, guilds' living and dead fame, and account fame), how each is ranked, and the reward each board's top 10 hold while they stay there.
+blurb: The leaderboards in the Nexus, and the rewards for the top 10.
 ---
+> **In short:**
+> - Twelve leaderboards in the Nexus, for the living: fame, stars, the Arena, the Crucible, guilds and more.
+> - The **top 10** of each board get a reward, such as more loot, for as long as they hold the place.
+> - Type `/champions` to see the top three and your own places.
+
 The **Legends** remember the dead. The **Hall of Champions** honours the living: twelve boards, each
 ranking every account (or guild) by one thing, and each giving its **top 10** a reward of its own while they
 hold the place. Lose the place and the reward goes; win it back and it returns.

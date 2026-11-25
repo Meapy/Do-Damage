@@ -16,13 +16,16 @@ namespace WorldServer.logic.behaviors
         private readonly float speedVariance;
         private bool? orbitClockwise;
         private ushort? target;
+        // orbited when no `target` is in reach (an Elder Tomb artifact round its god's Empowered form)
+        private readonly ushort? alsoTarget;
 
-        public Orbit(double speed, double radius, double acquireRange = 10, string target = null, double speedVariance = 1.0, double radiusVariance = 1.0, bool? orbitClockwise = false)
+        public Orbit(double speed, double radius, double acquireRange = 10, string target = null, double speedVariance = 1.0, double radiusVariance = 1.0, bool? orbitClockwise = false, string alsoTarget = null)
         {
             this.speed = (float)speed;
             this.radius = (float)radius;
             this.acquireRange = (float)acquireRange;
             this.target = target == null ? null : GetObjType(target);
+            this.alsoTarget = alsoTarget == null ? null : GetObjType(alsoTarget);
             this.speedVariance = (float)speedVariance;
             this.radiusVariance = (float)radiusVariance;
             this.orbitClockwise = orbitClockwise;
@@ -54,7 +57,8 @@ namespace WorldServer.logic.behaviors
             if (host.HasConditionEffect(ConditionEffectIndex.Paralyzed))
                 return;
 
-            var entity = host.AttackTarget ?? host.GetNearestEntity(acquireRange, target);
+            var entity = host.AttackTarget ?? host.GetNearestEntity(acquireRange, target)
+                ?? (alsoTarget != null ? host.GetNearestEntity(acquireRange, alsoTarget) : null);
 
             if (entity != null)
             {

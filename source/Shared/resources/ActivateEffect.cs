@@ -96,6 +96,11 @@ namespace Shared.resources
         // a Mechanic's turret's health (`hp`; Turret.cs): it wears all of it down over `duration`
         // unless it's healed
         public readonly int TurretHp;
+        // a Druid's pearl (TidePearl.cs): its pool's damage and heal every pulse, and how many
+        // pearls may be out at once
+        public readonly int PulseDamage;
+        public readonly int PulseHeal;
+        public readonly int MaxPearls;
 
         public ActivateEffect(XElement e)
         {
@@ -190,6 +195,9 @@ namespace Shared.resources
             AllyShots = e.GetAttribute<int>("allyShots");
             AllyMs = e.GetAttribute<int>("allyMs");
             TurretHp = e.GetAttribute<int>("hp");
+            PulseDamage = e.GetAttribute<int>("pulseDamage");
+            PulseHeal = e.GetAttribute<int>("pulseHeal");
+            MaxPearls = e.GetAttribute<int>("pearls", 1);
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

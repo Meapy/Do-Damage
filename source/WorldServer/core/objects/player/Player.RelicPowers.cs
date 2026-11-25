@@ -32,6 +32,8 @@ namespace WorldServer.core.objects
         private long _stanceSince;                      // and since when
         private bool _stanceOn;
         private long _entropyReadyAt;                   // The Hollow Sourcestone
+        private long _judgementReadyAt;                 // the Omnipotence Ring: its Judgement,
+        private long _undyingReadyAt;                   // and its Undying
         private int _graveFlames;                       // The Gravekeeper's Censer: flames left round its user,
         private long _graveFlamesUntil;                 // until when,
         private long _graveFlameReadyAt;                // and when the next may rush out
@@ -74,8 +76,10 @@ namespace WorldServer.core.objects
             Eruption = 27,      // Skull of the Final Ritual: its heart erupting
             Singularity = 28,   // Bow of the Event Horizon: the black hole (ms)
             // 29: the Chaotic Scripture's Chaos Beam, sent by AllyAOE (BehaviorDb.Allies.cs)
-            // 30-32: the Ascendant's forcefield, sent by Forcefield.cs and Player.Forcefield.cs
+            // 30-32: the Ascendant's forcefield, sent by Forcefield.cs and Player.Forcefield.cs (30
+            // also by the Omnipotence Ring's Undying)
             // 33-38: the Father's ward, sent by Player.Ward.cs
+            Forcefield = 30,    // the Omnipotence Ring's Undying: a halo dropping onto its wearer (ms)
             Contagion = 39,     // Pestilence of Skuld: the plague bursting out of an enemy that fell to it
             GraveFlames = 40,   // The Gravekeeper's Censer: blue flames circling its user (ms; radius: how many)
             GraveFlame = 41,    // The Gravekeeper's Censer: a flame rushing from its user to an enemy and bursting
@@ -575,6 +579,7 @@ namespace WorldServer.core.objects
             }
 
             GraveFlamesTick();
+            JudgementTick();
 
             // the Elder Guardian's bracer braces: under half health, +12 defense for 5 s, every 20 s
             if (Power(3) == "Bulwark" && Health > 0 && Health < Stats[0] / 2 && Now >= _bulwarkReadyAt)
@@ -637,15 +642,75 @@ namespace WorldServer.core.objects
         // The Ghost Bride's vow, in her halo's forcefield (Player.Shield): a hit that would kill
         // leaves its player at 1 health, untouchable for 1.5 s; each player once every 45 s.
         // dmg is what the hit takes from health (after defense, any forcefield and ward).
+        // The Omnipotence Ring's Undying, after the vow: the same, once every 2 minutes, for 2 s,
+        // then a third of its wearer's health back and Judgement at once.
         public int VowedDamage(int dmg)
         {
-            if (dmg < Health || Health <= 0 || Now >= _vowUntil || Now < _vowReadyAt)
+            if (dmg < Health || Health <= 0)
                 return dmg;
-            _vowReadyAt = Now + 45000;
-            ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 1500);
-            RelicNote("Vow kept", VowColor);
-            RelicFx(Fx.Vow, this, Here, 1.5f, VowColor, 1500);
-            return Health - 1;
+            if (Now < _vowUntil && Now >= _vowReadyAt)
+            {
+                _vowReadyAt = Now + 45000;
+                ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 1500);
+                RelicNote("Vow kept", VowColor);
+                RelicFx(Fx.Vow, this, Here, 1.5f, VowColor, 1500);
+                return Health - 1;
+            }
+            if (Power(3) == "Omnipotence" && Now >= _undyingReadyAt && World != null)
+            {
+                _undyingReadyAt = Now + UndyingCooldownMs;
+                _judgementReadyAt = 0;
+                ApplyConditionEffect(ConditionEffectIndex.Invulnerable, 2000);
+                RelicNote("Undying", OmniGold);
+                RelicFx(Fx.Forcefield, this, Here, 1.6f, OmniHalo, 2000);
+                RelicEffect(this, EffectType.AreaBlast, OmniGold, new Position(3, 0));
+                World.StartNewTimer(150, (w, t) =>
+                {
+                    if (World == w && Health > 0)
+                        Player.HealDiscrete(this, Stats[0] / 3, false);
+                });
+                return Health - 1;
+            }
+            return dmg;
+        }
+
+        // The Omnipotence Ring (the Void Entity's): Judgement every 10 s while an enemy is within
+        // 8 tiles: light out of the sky on the three nearest, 450 each past defense, and its
+        // wearer Damaging and Berserk for 3 s.
+        public const int JudgementCooldownMs = 10000, JudgementDamage = 450, JudgementTargets = 3, UndyingCooldownMs = 120000;
+        public const float JudgementRange = 8;
+        private const uint OmniGold = 0xFFFFD34F, OmniHalo = 0xFFFFF0A8;
+
+        private void JudgementTick()
+        {
+            if (Power(3) != "Omnipotence" || Now < _judgementReadyAt || Health <= 0)
+                return;
+            var targets = EnemiesNear(X, Y, JudgementRange)
+                .Where(e => !e.HasConditionEffect(ConditionEffectIndex.Invincible) && !e.HasConditionEffect(ConditionEffectIndex.Invulnerable))
+                .OrderBy(e => e.DistTo(X, Y)).Take(JudgementTargets).ToList();
+            if (targets.Count == 0)
+                return;
+            _judgementReadyAt = Now + JudgementCooldownMs;
+            ApplyConditionEffect(ConditionEffectIndex.Damaging, 3000);
+            ApplyConditionEffect(ConditionEffectIndex.Berserk, 3000);
+            RelicNote("Judgement", OmniGold);
+            RelicEffect(this, EffectType.Flashing, OmniGold, new Position(0.2f, 3));
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var target = targets[i];
+                var at = PosOf(target);
+                // one after another, the bolts landing a beat after their marks
+                World.StartNewTimer(1 + i * 120, (w, t) =>
+                {
+                    if (World != w)
+                        return;
+                    var p = target.Dead || target.World != w ? at : PosOf(target);
+                    RelicFx(Fx.SkyBolt, target, p, 1.6f, OmniGold);
+                    RelicEffect(this, EffectType.Lightning, OmniHalo, p, new Position(1.2f, 0));
+                    if (!target.Dead && target.World == w)
+                        RelicDamage(target, JudgementDamage, ref t, true);
+                });
+            }
         }
 
         // Pestilence of Skuld's contagion: an enemy that dies while poisoned by it bursts into a

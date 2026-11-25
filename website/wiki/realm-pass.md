@@ -1,11 +1,19 @@
 ---
 title: Realm Pass
 nav: 31
-section: Every day
+section: Things to do
 sprite: crown
 eyebrow: A new road every month
 summary: The Realm Pass: a monthly season of 60 tiers earned by playing as you already do, the free track everyone has with its pets, white bags, pet food and a pet effect, the Gilded track for gold with its hand-drawn skins, boss and Oryx pets, Necromantic items, Growth Tonics, auras, pet effects and the Burning Amulet, Momentum for catching up, the Wayfarer's Caches past the last tier, and every season's rewards tier by tier. Built from the game's data.
+blurb: A monthly track of 60 reward tiers earned just by playing.
+image: realm-pass
+image_alt: The Realm Pass (Y): the free track on top, the Gilded track below, and your tier and XP on the right.
 ---
+> **In short:**
+> - Each month brings a new season of tiers, earned by playing as you already do.
+> - The **free track** has a reward at every tier. **Gilding** the pass with gold adds a second track of skins, pets and more.
+> - Press <kbd>Y</kbd> to open it. Gilding late still gives every Gilded reward you've already reached.
+
 Every month the realm opens a new **season** of the **Realm Pass**: a road of
 **{{v:pass_tiers}} tiers**, each {{v:pass_tier_xp}} **pass XP**, earned by the things you do
 already: quests, the daily reward, dungeons, bosses, realms and fame. There's no list of chores and

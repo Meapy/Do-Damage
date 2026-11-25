@@ -496,12 +496,12 @@ WHITES = {
     "Nerissa's Tidepearl": dict(
         slot=30, sound="spell/fire_spray", mp=100, cooldown=0, power="Tidepearl",
         stats=[(0, 60), (3, 60), (26, 8), (27, 4)],
-        activate=[("PearlAbility", dict(amount=200, objectId="Tidal Substitute"))],
-        description="A pearl of the Drowned Sanctum's sea. It calls up a substitute that hurls five of Nerissa's "
-                    "tridents and heals you, and the tide answers: three waves roll out from you, each striking "
-                    "your enemies and washing over your allies.",
-        info=[("Substitute", "5 tridents of 230; heals you 200"),
-              ("Tide", "3 waves, 0.45 secs apart, to 5.5 sqrs: 220 to enemies, heals allies 60")]),
+        activate=[("TidePearl", dict(range=8, radius=3.5, duration=5, impactDamage=420, pulseDamage=130,
+                                     pulseHeal=22, totalDamage=650, amount=260, pearls=3))],
+        description="A pearl of the Drowned Sanctum's sea. Thrown, it lies in Nerissa's own tide pool, and where it "
+                    "lands the sea answers: three waves roll out from it, each striking your enemies and washing "
+                    "over your allies. Called home, it brings the tide with it.",
+        info=[("Tide", "3 waves where it lands, 0.45 secs apart, to 5.5 sqrs: 220 to enemies, heals allies 60")]),
     "Pyrrhax's Meteor Mortar": dict(
         slot=5005, sound="weapon/cannon_shot", mp=120, cooldown=0, power="MeteorMortar",
         stats=[(0, 60), (3, 60), (20, 4), (28, 6)],
@@ -534,11 +534,9 @@ WHITES = {
 }
 
 # the white bags' allies: the turret (Ferrogrim's sentinel: a Mechanic's turret, Turret.cs, its
-# base and the head the Rust client turns in tools/draw_turrets.py's row 3) and the pearl's
-# substitute (unseen)
+# base and the head the Rust client turns in tools/draw_turrets.py's row 3)
 ALLIES = {
     "Bastion Turret": dict(turret=(0x1E, 0x1F), shot=("Iron Shard", 100, 120, 960, False)),
-    "Tidal Substitute": dict(turret=None, shot=("Trident Bolt", 230, 160, 800, True)),
 }
 
 

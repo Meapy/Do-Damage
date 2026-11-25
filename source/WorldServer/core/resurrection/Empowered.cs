@@ -86,7 +86,11 @@ namespace WorldServer.core.resurrection
 
         public float DamageMultiplier => _enraged ? _tuning.EnragedDamage : _tuning.Damage;
         public double LootBoost => 1.0;
-        public bool Paused => _rising > 0;
+        public bool Paused => _rising > 0 || Marching;
+
+        /// <summary>On its way to the fight (an Elder Tomb god walking to its Hall of Judgement,
+        /// <see cref="TombCourt"/>): untouchable, its behaviour and the souls' attacks waiting.</summary>
+        public bool Marching { get; set; }
 
         /// <summary>The Empowered Forgotten King takes damage at every moment of the fight (after
         /// he has risen): no hiding, crystal or phase shield makes him untouchable.</summary>
@@ -171,6 +175,8 @@ namespace WorldServer.core.resurrection
                 _rising -= dt;
                 return;
             }
+            if (Marching)
+                return;
             if (boss.HasConditionEffect(ConditionEffectIndex.Stunned))
                 return;
 

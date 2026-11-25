@@ -407,6 +407,7 @@ namespace WorldServer.core.objects
             if (src is Enemy)
                 EnterCombat();
             dmg = GameServer.DamageEvent.Apply(src, dmg);
+            var raw = dmg;
             dmg = (int)Stats.GetDefenseDamage(dmg, false);
             dmg = ShieldedDamage(dmg);
             dmg = FrontlineDamage(dmg);
@@ -426,6 +427,8 @@ namespace WorldServer.core.objects
                 BulletId = 0,
                 ObjectId = src.Id
             }, this, this);
+            Replay.Hurt(replay.ReplayRecorder.FromHit, src.ObjectType, src.Id, raw, dmg,
+                HasConditionEffect(ConditionEffectIndex.Invulnerable) ? replay.ReplayRecorder.FlagNoHarm : (byte)0);
 
             if (Health <= 0)
                 Death(src.ObjectDesc.DisplayId ?? src.ObjectDesc.IdName, src.Spawned);

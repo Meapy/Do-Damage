@@ -1,11 +1,20 @@
 ---
 title: Pets
 nav: 26
-section: Classes and gear
+section: Classes, gear and pets
 sprite: potion
 eyebrow: Companions
 summary: Every pet you can get, its size, how hard it hits, what else it does and where it drops, and the items that summon a helper for a while.
+blurb: Every pet, how strong it is, where it drops and how to grow it.
+image: pet-keeper
+image_alt: The Pen Keeper: your pet's level and strength, food and growing it to the next size.
 ---
+> **In short:**
+> - A **pet generator** is an item: use it and that pet follows you, fights for you and heals you.
+> - Pets drop in white bags from the monster they belong with, and some are sold in shops or on the Realm Pass.
+> - Feed your pet at the **Pen Keeper** in the Nexus to level it up and make it stronger.
+> - Use the search box above the list to find a pet by name, monster or shop.
+
 ## How pets work
 
 A **pet generator** is an item. Use it and that pet joins your character: it follows you
@@ -35,7 +44,9 @@ pets really do.
 
 The **Pen Keeper** stands at the gate of the **pet pen**, east of the Herald and the Warcaller on the
 Arena island; pets of every kind come and go in the pen behind him. His window shows your pet's
-level, the food to its next level, and what it does now and at its last level. Talk to him to:
+level, the food to its next level, and what it does now and at its last level. Anywhere in the
+game, the **Pet** tab on your character card (beside Stats and Records) shows your pet out: its
+size and level, the food to its next level, and the damage and healing it does now. Talk to him to:
 
 - **Feed your pet**: pick anything in your inventory or backpack and he says how much food it is
   and what level it takes your pet to, then feed it (a whole stack at once). Pets eat:

@@ -1,11 +1,16 @@
 ---
 title: Commands
-nav: 2
+nav: 3
 section: Start here
 sprite: bolt
 eyebrow: Getting started
 summary: Every chat command a player can use, read from the game's code.
+blurb: Every chat command you can type, and what it does.
 ---
+> **In short:**
+> - Type a command in chat: press <kbd>Enter</kbd>, then `/` and its name. `/commands` lists them in game.
+> - The handiest: `/gear` (free starter gear), `/realm`, `/nexus`, `/vault`, `/forge` and `/visit <name>`.
+
 Type a command in chat (<kbd>Enter</kbd>), starting with a slash. `/commands` in game lists the
 ones you can use. This list is taken from the server's code, so it's the same list.
 

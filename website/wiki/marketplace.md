@@ -1,11 +1,19 @@
 ---
 title: Marketplace
 nav: 35
-section: Every day
+section: Things to do
 sprite: chest
 eyebrow: Players selling to players
 summary: The Marketplace in the Nexus: listing items from your inventory or vault for fame or gold, browsing and buying, the market square's stalls, the taxes and limits, and your box and history.
+blurb: Buy from and sell to other players for fame or gold.
+image: marketplace
+image_alt: The Marketplace: browse what players are selling, filter by kind and tier, or sell your own.
 ---
+> **In short:**
+> - Players sell items to each other for fame or gold, even while the seller is offline.
+> - Type `/market` to go to the **Market Broker** in the Nexus and open it.
+> - Search, filter by kind and tier, then **Buy** and **Confirm**. Sell from the **Sell** tab or with `/sell`.
+
 The **Marketplace** is where players sell items to each other for fame or gold. You list an item
 at your price; anyone can buy it, even while you're offline, and the fame (or gold) is yours the
 moment it sells.

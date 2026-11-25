@@ -5,12 +5,23 @@ section: Start here
 sprite: sword
 eyebrow: New players
 summary: From the main menu to your first realm: guest or account, choosing a class, the controls, the Nexus, free starter gear and the Support Bot.
+blurb: Your first hour: making a character, the controls, the Nexus and free starter gear.
+image: nexus
+image_alt: The Nexus, where every character starts: portals to the realm, the shops, the Forge and the dungeons.
 ---
+> **In short:**
+> - Press **Play** to start as a guest, or **Register** to keep your progress safe on any device.
+> - Every class is open from the start. Easy picks: **Wizard** or **Priest** (range), **Knight** or **Warrior** (tough), **Archer** (safe).
+> - Move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, aim and shoot with the mouse, <kbd>Space</kbd> for your ability, <kbd>R</kbd> back to the Nexus.
+> - In the Nexus, type `/gear` for free starter gear, then take a realm portal (or `/realm`).
+
 ## The main menu
 
 The game opens on a main menu with **Play**, **Sign in**, **Register**, **Options**, **Changelog**
 and (on the desktop) **Quit**. You can change the options before you play, and <kbd>Esc</kbd> or
 "Main menu" brings you back to it later.
+
+![The main menu: Play, Options, the Changelog, the Sprite Editor and the Gold Store](main-menu)
 
 You can play in your browser at [play.dodmg.com](https://play.dodmg.com/play/) or with the desktop client from the
 [downloads](../#get). Both use the same accounts, characters and vault. See the
@@ -58,6 +69,19 @@ Some easy starts:
 Each class has {{v:star_count}} class quests: reaching {{v:stars}} fame with a character of that
 class. They earn your rank stars ([Getting stronger](progression.html#fame-rank-stars-and-class-quests)).
 
+## Your first hour
+
+1. Make a character, then type `/gear`.
+2. Kill a few batches of XP gifts by the spawn, or go straight to a realm with `/realm`.
+3. In the realm, start near the beaches (where you arrive) and move inland as you level. The
+   further from the shore, the harder the monsters.
+4. Take the dungeon portals that monsters drop. The [Dungeons](dungeons.html) page says which are
+   easy.
+5. Once you're level 20, try `/godlands` with friends. The Godlands' gods drop the best realm
+   loot.
+6. Bring stat potions and anything you want to keep to your vault (`/vault`) before trying
+   something risky.
+
 ## Controls
 
 Every key can be rebound in Options (<kbd>O</kbd>), to another key, to the mouse's side
@@ -90,42 +114,55 @@ Text boxes (chat, sign-in) copy, cut and paste with <kbd>Ctrl</kbd>+<kbd>C</kbd>
 (<kbd>Cmd</kbd> on a Mac). In the browser, <kbd>Ctrl</kbd>+<kbd>R</kbd>, <kbd>F5</kbd>,
 <kbd>F12</kbd> and the browser's tab and zoom keys still work, unless a control uses that key.
 
-**Options** (<kbd>O</kbd>, or from the <kbd>Esc</kbd> menu) has a **Gameplay** tab with
-"Drink stat potions from loot bags": while it's on, the stat potions in a bag you stand on are drunk
-by themselves, Potions of Oryx too (a maxed stat's go to your potion storage), leaving Potions of
-Max for you to keep; only loot bags, never your vault's gift chest. It's off unless you turn it on.
-The **Visuals** tab is in three parts. **World**: "Pets' shots" (every pet's, yours too: Normal,
-Subtle, the default, with smaller see-through shots, or Hidden), particles, shadows, health bars,
-damage numbers and the crosshair. **Other players**: how much you see of other players, of their
-**shots and spells** (a slider from 100% down to Hidden; it fades their projectiles, their pets'
-shots, their spells and their Necromantic items' powers alike, while your own stay as they are),
-of their pets, and whose **pings** show; then their pets' effects, and their **damage numbers**
-(off unless you turn it on: the numbers of their hits too, on a boss say, so it's clear which are
-yours). **Chat**: its **size** (50% to 150%: its text, width and height together), its
-**background** (how dark the box behind it is, from none to the usual) and **Speech balloons** (a
-list: tick whose show, such as only guild and party chat). The **Crosshair** tab picks the crosshair's
-style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron or your own), its
-colour and its size (50% to 200%), with a preview over dark and light ground. To make your own,
-pick one of the ten colours under its 15 by 15 grid and click or drag on the grid: each square
-takes the colour picked, so your crosshair can have as many colours as you like, and clicking a
-square already in that colour empties it. The colours under the grid only paint new squares; the
-**Colour** row beside them is for the other styles, and your own keeps the colours you painted.
-**Clear** starts again from nothing,
-and **Defaults** puts back the Classic crosshair but keeps your drawing. To share a crosshair,
-**Copy code** puts its code on the clipboard (the code also shows under the button: `DD0064` is
-the usual crosshair, and your own drawing makes it longer); a friend copies it and presses
-**Paste code**, or presses <kbd>Ctrl</kbd>+<kbd>V</kbd> on the tab in the browser. The **Graphics** tab has the world zoom, a frame
-rate limit and, on the desktop, **Borderless fullscreen**: the window covers the screen it's on,
-with no border, and alt-tabbing out is instant. The game remembers it for the next time. It also
-has the world's look: **Glow on bright light** (a soft glow round lava, fire, lanterns and
-spells), **Vivid colours** (livelier colours and slightly darker corners) and, on a Windows PC,
-**HDR**. HDR is on when Windows has HDR turned on for your screen, and then the glow shines
-brighter than white. Turn any of them off if the game runs slowly on your computer. The
-**Sound** tab has a Master volume, and **Ping sounds** to hear pings or not. The **Language** tab switches the game between its 11
-languages (English, Deutsch, Español, Français, Italiano, Nederlands, Polski, Português (Brasil),
-Русский, Türkçe and Українська) at once, menus, windows, tooltips and messages alike; the first
-time, it starts in your computer's or browser's language. Item and monster names and what the
-server writes in the chat stay in English.
+![Options, Controls tab: every key, and what it's bound to; click one to change it](controls)
+
+> **Tip:** Turn on "Drink stat potions from loot bags" in Options, Gameplay, and the stat potions
+> in a bag you stand on are drunk for you.
+
+## Options
+
+Open **Options** with <kbd>O</kbd>, or from the <kbd>Esc</kbd> menu or the main menu. It has these tabs:
+
+- **Controls:** rebind any key, to another key, the mouse's side buttons (Mouse 4 and 5) or the
+  right mouse button.
+- **Gameplay:** "Drink stat potions from loot bags": while it's on, the stat potions in a bag you
+  stand on are drunk by themselves, Potions of Oryx too (a maxed stat's go to your potion storage),
+  leaving Potions of Max for you to keep; only loot bags, never your vault's gift chest. It's off
+  unless you turn it on.
+- **Visuals**, in three parts:
+  **World**: "Pets' shots" (every pet's, yours too: Normal, Subtle, the default, with smaller
+  see-through shots, or Hidden), particles, shadows, health bars, damage numbers and the crosshair.
+  **Other players**: how much you see of other players, of their **shots and spells** (a slider
+  from 100% down to Hidden; it fades their projectiles, their pets' shots, their spells and their
+  Necromantic items' powers alike, while your own stay as they are), of their pets, and whose
+  **pings** show; then their pets' effects, and their **damage numbers** (off unless you turn it
+  on, so it's clear which are yours).
+  **Chat**: its **size** (50% to 150%), its **background** (from none to the usual) and **Speech
+  balloons** (tick whose show, such as only guild and party chat).
+- **Graphics:** the world zoom, a frame rate limit and, on the desktop, **Borderless fullscreen**
+  (the window covers the screen, and alt-tabbing out is instant). Also the world's look: **Glow on
+  bright light** (round lava, fire, lanterns and spells), **Vivid colours** (livelier colours and
+  slightly darker corners) and, on a Windows PC, **HDR** (on when Windows has HDR turned on for
+  your screen). Turn any of them off if the game runs slowly on your computer.
+- **Crosshair:** its style (Classic, Cross, Dot, Circle, Circle and dot, Plus, Diagonal, Chevron
+  or your own), its colour and its size (50% to 200%), with a preview over dark and light ground.
+- **Sound:** a Master volume, and **Ping sounds** to hear pings or not.
+- **Language:** the game in any of its 11 languages (English, Deutsch, Español, Français,
+  Italiano, Nederlands, Polski, Português (Brasil), Русский, Türkçe and Українська), menus,
+  windows, tooltips and messages alike. The first time, it starts in your computer's or browser's
+  language. Item and monster names and what the server writes in the chat stay in English.
+
+### Drawing your own crosshair
+
+Pick **your own** on the Crosshair tab. Choose one of the ten colours under its 15 by 15 grid and
+click or drag on the grid: each square takes the colour picked, and clicking a square already in
+that colour empties it. The colours under the grid only paint new squares; the **Colour** row
+beside them is for the other styles. **Clear** starts again from nothing, and **Defaults** puts
+back the Classic crosshair but keeps your drawing.
+
+To share one, **Copy code** puts its code on the clipboard (the code also shows under the button:
+`DD0064` is the usual crosshair); a friend copies it and presses **Paste code**, or presses
+<kbd>Ctrl</kbd>+<kbd>V</kbd> on the tab in the browser.
 
 ## Pings
 
@@ -183,8 +220,9 @@ The world fills the window, with one bar down the right:
   its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
   ringed gold for those you talk to and violet for portals, even before you've been there, at the
   map's edge when they're out of view: hover one for its name.
-- **Your character card:** your name, class and level, with two tabs: your stats, and your records
-  (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
+- **Your character card:** your name, class and level, with three tabs: your stats, your records
+  (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played), and your
+  pet (its size and level, the food to its next level, and the damage and healing it does now).
   Out of combat you walk faster: **+20 Speed** (shown in green beside it) whenever no enemy has
   hit you and you haven't hit one for 10 seconds. It goes the moment either happens.
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to
@@ -322,19 +360,6 @@ It also hands out two things:
   gifts), it opens a portal to a random dungeon just south of the spawn. The portal closes once
   that dungeon has been cleared (its boss died and no other boss is left for {{v:bot_cleared}}
   seconds), or when the next one replaces it. Anyone already inside stays.
-
-## Your first hour
-
-1. Make a character, then type `/gear`.
-2. Kill a few batches of XP gifts by the spawn, or go straight to a realm with `/realm`.
-3. In the realm, start near the beaches (where you arrive) and move inland as you level. The
-   further from the shore, the harder the monsters.
-4. Take the dungeon portals that monsters drop. The [Dungeons](dungeons.html) page says which are
-   easy.
-5. Once you're level 20, try `/godlands` with friends. The Godlands' gods drop the best realm
-   loot.
-6. Bring stat potions and anything you want to keep to your vault (`/vault`) before trying
-   something risky.
 
 ## Commands to know
 

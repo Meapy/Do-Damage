@@ -45,7 +45,7 @@
         Gold,
 
         // Doomed Realms class abilities (WorldServer/core/objects/player/Player.UseItem.Doomed.cs)
-        PearlAbility,
+        TidePearl,
         BuildTower,
         MonsterToss,
         PartyAOE,

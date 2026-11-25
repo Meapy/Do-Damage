@@ -1306,14 +1306,13 @@
 			<Index>0x64</Index>
 		</Texture>
 		<SlotType>30</SlotType>
-		<Description>A pearl of the Drowned Sanctum's sea. It calls up a substitute that hurls five of Nerissa's tridents and heals you, and the tide answers: three waves roll out from you, each striking your enemies and washing over your allies.</Description>
+		<Description>A pearl of the Drowned Sanctum's sea. Thrown, it lies in Nerissa's own tide pool, and where it lands the sea answers: three waves roll out from it, each striking your enemies and washing over your allies. Called home, it brings the tide with it.</Description>
 		<ExtraTooltipData>
-			<EffectInfo name="Substitute" description="5 tridents of 230; heals you 200" />
-			<EffectInfo name="Tide" description="3 waves, 0.45 secs apart, to 5.5 sqrs: 220 to enemies, heals allies 60" />
+			<EffectInfo name="Tide" description="3 waves where it lands, 0.45 secs apart, to 5.5 sqrs: 220 to enemies, heals allies 60" />
 		</ExtraTooltipData>
 		<Sound>spell/fire_spray</Sound>
 		<Usable />
-		<Activate amount="200" objectId="Tidal Substitute">PearlAbility</Activate>
+		<Activate range="8" radius="3.5" duration="5" impactDamage="420" pulseDamage="130" pulseHeal="22" totalDamage="650" amount="260" pearls="3">TidePearl</Activate>
 		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="26" amount="8">IncrementStat</ActivateOnEquip>
@@ -1419,22 +1418,6 @@
 			<Speed>120</Speed>
 			<Damage>100</Damage>
 			<LifetimeMS>960</LifetimeMS>
-		</Projectile>
-		<NoMiniMap />
-	</Object>
-	<Object type="0xC671" id="Tidal Substitute">
-		<Class>Character</Class>
-		<Texture>
-			<File>invisible</File>
-			<Index>0x00</Index>
-		</Texture>
-		<Projectile id="0">
-			<ObjectId>Trident Bolt</ObjectId>
-			<Speed>160</Speed>
-			<Damage>230</Damage>
-			<LifetimeMS>800</LifetimeMS>
-			<MultiHit />
-			<PassesCover />
 		</Projectile>
 		<NoMiniMap />
 	</Object>

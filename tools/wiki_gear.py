@@ -545,6 +545,20 @@ class Gear:
                     "within 7 tiles, its shots falling off past 3 tiles to half at their farthest; it blows up "
                     "when its health runs out: %s damage within %s tiles"
                     % (n("hp", "600"), n("range"), ally_shots(), n("duration"), n("amount"), n("totalDamage"), n("radius")))
+        if e == "TidePearl":
+            # a Druid's pearl (TidePearl.cs, Player.TidePearls.cs): thrown where you aim, a splash
+            # within 2 tiles (PearlSplashRadius), a pool pulsing every half second (PULSE_MS,
+            # slowing, past defense), then home along a lane 1.1 tiles either side
+            # (PearlRecallWidth), healing a fifth more per enemy struck, at most double
+            # (PearlStruckPercent, PearlStruckMax)
+            heal = (", mending allies in it %s HP a pulse" % n("pulseHeal")) if g("pulseHeal") else ""
+            return ("throws a pearl where you aim (up to %s tiles away): %s damage within 2 tiles where it lands, "
+                    "then a tide pool reaching %s tiles round it for %ss, every half second %s damage to the enemies in it "
+                    "(past their defense, slowing them)%s; then it rushes home, %s damage to every enemy on its "
+                    "way, and heals you %s HP, a fifth more for each enemy it struck (up to double); up to %s out "
+                    "at once, a new one calling the oldest home"
+                    % (n("range", "8"), n("impactDamage"), n("radius"), n("duration"), n("pulseDamage"), heal,
+                       n("totalDamage"), n("amount"), n("pearls", "1")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

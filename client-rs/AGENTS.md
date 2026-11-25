@@ -131,7 +131,8 @@ the gaps between NewTicks. Its flags:
 |---|---|
 | `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character (a new Wizard if none) |
 | `--stay` | With `--credentials`: stop at the character list |
-| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis), `sprites-item:<item id>` or `class:0x<type>` (a class's page) |
+| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis), `sprites-item:<item id>`, `class:0x<type>` (a class's page) or `replay:<account>:<char>` (that death's summary, then its replay) |
+| `--replay <file>` | Play a saved death replay (`.bskreplay`) over the first screen, signed in or not |
 | `--no-update` | Don't look for or install updates |
 | `--bench` | No vsync or frame cap, and every 2 s the frame rate, CPU time by section and draw calls in the log (measure a release build) |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit |
@@ -152,7 +153,12 @@ the gaps between NewTicks. Its flags:
 | `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining (also `middle`, `mdown`, `mup` for pings), timed from the first world joined; positions in window pixels, read off a `--shot` first |
 
 - From Git Bash use `MSYS_NO_PATHCONV=1` and a Windows path for `--credentials`
-  (`C:/Users/...`), or it stays on the sign-in screen.
+  (`C:/Users/...`), or it stays on the sign-in screen. `--shot` too: a `/c/Users/...` path saves
+  nothing.
+- `iso_stack.py start` makes Tester (account 1) an admin, so `/dungeon`, `/tq`, `/empower` work;
+  with no account 1 in the data (a fresh stack) it says so. Start the client only once the world
+  log (`build/iso<N>/ws/ws.out`) has `RealmManager.Restore` or `opened again`: before that the
+  account server lists no world servers and the client stops at the server list.
 - `--credentials` plays the first living character in the list (the lowest id), and no flag picks
   another. To play a different class on an isolated copy, take the others out of the account's
   living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
@@ -164,12 +170,29 @@ the gaps between NewTicks. Its flags:
 - `--hold space:<ms>` didn't use a Mechanic's blueprint in the vault (2026-11-24): four presses, MP
   still full, cause not found. Check MP in the shot before trusting a scripted ability, and test an
   ability's logic with a server unit test rather than spending runs on it.
+- The window's size isn't the same from run to run: without `--size` it was 1280x800, and with
+  `--size 1280x720` one run came out 2560x1369 (2026-11-25). Take a `--shot` first and read
+  `--mouse` positions off that run's size, or the aim lands off the floor.
+- `--hold space:<ms>` sent the ability in 3 of 7 runs with the same flags (2026-11-25, a Druid in
+  a vault): the client's log line `sent: {...}` names `UseItem` when it went. Check it before
+  reading anything into a shot; one run that sends it is enough.
+- `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
+  characters (a class, items, `alive.1`) are lost and must be made again after each start.
+- To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it
+  back to 0 at sign-in unless the account owns it. Add it to the account's `skins` first, 2-byte
+  little-endian types: `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214),
+  then `hset char.1.<id> skin 57876`. A pet out stands in front of you in the Nexus.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display
   Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
 - `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
 - No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
+- Screenshots for the website (2026-11-25): `--npc GuildBoard` on the test account shows "Not in
+  guild" and an empty board, `--say "/crucible"` stays in the Nexus (the test account hasn't
+  reached Arena round 50), and `--npc ChampionsBoard` shows real players' names from the copied
+  data, so leave that one out or rename them in the stack's Redis first. A `--size 1600x900` shot
+  came out 1280x720 on a 125% display.
 
 Example, the Arena (portal in the shrine's floor north-west of the spawn; monsters come 60 s in):
 `--walk-to "62.5,56;62.5,40;52,40;36,40;34.5,31.5" --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.

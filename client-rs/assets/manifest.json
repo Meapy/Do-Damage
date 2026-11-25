@@ -1448,6 +1448,12 @@
    "h": 8
   },
   {
+   "name": "druidPearls16x16",
+   "file": "kabam/rotmg/assets/custom/images/DruidPearls16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,
@@ -3142,6 +3148,26 @@
    "dir": "right"
   },
   {
+   "name": "druidSkins8",
+   "file": "kabam/rotmg/assets/custom/images/DruidSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/DruidSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "druidSkins16",
+   "file": "kabam/rotmg/assets/custom/images/DruidSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/DruidSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3731,7 +3757,8 @@
   "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
   "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
   "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
-  "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml"
+  "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/DruidSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

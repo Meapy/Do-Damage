@@ -4,9 +4,18 @@ with a sidebar, links between the pages and a search over all of them.
     python tools/build_wiki.py [--out build/site]      # tools/build_site.py runs it too
 
 - The guides are Markdown, website/wiki/<page>.md, written by hand for players. A front matter
-  block names the page (title, nav order, sprite, summary). The Markdown is the plain subset in
-  `markdown()`: ## and ### headings, paragraphs, - and 1. lists, > notes, | tables, `code`,
-  **bold**, *italics*, [links](page.html) and inline HTML such as <kbd>.
+  block names the page: title, nav order, section, sprite, eyebrow, summary (the search engines'
+  description), blurb (one plain line under the title and on its card), and image and image_alt
+  (a screenshot beside the title, and on its card on the wiki home). The Markdown is the plain
+  subset in `markdown()`: ## and ### headings, paragraphs, - and 1. lists, > notes, | tables,
+  `code`, **bold**, *italics*, [links](page.html) and inline HTML such as <kbd>.
+- A note starting **In short:**, **Tip:** or **Careful:** gets its own colour and title, and may
+  hold a - list. A page's In short box comes first, before "On this page". Every guide starts
+  with one: what a player most needs from the page, in a few lines.
+- `![Title: what it shows](name)` on a line of its own is a screenshot from website/screenshots/
+  (name.webp and name-small.webp), opening full size in the site's lightbox.
+- The wiki home (index.md) is built from {{gen:wiki-hero}} (the big search box and HOME_TRIES),
+  {{gen:wiki-start}} (the "Where do you want to start?" tiles, HOME_START) and {{gen:wiki-map}}.
 - `{{gen:<name>}}` on a line of its own is replaced by a section built from the game's data
   (GENERATORS below: the dungeon list, the classes, the commands, the Oryx chain, the shops, the
   pets and more), and `{{v:<name>}}` in the text by a number read from the code (VALUES), so the
@@ -154,6 +163,34 @@ def inline(text):
     return re.sub(r"\x00(\d+)\x00", lambda m: codes[int(m.group(1))], text)
 
 
+CALLOUTS = {"Tip": "tip", "Careful": "careful", "In short": "short"}
+SHOTS = os.path.join(ROOT, "website", "screenshots")
+
+
+def shot_src(name):
+    """A screenshot's address from a page: website/screenshots/<name>.webp (and -small.webp), with
+    @SITE@ for the site's root, which render() fills in for the page's folder."""
+    if not os.path.isfile(os.path.join(SHOTS, name + ".webp")):
+        raise SystemExit("wiki: no screenshot website/screenshots/%s.webp" % name)
+    small = name + "-small.webp"
+    return ("@SITE@screenshots/%s.webp?v={{BUILD}}" % name,
+            "@SITE@screenshots/%s?v={{BUILD}}" % small if os.path.isfile(os.path.join(SHOTS, small)) else "")
+
+
+def figure(caption, name, cls="shot"):
+    """`![Title: what it shows](name)`: a screenshot from website/screenshots/ with its caption,
+    opening full size in the site's lightbox (site.js)."""
+    big, small = shot_src(name)
+    title, _, text = caption.partition(": ")
+    if not text:
+        title, text = "", title
+    srcset = ' srcset="%s 640w, %s 1600w" sizes="(max-width: 900px) 100vw, 860px"' % (small, big) if small else ""
+    return ('<figure class="%s"><a href="%s"><img src="%s"%s width="1600" height="900" loading="lazy" decoding="async" alt="%s"></a>'
+            '<figcaption class="cap">%s%s</figcaption></figure>' % (
+                cls, big, big, srcset, esc(plain(inline(caption))),
+                "<strong>%s</strong> " % inline(title) if title else "<strong></strong>", inline(text)))
+
+
 def markdown(text, generate):
     """The wiki's Markdown to HTML; generate(name) gives a {{gen:name}} section's HTML."""
     out = []
@@ -188,13 +225,47 @@ def markdown(text, generate):
             out.append(heading(len(m.group(1)), m.group(2)))
             i += 1
             continue
+        m = re.match(r"!\[(.*)\]\(([^)\s]+)\)$", s)
+        if m:
+            out.append(figure(m.group(1), m.group(2)))
+            i += 1
+            continue
         if s.startswith(">"):
             block = []
             while i < len(lines) and lines[i].strip().startswith(">"):
                 block.append(lines[i].strip()[1:].strip())
                 i += 1
-            paras = " ".join(block).split("  ")
-            out.append('<aside class="note">%s</aside>' % "".join("<p>%s</p>" % inline(p) for p in paras if p))
+            # paragraphs (split by an empty > line) and - lists
+            parts = []  # [("p", text) or ("li", text)]
+            for b in block:
+                if not b:
+                    parts.append(("gap", ""))
+                elif b.startswith("- "):
+                    parts.append(("li", b[2:]))
+                elif parts and parts[-1][0] in ("p", "li"):
+                    parts[-1] = (parts[-1][0], parts[-1][1] + " " + b)
+                else:
+                    parts.append(("p", b))
+            parts = [p for p in parts if p[0] != "gap"]
+            # > **Tip:**, **Careful:** and **In short:** notes each have their own look and title
+            kind = re.match(r"\*\*(Tip|Careful|In short)[:.]?\*\*\s*", parts[0][1]) if parts else None
+            cls, title = "note", ""
+            if kind:
+                cls += " " + CALLOUTS[kind.group(1)]
+                title = '<p class="callout-title">%s</p>' % kind.group(1)
+                parts[0] = (parts[0][0], parts[0][1][kind.end():])
+            html_parts = []
+            for tag, text in parts:
+                if not text.strip():
+                    continue
+                if tag == "li":
+                    if html_parts and html_parts[-1].startswith("<ul>"):
+                        html_parts[-1] = html_parts[-1][:-5] + "<li>%s</li></ul>" % inline(text)
+                    else:
+                        html_parts.append("<ul><li>%s</li></ul>" % inline(text))
+                else:
+                    html_parts.append("<p>%s</p>" % inline(text))
+            out.append('<aside class="%s">%s%s</aside>' % (cls, title, "".join(html_parts)))
             continue
         if s.startswith("|"):
             rows = []
@@ -397,7 +468,12 @@ RAISE_DUNGEON_NOTES = {
                               "usual chances; the doubled chances and the second roll below come with the dragon "
                               "itself.",
     "Elder Tomb of the Ancients": "Bes, Nut and Geb each leave their own remains where they fall, and each needs a relic of "
-                                  "its own. An Empowered Tomb boss fights without the artifacts that circle the Elder one.",
+                                  "its own. Raised, a god won't fight in the tomb: the first tears the boss room's wall open "
+                                  "and a walled causeway lined with braziers builds itself across the dark to the Hall of "
+                                  "Judgement, a great round hall with six pillars and a sun blazing on its floor that rises at "
+                                  "its end. The god walks there, untouchable until it stands in the hall, and every god raised "
+                                  "after follows it, so the ones still in the tomb are fought as before. In the hall the gods "
+                                  "circle the sun together, all three at once if you raise them all, their artifacts with them.",
 }
 RAISE_NOTES = {
     "Elder lod Ivory Wyvern": "Like the Elder Wyvern, the Empowered one turns into the Ivory Wyvern's loot when it "
@@ -461,12 +537,6 @@ class Gen:
         return ('<div class="loot-sim" id="loot-sim"><p class="note">The simulator needs JavaScript.</p></div>'
                 '<script type="application/json" id="loot-data">%s</script>'
                 '<script src="loot.js?v={{BUILD}}"></script>' % data.replace("</", r"<\/"))
-
-    def gen_forge_banner(self, used):
-        return ('<figure class="banner"><img src="forge.webp" width="1040" height="700" alt="The Divine Forge\'s '
-                'window: the sword recipes, with Skysplitter Sword picked: two Archon Swords and 800 fame">'
-                '<figcaption>The Divine Forge\'s window, forging a Skysplitter Sword (T11) from two Archon '
-                'Swords (T10)</figcaption></figure>')
 
     def gen_forge_example(self, used):
         r = next((r for r in self.forge if r["result"] == "Skysplitter Sword" and r["chain"]), None) or \
@@ -1407,7 +1477,7 @@ TEMPLATE = """<!doctype html>
   <link rel="stylesheet" href="{site}style.css?v={{{{BUILD}}}}">
   <link rel="stylesheet" href="{wiki}icons.css?v=@INDEX@">
 </head>
-<body class="sub-page wiki" data-wiki="{wiki}">
+<body class="sub-page wiki{page_cls}" data-wiki="{wiki}">
   <header class="bar">
     <a class="logo" href="{site}"><i class="sprite" data-sprite="crown" data-px="2"></i><span>{{{{NAME}}}}</span></a>
     <nav class="links">
@@ -1431,19 +1501,21 @@ TEMPLATE = """<!doctype html>
         <ol class="wiki-results" id="wiki-results" hidden></ol>
       </div>
       <details class="wiki-nav" open>
-        <summary>Wiki pages <span>{section_now}</span></summary>
+        <summary>All wiki pages <span>{section_now}</span></summary>
         <nav aria-label="Wiki pages">{nav}</nav>
       </details>
     </aside>
 
     <main class="wiki-main">
       <nav class="crumbs" aria-label="You are here"><ol>{crumbs}</ol></nav>
-      <header class="wiki-head">
-        <p class="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p class="sub">{summary}</p>
+      <header class="wiki-head{head_cls}">
+        <div class="wiki-head-text">
+          <p class="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p class="sub">{blurb}</p>
+        </div>{banner}
       </header>
-      {toc}
+      {lead}{toc}
       <article class="prose">
 {body}
       </article>
@@ -1490,6 +1562,19 @@ def sections(page_title, url, body):
             part = re.sub(r'<article class="(?:dg|cls|it)".*?</article>', " ", part, flags=re.S)
         out.append({"p": page_title, "h": head, "u": url + "#" + anchor, "t": plain(part)[:900]})
     return [e for e in out if e["t"] or e["h"]]
+
+
+# The wiki home's "Where do you want to start?" tiles: (the question, the page, why go there).
+HOME_START = [
+    ("I'm new", "getting-started", "Make a character, learn the controls and get free gear."),
+    ("I want to get stronger", "progression", "Levels, stat potions and maxing, step by step."),
+    ("I want loot", "dungeons", "Find a dungeon for your level and see what it drops."),
+    ("I want a better item", "forge", "Forge two items into one of the next tier."),
+    ("I want to pick a class", "classes", "Compare every class's weapon, ability and stats."),
+    ("I have a few minutes", "quests", "Today's quests and the login reward."),
+]
+# searches the wiki home offers to try
+HOME_TRIES = ["stat potions", "Oryx", "pets", "Lost Halls", "/gear", "Realm Pass"]
 
 
 # The home page's "Six stages down": the boss of each stage, as the game draws it.
@@ -1598,25 +1683,54 @@ def build(out_root, values=None):
     def page_href(slug, up=""):
         return up + ("./" if slug == "index" else slug + ".html")
 
+    def card_img(m):
+        """A page's picture for a card: its screenshot (image:) or, without one, its sprite."""
+        if m.get("image"):
+            big, small = shot_src(m["image"])
+            return ('<span class="wcard-img"><img src="%s" width="640" height="360" loading="lazy" decoding="async" '
+                    'alt=""></span>' % (small or big))
+        return '<span class="wcard-img no-img"><i class="sprite" data-sprite="%s" data-px="5"></i></span>' % esc(
+            m.get("sprite", "portal"))
+
     def wiki_map(used):
-        """{{gen:wiki-map}}: every page as a card, under its section."""
+        """{{gen:wiki-map}}: every page as a card with its picture, under its section."""
         out = ['<div class="wmap">']
         for sec in sec_order:
             ident = slugify(sec)
             used.add(ident)
             cards = "".join(
-                '<a class="wcard" href="%s"><i class="sprite" data-sprite="%s" data-px="3"></i>'
-                '<b>%s</b><span>%s</span></a>' % (
-                    page_href(s), esc(m.get("sprite", "portal")), esc(fill(m.get("title", s))),
-                    esc(fill(m.get("summary", ""))))
+                '<a class="wcard" href="%s">%s<span class="wcard-text"><b>%s</b><span>%s</span></span></a>' % (
+                    page_href(s), card_img(m), esc(fill(m.get("title", s))),
+                    esc(fill(m.get("blurb", m.get("summary", "")))))
                 for _, s, m, _ in pages if section_of[s] == sec and s != "index")
             out.append('<section class="wmap-sec"><h3 id="%s">%s</h3><div class="wmap-cards">%s</div></section>' % (
                 ident, esc(sec), cards))
         out.append("</div>")
         return "".join(out)
 
+    def wiki_hero(used):
+        """{{gen:wiki-hero}}: the home page's big search box, with a few searches to try."""
+        tries = "".join('<button type="button" class="chip" data-try="%s">%s</button>' % (esc(q), esc(q))
+                        for q in HOME_TRIES)
+        return ('<div class="home-search wiki-search" role="search"><label class="sr-only" for="wiki-home-q">'
+                'Search the wiki</label><input id="wiki-home-q" type="search" placeholder="Search for a dungeon, '
+                'item, pet, class or command" autocomplete="off" spellcheck="false">'
+                '<ol class="wiki-results" id="wiki-home-results" hidden></ol></div>'
+                '<p class="home-tries"><span>Try:</span> %s</p>' % tries)
+
+    def wiki_start(used):
+        """{{gen:wiki-start}}: "I want to..." tiles, each a picture and a page (HOME_START)."""
+        tiles = []
+        for ask, slug, why in HOME_START:
+            m = by_slug[slug]
+            tiles.append('<a class="start-tile" href="%s">%s<span class="start-text"><small>%s</small><b>%s</b>'
+                         '<span>%s</span></span></a>' % (page_href(slug), card_img(m), esc(ask),
+                                                         esc(fill(m.get("title", slug))), esc(why)))
+        return '<div class="start-tiles">%s</div>' % "".join(tiles)
+
     def generate(name, used):
-        return wiki_map(used) if name == "wiki-map" else gen(name, used)
+        own = {"wiki-map": wiki_map, "wiki-hero": wiki_hero, "wiki-start": wiki_start}
+        return own[name](used) if name in own else gen(name, used)
 
     def fill(text):
         def val(m):
@@ -1636,12 +1750,21 @@ def build(out_root, values=None):
             return '<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
                 page_href(s2, up), cur, esc(m2.get("sprite", "portal")), esc(fill(m2.get("title", s2))))
 
+        # each section folds; the one this page is in starts open (wiki.js remembers others opened)
         nav = []
         for sec in sec_order:
             here = section_of[current] == sec
-            nav.append('<div class="nav-sec%s"><p>%s</p><ul>%s</ul></div>' % (
-                " here" if here else "", esc(sec),
+            nav.append('<details class="nav-sec%s" data-sec="%s"%s><summary>%s</summary><ul>%s</ul></details>' % (
+                " here" if here else "", slugify(sec), " open" if here else "", esc(sec),
                 "".join(item(s2, m2) for _, s2, m2, _ in pages if section_of[s2] == sec)))
+        meta_here = by_slug[current] if own else {}
+        banner = ""
+        if meta_here.get("image") and current != "index":
+            big, small = shot_src(meta_here["image"])
+            banner = ('\n        <figure class="wiki-banner shot"><a href="%s"><img src="%s"%s width="1600" height="900" '
+                      'decoding="async" fetchpriority="high" alt="%s"></a><figcaption class="cap"><strong></strong>%s</figcaption></figure>') % (
+                big, small or big, ' srcset="%s 640w, %s 1600w" sizes="(max-width: 900px) 100vw, 520px"' % (small, big) if small else "",
+                esc(meta_here.get("image_alt", html.unescape(title))), esc(meta_here.get("image_alt", "")))
 
         # Wiki > section > (the guide, for a gear page) > this page
         crumbs = ['<li><a href="%s">Wiki</a></li>' % (up or "./")]
@@ -1652,10 +1775,19 @@ def build(out_root, values=None):
             crumbs.append('<li aria-current="page">%s</li>' % title)
 
         head_title = "{{NAME}} wiki: a RotMG private server guide" if url == "index.html" else title + ": {{NAME}} wiki"
-        page = TEMPLATE.format(head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
+        # a page's "In short" box comes before "On this page", so it's the first thing read on a phone
+        lead = ""
+        m = re.match(r'\s*(<aside class="note short">.*?</aside>)', body, re.S)
+        if m:
+            lead, body = '<div class="prose wiki-lead">%s</div>\n      ' % m.group(1), body[m.end():]
+        page = TEMPLATE.format(lead=lead, head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
                                body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./",
                                layout=" has-toc" if toc else "", crumbs="".join(crumbs),
-                               section_now=esc(section_of[current]))
+                               section_now=esc(section_of[current]), banner=banner,
+                               head_cls=" has-banner" if banner else "",
+                               blurb=esc(fill(meta_here.get("blurb", summary))),
+                               page_cls=" wiki-home" if url == "index.html" else "")
+        page = page.replace("@SITE@", up + "../")
         return re.sub(r"\{\{(\w+)\}\}", lambda m: values.get(m.group(1), m.group(0)), page)
 
     index = []
@@ -1667,7 +1799,7 @@ def build(out_root, values=None):
         summary = fill(meta.get("summary", ""))
         heads = re.findall(r'<h2 id="([^"]+)"><a[^>]*>#</a>(.*?)</h2>', body)
         toc = ""
-        if len(heads) > 2:
+        if len(heads) > 2 and slug != "index":
             toc = '<nav class="toc" aria-label="On this page"><p>On this page</p><ul>%s</ul></nav>' % "".join(
                 '<li><a href="#%s">%s</a></li>' % (h, t) for h, t in heads)
         pager = ""

@@ -295,6 +295,14 @@ namespace WorldServer.core.objects
                     Refuse("You can't build there.");
                     return;
                 }
+            // nor a Druid's pearl thrown onto a wall
+            foreach (var eff in item.ActivateEffects)
+                if (eff.Effect == ActivateEffects.TidePearl && PearlSpot(pos, eff) is var landing
+                    && !World.IsPassable(landing.X, landing.Y))
+                {
+                    Refuse("You can't throw your pearl there.");
+                    return;
+                }
             // nor a teleport (the Rogue's and Trickster's) past a gate that's still shut
             foreach (var eff in item.ActivateEffects)
                 if (eff.Effect == ActivateEffects.Teleport && !CanAbilityMoveTo(pos))
@@ -756,8 +764,8 @@ namespace WorldServer.core.objects
                     case ActivateEffects.Gold:
                         AEGold(time, item, target, eff);
                         break;
-                    case ActivateEffects.PearlAbility:
-                        AEPearlAbility(time, item, target, eff);
+                    case ActivateEffects.TidePearl:
+                        AETidePearl(time, item, target, eff);
                         break;
                     case ActivateEffects.BuildTower:
                         AEBuildTower(time, item, target, eff);

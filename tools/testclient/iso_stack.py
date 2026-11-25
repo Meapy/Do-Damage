@@ -17,6 +17,8 @@ with --port 8081 to use it.
   bin folders are locked while they run, and are left alone), sets their ports, and starts them.
 - The Redis data is a copy of the live database, made on the first start (or with --fresh-data),
   so test characters and accounts can be changed freely.
+- Tester (account 1) is made an admin on each start (rank 6 and the admin flag, in this stack's
+  copy only), so scripted runs can use admin commands.
 - The world server runs with serverSettings.testStack: every character that enters a world is
   maxed (level 20, stats at their caps, full health and mana) with a Lil' Oryx pet, which heals
   health and mana, so tests never run dry.
@@ -212,7 +214,8 @@ def start(args):
                                      stdout=open(os.path.join(redis_dir, "redis.out"), "w"),
                                      stderr=subprocess.STDOUT, creationflags=flags).pid
     time.sleep(2)
-    pids["app"] = subprocess.Popen(["dotnet", "App.dll"], cwd=app_dir,
+    make_tester_admin()
+    pids["app"] =subprocess.Popen(["dotnet", "App.dll"], cwd=app_dir,
                                    stdout=open(os.path.join(app_dir, "app.out"), "w"),
                                    stderr=subprocess.STDOUT, creationflags=flags).pid
     if args.rolling:
@@ -226,6 +229,29 @@ def start(args):
     json.dump(pids, open(PIDS, "w"))
     print("started", pids, "- Redis %d, account %d, world %d; world log %s"
           % (REDIS_PORT, APP_PORT, WORLD_PORT, os.path.relpath(os.path.join(world_dir, "ws.out"), ROOT)))
+
+
+def make_tester_admin():
+    """Tester (account 1, the throwaway test account) is an admin on every test stack, so admin
+    commands (/dungeon, /tq, /empower, /spawn...) work in scripted runs. Only on this stack's own
+    copy of the data, and only if the account is there (a fresh database has none yet)."""
+    cli = os.path.join(SOURCE, "Redis", "redis-cli.exe")
+    if not os.path.exists(cli):
+        return
+    base = [cli, "-p", str(REDIS_PORT)]
+    try:
+        # Redis answers LOADING until it has read its data: wait for that first
+        for _ in range(60):
+            if "LOADING" not in subprocess.run(base + ["ping"], capture_output=True, text=True, timeout=10).stdout:
+                break
+            time.sleep(0.5)
+        if subprocess.run(base + ["exists", "account.1"], capture_output=True, text=True, timeout=10).stdout.strip() != "1":
+            print("no account 1 in this stack's data: Tester isn't made an admin")
+            return
+        subprocess.run(base + ["-x", "hset", "account.1", "admin"], input=b"\x01", capture_output=True, timeout=10)
+        subprocess.run(base + ["hset", "account.1", "rank", "6"], capture_output=True, timeout=10)
+    except (OSError, subprocess.SubprocessError) as e:
+        print("couldn't make Tester an admin:", e)
 
 
 def strays():

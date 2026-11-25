@@ -37,6 +37,12 @@ namespace WorldServer.core.resurrection
                 ColossusArena.Grow(boss);
                 return;
             }
+            // and the Void Entity's platform widens (VoidArena)
+            if (VoidArena.Grows(info) && boss.World != null)
+            {
+                VoidArena.Grow(boss);
+                return;
+            }
             if (info?.Boss != King || boss.World == null)
                 return;
             var world = boss.World;

@@ -1,11 +1,18 @@
 ---
 title: Items
 nav: 21
-section: Classes and gear
+section: Classes, gear and pets
 sprite: chest
 eyebrow: Gear and stuff
 summary: Item tiers and their colours, UT and ST items, keys and mystery boxes, your vault and potion storage, trading, the marketplace and the shops.
+blurb: Item tiers and colours, keys, your vault, trading and the shops.
 ---
+> **In short:**
+> - Higher **tier** numbers are better. **UT** (untiered) items have no tier but special effects.
+> - A **loot bag**'s colour tells how rare the best thing in it is.
+> - Your **vault** keeps items safe when a character dies. Trade with players, or use the [Marketplace](marketplace.html).
+> - **Keys** open their dungeon wherever you use them.
+
 ## Tiers and their colours
 
 Weapons, armor, abilities and rings come in **tiers**: the higher the number, the better. Tiered

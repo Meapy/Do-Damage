@@ -1,11 +1,20 @@
 ---
 title: The Oryx chain
-nav: 5
-section: Start here
+nav: 6
+section: Getting stronger
 sprite: skull
 eyebrow: Endgame
 summary: From a closing realm to Oryx's Elysium: every stage, its boss, and how you get into the next.
+blurb: From a closing realm down six stages to Oryx the Ascended God.
+image: oryx
+image_alt: Oryx the Mad God in the Wine Cellar, stage three of the descent.
 ---
+> **In short:**
+> - Beat enough of a realm's events and it closes, sending everyone in it to **Oryx's Castle**.
+> - From there it's six stages down, each a boss, each opening the way to the next, to **Oryx the Ascended God**.
+> - Every stage drops better loot than the last: more stat potions and higher-tier gear.
+> - Go with a group, and read each boss's tips below before you go.
+
 When a realm closes, Oryx runs. On this server you can follow him a long way: from his Castle
 through his Chamber, his Wine Cellar, the new Oryx's Sanctuary and Oryx's Inferno up to Oryx's
 Elysium, the end of the line. Every stage is harder than the last and drops better loot, and every

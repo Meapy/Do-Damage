@@ -83,6 +83,8 @@ RS_ONLY_SETS = [
     # (tools/draw_turrets.py)
     ("mechanicTurrets16x16", "kabam/rotmg/assets/custom/images/MechanicTurrets16x16.png", 16, 16),
     ("mechanicShots8x8", "kabam/rotmg/assets/custom/images/MechanicShots8x8.png", 8, 8),
+    # the Druid's pearls, tier 0 to 8 (tools/draw_pearls.py)
+    ("druidPearls16x16", "kabam/rotmg/assets/custom/images/DruidPearls16x16.png", 16, 16),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
@@ -126,6 +128,11 @@ RS_ONLY_CHARS = [
     # the Mechanic's skins sold at the Armoire (tools/draw_mechanic_skins.py)
     ("mechanicSkins8", "kabam/rotmg/assets/custom/images/MechanicSkins8x8.png", 8, 8, 56, 24, "right"),
     ("mechanicSkins16", "kabam/rotmg/assets/custom/images/MechanicSkins16x16.png", 16, 16, 112, 48, "right"),
+    # the Druid's skins sold at the Armoire, with their dye masks (tools/draw_druid.py)
+    ("druidSkins8", "kabam/rotmg/assets/custom/images/DruidSkins8x8.png", 8, 8, 56, 24, "right",
+     "kabam/rotmg/assets/custom/images/DruidSkinsMask8x8.png"),
+    ("druidSkins16", "kabam/rotmg/assets/custom/images/DruidSkins16x16.png", 16, 16, 112, 48, "right",
+     "kabam/rotmg/assets/custom/images/DruidSkinsMask16x16.png"),
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
@@ -177,7 +184,8 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
-                      "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml"]
+                      "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/DruidSkins.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(
@@ -316,8 +324,9 @@ def main():
                       + [{"name": n, "file": f, "w": w, "h": h} for n, f, w, h in RS_ONLY_SETS],
         "animated_chars": animated_chars(loader, assets, "EmbeddedAssets")
                           + animated_chars(doomed_code, doomed, "DoomedAssets")
-                          + [{"name": n, "file": f, "mask": None, "w": w, "h": h, "sheet_w": sw, "sheet_h": sh, "dir": d}
-                             for n, f, w, h, sw, sh, d in RS_ONLY_CHARS],
+                          + [{"name": n, "file": f, "mask": (m[0] if m else None), "w": w, "h": h, "sheet_w": sw,
+                              "sheet_h": sh, "dir": d}
+                             for n, f, w, h, sw, sh, d, *m in RS_ONLY_CHARS],
         "models": [{"name": n, "file": assets.resolve(e, "EmbeddedAssets")} for n, e in MODEL.findall(models_block)]
                   + [{"name": n, "file": f} for n, f in RS_ONLY_MODELS],
         "particles": assets.resolve("particlesEmbed", "EmbeddedAssets"),

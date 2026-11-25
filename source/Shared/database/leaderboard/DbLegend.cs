@@ -108,6 +108,9 @@ namespace Shared.database.leaderboard
                         return;
 
                     db.HashSetAsync("legend", accId, "", flags: CommandFlags.FireAndForget);
+                    // an all-time legend's death replay is kept for good
+                    if (span.Value == TimeSpan.MaxValue)
+                        DeathReplays.Keep(db, accId, chrId);
                 });
 
             db.StringSetAsync("legends:updateTime", DateTime.UtcNow.ToUnixTimestamp(), flags: CommandFlags.FireAndForget);

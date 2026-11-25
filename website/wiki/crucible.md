@@ -1,11 +1,18 @@
 ---
 title: The Crucible
 nav: 11
-section: Dungeons and loot
+section: Dungeons and bosses
 sprite: anvil
 eyebrow: Bosses only
 summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the caches to break, the white bags and the climb's leaderboard.
+blurb: A tower of five boss fights over the Arena, once or twice a day.
 ---
+> **In short:**
+> - Five floors, five boss fights, no waves of monsters: up to four of you climb together.
+> - Open to anyone who reached **round 50 of the Arena**, or has a **Gilded Realm Pass**.
+> - **One climb a day** (two with the Gilded Pass). Type `/crucible`, or take the portal in the Nexus's shrine.
+> - Bring friends: each extra player adds only about a sixth to a champion's health.
+
 The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to four of you
 together, and on each floor a champion arrives to stop you. There are no waves of monsters. Each
 champion fights in phases, and the floor fights with them: blades sweep the ground, the tide rises,
@@ -29,7 +36,8 @@ Before the portal lets you in, it reminds you of the above and asks whether to c
 
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
 the lobby can say **GO** to start it sooner. Once it begins, nobody else can join: not through
-the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. A lobby holds four;
+the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. (An admin can still
+summon someone back in, for instance after they lost their connection mid-fight.) A lobby holds four;
 the next to come in starts a lobby of their own.
 
 **Bring friends.** The champions are made for a group of up to four. Each player after the first adds
@@ -288,7 +296,7 @@ champion's:
 | Champion | Item | Class | What it does |
 |---|---|---|---|
 | Ferrogrim | Ferrogrim's Bastion Turret | Mechanic | A turret of Ferrogrim's iron, thrown where you aim like the Mechanic's other turrets (up to three out, faster with you near, wearing down unless allies heal it, a blast when its health runs out). It fires three shards at a time, and every 3 seconds it slams the ground: 380 damage round it, enemies' armor broken, allies beside it Armored. |
-| Nerissa | Nerissa's Tidepearl | Druid | A substitute that hurls five tridents and heals you 200. Then three waves of the tide roll out: 220 damage to enemies, and 60 health to allies, each. |
+| Nerissa | Nerissa's Tidepearl | Druid | A Druid's pearl, above the T8: 420 where it lands, a tide pool reaching 3.5 tiles round it for 5 seconds (130 a pulse past defense, mending allies 22), 650 to every enemy on its way home and a 260 heal (more for each enemy struck), three out at once. Where it lands, three waves of the tide roll out: 220 damage to enemies, and 60 health to allies, each. |
 | Pyrrhax | Pyrrhax's Meteor Mortar | Pirate | A shell that arcs to where you aim and bursts (750, paralyzed 1.5 s). Then four meteors fall round the crater, and its slag burns on for 3 seconds. |
 | Chronarch | Chronarch's Coat of Stolen Hours | Blademaster | Armored for your allies and Damaging for you, as a jacket gives. Then time stops round you: enemies slowed and you Speedy, while a clock hand sweeps twice round you (320 each sweep). |
 | Vaelith | Vaelith's Final Aria | Bard | Inspired for your allies, then four verses ring out from you, each wider and harder (250, 320, 400). The last is a crescendo (700) that breaks armor and sends your allies berserk. |

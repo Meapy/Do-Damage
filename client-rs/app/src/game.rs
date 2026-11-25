@@ -82,6 +82,10 @@ pub struct Game {
     /// The Collection's (`Collection`) and the Pen Keeper's (`PetPen`) answers, likewise.
     pub collection: Option<bsk_proto::Collection>,
     pub pet_pen: Option<bsk_proto::PetPen>,
+    /// The pet out as the Pen Keeper last told it (every `PetPen`, kept), for the character
+    /// card's pet page, and when that page last asked for it.
+    pub pet_out: Option<bsk_proto::PetPen>,
+    pub pet_asked: Option<i32>,
     /// Quests, daily rewards and achievements, for the quest log (`quests.rs`).
     pub quest_events: Vec<crate::quests::Event>,
     /// The Realm Pass, for its window and the HUD's button (`pass.rs`).
@@ -451,6 +455,8 @@ impl Game {
             vault_contents: None,
             collection: None,
             pet_pen: None,
+            pet_out: None,
+            pet_asked: None,
             quest_events: Vec::new(),
             pass_events: Vec::new(),
             community_events: Vec::new(),
@@ -1091,7 +1097,10 @@ impl Game {
             ServerMessage::ForgeVault(v) => self.forge_events.push(crate::forge::Event::Vault(v.items.0.clone())),
             ServerMessage::VaultContents(v) => self.vault_contents = Some(v.clone()),
             ServerMessage::Collection(c) => self.collection = Some(c.clone()),
-            ServerMessage::PetPen(p) => self.pet_pen = Some(p.clone()),
+            ServerMessage::PetPen(p) => {
+                self.pet_out = Some(p.clone());
+                self.pet_pen = Some(p.clone());
+            }
             ServerMessage::ImprintVault(v) => self.forge_events.push(crate::forge::Event::ImprintVault(v.items.0.clone())),
             ServerMessage::RealmEvents(r) => self.realm_events = Some(r.clone()),
             ServerMessage::NexusPlaces(n) => {

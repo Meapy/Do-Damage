@@ -1,11 +1,19 @@
 ---
 title: Community Goals
 nav: 32
-section: Every day
+section: Things to do
 sprite: crown
 eyebrow: Every week, together
 summary: The community goals: what the whole server works towards each week, the Warcaller on the Nexus's Arena island, how tiers are reached and shared, Overdrive past the goal, how goals grow and shrink with the realm, the top contributors' prize, and every goal that can come up with its own rewards and loot. Built from the game's data.
+blurb: Goals the whole server works on together each week.
+image: community-goals
+image_alt: The Warcaller's window: this week's goals on the left, the realm's progress and your share on the right.
 ---
+> **In short:**
+> - Each week the whole server works towards a few shared goals; every kill and clear counts.
+> - Add your small share and you can claim every reward tier the realm reaches, even while you're offline.
+> - See them and claim at the **Warcaller** (`/warcaller`) on the Nexus's Arena island, or type `/goals`.
+
 Quests are yours alone. **Community goals** belong to everyone: each week the realm gets
 **{{v:community_slots}} goals** to reach together, such as defeating Oryx the Mad God a number of
 times or clearing a pile of dungeons, and every kill, clear and level anyone makes counts towards

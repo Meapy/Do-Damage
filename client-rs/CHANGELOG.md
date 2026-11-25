@@ -12,6 +12,35 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.8 (2026-11-25)
+
+### The Void
+- **The Void is worth the trip:** the Void Entity has less health (300,000, the Elder one 500,000 instead of 800,000, and less added for each extra player), drops the Bow of the Void, the Quiver of the Shadows, the Armor of Nil and the Sourcestone half as often again, and the Elder one its Potion of Max Life twice as often. The platform now floats among the stars, and you can see all of it from anywhere on it.
+- **The Omnipotence Ring:** the Void Entity's rarest drop, the strongest ring in the game. Every 10 seconds its **Judgement** strikes the three enemies nearest you with light out of the sky, straight through their defense, and makes you Damaging and Berserk for 3 seconds; once every 2 minutes it keeps you **Undying**, leaving you at 1 health and untouchable for 2 seconds when a hit would kill you, then giving back a third of your health. The Elder Void Entity drops it twice as often, and raised again with a Necromantic Relic more often still.
+- **The raised Void Entity widens the Void:** it tears a black hole open as it rises and drives the sea of Pure Evil back, the platform surfacing ring by ring out to half as wide again, with its projections on four new marks further out.
+
+### Elder Tomb
+- **The Hall of Judgement:** a god of the Elder Tomb raised with a Necromantic Relic no longer fights in the tomb. It tears the boss room's wall open, a walled causeway lined with braziers builds itself across the dark, and a great round hall rises at its end, with six pillars, twelve braziers and a sun blazing on its floor. The god walks there, untouchable until it arrives, so you can still fight the other gods in the tomb in peace; every god you raise follows it, and in the hall they circle the sun together, so all three can be fought at once.
+
+### Druid
+- **The Druid calls the tide:** pearls are now thrown where you aim. Where one lands it splashes the enemies round it, then lies in a tide pool that hurts the enemies in it every half second, straight through their defense, slows them and mends your allies. When its time is up the pearl rushes back to you, striking every enemy on its way, and heals you more for each one it hit. Throw another while your pearls are out (up to two from T3, three from T6) and the oldest comes home at once. A lane on the ground shows where it will come back: stand so your enemies are in it. Every pearl has a new look, and Nerissa's Tidepearl is a pearl too, its tide rolling out where it lands.
+- **A new look and five skins:** the Druid is redrawn, an antlered hood and a pearl wand, and the Armoire sells it five skins, each with its own look and something round it: the Deepwater Oracle (rising bubbles), the Autumn Warden (falling leaves), the Moonbloom Druid (moonlight), the Mosshide Hermit (fireflies) at 200 gold, and the tall Archdruid behind a stag's skull (circling leaves, grass springing up in its steps) at 800. Dyes work on the Druid and every skin.
+
+### Death replays
+- **See how a character died:** open a death from your Graveyard, the Legends' Recent Deaths or the death screen itself and press **Watch replay** to see its last 20 seconds or so, as they saw it: every monster, shot and effect. Pause, slow it down, step through it or drag along the timeline; each hit they took is marked on it and listed beside the picture with what dealt it, its damage before and after defense, and the health left, the killing blow outlined. **Download** saves it as a file, which plays again dropped on the game's window. Replays are kept for 30 days, and for good when the character makes the all-time Legends.
+
+### Pets
+- **Your pet on your character card:** a new **Pet** tab beside Stats and Records shows your pet out anywhere in the game: its size and level, the food to its next level, and the damage and healing it does now.
+
+### Crucible
+- **Admins can bring you back into a climb:** if you drop out of a climb mid-fight, an admin's `/summon` now brings you back in beside the others, even once the climb has begun, the lobby is full or your climbs for the day are used up, and it costs you no climb.
+
+### Arena
+- **+2 from wave 30:** you can combine two waves into one fight from wave 30 on (and from wave 28), instead of facing them one at a time. When both have an Oryx, the second stands a few tiles to the side of the middle.
+
+### Website
+- **The wiki is remade to be easier to use:** its home page starts with a big search box and "Where do you want to start?" tiles, every guide opens with a short "In short" summary and most with an in-game screenshot (click it to see it full size), the sidebar is in five clear sections that fold away, and search understands questions like "how do I get stat potions". The search boxes on the Pets, Dungeons, gear, class and Necromantic Relic pages work again: they hid nothing before.
+
 ## 2.6.7 (2026-11-24)
 
 ### Pets

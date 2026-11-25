@@ -187,6 +187,8 @@ namespace WorldServer.core.resurrection
             world.EmpoweredBosses.RemoveAll(b => b.Dead || b.World != world && b.World != null);
             world.EmpoweredBosses.Add(boss);
             boss.Empowered.Risen(boss, raiser);
+            // an Elder Tomb god walks to the Hall of Judgement to fight
+            TombCourt.Summon(boss, info);
             return boss;
         }
 

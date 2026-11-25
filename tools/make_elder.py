@@ -114,6 +114,9 @@ SCRIPTED_DUNGEONS = {"ElderShatters", "ElderLostHalls", "ElderCultistHideout", "
 MAPS_DIR = "Doomed"
 
 ELDER_HP = 2.0
+# Elder bosses whose health isn't twice the regular one's: the Void Entity's long fight (four
+# phases, two splits and the Singularity) was a slog at 800k, nearly three times the Elder Colossus
+ELDER_HP_FIXED = {"Elder LH Void Entity": 500000}
 ELDER_DEFENSE = 10      # added
 ELDER_DAMAGE = 1.3
 ELDER_XP = 2            # <XpBonus>: the experience (and so fame) of a kill, and its per-kill cap
@@ -147,7 +150,7 @@ def rebalance_elders(dr, bs):
             continue
         hp = number(regular, "MaxHitPoints")
         if hp and o.find("MaxHitPoints") is not None:
-            o.find("MaxHitPoints").text = str(int(round(hp * ELDER_HP)))
+            o.find("MaxHitPoints").text = str(ELDER_HP_FIXED.get(oid, int(round(hp * ELDER_HP))))
         defense = number(regular, "Defense")
         if o.find("Defense") is not None:
             o.find("Defense").text = str(int(round((defense or 0) + ELDER_DEFENSE)))

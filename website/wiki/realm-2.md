@@ -1,11 +1,19 @@
 ---
 title: Realm 2
-nav: 4
-section: Start here
+nav: 5
+section: Getting stronger
 sprite: portal
 eyebrow: Realm
 summary: A realm made afresh every time: the shore, the midlands and a great Godlands, where each realm event brings a land of its own when it comes.
+blurb: The realm where you level up: its lands, its events and the Godlands.
+image: realm-events
+image_alt: Realm 2: the Realm Events list in the top corner counts the events beaten towards Oryx, and the arrow at the edge points at your quest.
 ---
+> **In short:**
+> - Always open from the Nexus, or `/realm`. It's made afresh each time.
+> - You start on the shore and work inland to the Godlands; each **realm event** brings a land of its own.
+> - The **Realm Events** list in the corner shows what's up and how far away. Beat thirteen and the realm closes, sending everyone to Oryx.
+
 Realm 2 is a second kind of realm. The Nexus always has one open: its portal stands among the
 realms' portals, beside Realm 1's, named **Realm 2: Zenith** or the like, with how many are in it.
 `/realm` (or `/realm2`) takes you into it from anywhere. It stays open while it's empty, so you can come back to it, and when it closes its portal goes and

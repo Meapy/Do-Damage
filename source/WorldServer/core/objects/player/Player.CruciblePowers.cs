@@ -52,8 +52,8 @@ namespace WorldServer.core.objects
         private const float BastionSlamRadius = 3.5f;
         private const int BastionSlamDamage = 380, BastionSlamMs = 3000, BastionBrokenMs = 2000;
 
-        // Nerissa's Tidepearl (look 52, objectType the wave): waves of the tide rolling out from the
-        // druid, every TideEveryMs, each to TideRadius: TideDamage to enemies, TideHeal to allies
+        // Nerissa's Tidepearl (look 52, objectType the wave): waves of the tide rolling out from
+        // where its pearl lands, every TideEveryMs, each to TideRadius: TideDamage to enemies, TideHeal to allies
         private const int TideLook = 52, TideWaves = 3, TideEveryMs = 450, TideDamage = 220, TideHeal = 60;
         private const float TideRadius = 5.5f;
         private const uint TideColor = 0xFF46C2B4;
@@ -88,20 +88,8 @@ namespace WorldServer.core.objects
                 // the turret is the item's BuildTower (Player.Turrets.cs), raised where it lands
                 case "BastionTurret":
                     break;
-                // the pearl's substitute and heal are its PearlAbility; then the tide
-                case "Tidepearl":
-                {
-                    var at = new Position(X, Y);
-                    for (var i = 0; i < TideWaves; i++)
-                    {
-                        var wave = i;
-                        if (wave == 0)
-                            TideWave(at, wave, ref time);
-                        else
-                            After(wave * TideEveryMs, (w, t) => TideWave(at, wave, ref t));
-                    }
-                    break;
-                }
+                // (Nerissa's Tidepearl is a Druid's pearl, its TidePearl; its tide rolls out where
+                // it lands: NerissaTide, from Player.TidePearls.cs)
                 // the jacket's buffs are its own Activates; then the stolen hours
                 case "StolenHours":
                 {
@@ -136,6 +124,18 @@ namespace WorldServer.core.objects
                 EffectType = EffectType.Relic, TargetObjectId = Id, Pos1 = at, Pos2 = new Position(radius, look),
                 Color = new ARGB(color), Duration = ms, ObjectType = (ushort)objectType, SourceId = Id,
             }, ref at);
+
+        private void NerissaTide(Position at, ref TickTime time)
+        {
+            for (var i = 0; i < TideWaves; i++)
+            {
+                var wave = i;
+                if (wave == 0)
+                    TideWave(at, wave, ref time);
+                else
+                    After(wave * TideEveryMs, (w, t) => TideWave(at, wave, ref t));
+            }
+        }
 
         private void TideWave(Position at, int wave, ref TickTime time)
         {

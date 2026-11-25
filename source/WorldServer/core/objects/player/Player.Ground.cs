@@ -63,11 +63,13 @@ namespace WorldServer.core.objects
 
             if (tileDesc.Damaging && (objDesc == null || !objDesc.ProtectFromGroundDamage))
             {
+                var rolled = dmg;
                 dmg = ShieldedDamage(dmg);
                 dmg = FrontlineDamage(dmg);
                 dmg = WardAbsorb(dmg);
                 dmg = VowedDamage(dmg);
                 Health -= dmg;
+                Replay.Hurt(replay.ReplayRecorder.FromGround, tile.TileId, 0, rolled, dmg);
 
                 if (Health <= 0)
                 {
@@ -112,12 +114,14 @@ namespace WorldServer.core.objects
                     // Not Client.Random: the client makes no roll for this hit, and one drawn from its
                     // sequence would put every later roll out of step with the client's.
                     int dmg = Random.Shared.Next(tileDesc.MinDamage, Math.Max(tileDesc.MinDamage, tileDesc.MaxDamage));
+                    var rolled = dmg;
                     dmg = ShieldedDamage(dmg);
                     dmg = FrontlineDamage(dmg);
                     dmg = WardAbsorb(dmg);
                     dmg = VowedDamage(dmg);
 
                     Health -= dmg;
+                    Replay.Hurt(replay.ReplayRecorder.FromGround, tile.TileId, 0, rolled, dmg);
 
                     if (Health <= 0)
                     {

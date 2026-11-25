@@ -43,6 +43,19 @@ pub enum Screen {
     Servers,
     /// The Sprite Editor (`sprite_editor.rs`, which the app draws and feeds over the sky).
     Sprites,
+    /// A death's replay (`replay.rs`, which the app draws and feeds), from its summary.
+    Replay,
+}
+
+/// The replay of the death the summary shows (`replay.rs`): asked for with the summary.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ReplayState {
+    #[default]
+    None,
+    Loading,
+    Ready,
+    /// None was kept (an older death, or one past its time), or it couldn't be read.
+    Missing,
 }
 
 /// The text fields, by index.
@@ -190,6 +203,8 @@ enum Target {
     ToGraveyard,
     /// A grave: that dead character's fame summary.
     Grave(i32),
+    /// The death summary's replay.
+    WatchReplay,
     ToAccount,
     Timespan(usize),
     /// The legends' scrollbar: a click jumps there, a drag scrolls.
@@ -246,6 +261,8 @@ pub enum Action {
     ViewDeath(i32),
     /// The same for anyone's character (account, character), from Recent Deaths.
     ViewDeathOf(i32, i32),
+    /// Play the death's replay.
+    WatchReplay,
     /// Open the Changelog window.
     Changelog,
     /// Open the Options window.
@@ -301,6 +318,8 @@ pub struct Front {
     pub death_from_graveyard: bool,
     /// The summary was opened from Recent Deaths (Continue goes back to the legends).
     pub death_from_legends: bool,
+    /// Its replay.
+    pub replay: ReplayState,
     /// The death spin's start (`ui_time`), once drawn, and whether it was skipped to the end.
     spin_start: Option<i32>,
     spin_skipped: bool,
@@ -370,6 +389,7 @@ impl Default for Front {
             death: None,
             death_from_graveyard: false,
             death_from_legends: false,
+            replay: ReplayState::None,
             spin_start: None,
             spin_skipped: false,
             spin_slot: 0,
@@ -708,6 +728,7 @@ impl Front {
             Target::DiscordUnlink => self.confirm = Some(Confirm::Unlink),
             Target::ToGraveyard => self.show(Screen::Graveyard),
             Target::Grave(id) => return Some(Action::ViewDeath(id)),
+            Target::WatchReplay => return Some(Action::WatchReplay),
             Target::Fallen(account, id) => return Some(Action::ViewDeathOf(account, id)),
             Target::Remember => self.remember = !self.remember,
             Target::Char(id) => return Some(Action::Play(id)),
@@ -854,8 +875,8 @@ impl Front {
             Screen::Death => self.draw_death(ui, w, h, s, mouse),
             Screen::Spin => self.draw_spin(ui, w, h, s, mouse),
             Screen::Servers => self.draw_servers(ui, w, h, s, mouse),
-            // drawn by the app, over the sky (sprite_editor.rs)
-            Screen::Sprites => {}
+            // drawn by the app, over the sky (sprite_editor.rs, replay.rs)
+            Screen::Sprites | Screen::Replay => {}
         }
         // The version, bottom right: opens the changelog.
         if !self.version_line.is_empty() && self.screen != Screen::Busy {
@@ -2396,7 +2417,21 @@ impl Front {
             ui.label(value, x + colw - vw - 16.0 * s, yy, small, true, color::TEXT);
         }
         let (label, kind) = if self.death_counted { (tr("Continue"), Kind::Primary) } else { (tr("Skip"), Kind::Secondary) };
-        self.button(ui, Target::Back, [r[0] + (r[2] - 180.0 * s) / 2.0, r[1] + r[3] - 60.0 * s, 180.0 * s, 42.0 * s], label, kind, s, mouse);
+        // with Watch replay beside it, once asked for
+        let (bw, gap) = (180.0 * s, 12.0 * s);
+        let by = r[1] + r[3] - 60.0 * s;
+        if self.replay == ReplayState::None {
+            self.button(ui, Target::Back, [r[0] + (r[2] - bw) / 2.0, by, bw, 42.0 * s], label, kind, s, mouse);
+        } else {
+            let x = r[0] + (r[2] - 2.0 * bw - gap) / 2.0;
+            let rb = [x, by, bw, 42.0 * s];
+            match self.replay {
+                ReplayState::Ready => self.button(ui, Target::WatchReplay, rb, tr("Watch replay"), Kind::Secondary, s, mouse),
+                ReplayState::Loading => ui.button(rb, tr("Loading the replay…"), Kind::Secondary, false, s),
+                _ => ui.button(rb, tr("No replay kept"), Kind::Secondary, false, s),
+            }
+            self.button(ui, Target::Back, [x + bw + gap, by, bw, 42.0 * s], label, kind, s, mouse);
+        }
         if let Some(item) = hovered {
             let lay = crate::hud::Layout::new(w as u32, h as u32);
             let lines = crate::hud::item_tooltip(ui.data, item, None, crate::hud::SlotKind::Shop);

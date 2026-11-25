@@ -22,7 +22,7 @@ namespace Shared.terrain
         private const int Attempts = 40;
         private const int AttachTries = 40;
         private const int CanvasSize = 640;
-        private const int Margin = 4;
+        private const int Margin = 4;       // empty tiles kept between the rooms and the canvas edge
         private const int Spacing = 2;      // empty tiles kept around a room's walls
         private const int DoorDepth = 3;    // how far a corridor may tunnel into a room's bounds
         private const int ShortGap = 6;     // longest corridor gap in a small or medium layout
@@ -770,6 +770,7 @@ namespace Shared.terrain
 
             private TerrainTile[,] Render()
             {
+                var margin = Math.Max(1, Desc.Margin);
                 var canvas = new TerrainTile[CanvasSize, CanvasSize];
                 for (var x = 0; x < CanvasSize; x++)
                     for (var y = 0; y < CanvasSize; y++)
@@ -857,7 +858,8 @@ namespace Shared.terrain
                     if (room.Goal && !Enumerable.Range(0, room.W).Any(x => Enumerable.Range(0, room.H).Any(y => reach[ox + x, oy + y])))
                         return null;
 
-                minX -= Margin; minY -= Margin; maxX += Margin; maxY += Margin;
+                minX = Math.Max(0, minX - margin); minY = Math.Max(0, minY - margin);
+                maxX = Math.Min(CanvasSize - 1, maxX + margin); maxY = Math.Min(CanvasSize - 1, maxY + margin);
                 var tiles = new TerrainTile[maxX - minX + 1, maxY - minY + 1];
                 for (var x = minX; x <= maxX; x++)
                     for (var y = minY; y <= maxY; y++)

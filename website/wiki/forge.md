@@ -1,12 +1,18 @@
 ---
 title: The Divine Forge
 nav: 24
-section: Classes and gear
+section: Classes, gear and pets
 sprite: anvil
 eyebrow: Gear and stuff
 summary: Forging items at the Divine Forge in the Nexus: two of a tier make one of the next, what each tier costs, forge shards and the Ascended items, every other recipe, and selling items for fame.
+blurb: Turn two items into a better one, or sell what you don't need.
+image: divine-forge
+image_alt: The Divine Workbench's Forge tab: pick a recipe on the left and forge it on the right.
 ---
-{{gen:forge_banner}}
+> **In short:**
+> - Type `/forge` to go to the **Divine Forge** in the Nexus.
+> - **Two of a tier make one of the next**: two T10 swords make a T11 sword, for a little fame.
+> - It also has special recipes (UT items, a **Potion of Oryx**), and its **Sell for fame** tab buys what you don't need.
 
 The **Divine Forge** turns items you don't need into ones you do. It knows {{v:forge_recipes}}
 recipes: {{v:forge_chains}} of them make any tiered weapon, ability, armor or ring from two of the
