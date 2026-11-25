@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, senza fama",
 "Pet": "Famiglio",
 "No pet out": "Nessun famiglio fuori",
-"Food": "Cibo"
+"Food": "Cibo",
+"{amount}/{secs}s": "{amount}/{secs} s"
 }

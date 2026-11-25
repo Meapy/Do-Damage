@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, zonder roem",
 "Pet": "Huisdier",
 "No pet out": "Geen huisdier bij je",
-"Food": "Voer"
+"Food": "Voer",
+"{amount}/{secs}s": "{amount}/{secs} s"
 }

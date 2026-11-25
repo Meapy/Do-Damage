@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, bez sławy",
 "Pet": "Zwierzak",
 "No pet out": "Brak wypuszczonego zwierzaka",
-"Food": "Karma"
+"Food": "Karma",
+"{amount}/{secs}s": "{amount}/{secs} s"
 }

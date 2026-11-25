@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, sem gastar fama",
 "Pet": "Mascote",
 "No pet out": "Nenhum mascote fora",
-"Food": "Comida"
+"Food": "Comida",
+"{amount}/{secs}s": "{amount}/{secs} s"
 }

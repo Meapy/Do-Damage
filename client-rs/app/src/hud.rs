@@ -1996,7 +1996,8 @@ pub fn draw_pet(ui: &mut Ui, lay: &Layout, pet: Option<&bsk_proto::PetPen>, r: [
     // shorter forms of it
     let heal = |amount: i16, ms: i16| {
         let secs = ms as f64 / 1000.0;
-        vec![tf!("{amount} every {secs}s", amount, secs), amount.to_string()]
+        // always with how often: "67/2.5s" when "67 every 2.5s" doesn't fit
+        vec![tf!("{amount} every {secs}s", amount, secs), tf!("{amount}/{secs}s", amount, secs)]
     };
     let mut rows: Vec<(&str, &str, Vec<String>)> = vec![(tr("Damage"), tr("Damage"), vec![tf!("{dps} a second", dps = group_digits(l.dps)), group_digits(l.dps), compact_count(l.dps)])];
     if l.hp > 0 {

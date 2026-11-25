@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, без славы",
 "Pet": "Питомец",
 "No pet out": "Питомец не выпущен",
-"Food": "Корм"
+"Food": "Корм",
+"{amount}/{secs}s": "{amount}/{secs} с"
 }

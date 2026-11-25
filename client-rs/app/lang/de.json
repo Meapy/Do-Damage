@@ -1624,5 +1624,6 @@
 "{gain}, without fame": "{gain}, ohne Ruhm",
 "Pet": "Haustier",
 "No pet out": "Kein Haustier dabei",
-"Food": "Futter"
+"Food": "Futter",
+"{amount}/{secs}s": "{amount}/{secs} s"
 }
