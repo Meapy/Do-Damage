@@ -288,7 +288,7 @@ champion's:
 | Champion | Item | Class | What it does |
 |---|---|---|---|
 | Ferrogrim | Ferrogrim's Bastion Turret | Mechanic | A turret of Ferrogrim's iron, thrown where you aim like the Mechanic's other turrets (up to three out, faster with you near, wearing down unless allies heal it, a blast when its health runs out). It fires three shards at a time, and every 3 seconds it slams the ground: 380 damage round it, enemies' armor broken, allies beside it Armored. |
-| Nerissa | Nerissa's Tidepearl | Druid | A substitute that hurls five tridents and heals you 200. Then three waves of the tide roll out: 220 damage to enemies, and 60 health to allies, each. |
+| Nerissa | Nerissa's Tidepearl | Druid | A Druid's pearl, above the T8: 420 where it lands, a tide pool reaching 3.5 tiles round it for 5 seconds (130 a pulse past defense, mending allies 22), 650 to every enemy on its way home and a 260 heal (more for each enemy struck), three out at once. Where it lands, three waves of the tide roll out: 220 damage to enemies, and 60 health to allies, each. |
 | Pyrrhax | Pyrrhax's Meteor Mortar | Pirate | A shell that arcs to where you aim and bursts (750, paralyzed 1.5 s). Then four meteors fall round the crater, and its slag burns on for 3 seconds. |
 | Chronarch | Chronarch's Coat of Stolen Hours | Blademaster | Armored for your allies and Damaging for you, as a jacket gives. Then time stops round you: enemies slowed and you Speedy, while a clock hand sweeps twice round you (320 each sweep). |
 | Vaelith | Vaelith's Final Aria | Bard | Inspired for your allies, then four verses ring out from you, each wider and harder (250, 320, 400). The last is a crescendo (700) that breaks armor and sends your allies berserk. |

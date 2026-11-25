@@ -250,15 +250,8 @@ namespace WorldServer.logic
             .Init("Rending Crate", new State(new CacheCharge()))
             .Init("Hex Urn", new State(new CacheCharge()))
             .Init("Gilded Reliquary", new State(new CacheCharge()))
-            // the white bags' allies (Player.CruciblePowers.cs): the Tidepearl's substitute, a
-            // volley of Nerissa's tridents (Ferrogrim's Bastion Turret is a Mechanic's turret,
-            // Turret.cs, with no behaviour)
-            .Init("Tidal Substitute",
-                new State(
-                    new State("fire", new AllyShoot(10, 5, shootAngle: 12, projectileIndex: 0, coolDown: 10000), new TimedTransition(500, "die")),
-                    new State("die", new Suicide())
-                )
-            )
+            // (the white bags' allies: Ferrogrim's Bastion Turret is a Mechanic's turret, Turret.cs,
+            // with no behaviour; Nerissa's Tidepearl is a Druid's pearl, TidePearl.cs)
             .Init("Iron Sentinel",
                 new State(
                     new Shoot(CrucibleSight, 3, 12, projectileIndex: 0, predictive: 0.3, coolDown: 1700),

@@ -251,11 +251,47 @@ namespace Tests
             Assert.False(CrucibleRules.IsWhiteBag(null));
         }
 
+        // a recalled pearl strikes what's within its width of its way home, sooner the nearer the
+        // pool, and nothing behind the pool or the Druid past that width
+        [Theory]
+        [InlineData(5, 0.5f, true, 0.5f)]      // halfway, half a tile off
+        [InlineData(1, -1f, true, 0.1f)]       // near the pool, a tile off
+        [InlineData(5, 1.5f, false, 0.5f)]     // too far off the way
+        [InlineData(-1.5f, 0, false, 0f)]      // behind the pool
+        [InlineData(10.8f, 0, true, 1f)]       // just past the Druid, still in reach
+        public void ARecalledPearlStrikesAlongItsWay(float x, float y, bool struck, float along)
+        {
+            Assert.Equal(struck, TidePearl.OnWay(0, 0, 10, 0, x, y, 1.1f, out var u));
+            Assert.Equal(along, u, 2);
+        }
+
+        // every Druid pearl, Nerissa's too, is a pearl thrown into a tide pool (TidePearl.cs,
+        // Player.TidePearls.cs), each tier's at least as strong as the one before, and its
+        // tooltip's numbers there (the Rust client reads the same attributes)
         [Fact]
-        public void TheWhiteBagsAlliesHaveBehaviours()
+        public void EveryPearlIsATidePearl()
         {
             var (data, db) = Game.Value;
-            Assert.True(db.Definitions.ContainsKey(data.IdToObjectType["Tidal Substitute"]));
+            var pearls = data.Items.Values.Where(i => i.SlotType == 30).ToList();
+            Assert.Equal(10, pearls.Count);
+            ActivateEffect before = null;
+            foreach (var pearl in pearls.Where(i => i.RelicPower == null).OrderBy(i => i.Tier))
+            {
+                var eff = Assert.Single(pearl.ActivateEffects, e => e.Effect == ActivateEffects.TidePearl);
+                Assert.True(eff.Radius > 0 && eff.DurationMS >= 2000 && eff.Range > 0, pearl.ObjectId);
+                Assert.True(eff.ImpactDamage > 0 && eff.PulseDamage > 0 && eff.TotalDamage > 0 && eff.Amount > 0, pearl.ObjectId);
+                Assert.InRange(eff.MaxPearls, 1, 3);
+                Assert.Empty(pearl.Projectiles);
+                if (before != null)
+                    Assert.True(eff.TotalDamage > before.TotalDamage && eff.PulseDamage > before.PulseDamage
+                        && eff.MaxPearls >= before.MaxPearls, pearl.ObjectId);
+                before = eff;
+            }
+            var nerissa = data.Items[data.IdToObjectType["Nerissa's Tidepearl"]];
+            var tide = Assert.Single(nerissa.ActivateEffects, e => e.Effect == ActivateEffects.TidePearl);
+            Assert.True(tide.TotalDamage >= before.TotalDamage && tide.PulseDamage >= before.PulseDamage);
+            Assert.Equal(TidePearl.NERISSA, TidePearl.TierOf(nerissa));
+            Assert.False(data.IdToObjectType.ContainsKey("Tidal Substitute"));
         }
 
         // Ferrogrim's Bastion Turret is a Mechanic's turret (Turret.cs, Player.Turrets.cs): thrown

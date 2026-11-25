@@ -717,6 +717,27 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Druid's pearls** (2026-11-25; `WorldServer/core/objects/TidePearl.cs`,
+  `Player.TidePearls.cs`, the `TidePearl` activate with `pulseDamage`, `pulseHeal` and `pearls` in
+  `ActivateEffect.cs`; the nine pearls in both `DoomedRealms.xml` copies; the Rust client's
+  `particles/tide.rs`, relic looks 61-65, and the tooltip in `hud.rs`): a pearl is thrown where
+  aimed (8 tiles, refused onto a wall before the mana is spent), splashes `impactDamage` within 2
+  tiles where it lands, and lies in a tide pool of `radius` for `duration`, pulsing every 500 ms:
+  `pulseDamage` past defense and Slowed 0.7 s to the enemies in it, `pulseHeal` to the players and
+  turrets in it (quietly: no potion sparkle each pulse). Then it's recalled (its time up, or a pearl
+  thrown with `pearls` already out: the oldest) and flies home to the Druid, striking every enemy
+  within 1.1 tiles of its way once for `totalDamage` (as it passes, `TidePearl.OnWay`), and heals
+  the Druid `amount`, 20% more per enemy struck up to double. T0-T8: splash 120-380, pulses 30-120
+  and 5-20, recall 180-600, heal 50-250, pool radius 2.5-3.5 for 3-5 s, 1/1/1/2/2/2/3/3/3 out at
+  once; MP unchanged (50-95). The pearls' projectiles and the old `PearlAbility` and its Substitute1-9
+  (objects and behaviours) are gone. Nerissa's Tidepearl (`tools/build_crucible.py`) is a pearl above
+  the T8 whose three tide waves roll out where it lands (`NerissaTide`); its Tidal Substitute is
+  gone. New pearl sprites, 16x16, `druidPearls16x16` (`tools/draw_pearls.py`, registered in
+  `tools/gen_rs_manifest.py`). The client draws the pool (water, the tide's arms, a ripple each
+  pulse, the hovering pearl), a lane from it to its Druid showing where the recall will strike
+  (blinking in its last second), the throw, the recall and the homecoming; the older clients see a
+  ring at the pool's edge (Trap), which the new client leaves out.
+
 - **The Crucible's caches** (2026-11-23; `logic/behaviors/CrucibleCaches.cs`, `BehaviorDb.Crucible.cs`,
   `tools/build_crucible.py` `CACHES`, `tools/crucible/small.py` `caches()`, the Rust client's
   `particles/cache.rs`): while a champion can be hurt, `CrucibleCaches` drops a cache beside a

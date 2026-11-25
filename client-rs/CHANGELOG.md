@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Druid
+- **The Druid calls the tide:** pearls are now thrown where you aim. Where one lands it splashes the enemies round it, then lies in a tide pool that hurts the enemies in it every half second, straight through their defense, slows them and mends your allies. When its time is up the pearl rushes back to you, striking every enemy on its way, and heals you more for each one it hit. Throw another while your pearls are out (up to two from T3, three from T6) and the oldest comes home at once. A lane on the ground shows where it will come back: stand so your enemies are in it. Every pearl has a new look, and Nerissa's Tidepearl is a pearl too, its tide rolling out where it lands.
+
 ## 2.6.7 (2026-11-24)
 
 ### Pets

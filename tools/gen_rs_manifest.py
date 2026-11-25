@@ -83,6 +83,8 @@ RS_ONLY_SETS = [
     # (tools/draw_turrets.py)
     ("mechanicTurrets16x16", "kabam/rotmg/assets/custom/images/MechanicTurrets16x16.png", 16, 16),
     ("mechanicShots8x8", "kabam/rotmg/assets/custom/images/MechanicShots8x8.png", 8, 8),
+    # the Druid's pearls, tier 0 to 8 (tools/draw_pearls.py)
+    ("druidPearls16x16", "kabam/rotmg/assets/custom/images/DruidPearls16x16.png", 16, 16),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),

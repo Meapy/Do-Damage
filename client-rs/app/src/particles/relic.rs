@@ -139,7 +139,21 @@ pub mod look {
     pub const CACHE_LAUNCH: u8 = 59;
     /// A cache lost at pos1, never broken.
     pub const CACHE_LOST: u8 = 60;
-    pub const LAST: u8 = 60;
+    /// A Druid's pearl (`TidePearl.cs`, `Player.TidePearls.cs`; drawn by `tide.rs`): thrown from
+    /// its Druid (the target) to where it lands (pos1) over `duration` ms; `object_type` its tier
+    /// (9 Nerissa's), pos2.x its pool's radius.
+    pub const PEARL_THROW: u8 = 61;
+    /// The pearl landed at pos1 (the target its anchor): its splash, then its pool out to pos2.x
+    /// for `duration` ms; `source_id` its Druid.
+    pub const PEARL_POOL: u8 = 62;
+    /// A pool already down when it came into view: the pool alone (as `PEARL_POOL`).
+    pub const PEARL_SEEN: u8 = 63;
+    /// The pearl recalled from its pool (the target its anchor, pos1 its spot), flying home to its
+    /// Druid (`source_id`) over `duration` ms, striking pos2.x either side of its way.
+    pub const PEARL_RECALL: u8 = 64;
+    /// The pearl back in its Druid's hand (the target), having struck `object_type` enemies.
+    pub const PEARL_HOME: u8 = 65;
+    pub const LAST: u8 = 65;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -771,6 +785,11 @@ impl Particles {
         // the Mechanic's turrets have a module of their own
         if (look::TURRET_THROW..=look::TURRET_BLAST).contains(&look) {
             self.turret_look(e, look, world, now);
+            return;
+        }
+        // and the Druid's pearls
+        if (look::PEARL_THROW..=look::PEARL_HOME).contains(&look) {
+            self.tide_look(e, look, world, now);
             return;
         }
         // and the Crucible's caches
@@ -2082,6 +2101,10 @@ impl Particles {
                 self.test_turret(which, world, now);
                 return;
             }
+            look::PEARL_THROW..=look::PEARL_HOME => {
+                self.test_tide(which, world, now);
+                return;
+            }
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -2208,7 +2231,7 @@ impl Pen<'_> {
     }
 
     /// Spiral arms turning by `spin`, curling in from `r` to the middle.
-    fn arms(&mut self, r: f64, n: usize, spin: f64, colors: &[u32], alpha: f32) {
+    pub(super) fn arms(&mut self, r: f64, n: usize, spin: f64, colors: &[u32], alpha: f32) {
         for arm in 0..n {
             let colour = colors[arm % colors.len()];
             let base = spin + arm as f64 * 2.0 * PI / n as f64;

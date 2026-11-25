@@ -12,7 +12,7 @@ namespace WorldServer.core.objects
     // Abilities of the classes ported from Doomed Realms (realm/entities/player/Player.UseItem.cs there).
     public partial class Player
     {
-        // Turrets, summons and pearl substitutes fight for the player like betterSkillys allies
+        // Summons (and turret blueprints without allyMs) fight for the player like betterSkillys allies
         // (their behaviours are in logic/db/BehaviorDb.DoomedAllies.cs).
         private Entity SpawnAlly(string objectId, Position at, int lifetimeMs)
         {
@@ -33,15 +33,7 @@ namespace WorldServer.core.objects
             return ally;
         }
 
-        // Druid pearls: a substitute that fires a volley at nearby enemies, and a heal for the druid.
-        private void AEPearlAbility(TickTime time, Item item, Position target, ActivateEffect eff)
-        {
-            SpawnAlly(eff.ObjectId, new Position(X, Y), 5000);
-            if (eff.Amount > 0)
-                ActivateHealHp(this, eff.Amount);
-        }
-
-        // (Mechanic turrets: Player.Turrets.cs, Turret.cs)
+        // (Druid pearls: Player.TidePearls.cs, TidePearl.cs; Mechanic turrets: Player.Turrets.cs, Turret.cs)
 
         // Summoner scrolls: "<objectId> Summon" follows the player and attacks for the duration. At
         // most MaxSummons at a time: a new one past that sends the oldest away.

@@ -80,6 +80,20 @@ a ring warning of it for its last 3 seconds. A blueprint can be used once a seco
 fast. The Armoire sells the Mechanic four skins at 200 gold (the Steamwright, the Scrapper, the
 Arcwright and the Clockwork Mechanic) and the 16 by 16 Titan Artificer at 800.
 
+**The Druid's pearls.** A Druid throws a pearl to where they aim, up to 8 tiles away. Where it
+lands it splashes the enemies round it (120 damage at T0 up to 380 at T8), then lies there in a
+**tide pool** (reaching 2.5 tiles round it at T0 up to 3.5 at T8, for 3 seconds up to 5): every half second
+the pool hurts the enemies in it, straight through their defense, and slows them (30 damage a
+pulse at T0 up to 120 at T8), and mends the allies standing in it (5 up to 20 health a pulse;
+turrets too). When the pool's time is up the pearl **rushes home** to the Druid, wherever they are
+now, striking every enemy within about a tile of its way (180 at T0 up to 600 at T8), and heals
+the Druid when it's back in hand (50 up to 250), a fifth more for each enemy it struck, up to
+double. A faint lane from the pool to you shows the way it will come, blinking in its last second:
+stand so your enemies are in it. From T3 two pearls can be out at once, from T6 three; throwing
+one more calls the oldest home at once, so throwing again and again keeps the tide moving.
+Nerissa's Tidepearl from the Crucible is a pearl too, stronger than the T8, and where it lands
+three waves of the tide roll out from it.
+
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks
 them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%

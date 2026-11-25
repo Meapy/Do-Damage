@@ -164,6 +164,14 @@ the gaps between NewTicks. Its flags:
 - `--hold space:<ms>` didn't use a Mechanic's blueprint in the vault (2026-11-24): four presses, MP
   still full, cause not found. Check MP in the shot before trusting a scripted ability, and test an
   ability's logic with a server unit test rather than spending runs on it.
+- The window's size isn't the same from run to run: without `--size` it was 1280x800, and with
+  `--size 1280x720` one run came out 2560x1369 (2026-11-25). Take a `--shot` first and read
+  `--mouse` positions off that run's size, or the aim lands off the floor.
+- `--hold space:<ms>` sent the ability in 3 of 7 runs with the same flags (2026-11-25, a Druid in
+  a vault): the client's log line `sent: {...}` names `UseItem` when it went. Check it before
+  reading anything into a shot; one run that sends it is enough.
+- `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
+  characters (a class, items, `alive.1`) are lost and must be made again after each start.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display

@@ -2984,6 +2984,24 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             }
             (tr("Turret"), r)
         }
+        // a Druid's pearl (the server's `TidePearl.cs`, `Player.TidePearls.cs`)
+        "TidePearl" => {
+            let mut r = vec![
+                row(tr("Thrown"), tf!("where you aim, up to {range} away", range = sqrs(if has("range") { num("range") } else { 8.0 }))),
+                row(tr("Splash"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(PEARL_SPLASH))),
+                row(tr("Pool"), tf!("{range} for {time}", range = sqrs(num("radius")), time = secs(num("duration")))),
+                row(tr("Each pulse"), tf!("{n} damage, slowing, every {time}", n = num("pulseDamage"), time = secs(PEARL_PULSE_SECS))),
+                row("", tr("Ignores defense").to_owned()),
+            ];
+            if num("pulseHeal") > 0.0 {
+                r.push(row(tr("Mends allies"), tf!("{n} HP each pulse", n = num("pulseHeal"))));
+            }
+            r.push(row(tr("Recalled"), tf!("{n} damage to each enemy on its way home", n = num("totalDamage"))));
+            r.push(row(tr("Heals"), tf!("{n} HP when it's back, +{p}% for each enemy it struck (up to double)", n = num("amount"), p = PEARL_STRUCK_PERCENT)));
+            r.push(row("", tf!("Up to {n} out at once", n = if has("pearls") { num("pearls") } else { 1.0 })));
+            r.push(row("", tr("One more thrown calls the oldest home").to_owned()));
+            (tr("Pearl"), r)
+        }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
@@ -3092,6 +3110,13 @@ const MAX_SUMMONS: u32 = 6;
 /// server's `Turret.LINK_RANGE` and `OVERCLOCK_PERCENT`).
 const TURRET_LINK_RANGE: f64 = 7.0;
 const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
+
+/// A Druid's pearl: its splash's reach, how often its pool pulses, and how much more it heals
+/// for each enemy it struck coming home (the server's `PearlSplashRadius`, `TidePearl.PULSE_MS`
+/// and `PearlStruckPercent`).
+const PEARL_SPLASH: f64 = 2.0;
+const PEARL_PULSE_SECS: f64 = 0.5;
+const PEARL_STRUCK_PERCENT: i32 = 20;
 
 /// A Mechanic's turret's health, its blueprint's `hp` (the server's `Turret.DEFAULT_HP` without).
 fn turret_hp(a: &bsk_data::xml::Element) -> f64 {
@@ -3478,7 +3503,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "Summon" => tf!("Summons a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, with {hp} HP", hp = turret_hp(a)),
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
-        "PearlAbility" => tf!("Summons a {object}", object = text("objectId")),
+        "TidePearl" => tr("Throws a pearl that lies in a tide pool, then rushes back to you").to_owned(),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
         "RemoveNegativeConditionsSelf" => tr("Removes your negative conditions").to_owned(),
