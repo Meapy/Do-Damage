@@ -1,4 +1,4 @@
-Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins. Deploys the world servers and the client together (the pearls need both); nobody is disconnected.
+Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; and the wiki remade, easier to use, with screenshots. Deploys the world servers and the client together (the pearls need both), and the website; nobody is disconnected.
 
 ## For players
 
@@ -11,7 +11,11 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **A new look and five skins:** the Druid is redrawn (an antlered hood, a sashed cloak, a pearl wand). The Armoire sells it five skins, each its own figure with something quiet round it: the **Deepwater Oracle** (coral crown, driftwood staff; bubbles rise round them and a ripple spreads at their feet), the **Autumn Warden** (antlers in red leaves, fur mantle, golden sickle; a leaf now and then falls from the antlers), the **Moonbloom Druid** (white hair, midnight robe, moonflower staff; a pool of moonlight and drifting motes), the **Mosshide Hermit** (toadstool cap, moss beard, lantern; three fireflies) at 200 gold, and the 16 by 16 **Archdruid** behind a stag's skull (eyes glowing in it, leaves circling, grass springing up in its footsteps) at 800. Dyes work on the Druid and on every skin.
 
 ### Website
-- **The wiki's search boxes work again:** the filter on the Pets, Dungeons, gear, class and Necromantic Relic pages hid nothing you could see; now it hides every card that doesn't match.
+- **The wiki is remade to be easier to use.** Its home page starts with a big search box (with searches to try), six "Where do you want to start?" tiles (I'm new, I want to get stronger, I want loot, a better item, to pick a class, I have a few minutes), "the game in one minute" and a card with a picture for every page.
+- **Every guide starts with an "In short" box:** the few things most players come for, before the details. Each has a plain one-line description under its title, and most have an in-game screenshot beside it (the Forge, the Enchanter, the Marketplace, the Pen Keeper, the quest log, the Realm Pass, community goals, potion storage, the main menu, the controls, a realm with its events); click one to see it full size.
+- **Easier to get around:** the sidebar has five sections (Start here, Getting stronger, Dungeons and bosses, Classes, gear and pets, Things to do) that fold, with the page you're on open. Getting started puts "Your first hour" up top and splits Options into a line per tab.
+- **Search understands questions:** "how do I get stat potions" finds stat potions (it skips filler words and matches plurals).
+- **The search boxes on long lists work again:** the filter on the Pets, Dungeons, gear, class and Necromantic Relic pages hid nothing you could see; now it hides every card that doesn't match.
 
 ## Details
 
@@ -39,6 +43,16 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **What and why:** the owner found the Pets page's search did nothing. `wiki.js` sets `hidden` on the cards that don't match, but `.it` (and `.dg`) set `display: grid`, which beats the browser's `[hidden]` rule, so every card stayed on screen. `website/style.css` now has `[hidden] { display: none !important; }`.
 - **Redeploy:** the website only (`build_site.py`); nobody is disconnected.
 
+### Wiki remade
+
+- **What and why:** the owner found the wiki hard to use and asked for it remade, easier to use and understand, with screenshots. The pages were long walls of text under a flat list of 24 links, with long summaries as subtitles and a home page of plain links.
+- **Builder** (`tools/build_wiki.py`): new front matter `blurb:` (the line under the title and on cards; `summary:` stays the meta description), `image:` and `image_alt:` (a screenshot beside the title); `![Title: caption](name)` for screenshots in the text (`figure`, `shot_src`, from `website/screenshots/`, `@SITE@` filled per folder); notes starting **In short:**, **Tip:** or **Careful:** get their own look and can hold lists, and the In short box is moved before "On this page"; the sidebar's sections are `<details>`, the page's own open; the home's `{{gen:wiki-hero}}`, `{{gen:wiki-start}}` (`HOME_START`, `HOME_TRIES`) and a picture card map. `gen_forge_banner` and `website/wiki/forge.webp` are gone (the Forge page has the new screenshot).
+- **Pages** (`website/wiki/*.md`): new sections and order (Start here: home, Getting started, FAQ, Commands; Getting stronger: Getting stronger, Realm 2, the Oryx chain; Dungeons and bosses; Classes, gear and pets; Things to do), a blurb and an In short box on every guide, screenshots on 13; `index.md` rewritten; Getting started reordered with Options split by tab; "Raising an Elder boss: the Necromantic Relic" is now "Necromantic Relic"; a broken link in Quests (`champions.md`) fixed.
+- **Scripts and look:** `website/wiki/wiki.js` (one search for both boxes, filler words skipped, plurals matched, a word of three or more may be missing; the sidebar remembers sections opened; the "loading" line no longer covers results once the index is in), `website/site.js` (the lightbox takes the wiki's `.shot`s too), `website/style.css` (home tiles and cards, banners, callouts, folding sections).
+- **Screenshots:** 11 new pairs in `website/screenshots/` (1280x720 and 640x360 WebP, 1.4 MB in all), taken with the Rust client on an isolated stack with the test account.
+- **Redeploy:** the website only; nobody is disconnected.
+- **Not done:** the guides' text below the In short boxes is as it was (only Getting started was reorganised); the Crucible, Guilds and Hall of Champions pages have no screenshot (the test account can't open the Crucible or a guild board, and the Hall shows real players' names).
+
 ## Checks
 
 - `dotnet test source\Tests`: 530 passed, with `EveryPearlIsATidePearl` (every pearl and Nerissa's a `TidePearl`, rising by tier, no projectiles) and `ARecalledPearlStrikesAlongItsWay`.
@@ -49,3 +63,4 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - Isolated stack (slot 1): the Druid's class page lists the new Druid and the five skins with prices; a Druid wearing the Archdruid in the Nexus stands as tall as the other classes, its staff and a circling leaf showing.
 - Isolated stack (slot 1), a Druid with the Pearl of Total Chaos in a vault with Pirates: the throw onto the floor landed a pool on a Pirate (380 splash, 95 MP spent), the pool drew; aimed off the floor it was refused ("You can't throw your pearl there"); the tooltip and the new inventory sprites show.
 - Wiki filters: on a local build, a nonsense search left 0 cards shown and clearing it brought all back, on the Pets (both lists), Dungeons, Necromantic Relic, a gear page (Swords, Rings) and a class page (Wizard).
+- Wiki remade: `python tools\build_site.py` builds it; every internal link and anchor checked (none broken); in the browser at 1440x900 and 375x812 the home, Getting started, Forge, Pets and Realm Pass pages lay out without sideways scrolling, the home search answers "how do I get stat potions", a page's screenshot opens in the lightbox, and every list filter still hides and brings back its cards.

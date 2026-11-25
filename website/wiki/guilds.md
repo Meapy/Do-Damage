@@ -1,11 +1,17 @@
 ---
 title: Guilds
 nav: 34
-section: Every day
+section: Things to do
 sprite: shield
 eyebrow: Play together
 summary: Guilds: the loot, experience and stats every member gets from the guild hall, the shared guild vault, the four guild halls and their upgrades, the two guild boards in the Hall of Champions, ranks and commands.
+blurb: Join or make a guild: bonuses, a shared vault and guild halls.
 ---
+> **In short:**
+> - Every member gets **+1% loot** everywhere, and more as the guild buys bigger halls.
+> - Make one at the **Guild Register** in the Nexus, or join when a member invites you.
+> - Guild members share a guild vault and a guild hall.
+
 A **guild** is a band of players with its own chat, its own hall and a vault they share. Being in
 one is worth it from the first day: **every member gets +1% loot**, everywhere, and each bigger hall
 the guild buys gives every member more (see [the buffs](#the-halls-buffs)).

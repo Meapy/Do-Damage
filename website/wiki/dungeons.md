@@ -1,11 +1,20 @@
 ---
 title: Dungeons
 nav: 10
-section: Dungeons and loot
+section: Dungeons and bosses
 sprite: portal
 eyebrow: Where to go
 summary: Every dungeon you can get into, where its portal or key comes from, how hard it is and what it drops. Built from the game's data.
+blurb: Every dungeon: how to get in, how hard it is and what it drops.
+image: fungal-cavern
+image_alt: The Fungal Cavern, one of the game's dungeons.
 ---
+> **In short:**
+> - Dungeon portals drop from realm monsters, or open with a **key** wherever you use it.
+> - Each card below says where its portal comes from, how hard it is and what it drops.
+> - Use the search box above the list to find a dungeon, a boss, a key or an item.
+> - Beating a boss drops loot and a portal back out.
+
 There are {{v:dungeon_count}} dungeons you can reach on this server. Each is its own little world
 with a boss at the end; beating it drops loot and a Realm Portal back out (every dungeon boss
 leaves one, and portals bosses drop inside a dungeon stay open).
@@ -103,6 +112,8 @@ healing in the middle with two invulnerable **Experimental Soldier Bees** of one
 follow him round the room and burst when he dies.
 
 ## Underwater: the Ocean Trench and the Cnidarian Reef
+
+![The Cnidarian Reef, under the sea](cnidarian-reef)
 
 You hold your breath underwater. In the Ocean Trench, the Elder Ocean Trench and the Cnidarian
 Reef a blue bar under your health shows your breath. It lasts 16 seconds in the Trench, 14 in

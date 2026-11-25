@@ -11,6 +11,19 @@
   function fold() { if (nav) nav.open = !narrow.matches; }
   fold();
   if (narrow.addEventListener) narrow.addEventListener("change", fold);
+  // its sections fold too: this page's starts open, and the others the reader opened stay open
+  var OPENED = "dd-wiki-open";
+  var opened = {};
+  try { opened = JSON.parse(localStorage.getItem(OPENED) || "{}") || {}; } catch (e) { opened = {}; }
+  document.querySelectorAll(".nav-sec[data-sec]").forEach(function (sec) {
+    var id = sec.getAttribute("data-sec");
+    if (opened[id]) sec.open = true;
+    sec.addEventListener("toggle", function () {
+      if (sec.classList.contains("here")) return;
+      if (sec.open) opened[id] = 1; else delete opened[id];
+      try { localStorage.setItem(OPENED, JSON.stringify(opened)); } catch (e) {}
+    });
+  });
   // the list scrolls on its own beside the page: start it at this page
   var here = nav && nav.querySelector("[aria-current]");
   var navBox = nav && nav.querySelector("nav");
@@ -20,13 +33,12 @@
   }
 
   // --- Search ---------------------------------------------------------------------------------
-  var input = document.getElementById("wiki-q");
-  var list = document.getElementById("wiki-results");
+  // The box beside every page and the big one on the wiki's home work the same way.
   var index = window.WIKI_INDEX || null;
-  var picked = -1;
+  var waiting = [];
   function need() {
     if (index) return;
-    var got = function (all) { index = all; if (input && input.value) show(); };
+    var got = function (all) { index = all; waiting.forEach(function (f) { f(); }); waiting = []; };
     if (window.ddWikiIndex) { window.ddWikiIndex(got); return; }
     var s = document.createElement("script");  // palette.js didn't load: fetch it here
     s.src = root + "search-index.js";
@@ -38,34 +50,43 @@
   var path = (window.location && window.location.pathname) || "";
   var root = /\/wiki\/(?:gear|classes)\//.test(path) ? "../" : "";
 
+  // words that say nothing about what's wanted ("how do I get potions" looks for "potions")
+  var STOP = " a an and are can do does for from get how i in is it me my of on or the to what where which who why with you your ";
   function words(q) {
-    return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });
+    return q.toLowerCase().replace(/[^\w\s'-]+/g, " ").split(/\s+/).filter(function (w) {
+      return (w.length > 1 || /\d/.test(w)) && STOP.indexOf(" " + w + " ") < 0;
+    });
   }
+  // "potions" finds "potion", "dungeons" finds "dungeon"
+  function stem(w) { return w.length > 4 && /s$/.test(w) && !/ss$/.test(w) ? w.replace(/(es|s)$/, "") : w; }
 
   function score(entry, terms) {
     var head = entry.h.toLowerCase(), page = entry.p.toLowerCase(), text = entry.t.toLowerCase();
-    var total = 0;
+    var total = 0, missed = 0;
     // the words together, as typed, count most
     var phrase = terms.join(" ");
     if (terms.length > 1) {
       if (head.indexOf(phrase) >= 0) total += 20;
       if (text.indexOf(phrase) >= 0) total += 10;
     }
+    if (head === phrase) total += 30;
     for (var i = 0; i < terms.length; i++) {
-      var t = terms[i], s = 0;
+      var t = stem(terms[i]), s = 0;
       if (head.indexOf(t) >= 0) s += head.indexOf(t) === 0 ? 12 : 8;
       if (page.indexOf(t) >= 0) s += 2;
       var at = text.indexOf(t);
       if (at >= 0) s += 3 + Math.min(4, text.split(t).length - 1);
-      if (!s) return 0;  // every word must be found somewhere
+      if (!s) missed++;
       total += s;
     }
-    return total;
+    // every word should be found; one missing out of three or more is let off, ranked lower
+    if (missed && (terms.length < 3 || missed > 1)) return 0;
+    return missed ? total / 2 : total;
   }
 
   function snippet(text, terms) {
     var low = text.toLowerCase(), at = -1;
-    for (var i = 0; i < terms.length && at < 0; i++) at = low.indexOf(terms[i]);
+    for (var i = 0; i < terms.length && at < 0; i++) at = low.indexOf(stem(terms[i]));
     var start = Math.max(0, at - 50);
     var cut = text.slice(start, start + 150);
     return (start > 0 ? "…" : "") + cut + (start + 150 < text.length ? "…" : "");
@@ -75,7 +96,7 @@
   function mark(cls, text, terms) {
     var span = document.createElement("span");
     span.className = cls;
-    var found = terms.slice().sort(function (a, b) { return b.length - a.length; })
+    var found = terms.map(stem).sort(function (a, b) { return b.length - a.length; })
       .map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); });
     var parts = found.length ? text.split(new RegExp("(" + found.join("|") + ")", "i")) : [text];
     parts.forEach(function (part, i) {
@@ -91,55 +112,58 @@
     return span;
   }
 
-  function show() {
-    var terms = words(input.value);
-    list.innerHTML = "";
-    picked = -1;
-    if (!terms.length) { list.hidden = true; return; }
-    if (!index) {
-      need();
-      var wait = document.createElement("li");
-      wait.className = "none";
-      wait.textContent = "Loading the search…";
-      list.appendChild(wait);
+  function searchBox(input, list) {
+    var picked = -1;
+    function show() {
+      var terms = words(input.value);
+      list.innerHTML = "";
+      picked = -1;
+      if (!terms.length) { list.hidden = true; return; }
+      if (!index) {
+        waiting.push(show);
+        need();
+        if (index) return;  // it was loaded already, and show() has run again with it
+        var wait = document.createElement("li");
+        wait.className = "none";
+        wait.textContent = "Loading the search…";
+        list.appendChild(wait);
+        list.hidden = false;
+        return;
+      }
+      var hits = [];
+      index.forEach(function (e) {
+        var s = score(e, terms);
+        if (s) hits.push({ e: e, s: s });
+      });
+      hits.sort(function (a, b) { return b.s - a.s; });
+      hits = hits.slice(0, 12);
+      if (!hits.length) {
+        var none = document.createElement("li");
+        none.className = "none";
+        none.textContent = "Nothing found. Try one word, like a dungeon, item, class or command.";
+        list.appendChild(none);
+      }
+      hits.forEach(function (h) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = root + h.e.u;
+        a.appendChild(mark("r-head", h.e.h, terms));
+        a.appendChild(mark("r-page", h.e.p, []));
+        a.appendChild(mark("r-text", snippet(h.e.t, terms), terms));
+        li.appendChild(a);
+        list.appendChild(li);
+      });
       list.hidden = false;
-      return;
     }
-    var hits = [];
-    index.forEach(function (e) {
-      var s = score(e, terms);
-      if (s) hits.push({ e: e, s: s });
-    });
-    hits.sort(function (a, b) { return b.s - a.s; });
-    hits = hits.slice(0, 12);
-    if (!hits.length) {
-      var none = document.createElement("li");
-      none.className = "none";
-      none.textContent = "Nothing found. Try fewer or other words.";
-      list.appendChild(none);
+
+    function move(step) {
+      var links = list.querySelectorAll("a");
+      if (!links.length) return;
+      picked = (picked + step + links.length) % links.length;
+      links.forEach(function (l, i) { l.classList.toggle("on", i === picked); });
+      links[picked].scrollIntoView({ block: "nearest" });
     }
-    hits.forEach(function (h) {
-      var li = document.createElement("li");
-      var a = document.createElement("a");
-      a.href = root + h.e.u;
-      a.appendChild(mark("r-head", h.e.h, terms));
-      a.appendChild(mark("r-page", h.e.p, []));
-      a.appendChild(mark("r-text", snippet(h.e.t, terms), terms));
-      li.appendChild(a);
-      list.appendChild(li);
-    });
-    list.hidden = false;
-  }
 
-  function move(step) {
-    var links = list.querySelectorAll("a");
-    if (!links.length) return;
-    picked = (picked + step + links.length) % links.length;
-    links.forEach(function (l, i) { l.classList.toggle("on", i === picked); });
-    links[picked].scrollIntoView({ block: "nearest" });
-  }
-
-  if (input && list) {
     input.addEventListener("input", show);
     input.addEventListener("focus", function () { need(); if (input.value) show(); });
     input.addEventListener("keydown", function (e) {
@@ -152,17 +176,39 @@
       } else if (e.key === "Escape") { input.value = ""; show(); input.blur(); }
     });
     document.addEventListener("click", function (e) {
-      if (!e.target.closest(".wiki-search")) list.hidden = true;
+      if (!list.parentNode.contains(e.target)) list.hidden = true;
     });
-    // "/" jumps to the search, as on many sites
+    return show;
+  }
+
+  // the home page's big box, and its "try" words that fill it
+  var homeQ = document.getElementById("wiki-home-q");
+  if (homeQ) {
+    var homeShow = searchBox(homeQ, document.getElementById("wiki-home-results"));
+    document.querySelectorAll("[data-try]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        homeQ.value = b.getAttribute("data-try");
+        homeQ.focus();
+        homeShow();
+      });
+    });
+  }
+
+  var input = document.getElementById("wiki-q");
+  var list = document.getElementById("wiki-results");
+  if (input && list) {
+    var showSide = searchBox(input, list);
+    // "/" jumps to the search, as on many sites (the home page's big box, on the home page)
     document.addEventListener("keydown", function (e) {
-      if (e.key === "/" && document.activeElement !== input && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
-        input.focus();
+      if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+        var box = homeQ && homeQ.getBoundingClientRect().bottom > 0 ? homeQ : input;
+        if (box === input && narrow.matches && nav) nav.open = true;
+        box.focus();
         e.preventDefault();
       }
     });
     var q = new URLSearchParams(location.search).get("q");
-    if (q) { input.value = q; show(); }
+    if (q) { input.value = q; showSide(); }
   }
 
   // --- "On this page": the section being read is marked, and the list keeps it in view -------------

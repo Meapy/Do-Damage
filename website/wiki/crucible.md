@@ -1,11 +1,18 @@
 ---
 title: The Crucible
 nav: 11
-section: Dungeons and loot
+section: Dungeons and bosses
 sprite: anvil
 eyebrow: Bosses only
 summary: The tower over the Arena: five floors, five champions, each fight changing the floor under you. How to get in, every champion's phases, the caches to break, the white bags and the climb's leaderboard.
+blurb: A tower of five boss fights over the Arena, once or twice a day.
 ---
+> **In short:**
+> - Five floors, five boss fights, no waves of monsters: up to four of you climb together.
+> - Open to anyone who reached **round 50 of the Arena**, or has a **Gilded Realm Pass**.
+> - **One climb a day** (two with the Gilded Pass). Type `/crucible`, or take the portal in the Nexus's shrine.
+> - Bring friends: each extra player adds only about a sixth to a champion's health.
+
 The **Crucible** is a tower of nothing but bosses. You climb it floor by floor, up to four of you
 together, and on each floor a champion arrives to stop you. There are no waves of monsters. Each
 champion fights in phases, and the floor fights with them: blades sweep the ground, the tide rises,

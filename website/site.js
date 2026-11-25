@@ -485,7 +485,7 @@
     });
   }
 
-  gallery(Array.prototype.slice.call(document.querySelectorAll(".gallery .shot")));
+  gallery(Array.prototype.slice.call(document.querySelectorAll(".gallery .shot, .wiki .shot")));
 
   // --- The home page: the top bar darkens once the hero is behind it, and things rise into view --
   if (document.body.classList.contains("home") && bar) {

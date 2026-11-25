@@ -1,11 +1,19 @@
 ---
 title: Quests and Achievements
 nav: 30
-section: Every day
+section: Things to do
 sprite: chest
 eyebrow: Every day
 summary: Daily, weekly and monthly quests, the daily login reward and achievements: how they work, every quest that can come up, the reward track, every achievement and the ranks with their name colours. Built from the game's data.
+blurb: Daily, weekly and monthly quests, the login reward and achievements.
+image: quest-log
+image_alt: The quest log (J): today's three daily quests with their rewards, and the daily bonus.
 ---
+> **In short:**
+> - Press <kbd>J</kbd> for the **quest log**: daily, weekly and monthly quests, the daily reward and achievements.
+> - Rewards go straight to you: fame to your account, items to your vault's gift chest.
+> - Everything is account-wide: progress on one character counts for all of them.
+
 Do Damage gives you something to aim for every time you log in: **quests** that change every day,
 week and month, a **daily reward** for showing up, and **achievements** that remember everything
 you've done, account-wide. All of it lives in the **quest log**: press <kbd>J</kbd>, click
@@ -115,7 +123,7 @@ Achievement points raise your **rank**, shown at the top of the Achievements pag
 {{v:quests_max_points}} points make you Mythic). Each rank from Adventurer up unlocks a **name
 colour** for the chat: pick it in the **Customize** window (Escape, then Customize), under
 "Achievement ranks" (the **A** puts your usual colour back). The same window picks your glow; see
-[Hall of Champions](champions.md).
+[Hall of Champions](champions.html).
 
 {{gen:quests_ranks}}
 

@@ -19,7 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **A new look and five skins:** the Druid is redrawn, an antlered hood and a pearl wand, and the Armoire sells it five skins, each with its own look and something round it: the Deepwater Oracle (rising bubbles), the Autumn Warden (falling leaves), the Moonbloom Druid (moonlight), the Mosshide Hermit (fireflies) at 200 gold, and the tall Archdruid behind a stag's skull (circling leaves, grass springing up in its steps) at 800. Dyes work on the Druid and every skin.
 
 ### Website
-- **The wiki's search boxes work again:** typing in the search box on the Pets, Dungeons, gear, class and Necromantic Relic pages now hides what doesn't match, instead of leaving every card on screen.
+- **The wiki is remade to be easier to use:** its home page starts with a big search box and "Where do you want to start?" tiles, every guide opens with a short "In short" summary and most with an in-game screenshot (click it to see it full size), the sidebar is in five clear sections that fold away, and search understands questions like "how do I get stat potions". The search boxes on the Pets, Dungeons, gear, class and Necromantic Relic pages work again: they hid nothing before.
 
 ## 2.6.7 (2026-11-24)
 

@@ -1,11 +1,19 @@
 ---
 title: Imprints
 nav: 25
-section: Classes and gear
+section: Classes, gear and pets
 sprite: anvil
 eyebrow: Gear and stuff
 summary: The Enchanter beside the Divine Forge puts imprints on Enthroned gear: an Offensive, a Defensive, a Misc and an Apotheosis slot on each piece, what each imprint does and what it costs.
+blurb: Add extra powers to Enthroned gear at the Enchanter.
+image: enchanter
+image_alt: The Enchanter's window: your Enthroned gear on the left, the imprints for each slot on the right.
 ---
+> **In short:**
+> - The **Enchanter** beside the Divine Forge adds imprints to **Enthroned** gear.
+> - Each piece has four slots: Offensive, Defensive, Misc and Apotheosis.
+> - Imprints are paid in **Ascended shards** from your forge storage.
+
 The **Enchanter** is the crystal altar beside the [Divine Forge](forge.html)'s furnace, in the smithy of the
 Nexus's market island, in its south-west. It puts **imprints** on **Enthroned gear** (Oryx the Ascended God's own items, which the
 forge makes; see [The Divine Forge](forge.html#the-ascended-items)): small upgrades that stay on the

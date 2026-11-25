@@ -1,11 +1,19 @@
 ---
 title: Classes
 nav: 20
-section: Classes and gear
+section: Classes, gear and pets
 sprite: shield
 eyebrow: Who to play
 summary: Every class with its weapon, ability, armor, starting gear, what /gear gives it, and its highest stats.
+blurb: All the classes: what each one uses and how strong it gets.
+image: characters
+image_alt: The classes, as the character screen shows them.
 ---
+> **In short:**
+> - Every class is open from the start; each uses one kind of weapon, ability and armor.
+> - **Highest stats** are how far stat potions can take a class.
+> - Each class has its own page with every weapon, ability, armor and ring it can use: click its name below.
+
 Every class is open from the start. A class uses one kind of weapon, one kind of ability and one
 kind of armor, and every class wears a ring. Its **highest stats** are how far stat potions can
 take it: a character with all eight at their highest is maxed.

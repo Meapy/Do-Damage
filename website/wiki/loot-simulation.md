@@ -1,11 +1,16 @@
 ---
 title: Loot Simulation
 nav: 13
-section: Dungeons and loot
+section: Dungeons and bosses
 sprite: chest
 eyebrow: What drops
 summary: Roll kills of Oryx 3, Oryx 4 and Oryx 5 and see what you'd get, with your share of the damage and your loot boosts: every drop's chance, the bags a kill gives, and a simulator. Built from the game's data.
+blurb: Roll Oryx kills and see what you'd get.
 ---
+> **In short:**
+> - Pick Oryx 3, 4 or 5, set your share of the damage and your loot boosts, and roll kills.
+> - Every drop is its own roll; a bigger damage share and boosts raise every chance.
+
 What **Oryx 3**, **Oryx 4** and **Oryx 5** drop, read straight from the server, and a simulator
 that rolls their kills the way the server does. Pick a boss, set how much of the damage you do and
 which loot boosts you have, then roll.

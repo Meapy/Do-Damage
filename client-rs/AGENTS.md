@@ -182,6 +182,11 @@ the gaps between NewTicks. Its flags:
   Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
 - `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
 - No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
+- Screenshots for the website (2026-11-25): `--npc GuildBoard` on the test account shows "Not in
+  guild" and an empty board, `--say "/crucible"` stays in the Nexus (the test account hasn't
+  reached Arena round 50), and `--npc ChampionsBoard` shows real players' names from the copied
+  data, so leave that one out or rename them in the stack's Redis first. A `--size 1600x900` shot
+  came out 1280x720 on a 125% display.
 
 Example, the Arena (portal in the shrine's floor north-west of the spawn; monsters come 60 s in):
 `--walk-to "62.5,56;62.5,40;52,40;36,40;34.5,31.5" --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.

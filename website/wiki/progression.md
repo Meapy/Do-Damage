@@ -1,11 +1,20 @@
 ---
 title: Getting stronger
-nav: 3
-section: Start here
+nav: 4
+section: Getting stronger
 sprite: potion
 eyebrow: Progress
 summary: Levels and experience, fame and rank stars, stat potions and maxing, the realm, the Godlands, quests and events, and what happens when you die.
+blurb: Levels, fame, stat potions and maxing, and what happens when you die.
+image: potion-storage
+image_alt: Potion storage in the vault: store stat potions, drink them, or max a stat in one go.
 ---
+> **In short:**
+> - Kill monsters to level up to **20**; every 1,000 experience after that is a point of **fame**.
+> - **Stat potions** raise a stat for good, up to your class's highest. All eight at their highest is "maxed" (8/8).
+> - Keep spare potions in your **potion storage** in the vault, so none are wasted.
+> - When a character dies it's gone with what it carries, but its fame goes to your account.
+
 ## Levels and experience
 
 Killing monsters gives experience to every player nearby, not only the one who landed the last
@@ -94,6 +103,8 @@ how many players are inside; `/realm` takes you into Realm 2.
 with a land of its own for every realm event.
 
 ### The Godlands
+
+![The Godlands: the realm's grey heart, where its gods roam](godlands)
 
 The Godlands are the realm's highest ground and its richest. The gods that live there:
 

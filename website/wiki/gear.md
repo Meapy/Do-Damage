@@ -1,11 +1,16 @@
 ---
 title: Gear
 nav: 22
-section: Classes and gear
+section: Classes, gear and pets
 sprite: sword
 eyebrow: Every item
 summary: Every weapon, ability, armor and ring in the game, by kind and by class: tiered, untiered, future additions, set pieces, Legendary, rewards, admin and the rest, with their numbers and where they come from.
+blurb: Every weapon, ability, armor and ring, by kind or by class.
 ---
+> **In short:**
+> - Pick a kind of item (swords, staffs, rings...) or a class to see every item it can use.
+> - Each item says where it comes from: who drops it, which shop sells it, or how to forge it.
+
 Every piece of gear in the game has a place here, read from the game's own data, so the lists stay
 true as items are added. Each kind of item has its own page, with tabs for the other kinds; each
 class has one page with a tab each for the weapons, abilities, armor and rings it can use.

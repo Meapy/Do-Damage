@@ -1,11 +1,16 @@
 ---
 title: Gear statistics
 nav: 23
-section: Classes and gear
+section: Classes, gear and pets
 sprite: sword
 eyebrow: Every tier
 summary: Every tiered weapon, ability, armor and ring side by side, with what each tier adds over the one below, each class's damage a second with each weapon tier, each class's effective health with each armor tier, and each class's damage measured on the Training Dummy.
+blurb: Every tier side by side, and each class's damage and toughness.
 ---
+> **In short:**
+> - Every tier of every weapon, ability, armor and ring, side by side.
+> - Also each class's damage a second with each weapon tier, and how much damage it can take.
+
 Every tiered item in the game, side by side, so you can see what each tier adds over the one
 below. The numbers are read from the game's own data, so they stay true as items change. For
 where each item comes from, and the untiered and set items, see [Gear](gear.html).
