@@ -47,6 +47,10 @@ const BURGER: f32 = 26.0;
 /// The card: its header (portrait, name, class and level), its tabs, and the least it takes.
 const CARD_HEADER: f32 = 46.0;
 const CARD_TAB_H: f32 = 20.0;
+/// The card's tabs: the stats, the fame records and the pet out.
+pub const CARD_TABS: usize = 3;
+/// The card's pet tab (`HudState::card_tab`), whose page asks the server for the pet out.
+pub const CARD_PET: usize = 2;
 const CARD_MIN_H: f32 = CARD_HEADER + CARD_TAB_H + 6.0 + 60.0 + 8.0;
 /// A slot, the space between slots, and a slot grid's padding (across, down).
 const SLOT: f32 = 40.0;
@@ -151,9 +155,10 @@ impl Layout {
         [top[0], top[1], top[2], (bottom - top[1]).max(CARD_MIN_H * self.s)]
     }
 
-    /// The card's tab `i` (0 the stats, 1 the records).
+    /// The card's tab `i` (0 the stats, 1 the records, 2 the pet), three across its page.
     pub fn card_tab(&self, i: usize) -> [f32; 4] {
-        within(self.card_box(), self.s, 8.0 + i as f32 * 92.0, CARD_HEADER, 88.0, CARD_TAB_H)
+        let w = (184.0 - 2.0 * 4.0) / CARD_TABS as f32;
+        within(self.card_box(), self.s, 8.0 + i as f32 * (w + 4.0), CARD_HEADER, w, CARD_TAB_H)
     }
 
     /// The card's page under its tabs: the stats or the records.
@@ -897,6 +902,8 @@ pub struct Social<'a> {
     pub history: &'a [crate::game::BossFight],
     /// The character's fame records (`Game::fame_stats`).
     pub fame: &'a HashMap<u8, i32>,
+    /// The pet out, as the Pen Keeper last told it (`Game::pet_out`), for the card's pet page.
+    pub pet: Option<&'a bsk_proto::PetPen>,
     /// The Arena's votes, in the Arena (`Game::arena_votes`).
     pub arena_votes: Option<&'a bsk_proto::ArenaVotes>,
     /// What the Arena's next fight will be, shown in its vote box (`Game::arena_next`).
@@ -1080,7 +1087,7 @@ pub struct HudState {
     pub history_open: bool,
     pub history_y: f32,
     pub history_pick: Option<usize>,
-    /// The character card's tab: 0 the stats, 1 the fame records.
+    /// The character card's tab: 0 the stats, 1 the fame records, 2 the pet (`CARD_PET`).
     pub card_tab: usize,
     /// What the interact area shows (its object's id) and since when (`see_interact`).
     interact_seen: Option<(i32, i32)>,
@@ -1314,7 +1321,7 @@ impl Panel {
             panel.buttons.push((Button::VisitYes, vl.yes));
             panel.buttons.push((Button::VisitNo, vl.no));
         }
-        for i in 0..2 {
+        for i in 0..CARD_TABS {
             panel.buttons.push((Button::CardTab(i), lay.card_tab(i)));
         }
         // The minimap: zoom buttons in its corner, and the players on it.
@@ -1650,7 +1657,7 @@ pub fn draw_panel(ui: &mut Ui, lay: &Layout, world: &World, colors: &mut MapColo
 
     // The bars under it, and the character card under them.
     draw_bars(ui, lay, me, lay.bars_box());
-    draw_card(ui, lay, me, state.card_tab, social.fame, mouse);
+    draw_card(ui, lay, me, state.card_tab, social, mouse);
 
     // The bar's foot, from the top: the Nexus button, the equipment, the tabs and potions, the
     // inventory, the interact area.
@@ -1902,9 +1909,9 @@ pub fn draw_bars(ui: &mut Ui, lay: &Layout, me: &GameObj, r: [f32; 4]) {
     }
 }
 
-/// The character card (on the bar): the portrait, name, class and level, then two tabs (`tab`)
-/// for the stats or the fame records, the page filling the rest of its space.
-pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, fame: &HashMap<u8, i32>, mouse: (f64, f64)) {
+/// The character card (on the bar): the portrait, name, class and level, then three tabs (`tab`)
+/// for the stats, the fame records or the pet out, the page filling the rest of its space.
+pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, social: &Social, mouse: (f64, f64)) {
     let s = lay.s;
     let r = lay.card_box();
     draw_portrait(ui, lay, me, r[0] + 22.0 * s, r[1] + 24.0 * s);
@@ -1913,20 +1920,114 @@ pub fn draw_card(ui: &mut Ui, lay: &Layout, me: &GameObj, tab: usize, fame: &Has
     let level = me.stat_int(stat::LEVEL).unwrap_or(0);
     let class = ui.data.objects.get(&me.object_type).map_or("", |d| d.display_id.as_str()).to_owned();
     ui.label_fit(&tf!("{class}  ·  Level {level}", class, level), r[0] + 44.0 * s, r[1] + 26.0 * s, r[2] - 50.0 * s, lay.font(11.0), false, color::TEXT_DIM);
-    for (i, label) in [tr("Stats"), tr("Records")].into_iter().enumerate() {
+    for (i, label) in [tr("Stats"), tr("Records"), tr("Pet")].into_iter().enumerate() {
         let tr = lay.card_tab(i);
         let on = i == tab;
         let bg = if on { color::ACCENT } else if inside(tr, mouse) { color::SECONDARY } else { color::CHIP };
         theme::fill(ui.renderer, tr, tr[3] / 2.0, bg, 1.0);
-        let size = lay.font(11.0);
-        let w = ui.measure(label, size, true);
+        // a longer word (Statistiche) shrinks to fit its tab
+        let mut size = lay.font(11.0);
+        let mut w = ui.measure(label, size, true);
+        let room = tr[2] - 8.0 * s;
+        if w > room {
+            size = (size * room / w).floor().max(8.0);
+            w = ui.measure(label, size, true);
+        }
         ui.label(label, tr[0] + (tr[2] - w) / 2.0, tr[1] + (tr[3] - size * 1.22) / 2.0, size, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
     }
     let body = lay.card_body();
-    if tab == 0 {
-        draw_stats(ui, lay, me, body);
-    } else {
-        draw_records(ui, lay, fame, body, mouse);
+    match tab {
+        0 => draw_stats(ui, lay, me, body),
+        1 => draw_records(ui, lay, social.fame, body, mouse),
+        _ => draw_pet(ui, lay, social.pet, body),
+    }
+}
+
+/// The pet out in a box `r`, as the Pen Keeper tells it (`Game::pet_out`, asked for while this
+/// page shows, anywhere): its look, name, size and level, the food to its next level as a thin
+/// bar, then what it does now (damage, healing) and the food in numbers. Values shorten as the
+/// records' do, and a short page puts the rows in two columns.
+pub fn draw_pet(ui: &mut Ui, lay: &Layout, pet: Option<&bsk_proto::PetPen>, r: [f32; 4]) {
+    let s = lay.s;
+    theme::frame(ui.renderer, r, 7.0 * s, s.max(1.0), (color::BORDER, 0.9), ((color::INSET_TOP, 0.9), (color::INSET_BOTTOM, 0.9)));
+    let note = |ui: &mut Ui, t: &str| {
+        let size = lay.font(11.0);
+        let w = ui.measure(t, size, false).min(r[2] - 12.0 * s);
+        ui.label_fit(t, r[0] + (r[2] - w) / 2.0, r[1] + (r[3] - size * 1.22) / 2.0, r[2] - 12.0 * s, size, false, color::TEXT_DIM);
+    };
+    let Some(p) = pet else {
+        note(ui, tr("Asking the Pen Keeper..."));
+        return;
+    };
+    if p.pet == 0 {
+        note(ui, tr("No pet out"));
+        return;
+    }
+    let level = p.level;
+    let growing = level.is_some_and(|l| l.max_level > 1 && l.level < l.max_level);
+    // Its look on a faint gold disc, its name, then its size and level.
+    let (icx, icy) = (r[0] + 19.0 * s, r[1] + 18.0 * s);
+    theme::fill(ui.renderer, [icx - 13.0 * s, icy - 13.0 * s, 26.0 * s, 26.0 * s], 13.0 * s, color::GOLD, 0.1);
+    object_icon(ui, p.pet, icx, icy, 24.0 * s);
+    let tx = r[0] + 37.0 * s;
+    let tw = r[0] + r[2] - 7.0 * s - tx;
+    let name = ui.data.objects.get(&p.pet).map_or(String::new(), |d| d.display_id.clone());
+    ui.label_fit(&name, tx, r[1] + 5.0 * s, tw, lay.font(12.0), true, color::TEXT);
+    let size = p.grow.map(|g| g.pet_size as usize).filter(|&i| i < crate::petlevels::SIZES.len()).map_or("", |i| pet_size_name(crate::petlevels::SIZES[i]));
+    let line = match level {
+        Some(l) if l.max_level > 1 => tf!("{size} · Level {level} of {max}", size, level = l.level, max = l.max_level),
+        _ => size.to_owned(),
+    };
+    ui.label_fit(&line, tx, r[1] + 20.0 * s, tw, lay.font(10.0), true, if growing { color::ACCENT } else { color::GOOD });
+    let mut top = r[1] + 36.0 * s;
+    let Some(l) = level else { return };
+    // the food to its next level: gold while it grows, full and green at its last
+    if l.max_level > 1 {
+        let bar = [r[0] + 7.0 * s, top, r[2] - 14.0 * s, 3.0 * s];
+        theme::fill(ui.renderer, bar, 1.5 * s, color::TRACK, 1.0);
+        let span = (l.xp_next - l.xp_level).max(1);
+        let part = if growing { ((l.xp - l.xp_level) as f32 / span as f32).clamp(0.0, 1.0) } else { 1.0 };
+        if part > 0.0 {
+            theme::fill(ui.renderer, [bar[0], bar[1], (bar[2] * part).max(bar[3]), bar[3]], 1.5 * s, if growing { color::GOLD } else { color::GOOD }, 0.9);
+        }
+        top += 5.0 * s;
+    }
+    // what it does now: each row's label (long, then short for two columns), its value and
+    // shorter forms of it
+    let heal = |amount: i16, ms: i16| {
+        let secs = ms as f64 / 1000.0;
+        vec![tf!("{amount} every {secs}s", amount, secs), amount.to_string()]
+    };
+    let mut rows: Vec<(&str, &str, Vec<String>)> = vec![(tr("Damage"), tr("Damage"), vec![tf!("{dps} a second", dps = group_digits(l.dps)), group_digits(l.dps), compact_count(l.dps)])];
+    if l.hp > 0 {
+        rows.push((tr("Heals HP"), tr("HP"), heal(l.hp, l.hp_ms)));
+    }
+    if l.mp > 0 {
+        rows.push((tr("Restores MP"), tr("MP"), heal(l.mp, l.mp_ms)));
+    }
+    if growing {
+        let (have, need) = (l.xp - l.xp_level, l.xp_next - l.xp_level);
+        rows.push((tr("Food"), tr("Food"), vec![format!("{} / {}", group_digits(have), group_digits(need)), format!("{} / {}", compact_count(have), compact_count(need))]));
+    }
+    // One column when there's room for rows 15 units apart, else two; centred in what's left.
+    let room_h = r[1] + r[3] - 4.0 * s - top;
+    let n = rows.len();
+    let one_column = room_h >= n as f32 * 15.0 * s;
+    let (cols, per_col) = if one_column { (1, n) } else { (2, n.div_ceil(2)) };
+    let row_h = (room_h / per_col as f32).min(22.0 * s);
+    let (label_size, value_size) = (lay.font(11.0), lay.font(12.0));
+    let col_w = (r[2] - 12.0 * s) / cols as f32;
+    let y0 = top + (room_h - per_col as f32 * row_h) / 2.0;
+    for (i, (long, short, forms)) in rows.iter().enumerate() {
+        let (col, row) = if one_column { (0, i) } else { (i % 2, i / 2) };
+        let cx = r[0] + 6.0 * s + col as f32 * col_w;
+        let ty = y0 + row as f32 * row_h + (row_h - value_size * 1.22) / 2.0;
+        let label = if one_column { *long } else { *short };
+        ui.label(label, cx + 2.0 * s, ty + (value_size - label_size) * 0.6, label_size, true, color::TEXT_MUTED);
+        let room = col_w - 6.0 * s - (2.0 * s + ui.measure(label, label_size, true)) - 6.0 * s;
+        let value = forms.iter().find(|v| ui.measure(v, value_size, true) <= room).unwrap_or(&forms[forms.len() - 1]);
+        let vw = ui.measure(value, value_size, true);
+        ui.label(value, cx + col_w - 6.0 * s - vw, ty, value_size, true, color::TEXT);
     }
 }
 
@@ -5291,7 +5392,7 @@ mod tests {
     #[test]
     fn portal_button_waits_for_its_panel() {
         let (locked, fame) = (Default::default(), HashMap::new());
-        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, arena_votes: None, arena_next: None, visit: None, crucible_ask: None };
+        let social = Social { trade: None, invite: None, locked: &locked, ignored: &locked, now: 0, history: &[], fame: &fame, pet: None, arena_votes: None, arena_next: None, visit: None, crucible_ask: None };
         let (lay, data, world) = (Layout::new(1920, 1080), GameData::default(), World::new(10, 10, "test", 1));
         let mut state = HudState::default();
         let mut panel = Panel::new(&lay, &world, &data, &state, &social);

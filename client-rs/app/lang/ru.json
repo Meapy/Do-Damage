@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Ваш питомец носит его всюду, виден всем. Получайте их в Realm Pass.",
 "Your pet wears no effect.": "На питомце нет эффекта.",
 "Your pet wears {name}.": "На питомце: {name}.",
-"{gain}, without fame": "{gain}, без славы"
+"{gain}, without fame": "{gain}, без славы",
+"Pet": "Питомец",
+"No pet out": "Питомец не выпущен",
+"Food": "Корм"
 }

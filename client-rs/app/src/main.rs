@@ -2724,6 +2724,7 @@ impl App {
                 visit: game.visit.as_ref(),
                 crucible_ask: game.crucible_ask,
                 fame: &game.fame_stats,
+                pet: game.pet_out.as_ref(),
             };
             let built = game.world.as_ref().map(|w| hud::Panel::new(&lay, w, data, &self.hud, &social));
             self.hud.see_interact(built.as_ref().and_then(|p| p.interact.as_ref()).map(|t| t.id), now);
@@ -3070,6 +3071,16 @@ impl App {
             }
             if let Some(p) = game.pet_pen.take() {
                 self.pet_pen.answer(p);
+            }
+            // the card's pet page: ask for the pet out as it opens, and every 10 s while it shows
+            // (a stone used, a pet fed elsewhere); asked afresh each time it's opened
+            if self.hud.card_tab == hud::CARD_PET {
+                if game.pet_asked.is_none_or(|at| now - at >= 10_000) {
+                    game.pet_asked = Some(now);
+                    game.pet_pen(petpen::ASK, 0);
+                }
+            } else {
+                game.pet_asked = None;
             }
             for act in std::mem::take(&mut self.keeper_acts) {
                 log::info!("keeper: {act:?}");
@@ -3561,6 +3572,7 @@ impl App {
                             visit: game.visit.as_ref(),
                             crucible_ask: game.crucible_ask,
                             fame: &game.fame_stats,
+                            pet: game.pet_out.as_ref(),
                         };
                         self.hud.nexus_key = options::key_label(self.settings.key(options::Bind::Nexus));
                         self.hud.quests_key = options::key_label(self.settings.key(options::Bind::Quests));
@@ -3671,6 +3683,7 @@ impl App {
                     visit: game.visit.as_ref(),
                     crucible_ask: game.crucible_ask,
                     fame: &game.fame_stats,
+                    pet: game.pet_out.as_ref(),
                 };
                 hud::draw_windows(&mut ui, &lay, world, p, &social, mouse);
                 // the guild prompt follows the register's price (an event ending while it's open)

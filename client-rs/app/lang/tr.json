@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Evcilin onu gittiği her yerde taşır, herkes görür. Realm Pass'te kazan.",
 "Your pet wears no effect.": "Evcilinde hiç efekt yok.",
 "Your pet wears {name}.": "Evcilinde {name} var.",
-"{gain}, without fame": "{gain}, şöhretsiz"
+"{gain}, without fame": "{gain}, şöhretsiz",
+"Pet": "Evcil",
+"No pet out": "Dışarıda evcil yok",
+"Food": "Yem"
 }

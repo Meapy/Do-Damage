@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Ваш улюбленець носить його всюди, видно всім. Здобувайте їх у Realm Pass.",
 "Your pet wears no effect.": "На улюбленці немає ефекту.",
 "Your pet wears {name}.": "На улюбленці: {name}.",
-"{gain}, without fame": "{gain}, без слави"
+"{gain}, without fame": "{gain}, без слави",
+"Pet": "Улюбленець",
+"No pet out": "Улюбленця не випущено",
+"Food": "Корм"
 }

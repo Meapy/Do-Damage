@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Porté par ton familier partout où il va, visible de tous. Gagne-les sur le Realm Pass.",
 "Your pet wears no effect.": "Ton familier ne porte aucun effet.",
 "Your pet wears {name}.": "Ton familier porte {name}.",
-"{gain}, without fame": "{gain}, sans renommée"
+"{gain}, without fame": "{gain}, sans renommée",
+"Pet": "Familier",
+"No pet out": "Aucun familier dehors",
+"Food": "Nourriture"
 }

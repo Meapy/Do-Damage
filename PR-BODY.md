@@ -1,4 +1,4 @@
-Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform. Deploys the world servers and the client together (the pearls need both), and the website; nobody is disconnected.
+Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform; a Pet tab on the character card. Deploys the world servers and the client together (the pearls need both), and the website; nobody is disconnected.
 
 ## For players
 
@@ -9,6 +9,9 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **New looks:** all nine pearls are redrawn (a wisp of magic, lightning, a vine, a halo, a ring of water, shadow, blood, a golden setting, chaos), and the throw, the pool, the recall and the homecoming each have their own effects.
 - **Nerissa's Tidepearl** is a Druid's pearl too, above the T8 (420 splash, 130 a pulse, 650 on the way home, a 260 heal, three out at once), and its three waves of the tide now roll out from where it lands.
 - **A new look and five skins:** the Druid is redrawn (an antlered hood, a sashed cloak, a pearl wand). The Armoire sells it five skins, each its own figure with something quiet round it: the **Deepwater Oracle** (coral crown, driftwood staff; bubbles rise round them and a ripple spreads at their feet), the **Autumn Warden** (antlers in red leaves, fur mantle, golden sickle; a leaf now and then falls from the antlers), the **Moonbloom Druid** (white hair, midnight robe, moonflower staff; a pool of moonlight and drifting motes), the **Mosshide Hermit** (toadstool cap, moss beard, lantern; three fireflies) at 200 gold, and the 16 by 16 **Archdruid** behind a stag's skull (eyes glowing in it, leaves circling, grass springing up in its footsteps) at 800. Dyes work on the Druid and on every skin.
+
+### Pets
+- **Your pet on your character card:** a third tab, **Pet**, beside Stats and Records, shows your pet out wherever you are: its look, name, size and level, a thin bar with the food to its next level (green once it's at its last), and what it does now: damage a second, the HP and MP it heals and how often, and the food to its next level in numbers. With no pet out it says so. It's the same as the Pen Keeper's window tells you, kept up to date every 10 seconds while the tab is open.
 
 ### Website
 - **The wiki is remade to be easier to use.** Its home page starts with a big search box (with searches to try), six "Where do you want to start?" tiles (I'm new, I want to get stronger, I want loot, a better item, to pick a class, I have a few minutes), "the game in one minute" and a card with a picture for every page.
@@ -71,6 +74,13 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Wiki:** `website/wiki/dungeons.md` (the Void's loot and ring, the raised Entity's platform); the ring's page and the drop tables come from the data.
 - **Not done:** no music of its own for the Void. The numbers are first guesses for playtesting.
 
+### Pet tab on the character card
+
+- **What and why:** asked for a button by the inventory showing the pet's stats, beside Stats and Records, fitting in. It's a third tab on the character card, drawn as the other two.
+- **Client only:** `hud.rs` (`CARD_TABS`, `CARD_PET`; `card_tab` lays three tabs across the card, a long word shrinking to fit its tab; `draw_pet`: the pet's icon, name, size and level line, a food bar, then rows laid out as `draw_records`'s, in two columns with short labels on a short card; `Social.pet`), `game.rs` (`pet_out`, a kept copy of every `PetPen` answer, and `pet_asked`), `main.rs` (while the tab shows, a `PetPenAct` ASK as it opens and every 10 s: the server answers ASK anywhere, not only in the Nexus). Three new lines in every `app/lang/*.json` ("Pet", "No pet out", "Food").
+- **Redeploy:** client only; the server already answers. Nobody is disconnected; nothing in Redis changes.
+- **Wiki:** `website/wiki/getting-started.md` (the card's three tabs), `pets.md` (the tab beside the Pen Keeper).
+
 ## Checks
 
 - `dotnet test source\Tests`: 530 passed, with `EveryPearlIsATidePearl` (every pearl and Nerissa's a `TidePearl`, rising by tier, no projectiles) and `ARecalledPearlStrikesAlongItsWay`.
@@ -83,3 +93,4 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - Wiki filters: on a local build, a nonsense search left 0 cards shown and clearing it brought all back, on the Pets (both lists), Dungeons, Necromantic Relic, a gear page (Swords, Rings) and a class page (Wizard).
 - Wiki remade: `python tools\build_site.py` builds it; every internal link and anchor checked (none broken); in the browser at 1440x900 and 375x812 the home, Getting started, Forge, Pets and Realm Pass pages lay out without sideways scrolling, the home search answers "how do I get stat potions", a page's screenshot opens in the lightbox, and every list filter still hides and brings back its cards.
 - The Void: `dotnet test source\Tests` 525 passed before the rebase; `python tools\make_elder.py` rewrote only the Elder Void Entity's health; `python toolsuild_wiki.py` shows the Omnipotence Ring with Judgement, Undying and its drops, and the Elder Void at 500,000. On an isolated stack (Rust client, Tester, `/dungeon The Elder Void`, `/empower Void Entity`): the server logged the platform widening (768 squares of platform, 1,829 changed, rim 17.5 to 23.5); a shot after it showed the wider platform, the void sky and the Empowered Entity at 667,379. Judgement and Undying were not tried in game.
+- Pet tab: `cargo test -p bsk-client` 129 passed (every new line translated). Isolated stack (slot 1), the Tester at 1280x720: three tabs fit on the card; clicking Pet asked the server (one `PetPenAct`) and showed Lil’ Oryx, Huge, level 30 of 30 in green, 1.5k damage, HP 67 and MP 70 in two columns on the short card. Not seen: a growing pet’s food row, the one-column layout on a taller window, German and Russian.

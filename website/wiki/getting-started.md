@@ -220,8 +220,9 @@ The world fills the window, with one bar down the right:
   its places with their pictures (the Divine Forge, the Warcaller, the Pen Keeper, the portals...),
   ringed gold for those you talk to and violet for portals, even before you've been there, at the
   map's edge when they're out of view: hover one for its name.
-- **Your character card:** your name, class and level, with two tabs: your stats, and your records
-  (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played).
+- **Your character card:** your name, class and level, with three tabs: your stats, your records
+  (kills, god and Oryx kills, quests, dungeons, accuracy, potions drunk and time played), and your
+  pet (its size and level, the food to its next level, and the damage and healing it does now).
   Out of combat you walk faster: **+20 Speed** (shown in green beside it) whenever no enemy has
   hit you and you haven't hit one for 10 seconds. It goes the moment either happens.
 - **At the foot:** the Nexus button, your equipment, your inventory (two small buttons switch to

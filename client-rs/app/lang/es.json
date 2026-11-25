@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Tu mascota lo lleva allá donde va, a la vista de todos. Gánalos en el Realm Pass.",
 "Your pet wears no effect.": "Tu mascota no lleva ningún efecto.",
 "Your pet wears {name}.": "Tu mascota lleva {name}.",
-"{gain}, without fame": "{gain}, sin gastar fama"
+"{gain}, without fame": "{gain}, sin gastar fama",
+"Pet": "Mascota",
+"No pet out": "Ninguna mascota fuera",
+"Food": "Comida"
 }

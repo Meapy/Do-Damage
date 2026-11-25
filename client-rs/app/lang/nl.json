@@ -1621,5 +1621,8 @@
 "Worn by your pet wherever it goes, for everyone to see. Earn them on the Realm Pass.": "Je huisdier draagt het overal, voor iedereen zichtbaar. Verdien ze met de Realm Pass.",
 "Your pet wears no effect.": "Je huisdier draagt geen effect.",
 "Your pet wears {name}.": "Je huisdier draagt {name}.",
-"{gain}, without fame": "{gain}, zonder roem"
+"{gain}, without fame": "{gain}, zonder roem",
+"Pet": "Huisdier",
+"No pet out": "Geen huisdier bij je",
+"Food": "Voer"
 }

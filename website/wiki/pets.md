@@ -44,7 +44,9 @@ pets really do.
 
 The **Pen Keeper** stands at the gate of the **pet pen**, east of the Herald and the Warcaller on the
 Arena island; pets of every kind come and go in the pen behind him. His window shows your pet's
-level, the food to its next level, and what it does now and at its last level. Talk to him to:
+level, the food to its next level, and what it does now and at its last level. Anywhere in the
+game, the **Pet** tab on your character card (beside Stats and Records) shows your pet out: its
+size and level, the food to its next level, and the damage and healing it does now. Talk to him to:
 
 - **Feed your pet**: pick anything in your inventory or backpack and he says how much food it is
   and what level it takes your pet to, then feed it (a whole stack at once). Pets eat:
