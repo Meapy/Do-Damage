@@ -103,6 +103,10 @@ namespace WorldServer.core.terrain
             TileDesc = desc.TileDesc;
         }
 
+        // Its object was changed in place (a new one, or a wall joined to new neighbours): the
+        // definition kept for sending it goes, so clients are sent the new one.
+        public void ForgetObjectDef() => _map.ObjectDefs.Remove(_index);
+
         public void InitConnection(Wmap map, int x, int y)
         {
             var objDesc = ObjDesc;

@@ -28,6 +28,10 @@ dotnet test source\Tests
   `--slot N` adds N, and in a worktree pass `--data-from <main checkout>\source\Redis\data` or it
   starts empty. Play with the Rust client's scripted flags or the bot (client-rs/AGENTS.md,
   "Testing against the servers"); `iso_stack.py stop` when done.
+- **Slow tests:** an `Assert.True(cond, $"...")` message is built every time, even when the
+  check passes: a map drawing in one made a 40-seed test take minutes a seed. Build such messages
+  only on failure (`if (!cond) Assert.Fail(...)`). If `dotnet test` dies with an MSBuild node
+  crash, run it with `-m:1`.
 - **Logs:** `build/live/<slot>/logs/wServer/<date>/info.txt` and `error.txt`,
   `App/bin/Debug/net8.0/logs/app/`; on the VPS `/opt/bsk/build/live/<slot>/logs/wServer/`,
   `/opt/bsk/app/logs/` and `journalctl -u bsk-world` / `-u 'bsk-gateway@*'`. Slow ticks (>200 ms)

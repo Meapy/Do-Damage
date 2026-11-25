@@ -722,6 +722,22 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
+  layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from
+  `BossResurrection.RaiseAt`; `Empowered.Marching`; `WmapTile.ForgetObjectDef`; `Orbit`'s
+  `alsoTarget` and the artifacts in `BehaviorDb.Tomb.cs`; `RandomLayoutDesc.Margin`, used by
+  `DungeonGenerator.Render`, and the Elder Tomb's `<RandomLayout margin="56">`;
+  `Tests/TombCourtTests.cs`): the first god of the Elder Tomb raised with a Necromantic Relic
+  opens five squares of the boss room's wall and builds, over about 9 s, a causeway 5 wide (walled
+  each side, braziers on its edges, straight runs with square turns, 35-45 squares) across the dark
+  the margin keeps round the tomb, to a round hall (floor radius 19.5, a 2-thick wall, six 2x2
+  pillars, twelve braziers, a sun in bands of the Elder lit grounds round its middle, and a still
+  copy of the boss anchor there). Each raised god walks there Invulnerable with its phases paused
+  (5 squares a second, never ahead of the floor), then fights, circling the middle with the others;
+  their artifacts circle the Empowered god too. A tomb with no room for the hall (none in 40
+  layouts) leaves the god where it rose. `iso_stack.py` makes Tester an admin on test stacks.
+  World server only.
+
 - **The Druid's pearls** (2026-11-25; `WorldServer/core/objects/TidePearl.cs`,
   `Player.TidePearls.cs`, the `TidePearl` activate with `pulseDamage`, `pulseHeal` and `pearls` in
   `ActivateEffect.cs`; the nine pearls in both `DoomedRealms.xml` copies; the Rust client's

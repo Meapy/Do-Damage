@@ -204,7 +204,8 @@
 		<Height>147</Height>
 		<MapJM>Doomed/Elder Tomb of the Ancients.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<RandomLayout>
+		<!-- margin: dark round the tomb for the Hall of Judgement a raised god builds (TombCourt.cs) -->
+		<RandomLayout margin="56">
 			<Goal>Elder Inactive Sarcophagus</Goal>
 		</RandomLayout>
 		<Dungeon/>

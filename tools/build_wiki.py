@@ -468,7 +468,12 @@ RAISE_DUNGEON_NOTES = {
                               "usual chances; the doubled chances and the second roll below come with the dragon "
                               "itself.",
     "Elder Tomb of the Ancients": "Bes, Nut and Geb each leave their own remains where they fall, and each needs a relic of "
-                                  "its own. An Empowered Tomb boss fights without the artifacts that circle the Elder one.",
+                                  "its own. Raised, a god won't fight in the tomb: the first tears the boss room's wall open "
+                                  "and a walled causeway lined with braziers builds itself across the dark to the Hall of "
+                                  "Judgement, a great round hall with six pillars and a sun blazing on its floor that rises at "
+                                  "its end. The god walks there, untouchable until it stands in the hall, and every god raised "
+                                  "after follows it, so the ones still in the tomb are fought as before. In the hall the gods "
+                                  "circle the sun together, all three at once if you raise them all, their artifacts with them.",
 }
 RAISE_NOTES = {
     "Elder lod Ivory Wyvern": "Like the Elder Wyvern, the Empowered one turns into the Ivory Wyvern's loot when it "

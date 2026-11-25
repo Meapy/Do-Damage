@@ -152,7 +152,12 @@ the gaps between NewTicks. Its flags:
 | `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining (also `middle`, `mdown`, `mup` for pings), timed from the first world joined; positions in window pixels, read off a `--shot` first |
 
 - From Git Bash use `MSYS_NO_PATHCONV=1` and a Windows path for `--credentials`
-  (`C:/Users/...`), or it stays on the sign-in screen.
+  (`C:/Users/...`), or it stays on the sign-in screen. `--shot` too: a `/c/Users/...` path saves
+  nothing.
+- `iso_stack.py start` makes Tester (account 1) an admin, so `/dungeon`, `/tq`, `/empower` work;
+  with no account 1 in the data (a fresh stack) it says so. Start the client only once the world
+  log (`build/iso<N>/ws/ws.out`) has `RealmManager.Restore` or `opened again`: before that the
+  account server lists no world servers and the client stops at the server list.
 - `--credentials` plays the first living character in the list (the lowest id), and no flag picks
   another. To play a different class on an isolated copy, take the others out of the account's
   living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
