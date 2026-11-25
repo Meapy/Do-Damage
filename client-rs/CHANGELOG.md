@@ -19,6 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Wiki
 - **Oryx's drops are on the wiki:** searching or filtering for the Lil' Oryx pets, Oryx's shards and anything else from Oryx 1, Oryx 2 and Oryx the Infernal Mad God (and the Task Master) now finds them, with his drops on the Pets, gear and dungeon pages. The wiki had missed his loot altogether.
+- **The wiki uses your whole screen:** tables are as wide as the page allows instead of squeezed into a narrow column (no more scrolling sideways through the pet sizes or the weapon stats), each community goal's rewards sit a tier to a line, item icons in tables are smaller, and pets, gear and dungeons fit three cards to a row on a wide screen, so the long pages are up to a third shorter.
 
 ## 2.6.8 (2026-11-25)
 

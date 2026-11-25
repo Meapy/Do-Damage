@@ -7,6 +7,7 @@ Release 2.6.9: death replays line up. Deploys the client and website; nobody is 
 
 ### Wiki
 - **Oryx's drops are on the wiki:** the Lil' Oryx, Lil' Wine Cellar Oryx and Lil' Infernal Oryx pets, the Infernal forge shards and the rest of Oryx 1's, Oryx 2's, Oryx the Infernal Mad God's and the Oryx Guardian Task Master's loot show on the Pets, gear and dungeon pages, so searching or filtering for them finds them.
+- **The wiki uses the whole screen:** tables take the page's width instead of a 780px column, so they stop scrolling sideways and their cells stop wrapping a word to a line; the community goals' rewards are a tier to a line; item icons in tables are smaller; pet, gear and dungeon cards fit three to a row on a wide screen (two at 1024px), with the details across the whole card. Long pages are much shorter: Community Goals 49,800px to 31,800px tall at 1440px wide, Pets 40,200 to 31,000, Realm Pass 22,300 to 18,300, Forge 13,200 to 10,400.
 
 ## Details
 
@@ -24,7 +25,15 @@ Release 2.6.9: death replays line up. Deploys the client and website; nobody is 
 - **Tools:** `tools/wiki_data.py` (`_load_behaviours`) reads every behaviour's `const string` names first and takes an `.Init` that names one. The wiki gains Lil' Oryx, Lil' Wine Cellar Oryx and Lil' Infernal Oryx on the Pets page, the loot of Oryx's Chamber, the Wine Cellar and Oryx's Inferno on the Dungeons page (77 dungeons, was 75), and those drops on the gear pages and in search (1,939 entries, was 1,934). Oryx 4's old generated loot list, which the hand-written one replaces in the server, no longer shows on the gear pages (a rainbow bow at 10%, a platinum sword at 50%, a platinum wand at 20%: he doesn't drop them).
 - **Redeploy:** website only. Nobody is disconnected.
 
+### The wiki uses the whole screen
+
+- **What and why:** the owner's report: the Pets page's size table squeezed into a narrow column and scrolled sideways, "and others like it". Every table was capped at 780px, the width of running text, while the column beside it was far wider; long tables wrapped each cell onto many lines (Community Goals' rows were 704px tall).
+- **Website:** `website/style.css`: a table is as wide as it needs, up to the whole column (text stays at most 820px, was 780px); headers may wrap; the wiki is at most 2,000px wide (was 1,680px); "On this page" stands beside the page from 1,600px wide (was 1,280px; below that it is the box at the top, now up to four columns), so the column keeps 236px more on laptop screens; item icons in tables are 36px (were 56px); the stat tables' cells have less padding (Gear statistics' weapon tables fit at 1,440px); card grids fit cards from 310px (were 380px), and an item card has its sprite beside its name and tag only, the rest across the card; dungeon cards' labels are narrower. `tools/wiki_community.py`: a goal's rewards are a list, a tier's name and goal beside its rewards (class `goals`, `g-tiers`).
+- **Measured** (every wiki page in the browser at 390, 1,024, 1,440 and 1,920px): no page or card is wider than the screen; tables that scroll sideways at 1,440px: 35 before (32 on Gear statistics), 7 now, all on Gear statistics (its widest weapon tables; 2 at 1,920px).
+- **Redeploy:** website only. Nobody is disconnected.
+
 ## Checks
 
 - Death replays line up: `cargo test -p bsk-client` 131 passed, with `finds_the_lead_and_the_shot_that_hit` (a walking player the server hears of 150 ms late: the lead found, the shot that hit picked over one fired away, the hit shown when it met them) and `track_glides_between_places_and_jumps_to_gotos`; `cargo test -p bsk-world`; `cargo check --target wasm32-unknown-unknown -p bsk-client`. The reported replay (`lines_up_a_saved_replay`, 22 s, 8 hits from shots): all 8 matched to their shots, each shown within 30 ms of when the server counted it, in order; before, the drawn player met those shots up to 500 ms off. The client played it with `--replay` (the log: "the player 100 ms early, 8 of 8 hits with their shots").
 - Oryx's drops on the wiki: `python tools/build_wiki.py --out <scratch>` before and after; the Pets page's filter data now has Lil' Infernal Oryx ("oryx the infernal mad god (0.5%)"), Lil' Wine Cellar Oryx and Lil' Oryx; `drops_index()` gives the Infernal shards from Oryx the Mad God 4 (14%); the other pages differ only in their cache hash, except the gear, dungeon and search pages gaining those drops.
+- The wiki uses the whole screen: `python tools/build_site.py`, every wiki page measured in the browser at 390, 1,024, 1,440 and 1,920px (page heights, tables scrolling sideways, cards wider than they are); looked at the Pets size table, the pet cards, a gear page's cards, the dungeon cards and the community goals' rewards at 1,440px.
