@@ -178,13 +178,20 @@ class Data:
         Realms monsters go in self.doomed ({monster id: its definition}), used only where no
         hand-written behaviour replaces it (as InitDoomed does)."""
         inits = {}
-        start = re.compile(r'\.Init(Doomed)?\(\s*(E\(|Elder\()?\s*"([^"]+)"')
+        # .Init("x", ...), or .Init(O4, ...) with the name in a constant (private const string O4 =
+        # "Oryx the Mad God 4";), which may be in another file of the partial class
+        start = re.compile(r'\.Init(Doomed)?\(\s*(E\(|Elder\()?\s*(?:"([^"]+)"|([A-Za-z_]\w*)\s*,)')
         doomed_names = {}
-        for path in glob.glob(os.path.join(LOGIC, "**", "*.cs"), recursive=True):
-            if os.path.basename(path) == "DoomedMonsters.cs":
-                continue
+        paths = [p for p in glob.glob(os.path.join(LOGIC, "**", "*.cs"), recursive=True)
+                 if os.path.basename(p) != "DoomedMonsters.cs"]
+        texts = {}
+        consts = {}
+        for path in paths:
             with open(path, encoding="utf-8-sig") as f:
-                text = f.read()
+                texts[path] = f.read()
+            consts.update(re.findall(r'\bconst string (\w+)\s*=\s*"([^"]+)"\s*;', texts[path]))
+        for path in paths:
+            text = texts[path]
             # a file's own loot lists (private static MobDrops[] CourtLoot() => new MobDrops[] {...}),
             # which its monsters call
             helpers = dict(re.findall(r'static MobDrops\[\]\s+(\w+)\(\)\s*=>\s*new MobDrops\[\]\s*\{(.*?)\};', text, re.S))
@@ -204,7 +211,9 @@ class Data:
                             seen.add(h)
                             block += helpers[h]
                             todo.append(helpers[h])
-                name = m.group(3)
+                name = m.group(3) or consts.get(m.group(4))
+                if not name:
+                    continue
                 if m.group(1):
                     d = re.search(r'DoomedMonsterDefs\.(M_\w+)', block)
                     if d:

@@ -17,6 +17,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Death replays
 - **Hits land where they hit:** in a replay, the shot that hurt the character now meets them on screen, its damage showing as it strikes, and the shots that missed fly past them as they did. The character no longer trails a step behind where they really were, and walks smoothly. Replays saved before play this way too.
 
+### Wiki
+- **Oryx's drops are on the wiki:** searching or filtering for the Lil' Oryx pets, Oryx's shards and anything else from Oryx 1, Oryx 2 and Oryx the Infernal Mad God (and the Task Master) now finds them, with his drops on the Pets, gear and dungeon pages. The wiki had missed his loot altogether.
+
 ## 2.6.8 (2026-11-25)
 
 ### The Void
