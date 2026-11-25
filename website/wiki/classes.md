@@ -92,7 +92,11 @@ double. A faint lane from the pool to you shows the way it will come, blinking i
 stand so your enemies are in it. From T3 two pearls can be out at once, from T6 three; throwing
 one more calls the oldest home at once, so throwing again and again keeps the tide moving.
 Nerissa's Tidepearl from the Crucible is a pearl too, stronger than the T8, and where it lands
-three waves of the tide roll out from it.
+three waves of the tide roll out from it. The Armoire sells the Druid four skins at 200 gold (the
+Deepwater Oracle, the Autumn Warden, the Moonbloom Druid and the Mosshide Hermit) and the 16 by 16
+Archdruid at 800, each with something of its own round it (rising bubbles, falling leaves,
+moonlight, fireflies, and the Archdruid's circling leaves and grass in its footsteps). Dyes work
+on all of them.
 
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks

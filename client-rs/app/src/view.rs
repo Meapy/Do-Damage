@@ -1781,7 +1781,10 @@ fn wearer(scene: &Scene, obj: &GameObj, desc: &ObjectDesc, me: Option<i32>, k: f
     let aura = if aura <= crate::auras::LAST { aura } else { 0 };
     let skin_type = obj.stat_int(76).unwrap_or(0);
     let skin_desc = (skin_type > 0).then(|| scene.data.objects.get(&(skin_type as u16))).flatten();
-    let skin = skin_desc.and_then(|d| d.xml.text_of("PassSkin")).and_then(crate::auras::SkinLook::named);
+    // a Realm Pass skin's look, or an Armoire skin's (`<SkinLook>`: the Druid's)
+    let skin = skin_desc
+        .and_then(|d| d.xml.text_of("PassSkin").or_else(|| d.xml.text_of("SkinLook")))
+        .and_then(crate::auras::SkinLook::named);
     if aura == 0 && skin.is_none() {
         return None;
     }
@@ -1790,7 +1793,7 @@ fn wearer(scene: &Scene, obj: &GameObj, desc: &ObjectDesc, me: Option<i32>, k: f
         return None;
     }
     // a 16-pixel skin is drawn at half the size to stand as tall as the 8-pixel classes
-    let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0 * if skin.is_some() { 2.0 } else { 1.0 };
+    let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0 * if skin.is_some_and(|s| s.sixteen()) { 2.0 } else { 1.0 };
     let [x, y] = scene.stand(obj);
     Some(crate::auras::Wearer { id: obj.id, x, y, tile: crate::auras::TILE * k, size, aura, skin, alpha })
 }

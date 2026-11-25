@@ -16,6 +16,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Druid
 - **The Druid calls the tide:** pearls are now thrown where you aim. Where one lands it splashes the enemies round it, then lies in a tide pool that hurts the enemies in it every half second, straight through their defense, slows them and mends your allies. When its time is up the pearl rushes back to you, striking every enemy on its way, and heals you more for each one it hit. Throw another while your pearls are out (up to two from T3, three from T6) and the oldest comes home at once. A lane on the ground shows where it will come back: stand so your enemies are in it. Every pearl has a new look, and Nerissa's Tidepearl is a pearl too, its tide rolling out where it lands.
+- **A new look and five skins:** the Druid is redrawn, an antlered hood and a pearl wand, and the Armoire sells it five skins, each with its own look and something round it: the Deepwater Oracle (rising bubbles), the Autumn Warden (falling leaves), the Moonbloom Druid (moonlight), the Mosshide Hermit (fireflies) at 200 gold, and the tall Archdruid behind a stag's skull (circling leaves, grass springing up in its steps) at 800. Dyes work on the Druid and every skin.
 
 ## 2.6.7 (2026-11-24)
 

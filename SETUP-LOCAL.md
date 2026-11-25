@@ -737,6 +737,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   pulse, the hovering pearl), a lane from it to its Druid showing where the recall will strike
   (blinking in its last second), the throw, the recall and the homecoming; the older clients see a
   ring at the pool's edge (Trap), which the new client leaves out.
+  The Druid is redrawn (an antlered hood, a sashed cloak, a pearl wand) with a dye mask, and the
+  Armoire sells it five skins (`tools/draw_druid.py` writes the Druid's block of `players.png` and
+  `playersMask.png`, `DruidSkins8x8.png`/`DruidSkins16x16.png` with their masks in the client's
+  `custom/images`, and both `DruidSkins.xml`, types 0xE210-0xE214): the Deepwater Oracle, the
+  Autumn Warden, the Moonbloom Druid and the Mosshide Hermit at 200 gold, the 16 by 16 Archdruid at
+  800. Each skin has its own mask, so dyes work on it (`gen_rs_manifest.py`'s `RS_ONLY_CHARS`
+  takes an optional mask path). A skin's `<SkinLook>` names the effect the Rust client draws round
+  it (`auras.rs`, as a Realm Pass skin's `<PassSkin>`, which also marks a skin as the pass's): the
+  Oracle's bubbles and ripple, the Warden's falling leaves, the Moonbloom's moonlight and motes,
+  the Hermit's fireflies, the Archdruid's glowing eyes, circling leaves and grass in its steps.
+  Only 16-pixel skins are drawn at double scale (`SkinLook::sixteen`).
 
 - **The Crucible's caches** (2026-11-23; `logic/behaviors/CrucibleCaches.cs`, `BehaviorDb.Crucible.cs`,
   `tools/build_crucible.py` `CACHES`, `tools/crucible/small.py` `caches()`, the Rust client's

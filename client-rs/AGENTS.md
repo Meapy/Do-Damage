@@ -172,6 +172,10 @@ the gaps between NewTicks. Its flags:
   reading anything into a shot; one run that sends it is enough.
 - `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
   characters (a class, items, `alive.1`) are lost and must be made again after each start.
+- To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it
+  back to 0 at sign-in unless the account owns it. Add it to the account's `skins` first, 2-byte
+  little-endian types: `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214),
+  then `hset char.1.<id> skin 57876`. A pet out stands in front of you in the Nexus.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display

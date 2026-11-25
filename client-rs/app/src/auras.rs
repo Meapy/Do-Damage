@@ -1,6 +1,6 @@
 //! The Realm Pass's looks round a player (`pass.rs` has the pass itself): the aura they wear (the
 //! server's `AURA` stat, an id from `pass.json`) and the effects of its hand-drawn skins (a skin
-//! whose XML has `<PassSkin>`, by its look). Everything here is drawn afresh each frame from the
+//! whose XML has `<PassSkin>`, or an Armoire skin's `<SkinLook>`, by its look). Everything here is drawn afresh each frame from the
 //! time, glowing, like the Father's ward (`ward.rs`): a part on the ground under the player
 //! (`ground`, with the shadows) and a part in the air round them (`air`, over the objects). Only
 //! the footprints and trails need memory (`Trails`).
@@ -18,6 +18,14 @@
 //!   steaming, frozen footprints behind him.
 //! - The Aurora Ranger: the northern lights rippling over her head and streaming behind her as
 //!   she runs, motes of it drifting.
+//!
+//! The Druid's skins from the Armoire (`<SkinLook>`, tools/draw_druid.py), each one quiet thing:
+//! - The Deepwater Oracle: bubbles rising round them, a ripple spreading under their feet.
+//! - The Autumn Warden: a leaf now and then falling from the antlers, swaying down.
+//! - The Moonbloom Druid: a pool of moonlight under them, motes of it drifting up.
+//! - The Mosshide Hermit: three fireflies wandering round them, blinking.
+//! - The Archdruid: its eyes glowing in the skull, leaves circling slowly round it, and
+//!   grass springing up in its footsteps.
 
 use bsk_render::{Renderer, Tint};
 use std::collections::{HashMap, VecDeque};
@@ -32,12 +40,17 @@ pub const CONSTELLATION: u8 = 6;
 /// The highest aura drawn (a newer server's other ids show nothing).
 pub const LAST: u8 = 6;
 
-/// A Realm Pass skin's effects, by its `<PassSkin>` look.
+/// A skin's effects, by its `<PassSkin>` or `<SkinLook>` look.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SkinLook {
     Archmage,
     Winterguard,
     Aurora,
+    Oracle,
+    Warden,
+    Moonbloom,
+    Hermit,
+    Archdruid,
 }
 
 impl SkinLook {
@@ -46,8 +59,18 @@ impl SkinLook {
             "archmage" => SkinLook::Archmage,
             "winterguard" => SkinLook::Winterguard,
             "aurora" => SkinLook::Aurora,
+            "oracle" => SkinLook::Oracle,
+            "warden" => SkinLook::Warden,
+            "moonbloom" => SkinLook::Moonbloom,
+            "hermit" => SkinLook::Hermit,
+            "archdruid" => SkinLook::Archdruid,
             _ => return None,
         })
+    }
+
+    /// A 16-pixel skin's (drawn at half its size to stand as tall as the 8-pixel classes).
+    pub fn sixteen(self) -> bool {
+        !matches!(self, SkinLook::Oracle | SkinLook::Warden | SkinLook::Moonbloom | SkinLook::Hermit)
     }
 }
 
@@ -359,6 +382,29 @@ pub fn ground(r: &mut Renderer, w: &Wearer, trails: &Trails, to_screen: &dyn Fn(
             }
             p.glow(x, y, 0.5 * t, 0.22 * t, 0x6EF0BA, 0.18);
         }
+        SkinLook::Oracle => {
+            // a ripple spreading under their feet
+            let (ph, _) = cycle(now, 0, 2600);
+            p.glow(x, y, 0.42 * t, 0.17 * t, 0x46E2D4, 0.1);
+            p.band(x, y, (0.18 + 0.42 * ph) * t, (0.08 + 0.17 * ph) * t, 0.86, 1.0, 0.0, TAU, 0xBFF8F0, 0.3 * (1.0 - ph));
+        }
+        SkinLook::Moonbloom => {
+            p.glow(x, y, 0.58 * t, 0.24 * t, 0xD8D0FF, 0.14 + 0.04 * (ms * 0.0015).sin());
+        }
+        SkinLook::Archdruid => {
+            p.glow(x, y, 0.5 * t, 0.2 * t, 0x8CE07A, 0.1);
+            // grass springing up where it stepped, and wilting
+            for (mx, my, age, left) in trails.marks(w.id, now) {
+                let [sx, sy] = to_screen(mx, my);
+                let sx = sx + if left { -0.07 } else { 0.07 } * tile;
+                let grow = (age * 4.0).min(1.0) * (1.0 - age);
+                for (dx, lean, c) in [(-0.04, -0.03, 0x5AAE48), (0.0, 0.01, 0x8CE07A), (0.04, 0.03, 0x5AAE48)] {
+                    let base = [sx + dx * tile, sy];
+                    p.line(base, [base[0] + lean * tile, sy - 0.11 * tile * grow], 0.025 * tile, c, 0.8 * grow);
+                }
+            }
+        }
+        SkinLook::Warden | SkinLook::Hermit => {}
     }
 }
 
@@ -531,6 +577,69 @@ pub fn air(r: &mut Renderer, w: &Wearer, now: i32) {
                 p.dot(mx, my, 0.04 * t, ramp(&AURORA, h(i + 7, c)), (ph * PI).sin());
             }
         }
+        SkinLook::Oracle => {
+            // bubbles rising round them, wobbling
+            for i in 0..4u32 {
+                let (ph, c) = cycle(now, i, 2800);
+                let k = (ph * PI).sin();
+                let bx = x + (h(i, c) - 0.5) * 0.7 * t + 0.035 * t * (ph * 9.0 + i as f32).sin();
+                let by = y - (0.2 + 0.8 * ph) * t;
+                let size = (0.045 + 0.025 * h(i + 4, c)) * t;
+                p.band(bx, by, size, size, 0.6, 1.0, 0.0, TAU, 0xBFF8F0, 0.45 * k);
+                p.dot(bx - 0.3 * size, by - 0.3 * size, 0.3 * size, 0xFFFFFF, 0.7 * k);
+            }
+        }
+        SkinLook::Warden => {
+            // now and then a leaf falls from the antlers, swaying
+            for i in 0..2u32 {
+                let (ph, c) = cycle(now, i * 3, 3400);
+                if h(i, c) < 0.35 {
+                    continue;
+                }
+                let side = if (i + c) % 2 == 0 { -1.0 } else { 1.0 };
+                let sway = (ph * 7.0 + i as f32).sin();
+                let lx = x + side * (0.25 + 0.15 * ph) * t + 0.08 * t * sway;
+                let ly = y - (0.82 - 0.8 * ph) * t;
+                let fade = (ph * 6.0).min(1.0) * ((1.0 - ph) * 4.0).min(1.0);
+                let c1 = if h(i + 9, c) < 0.5 { 0xE8482A } else { 0xF0B030 };
+                p.diamond(lx, ly, 0.05 * t, 0.085 * t, sway * 0.9, c1, mix(c1, 0xFFFFFF, 0.3), 0.9 * fade);
+            }
+        }
+        SkinLook::Moonbloom => {
+            // motes of moonlight drifting up
+            for i in 0..3u32 {
+                let (ph, c) = cycle(now, i, 3200);
+                let k = (ph * PI).sin();
+                let mx = x + (h(i, c) - 0.5) * 0.8 * t;
+                let my = y - (0.1 + 0.9 * ph) * t;
+                p.glow(mx, my, 0.05 * t, 0.05 * t, 0xD8C8FF, 0.5 * k);
+                p.dot(mx, my, 0.022 * t, 0xFFFFFF, 0.8 * k);
+            }
+        }
+        SkinLook::Hermit => {
+            // three fireflies wandering round, blinking
+            for i in 0..3u32 {
+                let a = ms * 0.0006 * (1.0 + 0.35 * i as f32) + i as f32 * 2.1;
+                let fx = x + 0.48 * t * a.cos() * (0.8 + 0.2 * (a * 1.3).sin());
+                let fy = y - (0.45 + 0.22 * (a * 1.7).sin()) * t + 0.1 * t * a.sin();
+                let blink = (0.5 + 0.5 * (ms * 0.005 + i as f32 * 2.3).sin()).powi(3);
+                p.glow(fx, fy, 0.09 * t, 0.09 * t, 0xFFE070, 0.45 * blink);
+                p.dot(fx, fy, 0.03 * t, 0xFFF8C0, 0.3 + 0.7 * blink);
+            }
+        }
+        SkinLook::Archdruid => {
+            // its eyes glowing in the skull
+            p.glow(x + 0.02 * t, y - 0.7 * t, 0.13 * t, 0.06 * t, 0x96FFA0, 0.22 + 0.08 * (ms * 0.003).sin());
+            // leaves circling slowly round it, dimmer passing behind
+            for i in 0..3u32 {
+                let a = ms * 0.0008 + i as f32 * TAU / 3.0;
+                let depth = a.sin();
+                let lx = x + 0.5 * t * a.cos();
+                let ly = y - (0.42 + 0.06 * (a * 2.0).sin()) * t + 0.12 * t * depth;
+                let c1 = if i == 1 { 0xF0B030 } else { 0x8CE07A };
+                p.diamond(lx, ly, 0.05 * t, 0.09 * t, a * 1.5, c1, mix(c1, 0xFFFFFF, 0.35), 0.35 + 0.45 * depth.max(0.0));
+            }
+        }
     }
 }
 
@@ -542,6 +651,8 @@ mod tests {
     fn looks_by_name_and_steps_by_distance() {
         assert_eq!(SkinLook::named("aurora"), Some(SkinLook::Aurora));
         assert_eq!(SkinLook::named("nope"), None);
+        assert_eq!(SkinLook::named("archdruid"), Some(SkinLook::Archdruid));
+        assert!(SkinLook::Archdruid.sixteen() && SkinLook::Aurora.sixteen() && !SkinLook::Hermit.sixteen());
         let mut t = Trails::default();
         t.walk(1, 10.0, 10.0, 0);
         t.walk(1, 10.1, 10.0, 50);
