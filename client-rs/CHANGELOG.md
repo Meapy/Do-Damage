@@ -29,6 +29,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Pets
 - **Your pet on your character card:** a new **Pet** tab beside Stats and Records shows your pet out anywhere in the game: its size and level, the food to its next level, and the damage and healing it does now.
 
+### Crucible
+- **Admins can bring you back into a climb:** if you drop out of a climb mid-fight, an admin's `/summon` now brings you back in beside the others, even once the climb has begun, the lobby is full or your climbs for the day are used up, and it costs you no climb.
+
 ### Website
 - **The wiki is remade to be easier to use:** its home page starts with a big search box and "Where do you want to start?" tiles, every guide opens with a short "In short" summary and most with an in-game screenshot (click it to see it full size), the sidebar is in five clear sections that fold away, and search understands questions like "how do I get stat potions". The search boxes on the Pets, Dungeons, gear, class and Necromantic Relic pages work again: they hid nothing before.
 

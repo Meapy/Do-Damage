@@ -1,4 +1,4 @@
-Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform; a Pet tab on the character card; and the Hall of Judgement, where raised Elder Tomb gods walk to fight together. Deploys the world servers and the client together (the pearls need both), and the website; nobody is disconnected.
+Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, then called home through the enemies, with new sprites, a new look and five Armoire skins; the wiki remade, easier to use, with screenshots; and the Void finished: less health, better loot, the Omnipotence Ring, and a raised Void Entity that widens its platform; a Pet tab on the character card; the Hall of Judgement, where raised Elder Tomb gods walk to fight together; and an admin's /summon brings a player back into a Crucible climb under way. Deploys the world servers and the client together (the pearls need both), and the website; nobody is disconnected.
 
 ## For players
 
@@ -16,6 +16,9 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 
 ### Pets
 - **Your pet on your character card:** a third tab, **Pet**, beside Stats and Records, shows your pet out wherever you are: its look, name, size and level, a thin bar with the food to its next level (green once it's at its last), and what it does now: damage a second, the HP and MP it heals and how often (shortened to 67/1.5s on a short card), and the food to its next level in numbers. With no pet out it says so. It's the same as the Pen Keeper's window tells you, kept up to date every 10 seconds while the tab is open.
+
+### Crucible
+- **Admins can bring you back into a climb:** an admin's `/summon` now brings a player into a Crucible climb even once it has begun (before, it was turned away with "That game has already started"), past a full lobby or a day's climbs used up, from either world server, without using one of their climbs. They land beside the climbers (an admin first), not on the Threshold, which has fallen away by then. Players' own `/summon`, `/visit` and `/help` still can't bring anyone into a climb under way.
 
 ### Website
 - **The wiki is remade to be easier to use.** Its home page starts with a big search box (with searches to try), six "Where do you want to start?" tiles (I'm new, I want to get stronger, I want loot, a better item, to pick a class, I have a few minutes), "the game in one minute" and a card with a picture for every page.
@@ -96,6 +99,14 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Test tooling:** `tools/testclient/iso_stack.py` makes Tester (account 1) an admin on every test stack once Redis has loaded.
 - **Not done:** a god raised before the hall exists in a tomb with no room for it (never seen in 40 layouts) fights where it rose, as before. The hall stays once built.
 
+### Crucible: an admin's /summon gets past everything
+
+- **What and why:** a player summoned by an admin into a Crucible climb under way (say after dropping out mid-fight) was turned away: `World.CanEnter` ignored every invitation once `Begun`, so they got "That game has already started". Asked for an admin's summon to override every check.
+- **World server:** `World.CanEnter` honours an admin's invitation (`Invite(free: true)`, 60 s) even when the instance has begun, and before `AllowedAccess` (so past a full climb or no climbs left). `RemoteVisits.Ask` now passes `free: true` for an admin summoning from the other world server too (it didn't, so that one also used up a climb). `CrucibleWorld.GetPlayerSpawnPosition`: once the climb has begun, a newcomer lands beside a climber on solid ground (an admin first), else on the current floor's south side, instead of on the Threshold, which has fallen into the sky.
+- **Redeploy:** world servers only, rolling; nobody is disconnected. No Redis data changed.
+- **Docs:** SETUP-LOCAL.md "Changes from upstream"; `website/wiki/crucible.md`.
+- **Not done:** not tried in game (needs two clients and a climb under way). Someone who fell is still kept off the board, and so is the climb itself once an admin is in it, as before.
+
 ## Checks
 
 - `dotnet test source\Tests`: 530 passed, with `EveryPearlIsATidePearl` (every pearl and Nerissa's a `TidePearl`, rising by tier, no projectiles) and `ARecalledPearlStrikesAlongItsWay`.
@@ -110,3 +121,4 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - The Void: `dotnet test source\Tests` 525 passed before the rebase; `python tools\make_elder.py` rewrote only the Elder Void Entity's health; `python toolsuild_wiki.py` shows the Omnipotence Ring with Judgement, Undying and its drops, and the Elder Void at 500,000. On an isolated stack (Rust client, Tester, `/dungeon The Elder Void`, `/empower Void Entity`): the server logged the platform widening (768 squares of platform, 1,829 changed, rim 17.5 to 23.5); a shot after it showed the wider platform, the void sky and the Empowered Entity at 667,379. Judgement and Undying were not tried in game.
 - Hall of Judgement: `dotnet test source\Tests --filter TombCourtTests`: 40 Elder Tomb layouts each get a hall (on dark only, touching no other room, gate of 5, walk of 18+, 6 pillars, 10+ braziers, walls round every floor square). Isolated stack (slot 3), Tester: `/dungeon Elder Tomb of the Ancients`, `/empower Bes`, `Nut`, `Geb`: the hall rose, each god walked the causeway and "stands in the Hall of Judgement", the three circling the middle; a shot showed the walled hall, pillars, braziers and sun.
 - Pet tab: `cargo test -p bsk-client` 129 passed (every new line translated). Isolated stack (slot 1), the Tester at 1280x720: three tabs fit on the card; clicking Pet asked the server (one `PetPenAct`) and showed Lil’ Oryx, Huge, level 30 of 30 in green, 1.5k damage, HP 67/1.5s and MP 70/3s in two columns on the short card. Not seen: a growing pet’s food row, the one-column layout on a taller window, German and Russian.
+- Admin summon into the Crucible: `dotnet build` of the world server and `dotnet test source\Tests` (525 passed before the rebase). Not tried in game.

@@ -36,7 +36,8 @@ Before the portal lets you in, it reminds you of the above and asks whether to c
 
 The climb begins a minute after the first climber arrives in the lobby (the Threshold). Anyone in
 the lobby can say **GO** to start it sooner. Once it begins, nobody else can join: not through
-the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. A lobby holds four;
+the portal, `/crucible`, `/visit`, `/summon`, `/help` or the Scrying Glass. (An admin can still
+summon someone back in, for instance after they lost their connection mid-fight.) A lobby holds four;
 the next to come in starts a lobby of their own.
 
 **Bring friends.** The champions are made for a group of up to four. Each player after the first adds

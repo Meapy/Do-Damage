@@ -787,6 +787,13 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   then an inter-server message (`Channel.Crucible`, `CrucibleMsg`) has every world server on that
   Redis reload the field for the players it holds (their accounts keep their own copy) and tell
   those who had climbed. Climbs begun after it count again as usual.
+- **An admin's `/summon` gets past everything** (2026-11-25; `World.CanEnter`, `RemoteVisits.Ask`,
+  `CrucibleWorld.GetPlayerSpawnPosition`): its invitation (`Invite(free: true)`, on this world
+  server or from the other) lets the player in for 60 s even into an instance under way (`Begun`,
+  a Crucible climb) and past `AllowedAccess` (no climbs left, the climb full), costing no climb.
+  Someone arriving mid-climb lands beside a climber on solid ground (an admin first), else on the
+  floor's south side, not on the fallen Threshold. Players' own `/summon`, `/visit` and `/help` still
+  can't bring anyone into a climb under way.
 - **Grown pets catch up, Huge floor, tuning** (2026-11-24; `PetLevels.cs` `Grown`, `Floor`,
   `Retune`, `Player.PetPen.cs` `TunePet`, the client's `petlevels.rs`, `petpen.rs` and `hud.rs`):
   a grown pet's damage and healing climb, level by level through each size it grew to, towards
