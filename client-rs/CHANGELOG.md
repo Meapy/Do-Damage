@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.8 (2026-11-25)
 
 ### The Void
 - **The Void is worth the trip:** the Void Entity has less health (300,000, the Elder one 500,000 instead of 800,000, and less added for each extra player), drops the Bow of the Void, the Quiver of the Shadows, the Armor of Nil and the Sourcestone half as often again, and the Elder one its Potion of Max Life twice as often. The platform now floats among the stars, and you can see all of it from anywhere on it.
