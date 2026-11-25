@@ -10,6 +10,9 @@
 //! the timeline and a line in the list beside the picture (what dealt it, its damage before and
 //! after defense, the health left), so a death can be checked against what was seen.
 //!
+//! The server hears of the player late, so as recorded they'd trail the shots: `sync` moves them
+//! along their recorded places a little early and shows each hit as its shot meets them.
+//!
 //! Its Download button saves the recording as a file (`bsk_net::replay::FILE_EXTENSION`): into
 //! Downloads on the desktop, a download in a browser. Dropped on the window (or named with
 //! `--replay <file>`), a saved one plays again, long after the server has let it go.
@@ -22,8 +25,10 @@ use crate::view::{self, Camera, Floater, Scene, Show};
 use bsk_data::GameData;
 use bsk_net::replay::{flag, from, Hurt, Record, Replay};
 use bsk_proto::{ServerMessage, StatValue};
-use bsk_world::{MoveInput, Projectile, World};
+use bsk_world::{Impact, MoveInput, Projectile, World};
 use winit::keyboard::KeyCode;
+
+mod sync;
 
 /// The picture's clock at the replay's start (the world's times are this plus ms into it).
 const CLOCK: i32 = 100_000;
@@ -38,6 +43,10 @@ const NORMAL_SPEED: usize = 2;
 const STEP_KEY_MS: f64 = 1000.0;
 /// A hit's line, clicked, plays from this long before it, ms.
 const LEAD_MS: f64 = 1500.0;
+/// The player is walking when their place moves this fast (tiles per ms), judged over this
+/// long either side (ms).
+const WALKING: f64 = 0.0005;
+const WALK_JUDGE_MS: f64 = 50.0;
 /// How quickly the camera catches up with the player (ms to close about two thirds of the gap),
 /// and how far they must jump for it to cut straight there, tiles.
 const CAMERA_EASE_MS: f64 = 110.0;
@@ -71,7 +80,14 @@ pub struct Viewer {
     pub file: Replay,
     snapshot: Vec<ServerMessage>,
     events: Vec<(i32, Event)>,
+    /// The hits, by when they show (as lined up by `sync`), and when the server counted each.
     hurts: Vec<(i32, Hurt)>,
+    recorded: Vec<i32>,
+    /// How the player and their hits are lined up with the shots (worked out at the first build).
+    sync: Option<sync::Sync>,
+    /// A hit shown before the server counted it: until then (ms), and the health it left, so a
+    /// tick from before it doesn't put the health back.
+    held_hp: Option<(i32, i32)>,
     /// Where the death is, ms from the start.
     end: i32,
     /// How far in we are, ms, and how far the world has been moved.
@@ -131,11 +147,15 @@ impl Viewer {
         // in time order (the recording is, but a message from another thread may be a ms out)
         events.sort_by_key(|e| e.0);
         log::info!("replay of {} ({} s, {} messages, {} hits)", file.name, end / 1000, events.len(), hurts.len());
+        let recorded = hurts.iter().map(|h| h.0).collect();
         Viewer {
             file,
             snapshot,
             events,
             hurts,
+            recorded,
+            sync: None,
+            held_hp: None,
             end: end.max(1),
             t: 0.0,
             stepped: 0,
@@ -161,12 +181,38 @@ impl Viewer {
         std::mem::take(&mut self.out)
     }
 
+    /// Lines the player and their hits up with the shots (`sync`), once: each hit then happens
+    /// when it shows.
+    fn line_up(&mut self, data: &GameData) {
+        let messages = self.snapshot.iter().map(|m| (0, m)).chain(self.events.iter().filter_map(|(at, e)| match e {
+            Event::Message(m) => Some((*at, m)),
+            _ => None,
+        }));
+        let s = sync::sync(self.file.target_id, messages, &self.hurts, self.end, data);
+        let found = s.hurts.iter().filter(|h| h.1.is_some()).count();
+        log::info!("replay lined up: the player {} ms early, {found} of {} hits with their shots", s.lead, self.hurts.len());
+        for (at, e) in &mut self.events {
+            if let Event::Hurt(i) = e {
+                *at = s.hurts[*i].0;
+            }
+        }
+        for (h, (at, _)) in self.hurts.iter_mut().zip(&s.hurts) {
+            h.0 = *at;
+        }
+        self.events.sort_by_key(|e| e.0);
+        self.sync = Some(s);
+    }
+
     /// The world as it was at the start.
     fn rebuild(&mut self, data: &GameData) {
+        if self.sync.is_none() {
+            self.line_up(data);
+        }
         let size = (self.file.size as i32).max(1);
         let mut world = World::new(size, size, &self.file.world, 0);
         world.background = self.file.background;
         world.watched = Some(self.file.target_id);
+        world.untouchable = Some(self.file.target_id);
         for m in &self.snapshot {
             apply(&mut world, &mut self.particles, &mut self.floaters, m, CLOCK, data, true);
         }
@@ -176,6 +222,7 @@ impl Viewer {
         self.camera = None;
         self.stepped = 0;
         self.next = 0;
+        self.held_hp = None;
     }
 
     /// Moves the world to `to` ms in, everything that happened on the way happening in turn;
@@ -187,7 +234,17 @@ impl Viewer {
             let Some(world) = self.world.as_mut() else { return };
             let now = CLOCK + at;
             match &self.events[self.next].1 {
-                Event::Message(m) => apply(world, &mut self.particles, &mut self.floaters, m, now, data, quiet),
+                Event::Message(m) => {
+                    apply(world, &mut self.particles, &mut self.floaters, m, now, data, quiet);
+                    // a tick from before a hit already shown leaves the health it left
+                    if let (ServerMessage::NewTick(_), Some((until, hp))) = (m, self.held_hp) {
+                        if at < until {
+                            if let Some(o) = world.objects.get_mut(&self.file.target_id) {
+                                o.stats.insert(stat::HP, StatValue::Int(hp));
+                            }
+                        }
+                    }
+                }
                 Event::Hurt(i) => {
                     let h = &self.hurts[*i].1;
                     let id = self.file.target_id;
@@ -195,12 +252,30 @@ impl Viewer {
                     if let Some(o) = world.objects.get_mut(&id) {
                         o.stats.insert(stat::HP, StatValue::Int(h.hp.max(0)));
                     }
+                    self.held_hp = Some((self.recorded[*i], h.hp.max(0)));
+                    // the shot that dealt it ends on them (one that pierces flies on)
+                    let shot = self.sync.as_ref().and_then(|s| s.hurts[*i].1);
+                    let struck = shot.and_then(|(owner, bullet)| {
+                        let k = world.projectiles.iter().position(|p| p.damages_players && p.owner_id == owner && p.bullet_id == bullet)?;
+                        let desc = world.projectile_desc(&world.projectiles[k], data)?;
+                        let look = (desc.object_id.clone(), world.projectiles[k].angle, desc.speed);
+                        if !desc.multi_hit {
+                            world.projectiles.remove(k);
+                        }
+                        Some(look)
+                    });
                     if !quiet && h.flags & flag::NO_HARM == 0 {
                         if h.flags & flag::DODGED != 0 {
                             self.floaters.push(Floater { object_id: id, text: tr("Lucky!").to_owned(), color: color::GOOD & 0xFF_FFFF, at: now, life: 1000, others: false });
                         } else {
                             self.floaters.push(Floater::hit(id, h.dealt, h.flags & flag::PIERCE != 0, now));
-                            self.particles.damaged(world, id, h.hp <= 0);
+                            match (struck, world.objects.get(&id)) {
+                                // sparks thrown the way the shot flew
+                                (Some((look, angle, speed)), Some(o)) if h.hp > 0 => {
+                                    world.impacts.push(Impact { x: o.x, y: o.y, target: Some(id), kill: false, look, angle, speed, pet_owner: None, others: false });
+                                }
+                                _ => self.particles.damaged(world, id, h.hp <= 0),
+                            }
                         }
                     }
                 }
@@ -225,6 +300,19 @@ impl Viewer {
             let s = (self.stepped + STEP_MS).min(to);
             let (now, dt) = (CLOCK + s, s - self.stepped);
             world.update(now, dt, &MoveInput::default(), data);
+            // the player along their recorded places, `lead` early (`sync`)
+            if let (Some(sync), Some(o)) = (self.sync.as_ref(), world.objects.get_mut(&self.file.target_id)) {
+                let t = (s + sync.lead) as f64;
+                if let (Some((x, y)), Some((ax, ay)), Some((bx, by))) = (sync.track.at(t), sync.track.at(t - WALK_JUDGE_MS), sync.track.at(t + WALK_JUDGE_MS)) {
+                    (o.x, o.y) = (x, y);
+                    let speed = (bx - ax).hypot(by - ay) / (2.0 * WALK_JUDGE_MS);
+                    o.moving = speed > WALKING;
+                    if o.moving {
+                        o.walk_speed = speed;
+                        o.facing = (by - ay).atan2(bx - ax);
+                    }
+                }
+            }
             world.update_projectiles(now, data);
             self.particles.impacts(world);
             if !quiet {

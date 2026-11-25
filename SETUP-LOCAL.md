@@ -731,7 +731,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   snapshot, about 20-25 s kept. A real death saves it gzipped to `replay.<account>.<char>` for 30
   days (for good in the all-time Legends). The death screen's Watch replay plays it; Download
   saves a `.bskreplay` file (the stored bytes), which plays again dropped on the window or with
-  `--replay <file>`.
+  `--replay <file>`. Since the server hears of the player late, the client lines them up
+  (`app/src/replay/sync.rs`, 2026-11-25): the player is shown along their recorded places a
+  lead early (fitted per replay, 0-400 ms), each shot's hit when and where its shot meets them,
+  and monsters' other shots fly through them.
 
 - **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
   layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from

@@ -610,7 +610,7 @@ impl World {
                 continue;
             }
             // shots pass through ghosts, ours too
-            if go.is_ghost() || (self.ghost && Some(go.id) == self.me) {
+            if go.is_ghost() || (self.ghost && Some(go.id) == self.me) || (p.damages_players && Some(go.id) == self.untouchable) {
                 continue;
             }
             let Some(gd) = data.objects.get(&go.object_type) else { continue };

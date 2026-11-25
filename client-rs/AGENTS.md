@@ -188,6 +188,10 @@ the gaps between NewTicks. Its flags:
   Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
 - `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
 - No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
+- Death replays need no server either: `--account http://127.0.0.1:1 --replay <file>`. How a
+  saved one's hits line up with their shots (`app/src/replay/sync.rs`) is printed, hit by hit, by
+  `BSK_REPLAY=<file> cargo test -p bsk-client lines_up_a_saved_replay -- --ignored --nocapture`:
+  quicker than catching a hit in a `--shot`.
 - Screenshots for the website (2026-11-25): `--npc GuildBoard` on the test account shows "Not in
   guild" and an empty board, `--say "/crucible"` stays in the Nexus (the test account hasn't
   reached Arena round 50), and `--npc ChampionsBoard` shows real players' names from the copied

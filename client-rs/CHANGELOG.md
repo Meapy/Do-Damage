@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Death replays
+- **Hits land where they hit:** in a replay, the shot that hurt the character now meets them on screen, its damage showing as it strikes, and the shots that missed fly past them as they did. The character no longer trails a step behind where they really were, and walks smoothly. Replays saved before play this way too.
+
 ## 2.6.8 (2026-11-25)
 
 ### The Void

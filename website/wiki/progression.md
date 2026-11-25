@@ -332,8 +332,8 @@ top 20, they lose both the same way.
 Every death can be **replayed**: on the death screen (your own, a grave in your Graveyard, or anyone's
 in Recent Deaths), **Watch replay** shows the character's last 20 seconds or so as they saw them.
 Pause it, slow it down, step through it a second at a time or drag along its timeline. Every hit they
-took is marked on the timeline and listed beside the picture: what dealt it, its damage before and
-after defense, and the health left, with the killing blow outlined, so you can see exactly what
+took lands on them as its shot strikes, is marked on the timeline and listed beside the picture:
+what dealt it, its damage before and after defense, and the health left, with the killing blow outlined, so you can see exactly what
 killed you (and tell the staff if something looks wrong). **Download** saves the replay as a file
 that plays again when you drop it on the game's window. Replays are kept for 30 days, and for good
 when the death makes the all-time Legends.
