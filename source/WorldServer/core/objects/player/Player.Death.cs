@@ -116,6 +116,11 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            // the replay of the death, before the death's record (a legend's is kept for good)
+            var replayData = Replay.Finish(killer);
+            if (replayData != null)
+                Shared.database.DeathReplays.Save(GameServer.Database.Conn, AccountId, Client.Character.CharId, replayData);
+
             SaveToCharacter();
             WeeklyStats.Count(Shared.database.leaderboard.DbWeeklyStats.Deaths);
             var rewards = RollDeathRewards();

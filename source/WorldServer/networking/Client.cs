@@ -92,6 +92,8 @@ namespace WorldServer.networking
             if (State == ProtocolState.Disconnected)
                 return;
             _handler.SendPacket(pkt);
+            // and those that go into the replay of a death (core/replay/ReplayRecorder.cs)
+            Player?.Replay.Forward(pkt);
             // the shots and effects a player watched in the Scrying Glass sees go to its viewers
             if (Player?.Spectated == true)
                 GameServer.Spectators.Forward(Player, pkt);

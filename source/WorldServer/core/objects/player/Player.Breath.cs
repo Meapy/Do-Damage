@@ -72,6 +72,7 @@ namespace WorldServer.core.objects
             {
                 _suffocationMs -= SuffocationEveryMs;
                 Health -= SuffocationDamage;
+                Replay.Hurt(replay.ReplayRecorder.FromAir, 0, 0, SuffocationDamage, SuffocationDamage);
                 if (Health <= 0)
                     Death("suffocation");
             }

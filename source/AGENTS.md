@@ -42,6 +42,10 @@ dotnet test source\Tests
 - **Deploying** happens with the next release (merging its pull request into `main`; ask the
   owner first) and kicks nobody: world servers roll (below), the account server restart pauses
   sign-ins for seconds, a new gateway takes a free slot. A message change ships with the client.
+- **Testing a death:** a monster from `/spawn` is "spawned", and its kill is a "got rekt": a
+  gravestone and back to the Nexus, no death record and no replay. For a real death on a test
+  stack, set the character's health low on the copy (`redis-cli -p <port> hset char.1.<id> hp 1`)
+  and send the bot to the Godlands (`--fight --say "/godlands"`): it died within 30 s.
 - **Stopping cleanly:** Ctrl+C or SIGTERM: `GameServer.Stop` ends the loop and
   `ConnectionListener.Shutdown` disconnects (and so saves) each player. A forced kill skips that.
 
@@ -193,6 +197,10 @@ dotnet test source\Tests
   `sprites.pending` and `sprites.approved`, the lists `sprites.by.<account>`, and rate counters
   `sprites.wait.*`, `.day.*`, `.ip.*`, `.all.*`. What shipped is
   `resources/data/community_sprites.json`, written by `tools/community_sprites.py` only.
+- **Death replays** (`Shared/database/DeathReplays.cs`, recorded by
+  `WorldServer/core/replay/ReplayRecorder.cs`): `replay.<account>.<char>`, gzipped, 30 days (no
+  expiry for an all-time legend). Read one with `/fame/replay` or the client's
+  `--screen replay:<account>:<char>`.
 - **Gold store** (`Shared/database/GoldStore.cs`, `App/Controllers/GoldController.cs`): `gold.order.<id>`
   hashes (paid ones kept for good: they're the payment records), `gold.orders.<acc>`,
   `gold.capture.<id>`, `gold.sales`, `gold.log`, `gold.session.<token>`, `gold.made.<acc>`. Gold

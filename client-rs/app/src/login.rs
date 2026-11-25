@@ -96,6 +96,12 @@ impl Endpoint {
         http::post_form(&format!("{}/fame/recent", self.account), &[("count", "20")])
     }
 
+    /// `/fame/replay`: a death's replay (`replay.rs`).
+    pub fn replay(&self, account_id: i32, char_id: i32) -> Pending<http::Response> {
+        let (a, c) = (account_id.to_string(), char_id.to_string());
+        http::post_form(&format!("{}/fame/replay", self.account), &[("accountId", &a), ("charId", &c)])
+    }
+
     /// `/char/fame`: a dead character's fame summary.
     pub fn char_fame(&self, account_id: i32, char_id: i32) -> Pending<http::Response> {
         let (a, c) = (account_id.to_string(), char_id.to_string());

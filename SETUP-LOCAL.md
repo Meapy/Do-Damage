@@ -722,6 +722,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Death replays** (2026-11-25; `WorldServer/core/replay/ReplayRecorder.cs`,
+  `Shared/database/DeathReplays.cs`, `App/Controllers/FameController.cs` `/fame/replay`, the Rust
+  client's `app/src/replay.rs` and `crates/net/src/replay.rs`): every player outside the Nexus is
+  recorded as the Scrying Glass streams them (tiles, objects, ticks with their public stats and
+  defense, the shots and effects they're sent, their own shots), with each hit the server accepted
+  (source, damage before and after defense, health left, flags), in 5 s segments opening with a
+  snapshot, about 20-25 s kept. A real death saves it gzipped to `replay.<account>.<char>` for 30
+  days (for good in the all-time Legends). The death screen's Watch replay plays it; Download
+  saves a `.bskreplay` file (the stored bytes), which plays again dropped on the window or with
+  `--replay <file>`.
+
 - **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
   layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from
   `BossResurrection.RaiseAt`; `Empowered.Marching`; `WmapTile.ForgetObjectDef`; `Orbit`'s

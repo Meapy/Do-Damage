@@ -12,6 +12,7 @@
 pub mod account;
 pub mod http;
 pub mod login;
+pub mod replay;
 mod socket;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod tls;

@@ -30,6 +30,26 @@ namespace App.Controllers
             Response.CreateXml(list.ToXml().ToString());
         }
 
+        /// A death's replay (Shared/database/DeathReplays.cs), base64 of the world server's gzipped
+        /// recording, for the client's replay viewer; anyone may watch one, as anyone may read a
+        /// death's summary (/char/fame).
+        [HttpPost("replay")]
+        public void Replay([FromForm] string accountId, [FromForm] string charId)
+        {
+            if (!int.TryParse(accountId, out var acc) || !int.TryParse(charId, out var chr))
+            {
+                Response.CreateError("Invalid character");
+                return;
+            }
+            var data = Shared.database.DeathReplays.Load(_core.Database.Conn, acc, chr);
+            if (data == null)
+            {
+                Response.CreateError("No replay");
+                return;
+            }
+            Response.CreateXml(new XElement("Replay", Convert.ToBase64String(data)).ToString());
+        }
+
         /// The server's latest deaths, newest first (the Legends screen's Recent Deaths).
         [HttpPost("recent")]
         public void Recent([FromForm] string count)

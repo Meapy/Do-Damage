@@ -40,6 +40,7 @@ mod npc;
 mod hdr;
 mod options;
 mod redraw;
+mod replay;
 mod screens;
 mod signs;
 #[allow(dead_code)] // lookups the game screens will use
@@ -237,6 +238,18 @@ struct App {
     /// comes while the death plays out in the world.
     death_fame: Option<Result<bsk_net::account::FameSummary, String>>,
     death_fame_asked: bool,
+    /// The character whose fame summary was last asked for (account, character), its death's
+    /// replay as asked for and read, and the replay playing (`replay.rs`, Screen::Replay).
+    fame_of: Option<(i32, i32)>,
+    replay_request: Option<Pending<bsk_net::http::Response>>,
+    replay_file: Option<bsk_net::replay::Replay>,
+    replay: Option<replay::Viewer>,
+    /// `--screen replay:<account>:<character>`: the replay opens once it's read.
+    replay_auto: bool,
+    /// A saved replay file to open (dropped on the window, or `--replay <file>`), and the screen
+    /// the replay's Back returns to.
+    replay_open: Option<std::path::PathBuf>,
+    replay_back: screens::Screen,
     /// The Discord screen's code: when it came (it lasts `DISCORD_CODE_SECS`), and when the
     /// character list was last asked for to see whether the Discord bot has taken it.
     discord_code_at: Option<Instant>,
@@ -1439,6 +1452,7 @@ impl App {
                 let account_id = self.front.list.as_ref().map(|l| l.account_id);
                 if let (Some(endpoint), Some(account_id)) = (&self.endpoint, account_id) {
                     self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
+                    self.fame_of = Some((account_id, char_id));
                     self.front.death_from_graveyard = true;
                     self.front.death_from_legends = false;
                     self.front.busy = tr("Reading the gravestone…").into();
@@ -1448,10 +1462,18 @@ impl App {
             Action::ViewDeathOf(account_id, char_id) => {
                 if let Some(endpoint) = &self.endpoint {
                     self.request = Some((Request::Fame, endpoint.char_fame(account_id, char_id)));
+                    self.fame_of = Some((account_id, char_id));
                     self.front.death_from_graveyard = false;
                     self.front.death_from_legends = true;
                     self.front.busy = tr("Reading the gravestone…").into();
                     self.front.show(screens::Screen::Busy);
+                }
+            }
+            Action::WatchReplay => {
+                if let Some(file) = &self.replay_file {
+                    self.replay = Some(replay::Viewer::new(file.clone()));
+                    self.replay_back = screens::Screen::Death;
+                    self.front.show(screens::Screen::Replay);
                 }
             }
             Action::Legends(span) => {
@@ -1558,6 +1580,14 @@ impl App {
             Ok(summary) => {
                 let spun = summary.spin.is_some() && !self.front.death_from_legends && !self.front.death_from_graveyard;
                 self.front.death = Some(summary);
+                // and its replay, read while the summary counts up
+                self.replay_file = None;
+                self.replay = None;
+                self.front.replay = screens::ReplayState::None;
+                if let (Some((a, c)), Some(endpoint)) = (self.fame_of, &self.endpoint) {
+                    self.replay_request = Some(endpoint.replay(a, c));
+                    self.front.replay = screens::ReplayState::Loading;
+                }
                 self.front.show(if spun { Screen::Spin } else { Screen::Death });
                 let now = self.now();
                 if let Some(a) = &mut self.audio {
@@ -1604,6 +1634,7 @@ impl App {
         self.front.death_from_legends = false;
         let asked = std::mem::take(&mut self.death_fame_asked);
         if let (Some(char_id), Some(account_id), Some(endpoint)) = (death, account_id, &self.endpoint) {
+            self.fame_of = Some((account_id, char_id));
             self.front.message = None;
             // asked for as it died: shown now if it came while the death played out
             if let Some(fame) = self.death_fame.take() {
@@ -1747,6 +1778,23 @@ impl App {
     /// Move through the sign-in steps as their answers arrive.
     fn advance(&mut self) {
         self.advance_npcs();
+        // a death's replay, read
+        if let Some(response) = self.replay_request.as_ref().and_then(|p| p.take()) {
+            self.replay_request = None;
+            match login::reached(response).and_then(|xml| bsk_net::replay::parse_answer(&xml)) {
+                Ok(file) => {
+                    self.replay_file = Some(file);
+                    self.front.replay = screens::ReplayState::Ready;
+                    if std::mem::take(&mut self.replay_auto) {
+                        self.front_action(screens::Action::WatchReplay);
+                    }
+                }
+                Err(e) => {
+                    log::info!("no replay: {e}");
+                    self.front.replay = screens::ReplayState::Missing;
+                }
+            }
+        }
         // A game that ended (death, disconnect) goes back to the character list; a scripted shot
         // stays on the game, unless it died (to show the death spin and summary).
         // The fame summary is asked for as soon as we die, to be ready once the death is shown.
@@ -1754,6 +1802,7 @@ impl App {
             let account_id = self.front.list.as_ref().map(|l| l.account_id);
             if let (true, false, Some(account_id), Some(endpoint)) = (game.dying.is_some(), self.death_fame_asked, account_id, &self.endpoint) {
                 self.request = Some((Request::Fame, endpoint.char_fame(account_id, game.char_id)));
+                self.fame_of = Some((account_id, game.char_id));
                 self.death_fame_asked = true;
             }
         }
@@ -1834,6 +1883,14 @@ impl App {
                             Some(s) if s.starts_with("sprites") => {
                                 self.front_action(screens::Action::SpriteEditor);
                                 self.sprite_editor.test_screen(s);
+                            }
+                            // a death's summary and its replay: `replay:<account>:<character>`
+                            Some(s) if s.starts_with("replay:") => {
+                                let ids: Vec<i32> = s[7..].split(':').filter_map(|n| n.parse().ok()).collect();
+                                if let [account, char_id] = ids[..] {
+                                    self.replay_auto = true;
+                                    self.front_action(screens::Action::ViewDeathOf(account, char_id));
+                                }
                             }
                             Some("discord-code") => {
                                 self.front.show_discord();
@@ -2522,6 +2579,24 @@ impl App {
             let mut actions = Vec::new();
             // The Sprite Editor takes the keys and the mouse while it shows.
             let editing = self.front.screen == screens::Screen::Sprites;
+            // a saved replay file: played over whatever screen this is
+            if let Some(path) = self.replay_open.take() {
+                match std::fs::read(&path).map_err(|e| e.to_string()).and_then(bsk_net::replay::read_file) {
+                    Ok(file) => {
+                        log::info!("replay file {}", path.display());
+                        if self.front.screen != screens::Screen::Replay {
+                            self.replay_back = self.front.screen;
+                        }
+                        self.replay = Some(replay::Viewer::new(file));
+                        self.front.show(screens::Screen::Replay);
+                    }
+                    Err(e) => {
+                        log::warn!("{}: {e}", path.display());
+                        self.front.message = Some((tr("That isn't a replay file.").into(), true));
+                    }
+                }
+            }
+            let watching = self.front.screen == screens::Screen::Replay && self.replay.is_some();
             let mut editor_out = Vec::new();
             if editing {
                 self.sprite_editor.login = self.endpoint.clone().zip(self.account.clone()).map(|(e, (a, p))| (e, a, p));
@@ -2531,6 +2606,8 @@ impl App {
             for (code, text, ctrl, shift) in std::mem::take(&mut self.front_keys) {
                 if editing && !self.options_ui.open {
                     editor_out.extend(self.sprite_editor.key(code, text.as_deref(), ctrl, shift));
+                } else if let (true, false, Some(v)) = (watching, self.options_ui.open, self.replay.as_mut()) {
+                    v.key(code, data);
                 } else {
                     actions.extend(self.front.key(code, text.as_deref(), ctrl, shift));
                 }
@@ -2539,6 +2616,9 @@ impl App {
                 if !down {
                     self.front.release(pos);
                     self.sprite_editor.release();
+                    if let Some(v) = &mut self.replay {
+                        v.release();
+                    }
                     if self.options_ui.release() {
                         self.settings.save();
                     }
@@ -2550,6 +2630,8 @@ impl App {
                     }
                 } else if editing {
                     editor_out.extend(self.sprite_editor.click(pos));
+                } else if let (true, Some(v)) = (watching, self.replay.as_mut()) {
+                    v.click(pos, data);
                 } else {
                     actions.extend(self.front.click(pos));
                 }
@@ -2559,6 +2641,16 @@ impl App {
             if editing {
                 self.sprite_editor.drag(mouse);
                 self.front.clicked |= std::mem::take(&mut self.sprite_editor.clicked);
+            }
+            if let (true, Some(v)) = (watching, self.replay.as_mut()) {
+                v.drag(mouse, data);
+                v.tick(data, dt);
+                self.front.clicked |= std::mem::take(&mut v.clicked);
+                for out in v.take_out() {
+                    match out {
+                        replay::Out::Back => self.front.show(self.replay_back),
+                    }
+                }
             }
             for out in editor_out {
                 self.front.message = None;
@@ -2575,6 +2667,9 @@ impl App {
             self.front.draw(&mut ui, w as f32, h as f32, mouse, now);
             if self.front.screen == screens::Screen::Sprites {
                 self.sprite_editor.draw(&mut ui, w as f32, h as f32, mouse, now);
+            }
+            if let (screens::Screen::Replay, Some(v)) = (self.front.screen, self.replay.as_mut()) {
+                v.draw(&mut ui, show, w as f32, h as f32, mouse);
             }
             self.options_ui.in_game = false;
             self.options_ui.draw(&mut ui, &lay, &self.settings, mouse);
@@ -4102,6 +4197,8 @@ impl ApplicationHandler<UserEvent> for App {
                 self.changelog.wheel(lines.round() as i32);
             }
             // On the character list it scrolls the characters.
+            // a saved death replay dropped on the window, out of the game: it plays
+            WindowEvent::DroppedFile(path) if matches!(self.phase, Phase::Menu) => self.replay_open = Some(path),
             WindowEvent::MouseWheel { delta, .. } if matches!(self.phase, Phase::Menu) => {
                 let lines = match delta {
                     winit::event::MouseScrollDelta::LineDelta(_, y) => y,
@@ -4112,6 +4209,9 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel -= notches;
                 if self.front.screen == screens::Screen::Sprites {
                     self.sprite_editor.wheel(notches as i32);
+                } else if let (screens::Screen::Replay, Some(v)) = (self.front.screen, self.replay.as_mut()) {
+                    // up shows earlier hits
+                    v.wheel(notches as i32);
                 } else {
                     self.front.wheel(notches as i32);
                 }
@@ -4361,6 +4461,13 @@ fn main() {
         request: None,
         death_fame: None,
         death_fame_asked: false,
+        fame_of: None,
+        replay_request: None,
+        replay_file: None,
+        replay: None,
+        replay_auto: false,
+        replay_open: text_arg("--replay").map(std::path::PathBuf::from),
+        replay_back: screens::Screen::Death,
         discord_code_at: None,
         sprite_editor: Default::default(),
         discord_asked: None,

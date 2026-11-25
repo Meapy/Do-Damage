@@ -86,6 +86,8 @@ namespace WorldServer.core.objects
             // our own shots, which our client fires itself, for those watching us
             if (Spectated)
                 GameServer.Spectators.Forward(this, allyShoot);
+            // and for the replay of our death
+            Replay.Forward(allyShoot);
             PlayerShootEffects(angle);
             if (slot == 0)
                 WispCaller();
@@ -169,6 +171,8 @@ namespace WorldServer.core.objects
             // the Pirate's luck: the shot missed him (its effects too, which the client put on)
             if (dmg > 0 && PirateDodged())
             {
+                Replay.Hurt(replay.ReplayRecorder.FromShot, (ushort)projectile.ContainerType, objectId, projectile.Damage, 0,
+                    (byte)(replay.ReplayRecorder.FlagDodged | (projectileDesc.ArmorPiercing ? replay.ReplayRecorder.FlagPierce : 0)));
                 ResendConditions();
                 return;
             }
@@ -198,6 +202,8 @@ namespace WorldServer.core.objects
             }, this, this);
 
             var objectDesc = GameServer.Resources.GameData.ObjectDescs[(ushort)projectile.ContainerType];
+            Replay.Hurt(replay.ReplayRecorder.FromShot, (ushort)projectile.ContainerType, objectId, projectile.Damage, dmg,
+                (byte)((projectileDesc.ArmorPiercing ? replay.ReplayRecorder.FlagPierce : 0) | (stacked ? replay.ReplayRecorder.FlagStacked : 0)));
 
             if (Health <= 0)
                 Death(objectDesc.DisplayId ?? objectDesc.IdName, projectile.Spawned);
