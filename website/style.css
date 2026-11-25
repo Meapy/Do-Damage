@@ -454,12 +454,13 @@ body.lb-open { overflow: hidden; }
 
 /* --- The wiki (tools/build_wiki.py, wiki/wiki.js) ------------------------------------------ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.wiki .bar { padding-left: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); padding-right: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); }
+.wiki .bar { padding-left: max(clamp(14px, 2.4vw, 40px), calc((100% - var(--wiki-max)) / 2)); padding-right: max(clamp(14px, 2.4vw, 40px), calc((100% - var(--wiki-max)) / 2)); }
 .wiki-layout {
-  max-width: var(--wiki-max); margin: 0 auto; padding: 40px var(--gutter) 0;
-  display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 44px; align-items: start;
+  --wiki-gutter: clamp(14px, 2.4vw, 40px);
+  max-width: var(--wiki-max); margin: 0 auto; padding: 24px var(--wiki-gutter) 0;
+  display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 32px; align-items: start;
 }
-.wiki-side { position: sticky; top: 76px; z-index: 5; padding-bottom: 16px; }
+.wiki-side { position: sticky; top: 72px; z-index: 5; padding-bottom: 16px; }
 .wiki-nav nav { max-height: calc(100vh - 170px); overflow: auto; overscroll-behavior: contain; }
 .wiki-search { position: relative; margin-bottom: 18px; }
 .wiki-search input, .filter input {
@@ -525,7 +526,9 @@ body.lb-open { overflow: hidden; }
   font: 500 .88rem var(--body); cursor: pointer;
 }
 .chip:hover, .chip:focus-visible { color: var(--gold); border-color: var(--ember); outline: none; }
-.start-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 1.4em; max-width: 1100px; }
+/* six tiles: a row of six on a wide screen, two rows of three, three of two, or one column */
+.start-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 1.4em; }
+@media (min-width: 1700px) { .start-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 @media (max-width: 1100px) { .start-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .start-tiles { grid-template-columns: 1fr; } }
 .wmap-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
@@ -547,7 +550,10 @@ body.lb-open { overflow: hidden; }
 .wcard-text span, .start-text > span { color: var(--text-muted); font-size: .88rem; line-height: 1.45; }
 
 /* a page's picture beside its title, and screenshots in the text: click for full size (site.js) */
-.wiki-head.has-banner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 44%); gap: 28px; align-items: center; }
+.wiki-head.has-banner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 40%); gap: 28px; align-items: start; }
+.wiki-head .wiki-lead { margin-top: 16px; }
+.wiki-head .wiki-lead .note { margin: 0; max-width: none; }
+.wiki-head .wiki-lead .note li { margin-bottom: .3em; }
 .prose .shot { margin: 0 0 1.6em; max-width: 860px; }
 .wiki-banner { margin: 0; }
 .prose .shot a, .wiki-banner a { display: block; border: 1px solid var(--line-hi); background: var(--bg-deep); line-height: 0; }
@@ -578,37 +584,91 @@ body.lb-open { overflow: hidden; }
 .to-top[hidden] { display: none; }
 
 .wiki-main { min-width: 0; }
-.wiki-head { margin-bottom: 28px; }
+.wiki-head { margin-bottom: 20px; }
 .wiki-head h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); color: var(--gold); margin-bottom: .3em; overflow-wrap: anywhere; }
 .wiki-head .sub { max-width: 42em; margin: 0; }
-.toc { margin: 0 0 30px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); }
-.toc p { margin: 0 0 .5em; font: 700 .72rem var(--pixel); color: var(--ember); letter-spacing: .12em; text-transform: uppercase; }
-.toc ul { margin: 0; padding: 0; list-style: none; columns: 4 200px; column-gap: 28px; }
-.toc li { break-inside: avoid; padding: 2px 0; }
-.toc a { color: var(--text-dim); font-size: .93rem; }
-.toc a:hover, .toc a[aria-current] { color: var(--gold); }
-/* on wide screens "On this page" stands beside the page and follows it down (wiki.js marks where you are);
-   below 1600px it stays a box at the top, so the page keeps the width for its tables and cards */
-@media (min-width: 1600px) {
-  .has-toc .wiki-main { display: grid; grid-template-columns: minmax(0, 1fr) 200px; column-gap: 36px; }
-  .has-toc .wiki-main > * { grid-column: 1; }
-  .has-toc .wiki-main > .toc {
-    grid-column: 2; grid-row: 1 / span 5; align-self: start; position: sticky; top: 92px;
-    margin: 0; padding: 0; background: none; border: 0;
-  }
-  .has-toc .toc p { padding-left: 12px; }
-  .has-toc .toc ul { columns: auto; max-height: calc(100vh - 150px); overflow: auto; overscroll-behavior: contain; border-left: 1px solid var(--line); }
-  .has-toc .toc li { padding: 0; }
-  .has-toc .toc a { display: block; padding: 4px 6px 4px 10px; border-left: 2px solid transparent; font-size: .86rem; line-height: 1.35; }
-  .has-toc .toc a[aria-current] { border-left-color: var(--ember); }
-}
+/* the page's parts, under its entry in the page list (wiki.js marks the one being read) */
+.wiki-nav .nav-toc { list-style: none; margin: 2px 0 8px 21px; padding: 0; display: grid; gap: 0; border-left: 1px solid var(--line); }
+.wiki-nav .nav-toc a { display: block; padding: 3px 10px; margin-left: -1px; font-size: .84rem; font-weight: 400; line-height: 1.35; color: var(--text-muted); border-left: 2px solid transparent; background: none; }
+.wiki-nav .nav-toc a:hover { color: var(--text); background: none; }
+.wiki-nav .nav-toc a[aria-current] { color: var(--gold); border-left-color: var(--ember); background: none; }
 
 /* Running text keeps a readable width; a table is as wide as it needs, up to the whole column (a
    squeezed table wraps every cell onto many lines, or scrolls sideways), and card grids take it all. */
 .prose { max-width: none; }
-.prose > :where(p, ul, ol, blockquote, .note, .legend) { max-width: 820px; }
-.prose > .table-wrap { width: fit-content; max-width: 100%; }
+:is(.prose, .fold-body, .acc-body) > :where(p, ul, ol, blockquote, .note, .legend) { max-width: 820px; }
+:is(.prose, .fold-body, .acc-body) > .table-wrap { width: fit-content; max-width: 100%; }
 .prose > * + h2 { margin-top: 2em; }
+
+/* --- Sections that fold (wiki.js): a panel each, its name, what it holds and, closed, its first line;
+   open, its name stays at the top while it's read, to close it from anywhere ----------------------- */
+.fold { margin: 0 0 8px; background: rgba(22, 16, 37, .55); border: 1px solid var(--line); }
+.fold[open] { background: transparent; border-color: var(--line-hi); }
+.fold > summary {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 3px 12px;
+  padding: 12px 16px; cursor: pointer; list-style: none; background: var(--surface);
+}
+.fold > summary::-webkit-details-marker, .acc > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { background: var(--surface-hi); }
+.fold > summary:focus-visible, .acc > summary:focus-visible { outline: 2px solid var(--ember); outline-offset: -2px; }
+.fold[open] > summary { position: sticky; top: 60px; z-index: 4; border-bottom: 1px solid var(--line); }
+.fold > summary::before, .acc > summary::before {
+  content: ""; grid-row: 1; justify-self: center; width: 8px; height: 8px; margin-top: -3px;
+  border-right: 2px solid var(--ember); border-bottom: 2px solid var(--ember); transform: rotate(-45deg); transition: transform .15s ease;
+}
+.fold[open] > summary::before, .acc[open] > summary::before { transform: rotate(45deg); }
+.prose .fold > summary :is(h2, h3) { margin: 0; font-size: clamp(1.1rem, 2.2vw, 1.38rem); color: var(--text); scroll-margin-top: 70px; }
+.fold > summary .anchor, .acc > summary .anchor { display: none; }
+.fold-info, .acc-info { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.fold-info span, .acc-info span {
+  padding: 1px 9px; border: 1px solid var(--line-hi); border-radius: 999px; background: var(--bg-deep);
+  font-size: .74rem; color: var(--text-dim); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.fold-gist { grid-column: 2 / -1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: .88rem; line-height: 1.45; color: var(--text-muted); }
+.fold[open] .fold-gist { display: none; }
+.fold-body { display: flow-root; padding: 16px 18px 6px; }
+.fold-body > :last-child { margin-bottom: 14px; }
+/* tables and card lists under their own headings: a list that opens one at a time */
+.acc { border-top: 1px solid var(--line); }
+.acc:not(.acc + .acc) { margin-top: 8px; }
+.acc:not(:has(+ .acc)) { border-bottom: 1px solid var(--line); margin-bottom: 1.2em; }
+.acc > summary { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 6px; cursor: pointer; list-style: none; }
+.acc > summary:hover { background: var(--surface); }
+.acc > summary::before { width: 7px; height: 7px; }
+.prose .acc > summary :is(h3, h4, h5) { margin: 0; scroll-margin-top: 80px; }
+.prose .acc > summary h3 { font-size: 1.02rem; }
+.acc[open] > summary { background: var(--surface); }
+.acc-body { display: flow-root; padding: 12px 4px 4px 14px; }
+.acc-body .acc-body { padding-left: 0; }
+.acc-body .acc > summary { padding-left: 0; }
+.fold-bar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 8px; font-size: .8rem; color: var(--text-muted); }
+.fold-bar span { margin-right: auto; font: 700 .66rem var(--pixel); color: var(--ember); letter-spacing: .1em; text-transform: uppercase; }
+.fold-bar button, .tbl-more {
+  padding: 5px 12px; background: var(--surface); border: 1px solid var(--line-hi); color: var(--text-dim);
+  font: 600 .8rem var(--body); cursor: pointer;
+}
+.fold-bar button:hover, .tbl-more:hover { border-color: var(--ember); color: var(--text); }
+/* a long table: a filter over it, its first rows and a button for the rest, and columns that sort */
+.tbl-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+.tbl-tools input {
+  width: min(280px, 100%); padding: 7px 10px; background: var(--bg-deep); border: 1px solid var(--line-hi); color: var(--text); font: .88rem var(--body);
+}
+.tbl-tools input:focus { outline: none; border-color: var(--ember); }
+.tbl-count { font-size: .8rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.table-wrap:has(+ .tbl-more:not([hidden])) { margin-bottom: 0; border-bottom-style: dashed; }
+.tbl-more { display: block; margin: 0 0 1.4em; }
+.tbl-more[hidden] { display: none; }
+.prose th.sortable { cursor: pointer; user-select: none; }
+.prose th.sortable:hover { color: var(--gold); }
+.prose th.sortable::after { content: "\2195"; margin-left: 5px; font-size: .8em; opacity: .3; }
+.prose th[aria-sort="descending"]::after { content: "\2193"; opacity: 1; color: var(--ember); }
+.prose th[aria-sort="ascending"]::after { content: "\2191"; opacity: 1; color: var(--ember); }
+/* where a section is wide, its screenshots stand beside the text rather than between it */
+.fold-body, .acc-body { container-type: inline-size; }
+@container (min-width: 1150px) {
+  .fold-body > figure.shot { float: right; width: clamp(300px, calc(100% - 860px), 640px); margin: 4px 0 18px 32px; }
+}
+:is(.fold-body, .acc-body) > :is(.table-wrap, .tbl-tools, .its, .dgs, .acc, .filter, .shops, .classes, .nx, .its-group, .fold-bar) { clear: both; }
 .prose h2 { font-size: clamp(1.35rem, 3.2vw, 1.8rem); color: var(--text); scroll-margin-top: 80px; }
 .prose h3 { font-size: 1.12rem; margin-top: 1.6em; color: var(--gold); scroll-margin-top: 80px; }
 .prose h4 { margin: 1.2em 0 .5em; font: 700 .8rem var(--pixel); color: var(--ember); letter-spacing: .08em; text-transform: uppercase; }
@@ -868,7 +928,7 @@ body.lb-open { overflow: hidden; }
 .fr-list td.fr-fame { text-align: right; }
 .fr-ing { min-width: 260px; }
 
-.wiki-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.wiki-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
 .wiki-pager a { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; min-width: 0; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-weight: 600; }
 .wiki-pager a:hover { border-color: var(--ember); color: var(--gold); }
 .wiki-pager span { font: 700 .66rem var(--pixel); color: var(--ember); letter-spacing: .1em; text-transform: uppercase; }

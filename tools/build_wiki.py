@@ -10,8 +10,8 @@ with a sidebar, links between the pages and a search over all of them.
   subset in `markdown()`: ## and ### headings, paragraphs, - and 1. lists, > notes, | tables,
   `code`, **bold**, *italics*, [links](page.html) and inline HTML such as <kbd>.
 - A note starting **In short:**, **Tip:** or **Careful:** gets its own colour and title, and may
-  hold a - list. A page's In short box comes first, before "On this page". Every guide starts
-  with one: what a player most needs from the page, in a few lines.
+  hold a - list. A page's In short box stands in its head, under its title and beside its
+  screenshot. Every guide starts with one: what a player most needs from the page, in a few lines.
 - `![Title: what it shows](name)` on a line of its own is a screenshot from website/screenshots/
   (name.webp and name-small.webp), opening full size in the site's lightbox.
 - The wiki home (index.md) is built from {{gen:wiki-hero}} (the big search box and HOME_TRIES),
@@ -23,8 +23,13 @@ with a sidebar, links between the pages and a search over all of them.
 - Every page names its `section:` in the front matter, and `nav:` orders the pages (a section
   comes where its first page does). The sidebar lists every page under its section, the
   breadcrumbs and the wiki home's page map ({{gen:wiki-map}}) follow the sections, and Previous
-  and Next walk the pages in that order. A page with three or more ## headings gets an "On this
-  page" list, beside the page on wide screens.
+  and Next walk the pages in that order. A page with two or more ## headings lists them under its
+  own entry in the sidebar ("On this page", the one being read marked).
+- In the browser (wiki.js) each ## section folds into a panel showing what it holds and its first
+  line; a long page starts with them all closed. Three or more ### (or ####) headings over tables
+  or card lists become a list that opens one at a time, and a long table gets a filter, its first
+  rows and sortable columns. Write pages as plain sections: the folding needs nothing in the
+  Markdown, and without the script everything shows open.
 - The search index is loaded only when someone searches (palette.js loads it, wiki.js uses it).
 - The Gear statistics page (gear-statistics.md) takes its tables from tools/wiki_balance.py.
 - The Loot Simulation page (loot-simulation.md) takes its bosses' drops from tools/wiki_loot.py, and
@@ -1513,9 +1518,9 @@ TEMPLATE = """<!doctype html>
           <p class="eyebrow">{eyebrow}</p>
           <h1>{title}</h1>
           <p class="sub">{blurb}</p>
+          {lead}
         </div>{banner}
       </header>
-      {lead}{toc}
       <article class="prose">
 {body}
       </article>
@@ -1739,7 +1744,7 @@ def build(out_root, values=None):
             return v[m.group(1)]
         return re.sub(r"\{\{v:(\w+)\}\}", val, text)
 
-    def render(url, current, title, summary, body, pager, eyebrow, toc=""):
+    def render(url, current, title, summary, body, pager, eyebrow, toc=()):
         """A page at wiki/<url>; `current` is the guide it's marked under in the page list (the
         page itself, or the guide a generated gear page belongs to)."""
         up = "../" * url.count("/")
@@ -1747,8 +1752,12 @@ def build(out_root, values=None):
 
         def item(s2, m2):
             cur = (' aria-current="page"' if own else ' aria-current="location"') if s2 == current else ""
-            return '<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a></li>' % (
-                page_href(s2, up), cur, esc(m2.get("sprite", "portal")), esc(fill(m2.get("title", s2))))
+            parts = ""
+            if own and s2 == current and toc:
+                parts = '<ul class="nav-toc" aria-label="On this page">%s</ul>' % "".join(
+                    '<li><a href="#%s">%s</a></li>' % (h, t) for h, t in toc)
+            return '<li><a href="%s"%s><i class="sprite" data-sprite="%s" data-px="2"></i>%s</a>%s</li>' % (
+                page_href(s2, up), cur, esc(m2.get("sprite", "portal")), esc(fill(m2.get("title", s2))), parts)
 
         # each section folds; the one this page is in starts open (wiki.js remembers others opened)
         nav = []
@@ -1775,14 +1784,14 @@ def build(out_root, values=None):
             crumbs.append('<li aria-current="page">%s</li>' % title)
 
         head_title = "{{NAME}} wiki: a RotMG private server guide" if url == "index.html" else title + ": {{NAME}} wiki"
-        # a page's "In short" box comes before "On this page", so it's the first thing read on a phone
+        # a page's "In short" box stands in its head, beside its banner
         lead = ""
         m = re.match(r'\s*(<aside class="note short">.*?</aside>)', body, re.S)
         if m:
             lead, body = '<div class="prose wiki-lead">%s</div>\n      ' % m.group(1), body[m.end():]
-        page = TEMPLATE.format(lead=lead, head_title=head_title, title=title, summary=esc(summary), nav="".join(nav), toc=toc,
+        page = TEMPLATE.format(lead=lead, head_title=head_title, title=title, summary=esc(summary), nav="".join(nav),
                                body=body, pager=pager, eyebrow=eyebrow, site=up + "../", wiki=up, home=up or "./",
-                               layout=" has-toc" if toc else "", crumbs="".join(crumbs),
+                               layout="", crumbs="".join(crumbs),
                                section_now=esc(section_of[current]), banner=banner,
                                head_cls=" has-banner" if banner else "",
                                blurb=esc(fill(meta_here.get("blurb", summary))),
@@ -1798,10 +1807,7 @@ def build(out_root, values=None):
         title = fill(meta.get("title", slug))
         summary = fill(meta.get("summary", ""))
         heads = re.findall(r'<h2 id="([^"]+)"><a[^>]*>#</a>(.*?)</h2>', body)
-        toc = ""
-        if len(heads) > 2 and slug != "index":
-            toc = '<nav class="toc" aria-label="On this page"><p>On this page</p><ul>%s</ul></nav>' % "".join(
-                '<li><a href="#%s">%s</a></li>' % (h, t) for h, t in heads)
+        toc = heads if len(heads) > 1 and slug != "index" else ()
         pager = ""
         for cls, word, k in (("prev", "Previous", n - 1), ("next", "Next", n + 1)):
             if 0 <= k < len(pages):

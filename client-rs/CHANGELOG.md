@@ -19,7 +19,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ### Wiki
 - **Oryx's drops are on the wiki:** searching or filtering for the Lil' Oryx pets, Oryx's shards and anything else from Oryx 1, Oryx 2 and Oryx the Infernal Mad God (and the Task Master) now finds them, with his drops on the Pets, gear and dungeon pages. The wiki had missed his loot altogether.
-- **The wiki uses your whole screen:** tables are as wide as the page allows instead of squeezed into a narrow column (no more scrolling sideways through the pet sizes or the weapon stats), each community goal's rewards sit a tier to a line, item icons in tables are smaller, and pets, gear and dungeons fit three cards to a row on a wide screen, so the long pages are up to a third shorter.
+- **The wiki is quicker to find your way around:** every long page opens as a list of its sections, each saying in a line what it covers and how much it holds ("153 entries", "61 rows"); open just the one you want, or all of them, and the wiki remembers what you opened. Tables under their own headings (each weapon kind on Gear statistics, each goal's loot) open one at a time, long tables show their first rows with a filter and columns you can click to sort, and links and searches open the part they point to. The page's parts are listed under it in the menu, tables and cards use the whole width of your screen (three or more cards to a row), and screenshots sit beside the text on wide screens.
 
 ## 2.6.8 (2026-11-25)
 

@@ -1,7 +1,8 @@
 // The wiki's live parts: the search over every page (window.WIKI_INDEX, written by
-// tools/build_wiki.py and loaded by palette.js the first time someone searches), the filters on the
-// dungeon, pet and gear lists, the tabs on the class gear pages, the page menu on phones, the
-// "On this page" list following the reader, and the button back to the top.
+// tools/build_wiki.py and loaded by palette.js the first time someone searches), the sections that
+// fold, the long tables' filters and sorting, the filters on the dungeon, pet and gear lists, the tabs
+// on the class gear pages, the page menu on phones, the page's parts in the page list following the
+// reader, and the button back to the top.
 (function () {
   "use strict";
 
@@ -213,7 +214,7 @@
 
   // --- "On this page": the section being read is marked, and the list keeps it in view -------------
   var heads = [], byId = {};
-  document.querySelectorAll(".toc a[href^='#']").forEach(function (a) {
+  document.querySelectorAll(".nav-toc a[href^='#']").forEach(function (a) {
     var h = document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1)));
     if (h) { byId[h.id] = a; heads.push(h); }
   });
@@ -231,7 +232,7 @@
     lit = a;
     if (!a) return;
     a.setAttribute("aria-current", "true");
-    var box = a.closest("ul");
+    var box = navBox;
     if (box && box.scrollHeight > box.clientHeight) {
       var top = a.getBoundingClientRect().top - box.getBoundingClientRect().top;
       if (top < 0 || top > box.clientHeight - 30) box.scrollTop += top - box.clientHeight / 3;
@@ -282,6 +283,268 @@
     addEventListener("hashchange", function () { showPanel(location.hash.slice(1), true); });
   }
 
+  // --- Sections that fold: each of a page's sections is a panel that opens and closes, and a long
+  // page starts as an outline of them (the short ones open), with a line on what each holds. Inside, a
+  // run of tables or card lists under their own headings becomes a list that opens one at a time, and a
+  // long table shows its first rows, with a filter and columns that sort. What the reader opens stays
+  // open on their next visit; a link, a search result or the browser's find opens what it points into.
+  // Without the script the page is as written, every section open. ----------------------------------
+  var article = document.querySelector("article.prose");
+  var folds = [];
+  var FOLDS = "dd-wiki-folds", here = location.pathname.replace(/\/index\.html$/, "/");
+  var saved = {};
+  try { saved = (JSON.parse(localStorage.getItem(FOLDS) || "{}") || {})[here] || {}; } catch (e) { saved = {}; }
+  function remember(id, open) {
+    try {
+      var all = JSON.parse(localStorage.getItem(FOLDS) || "{}") || {};
+      (all[here] = all[here] || {})[id] = open ? 1 : 0;
+      localStorage.setItem(FOLDS, JSON.stringify(all));
+    } catch (e) {}
+  }
+  function count(n, one, many) { return n.toLocaleString("en") + " " + (n === 1 ? one : many); }
+  function isHead(node, upTo) { return node.nodeType === 1 && /^H[2-6]$/.test(node.tagName) && +node.tagName[1] <= upTo; }
+
+  // what a section or group holds, in a few words: "153 entries", "61 rows", "3 tables", "5 topics"
+  function holds(body) {
+    var bits = [];
+    var cards = body.querySelectorAll(".it, .dg, .cls, .nx-card").length;
+    var tables = body.querySelectorAll(".table-wrap table");
+    var topics = [].filter.call(body.querySelectorAll("h3"), function (h) { return !h.closest(".it, .dg, .cls, .nx-card"); }).length;
+    if (cards) bits.push(count(cards, "entry", "entries"));
+    if (tables.length === 1) bits.push(count(tables[0].tBodies[0] ? tables[0].tBodies[0].rows.length : 0, "row", "rows"));
+    else if (tables.length && tables.length > topics) bits.push(count(tables.length, "table", "tables"));
+    if (topics > 1) bits.push(count(topics, "topic", "topics"));
+    return bits;
+  }
+  // the section's first sentence, shown while it's closed
+  function gist(body) {
+    var p = body.querySelector(":scope > p, :scope > ul > li");
+    if (!p) return "";
+    var t = p.textContent.replace(/\s+/g, " ").trim();
+    // whole sentences, enough to say what the section is about
+    var m = t.match(/^.{80,}?[.!?](?=\s|$)/) || t.match(/^.{24,}?[.!?](?=\s|$)/);
+    t = m ? m[0] : t;
+    return t.length > 170 ? t.slice(0, 168).replace(/\s+\S*$/, "") + "…" : t;
+  }
+  // a heading and what follows it, up to the next heading as big or bigger, into <details>
+  function wrapFold(head, cls, lead) {
+    var level = +head.tagName[1];
+    var d = document.createElement("details");
+    d.className = cls;
+    var sum = document.createElement("summary");
+    var body = document.createElement("div");
+    body.className = cls + "-body";
+    head.parentNode.insertBefore(d, head);
+    sum.appendChild(head);
+    var node = d.nextSibling;
+    while (node && !isHead(node, level)) {
+      var next = node.nextSibling;
+      body.appendChild(node);
+      node = next;
+    }
+    var info = document.createElement("span");
+    info.className = cls + "-info";
+    holds(body).forEach(function (b) {
+      var chip = document.createElement("span");
+      chip.textContent = b;
+      info.appendChild(chip);
+    });
+    sum.appendChild(info);
+    if (lead) {
+      var g = gist(body);
+      if (g) {
+        var p = document.createElement("span");
+        p.className = cls + "-gist";
+        p.textContent = g;
+        sum.appendChild(p);
+      }
+    }
+    d.appendChild(sum);
+    d.appendChild(body);
+    return d;
+  }
+  function heavy(node) {
+    return node.nodeType === 1 && (node.matches(".table-wrap, .its, .dgs, .shops, .nx, .its-group") ||
+      !!node.querySelector(".table-wrap, .its, .dgs"));
+  }
+  // three or more headings at one level, most of them over a table or a card list: a list that opens
+  // one at a time; then the same a level down inside each
+  function accordion(box, level) {
+    if (level > 5) return;
+    var heads = [].filter.call(box.children, function (c) { return c.tagName === "H" + level; });
+    if (heads.length >= 3) {
+      var withData = heads.filter(function (h) {
+        for (var n = h.nextSibling; n && !isHead(n, level); n = n.nextSibling) if (heavy(n)) return true;
+        return false;
+      });
+      if (withData.length >= 3 && withData.length * 3 >= heads.length * 2) {
+        heads.forEach(function (h) { accordion(wrapFold(h, "acc", false).lastChild, level + 1); });
+        return;
+      }
+    }
+    accordion(box, level + 1);
+  }
+
+  // --- a long table: its first rows, a filter, and columns that sort ---------------------------------
+  var SHOW_ROWS = 8;
+  function numberIn(text) {
+    var m = text.replace(/,/g, "").match(/[-+−]?\d+(\.\d+)?/);
+    return m ? parseFloat(m[0].replace("−", "-")) : null;
+  }
+  function tableTools(wrap) {
+    var t = wrap.querySelector("table");
+    var tb = t && t.tBodies[0];
+    if (!tb || !t.tHead || t.classList.contains("q-track") || wrap.classList.contains("fr-tiers")) return;
+    var rows = [].slice.call(tb.rows);
+    if (rows.length < 6 || t.querySelector("[rowspan], [colspan]")) return;
+    var inAcc = !!wrap.closest(".acc");
+    var limit = rows.length > SHOW_ROWS + 4 && !inAcc;
+    var query = [];
+    var bar = null, more = null, shown = null, box = null;
+
+    function lay() {
+      var n = 0, matched = 0;
+      [].forEach.call(tb.rows, function (r) {
+        var hit = !query.length || query.every(function (q) { return r._text.indexOf(q) >= 0; });
+        if (hit) matched++;
+        var show = hit && (!limit || query.length || wrap.classList.contains("all") || n < SHOW_ROWS);
+        if (hit) n++;
+        r.hidden = !show;
+      });
+      if (shown) shown.textContent = query.length ? matched + " of " + rows.length : count(rows.length, "row", "rows");
+      if (more) more.hidden = !limit || !!query.length || wrap.classList.contains("all");
+    }
+    rows.forEach(function (r, i) { r._at = i; r._text = r.textContent.toLowerCase(); });
+
+    if (rows.length >= 12) {
+      bar = document.createElement("div");
+      bar.className = "tbl-tools";
+      box = document.createElement("input");
+      box.type = "search";
+      box.placeholder = "Filter these rows";
+      box.setAttribute("aria-label", "Filter the table's rows");
+      shown = document.createElement("span");
+      shown.className = "tbl-count";
+      bar.appendChild(box);
+      bar.appendChild(shown);
+      wrap.parentNode.insertBefore(bar, wrap);
+      box.addEventListener("input", function () { query = words(box.value); lay(); });
+    }
+    if (limit) {
+      more = document.createElement("button");
+      more.type = "button";
+      more.className = "tbl-more";
+      more.textContent = "Show all " + rows.length + " rows";
+      more.addEventListener("click", function () { wrap.classList.add("all"); lay(); });
+      wrap.parentNode.insertBefore(more, wrap.nextSibling);
+    }
+    // a click on a column's head sorts by it: down, up, then back as written
+    [].forEach.call(t.tHead.rows[0].cells, function (th, col) {
+      var nums = rows.filter(function (r) { return r.cells[col] && numberIn(r.cells[col].textContent) !== null; }).length;
+      var numeric = nums * 2 > rows.length;
+      th.classList.add("sortable");
+      th.tabIndex = 0;
+      th.title = "Sort by " + th.textContent.trim();
+      function sort() {
+        var now = th.getAttribute("aria-sort");
+        var next = now === "descending" ? "ascending" : now === "ascending" ? null : "descending";
+        [].forEach.call(t.tHead.rows[0].cells, function (c) { c.removeAttribute("aria-sort"); });
+        var order = rows.slice();
+        if (next) {
+          var sign = next === "ascending" ? 1 : -1;
+          order.sort(function (a, b) {
+            var x = a.cells[col] ? a.cells[col].textContent.trim() : "", y = b.cells[col] ? b.cells[col].textContent.trim() : "";
+            var c;
+            if (numeric) {
+              var nx = numberIn(x), ny = numberIn(y);
+              c = (nx === null ? -Infinity : nx) - (ny === null ? -Infinity : ny);
+            } else c = x.localeCompare(y, "en", { numeric: true });
+            return c * sign || a._at - b._at;
+          });
+          th.setAttribute("aria-sort", next);
+        }
+        order.forEach(function (r) { tb.appendChild(r); });
+        lay();
+      }
+      th.addEventListener("click", function (e) { if (!e.target.closest("a")) sort(); });
+      th.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { sort(); e.preventDefault(); } });
+    });
+    lay();
+  }
+
+  function foldKey(f) { var h = f.querySelector("summary > :is(h2, h3)"); return h.id || h.textContent.trim(); }
+
+  if (article && !document.body.classList.contains("wiki-home")) {
+    // the page's sections, and on a gear page each group of items (its <section class="its-group">,
+    // with an <h3> in a class's tab)
+    [].slice.call(article.querySelectorAll(":scope > h2, :scope .its-group > h2, :scope .tab-panel > .its-group > h3:first-child")).forEach(function (c) {
+      var f = wrapFold(c, "fold", true);
+      f.open = true;
+      folds.push(f);
+    });
+    folds.forEach(function (f) { accordion(f.lastChild, 3); });
+    if (!folds.length) accordion(article, 2);
+    article.querySelectorAll(".table-wrap").forEach(tableTools);
+    // a filter box at the end of a section, over the lists of the sections after it, stands between
+    // them, where it's seen with every section closed
+    article.querySelectorAll("details.fold .filter").forEach(function (fb) {
+      var input = fb.querySelector("input[data-filter]");
+      var f = fb.closest("details.fold");
+      if (input && !f.querySelector(input.getAttribute("data-filter"))) f.parentNode.insertBefore(fb, f.nextSibling);
+    });
+
+    // a long page starts as an outline of its sections, each with its first line; a short one open
+    var tall = article.offsetHeight > innerHeight * 2.2;
+    folds.forEach(function (f) {
+      var id = foldKey(f);
+      // (a class's tabs are each an outline too, though only one is shown)
+      f.open = id in saved ? !!saved[id] : f.closest(".tab-panel") ? false : !tall || !f.lastChild.offsetHeight;
+      f.firstChild.addEventListener("click", function (e) {
+        if (e.target.closest("a")) return;
+        setTimeout(function () { remember(id, f.open); }, 0);
+      });
+    });
+
+    if (folds.length > 1) {
+      var bar = document.createElement("div");
+      bar.className = "fold-bar";
+      var label = document.createElement("span");
+      label.textContent = panels.length ? "Sections" : count(folds.length, "section", "sections");
+      bar.appendChild(label);
+      [["Open all", true], ["Close all", false]].forEach(function (b) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = b[0];
+        btn.addEventListener("click", function () {
+          folds.forEach(function (f) { f.open = b[1]; remember(foldKey(f), b[1]); });
+        });
+        bar.appendChild(btn);
+      });
+      var top = folds[0];
+      while (top.parentNode !== article) top = top.parentNode;
+      article.insertBefore(bar, top);
+    }
+  }
+
+  // a link, a search result or the page list pointing into a closed section opens it
+  function reveal(id, scroll) {
+    var t = id && document.getElementById(id);
+    if (!t) return;
+    for (var d = t.closest("details"); d; d = d.parentElement && d.parentElement.closest("details")) d.open = true;
+    if (t.tagName === "DETAILS") t.open = true;
+    var w = t.closest(".table-wrap");
+    if (w) { w.classList.add("all"); t.hidden = false; }
+    if (scroll) t.scrollIntoView();
+  }
+  if (location.hash) reveal(decodeURIComponent(location.hash.slice(1)), true);
+  addEventListener("hashchange", function () { reveal(decodeURIComponent(location.hash.slice(1)), true); });
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href^='#']");
+    if (a && a.getAttribute("href").length > 1 && a.getAttribute("href") === location.hash)
+      reveal(decodeURIComponent(a.getAttribute("href").slice(1)), true);
+  });
+  addEventListener("beforeprint", function () { document.querySelectorAll("details").forEach(function (d) { d.open = true; }); });
+
   // --- Filters on long lists: <input data-filter="selector"> hides what doesn't match ----------------
   document.querySelectorAll("input[data-filter]").forEach(function (box) {
     var items = document.querySelectorAll(box.getAttribute("data-filter"));
@@ -302,6 +565,23 @@
       // and so does a group of items with nothing left in it
       document.querySelectorAll(".its-group").forEach(function (group) {
         group.hidden = !group.querySelector(".it:not([hidden])");
+      });
+      // a section or group holding matches opens while the filter is on, and one with none goes away;
+      // cleared, each goes back as it was
+      var sel = box.getAttribute("data-filter");
+      document.querySelectorAll("details.fold, details.acc").forEach(function (d) {
+        if (!d.querySelector(sel)) return;
+        if (terms.length) {
+          var any = !!d.querySelector(sel + ":not([hidden])");
+          d.hidden = !any && !d.contains(box);
+          if (any) {
+            if (!d.hasAttribute("data-was")) d.setAttribute("data-was", d.open ? "1" : "0");
+            d.open = true;
+          }
+        } else {
+          d.hidden = false;
+          if (d.hasAttribute("data-was")) { d.open = d.getAttribute("data-was") === "1"; d.removeAttribute("data-was"); }
+        }
       });
     });
   });
