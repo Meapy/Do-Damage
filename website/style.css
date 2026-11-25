@@ -30,6 +30,8 @@
 }
 
 * { box-sizing: border-box; }
+/* `hidden` always hides, whatever display a class gives (the wiki's filters hide cards this way) */
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; background: var(--bg); }
 /* and its type with it */
 @media (min-width: 1800px) { html { font-size: 17px; } }

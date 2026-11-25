@@ -10,6 +10,9 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Nerissa's Tidepearl** is a Druid's pearl too, above the T8 (420 splash, 130 a pulse, 650 on the way home, a 260 heal, three out at once), and its three waves of the tide now roll out from where it lands.
 - **A new look and five skins:** the Druid is redrawn (an antlered hood, a sashed cloak, a pearl wand). The Armoire sells it five skins, each its own figure with something quiet round it: the **Deepwater Oracle** (coral crown, driftwood staff; bubbles rise round them and a ripple spreads at their feet), the **Autumn Warden** (antlers in red leaves, fur mantle, golden sickle; a leaf now and then falls from the antlers), the **Moonbloom Druid** (white hair, midnight robe, moonflower staff; a pool of moonlight and drifting motes), the **Mosshide Hermit** (toadstool cap, moss beard, lantern; three fireflies) at 200 gold, and the 16 by 16 **Archdruid** behind a stag's skull (eyes glowing in it, leaves circling, grass springing up in its footsteps) at 800. Dyes work on the Druid and on every skin.
 
+### Website
+- **The wiki's search boxes work again:** the filter on the Pets, Dungeons, gear, class and Necromantic Relic pages hid nothing you could see; now it hides every card that doesn't match.
+
 ## Details
 
 ### Druid: tide pearls
@@ -31,6 +34,11 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - **Wiki:** `website/wiki/classes.md` (the Druid's skins). The generator doesn't list skins.
 - **Not done:** the four smaller skins' effects were seen only in code; the Archdruid's in game.
 
+### Wiki filters
+
+- **What and why:** the owner found the Pets page's search did nothing. `wiki.js` sets `hidden` on the cards that don't match, but `.it` (and `.dg`) set `display: grid`, which beats the browser's `[hidden]` rule, so every card stayed on screen. `website/style.css` now has `[hidden] { display: none !important; }`.
+- **Redeploy:** the website only (`build_site.py`); nobody is disconnected.
+
 ## Checks
 
 - `dotnet test source\Tests`: 530 passed, with `EveryPearlIsATidePearl` (every pearl and Nerissa's a `TidePearl`, rising by tier, no projectiles) and `ARecalledPearlStrikesAlongItsWay`.
@@ -40,3 +48,4 @@ Release 2.6.8: the Druid reworked: pearls thrown into tide pools that pulse, the
 - `python tools\draw_druid.py --preview`: the Druid and every skin dyed red and gold, and blue and white, shade as they should.
 - Isolated stack (slot 1): the Druid's class page lists the new Druid and the five skins with prices; a Druid wearing the Archdruid in the Nexus stands as tall as the other classes, its staff and a circling leaf showing.
 - Isolated stack (slot 1), a Druid with the Pearl of Total Chaos in a vault with Pirates: the throw onto the floor landed a pool on a Pirate (380 splash, 95 MP spent), the pool drew; aimed off the floor it was refused ("You can't throw your pearl there"); the tooltip and the new inventory sprites show.
+- Wiki filters: on a local build, a nonsense search left 0 cards shown and clearing it brought all back, on the Pets (both lists), Dungeons, Necromantic Relic, a gear page (Swords, Rings) and a class page (Wizard).
