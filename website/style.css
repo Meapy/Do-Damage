@@ -1107,6 +1107,8 @@ body.lb-open { overflow: hidden; }
 .gold-head h1 .sprite { filter: drop-shadow(0 0 18px rgba(255, 198, 92, .45)); animation: gold-bob 3s ease-in-out infinite; }
 @keyframes gold-bob { 50% { transform: translateY(-6px); } }
 .gold-banner { margin: 0 0 24px; padding: 12px 16px; border: 1px dashed var(--gold); background: rgba(255, 198, 92, .08); color: var(--gold); font-weight: 600; }
+.gold-banner.gold-deal { border-style: solid; border-color: var(--ember); background: linear-gradient(90deg, rgba(255, 122, 61, .18), rgba(255, 198, 92, .08)); color: var(--text); }
+.gold-deal b { color: var(--gold); font-family: var(--pixel); }
 .gold-banner.gold-closed { border-color: var(--blood); background: rgba(255, 61, 90, .08); color: #ff8fa0; }
 
 .gold-steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }

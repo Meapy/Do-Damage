@@ -18,9 +18,23 @@ namespace Shared.database
         public decimal price { get; set; }
         // the pack the page marks as the best value
         public bool best { get; set; }
+        // during a discount (GoldStore.Discounted): the price before it; null otherwise
+        [JsonIgnore]
+        public decimal? was { get; set; }
 
         /// <summary>The price as PayPal takes it: two decimals, a dot, no thousands separator.</summary>
         public string PriceText => price.ToString("0.00", CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>A time-limited price cut on every pack (GoldStore.BlackFriday).</summary>
+    public sealed class GoldDiscount
+    {
+        public string Id = "";
+        public string Name = "";
+        public int PercentOff;
+        public TimeSpan Length;
+        // it starts only before this (UTC)
+        public DateTime LastStart;
     }
 
     /// <summary>An order: one pack bought by one account, through one PayPal order.</summary>
@@ -54,6 +68,8 @@ namespace Shared.database
     ///   gold.sales                   hash: gold, orders and per-currency totals sold
     ///   gold.session.&lt;token&gt;         the account a store page signed in as (an hour)
     ///   gold.made.&lt;acc&gt;              orders the account made this hour (the limit)
+    ///   gold.discount.&lt;id&gt;           when a discount (GoldDiscount) ends, set the first time an
+    ///                                account server that has it starts; kept, so it runs once
     /// </summary>
     public static class GoldStore
     {
@@ -115,6 +131,55 @@ namespace Shared.database
                 .GroupBy(p => p.id).Select(g => g.First())
                 .ToArray();
             return ok.Length > 0 ? ok : DefaultPacks;
+        }
+
+        // --- discounts ---------------------------------------------------------------------
+
+        public static string DiscountKey(string id) => "gold.discount." + id;
+
+        /// <summary>
+        /// Black Friday 2026: every pack half price for a day, from the first time the account
+        /// server that has it starts on the live data (the deploy of the release it's in).
+        /// </summary>
+        public static readonly GoldDiscount BlackFriday = new GoldDiscount
+        {
+            Id = "black-friday-2026",
+            Name = "Black Friday",
+            PercentOff = 50,
+            Length = TimeSpan.FromHours(24),
+            // a deploy (or a restored backup) after this doesn't start it any more
+            LastStart = new DateTime(2026, 12, 8, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        /// <summary>
+        /// When the discount ends: started now (now + its length) unless it started before or it's
+        /// past its last start; null when it never started. Only the first call that starts it
+        /// counts, however many servers start together.
+        /// </summary>
+        public static DateTime? StartDiscount(IDatabase db, GoldDiscount d, DateTime now)
+        {
+            var key = DiscountKey(d.Id);
+            if (now < d.LastStart)
+                db.StringSet(key, (now + d.Length).ToString("o"), when: When.NotExists);
+            var v = (string)db.StringGet(key);
+            return v != null && DateTime.TryParse(v, null, DateTimeStyles.RoundtripKind, out var ends) ? ends.ToUniversalTime() : null;
+        }
+
+        /// <summary>
+        /// The packs at the discount's price while it runs (until `ends`), each knowing its usual
+        /// price (`was`); the packs themselves otherwise. A price is rounded to the cent, and never
+        /// under PayPal's 0.50 that Packs allows.
+        /// </summary>
+        public static GoldPack[] Discounted(GoldPack[] packs, GoldDiscount d, DateTime? ends, DateTime now)
+        {
+            if (d == null || ends == null || now >= ends || d.PercentOff <= 0 || d.PercentOff >= 100)
+                return packs;
+            return packs.Select(p =>
+            {
+                var price = Math.Max(0.50m, decimal.Round(p.price * (100 - d.PercentOff) / 100m, 2, MidpointRounding.AwayFromZero));
+                return price >= p.price ? p
+                    : new GoldPack { id = p.id, gold = p.gold, bonus = p.bonus, best = p.best, price = price, was = p.price };
+            }).ToArray();
         }
 
         private static bool ValidId(string id) =>

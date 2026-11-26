@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Gold Store
+- **Black Friday: all gold half price for 24 hours:** from this update, every pack in the Gold Store costs half as much for one day, with the same gold and bonus (1,100 gold for $5, 12,500 for $50). The store shows how long is left.
+
 ### Realm 2
 - **Realm 2 is an island:** the starry void between its lands is gone. Realm 2 is now one smaller island in the sea, from the beaches where you arrive to the Godlands at the far end, with mountain lakes, rivers you can wade, snowy peaks, and small islands off the coast joined by bridges. Event lands rise across the Godlands and spill out over the coast.
 

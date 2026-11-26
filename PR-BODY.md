@@ -1,6 +1,9 @@
-Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world server, client and website; nobody is disconnected. The Monk's Flowing Strike, the King's Royal Decree and the Sharklord's Maw of the Deep need the world server and client together.
+Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world and account servers, client and website; nobody is disconnected. Black Friday: all gold half price for the first 24 hours after the deploy. The Monk's Flowing Strike, the King's Royal Decree and the Sharklord's Maw of the Deep need the world server and client together.
 
 ## For players
+
+### Gold Store
+- **Black Friday: all gold half price for 24 hours:** for a day from this release's deploy, every Gold Store pack costs half its price for the same gold and bonus: 100 gold for $0.50, 525 for $2.50, 1,100 for $5, 2,300 for $10, 6,000 for $25 and 12,500 for $50. The store shows a banner counting down the time left, with each pack's usual price struck through; when it ends the prices go back by themselves.
 
 ### Pets
 - **Tuning asks before it spends:** a tuning step at the Pen Keeper is paid only on a second click on the same button, which the first click turns into "Pay 1,000 fame"; picking another stat, or the server answering, takes the ask back.
@@ -175,8 +178,19 @@ A player spent 38,000 fame in six minutes clicking the tuning buttons back and f
 - **Redis:** the Nexus's Realm 2 snapshot from before has no `Map`, so after the deploy it opens on the new map with its events beaten and their order kept, but without its lands, waystones or the land events running then; those lands come again as events.
 - **Not done:** not looked at in game; the look was checked on pictures of the generated maps (with eleven event lands drawn in).
 
+### Black Friday: all gold half price for 24 hours
+
+Every gold pack sells at 50% off for 24 hours, starting the first time the account server with this code starts on the live data, so the day begins with this release's deploy, whenever it's merged.
+
+- `Shared/database/GoldStore.cs`: `GoldDiscount` and `GoldStore.BlackFriday` (50% off, 24 hours, starts only before 8 December 2026 UTC, so a late deploy or a restored backup doesn't start it); `StartDiscount` writes the end time to `gold.discount.black-friday-2026` with SET NX (first start wins, kept for good so it never runs twice); `Discounted` gives the packs at the cut price (to the cent, never under PayPal's $0.50) with their usual price in `was`.
+- `App/CoreService.cs` starts it at startup, only while PayPal is enabled (a closed store doesn't use up the day), and logs "Gold store: Black Friday, 50% off until ...". `App/Controllers/GoldController.cs` sells at the discounted packs (an order is made at, recorded at and checked against the price shown, so an order made during the sale and paid just after still matches); `store` adds each pack's `was` and `discount` {name, percentOff, ends}.
+- `website/gold.html`, `gold.js`, `style.css`: a banner counting down to the end, the usual price struck through on each pack and in the total, "Save N%" on the pouch too; at zero the page asks for the prices again.
+- Redeploys the **account server** (restart pauses sign-ins only) and the **website**; no client change, nobody disconnected. New Redis key `gold.discount.black-friday-2026`; nothing migrated. Nothing for the owner to do; to end it early, set the key to a past time and restart `bsk-account`; to give it again another year, add a new `GoldDiscount` with a new id.
+- Not in the wiki (a one-day price, not part of the game).
+
 ## Checks
 
+- Black Friday: `dotnet test source\Tests --filter GoldStore` 11 passed, with the two new tests (the first start sets the day and later ones keep it; every default pack halved with its gold unchanged; nothing after the end or after the last start; rounding to the cent and the $0.50 floor). On an isolated stack (slot 5) with `paypal_mock.py`: `/gold/store` gave the halved prices, `was` and the discount ending 24 hours after the account server started; `gold_store_test.py` all passed, buying the chest at $5.00. The page, built and served with `/api` forwarded, showed the banner counting down and the struck-through prices. The countdown reaching zero wasn't watched.
 - Realm 2 is an island: `dotnet test source\Tests --filter Realm` (20 passed, with `Realm2MapTests`: five seeds, no void, every walkable square reachable from the spawn, three kept stretches, land 156,000-168,000 squares, the Godlands 120,000-130,000, the old map 185,000-ish). With `R2_PREVIEW` the five maps were drawn as pictures, plain and with eleven event lands placed as the realm places them, and looked at. Not tried in game.
 
 - Guests and the Nexus vault chests: the world server builds. Not tried in game (a guest would have to walk the bot across the islands to a chest); the checks are the guild vault's, keyed on the account's `guest` flag.
