@@ -1,4 +1,4 @@
-Release 2.6.9: death replays line up. Deploys the client and website; nobody is disconnected.
+Release 2.6.9: death replays line up, and super elixirs that last. Deploys the world server, client and website; nobody is disconnected.
 
 ## For players
 
@@ -8,6 +8,10 @@ Release 2.6.9: death replays line up. Deploys the client and website; nobody is 
 ### Wiki
 - **Oryx's drops are on the wiki:** the Lil' Oryx, Lil' Wine Cellar Oryx and Lil' Infernal Oryx pets, the Infernal forge shards and the rest of Oryx 1's, Oryx 2's, Oryx the Infernal Mad God's and the Oryx Guardian Task Master's loot show on the Pets, gear and dungeon pages, so searching or filtering for them finds them.
 - **The wiki is quicker to find your way around:** a long page opens as a list of its sections, each with its first line and what it holds ("153 entries", "61 rows", "3 tables"); open one, or all, and the wiki remembers. Tables under their own headings (each weapon kind on Gear statistics, each goal's loot, each forge list) open one at a time; a long table shows its first 8 rows with "Show all", a filter and columns that sort when clicked; a link, a search result or the browser's find opens what it points into. The page's parts are listed under it in the menu instead of beside the page, so tables and cards have the whole width (no table scrolls sideways at 1,440px but a few on Gear statistics), item cards fit three or more to a row, and screenshots stand beside the text on wide screens. At 1,440px every page is 1,000 to 3,500px tall before you open anything: Community Goals was 49,800px, Gear statistics 46,400, Pets 40,200, Dungeons 23,100.
+
+### Items
+- **Super elixirs last:** the Super Elixir of Magic (250 MP a drink, 9999 doses) used to vanish after its first drink. It now keeps its doses: each drink takes one off, the slot and the tooltip show how many are left, and it goes with its last. Dropped, traded or stored, it keeps its count.
+- **The Super Elixir of Health:** a new red twin of the magic one, 250 HP a drink and the same 9999 doses. It's in the arena goal (Roar of the Crowd): its 400-fame tier now gives both elixirs, and its loot rolls it as often as the magic one (uncommon).
 
 ## Details
 
@@ -34,8 +38,19 @@ Release 2.6.9: death replays line up. Deploys the client and website; nobody is 
 - **Measured** (every wiki page and two gear pages in the browser at 390, 1,024, 1,440 and 1,920px): nothing is wider than the screen, no filter box is hidden. Tables scrolling sideways at 1,440px: 35 before, 7 after the width change, all on Gear statistics.
 - **Redeploy:** website only. Nobody is disconnected.
 
+### Super elixirs keep their doses; the Super Elixir of Health
+
+- **What and why:** the owner's report, "fix the super elixirs, both the health and mana ones". The only one in the game, `Super Elixir` (shown as Super Elixir of Magic), had `<Doses>9999</Doses>` but no `<SuccessorId>`, and the server's doses are only ever a chain of items (Elixir of Health 7 becomes 6, and so on): used, its slot became the (missing) next item, so it went after one drink. There was no health one.
+- **Server:** `Shared/database/character/inventory/ItemData.cs` gains `Doses` (left out while full) and `DosesLeft` / `WithDoses`. `Player.UseItem.cs`: a consumable with more than one dose and no successor stays in its slot and has its data's `Doses` counted down, its slot sent again (the client empties it when it asks), and goes with its last dose, its data cleared. Items with a successor are as before. `ImprintHandlers.cs` keeps `Doses` when it rebuilds an item's data. The data moves with the item as imprints do (swaps, drops, trades).
+- **Content:** `Super Elixir of Health` (0xD13E, drLofiObj2 0xe8, the red vial beside the magic one's) in both copies of `custom/DoomedRealms.xml`; `resources/data/community.json`: the arena goal's 400-fame tier gives it too, and its loot has it at weight 7, like the magic one.
+- **Client:** `app/src/hud.rs` reads the doses left from the slot's data (`slot_doses`) for the number on the slot and the tooltip's Doses line; `app/src/game.rs` no longer empties the slot while it's drunk unless it's the last dose.
+- **Redeploy:** world server and client; the content needs both (the new item's XML). Older clients work: the server sends the slot again, though they show 9999 until updated. Nobody is disconnected.
+- **Redis:** nothing to migrate. A Super Elixir already in a character's inventory has no count yet, so it starts full.
+- **Wiki:** `website/wiki/items.md` (Potions: the super elixirs); the generated Community Goals page and search pick up the health one by themselves.
+
 ## Checks
 
 - Death replays line up: `cargo test -p bsk-client` 131 passed, with `finds_the_lead_and_the_shot_that_hit` (a walking player the server hears of 150 ms late: the lead found, the shot that hit picked over one fired away, the hit shown when it met them) and `track_glides_between_places_and_jumps_to_gotos`; `cargo test -p bsk-world`; `cargo check --target wasm32-unknown-unknown -p bsk-client`. The reported replay (`lines_up_a_saved_replay`, 22 s, 8 hits from shots): all 8 matched to their shots, each shown within 30 ms of when the server counted it, in order; before, the drawn player met those shots up to 500 ms off. The client played it with `--replay` (the log: "the player 100 ms early, 8 of 8 hits with their shots").
 - Oryx's drops on the wiki: `python tools/build_wiki.py --out <scratch>` before and after; the Pets page's filter data now has Lil' Infernal Oryx ("oryx the infernal mad god (0.5%)"), Lil' Wine Cellar Oryx and Lil' Oryx; `drops_index()` gives the Infernal shards from Oryx the Mad God 4 (14%); the other pages differ only in their cache hash, except the gear, dungeon and search pages gaining those drops.
 - The wiki's folding and width: `python tools/build_site.py`, `node --check website/wiki/wiki.js`; every wiki page and two gear pages measured in the browser at 390, 1,024, 1,440 and 1,920px (page heights, overflow, hidden filter boxes); in the browser: Pets, Gear statistics (an accordion, a deep link to `#tiers-rings`, sorting Rings by Points), Community Goals (a menu link into a closed section, the goal table's filter), Dungeons (its filter opening the sections with matches, and back when cleared), Swords (the filter), the Druid's tabs, Realm Pass on a phone, Getting started at 1,920px (a screenshot beside the text) and the wiki home.
+- Super elixirs: `dotnet test source\Tests` 534 passed, with `SuperElixirTests` (both elixirs count down to the last, the last leaves no data, other data on the item stays, elixirs with a next item untouched); the world server builds; `cargo test` in `client-rs`; `python tools/build_wiki.py` shows the Super Elixir of Health in the arena goal's tier and loot. Not tried in game.

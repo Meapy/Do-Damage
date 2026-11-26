@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Items
+- **Super elixirs last:** the Super Elixir of Magic no longer vanishes after one drink: each drink takes a dose off (9999 of them), and the slot and tooltip show how many are left. A new **Super Elixir of Health** (250 HP a drink) joins it in the arena goal's rewards and loot.
+
 ### Death replays
 - **Hits land where they hit:** in a replay, the shot that hurt the character now meets them on screen, its damage showing as it strikes, and the shots that missed fly past them as they did. The character no longer trails a step behind where they really were, and walks smoothly. Replays saved before play this way too.
 

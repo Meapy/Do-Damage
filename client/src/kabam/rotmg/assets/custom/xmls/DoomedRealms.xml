@@ -935,6 +935,22 @@
 		<Potion />
 		<BagType>3</BagType>
 	</Object>
+	<Object type="0xD13E" id="Super Elixir of Health">
+		<Class>Equipment</Class>
+		<Item />
+		<Texture>
+			<File>drLofiObj2</File>
+			<Index>0xe8</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A large vial holding a super elixir.</Description>
+		<Sound>use_potion</Sound>
+		<Doses>9999</Doses>
+		<Activate amount="250">Heal</Activate>
+		<Consumable />
+		<Potion />
+		<BagType>3</BagType>
+	</Object>
 	<Object type="0xD037" id="Seal of War">
 		<Class>Equipment</Class>
 		<Item />

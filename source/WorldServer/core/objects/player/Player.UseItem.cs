@@ -1,5 +1,6 @@
 ﻿using Pipelines.Sockets.Unofficial.Arenas;
 using Shared;
+using Shared.database.character.inventory;
 using Shared.isc;
 using Shared.pets;
 using Shared.resources;
@@ -328,6 +329,7 @@ namespace WorldServer.core.objects
                 {
                     var gameData = GameServer.Resources.GameData;
                     var db = GameServer.Database;
+                    var dosesLeft = 0;
 
                     if (item.Consumable)
                     {
@@ -340,7 +342,10 @@ namespace WorldServer.core.objects
                         Item successor = null;
                         if (item.SuccessorId != null)
                             successor = gameData.Items[gameData.IdToObjectType[item.SuccessorId]];
-                        containerInventory[slot] = successor;
+                        // an item of many doses with no next one (the super elixirs) counts them
+                        // down on itself and stays until its last: it used to go after one
+                        dosesLeft = slot < container.Inventory.Data.Length ? ItemData.DosesLeft(item, container.Inventory.Data[slot]) : 0;
+                        containerInventory[slot] = dosesLeft > 1 ? item : successor;
 
                         if (container is GiftChest)
                         {
@@ -358,6 +363,13 @@ namespace WorldServer.core.objects
                     {
                         entity.ForceUpdate(slot);
                         return;
+                    }
+                    if (dosesLeft > 0)
+                    {
+                        container.Inventory.Data[slot] = ItemData.WithDoses(item, container.Inventory.Data[slot], dosesLeft - 1);
+                        // the client emptied the slot when it asked; the item is still there
+                        if (dosesLeft > 1)
+                            entity.ForceUpdate(slot);
                     }
 
                     if (slotType > 0)

@@ -333,7 +333,7 @@
       "tiers": [
         [{"fame": 150}, {"item": "Tincture of Courage"}],
         [{"fame": 250}, {"item": "Effusion of Attack"}, {"roll": 1}],
-        [{"fame": 400}, {"item": "Super Elixir"}],
+        [{"fame": 400}, {"item": "Super Elixir"}, {"item": "Super Elixir of Health"}],
         [{"fame": 750}, {"item": "Red Demon Generator"}, {"roll": 2}]
       ],
       "bonus": [{"fame": 175}, {"roll": 1}],
@@ -346,6 +346,7 @@
         {"item": "Effusion of Attack", "weight": 8, "rarity": "uncommon"},
         {"item": "Effusion of Defense", "weight": 8, "rarity": "uncommon"},
         {"item": "Super Elixir", "weight": 7, "rarity": "uncommon"},
+        {"item": "Super Elixir of Health", "weight": 7, "rarity": "uncommon"},
         {"item": "Red Demon Generator", "weight": 5, "rarity": "rare"},
         {"item": "Paladin Generator", "weight": 5, "rarity": "rare"},
         {"item": "Battle Nexus Key", "weight": 3, "rarity": "epic"},

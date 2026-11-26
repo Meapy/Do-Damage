@@ -1171,6 +1171,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   teleports (`Game::haunting`), and shows the banner with the follow arrows and Continue. Options,
   Gameplay, "Stay as a ghost when you die" (`lingerAtGrave`) goes straight to the summary instead.
 
+- **Super elixirs keep their doses** (2026-11-26; `Player.UseItem.cs`, `ItemData.Doses`,
+  `client-rs/app/src/hud.rs` `slot_doses`): a consumable with more than one `<Doses>` and no
+  `<SuccessorId>` counts its doses down in its item data and stays until the last (it used to go
+  after one). The `Super Elixir of Health` (0xD13E, `custom/DoomedRealms.xml`) joins the magic one
+  in the arena community goal.
 - **Health and magic potion stacks** (2026-11-16; `Shared/resources/data/init.xml`,
   `MaxStackablePotions`, and `client-rs/app/src/hud.rs`, `MAX_STACKED`): each stack holds up to
   10 potions instead of 6. The client and world server both enforce the limit. Existing counts

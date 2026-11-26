@@ -670,6 +670,12 @@ pub fn slot_reversed(o: &GameObj, slot: u8) -> bool {
     bsk_data::imprint::reversed(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
+/// The doses left on the item in a slot, from its data (`ItemData.Doses`): only an item of many
+/// doses with no next one (the super elixirs) counts them there, and only once it's been used.
+pub fn slot_doses(o: &GameObj, slot: u8) -> Option<i32> {
+    crate::petlevels::data_int(o.stat_str(slot_data_stat(slot)).unwrap_or(""), "Doses")
+}
+
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
@@ -707,6 +713,9 @@ pub struct Slot {
     /// whether a staff's shots are reversed.
     pub corruption: [i32; 4],
     pub reversed: bool,
+    /// The doses an item of many doses with no next one (the super elixirs) has left, from its
+    /// data (`ItemData.Doses`); none while it's full or for any other item.
+    pub doses: Option<i32>,
     rect: [f32; 4],
 }
 
@@ -1245,6 +1254,7 @@ impl Panel {
                 imprints: slot_imprints(me, i),
                 corruption: slot_corruption(me, i),
                 reversed: slot_reversed(me, i),
+                doses: slot_doses(me, i),
                 rect: grid_slot(equip, s, 4, i as u32),
             });
         }
@@ -1260,6 +1270,7 @@ impl Panel {
                 imprints: slot_imprints(me, first + i),
                 corruption: slot_corruption(me, first + i),
                 reversed: slot_reversed(me, first + i),
+                doses: slot_doses(me, first + i),
                 rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
@@ -1276,6 +1287,7 @@ impl Panel {
                 imprints: [0; 4],
                 corruption: [0; 4],
                 reversed: false,
+                doses: None,
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1355,6 +1367,7 @@ impl Panel {
                             imprints: slot_imprints(bag, i),
                             corruption: slot_corruption(bag, i),
                             reversed: slot_reversed(bag, i),
+                            doses: slot_doses(bag, i),
                             rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
@@ -2228,7 +2241,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         draw_item_marks(ui, slot.imprints, slot.corruption != [0; 4], slot.rect, s);
     }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
-        let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
+        let doses = slot.doses.map(|n| n.to_string()).or_else(|| ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned)));
         if let Some(n) = doses {
             let nw = ui.measure(&n, small, true);
             ui.label(&n, x + w - nw - 4.0 * s, y + h - small * 1.3, small, true, color::TEXT);
@@ -2756,6 +2769,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         let xp = me.filter(|m| m.id == slot.owner).map_or((0, 0, [0; 3]), |m| pet_xp(ui.data, m, slot.index, slot.item));
         let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
+        if let Some(n) = slot.doses {
+            set_doses(&mut lines, n);
+        }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines.extend(corrupted);
         lines
@@ -2899,6 +2915,14 @@ impl Line {
     /// A little space between the tooltip's parts.
     pub(crate) fn gap() -> Self {
         Line::new("", 5.0, false, ATTR)
+    }
+}
+
+/// The tooltip's Doses line showing the `left` an item has rather than the full count.
+fn set_doses(lines: &mut [Line], left: i32) {
+    let label = format!("{}: ", tr("Doses"));
+    if let Some(l) = lines.iter_mut().find(|l| l.pieces.len() == 2 && l.pieces[0].0 == label) {
+        l.pieces[1].0 = left.to_string();
     }
 }
 
