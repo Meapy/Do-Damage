@@ -88,10 +88,16 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Queen Bee's hive (Suestwo's player-made dungeon, UGC1): its rooms are built by
+	     tools/build_hive.py after the dungeon's own generator and joined anew for every visit, the
+	     Queen's room ending a branch five rooms from the start -->
 	<World id="The Hive">
-		<Width>256</Width>
-		<Height>256</Height>
+		<Width>130</Width>
+		<Height>104</Height>
 		<MapJM>Dungeons/The Hive.jm</MapJM>
+		<RandomLayout passage="3" corridor="3">
+			<Goal path="5">TH Queen Bee</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>

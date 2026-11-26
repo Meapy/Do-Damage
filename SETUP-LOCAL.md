@@ -722,6 +722,17 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Hive after its maker's design** (2026-11-26; `tools/build_hive.py`, `Dungeons/The Hive.jm`,
+  `Dungeons.xml`, `BehaviorDb.Hive.cs`, `Tests/RandomDungeonTests.cs`): the Hive follows its
+  original player-made files (Suestwo's UGC1, github.com/Suestwo/UGC1). The map is 20 round rooms
+  drawn from HiveGen.xml's numbers and joined anew each visit (`<RandomLayout>`, the Queen five
+  rooms from the start); the behaviours are TheHive.xml's (the Queen's sting / rest / daze / rest
+  cycle with honey bombs and thrown eggs, Fat Bees coming back angry, Mini Hives swarming,
+  eggs cracking at a hit, larvae growing into bees). What hatches in the fight is the
+  no-experience `TH Fat Bees 2` / `TH Red Fat Bees 2`, without loot; the Queen Bee Summoner, Bee
+  Egg and Wine Cellar Incantation drops aren't used. Rebuild the map with
+  `python tools/build_hive.py`.
+
 - **Death replays** (2026-11-25; `WorldServer/core/replay/ReplayRecorder.cs`,
   `Shared/database/DeathReplays.cs`, `App/Controllers/FameController.cs` `/fame/replay`, the Rust
   client's `app/src/replay.rs` and `crates/net/src/replay.rs`): every player outside the Nexus is

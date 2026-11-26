@@ -31,6 +31,7 @@ namespace Tests
             new object[] { "The Nest", "EH Beekeeper", "EH Destructible Wall", "EH King Bee:1;EH Destructible Wall:3;EH Waiting Floor:1" },
             new object[] { "Crystal Cavern", "mc", "CC Drill Wall", "CC Drill Charge:1;CC Drill Dwarf:1;CC Crystal:20" },
             new object[] { "Candyland Hunting Grounds", "Gigacorn", null, "Candyland Spawner:6;Gumball Machine:1" },
+            new object[] { "The Hive", "TH Queen Bee", null, "Portal of Cowardice:1;TH Maggot Egg1:1;TH Maggot Egg2:1;TH Maggot Egg3:1" },
         };
 
         [Theory]

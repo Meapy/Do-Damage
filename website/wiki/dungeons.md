@@ -92,6 +92,20 @@ grows and armours itself and fills the chamber with crystal buds that burst into
 that slow you, and prisms in every direction. It drops Life and Mana potions, the Crystallised
 Fang's Venom, the Crystallised Mist and the Mark of the Crystal Entity.
 
+## The Hive
+
+The Queen Bee's hive, a dungeon first made by a player (Suestwo). Its portal comes from the
+realm's Killer Bee Nest, and The Hive Key opens it anywhere. It is laid out anew each run: round
+rooms of honeycomb joined by halls, always five rooms between the start and the Queen. Puddles of
+honey slow you and pull you down. The rooms hold **Fat Bees** (a quarter come back angry when
+they die), **Fat Angry Bees** that chase you and make you bleed, **Small Bees** that charge in and
+sting, **Mini Hives** that keep sending Small Bees out until they burst, and **Maggot Eggs** that
+crack at the first hit, letting out larvae that grow into Fat Bees after ten seconds. The
+**Queen Bee** wakes when you come near and darts about her room, stinging in rings and dazing you
+with honey, resting unhurt (flashing green) between attacks, while she throws slowing honey bombs
+and more eggs at you. Bees hatched during the fight give no experience or loot. She drops
+Dexterity potions, Bottled Honey, the Honey Scepter and the Orb of Sweet Demise.
+
 ## The Nest
 
 When the realm's Killer Bee Nest falls, it opens two portals: the Hive and, beside it, **the

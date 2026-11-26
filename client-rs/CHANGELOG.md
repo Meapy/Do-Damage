@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Dungeons
+- **The Hive, remade:** the Queen Bee's hive is now laid out anew every run, round rooms of honeycomb with honey puddles that slow you. Its bees fight as their maker meant: Fat Bees come back angry, Mini Hives keep sending out Small Bees until they burst, eggs crack at the first hit and their larvae grow into bees, and the Queen darts about stinging and dazing, resting between attacks while she throws honey bombs and eggs.
+
 ### The Crucible
 - **The Crucible Leaderboard lists its top ten:** its window always shows places #1 to #10, solo and group, with a dash where no climb holds a place yet. Its trophy now stands west of the samurai statue, so its sign no longer covers the Arena Leaderboard's.
 
