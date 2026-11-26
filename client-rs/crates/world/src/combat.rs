@@ -569,6 +569,9 @@ impl World {
             } else if target_is_enemy {
                 // a King's Tribute on us: more on every shot, armour or no (`Player.Decree.cs`)
                 let tribute = me.and_then(|m| self.objects.get(&m)).and_then(|m| m.stat_int(bsk_proto::stat::TRIBUTE)).unwrap_or(0).clamp(0, 10);
+                // Condemned by a King's decree: a little more from every hit (`StatsManager`)
+                let condemned = target.stat_int(bsk_proto::stat::CONDEMNED).unwrap_or(0) > 0;
+                let dmg = if condemned { (dmg as f64 * (1.0 + bsk_proto::stat::CONDEMNED_PERCENT as f64 / 100.0)) as i32 } else { dmg };
                 let dmg = if dmg > 0 { dmg + tribute * bsk_proto::stat::TRIBUTE_DAMAGE } else { dmg };
                 let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
                 hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg, pierced: desc.armor_piercing });

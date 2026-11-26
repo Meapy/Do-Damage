@@ -1673,7 +1673,7 @@
 "Seal": "Печать",
 "Condemned": "Осуждены",
 "Tribute": "Дань",
-"{time}, taking 25% more damage from everyone": "{time}, получают на 25% больше урона от всех",
+"{time}, taking 5% more damage from everyone": "{time}, получают на 5% больше урона от всех",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} урона за выстрел без учёта защиты всем, кто его добьёт",
 "Stacks up to {n}, fading {time} after the last": "Складывается до {n}, угасает через {time} после последнего",
 "{n} MP from each of the first {k} to fall": "{n} ОМ с каждого из первых {k} павших",

@@ -609,6 +609,10 @@ pub mod stat {
     /// adds `TRIBUTE_DAMAGE` to their shots' hits on enemies, after defence.
     pub const TRIBUTE: u8 = 225;
     pub const TRIBUTE_DAMAGE: i32 = 10;
+    /// An enemy Condemned by a King's decree (1 while it is; the server's `Player.Decree.cs`):
+    /// it takes `CONDEMNED_PERCENT` more damage, after defense.
+    pub const CONDEMNED: u8 = 226;
+    pub const CONDEMNED_PERCENT: i32 = 5;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

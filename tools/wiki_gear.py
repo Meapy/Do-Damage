@@ -570,12 +570,12 @@ class Gear:
                     "enemies are Armor Broken for 3s and you go Berserk for 4s; you can't be hurt while you flow, and each enemy struck on the way gives back a Chi, up to two"
                     % (n("maxDistance", "6"), n("totalDamage"), n("impactDamage"), n("radius"), n("amount"), n("range")))
         if e == "RoyalDecree":
-            # a King's scepter (Player.Decree.cs): the seal falls DecreeFallMs after the cast, Curse
-            # on the Condemned; each that dies gives everyone who hurt it (and the King) a stack of
+            # a King's scepter (Player.Decree.cs): the seal falls DecreeFallMs after the cast, the
+            # Condemned taking CondemnedPercent (5%) more damage; each that dies gives everyone who hurt it (and the King) a stack of
             # Tribute, TributeDamage a shot past defense, up to TributeMax, fading one a second
             # TributeHoldMs after the last; the King's mana for the first TributeMpKills a decree
             return ("calls the royal seal down where you aim (up to %s tiles): %s damage within %s tiles, and the "
-                    "enemies under it are Condemned for %ss, taking a quarter more damage from everyone; each "
+                    "enemies under it are Condemned for %ss, taking 5% more damage from everyone; each "
                     "Condemned enemy that falls gives everyone who hurt it, and you, a stack of Tribute: +10 "
                     "damage on every shot, past defense, up to 10 stacks, fading one a second 10s after the "
                     "last; the first three of each decree also restore %s MP to you"

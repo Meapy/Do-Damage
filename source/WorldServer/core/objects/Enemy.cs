@@ -70,6 +70,7 @@ namespace WorldServer.core.objects
             DamageCounter = new DamageCounter(this);
             _glowcolor = new StatTypeValue<int>(this, StatDataType.GlowEnemy, 0);
             _defense = new StatTypeValue<int>(this, StatDataType.Defense, ObjectDesc.Defense);
+            _condemned = new StatTypeValue<int>(this, StatDataType.Condemned, 0);
             if (ObjectDesc.IdName == DpsMeter.ObjectId)
                 DpsMeter = new DpsMeter(this);
         }
@@ -124,6 +125,7 @@ namespace WorldServer.core.objects
         {
             DpsMeter?.Tick();
             ShredTick();
+            CondemnTick();
             Empowered?.Tick(this, ref time);
 
             // objects without MaxHitPoints (anchors, spawners, traps) start at 0 HP; they end
@@ -154,6 +156,8 @@ namespace WorldServer.core.objects
         {
             base.ExportStats(stats, isOtherPlayer);
             stats[StatDataType.GlowEnemy] = GlowEnemy;
+            if (IsCondemned)
+                stats[StatDataType.Condemned] = 1;
         }
 
         public void ClasifyEnemy()
@@ -228,8 +232,28 @@ namespace WorldServer.core.objects
             }
         }
 
-        // a King's decree on it (Player.Decree.cs): Condemned, it pays him tribute as it falls
-        public Player.Decree Condemned;
+        // a King's decree on it (Player.Decree.cs): Condemned, it takes Player.CondemnedPercent
+        // more damage (StatsManager.DamageWithDefense) and pays tribute as it falls. The Condemned
+        // stat tells clients while it lasts.
+        public Player.Decree Condemned { get; private set; }
+        private StatTypeValue<int> _condemned;
+
+        public bool IsCondemned => Condemned != null && Environment.TickCount64 <= Condemned.Until;
+
+        public void Condemn(Player.Decree decree)
+        {
+            Condemned = decree;
+            _condemned.SetValue(1);
+        }
+
+        private void CondemnTick()
+        {
+            if (Condemned != null && !IsCondemned)
+            {
+                Condemned = null;
+                _condemned.SetValue(0);
+            }
+        }
 
         public int Damage(Player from, ref TickTime time, int dmg, bool noDef, bool itsPoison = false, params ConditionEffect[] effs)
         {

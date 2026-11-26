@@ -404,6 +404,33 @@ fn a_kings_tribute_adds_to_our_hits() {
     w.objects.get_mut(&2).unwrap().stats.insert(stat::TRIBUTE, StatValue::Int(3));
     let hits = shoot(&mut w, 2, 1000);
     assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 40, .. }]), "{hits:?}");
+    // the target Condemned by a decree too: 5% more before the tribute (10 after defense: 10.5, 10)
+    w.objects.get_mut(&3).unwrap().stats.insert(stat::CONDEMNED, StatValue::Int(1));
+    w.objects.get_mut(&2).unwrap().stats.insert(stat::TRIBUTE, StatValue::Int(0));
+    let hits = shoot(&mut w, 3, 2000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 10, .. }]), "{hits:?}");
+}
+
+#[test]
+fn a_condemned_enemy_takes_a_little_more() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>200</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    let mut pirate = obj(3, 0x30, 5.5, 3.5, 0);
+    pirate.status.stats = vec![StatData { id: 1, value: StatValue::Int(10_000) }, StatData { id: stat::CONDEMNED, value: StatValue::Int(1) }].into();
+    w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+    w.add_projectile(combat::Projectile::new(2, 1, 0x40, 0, -std::f64::consts::FRAC_PI_2, 0, 5.5, 5.5, 1.0, 200, false));
+    let mut hits = Vec::new();
+    for t in (0..400).step_by(10) {
+        hits.extend(w.update_projectiles(t, &d));
+    }
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 210, .. }]), "{hits:?}");
 }
 
 #[test]

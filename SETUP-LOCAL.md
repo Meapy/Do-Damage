@@ -769,7 +769,8 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `particles/decree.rs` (relic looks 67-69), the bonus in `crates/world` `combat.rs`, the skins'
   looks in `auras.rs`, the tooltip in `hud.rs`): the King's tomes give way to scepters. The seal
   falls 260 ms after the cast where aimed (`maxDistance` 9), `impactDamage` within `radius`, and
-  the enemies there are Condemned for `duration` (Cursed, a crown over each). A Condemned enemy
+  the enemies there are Condemned for `duration` (5% more damage from every hit,
+  `CondemnedPercent`, stat 226 for the client; a crown over each). A Condemned enemy
   that dies while the King is alive and in its world gives a stack of Tribute to every player in
   its `DamageCounter` and to the King: +10 on each shot that damages an enemy, after defense, at
   most 10 stacks, fading one a second 10 s after the last; the King gets `tributeMp` for the first

@@ -1673,7 +1673,7 @@
 "Seal": "Mühür",
 "Condemned": "Mahkûm",
 "Tribute": "Haraç",
-"{time}, taking 25% more damage from everyone": "{time} boyunca herkesten %25 daha fazla hasar alır",
+"{time}, taking 5% more damage from everyone": "{time} boyunca herkesten %5 daha fazla hasar alır",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "Birini deviren herkese, savunmayı yok sayan atış başına +{n} hasar",
 "Stacks up to {n}, fading {time} after the last": "{n} kata kadar birikir, sonuncudan {time} sonra azalır",
 "{n} MP from each of the first {k} to fall": "Düşen ilk {k} düşmanın her birinden {n} MP",

@@ -151,6 +151,10 @@
         // everyone: the Rust client adds their bonus to its own shots' hits (combat.rs) and draws
         // the coins round them (decree.rs); an older client ignores it.
         Tribute = 225,
+        // an enemy Condemned by a King's decree (1 while it is; Player.Decree.cs): it takes
+        // Player.CondemnedPercent more damage, which the Rust client adds to the hits it works
+        // out for its own shots (combat.rs); an older client ignores it.
+        Condemned = 226,
         None = 255
     }
 }

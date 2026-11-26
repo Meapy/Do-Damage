@@ -63,6 +63,13 @@ namespace Tests
             Assert.Equal(10_000, Player.TributeHoldMs);
         }
 
+        // a Condemned enemy takes a little more from every hit, not the Curse's quarter
+        [Fact]
+        public void CondemnedIsFivePercent()
+        {
+            Assert.Equal(5, Player.CondemnedPercent);
+        }
+
         // a decree's first TributeMpKills enemies to fall pay the King mana, the rest only heal
         [Fact]
         public void OnlyTheFirstFewPayMana()

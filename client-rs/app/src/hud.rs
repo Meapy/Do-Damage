@@ -3150,7 +3150,7 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             let r = vec![
                 row(tr("Seal"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
                 row(tr("Burst"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
-                row(tr("Condemned"), tf!("{time}, taking 25% more damage from everyone", time = secs(num("duration")))),
+                row(tr("Condemned"), tf!("{time}, taking 5% more damage from everyone", time = secs(num("duration")))),
                 row(tr("Tribute"), tf!("+{n} damage a shot, ignoring defense, to all who bring one down", n = bsk_proto::stat::TRIBUTE_DAMAGE)),
                 row("", tf!("Stacks up to {n}, fading {time} after the last", n = 10, time = secs(10.0))),
                 row(tr("Mana"), tf!("{n} MP from each of the first {k} to fall", n = num("tributeMp"), k = 3)),

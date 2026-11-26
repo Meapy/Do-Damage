@@ -1673,7 +1673,7 @@
 "Seal": "Sello",
 "Condemned": "Condenados",
 "Tribute": "Tributo",
-"{time}, taking 25% more damage from everyone": "{time}, reciben un 25 % más de daño de todos",
+"{time}, taking 5% more damage from everyone": "{time}, reciben un 5 % más de daño de todos",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} de daño por disparo, ignorando la defensa, para todos los que abatan a uno",
 "Stacks up to {n}, fading {time} after the last": "Se acumula hasta {n} y se desvanece {time} después del último",
 "{n} MP from each of the first {k} to fall": "{n} PM de cada uno de los primeros {k} en caer",

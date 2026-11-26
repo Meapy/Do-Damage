@@ -1673,7 +1673,7 @@
 "Seal": "Pieczęć",
 "Condemned": "Skazani",
 "Tribute": "Danina",
-"{time}, taking 25% more damage from everyone": "{time}, otrzymują o 25% więcej obrażeń od wszystkich",
+"{time}, taking 5% more damage from everyone": "{time}, otrzymują o 5% więcej obrażeń od wszystkich",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} obrażeń na strzał, ignorując obronę, dla wszystkich, którzy go powalą",
 "Stacks up to {n}, fading {time} after the last": "Kumuluje się do {n}, zanika {time} po ostatnim",
 "{n} MP from each of the first {k} to fall": "{n} PM z każdego z pierwszych {k} poległych",

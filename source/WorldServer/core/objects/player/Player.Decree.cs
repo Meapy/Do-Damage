@@ -14,9 +14,9 @@ namespace WorldServer.core.objects
     //
     // The King names the enemies that must fall: the royal seal comes down where he aims (at most
     // `maxDistance` tiles off) DecreeFallMs later, and every enemy within `radius` of it is
-    // Condemned for `duration`: Cursed (a quarter more damage from every hit, as the Curse ever
-    // was; not those immune to it) and marked with his crown. Then the seal strikes them for
-    // `impactDamage`, so one it kills is already Condemned.
+    // Condemned for `duration`: it takes CondemnedPercent more damage from every hit
+    // (StatsManager.DamageWithDefense; the Condemned stat tells clients) and is marked with his
+    // crown. Then the seal strikes them for `impactDamage`, so one it kills is already Condemned.
     //
     // The Crown's Due: a Condemned enemy that dies, by anyone's hand, pays tribute to everyone who
     // helped bring it down (whoever hurt it, and the King): a stack of Tribute each, up to
@@ -40,6 +40,7 @@ namespace WorldServer.core.objects
         public const int DecreeFallMs = 260;
         public const float DecreeReach = 9;
         public const int TributeMpKills = 3;
+        public const int CondemnedPercent = 5;
         public const int TributeDamage = 10, TributeMax = 10;
         public const int TributeHoldMs = 10_000, TributeFadeStepMs = 1000;
 
@@ -111,8 +112,7 @@ namespace WorldServer.core.objects
 
         private void Condemn(Enemy e, Decree decree, int ms)
         {
-            e.Condemned = decree;
-            e.ApplyConditionEffect(ConditionEffectIndex.Curse, ms);
+            e.Condemn(decree);
             World.BroadcastIfVisible(new ShowEffect
             {
                 EffectType = EffectType.Relic,

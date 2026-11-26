@@ -1673,7 +1673,7 @@
 "Seal": "Zegel",
 "Condemned": "Veroordeeld",
 "Tribute": "Tribuut",
-"{time}, taking 25% more damage from everyone": "{time}, lopen 25% meer schade op van iedereen",
+"{time}, taking 5% more damage from everyone": "{time}, lopen 5% meer schade op van iedereen",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} schade per schot, negeert verdediging, voor iedereen die er een neerhaalt",
 "Stacks up to {n}, fading {time} after the last": "Stapelt tot {n}, vervaagt {time} na de laatste",
 "{n} MP from each of the first {k} to fall": "{n} MP van elk van de eerste {k} die vallen",

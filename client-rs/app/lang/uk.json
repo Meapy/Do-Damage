@@ -1673,7 +1673,7 @@
 "Seal": "Печатка",
 "Condemned": "Засуджені",
 "Tribute": "Данина",
-"{time}, taking 25% more damage from everyone": "{time}, отримують на 25% більше шкоди від усіх",
+"{time}, taking 5% more damage from everyone": "{time}, отримують на 5% більше шкоди від усіх",
 "+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} шкоди за постріл без урахування захисту всім, хто його доб'є",
 "Stacks up to {n}, fading {time} after the last": "Накопичується до {n}, згасає через {time} після останнього",
 "{n} MP from each of the first {k} to fall": "{n} ОМ з кожного з перших {k} полеглих",

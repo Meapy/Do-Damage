@@ -131,7 +131,7 @@ behind it, its glowing third eye and a wheel of light under its feet). Dyes work
 the Last Dynasty at T8) and names the enemies that must fall. The royal seal comes down where he
 aims (up to 9 tiles off) a quarter of a second later, striking everything under it (160 damage at
 T0 up to 680 at T8, within 3 to 4.5 tiles), and those enemies are **Condemned** for 4 to 8
-seconds: a gold crown hangs over each, and they take a quarter more damage from everyone. When a
+seconds: a gold crown hangs over each, and they take 5% more damage from everyone. When a
 Condemned enemy falls, by anyone's hand, it pays **Tribute** to everyone who hurt it, and to the
 King: a stack each, **+10 damage on every shot** that strikes an enemy, straight through its
 defense, up to 10 stacks (+100). The stacks are coins circling your feet; 10 seconds after your
