@@ -580,9 +580,13 @@ impl Npcs {
             }
             Window::Potions { .. } => (480.0, 112.0 + 38.0 * 8.0 + 56.0),
             // the tabs, the season's line, the best run's card, then a row for each of the rest
-            // (room for three while loading)
-            Window::Leaderboard { board, seasons, .. } => {
-                let rest = board.as_ref().map_or(3, |b| b.runs.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1);
+            // (room for three while loading; the Crucible's always its whole top 10)
+            Window::Leaderboard { board, seasons, crucible, .. } => {
+                let rest = if *crucible && board.as_ref().is_some_and(|b| !b.runs.is_empty()) {
+                    LEADERBOARD_RUNS - 1
+                } else {
+                    board.as_ref().map_or(3, |b| b.runs.len().saturating_sub(1)).min(LEADERBOARD_RUNS - 1)
+                };
                 let season_line = if seasons.is_empty() { 0.0 } else { 26.0 };
                 (560.0, 74.0 + 44.0 + season_line + 118.0 + 30.0 * rest as f32 + 10.0)
             }
@@ -1147,6 +1151,18 @@ fn draw_runs(ui: &mut Ui, runs: &[ArenaRun], body: [f32; 4], s: f32, me: &str, c
         }
         let who = fit(ui, &names(r), ts, body[0] + body[2] - px);
         ui.label(&who, px, ty, ts, false, c);
+    }
+    // the Crucible's places no climb holds yet, down to #10
+    if crucible.is_some() {
+        for i in runs.len().max(1)..LEADERBOARD_RUNS {
+            let ry = top + (i - 1) as f32 * 30.0 * s;
+            if i % 2 == 1 {
+                theme::fill(ui.renderer, [body[0] - 6.0 * s, ry, body[2] + 12.0 * s, 28.0 * s], 4.0 * s, 0xFFFFFF, 0.03);
+            }
+            let ty = ry + (28.0 * s - ts * 1.22) / 2.0;
+            ui.label(&format!("#{}", i + 1), body[0], ty, ts, true, color::TEXT_MUTED);
+            ui.label("—", body[0] + 40.0 * s, ty, ts, false, color::TEXT_MUTED);
+        }
     }
 }
 

@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### The Crucible
+- **The Crucible Leaderboard lists its top ten:** its window always shows places #1 to #10, solo and group, with a dash where no climb holds a place yet. Its trophy now stands west of the samurai statue, so its sign no longer covers the Arena Leaderboard's.
+
 ### Items
 - **Super elixirs last:** the Super Elixir of Magic no longer vanishes after one drink: each drink takes a dose off (9999 of them), and the slot and tooltip show how many are left. A new **Super Elixir of Health** (250 HP a drink) joins it in the arena goal's rewards and loot.
 

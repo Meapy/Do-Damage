@@ -172,7 +172,7 @@ COURT = (153, 88, 169, 100)
 SAMURAI = (158, 94)
 HERALD = (166, 92)
 LEADERBOARD = (162, 92)
-CRUCIBLE_LEADERBOARD = (160, 92)     # the Crucible's, beside it
+CRUCIBLE_LEADERBOARD = (155, 92)     # the Crucible's, west of the statue (far enough that the signs over them don't overlap)
 # the pet pen east of the court (PetPen.cs): packed earth in a bamboo fence, its gate west towards
 # the Warcaller and the Herald, the Pen Keeper outside it; pets come and go on its floor
 PEN = (174, 89, 188, 99)
