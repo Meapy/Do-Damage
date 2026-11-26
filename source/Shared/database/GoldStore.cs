@@ -93,12 +93,12 @@ namespace Shared.database
         public static string MadeKey(int accountId) => "gold.made." + accountId;
         private static string AccountKey(int accountId) => "account." + accountId;
 
-        /// <summary>Gold per dollar (or whatever the store's currency is) before any bonus.</summary>
+        /// <summary>Gold per euro (the store's currency, PayPalSettings.StoreCurrency) before any bonus.</summary>
         public const int GoldPerUnit = 100;
 
         /// <summary>
-        /// The packs sold when the settings name none: $1 buys 100 gold, and the bigger packs add
-        /// bonus gold on top, 5% at $5 up to 25% at $100.
+        /// The packs sold when the settings name none: €1 buys 100 gold, and the bigger packs add
+        /// bonus gold on top, 5% at €5 up to 25% at €100.
         /// </summary>
         public static readonly GoldPack[] DefaultPacks =
         {

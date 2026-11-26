@@ -133,7 +133,7 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 Every shop here sells for fame, except the gold shops: the **Elder keys** (`/shop elderkeys`, and
 the Bazaar's Elder key stalls), the patterned cloths in `/shop dyes`, `/shop donor`,
 `/shop donorpets` and `/shop america`. Gold isn't
-earned in game: it's bought in the [Gold Store](../gold.html) on this site ($1 for 100 gold, with
+earned in game: it's bought in the [Gold Store](../gold.html) on this site (€1 for 100 gold, with
 bonus gold on bigger packs), with PayPal or a card, and reaches your account at once, even while
 you play.
 

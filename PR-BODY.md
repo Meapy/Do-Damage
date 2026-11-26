@@ -1,9 +1,10 @@
-Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world and account servers, client and website; nobody is disconnected. Black Friday: all gold half price for the first 24 hours after the deploy. The Monk's Flowing Strike, the King's Royal Decree and the Sharklord's Maw of the Deep need the world server and client together.
+Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world and account servers, client and website; nobody is disconnected. Black Friday: all gold half price for the first 24 hours after the deploy, and the Gold Store now sells in euros. The Monk's Flowing Strike, the King's Royal Decree and the Sharklord's Maw of the Deep need the world server and client together.
 
 ## For players
 
 ### Gold Store
-- **Black Friday: all gold half price for 24 hours:** for a day from this release's deploy, every Gold Store pack costs half its price for the same gold and bonus: 100 gold for $0.50, 525 for $2.50, 1,100 for $5, 2,300 for $10, 6,000 for $25 and 12,500 for $50. The store shows a banner counting down the time left, with each pack's usual price struck through; when it ends the prices go back by themselves.
+- **Black Friday: all gold half price for 24 hours:** for a day from this release's deploy, every Gold Store pack costs half its price for the same gold and bonus: 100 gold for €0.50, 525 for €2.50, 1,100 for €5, 2,300 for €10, 6,000 for €25 and 12,500 for €50. The store shows a banner counting down the time left, with each pack's usual price struck through; when it ends the prices go back by themselves.
+- **Gold is sold in euros:** the Gold Store now charges in euros instead of US dollars, at the same numbers (€1 for 100 gold, up to €100 for 12,500 with the bonus). Past purchases keep the currency they were paid in.
 
 ### Pets
 - **Tuning asks before it spends:** a tuning step at the Pen Keeper is paid only on a second click on the same button, which the first click turns into "Pay 1,000 fame"; picking another stat, or the server answering, takes the ask back.
@@ -188,9 +189,20 @@ Every gold pack sells at 50% off for 24 hours, starting the first time the accou
 - Redeploys the **account server** (restart pauses sign-ins only) and the **website**; no client change, nobody disconnected. New Redis key `gold.discount.black-friday-2026`; nothing migrated. Nothing for the owner to do; to end it early, set the key to a past time and restart `bsk-account`; to give it again another year, add a new `GoldDiscount` with a new id.
 - Not in the wiki (a one-day price, not part of the game).
 
+### The Gold Store sells in euros
+
+The store charged US dollars; from this release it charges euros, at the same numbers (€1 for 100 gold, the bonus packs as before).
+
+- `Shared/PayPalSettings.cs`: the currency is no longer a setting: `PayPalSettings.StoreCurrency` is `EUR`, and a `currency` left in a config (the live `deploy/paypal.local.json` says `USD`, and the `PAYPAL_CONFIG` secret is its copy) is ignored, so the switch doesn't depend on editing secrets. `deploy/paypal.example.json` drops it.
+- Orders keep their own currency (`gold.order.*`), so a dollar order made before the deploy and paid or refunded after still checks against dollars; the purchases list shows each in its own currency; `gold.sales` starts a `cents.EUR` beside `cents.USD`.
+- `website/gold.js` (fallback currency, a comment), `website/wiki/items.md` (€1 for 100 gold), `GoldStore.cs` comments.
+- **The owner:** the PayPal account receiving the money must accept euros. If it holds only dollars, PayPal may hold euro payments until accepted by hand, or convert them (its payment preferences); check before the deploy, and buy the smallest pack after it.
+- Redeploys the account server and the website, as the sale above; nobody disconnected.
+
 ## Checks
 
 - Black Friday: `dotnet test source\Tests --filter GoldStore` 11 passed, with the two new tests (the first start sets the day and later ones keep it; every default pack halved with its gold unchanged; nothing after the end or after the last start; rounding to the cent and the $0.50 floor). On an isolated stack (slot 5) with `paypal_mock.py`: `/gold/store` gave the halved prices, `was` and the discount ending 24 hours after the account server started; `gold_store_test.py` all passed, buying the chest at $5.00. The page, built and served with `/api` forwarded, showed the banner counting down and the struck-through prices. The countdown reaching zero wasn't watched.
+- Euros: `dotnet test source\Tests --filter GoldStore` 12 passed, with `TheStoreSellsInEurosWhateverAnOldConfigSays` (a config naming `USD` still sells in `EUR`). On the isolated stack again: `/gold/store` said `EUR`, the chest €5.00 (was €10.00), the discount's end unchanged from the first start; `gold_store_test.py` all passed with the orders in euros at PayPal's stand-in. Not tried against PayPal's sandbox or live.
 - Realm 2 is an island: `dotnet test source\Tests --filter Realm` (20 passed, with `Realm2MapTests`: five seeds, no void, every walkable square reachable from the spawn, three kept stretches, land 156,000-168,000 squares, the Godlands 120,000-130,000, the old map 185,000-ish). With `R2_PREVIEW` the five maps were drawn as pictures, plain and with eleven event lands placed as the realm places them, and looked at. Not tried in game.
 
 - Guests and the Nexus vault chests: the world server builds. Not tried in game (a guest would have to walk the bot across the islands to a chest); the checks are the guild vault's, keyed on the account's `guest` flag.

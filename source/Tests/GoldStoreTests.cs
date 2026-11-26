@@ -144,7 +144,7 @@ namespace Tests
             foreach (var p in packs)
                 Assert.Equal(p.price * 100, p.gold - p.bonus); // the base rate, bonus on top
             Assert.Equal(0, packs[0].bonus);
-            // each bigger pack gives more gold per dollar than the one before
+            // each bigger pack gives more gold per euro than the one before
             for (var i = 1; i < packs.Length; i++)
                 Assert.True(packs[i].gold / packs[i].price > packs[i - 1].gold / packs[i - 1].price);
             Assert.Single(packs, p => p.best);
@@ -170,6 +170,15 @@ namespace Tests
             Assert.True(GoldStore.ValidOrderId(Order));
             Assert.False(GoldStore.ValidOrderId("../" + Order));
             Assert.False(GoldStore.ValidOrderId("short"));
+        }
+
+        [Fact]
+        public void TheStoreSellsInEurosWhateverAnOldConfigSays()
+        {
+            Assert.Equal("EUR", new Shared.PayPalSettings().Currency);
+            var old = Newtonsoft.Json.JsonConvert.DeserializeObject<Shared.PayPalSettings>("{\"clientId\":\"x\",\"currency\":\"USD\"}");
+            Assert.Equal("x", old.ClientId);
+            Assert.Equal("EUR", old.Currency);
         }
 
         [Fact]

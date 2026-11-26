@@ -44,7 +44,7 @@
   }
 
   function money(price) {
-    var cur = state.store ? state.store.currency : "USD";
+    var cur = state.store ? state.store.currency : "EUR";
     try {
       return new Intl.NumberFormat(undefined, { style: "currency", currency: cur, currencyDisplay: "narrowSymbol" }).format(+price);
     } catch (e) {
@@ -140,7 +140,7 @@
       unit.className = "gold-pack-unit";
       unit.textContent = "gold";
       b.appendChild(unit);
-      // the bonus, and what the pack would cost at the base rate ($1 for 100 gold)
+      // the bonus, and what the pack would cost at the base rate (€1 for 100 gold)
       var base = p.gold - p.bonus;
       var percent = base > 0 ? Math.round((p.bonus / base) * 100) : 0;
       var bonus = document.createElement("span");
