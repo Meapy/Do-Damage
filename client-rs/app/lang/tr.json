@@ -1586,6 +1586,8 @@
 "HP healing": "CP iyileştirme",
 "MP healing": "MP yenileme",
 "Tuned {pct}": "Ayarlandı {pct}",
+"Pay {fame} fame": "{fame} şöhret öde",
+"Each step costs {fame} fame. Click again to pay:": "Her adım {fame} şöhret. Ödemek için tekrar tıkla:",
 "Level {max}: {value}": "Seviye {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Envanterinde ona göre bir şey yok: evciller ekipman, iksir, ikram ve başka evcillerin taşlarını yer.",
 "Pets won't eat this.": "Evciller bunu yemez.",

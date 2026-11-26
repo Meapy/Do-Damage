@@ -2,6 +2,9 @@ Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line
 
 ## For players
 
+### Pets
+- **Tuning asks before it spends:** a tuning step at the Pen Keeper is paid only on a second click on the same button, which the first click turns into "Pay 1,000 fame"; picking another stat, or the server answering, takes the ask back.
+
 ### Nexus
 - **The shared vault chests are for registered players:** a guest can still put items into the four shared vault chests in the Nexus's vault yard, but taking one out (moving it to their inventory, dropping it, breaking it down or using it straight from the chest) says "Register your account to take items out of the Nexus vault chests." Registered players use them as before.
 
@@ -42,6 +45,10 @@ Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line
 - **The Queen Bee** stays unhurt until you come within 7 tiles, then cycles: 3 seconds of rings of 8 stingers, 2 seconds resting unhurt (flashing green, drifting after you), 3.5 seconds of three dazing globs of honey at a time, 2 more resting; throughout she throws a slowing honey bomb (100 within 3 tiles) every 5 seconds and a Maggot Egg every 3 (at most 8 near her). Her health grows a fifth for each extra player. Bees that hatch in the fight (from her eggs or a room's) give no experience or loot.
 
 ## Details
+
+### Pet tuning: pay on a second click
+
+A player spent 38,000 fame in six minutes clicking the tuning buttons back and forth (26 Nov, the world server log's "Pet pen: ... tuned" lines), ending where he started: each click paid 1,000 fame at once. Now the first click on a "taken from" button turns it red with its price and the hint line says each step costs that much; the second click pays. Files: `client-rs/app/src/petpen.rs`, two new lines in every `client-rs/app/lang/*.json`. Client only, no message change; nobody is disconnected. The player (Evrstaar, account 254) was refunded 38,000 fame on the live Redis by hand, by a one-off job (`bsk-refund-254`) that adds it once while no world server holds his account lock (marker key `refund:254:pettune:20261126`). Not done: a free undo of your own last step.
 
 ### The Monk reworked: Chi and the Flowing Strike, a new look and five skins
 

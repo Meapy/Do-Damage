@@ -1586,6 +1586,8 @@
 "HP healing": "Лечение ОЗ",
 "MP healing": "Восстановление ОМ",
 "Tuned {pct}": "Настроено {pct}",
+"Pay {fame} fame": "Заплатить {fame} славы",
+"Each step costs {fame} fame. Click again to pay:": "Каждый шаг стоит {fame} славы. Нажмите ещё раз, чтобы заплатить:",
 "Level {max}: {value}": "Уровень {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "В инвентаре нет ничего для него: питомцы едят снаряжение, зелья, лакомства и камни других питомцев.",
 "Pets won't eat this.": "Питомцы такое не едят.",

@@ -1586,6 +1586,8 @@
 "HP healing": "Leczenie PŻ",
 "MP healing": "Przywracanie PM",
 "Tuned {pct}": "Dostrojono {pct}",
+"Pay {fame} fame": "Zapłać {fame} sławy",
+"Each step costs {fame} fame. Click again to pay:": "Każdy krok kosztuje {fame} sławy. Kliknij ponownie, aby zapłacić:",
 "Level {max}: {value}": "Poziom {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Nic dla niego w ekwipunku: zwierzaki jedzą wyposażenie, mikstury, przysmaki i kamienie innych zwierzaków.",
 "Pets won't eat this.": "Zwierzaki tego nie jedzą.",

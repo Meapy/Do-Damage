@@ -10,7 +10,9 @@
 //! at its last level can be grown to the next size, for fame or gold, and levels on (at 100% until
 //! it's Huge, then up to 120%), climbing towards what pets of its new size do. A Huge pet at its
 //! last level can be tuned: pick the stat box to make stronger, then the one to take it from, 5% a
-//! step for fame (from 2.6.7).
+//! step for fame (from 2.6.7). A step is paid only on a second click on the same button, which
+//! the first click turns into its price: players clicked through tens of thousands of fame trying
+//! the buttons out (2.6.9).
 //!
 //! The window asks as it opens and after each act (`PetPenAct`); the server answers with the pet
 //! as it is (`PetPen`).
@@ -53,6 +55,8 @@ enum Hit {
     Pick(u8),
     /// A stat box, picked to make stronger by tuning.
     TuneUp(usize),
+    /// A tuning step (`TUNE`'s slot): the first click asks, the second pays.
+    TuneStep(u8),
 }
 
 /// The Pen Keeper's window.
@@ -68,6 +72,8 @@ pub struct PetPen {
     stone: Option<(u16, i32)>,
     /// The stat picked to make stronger by tuning (0 damage, 1 HP, 2 MP).
     tune_up: Option<usize>,
+    /// The tuning step clicked once, waiting for the click that pays for it.
+    tune_armed: Option<u8>,
     rect: Option<[f32; 4]>,
     hits: Vec<(Hit, [f32; 4])>,
 }
@@ -109,6 +115,7 @@ impl PetPen {
         self.open = true;
         self.message = None;
         self.picked = None;
+        self.tune_armed = None;
         ASK
     }
 
@@ -128,6 +135,8 @@ impl PetPen {
             self.picked = None;
         }
         self.state = Some(p);
+        // a step is asked for afresh after each answer
+        self.tune_armed = None;
     }
 
     /// A press of the left button: an act to send (with an inventory slot), if any.
@@ -135,7 +144,17 @@ impl PetPen {
         match self.hits.iter().find(|(_, r)| inside(*r, pos)).map(|(h, _)| *h) {
             Some(Hit::Close) => self.open = false,
             Some(Hit::Act(a, slot)) => return Some((a, slot)),
-            Some(Hit::TuneUp(k)) => self.tune_up = if self.tune_up == Some(k) { None } else { Some(k) },
+            Some(Hit::TuneUp(k)) => {
+                self.tune_up = if self.tune_up == Some(k) { None } else { Some(k) };
+                self.tune_armed = None;
+            }
+            Some(Hit::TuneStep(slot)) => {
+                if self.tune_armed == Some(slot) {
+                    self.tune_armed = None;
+                    return Some((TUNE, slot));
+                }
+                self.tune_armed = Some(slot);
+            }
             Some(Hit::Pick(slot)) => {
                 self.picked = match self.picked {
                     Some((s, _)) if s == slot => None,
@@ -185,6 +204,9 @@ impl PetPen {
         let tune = self.state.as_ref().filter(|p| p.pet != 0).and_then(|p| p.tune).filter(|t| t.fame > 0);
         if tune.is_none() {
             self.tune_up = None;
+        }
+        if self.tune_up.is_none() {
+            self.tune_armed = None;
         }
         let tune_h = if tune.is_some() { 44.0 } else { 0.0 };
         let (dw, dh) = (600.0, 694.0 + tune_h);
@@ -361,18 +383,34 @@ impl PetPen {
                             bx -= bw;
                             let br = [bx, row[1] + 4.0 * s, bw, row[3] - 8.0 * s];
                             let on = steps[up] < petlevels::TUNE_MAX && steps[from] > -petlevels::TUNE_MAX && fame >= t.fame;
-                            ui.button(br, names[from], if on { Kind::Primary } else { Kind::Secondary }, on && inside(br, mouse), s * 0.62);
+                            let slot = (from * 3 + up) as u8;
+                            if !on && self.tune_armed == Some(slot) {
+                                self.tune_armed = None;
+                            }
+                            if self.tune_armed == Some(slot) {
+                                let pay = tf!("Pay {fame} fame", fame = group_digits(t.fame));
+                                ui.button(br, &pay, Kind::Danger, inside(br, mouse), s * 0.62);
+                            } else {
+                                ui.button(br, names[from], if on { Kind::Primary } else { Kind::Secondary }, on && inside(br, mouse), s * 0.62);
+                            }
                             if on {
-                                self.hits.push((Hit::Act(TUNE, (from * 3 + up) as u8), br));
+                                self.hits.push((Hit::TuneStep(slot), br));
                             }
                             bx -= 6.0 * s;
                         }
                         let line = match up {
+                            _ if self.tune_armed.is_some() => tf!("Each step costs {fame} fame. Click again to pay:", fame = group_digits(t.fame)),
                             0 => tf!("More damage, {step}% taken from:", step),
                             1 => tf!("More HP healing, {step}% taken from:", step),
                             _ => tf!("More MP healing, {step}% taken from:", step),
                         };
-                        let c = if steps[up] >= petlevels::TUNE_MAX { color::TEXT_MUTED } else { color::GOLD };
+                        let c = if self.tune_armed.is_some() {
+                            color::DANGER
+                        } else if steps[up] >= petlevels::TUNE_MAX {
+                            color::TEXT_MUTED
+                        } else {
+                            color::GOLD
+                        };
                         ui.label_fit(&line, row[0] + 14.0 * s, ly, bx - row[0] - 20.0 * s, font(12.5), true, c);
                     }
                 }

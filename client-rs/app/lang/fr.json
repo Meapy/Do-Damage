@@ -1586,6 +1586,8 @@
 "HP healing": "Soins de PV",
 "MP healing": "Soins de PM",
 "Tuned {pct}": "Réglé {pct}",
+"Pay {fame} fame": "Payer {fame} de gloire",
+"Each step costs {fame} fame. Click again to pay:": "Chaque cran coûte {fame} de gloire. Clique encore pour payer :",
 "Level {max}: {value}": "Niveau {max} : {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Rien pour lui dans ton inventaire : les familiers mangent l’équipement, les potions, les friandises et les pierres d’autres familiers.",
 "Pets won't eat this.": "Les familiers ne mangent pas ça.",

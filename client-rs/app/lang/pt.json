@@ -1586,6 +1586,8 @@
 "HP healing": "Cura de PV",
 "MP healing": "Cura de PM",
 "Tuned {pct}": "Ajustado {pct}",
+"Pay {fame} fame": "Pagar {fame} de fama",
+"Each step costs {fame} fame. Click again to pay:": "Cada passo custa {fame} de fama. Clique de novo para pagar:",
 "Level {max}: {value}": "Nível {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Nada no inventário para ele: mascotes comem equipamento, poções, petiscos e pedras de outros mascotes.",
 "Pets won't eat this.": "Mascotes não comem isso.",

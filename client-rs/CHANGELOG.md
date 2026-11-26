@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Pets
+- **Tuning asks before it spends:** each tuning step at the Pen Keeper now takes two clicks, the first showing its price, so trying the buttons out no longer spends fame.
+
 ### Nexus
 - **The shared vault chests are for registered players:** guests can still put items into the Nexus's shared vault chests, but need to register their account to take any out.
 

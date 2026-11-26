@@ -1586,6 +1586,8 @@
 "HP healing": "LP-Heilung",
 "MP healing": "MP-Heilung",
 "Tuned {pct}": "Abgestimmt {pct}",
+"Pay {fame} fame": "{fame} Ruhm zahlen",
+"Each step costs {fame} fame. Click again to pay:": "Jeder Schritt kostet {fame} Ruhm. Zum Zahlen nochmal klicken:",
 "Level {max}: {value}": "Stufe {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Nichts im Inventar für ihn: Haustiere fressen Ausrüstung, Tränke, Leckereien und Steine anderer Haustiere.",
 "Pets won't eat this.": "Das frisst kein Haustier.",

@@ -1586,6 +1586,8 @@
 "HP healing": "HP-genezing",
 "MP healing": "MP-herstel",
 "Tuned {pct}": "Afgestemd {pct}",
+"Pay {fame} fame": "Betaal {fame} roem",
+"Each step costs {fame} fame. Click again to pay:": "Elke stap kost {fame} roem. Klik nog eens om te betalen:",
 "Level {max}: {value}": "Level {max}: {value}",
 "Nothing in your inventory for him: pets eat gear, potions, treats and other pets' stones.": "Niets in je inventaris voor hem: huisdieren eten uitrusting, drankjes, lekkernijen en stenen van andere huisdieren.",
 "Pets won't eat this.": "Huisdieren eten dit niet.",
