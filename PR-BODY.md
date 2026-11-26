@@ -26,6 +26,7 @@ Release 2.6.9: the Monk and the King reworked, death replays line up, super elix
 ### Items
 - **Super elixirs last:** the Super Elixir of Magic (250 MP a drink, 9999 doses) used to vanish after its first drink. It now keeps its doses: each drink takes one off, the slot and the tooltip show how many are left, and it goes with its last. Dropped, traded or stored, it keeps its count.
 - **The Super Elixir of Health:** a new red twin of the magic one, 250 HP a drink and the same 9999 doses. It's in the arena goal (Roar of the Crowd): its 400-fame tier now gives both elixirs, and its loot rolls it as often as the magic one (uncommon).
+- **Superior shows its buff:** the tooltip and on-screen damage numbers of Oryx the Celestial Mad God's staff now match what the server has dealt since 2.5.8 (60-95 a shot, 1% defense stripped a hit, up to 10 stacks for 5 seconds); the client still showed 45-75.
 
 ### Dungeons
 - **Teleport in every dungeon:** `/tp` (and clicking a player to teleport) now works in every dungeon. Eight regular ones refused it: Fungal Cavern, Crystal Cavern, Cultist Hideout, Secluded Thicket, Oryx's Castle, Lair of Draconis, the Shatters and the Nest; and four of the custom ones: the Gauntlet, the Underground Mine, ????? and Zombies. Only the Nexus, the Vault and the Daily Quest Room still refuse it.
@@ -124,7 +125,15 @@ Release 2.6.9: the Monk and the King reworked, death replays line up, super elix
 - **Redeploy:** world server only (it reads the XML at start); nobody is disconnected. Redis: nothing.
 - **Wiki and changelog:** `client-rs/CHANGELOG.md` (Dungeons); the wiki said nothing of where teleport is refused, so nothing to change there.
 
+### Superior's client copy
+
+- **What changed:** 2.5.8 buffed `Superior` (0x70a7) only in the server's XML. The client's copy now has the same block: description, 60-95 damage and `<ArmorShred>` (which the client ignores). Until then clients showed 45-75 in the tooltip and in their own damage numbers.
+- **Files:** `client/src/kabam/rotmg/assets/prod/xmls/Equip.xml`, `client-rs/CHANGELOG.md`.
+- **Redeploy:** the client. Nothing in Redis.
+
 ## Checks
+
+- Superior: the item's block is identical in the server's and the client's XML, and the client's file parses. Not looked at in game.
 
 - Teleport in every dungeon: `dotnet test source\Tests --filter AllowsTeleport` passed (the new test and the Elder one). Not tried in game: the refusal is one check on the world's flag (`Player.Teleport.cs`), unchanged.
 
