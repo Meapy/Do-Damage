@@ -115,12 +115,17 @@ T0 up to 8 at T8, stopping short of a wall), striking every enemy within about a
 round them (180 at T0 up to 630 at T8) and healing them and the allies near them (110 up to 380).
 The strike spends every Chi, each making the burst and the heal a fifth stronger, so five make it
 twice as strong; with all five it's a **Flow**: the enemies in the burst are Armor Broken for 3
-seconds and the Monk goes Berserk for 4. So the Monk dives in, punches until the orbs spin fast and
-golden, flows through the pack and lands in the middle of it. The Armoire sells the Monk four skins
-at 200 gold (the Iron Lotus, the Stormfist Disciple, the Ember Fist and the Jade Wanderer) and the
-16 by 16 Celestial Grandmaster at 800, each with something of its own round it (a lotus underfoot
-and drifting petals, lightning between the fists, burning fists, mist and bamboo leaves, and the
-Grandmaster's circling golden beads and lotuses in its steps). Dyes work on all of them.
+seconds and the Monk goes Berserk for 4. Nothing can hurt the Monk while they flow, and the strike
+keeps its momentum: every enemy struck on the way gives back a Chi, up to two, a moment after the
+burst, so a strike aimed through a line of enemies leaves the Monk part way to the next. The fists
+throw palms of chi, each tier its own colour after its name. So the Monk dives in, punches until
+the orbs spin fast and golden, flows through the pack and lands in the middle of it. The Armoire
+sells the Monk four skins at 200 gold (the Iron Lotus, the Stormfist Disciple, the Ember Fist and
+the Jade Wanderer) and two 16 by 16 skins at 800, the Celestial Grandmaster and the four-armed
+Thousand-Palm Avatar, each with something of its own round it (a lotus underfoot and drifting
+petals, lightning between the fists, burning fists, mist and bamboo leaves, the Grandmaster's
+circling golden beads and lotuses in its steps, and the Avatar's wheel of golden palms turning
+behind it, its glowing third eye and a wheel of light under its feet). Dyes work on all of them.
 
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks

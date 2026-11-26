@@ -66,4 +66,18 @@
 		<SkinLook>grandmaster</SkinLook>
 		<Size>65</Size>
 	</Object>
+	<Object type="0xE225" id="Thousand-Palm Avatar">
+		<DisplayId>Thousand-Palm Avatar</DisplayId>
+		<Skin />
+		<Class>Skin</Class>
+		<AnimatedTexture>
+			<File>monkSkins16</File>
+			<Index>1</Index>
+		</AnimatedTexture>
+		<PlayerClassType>0xd252</PlayerClassType>
+		<UnlockLevel>0</UnlockLevel>
+		<Cost>800</Cost>
+		<SkinLook>avatar</SkinLook>
+		<Size>65</Size>
+	</Object>
 </Objects>

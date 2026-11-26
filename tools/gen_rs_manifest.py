@@ -87,6 +87,8 @@ RS_ONLY_SETS = [
     ("druidPearls16x16", "kabam/rotmg/assets/custom/images/DruidPearls16x16.png", 16, 16),
     # the Monk's fountains, the Flowing Strike's icons by tier (tools/draw_monk.py)
     ("monkFountains16x16", "kabam/rotmg/assets/custom/images/MonkFountains16x16.png", 16, 16),
+    # the Monk's fists' chi strikes, a shot by tier (tools/draw_monk.py)
+    ("monkStrikes8x8", "kabam/rotmg/assets/custom/images/MonkStrikes8x8.png", 8, 8),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
@@ -193,7 +195,8 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
                       "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
                       "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
-                      "kabam/rotmg/assets/custom/xmls/MonkSkins.xml"]
+                      "kabam/rotmg/assets/custom/xmls/MonkSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

@@ -22,6 +22,11 @@ namespace WorldServer.core.objects
     // `amount` healed to them and the allies within `range`; both a fifth more (ChiPercent) for
     // each Chi spent, and every Chi is spent. With all five, it's a Flow: the enemies in the burst
     // are Armor Broken and the Monk goes Berserk.
+    //
+    // While flowing the Monk is untouchable (Invulnerable for FlowGuardMs), and the strike keeps
+    // its momentum: a Chi comes back for each enemy struck on the way, at most FlowEchoMax, a
+    // moment after the burst (FlowEchoMs), so a strike aimed through a line of enemies leaves the
+    // Monk part way to the next.
     public partial class Player
     {
         public const int FistSlotType = 200;
@@ -32,6 +37,8 @@ namespace WorldServer.core.objects
         public const float FlowPathWidth = 1.2f;
         public const int FlowDashMs = 160;
         public const int FlowArmorBreakMs = 3000, FlowBerserkMs = 4000;
+        public const int FlowGuardMs = FlowDashMs + 140;
+        public const int FlowEchoMax = 2, FlowEchoMs = 380;
         // the Relic look the Rust client draws the strike by (particles/flow.rs)
         public const int LOOK_FLOW = 66;
 
@@ -81,6 +88,13 @@ namespace WorldServer.core.objects
         // How much more a strike spending `chi` does, in percent of its own (100 with none).
         public static int ChiBoost(int chi) => 100 + ChiPercent * Math.Clamp(chi, 0, ChiMax);
 
+        // How much Chi a strike gives back for the enemies it struck on its way.
+        public static int ChiEcho(int struck) => Math.Clamp(struck, 0, FlowEchoMax);
+
+        // The strike's look's ObjectType: the tier, 16 for each Chi spent, 128 for each given back.
+        public static ushort FlowLookCode(int tier, int chi, int echo) =>
+            (ushort)(Math.Clamp(tier, 0, 15) + 16 * Math.Clamp(chi, 0, ChiMax) + 128 * ChiEcho(echo));
+
         // Where a strike aimed at `target` ends: along the way, at most `max` tiles off, stopped
         // before the first square `passable` refuses (checked every FlowStep tiles).
         private const float FlowStep = 0.2f;
@@ -122,6 +136,22 @@ namespace WorldServer.core.objects
             var color = FlowColors[tier];
             var radius = eff.Radius > 0 ? eff.Radius : 3;
 
+            // the way: every enemy beside it, struck as the Monk passes
+            var (dx, dy) = (end.X - from.X, end.Y - from.Y);
+            var len = MathF.Sqrt(dx * dx + dy * dy);
+            var struck = 0;
+            if (len > 0.3f)
+                foreach (var e in EnemiesNear(from.X + dx / 2, from.Y + dy / 2, len / 2 + FlowPathWidth))
+                {
+                    if (!TidePearl.OnWay(from.X, from.Y, end.X, end.Y, e.X, e.Y, FlowPathWidth, out var u))
+                        continue;
+                    struck++;
+                    var enemy = e;
+                    var damage = eff.TotalDamage;
+                    After(Math.Max(1, (int)(u * FlowDashMs)), (w, t) => RelicDamage(enemy, damage, ref t, false));
+                }
+            var echo = ChiEcho(struck);
+
             // drawn first, so the clients still have the Monk where they started (flow.rs)
             world.BroadcastIfVisible(new ShowEffect
             {
@@ -131,22 +161,12 @@ namespace WorldServer.core.objects
                 Pos2 = new Position(radius, LOOK_FLOW),
                 Color = new ARGB(color),
                 Duration = FlowDashMs,
-                ObjectType = (ushort)(tier + 16 * chi),
+                ObjectType = FlowLookCode(tier, chi, echo),
                 SourceId = Id,
             }, ref from);
 
-            // the way: every enemy beside it, struck as the Monk passes
-            var (dx, dy) = (end.X - from.X, end.Y - from.Y);
-            var len = MathF.Sqrt(dx * dx + dy * dy);
-            if (len > 0.3f)
-                foreach (var e in EnemiesNear(from.X + dx / 2, from.Y + dy / 2, len / 2 + FlowPathWidth))
-                {
-                    if (!TidePearl.OnWay(from.X, from.Y, end.X, end.Y, e.X, e.Y, FlowPathWidth, out var u))
-                        continue;
-                    var struck = e;
-                    var damage = eff.TotalDamage;
-                    After(Math.Max(1, (int)(u * FlowDashMs)), (w, t) => RelicDamage(struck, damage, ref t, false));
-                }
+            // untouchable while flowing
+            ApplyConditionEffect(ConditionEffectIndex.Invulnerable, FlowGuardMs);
 
             if (World.Levels != null)
                 TeleportPosition(time, end, true);
@@ -175,6 +195,18 @@ namespace WorldServer.core.objects
                 if (chi >= ChiMax)
                     ApplyConditionEffect(ConditionEffectIndex.Berserk, FlowBerserkMs);
             });
+
+            // the momentum: Chi back for the enemies struck on the way (not less than they've
+            // built again since)
+            if (echo > 0)
+                After(FlowDashMs + FlowEchoMs, (w, t) =>
+                {
+                    if (World != w || Dead || Inventory[0]?.SlotType != FistSlotType)
+                        return;
+                    _chiLastHit = Now;
+                    if (Chi < echo)
+                        Chi = echo;
+                });
         }
     }
 }

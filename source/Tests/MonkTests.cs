@@ -44,6 +44,36 @@ namespace Tests
             Assert.Equal(200, Player.ChiBoost(9));
         }
 
+        // a strike gives back a Chi for each enemy struck on its way, at most two, and its look
+        // carries the tier, the Chi spent and the Chi given back (flow.rs reads them back)
+        [Fact]
+        public void TheStrikeKeepsItsMomentum()
+        {
+            Assert.Equal(0, Player.ChiEcho(0));
+            Assert.Equal(1, Player.ChiEcho(1));
+            Assert.Equal(Player.FlowEchoMax, Player.ChiEcho(7));
+            var code = Player.FlowLookCode(8, Player.ChiMax, 3);
+            Assert.Equal(8, code % 16);
+            Assert.Equal(Player.ChiMax, code / 16 % 8);
+            Assert.Equal(Player.FlowEchoMax, code / 128);
+            Assert.True(Player.FlowGuardMs > Player.FlowDashMs);
+        }
+
+        // every tiered fist fires its own chi strike, a projectile the game knows
+        [Fact]
+        public void EveryTieredFistFiresAChiStrike()
+        {
+            var data = Data.Value;
+            var fists = data.Items.Values.Where(i => i.SlotType == Player.FistSlotType && i.Tier >= 0).ToList();
+            Assert.Equal(16, fists.Count);
+            foreach (var f in fists)
+            {
+                var shot = Assert.Single(f.Projectiles);
+                Assert.Equal($"Monk Chi Strike {f.Tier}", shot.ObjectId);
+                Assert.True(data.IdToObjectType.ContainsKey(shot.ObjectId), shot.ObjectId);
+            }
+        }
+
         // every Monk's ability (slot 130) is a Flowing Strike, stronger by tier, and the Monk's
         // weapons are fists (the Chi's slot type)
         [Fact]

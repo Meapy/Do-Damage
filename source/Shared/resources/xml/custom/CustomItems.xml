@@ -624,7 +624,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 0</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>31</MinDamage>
 			<MaxDamage>44</MaxDamage>
@@ -649,7 +649,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 1</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>35</MinDamage>
 			<MaxDamage>50</MaxDamage>
@@ -674,7 +674,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 2</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>44</MinDamage>
 			<MaxDamage>63</MaxDamage>
@@ -699,7 +699,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 3</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>53</MinDamage>
 			<MaxDamage>75</MaxDamage>
@@ -724,7 +724,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 4</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>61</MinDamage>
 			<MaxDamage>88</MaxDamage>
@@ -749,7 +749,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 5</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>79</MinDamage>
 			<MaxDamage>113</MaxDamage>
@@ -774,7 +774,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 6</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>96</MinDamage>
 			<MaxDamage>138</MaxDamage>
@@ -799,7 +799,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 7</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>114</MinDamage>
 			<MaxDamage>163</MaxDamage>
@@ -824,7 +824,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 8</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>123</MinDamage>
 			<MaxDamage>175</MaxDamage>
@@ -850,7 +850,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 9</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>127</MinDamage>
 			<MaxDamage>181</MaxDamage>
@@ -876,7 +876,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 10</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>131</MinDamage>
 			<MaxDamage>188</MaxDamage>
@@ -902,7 +902,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 11</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>136</MinDamage>
 			<MaxDamage>194</MaxDamage>
@@ -929,7 +929,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 12</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>140</MinDamage>
 			<MaxDamage>200</MaxDamage>
@@ -957,7 +957,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 13</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>153</MinDamage>
 			<MaxDamage>219</MaxDamage>
@@ -985,7 +985,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 14</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>166</MinDamage>
 			<MaxDamage>238</MaxDamage>
@@ -1185,7 +1185,7 @@
 		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/fire_dagger</Sound>
 		<Projectile>
-			<ObjectId>Bone Proj</ObjectId>
+			<ObjectId>Monk Chi Strike 15</ObjectId>
 			<Speed>125</Speed>
 			<MinDamage>221</MinDamage>
 			<MaxDamage>279</MaxDamage>

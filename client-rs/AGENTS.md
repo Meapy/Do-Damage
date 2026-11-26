@@ -187,6 +187,13 @@ the gaps between NewTicks. Its flags:
   gear for characters below level 20"), and the old class's weapon and ability are dropped from
   their slots. `items` is 28 little-endian ushorts (0xFFFF empty), written from Python:
   `python -c "import sys,struct; sys.stdout.buffer.write(b''.join(struct.pack('<H', i & 0xffff) for i in [0x5810, 0x581b] + [-1] * 26))" | redis-cli -p <port> -x hset char.1.<id> items`.
+- To see your own shots (2026-11-26): `--hold f:<ms>` never fired (no `PlayerShoot` in the `sent:`
+  lines; F also drinks a potion); `--hold i:100` (autofire) with `--mouse` does. The Nexus doesn't
+  let you shoot at all. The `--hold` steps start when the first world is joined, after
+  `--shot-after`'s clock, so a long `--hold -:<ms>` first can leave the shot taken before the
+  autofire: keep the wait short (3000). On the test stack your Lil' Oryx fights the vault's dummy:
+  its hits count in `EnemyHit` and its shots (grey blades) fly from where you stand, so neither
+  shows that you fired.
 - `/autoaim` toggles: with `--aim auto` already turning it on, saying it too turns it off. A
   monster `/spawn`ed in a vault stays there across runs, on the spot you arrive at, and hides you
   in every shot after: spawn it a step away or test in the Nexus.

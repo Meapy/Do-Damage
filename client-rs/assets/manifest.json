@@ -1460,6 +1460,12 @@
    "h": 16
   },
   {
+   "name": "monkStrikes8x8",
+   "file": "kabam/rotmg/assets/custom/images/MonkStrikes8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,
@@ -3785,7 +3791,8 @@
   "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
   "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
   "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
-  "kabam/rotmg/assets/custom/xmls/MonkSkins.xml"
+  "kabam/rotmg/assets/custom/xmls/MonkSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

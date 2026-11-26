@@ -1,7 +1,8 @@
 //! The Monk's Flowing Strike (the server's `Player.Flow.cs`): `ShowEffect` 41 look 66
 //! (`relic::look::FLOW`), sent as the Monk sets off, so the Monk is still where they started: they
 //! flow to `pos1` over `duration` ms and a fountain bursts there, `pos2.x` across. `object_type`
-//! is the fountain's tier plus 16 for each Chi spent (0 to 5), the colour the tier's
+//! is the fountain's tier plus 16 for each Chi spent (0 to 5) and 128 for each given back by the
+//! enemies struck on the way (0 to 2, `Player.ChiEcho`), the colour the tier's
 //! (`Player.FlowColors`). What's drawn:
 //!
 //! - the way: a streak of water along the floor, the Monk's afterimages left along it, spray
@@ -10,7 +11,9 @@
 //!   to the burst's edge, and under it a lotus of light opening and turning, a petal of gold
 //!   lit for each Chi spent;
 //! - a Flow (all five spent): the lotus all gold and twice as bright, five orbs of chi flung out
-//!   from its heart, a second shockwave and a whirl of gold.
+//!   from its heart, a second shockwave and a whirl of gold;
+//! - the momentum: for each Chi given back, an orb of gold lifting off the way and flying home
+//!   to the Monk, landing as the server gives it back (`Player.FlowEchoMs`).
 
 use super::relic::{mix, DecalKind, Pen, GRAVITY};
 use super::{Motion, Particle, Particles};
@@ -30,6 +33,8 @@ const WAY_MS: i32 = 520;
 const LOTUS_MS: i32 = 1100;
 /// The most strikes drawn at once.
 const MAX_FLOWS: usize = 24;
+/// How long after landing the Chi given back reaches the Monk (the server's `Player.FlowEchoMs`).
+const ECHO_MS: i32 = 380;
 
 /// A strike as it's drawn on the floor: its way and the lotus where it lands.
 #[derive(Clone, Copy, Debug)]
@@ -67,7 +72,8 @@ impl Particles {
     pub(super) fn flow_look(&mut self, e: &ShowEffect, world: &World, now: i32) {
         let to = (e.pos1.x as f64, e.pos1.y as f64);
         let color = e.color & 0xFF_FFFF;
-        let chi = ((e.object_type / 16) as u8).min(CHI_MAX);
+        let chi = ((e.object_type / 16 % 8) as u8).min(CHI_MAX);
+        let echo = (e.object_type / 128).min(2) as usize;
         let radius = (e.pos2.x as f64).clamp(0.5, 8.0);
         let ms = e.duration.clamp(40, 1000);
         // where the Monk is now, before the server's Goto moves them
@@ -81,6 +87,32 @@ impl Particles {
         }
         self.flow_way(from, to, ms, color);
         self.flow_burst(to, radius, color, chi, ms, now);
+        self.flow_echo(from, to, e.target_object_id, echo, ms);
+    }
+
+    /// The Chi the way gives back: for each, an orb of gold rising off the way (at an even step
+    /// along it) after the Monk has passed, then flying home to them (`monk`, or with none `to`),
+    /// arriving as the server gives it back.
+    fn flow_echo(&mut self, from: (f64, f64), to: (f64, f64), monk: i32, echo: usize, ms: i32) {
+        for i in 0..echo {
+            let f = (i as f64 + 1.0) / (echo as f64 + 1.0);
+            let (x, y) = (from.0 + (to.0 - from.0) * f, from.1 + (to.1 - from.1) * f);
+            let rise = 160;
+            let flight = ECHO_MS - rise + 40;
+            let speed = ((to.0 - x).hypot(to.1 - y) / flight as f64).max(0.006);
+            // lifting off where it was struck from
+            self.add(Particle::new(x, y, 0.3, 0xFFFFFF, 380.0, 110, Motion::Spark));
+            for (c, size, alpha) in [(CHI_GOLD, 300.0, 0.35), (CHI_GOLD, 150.0, 1.0), (0xFFFFFF, 70.0, 1.0)] {
+                let mut p = Particle::new(x, y, 0.3, c, size, rise, Motion::Plain).moving(0.0, 0.0, 0.0028);
+                p.delay = ms + 20 * i as i32;
+                p.alpha = alpha;
+                self.add(p);
+                let mut p = Particle::new(x, y, 0.75, c, size, flight * 3, Motion::Seek { id: monk, tx: to.0, ty: to.1, speed });
+                p.delay = ms + rise + 20 * i as i32;
+                p.alpha = alpha;
+                self.add(p);
+            }
+        }
     }
 
     /// Along the way: spray flung off both sides as the Monk passes, a white slash at the
@@ -275,8 +307,8 @@ fn draw_lotus(pen: &mut Pen, f: &FlowLook, now: i32) {
 }
 
 impl Particles {
-    /// `--effect 266` (tests): a Flow from three tiles left of us to us, with all five Chi spent,
-    /// as a Heart of the Fountains'.
+    /// `--effect 266` (tests): a Flow from three tiles left of us to us, with all five Chi spent
+    /// and two given back, as a Heart of the Fountains'.
     pub(super) fn test_flow(&mut self, world: &World, now: i32) {
         let Some(me) = world.player() else { return };
         let e = ShowEffect {
@@ -286,7 +318,7 @@ impl Particles {
             pos2: bsk_proto::WorldPos { x: 3.5, y: super::relic::look::FLOW as f32 },
             color: 0xFFFFF4D6,
             duration: 160,
-            object_type: 8 + 16 * CHI_MAX as u16,
+            object_type: 8 + 16 * CHI_MAX as u16 + 128 * 2,
             source_id: Some(me.id),
         };
         self.relic(&e, world, now);

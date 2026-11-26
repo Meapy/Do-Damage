@@ -3138,6 +3138,9 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
                 row(tr("Chi"), tf!("+{p}% burst and heal for each Chi spent", p = CHI_PERCENT)),
                 row("", tr("Every third punch that lands builds a Chi, up to five").to_owned()),
                 row("", tr("All five spent: enemies Armor Broken, you Berserk").to_owned()),
+                // (the server's `FlowGuardMs` and `ChiEcho`)
+                row("", tr("Untouchable while you flow").to_owned()),
+                row("", tr("Each enemy you pass gives back a Chi, up to two").to_owned()),
             ];
             (tr("Flowing Strike"), r)
         }

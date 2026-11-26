@@ -145,5 +145,12 @@ mod tests {
         assert!(matches!(&wizard.texture.main, TextureRef::Animated { set, .. } if set == "players"));
         assert!(data.models.len() > 40, "{} models", data.models.len());
         assert!(!data.models["Four High Wall"].faces.is_empty());
+
+        // a Monk's fists fire their tier's chi strike (tools/draw_monk.py)
+        let fists = &data.objects[&data.object_ids["Serpent Fang Gauntlets"]];
+        let shot = &fists.projectiles[&0].object_id;
+        assert_eq!(shot, "Monk Chi Strike 7");
+        let strike = &data.objects[&data.object_ids[shot.as_str()]];
+        assert!(matches!(&strike.texture.main, TextureRef::Image { set, index } if set == "monkStrikes8x8" && *index == 7), "{:?}", strike.texture.main);
     }
 }

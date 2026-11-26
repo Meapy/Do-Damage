@@ -1,6 +1,6 @@
 """Draws the Monk: its own 8 by 8 sprite, its skins sold at the Armoire (four 8 by 8 at 200 gold,
-one 16 by 16 at 800), each with the dye mask that lets cloth and dyes colour it, and its fountains'
-icons (the Flowing Strike, tier 0 to 8).
+two 16 by 16 at 800), each with the dye mask that lets cloth and dyes colour it, its fountains'
+icons (the Flowing Strike, tier 0 to 8) and its fists' chi strikes (their shots, tier 0 to 15).
 
     python tools/draw_monk.py [--preview <png>]
 
@@ -18,11 +18,15 @@ Every figure is its own drawing, not a recolour:
   Celestial Grandmaster  (16 by 16) an old master with a white beard to the waist and long brows,
                          eyes glowing sky blue, robes of white and gold with a sky sash, a ring
                          of golden beads floating behind the head, palms glowing with chi
+  Thousand-Palm Avatar   (16 by 16) a Monk become more: burnished bronze skin, a third eye open on
+                         the brow, a second pair of arms raised with palms burning gold, a crimson
+                         robe with a saffron sash, a golden collar and hem
 
 The skins' effects (the Rust client's auras.rs, by their `<SkinLook>`): the Lotus's petals
 drifting and a lotus under its feet, the Stormfist's sparks jumping between its hands, the Ember
 Fist's flames at its fists and rising embers, the Wanderer's mist and falling bamboo leaves, the
-Grandmaster's bead halo turning, its eyes' glow and golden lotuses in its steps.
+Grandmaster's bead halo turning, its eyes' glow and golden lotuses in its steps, the Avatar's
+wheel of golden palms turning behind it, its third eye's light and the chi rising off its hands.
 
 The 8 by 8 figures are painted as the Druid's are (tools/draw_druid.py `paint`), the 16 by 16 as
 the Realm Pass's skins are (tools/draw_pass_skins.py `block`). Dyes: a figure's `mask` says which
@@ -38,7 +42,9 @@ Outputs (generated, don't edit):
   client's custom/images, registered for the Rust client by tools/gen_rs_manifest.py
   ("monkSkins8", "monkSkins16", "monkFountains16x16");
 - MonkSkins.xml in source/Shared/resources/xml/custom and the client's custom/xmls (the Rust
-  client's RS_ONLY_OBJECT_XML).
+  client's RS_ONLY_OBJECT_XML);
+- MonkStrikes8x8.png ("monkStrikes8x8") and MonkStrikes.xml (both places, types 0xE228-0xE237):
+  the chi strikes, the projectiles the fists fire.
 Type codes 0xE220 on, fixed here (characters keep their skin by type: never renumber one). Needs
 Pillow. `--preview` also saves the sheets as the game draws them, each dyed red and blue, and the
 icons large.
@@ -438,13 +444,125 @@ GRANDMASTER = {
 }
 
 
-def grand_block(mask=False):
-    """The Grandmaster's block, drawn by passkins.block; for the mask, its shading turned into the
-    dyes' amounts."""
-    passkins.MATERIALS = GRAND_MATERIALS
-    passkins.GLOWS = GRAND_GLOWS
+# --- the Thousand-Palm Avatar, 16 by 16 ----------------------------------------------------
+# A Monk become something more: skin of burnished bronze, a third eye open on the brow, a second
+# pair of arms raised over the head with palms burning gold, a crimson robe with a saffron sash
+# and a golden collar and hem. Its aura (auras.rs) is the wheel of a thousand palms behind it.
+
+AVATAR_MATERIALS = {
+    # bronze skin
+    "k": [(255, 214, 150), (214, 150, 82), (150, 96, 46), (92, 56, 26)],
+    # the crimson robe (the main dye)
+    "r": [(250, 110, 96), (204, 52, 48), (140, 28, 34), (84, 14, 22)],
+    # the saffron sash (the accent)
+    "s": [(255, 214, 120), (244, 156, 40), (184, 100, 20), (112, 58, 12)],
+    # gold: the topknot's crown, the collar and the hem
+    "g": [(255, 248, 180), (246, 206, 80), (190, 140, 40), (116, 80, 20)],
+    # dark sandals
+    "d": [(96, 70, 60), (64, 44, 38), (42, 28, 24), (24, 16, 14)],
+}
+AVATAR_GLOWS = {
+    "t": (130, 244, 255),
+    "e": (255, 206, 96),
+    "x": (255, 255, 255),
+    "c": (255, 222, 110),
+    "q": (255, 250, 220),
+}
+AVATAR_MASK = {"r": "main", "s": "accent"}
+
+AVATAR = {
+    "right": {
+        "stand": [
+            "......gg....c...",
+            ".....kkkk..ckc..",
+            "....kkkkkt..k...",
+            "....kkkkkek.k...",
+            "....kkkkkk..k...",
+            ".....kkkk..kk...",
+            "....ggrrrgkk....",
+            "...rrrrrrgr.....",
+            "...rrrrrrrgr....",
+            "..rrrrrrrrrr....",
+            "..rsssssssssr...",
+            "..rrrrrrrrrr....",
+            "..rrrrrrrrrr....",
+            "..rrrrrrrrrrr...",
+            "..grrrrrrrrrrg..",
+            "..gggggggggggg..",
+        ],
+        "hold": [(10, 9, "kk")],
+        "raise": [(10, 7, "k"), (11, 6, "kc")],
+        "strike": [(10, 9, "rrrr"), (14, 9, "kk"), (16, 8, "c"), (16, 9, "q"), (16, 10, "c"), (17, 9, "cq"),
+                   (19, 8, "c.x"), (19, 10, "c"), (20, 9, "x")],
+        "steps": [
+            ["..rrrrrrrrrrr...", "...dd.....dd...."],
+            ["...rrrrrrrrrr...", ".....dddd......."],
+        ],
+    },
+    "down": {
+        "stand": [
+            "..c....gg....c..",
+            ".ckc..kkkk..ckc.",
+            "..k..kkkkkk..k..",
+            "..k..kktkkk..k..",
+            "..k..kekkek..k..",
+            "..kk.kkkkkk.kk..",
+            "...kk.kkkk.kk...",
+            "....ggrrrrgg....",
+            "...rrrgrrgrrr...",
+            "..krrrrggrrrrk..",
+            "..krrsssssrrrk..",
+            "...rrrrssrrrr...",
+            "...rrrrrsrrrr...",
+            "..rrrrrrrsrrrr..",
+            "..grrrrrrrsrrg..",
+            "..gggggggggggg..",
+        ],
+        "hold": [(2, 10, "k"), (13, 10, "k")],
+        "raise": [(2, 8, "kc"), (12, 8, "ck")],
+        "strike": [(6, 11, "kqqk"), (7, 12, "cc"), (6, 13, "c..c"), (7, 14, "xx")],
+        "steps": [
+            ["..grrrrrrrsrrg..", "...dd......dd..."],
+            ["..grrrrrrrsrrg..", "....dd....dd...."],
+        ],
+    },
+    "up": {
+        "stand": [
+            "..c....gg....c..",
+            ".ckc..kkkk..ckc.",
+            "..k..kkkkkk..k..",
+            "..k..kkkkkk..k..",
+            "..k..kkkkkk..k..",
+            "..kk.kkkkkk.kk..",
+            "...kk.kkkk.kk...",
+            "....ggrrrrgg....",
+            "...rrrrrrrrrr...",
+            "..krrrrrrrrrrk..",
+            "..krrsssssrrrk..",
+            "...rrrrrrrrrr...",
+            "...rrrrrrrrrr...",
+            "..rrrrrrrrrrrr..",
+            "..grrrrrrrrrrg..",
+            "..gggggggggggg..",
+        ],
+        "hold": [(2, 10, "k"), (13, 10, "k")],
+        "raise": [(2, 8, "kc"), (12, 8, "ck")],
+        "strike": [(2, 8, "k"), (2, 7, "c"), (13, 8, "k"), (13, 7, "c"), (6, 0, "cqqc")],
+        "steps": [
+            ["..grrrrrrrrrrg..", "...dd......dd..."],
+            ["..grrrrrrrrrrg..", "....dd....dd...."],
+        ],
+    },
+}
+
+
+def big_block(look, materials, glows, dyes, mask=False):
+    """A 16 by 16 figure's block, drawn by passkins.block; for the mask, its shading turned into
+    the dyes' amounts (`dyes`: material -> "main" or "accent")."""
+    passkins.MATERIALS = materials
+    passkins.GLOWS = glows
     if not mask:
-        return passkins.block(GRANDMASTER)
+        return passkins.block(look)
     shade = passkins.shade
 
     def mask_shade(g):
@@ -453,17 +571,31 @@ def grand_block(mask=False):
         for y in range(len(g)):
             for x in range(len(g[0])):
                 ch = g[y][x]
-                which = GRAND_MASK.get(ch.lower()) if ch != "." and ch not in GRAND_GLOWS else None
+                which = dyes.get(ch.lower()) if ch != "." and ch not in glows else None
                 if not which:
                     continue
-                idx = GRAND_MATERIALS[ch.lower()].index(img.getpixel((x, y))[:3])
+                idx = materials[ch.lower()].index(img.getpixel((x, y))[:3])
                 out.putpixel((x, y), druid.mask_color(which, idx) + (255,))
         return out
     passkins.shade = mask_shade
     try:
-        return passkins.block(GRANDMASTER)
+        return passkins.block(look)
     finally:
         passkins.shade = shade
+
+
+# the 16 by 16 figures, a row each on the sheet in this order
+BIG = [
+    (GRANDMASTER, GRAND_MATERIALS, GRAND_GLOWS, GRAND_MASK),
+    (AVATAR, AVATAR_MATERIALS, AVATAR_GLOWS, AVATAR_MASK),
+]
+
+
+def big_sheet(mask=False):
+    out = Image.new("RGBA", (passkins.CELL * 7, passkins.CELL * 3 * len(BIG)), (0, 0, 0, 0))
+    for i, (look, materials, glows, dyes) in enumerate(BIG):
+        out.paste(big_block(look, materials, glows, dyes, mask), (0, i * passkins.CELL * 3))
+    return out
 
 
 # --- the fountains' icons ------------------------------------------------------------------------
@@ -562,7 +694,79 @@ def icon(tier):
 
 # name, gold, sheet, index, size, look
 SKINS = [(s["name"], 200, "monkSkins8", i, None, s["look"]) for i, s in enumerate(SMALL)] + [
-    ("Celestial Grandmaster", 800, "monkSkins16", 0, passkins.SIZE, "grandmaster")]
+    ("Celestial Grandmaster", 800, "monkSkins16", 0, passkins.SIZE, "grandmaster"),
+    ("Thousand-Palm Avatar", 800, "monkSkins16", 1, passkins.SIZE, "avatar")]
+
+
+# --- the fists' chi strikes ----------------------------------------------------------------------
+# What the fists fire: a palm of chi flying point first (to the right, as the Rust client turns a
+# shot to its heading), a bright crescent at its front and streaks of chi trailing it, in each
+# tier's colour after its name. 'w' its white heart, 'c' the light, 'b' the colour, 'a' the
+# trailing streaks (see-through).
+STRIKE = [
+    "....bb..",
+    "...bccb.",
+    "a.bbcwcb",
+    "aabbcwwc",
+    "aabbcwwc",
+    "a.bbcwcb",
+    "...bccb.",
+    "....bb..",
+]
+# by tier, T0 to T15: Cloth, Leather and Studded Hand Wraps, Iron and Steel Knuckles; Tiger, Crane,
+# Serpent, Mantis and Dragon Scale Gauntlets; the Fists of the Storm, the Mountain, the Heavens,
+# the Void, the Eternal Master and the Ascended. The fists' <ObjectId>s in CustomItems.xml name
+# them; the Enthroned Fists keep their own shots and Fists of Broken Bones its bone
+STRIKE_COLORS = [
+    0xE8DCC0, 0xD89A5A, 0xC8964A, 0xA8B4C4, 0xC8E0F4,
+    0xFF9A2A, 0xFF5A5A, 0x4ADC7A, 0xA8F040, 0xE83A2A,
+    0x5AB8FF, 0xD8A860, 0xFFE070, 0xA05AF0, 0xFFF0B0,
+    0x7AF4FF,
+]
+STRIKE_FIRST_TYPE = 0xE228
+OUT_STRIKES = os.path.join(IMAGES, "MonkStrikes8x8.png")
+OUT_STRIKES_XML = [os.path.join(ROOT, "source", "Shared", "resources", "xml", "custom", "MonkStrikes.xml"),
+                   os.path.join(ASSETS, "custom", "xmls", "MonkStrikes.xml")]
+
+
+def strike_id(tier):
+    return f"Monk Chi Strike {tier}"
+
+
+def strike(tier):
+    img = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    color = hexc(STRIKE_COLORS[tier])
+    shades = {
+        "w": (255, 255, 255, 255),
+        "c": mixc(color, (255, 255, 255), 0.55) + (255,),
+        "b": color + (255,),
+        "a": mixc(color, (20, 20, 40), 0.25) + (150,),
+    }
+    for y, row in enumerate(STRIKE):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.putpixel((x, y), shades[ch])
+    # the Void's heart is dark, the Ascended's rimmed in gold
+    if tier == 13:
+        for x, y in ((5, 2), (5, 3), (5, 4), (5, 5)):
+            img.putpixel((x, y), (40, 10, 70, 255))
+    if tier == 15:
+        for x, y in ((4, 0), (5, 1), (7, 3), (7, 4), (5, 6), (4, 7)):
+            img.putpixel((x, y), (255, 214, 90, 255))
+    return img
+
+
+def strikes_xml():
+    root = ET.Element("Objects")
+    for t in range(len(STRIKE_COLORS)):
+        o = ET.SubElement(root, "Object", {"type": "0x%04X" % (STRIKE_FIRST_TYPE + t), "id": strike_id(t)})
+        druid.sub(o, "Class", "Projectile")
+        tex = druid.sub(o, "Texture")
+        druid.sub(tex, "File", "monkStrikes8x8")
+        druid.sub(tex, "Index", "0x%02x" % t)
+    ET.indent(root, "\t")
+    return ("<!-- The Monk's fists' chi strikes: generated by tools/draw_monk.py, don't edit -->\n"
+            + ET.tostring(root, encoding="unicode") + "\n")
 
 
 def put_block(path, block):
@@ -585,7 +789,7 @@ def main():
         small_mask.paste(druid.paint(skin, mask=True), (0, i * 24))
     small.save(OUT_8)
     small_mask.save(OUT_8_MASK)
-    big, big_mask = grand_block(), grand_block(mask=True)
+    big, big_mask = big_sheet(), big_sheet(mask=True)
     big.save(OUT_16)
     big_mask.save(OUT_16_MASK)
     icons = Image.new("RGBA", (ICON * 9, ICON), (0, 0, 0, 0))
@@ -613,7 +817,15 @@ def main():
     for path in OUT_XML:
         with open(path, "w", encoding="utf-8", newline="\n") as f:
             f.write(text)
-    print(f"Monk, {len(SKINS)} skins and 9 fountains")
+    strikes = Image.new("RGBA", (8 * len(STRIKE_COLORS), 8), (0, 0, 0, 0))
+    for t in range(len(STRIKE_COLORS)):
+        strikes.paste(strike(t), (t * 8, 0))
+    strikes.save(OUT_STRIKES)
+    text = strikes_xml()
+    for path in OUT_STRIKES_XML:
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+    print(f"Monk, {len(SKINS)} skins, 9 fountains and {len(STRIKE_COLORS)} chi strikes")
     if "--preview" in sys.argv:
         path = sys.argv[sys.argv.index("--preview") + 1]
         root_, ext = os.path.splitext(path)
@@ -634,6 +846,7 @@ def main():
         wide16.paste(druid.dyed(big, big_mask, (50, 90, 220), (240, 240, 250)), (2 * big.width + 32, 0))
         passkins.preview(wide16, root_ + "-16" + ext, scale=5)
         passkins.preview(icons, root_ + "-icons" + ext, scale=10)
+        passkins.preview(strikes, root_ + "-strikes" + ext, scale=10)
 
 
 if __name__ == "__main__":

@@ -773,14 +773,22 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   before a wall or a shut Oryx-chain gate), strikes every enemy within 1.2 tiles of the way for
   `totalDamage`, then bursts where they land: `impactDamage` within `radius` and `amount` healed
   within `range` (players and turrets), +20% each for every Chi spent, all of which it spends;
-  with 5, the enemies there are Armor Broken 3 s and the Monk Berserk 4 s. T0-T8: reach 6-8,
+  with 5, the enemies there are Armor Broken 3 s and the Monk Berserk 4 s. The Monk is
+  Invulnerable while flowing (`FlowGuardMs`, 300 ms), and gets back a Chi for each enemy struck
+  on the way, at most 2 (`ChiEcho`), 380 ms after the burst (`FlowEchoMs`); the look's
+  ObjectType carries it (tier + 16 a Chi spent + 128 a Chi given back, `FlowLookCode`), and the
+  client flies an orb home for each. T0-T8: reach 6-8,
   way 120-440, burst 180-630 in 2.5-3.5, heal 110-380 (as before) in 6-10; MP unchanged. The
   Monk is redrawn and the Armoire sells it five skins (`tools/draw_monk.py`, as the Druid's:
   the Monk's block (index 30) of `players.png`/`playersMask.png`, `MonkSkins8x8.png`,
   `MonkSkins16x16.png` and masks, `MonkFountains16x16.png` (the fountains' icons by tier) and
   both `MonkSkins.xml`, types 0xE220-0xE224): the Iron Lotus, the Stormfist Disciple, the Ember
-  Fist and the Jade Wanderer at 200 gold, the 16 by 16 Celestial Grandmaster at 800, each with
-  its `<SkinLook>` drawn round it.
+  Fist and the Jade Wanderer at 200 gold, the 16 by 16 Celestial Grandmaster and Thousand-Palm
+  Avatar (0xE225, the second row of `MonkSkins16x16.png`) at 800, each with its `<SkinLook>` drawn
+  round it. The fists T0-T15 fire their tier's chi strike (`MonkStrikes8x8.png`, `monkStrikes8x8`;
+  both `MonkStrikes.xml`, projectiles 0xE228-0xE237, "Monk Chi Strike <tier>", also from
+  `draw_monk.py`) instead of the Bone Proj; the Enthroned Fists keep their own shots and Fists
+  of Broken Bones its bone.
 
 - **The Druid's pearls** (2026-11-25; `WorldServer/core/objects/TidePearl.cs`,
   `Player.TidePearls.cs`, the `TidePearl` activate with `pulseDamage`, `pulseHeal` and `pearls` in

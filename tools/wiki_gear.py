@@ -562,11 +562,12 @@ class Gear:
         if e == "FlowStrike":
             # a Monk's fountain (Player.Flow.cs): a dash to where you aim, stopping short of a wall,
             # striking within 1.2 tiles of the way (FlowPathWidth), then a burst and a heal a fifth
-            # more for each Chi spent (ChiPercent); all five Chi: Armor Broken and Berserk
+            # more for each Chi spent (ChiPercent); all five Chi: Armor Broken and Berserk; Invulnerable
+            # while flowing (FlowGuardMs), a Chi back for each enemy on the way, up to two (ChiEcho)
             return ("flows to where you aim (up to %s tiles), %s damage to every enemy on the way, then bursts where "
                     "you land: %s damage within %s tiles and %s HP to you and allies within %s tiles, a fifth more "
                     "for each Chi spent (every third punch that lands builds one, up to five); with all five, the "
-                    "enemies are Armor Broken for 3s and you go Berserk for 4s"
+                    "enemies are Armor Broken for 3s and you go Berserk for 4s; you can't be hurt while you flow, and each enemy struck on the way gives back a Chi, up to two"
                     % (n("maxDistance", "6"), n("totalDamage"), n("impactDamage"), n("radius"), n("amount"), n("range")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"

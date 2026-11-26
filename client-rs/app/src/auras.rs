@@ -34,6 +34,8 @@
 //! - The Jade Wanderer: mist curling round their feet, bamboo leaves drifting past.
 //! - The Celestial Grandmaster: golden beads circling behind its head, its eyes glowing sky
 //!   blue, its palms glowing, golden lotuses blooming in its steps.
+//! - The Thousand-Palm Avatar: a wheel of golden palms turning behind it, its third eye's light,
+//!   chi rising off its raised hands, a wheel of light turning under its feet.
 
 use bsk_render::{Renderer, Tint};
 use std::collections::{HashMap, VecDeque};
@@ -64,6 +66,7 @@ pub enum SkinLook {
     Ember,
     Jade,
     Grandmaster,
+    Avatar,
 }
 
 impl SkinLook {
@@ -82,6 +85,7 @@ impl SkinLook {
             "ember" => SkinLook::Ember,
             "jade" => SkinLook::Jade,
             "grandmaster" => SkinLook::Grandmaster,
+            "avatar" => SkinLook::Avatar,
             _ => return None,
         })
     }
@@ -473,6 +477,19 @@ pub fn ground(r: &mut Renderer, w: &Wearer, trails: &Trails, to_screen: &dyn Fn(
                 p.dot(sx, sy, 0.025 * tile, 0xFFFFFF, fade);
             }
         }
+        SkinLook::Avatar => {
+            // a wheel of light turning under its feet: a rim, eight spokes, a golden heart
+            let spin = ms * 0.0005;
+            p.glow(x, y, 0.6 * t, 0.25 * t, 0xFFC850, 0.13 + 0.04 * (ms * 0.002).sin());
+            p.band(x, y, 0.5 * t, 0.21 * t, 0.86, 1.0, 0.0, TAU, 0xFFD86A, 0.35);
+            for i in 0..8 {
+                let a = spin + i as f32 * TAU / 8.0;
+                let at = |r: f32| [x + r * t * a.cos(), y + 0.42 * r * t * a.sin()];
+                p.line(at(0.1), at(0.46), 0.025 * t, 0xFFE9A0, 0.35);
+                p.dot(at(0.46)[0], at(0.46)[1], 0.035 * t, 0xFFF4D0, 0.6);
+            }
+            p.glow(x, y, 0.12 * t, 0.05 * t, 0xFFFFFF, 0.45);
+        }
         SkinLook::Warden | SkinLook::Hermit => {}
     }
 }
@@ -796,6 +813,44 @@ pub fn air(r: &mut Renderer, w: &Wearer, now: i32) {
                 p.glow(x + side * 0.3 * t, y - 0.32 * t, 0.1 * t, 0.1 * t, 0xFFE9A0, 0.2 + 0.25 * breath);
             }
         }
+        SkinLook::Avatar => {
+            // the wheel of palms behind it, turning: brightest over its head, faint where it
+            // passes behind the body
+            let (cx, cy, rad) = (x, y - 0.72 * t, 0.62 * t);
+            let spin = ms * 0.0006;
+            for i in 0..10 {
+                let a = spin + i as f32 * TAU / 10.0;
+                let (px, py) = (cx + rad * a.cos(), cy + rad * a.sin());
+                let over = (-a.sin() * 0.5 + 0.5).powf(0.7);
+                let al = 0.2 + 0.7 * over;
+                p.glow(px, py, 0.11 * t, 0.11 * t, 0xFFC850, 0.35 * al);
+                // the palm: its heel toward the wheel's heart, three fingers out
+                let (ux, uy) = (a.cos(), a.sin());
+                let (vx, vy) = (-uy, ux);
+                p.dot(px, py, 0.05 * t, 0xFFD86A, al);
+                for f in [-1.0f32, 0.0, 1.0] {
+                    let base = [px + vx * f * 0.025 * t, py + vy * f * 0.025 * t];
+                    let len = if f == 0.0 { 0.09 } else { 0.075 } * t;
+                    p.line(base, [base[0] + ux * len, base[1] + uy * len], 0.022 * t, 0xFFF0B8, al);
+                }
+                if i % 5 == 0 {
+                    p.dot(px, py, 0.022 * t, 0xFFFFFF, al);
+                }
+            }
+            // the third eye's light, opening and closing
+            let open = 0.5 + 0.5 * (ms * 0.0018).sin();
+            p.glow(x + 0.02 * t, y - 0.8 * t, 0.12 * t, 0.06 * t, 0x82F4FF, 0.2 + 0.3 * open);
+            p.dot(x + 0.02 * t, y - 0.8 * t, 0.022 * t, 0xFFFFFF, 0.5 + 0.5 * open);
+            // chi rising off its raised hands
+            for side in [-1.0f32, 1.0] {
+                p.glow(x + side * 0.34 * t, y - 0.93 * t, 0.09 * t, 0.09 * t, 0xFFE9A0, 0.3 + 0.2 * open);
+                for i in 0..3u32 {
+                    let (ph, c) = cycle(now, i + if side > 0.0 { 3 } else { 0 }, 1400);
+                    let dx = (h(i, c) - 0.5) * 0.14 * t;
+                    p.dot(x + side * 0.34 * t + dx, y - (0.95 + 0.4 * ph) * t, 0.03 * t * (1.0 - ph), 0xFFD86A, (ph * PI).sin());
+                }
+            }
+        }
     }
 }
 
@@ -811,6 +866,8 @@ mod tests {
         assert!(SkinLook::Archdruid.sixteen() && SkinLook::Aurora.sixteen() && !SkinLook::Hermit.sixteen());
         assert_eq!(SkinLook::named("grandmaster"), Some(SkinLook::Grandmaster));
         assert!(SkinLook::Grandmaster.sixteen() && !SkinLook::Lotus.sixteen() && !SkinLook::Jade.sixteen());
+        assert_eq!(SkinLook::named("avatar"), Some(SkinLook::Avatar));
+        assert!(SkinLook::Avatar.sixteen());
         let mut t = Trails::default();
         t.walk(1, 10.0, 10.0, 0);
         t.walk(1, 10.1, 10.0, 50);

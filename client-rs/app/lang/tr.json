@@ -1667,5 +1667,7 @@
 "+{p}% burst and heal for each Chi spent": "Harcanan her Chi için patlama ve iyileştirmeye +%{p}",
 "Every third punch that lands builds a Chi, up to five": "İsabet eden her üçüncü yumruk bir Chi biriktirir, en fazla beş",
 "All five spent: enemies Armor Broken, you Berserk": "Beşi de harcanınca: düşmanların zırhı kırılır, sen çılgına dönersin",
+"Untouchable while you flow": "Akarken dokunulmazsın",
+"Each enemy you pass gives back a Chi, up to two": "Geçtiğin her düşman sana bir Chi geri verir, en fazla iki",
 "Flows through your enemies and bursts like a fountain where you land": "Düşmanlarının arasından akar ve vardığın yerde bir çeşme gibi fışkırır"
 }
