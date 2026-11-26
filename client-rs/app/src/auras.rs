@@ -44,6 +44,15 @@
 //! - The Hollow King: a cold mist low round the empty armour, its eyes burning blue in the helm.
 //! - The Eclipse King: the black sun's corona breathing round the emblem on its chest, motes of
 //!   light drawn into it, a thin ring of the same light on the ground.
+//!
+//! The Sharklord's skins from the Armoire (`<SkinLook>`, tools/draw_sharklord.py):
+//! - The Hammerhead: rings of its sense pulsing out over the ground.
+//! - The Tiger Shark: a rust glow under it, bubbles rising off it.
+//! - The Lanternshark: the deep's blue light under it, its spots glowing on and off, motes of
+//!   light drifting up.
+//! - The Whale Shark: calm water and a ring of foam under it, three little pilot fish circling.
+//! - The Megalodon: dark water churning under it, a great fin's shadow circling through it, and
+//!   bubbles rising.
 
 use bsk_render::{Renderer, Tint};
 use std::collections::{HashMap, VecDeque};
@@ -80,6 +89,11 @@ pub enum SkinLook {
     Usurper,
     Hollow,
     Eclipse,
+    Hammerhead,
+    Tiger,
+    Lantern,
+    Whale,
+    Megalodon,
 }
 
 impl SkinLook {
@@ -104,6 +118,11 @@ impl SkinLook {
             "usurper" => SkinLook::Usurper,
             "hollow" => SkinLook::Hollow,
             "eclipse" => SkinLook::Eclipse,
+            "hammerhead" => SkinLook::Hammerhead,
+            "tiger" => SkinLook::Tiger,
+            "lantern" => SkinLook::Lantern,
+            "whale" => SkinLook::Whale,
+            "megalodon" => SkinLook::Megalodon,
             _ => return None,
         })
     }
@@ -124,6 +143,10 @@ impl SkinLook {
                 | SkinLook::Frost
                 | SkinLook::Usurper
                 | SkinLook::Hollow
+                | SkinLook::Hammerhead
+                | SkinLook::Tiger
+                | SkinLook::Lantern
+                | SkinLook::Whale
         )
     }
 }
@@ -543,6 +566,38 @@ pub fn ground(r: &mut Renderer, w: &Wearer, trails: &Trails, to_screen: &dyn Fn(
             p.glow(x, y, 0.5 * t, 0.21 * t, 0x4050A0, 0.1);
             p.band(x, y, 0.46 * t, 0.19 * t, 0.9, 1.0, 0.0, TAU, 0xFFF0C8, 0.18 + 0.06 * (ms * 0.0015).sin());
         }
+        SkinLook::Hammerhead => {
+            // its sense reaching out: rings pulsing out over the ground, one after another
+            for i in 0..2u32 {
+                let (ph, _) = cycle(now, i * 7919 / 2, 1800);
+                let k = 0.25 + 0.6 * ph;
+                p.band(x, y, k * t, 0.42 * k * t, 0.9, 1.0, 0.0, TAU, 0x9AE8FF, 0.3 * (1.0 - ph));
+            }
+        }
+        SkinLook::Tiger => {
+            p.glow(x, y, 0.46 * t, 0.19 * t, 0xC06020, 0.1 + 0.03 * (ms * 0.002).sin());
+        }
+        SkinLook::Lantern => {
+            // the deep's own light pooling under it, breathing slowly
+            p.glow(x, y, 0.5 * t, 0.21 * t, 0x30A8E0, 0.12 + 0.06 * (ms * 0.0016).sin());
+        }
+        SkinLook::Whale => {
+            // calm water: a ring of foam drifting out
+            p.glow(x, y, 0.5 * t, 0.21 * t, 0x3C90C8, 0.1);
+            let ph = (ms / 2400.0).fract();
+            p.band(x, y, (0.3 + 0.25 * ph) * t, (0.13 + 0.1 * ph) * t, 0.85, 1.0, 0.0, TAU, 0xE8F6FF, 0.22 * (1.0 - ph));
+        }
+        SkinLook::Megalodon => {
+            // dark water churning under it, and a great fin's shadow circling through it
+            p.glow(x, y, 0.75 * t, 0.32 * t, 0x08182C, 0.35);
+            p.band(x, y, 0.7 * t, 0.3 * t, 0.82, 1.0, ms * 0.0012, ms * 0.0012 + PI, 0x3C6890, 0.18);
+            let a = -ms * 0.0011;
+            let (fx, fy) = (x + 0.6 * t * a.cos(), y + 0.26 * t * a.sin());
+            let dir = if a.sin() >= 0.0 { 1.0 } else { -1.0 };
+            let (h, w) = (0.24 * t, 0.16 * t);
+            p.tri([[fx + dir * w * 0.5, fy], [fx - dir * w, fy], [fx - dir * w * 0.55, fy - h]], 0x182838, 0.55);
+            p.glow(fx - dir * w * 1.3, fy, 0.14 * t, 0.05 * t, 0xE8F6FF, 0.2);
+        }
         SkinLook::Warden | SkinLook::Hermit => {}
     }
 }
@@ -954,6 +1009,45 @@ pub fn air(r: &mut Renderer, w: &Wearer, now: i32) {
                 p.dot(cx + d * a.cos(), cy + d * a.sin(), 0.02 * t, 0xFFF4D8, 0.6 * (ph * PI).sin());
             }
         }
+        SkinLook::Hammerhead => {}
+        SkinLook::Tiger | SkinLook::Megalodon => {
+            // bubbles rising off it, wobbling, bursting at the top
+            let n = if w.skin == Some(SkinLook::Megalodon) { 6 } else { 4 };
+            for i in 0..n {
+                let (ph, c) = cycle(now, i, 2200);
+                let bx = x + (h(i, c) - 0.5) * 0.8 * t + 0.04 * t * (ph * 9.0 + i as f32).sin();
+                let by = y - (0.15 + 1.0 * ph) * t;
+                let s = (0.03 + 0.02 * h(i + 9, c)) * t;
+                p.band(bx, by, s, s, 0.6, 1.0, 0.0, TAU, 0xE8F6FF, 0.55 * (ph * PI).sin());
+                p.dot(bx - 0.3 * s, by - 0.3 * s, 0.3 * s, 0xFFFFFF, 0.7 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Lantern => {
+            // its spots glowing on and off, and motes of blue light drifting up off it
+            for i in 0..4u32 {
+                let (ox, oy) = ([-0.12, 0.1, -0.04, 0.14][i as usize], [0.35, 0.45, 0.6, 0.7][i as usize]);
+                let on = 0.5 + 0.5 * (ms * 0.003 + i as f32 * 1.9).sin();
+                p.glow(x + ox * t, y - oy * t, 0.07 * t, 0.07 * t, 0x50D8FF, 0.35 * on);
+            }
+            for i in 0..5u32 {
+                let (ph, c) = cycle(now, i, 3000);
+                let mx = x + (h(i, c) - 0.5) * 1.0 * t + 0.06 * t * (ph * 5.0 + i as f32).sin();
+                let my = y - (0.3 + 1.1 * ph) * t;
+                p.glow(mx, my, 0.05 * t, 0.05 * t, 0x80F0FF, 0.6 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Whale => {
+            // little pilot fish keeping it company, circling at its middle
+            for i in 0..3u32 {
+                let a = ms * 0.0013 + i as f32 * TAU / 3.0;
+                let (fx, fy) = (x + 0.55 * t * a.cos(), y - 0.4 * t + 0.18 * t * a.sin());
+                let dir = if a.sin() >= 0.0 { -1.0 } else { 1.0 };
+                let near = if a.sin() > 0.0 { 1.0 } else { 0.5 };
+                let s = 0.05 * t;
+                p.tri([[fx + dir * s * 1.2, fy], [fx - dir * s * 0.4, fy - s * 0.5], [fx - dir * s * 0.4, fy + s * 0.5]], 0xD8E8F0, 0.85 * near);
+                p.tri([[fx - dir * s * 0.4, fy], [fx - dir * s * 1.1, fy - s * 0.45], [fx - dir * s * 1.1, fy + s * 0.45]], 0x5C7890, 0.85 * near);
+            }
+        }
     }
 }
 
@@ -973,6 +1067,8 @@ mod tests {
         assert!(SkinLook::Avatar.sixteen());
         assert_eq!(SkinLook::named("eclipse"), Some(SkinLook::Eclipse));
         assert!(SkinLook::Eclipse.sixteen() && !SkinLook::Pharaoh.sixteen() && !SkinLook::Hollow.sixteen());
+        assert_eq!(SkinLook::named("megalodon"), Some(SkinLook::Megalodon));
+        assert!(SkinLook::Megalodon.sixteen() && !SkinLook::Hammerhead.sixteen() && !SkinLook::Whale.sixteen());
         let mut t = Trails::default();
         t.walk(1, 10.0, 10.0, 0);
         t.walk(1, 10.1, 10.0, 50);

@@ -165,7 +165,13 @@ pub mod look {
     /// A Condemned enemy fell at pos1: tribute to the players within pos2.x, and mana to the King
     /// (`source_id`) with 16 added to `object_type`.
     pub const TRIBUTE: u8 = 69;
-    pub const LAST: u8 = 69;
+    /// A Sharklord's Maw of the Deep (`Player.Maw.cs`; drawn by `maw.rs`): from the target (the
+    /// Sharklord) a fin to pos1 over `duration` ms, and jaws there pos2.x across;
+    /// `object_type` the spell's tier, 16 more for a Megalodon.
+    pub const MAW: u8 = 70;
+    /// The Sharklord (the target) feeding on pos2.x enemies bitten round pos1.
+    pub const FEED: u8 = 71;
+    pub const LAST: u8 = 71;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -812,6 +818,11 @@ impl Particles {
         // and the King's Royal Decree
         if (look::SEAL..=look::TRIBUTE).contains(&look) {
             self.decree_look(e, look, world, now);
+            return;
+        }
+        // and the Sharklord's Maw of the Deep
+        if (look::MAW..=look::FEED).contains(&look) {
+            self.maw_look(e, look, world, now);
             return;
         }
         // and the Crucible's caches
@@ -2133,6 +2144,10 @@ impl Particles {
             }
             look::SEAL..=look::TRIBUTE => {
                 self.test_decree(which, world, now);
+                return;
+            }
+            look::MAW..=look::FEED => {
+                self.test_maw(which, world, now);
                 return;
             }
             _ => return,

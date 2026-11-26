@@ -5242,39 +5242,26 @@
 		<Activate>Shoot</Activate>
 	</Object>
 	<Object type="0xD115" id="Tidal Wave">
+		<DisplayId>Jaws of the Abyss</DisplayId>
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>7</Index>
 		</Texture>
 		<Tier>7</Tier>
 		<SlotType>5000</SlotType>
-		<Description>The power of the Tidal Wave.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>85</MinDamage>
-			<MaxDamage>130</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>140</Size>
-			<MultiHit />
-			<PassesCover />
-			<ParticleTrail />
-		</Projectile>
+		<Description>Jaws dragged up from where no light reaches. What rises with them has never been seen whole. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="3.25" totalDamage="340" impactDamage="590" amount="50">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
 		<Usable />
-		<MpCost>100</MpCost>
-		<Activate>Shoot</Activate>
+		<MpCost>85</MpCost>
 		<Soulbound />
 	</Object>
 	<Object type="0xD116" id="Robe of Art">
@@ -11800,7 +11787,7 @@
 	</Object>
 	<Object type="0xD24E" id="Sharklord">
 		<Class>Player</Class>
-		<Description>A Animal Lord who has chosen to develop a bond with sharks and almost become one himself.</Description>
+		<Description>An Animal Lord grown half shark, who hunts by the smell of blood. Enemies under half their health are Bloodied and take more from their shots; blood and kills work them into a Frenzy that makes them faster, and the Maw of the Deep sends a shark to bite, a Megalodon at full Frenzy.</Description>
 		<AnimatedTexture>
 			<File>drPlayers</File>
 			<Index>20</Index>

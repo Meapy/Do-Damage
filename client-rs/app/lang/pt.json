@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Acumula até {n}, some {time} após o último",
 "{n} MP from each of the first {k} to fall": "{n} PM de cada um dos primeiros {k} a cair",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Condena os inimigos onde você mira: quem os derrubar bate mais forte",
-"Flows through your enemies and bursts like a fountain where you land": "Flui através dos inimigos e jorra como uma fonte onde você para"
+"Flows through your enemies and bursts like a fountain where you land": "Flui através dos inimigos e jorra como uma fonte onde você para",
+"Maw of the Deep": "Mandíbula das Profundezas",
+"Fin": "Barbatana",
+"{n} damage to each enemy in its way": "{n} de dano a cada inimigo no caminho",
+"Bite": "Mordida",
+"Twice as much to the Bloodied (under half health)": "O dobro nos Ensanguentados (abaixo de metade da vida)",
+"Feeds": "Alimenta",
+"{n} HP for each enemy bitten, up to {k}": "{n} PV por inimigo mordido, até {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} de Velocidade e Destreza por carga, até {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Mordidas, abates e cada quarto tiro num Ensanguentado dão cargas",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Com o Frenesi cheio é um Megalodonte: metade maior, e a mordida faz sangrar",
+"Your shots do {p}% more to the Bloodied": "Teus tiros causam {p}% a mais nos Ensanguentados",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Envia um tubarão para morder onde miras, alimentando-te e levando-te ao Frenesi"
 }

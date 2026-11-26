@@ -400,6 +400,10 @@ namespace WorldServer.core.objects
                 if (Condemned is { } decree && decree.Holds(this))
                     decree.King.PayTribute(this, decree);
                 Condemned = null;
+                // a Sharklord who hurt it: blood in the water, the Frenzy grows
+                foreach (var p in DamageCounter.GetHitters().Keys)
+                    if (p != null && p.IsSharklord && p.World == World && !p.Dead)
+                        p.FrenzyKill();
             }
             Dead = true;
             World.LeaveWorld(this);

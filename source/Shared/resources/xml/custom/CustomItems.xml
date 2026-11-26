@@ -1429,226 +1429,135 @@
 		<Soulbound/>
 	</Object>
 	<Object type="0x581c" id="Ripple">
+		<DisplayId>Reef Tooth</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>0</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>0</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>11</MinDamage>
-			<MaxDamage>16</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>100</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>A tooth shed on the reef, still sharp. Hold it up, and something under the sand answers. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="2.5" totalDamage="90" impactDamage="160" amount="15">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>22</MpCost>
+		<MpCost>50</MpCost>
 		<feedPower>5</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x581d" id="Splash">
+		<DisplayId>Saltwater Fang</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>1</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>1</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>21</MinDamage>
-			<MaxDamage>33</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>105</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>A fang crusted white with salt. The shallows stir wherever it points. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="2.5" totalDamage="120" impactDamage="210" amount="20">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>33</MpCost>
+		<MpCost>55</MpCost>
 		<feedPower>10</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x581e" id="Swell">
+		<DisplayId>Tiger Shark Fang</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>2</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>2</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>32</MinDamage>
-			<MaxDamage>49</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>110</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>The striped hunter's fang. It eats anything, and so does what it calls. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="2.75" totalDamage="150" impactDamage="260" amount="25">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>1</BagType>
-		<MpCost>44</MpCost>
+		<MpCost>60</MpCost>
 		<feedPower>20</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x581f" id="Breaker">
+		<DisplayId>Hammerhead Fang</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>3</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>3</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>43</MinDamage>
-			<MaxDamage>65</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>115</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>From a shark that sees the whole sea at once. Nothing hides from its bite. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="2.75" totalDamage="185" impactDamage="320" amount="30">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
-		<MpCost>56</MpCost>
+		<MpCost>65</MpCost>
 		<feedPower>45</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x5820" id="Riptide">
+		<DisplayId>Bull Shark Jaw</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>4</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>4</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>53</MinDamage>
-			<MaxDamage>81</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>120</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>The jaw of a shark that swims up rivers. It does not care how shallow the water is. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="3" totalDamage="220" impactDamage="380" amount="35">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
-		<MpCost>67</MpCost>
+		<MpCost>70</MpCost>
 		<feedPower>90</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x5821" id="Undertow">
+		<DisplayId>Mako Jaw</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>5</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>5</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>64</MinDamage>
-			<MaxDamage>98</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>125</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>The fastest jaw in the sea. The fin is there before the splash. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="3" totalDamage="260" impactDamage="440" amount="40">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
-		<MpCost>78</MpCost>
+		<MpCost>75</MpCost>
 		<feedPower>185</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x5822" id="Maelstrom">
+		<DisplayId>Great White Jaw</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>6</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>6</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>74</MinDamage>
-			<MaxDamage>114</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>130</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>Row on row of teeth, white as the foam they rise from. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="3.25" totalDamage="300" impactDamage="510" amount="45">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -1656,36 +1565,23 @@
 		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
 		<BagType>4</BagType>
 		<FameBonus>4</FameBonus>
-		<MpCost>89</MpCost>
+		<MpCost>80</MpCost>
 		<feedPower>380</feedPower>
 		<DropTradable/>
 	</Object>
 	<Object type="0x5823" id="Tsunami">
+		<DisplayId>Megalodon Tooth</DisplayId>
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0xec</Index>
+			<File>sharklordMaws16x16</File>
+			<Index>8</Index>
 		</Texture>
 		<SlotType>5000</SlotType>
 		<Tier>8</Tier>
-		<Description>The power of the sea, in a ring of waves.</Description>
-		<Sound>weapon/sprite_wand</Sound>
-		<Projectile>
-			<ObjectId>Wavess</ObjectId>
-			<Speed>160</Speed>
-			<MinDamage>96</MinDamage>
-			<MaxDamage>146</MaxDamage>
-			<LifetimeMS>364</LifetimeMS>
-			<Size>140</Size>
-			<MultiHit/>
-			<PassesCover/>
-			<ParticleTrail/>
-		</Projectile>
-		<NumProjectiles>10</NumProjectiles>
-		<ArcGap>36</ArcGap>
-		<OldSound>magicShoot</OldSound>
-		<Activate>Shoot</Activate>
+		<Description>A tooth the size of a hand, from a shark the sea has not seen in an age. It remembers how to bite. The Maw of the Deep: a fin cuts through the ground to where you aim, striking all in its way, and a shark bursts up there and bites everything near, twice as hard on the Bloodied (under half their health). You feed on each one bitten, and every bite works you into a Frenzy. With a full Frenzy, the shark that rises is a Megalodon.</Description>
+		<Activate maxDistance="8" radius="3.5" totalDamage="390" impactDamage="680" amount="60">DeepMaw</Activate>
+		<Sound>spell/magic_nova</Sound>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -1693,7 +1589,7 @@
 		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
 		<BagType>9</BagType>
 		<FameBonus>6</FameBonus>
-		<MpCost>111</MpCost>
+		<MpCost>95</MpCost>
 		<feedPower>855</feedPower>
 		<Soulbound/>
 	</Object>

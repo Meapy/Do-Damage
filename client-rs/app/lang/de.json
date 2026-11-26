@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Stapelt bis zu {n}, verblasst {time} nach dem letzten",
 "{n} MP from each of the first {k} to fall": "{n} MP von jedem der ersten {k}, die fallen",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Verurteilt die Gegner, auf die du zielst: Wer sie erledigt, trifft härter",
-"Flows through your enemies and bursts like a fountain where you land": "Fließt durch deine Gegner und bricht dort, wo du landest, wie ein Brunnen hervor"
+"Flows through your enemies and bursts like a fountain where you land": "Fließt durch deine Gegner und bricht dort, wo du landest, wie ein Brunnen hervor",
+"Maw of the Deep": "Schlund der Tiefe",
+"Fin": "Flosse",
+"{n} damage to each enemy in its way": "{n} Schaden an jedem Gegner auf ihrem Weg",
+"Bite": "Biss",
+"Twice as much to the Bloodied (under half health)": "Doppelt so viel gegen Blutende (unter halber Gesundheit)",
+"Feeds": "Frisst",
+"{n} HP for each enemy bitten, up to {k}": "{n} LP für jeden gebissenen Gegner, bis zu {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} Tempo und Geschick pro Stapel, bis zu {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Bisse, Kills und jeder vierte Schuss auf Blutende bringen Stapel",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Bei voller Raserei ist es ein Megalodon: anderthalbmal so groß, und sein Biss lässt bluten",
+"Your shots do {p}% more to the Bloodied": "Deine Schüsse machen {p} % mehr gegen Blutende",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Schickt einen Hai, der zubeißt, wo du zielst, dich nährt und in Raserei versetzt"
 }

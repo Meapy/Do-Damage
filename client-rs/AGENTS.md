@@ -183,6 +183,12 @@ the gaps between NewTicks. Its flags:
 - `--hold space:<ms>` sent the ability in 3 of 7 runs with the same flags (2026-11-25, a Druid in
   a vault): the client's log line `sent: {...}` names `UseItem` when it went. Check it before
   reading anything into a shot; one run that sends it is enough.
+- On the copied data (2026-11-26) `--credentials` played Tester's character 2 (the Mechanic), not
+  character 1, though both are in `alive.1`: before changing a character for a test, check which
+  one the first run plays (the class in its shot's character card), or change both.
+- `--effect 270` repeats the Maw every half second, so a shot shows two or three on top of each
+  other: judge how heavy an effect looks from a real cast (`--mouse` on the target, `--hold
+  space:150`), not from `--effect`.
 - `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
   characters (a class, items, `alive.1`) are lost and must be made again after each start.
 - To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it

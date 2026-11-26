@@ -763,6 +763,27 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   layouts) leaves the god where it rose. `iso_stack.py` makes Tester an admin on test stacks.
   World server only.
 
+- **The Sharklord reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Maw.cs`, the
+  `DeepMaw` activate, `StatDataType.Frenzy` (227), hooks in `Player.Projectiles.cs` and
+  `Enemy.Death`; the nine oceanic spells rewritten in place, both `CustomItems.xml` copies
+  0x581c-0x5823 and Tidal Wave 0xD115 in both `DoomedRealms.xml` copies, ids kept and new names as
+  `DisplayId`; the Rust client's `particles/maw.rs` (relic looks 70-71), the bonus in
+  `crates/world` `combat.rs`, the skins' looks in `auras.rs`, the tooltip in `hud.rs`): an enemy
+  under half its health is Bloodied to a Sharklord (`ObjectType` 0xD24E): their shots do 20% more
+  to it (`BloodiedPercent`, after defense and Condemned, before Tribute). Frenzy (0-5) comes from
+  every 4th weapon shot on a Bloodied enemy, every enemy they hurt that dies, and the Maw's bites
+  (1 per enemy, at most 2); each stack is +4 Speed and +4 Dexterity (an `ActivateBoost` offset),
+  fading one a second from 5 s after the last. The Maw: a fin from the Sharklord to the target
+  (`maxDistance` 8, 24 tiles a second, 120-420 ms), `totalDamage` to enemies within 1 tile of its
+  way; then `impactDamage` within `radius`, doubled on the Bloodied, `amount` healed for each
+  bitten (at most 3). At full Frenzy it spends all on a Megalodon: 150% radius and bite, twice the
+  healing, bitten enemies Bleed for half the bite over 3 s and are Slowed 2.5 s. T0-T8: fin
+  90-390, bite 160-680, radius 2.5-3.5, heal 15-60, MP 50-95. The Sharklord is redrawn and the
+  Armoire sells five skins (`tools/draw_sharklord.py`: the Sharklord's block (index 20) of
+  `players.png`/`playersMask.png`, `SharklordSkins8x8.png`, `SharklordSkins16x16.png` and masks,
+  `SharklordMaws16x16.png`, both `SharklordSkins.xml`, types 0xE250-0xE254): the Hammerhead, the
+  Tiger Shark, the Lanternshark and the Whale Shark at 200 gold, the 16 by 16 Megalodon at 800.
+
 - **The King reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Decree.cs`, the
   `RoyalDecree` activate with `tributeMp`, `Enemy.Condemned`, `StatDataType.Tribute` (225); the
   nine scepters in both `CustomItems.xml` copies, 0x58B0-0x58B8, slot type 134; the Rust client's

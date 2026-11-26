@@ -145,6 +145,27 @@ Hollow King, an empty suit of armour with cold light in its visor) and the 16 by
 its own round it (drifting sand, falling snow, smoke and smouldering eyes, a cold mist, the black
 sun's corona). Dyes work on all of them.
 
+**The Sharklord's Maw of the Deep.** The Sharklord hunts by the smell of blood. Every enemy under
+half its health is **Bloodied** to them (a drop of blood hangs over it, which only Sharklords
+see), and their shots do **20% more** to it. Every fourth shot that lands on a Bloodied enemy,
+every enemy they hurt that dies, and the Maw's bites work them into a **Frenzy**: fins circling
+their feet, up to five, each **+4 Speed and +4 Dexterity**, calming one a second from 5 seconds
+after the last. Their oceanic spells (the Reef Tooth at T0 up to the Megalodon Tooth at T8; the
+starting Tidal Wave is now the Jaws of the Abyss, T7) are the **Maw of the Deep**: a fin cuts
+through the ground to where they aim (up to 8 tiles), striking every enemy within a tile of its way
+(90 damage at T0 up to 390 at T8), and a shark bursts up out of a whirlpool there and bites
+everything within 2.5 to 3.5 tiles (160 up to 680), **twice that to the Bloodied**. The Sharklord
+feeds on what it bites, healing 15 (T0) up to 60 (T8) for each enemy bitten, up to three, and
+gains a stack of Frenzy for each, up to two. Cast at full Frenzy, every stack is spent on a
+**Megalodon**: half again the reach and the bite, twice the feeding, and everything it bites
+bleeds for half the bite more over 3 seconds and is Slowed. So the Sharklord, slow and sturdy,
+wears enemies down to Bloodied, grows fast in the Frenzy, and then chooses: keep the speed, or
+spend it on a Megalodon. The Sharklord is redrawn, a shark's head with its fin over a sea-green
+robe and a staff crowned with a great tooth, and the Armoire sells four skins at 200 gold (the
+Hammerhead, the Tiger Shark, the Lanternshark with its glowing spots, and the Whale Shark with
+little pilot fish circling it) and the 16 by 16 Megalodon at 800, a crown of teeth over open jaws
+and a bone trident, a great fin's shadow circling it through dark water. Dyes work on all of them.
+
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks
 them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%

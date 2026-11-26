@@ -613,6 +613,17 @@ pub mod stat {
     /// it takes `CONDEMNED_PERCENT` more damage, after defense.
     pub const CONDEMNED: u8 = 226;
     pub const CONDEMNED_PERCENT: i32 = 5;
+    /// A Sharklord's Frenzy, 0 to 5 (the server's `Player.Maw.cs`; `particles/maw.rs` draws its fins).
+    pub const FRENZY: u8 = 227;
+    /// The Sharklord's class: their shots do `BLOODIED_PERCENT` more to a Bloodied enemy (under
+    /// half its health), after defence.
+    pub const SHARKLORD: u16 = 0xD24E;
+    pub const BLOODIED_PERCENT: i32 = 20;
+
+    /// Bloodied to a Sharklord: under half its health (the server's `Player.Bloodied`).
+    pub fn bloodied(hp: i32, max_hp: i32) -> bool {
+        max_hp > 0 && hp > 0 && hp * 2 < max_hp
+    }
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

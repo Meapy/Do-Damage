@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Se cumule jusqu'à {n}, s'estompe {time} après le dernier",
 "{n} MP from each of the first {k} to fall": "{n} PM de chacun des {k} premiers à tomber",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Condamne les ennemis visés : ceux qui les abattent frappent plus fort",
-"Flows through your enemies and bursts like a fountain where you land": "Traverse vos ennemis et jaillit comme une fontaine là où vous arrivez"
+"Flows through your enemies and bursts like a fountain where you land": "Traverse vos ennemis et jaillit comme une fontaine là où vous arrivez",
+"Maw of the Deep": "Gueule des Abysses",
+"Fin": "Aileron",
+"{n} damage to each enemy in its way": "{n} dégâts à chaque ennemi sur son passage",
+"Bite": "Morsure",
+"Twice as much to the Bloodied (under half health)": "Deux fois plus contre les Ensanglantés (sous la moitié de leur vie)",
+"Feeds": "Repas",
+"{n} HP for each enemy bitten, up to {k}": "{n} PV par ennemi mordu, jusqu'à {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} Vitesse et Dextérité par charge, jusqu'à {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Les morsures, les éliminations et chaque quatrième tir sur un Ensanglanté ajoutent des charges",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Frénésie au maximum : c'est un Mégalodon, moitié plus grand, et sa morsure fait saigner",
+"Your shots do {p}% more to the Bloodied": "Tes tirs font {p} % de plus aux Ensanglantés",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Envoie un requin mordre là où tu vises, te nourrissant et te plongeant dans la Frénésie"
 }

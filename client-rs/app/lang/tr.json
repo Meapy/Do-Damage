@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "{n} kata kadar birikir, sonuncudan {time} sonra azalır",
 "{n} MP from each of the first {k} to fall": "Düşen ilk {k} düşmanın her birinden {n} MP",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Nişan aldığın düşmanları mahkûm eder: onları deviren daha sert vurur",
-"Flows through your enemies and bursts like a fountain where you land": "Düşmanlarının arasından akar ve vardığın yerde bir çeşme gibi fışkırır"
+"Flows through your enemies and bursts like a fountain where you land": "Düşmanlarının arasından akar ve vardığın yerde bir çeşme gibi fışkırır",
+"Maw of the Deep": "Derinliklerin Ağzı",
+"Fin": "Yüzgeç",
+"{n} damage to each enemy in its way": "Yolundaki her düşmana {n} hasar",
+"Bite": "Isırık",
+"Twice as much to the Bloodied (under half health)": "Kanayanlara iki katı (canı yarının altında)",
+"Feeds": "Beslenme",
+"{n} HP for each enemy bitten, up to {k}": "Isırılan her düşman için {n} can, en fazla {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "Yük başına +{n} Hız ve Beceri, en fazla {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Isırıklar, öldürmeler ve Kanayana her dördüncü atış yük ekler",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Çılgınlık doluyken bir Megalodon: yarısı kadar daha büyük ve ısırığı kanatır",
+"Your shots do {p}% more to the Bloodied": "Atışların Kanayanlara %{p} daha fazla vurur",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Nişan aldığın yere ısırması için bir köpekbalığı gönderir; seni besler ve Çılgınlığa sokar"
 }

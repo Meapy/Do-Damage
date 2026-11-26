@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Stapelt tot {n}, vervaagt {time} na de laatste",
 "{n} MP from each of the first {k} to fall": "{n} MP van elk van de eerste {k} die vallen",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Veroordeelt de vijanden waar je op richt: wie ze neerhaalt, slaat harder",
-"Flows through your enemies and bursts like a fountain where you land": "Vloeit door je vijanden en spuit als een fontein op waar je landt"
+"Flows through your enemies and bursts like a fountain where you land": "Vloeit door je vijanden en spuit als een fontein op waar je landt",
+"Maw of the Deep": "Muil van de Diepte",
+"Fin": "Vin",
+"{n} damage to each enemy in its way": "{n} schade aan elke vijand op zijn pad",
+"Bite": "Beet",
+"Twice as much to the Bloodied (under half health)": "Dubbel zoveel tegen Bloedenden (onder de helft van hun leven)",
+"Feeds": "Voedt",
+"{n} HP for each enemy bitten, up to {k}": "{n} HP per gebeten vijand, tot {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} Snelheid en Behendigheid per stapel, tot {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Beten, kills en elk vierde schot op een Bloedende geven stapels",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Bij volle Razernij is het een Megalodon: de helft groter, en zijn beet laat bloeden",
+"Your shots do {p}% more to the Bloodied": "Je schoten doen {p}% meer tegen Bloedenden",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Stuurt een haai om te bijten waar je mikt, die je voedt en in Razernij brengt"
 }

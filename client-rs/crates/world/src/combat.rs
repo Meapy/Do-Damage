@@ -572,6 +572,10 @@ impl World {
                 // Condemned by a King's decree: a little more from every hit (`StatsManager`)
                 let condemned = target.stat_int(bsk_proto::stat::CONDEMNED).unwrap_or(0) > 0;
                 let dmg = if condemned { (dmg as f64 * (1.0 + bsk_proto::stat::CONDEMNED_PERCENT as f64 / 100.0)) as i32 } else { dmg };
+                // a Sharklord's Blood in the Water: more on a Bloodied enemy (`Player.Maw.cs`)
+                let sharklord = me.and_then(|m| self.objects.get(&m)).is_some_and(|m| m.object_type == bsk_proto::stat::SHARKLORD);
+                let (hp, max_hp) = (target.stat_int(STAT_HP).unwrap_or(0), target.stat_int(0).unwrap_or(0));
+                let dmg = if sharklord && dmg > 0 && bsk_proto::stat::bloodied(hp, max_hp) { dmg * (100 + bsk_proto::stat::BLOODIED_PERCENT) / 100 } else { dmg };
                 let dmg = if dmg > 0 { dmg + tribute * bsk_proto::stat::TRIBUTE_DAMAGE } else { dmg };
                 let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
                 hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg, pierced: desc.armor_piercing });

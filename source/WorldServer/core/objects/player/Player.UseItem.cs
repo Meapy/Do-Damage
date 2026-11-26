@@ -785,6 +785,9 @@ namespace WorldServer.core.objects
                     case ActivateEffects.RoyalDecree:
                         AERoyalDecree(time, item, target, eff);
                         break;
+                    case ActivateEffects.DeepMaw:
+                        AEDeepMaw(time, item, target, eff);
+                        break;
                     case ActivateEffects.FlowStrike:
                         AEFlowStrike(time, item, target, eff);
                         break;

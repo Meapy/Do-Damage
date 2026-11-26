@@ -434,6 +434,42 @@ fn a_condemned_enemy_takes_a_little_more() {
 }
 
 #[test]
+fn a_sharklords_shots_hit_the_bloodied_harder() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>30</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    let mut pirate = obj(3, 0x30, 5.5, 3.5, 0);
+    pirate.status.stats = vec![StatData { id: 0, value: StatValue::Int(1000) }, StatData { id: 1, value: StatValue::Int(1000) }].into();
+    w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+    let shoot = |w: &mut World, id: i32, at: i32| {
+        w.add_projectile(combat::Projectile::new(2, id, 0x40, 0, -std::f64::consts::FRAC_PI_2, at, 5.5, 5.5, 1.0, 30, false));
+        let mut hits = Vec::new();
+        for t in (at..at + 400).step_by(10) {
+            hits.extend(w.update_projectiles(t, &d));
+        }
+        hits
+    };
+    // a Sharklord, the pirate at full health: as it is
+    w.objects.get_mut(&2).unwrap().object_type = stat::SHARKLORD;
+    let hits = shoot(&mut w, 1, 0);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 30, .. }]), "{hits:?}");
+    // under half its health: a fifth more
+    w.objects.get_mut(&3).unwrap().stats.insert(1, StatValue::Int(400));
+    let hits = shoot(&mut w, 2, 1000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 36, .. }]), "{hits:?}");
+    // anyone else: as it is
+    w.objects.get_mut(&2).unwrap().object_type = 0x40;
+    let hits = shoot(&mut w, 3, 2000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 30, .. }]), "{hits:?}");
+}
+
+#[test]
 fn shots_fly_over_open_air_but_stop_at_the_void() {
     // the Crucible's floors float in open air: a shot carries on over a gap with no ground; anywhere
     // else no ground stops it

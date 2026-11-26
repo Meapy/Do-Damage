@@ -49,6 +49,7 @@
         BuildTower,
         FlowStrike,
         RoyalDecree,
+        DeepMaw,
         MonsterToss,
         PartyAOE,
         MiniPot,

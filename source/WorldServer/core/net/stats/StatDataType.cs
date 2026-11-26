@@ -155,6 +155,9 @@
         // Player.CondemnedPercent more damage, which the Rust client adds to the hits it works
         // out for its own shots (combat.rs); an older client ignores it.
         Condemned = 226,
+        // a Sharklord's Frenzy (0 to Player.FrenzyMax; Player.Maw.cs), sent to everyone: the Rust
+        // client draws the fins circling them (particles/maw.rs); an older client ignores it.
+        Frenzy = 227,
         None = 255
     }
 }

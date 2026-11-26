@@ -575,11 +575,22 @@ class Gear:
             # Tribute, TributeDamage a shot past defense, up to TributeMax, fading one a second
             # TributeHoldMs after the last; the King's mana for the first TributeMpKills a decree
             return ("calls the royal seal down where you aim (up to %s tiles): %s damage within %s tiles, and the "
-                    "enemies under it are Condemned for %ss, taking 5% more damage from everyone; each "
+                    "enemies under it are Condemned for %ss, taking 5%% more damage from everyone; each "
                     "Condemned enemy that falls gives everyone who hurt it, and you, a stack of Tribute: +10 "
                     "damage on every shot, past defense, up to 10 stacks, fading one a second 10s after the "
                     "last; the first three of each decree also restore %s MP to you"
                     % (n("maxDistance", "9"), n("impactDamage"), n("radius"), n("duration"), n("tributeMp")))
+        if e == "DeepMaw":
+            # a Sharklord's oceanic spell (Player.Maw.cs): FinPathWidth, BiteDamage, FeedMax,
+            # BiteFrenzyMax, FrenzyMax, FrenzySpeed/FrenzyDex, MegalodonPercent, MegalodonBleedPercent
+            return ("sends a fin through the ground to where you aim (up to %s tiles), %s damage to each enemy in "
+                    "its way; there a shark bursts up and bites everything within %s tiles for %s damage, twice that "
+                    "to the Bloodied (under half their health); you heal %s for each enemy bitten (up to 3) and gain "
+                    "a stack of Frenzy for each (up to 2). Frenzy (up to 5, also from kills and every fourth shot on "
+                    "the Bloodied) gives +4 Speed and Dexterity a stack; cast at full Frenzy, it is all spent on a "
+                    "Megalodon: half again the reach and bite, twice the healing, and everything bitten bleeds for "
+                    "half the bite more and is Slowed"
+                    % (n("maxDistance", "8"), n("totalDamage"), n("radius"), n("impactDamage"), n("amount")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

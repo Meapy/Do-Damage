@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Kumuluje się do {n}, zanika {time} po ostatnim",
 "{n} MP from each of the first {k} to fall": "{n} PM z każdego z pierwszych {k} poległych",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Skazuje wrogów, w których celujesz: ci, którzy ich powalą, biją mocniej",
-"Flows through your enemies and bursts like a fountain where you land": "Przepływa przez wrogów i tryska jak fontanna tam, gdzie wylądujesz"
+"Flows through your enemies and bursts like a fountain where you land": "Przepływa przez wrogów i tryska jak fontanna tam, gdzie wylądujesz",
+"Maw of the Deep": "Paszcza Głębin",
+"Fin": "Płetwa",
+"{n} damage to each enemy in its way": "{n} obrażeń każdemu wrogowi na jej drodze",
+"Bite": "Ugryzienie",
+"Twice as much to the Bloodied (under half health)": "Dwa razy więcej Krwawiącym (poniżej połowy zdrowia)",
+"Feeds": "Pożywia",
+"{n} HP for each enemy bitten, up to {k}": "{n} PZ za każdego ugryzionego wroga, do {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} Szybkości i Zręczności na ładunek, do {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Ugryzienia, zabójstwa i co czwarty strzał w Krwawiącego dają ładunki",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "Przy pełnym Szale to Megalodon: o połowę większy, a jego ugryzienie powoduje krwawienie",
+"Your shots do {p}% more to the Bloodied": "Twoje strzały zadają {p}% więcej Krwawiącym",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Wysyła rekina, by ugryzł tam, gdzie celujesz, karmiąc cię i wprawiając w Szał"
 }

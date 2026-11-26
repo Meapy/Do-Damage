@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Складывается до {n}, угасает через {time} после последнего",
 "{n} MP from each of the first {k} to fall": "{n} ОМ с каждого из первых {k} павших",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Осуждает врагов в точке прицела: те, кто их добьёт, бьют сильнее",
-"Flows through your enemies and bursts like a fountain where you land": "Проносится сквозь врагов и бьёт фонтаном там, где вы остановились"
+"Flows through your enemies and bursts like a fountain where you land": "Проносится сквозь врагов и бьёт фонтаном там, где вы остановились",
+"Maw of the Deep": "Пасть Глубин",
+"Fin": "Плавник",
+"{n} damage to each enemy in its way": "{n} урона каждому врагу на пути",
+"Bite": "Укус",
+"Twice as much to the Bloodied (under half health)": "Вдвое больше Окровавленным (меньше половины здоровья)",
+"Feeds": "Насыщение",
+"{n} HP for each enemy bitten, up to {k}": "{n} ОЗ за каждого укушенного врага, до {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} к Скорости и Ловкости за заряд, до {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Укусы, убийства и каждый четвёртый выстрел по Окровавленному дают заряды",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "При полном Неистовстве это Мегалодон: в полтора раза больше, и его укус вызывает кровотечение",
+"Your shots do {p}% more to the Bloodied": "Твои выстрелы наносят Окровавленным на {p}% больше",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Посылает акулу укусить там, куда ты целишься: она кормит тебя и приводит в Неистовство"
 }

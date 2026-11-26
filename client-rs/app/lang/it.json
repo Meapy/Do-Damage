@@ -1678,5 +1678,17 @@
 "Stacks up to {n}, fading {time} after the last": "Si accumula fino a {n}, svanisce {time} dopo l'ultimo",
 "{n} MP from each of the first {k} to fall": "{n} PM da ciascuno dei primi {k} a cadere",
 "Condemns the enemies where you aim: those who bring them down hit harder": "Condanna i nemici dove miri: chi li abbatte colpisce più forte",
-"Flows through your enemies and bursts like a fountain where you land": "Scorre attraverso i nemici ed erompe come una fontana dove atterri"
+"Flows through your enemies and bursts like a fountain where you land": "Scorre attraverso i nemici ed erompe come una fontana dove atterri",
+"Maw of the Deep": "Fauci degli Abissi",
+"Fin": "Pinna",
+"{n} damage to each enemy in its way": "{n} danni a ogni nemico sul suo cammino",
+"Bite": "Morso",
+"Twice as much to the Bloodied (under half health)": "Il doppio ai Sanguinanti (sotto metà vita)",
+"Feeds": "Si nutre",
+"{n} HP for each enemy bitten, up to {k}": "{n} PV per ogni nemico morso, fino a {k}",
+"+{n} Speed and Dexterity a stack, up to {k}": "+{n} Velocità e Destrezza per carica, fino a {k}",
+"Bites, kills and every fourth shot on the Bloodied add stacks": "Morsi, uccisioni e ogni quarto colpo su un Sanguinante aggiungono cariche",
+"At full Frenzy it's a Megalodon: half again as big, and its bite bleeds": "A Frenesia piena è un Megalodonte: grande la metà in più, e il suo morso fa sanguinare",
+"Your shots do {p}% more to the Bloodied": "I tuoi colpi fanno il {p}% in più ai Sanguinanti",
+"Sends a shark to bite where you aim, feeding you and working you into a Frenzy": "Manda uno squalo a mordere dove miri, nutrendoti e portandoti alla Frenesia"
 }

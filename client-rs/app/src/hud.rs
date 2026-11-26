@@ -3157,6 +3157,22 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             ];
             (tr("Royal Decree"), r)
         }
+        // a Sharklord's oceanic spell (the server's `Player.Maw.cs`: `FeedMax`, `FrenzyMax`,
+        // `FrenzySpeed`, `FrenzyBloodHits`, `MegalodonPercent`)
+        "DeepMaw" => {
+            let r = vec![
+                row(tr("Fin"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("On the way"), tf!("{n} damage to each enemy in its way", n = num("totalDamage"))),
+                row(tr("Bite"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row("", tr("Twice as much to the Bloodied (under half health)").to_owned()),
+                row(tr("Feeds"), tf!("{n} HP for each enemy bitten, up to {k}", n = num("amount"), k = 3)),
+                row(tr("Frenzy"), tf!("+{n} Speed and Dexterity a stack, up to {k}", n = 4, k = crate::particles::maw::FRENZY_MAX)),
+                row("", tr("Bites, kills and every fourth shot on the Bloodied add stacks").to_owned()),
+                row("", tr("At full Frenzy it's a Megalodon: half again as big, and its bite bleeds").to_owned()),
+                row("", tf!("Your shots do {p}% more to the Bloodied", p = bsk_proto::stat::BLOODIED_PERCENT)),
+            ];
+            (tr("Maw of the Deep"), r)
+        }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
@@ -3663,6 +3679,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "TidePearl" => tr("Throws a pearl that lies in a tide pool, then rushes back to you").to_owned(),
         "FlowStrike" => tr("Flows through your enemies and bursts like a fountain where you land").to_owned(),
+        "DeepMaw" => tr("Sends a shark to bite where you aim, feeding you and working you into a Frenzy").to_owned(),
         "RoyalDecree" => tr("Condemns the enemies where you aim: those who bring them down hit harder").to_owned(),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
