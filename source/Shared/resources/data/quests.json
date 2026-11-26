@@ -129,6 +129,7 @@
     { "points": 2400, "name": "Mythic", "color": "0xFF7A3D" }
   ],
   "gifts": [
-    { "id": "lil_oryx_2026_11", "title": "Lil' Oryx", "text": "One free Lil' Oryx per account, this month only. Each Oryx drops a Lil' Oryx of his own.", "from": "2026-10-27", "until": "2026-11-27", "rewards": [ { "item": "Lil' Oryx Generator" } ] }
+    { "id": "lil_oryx_2026_11", "title": "Lil' Oryx", "text": "One free Lil' Oryx per account, this month only. Each Oryx drops a Lil' Oryx of his own.", "from": "2026-10-27", "until": "2026-11-27", "rewards": [ { "item": "Lil' Oryx Generator" } ] },
+    { "id": "slots_2026_12", "title": "More room", "text": "A free character slot and vault chest, this month only. Use them in your vault.", "from": "2026-11-27", "until": "2026-12-27", "rewards": [ { "item": "Char Slot Unlocker" }, { "item": "Vault Chest Unlocker" } ] }
   ]
 }

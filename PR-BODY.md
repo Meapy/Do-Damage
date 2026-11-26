@@ -1,4 +1,4 @@
-Release 2.6.9: the Monk reworked, death replays line up, super elixirs that last, and the Hive remade. Deploys the world server, client and website; nobody is disconnected. The Monk's Flowing Strike needs the world server and client together.
+Release 2.6.9: the Monk reworked, death replays line up, super elixirs that last, the Hive remade, and a free character slot and vault chest. Deploys the world server, client and website; nobody is disconnected. The Monk's Flowing Strike needs the world server and client together.
 
 ## For players
 
@@ -8,6 +8,9 @@ Release 2.6.9: the Monk reworked, death replays line up, super elixirs that last
 
 ### Death replays
 - **Hits land where they hit:** the shot that hurt the character now meets them on screen, the damage number and its sparks coming as it strikes, and the monsters' shots that missed fly past them as they did on the player's screen. The character no longer trails behind the shots (about a tenth to a quarter of a second): they're shown where they really were, walking smoothly along their path instead of gliding from tick to tick. Replays already saved play this way too.
+
+### Quests
+- **This month's gift is more room:** from 27 November to 27 December, every account with 5 stars can claim a free **Char Slot Unlocker** and **Vault Chest Unlocker** from the gift on the quest log's Daily Rewards tab. They go to the gift chest in the vault; used there, each adds a character slot or a vault chest for good.
 
 ### Wiki
 - **Oryx's drops are on the wiki:** the Lil' Oryx, Lil' Wine Cellar Oryx and Lil' Infernal Oryx pets, the Infernal forge shards and the rest of Oryx 1's, Oryx 2's, Oryx the Infernal Mad God's and the Oryx Guardian Task Master's loot show on the Pets, gear and dungeon pages, so searching or filtering for them finds them.
@@ -90,7 +93,16 @@ Release 2.6.9: the Monk reworked, death replays line up, super elixirs that last
 - **Redeploy:** world server only. Nobody is disconnected; Hives already open keep their old map until they close.
 - **Wiki:** `website/wiki/dungeons.md` (a new Hive section).
 
+### December's gift: a character slot and a vault chest
+
+- **What and why:** the owner asked for the monthly free gift to be a character slot and a vault slot that everyone can claim for the next month. A new gift `slots_2026_12` ("More room") in `source/Shared/resources/data/quests.json`, open 2026-11-27 to 2026-12-27 (UTC, both included), pays the existing Char Slot Unlocker and Vault Chest Unlocker (already community-goal rewards) through the gift chest; used in the vault they raise `maxCharSlot` and `vaultCount`. No code change: gifts already list, claim once per account and need 5 stars. The Lil' Oryx gift is kept and ends 27 November as planned, so both show on 27 November.
+- **Tests:** `QuestBookTests.DecembersGiftIsACharacterSlotAndAVaultChest` (open on its days only, pays both unlockers, once).
+- **Redeploy:** world server only (it reads `quests.json` at start); nobody is disconnected. Redis: nothing to migrate; claims go in each account's `progress` as before.
+- **Wiki and changelog:** `website/wiki/quests.md`, `client-rs/CHANGELOG.md` (Quests).
+
 ## Checks
+
+- December's gift: `dotnet test source\Tests` 541 passed, with the new quest test. Not tried in game: the unlockers and the gift chest are unchanged.
 
 - **The Hive:** `dotnet test source\Tests` (535 passed; `RandomDungeonTests` builds 30 Hive layouts, the Queen reachable in each). On an isolated stack (slot 1) a level-20 bot (`--fight`, `/god`) fought through the rooms for 150 s and, with `/tq`, the Queen: she fired her rings of 8 stingers and threw a honey bomb, eggs cracked into 3 larvae each, the bees and larvae fired as set; no errors in the world log, ticks steady (0.3-0.5 ms of work with 130-160 enemies). Not seen in that short fight: her dazing globs and a larva growing into a bee (she fell in about 6 s). `python toolsuild_wiki.py` builds; the Hive's card says New every run.
 - The Monk: `dotnet test source\Tests` 538 passed with the Hive, with `MonkTests` (the way stops short of a wall and at its reach, a fifth more a Chi, every slot-130 item a FlowStrike rising by tier, the Monk's weapon slot the fists'); `cargo test -p bsk-client` (look 66 shows and goes, `ChiMemory`, the skin looks, the translations); `cargo check --target wasm32-unknown-unknown -p bsk-client`. On an isolated stack (slot 1) with Tester's character made a Monk in the Grandmaster skin with T14 fists and the Heart of the Fountains: punching a Training Dummy in a vault built five Chi (the orbs in a shot); `--effect 266` in the Nexus drew the Flow (lotus, rings, orbs, water column) and the Grandmaster skin; `bsk-bot --fight` for 45 s used the strike 27 times, was moved by it (GotoAck) and stayed connected, with no errors in the world server's log. The scripted Space press didn't land inside a shot's window, so the real strike's look wasn't caught in a shot. Finishing it: 540 server tests passed, with `MonkTests` also checking the momentum (`ChiEcho`, at most 2), the look's code and that every tiered fist fires its tier's chi strike; `cargo test -p bsk-client` and `bsk-data`'s `real_data_loads` (the Serpent Fang Gauntlets fire "Monk Chi Strike 7" from `monkStrikes8x8`). On an isolated stack (slot 13000) the Monk in the Thousand-Palm Avatar skin with the Serpent Fang Gauntlets: autofire at the vault's dummy drew the green chi strikes flying point first, the Avatar's wheel of palms, third eye and rising chi, and the Chi orbs. The strike's momentum orbs were not caught in a shot (its logic is the unit test's).
