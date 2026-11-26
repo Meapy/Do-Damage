@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Realm 2
+- **Realm 2 is an island:** the starry void between its lands is gone. Realm 2 is now one smaller island in the sea, from the beaches where you arrive to the Godlands at the far end, with mountain lakes, rivers you can wade, snowy peaks, and small islands off the coast joined by bridges. Event lands rise across the Godlands and spill out over the coast.
+
 ### Pets
 - **Tuning asks before it spends:** each tuning step at the Pen Keeper now takes two clicks, the first showing its price, so trying the buttons out no longer spends fame.
 

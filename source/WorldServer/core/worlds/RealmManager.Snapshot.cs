@@ -104,6 +104,7 @@ namespace WorldServer.core.worlds
                 return s;
             }
             s.Seed = (World as Realm2World)?.Seed ?? 0;
+            s.Map = Realm2Generator.Version;
             s.Upcoming = _upcoming.ToList();
             s.Lands = Layout.Areas.Where(a => a.Theme != null).Select(a => new RealmSnapshotLand
             {
@@ -175,6 +176,18 @@ namespace WorldServer.core.worlds
                 _upcoming.Clear();
                 foreach (var evt in s.Upcoming.Where(events.Contains))
                     _upcoming.Enqueue(evt);
+            }
+            if (s.Map != Realm2Generator.Version)
+            {
+                // written over another map: its lands and waystones stood somewhere this one has
+                // sea or nothing, so the lands come again as events here instead
+                foreach (var land in s.Lands ?? new List<RealmSnapshotLand>())
+                    if (Realm2Themes.Events.FirstOrDefault(t => t.Key == land.Key) is Realm2Theme t && !_upcoming.Contains(t.Event))
+                        _upcoming.Enqueue(t.Event);
+                Log.Info($"{World.DisplayName}: its snapshot is from map {s.Map}, now {Realm2Generator.Version}: {s.Lands?.Count ?? 0} lands to come again");
+                s.Lands = null;
+                s.Waystones = null;
+                s.Running?.RemoveAll(e => Realm2Themes.Events.Any(t => t.Event == e.Name));
             }
             foreach (var land in s.Lands ?? new List<RealmSnapshotLand>())
             {

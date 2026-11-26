@@ -28,6 +28,7 @@ namespace WorldServer.core.worlds
 
         // Realm 2
         public int Seed;
+        public int Map;             // the map its seed made (Realm2Generator.Version; 0 for the first)
         public List<string> Upcoming;
         public List<RealmSnapshotLand> Lands;
         public List<RealmSnapshotPoint> Waystones;

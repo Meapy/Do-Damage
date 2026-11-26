@@ -549,7 +549,7 @@ namespace WorldServer.core.worlds
                         {
                             SendEventLists();
                             if (Layout != null)
-                                SweepAbyss();
+                                SweepWater();
                             SnapshotTick();
                             _lastEventList = time.TotalElapsedMs;
                         }

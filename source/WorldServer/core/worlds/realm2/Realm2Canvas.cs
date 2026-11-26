@@ -153,7 +153,7 @@ namespace WorldServer.core.worlds.realm2
         }
 
         /// <summary>
-        /// A way across the void from (ax, ay) to (bx, by), over the tiles `open` accepts: a plank
+        /// A way across the water from (ax, ay) to (bx, by), over the tiles `open` accepts: a plank
         /// bridge 5 wide with rails, or a pool to wade.
         /// </summary>
         public void Crossing(double ax, double ay, double bx, double by, bool pool, Func<int, int, bool> open)

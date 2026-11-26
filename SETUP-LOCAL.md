@@ -115,7 +115,7 @@ that stays the same from server to server (`core/worlds/RealmSnapshots.cs`,
 
 - **What's kept:** the realm's name, the events defeated toward closing, the events running (by
   name and place, not their health) and a realm's events still to come. For Realm 2 also its
-  map's seed (`Realm2Generator` makes the same map from it), every land drawn (theme, centre, size,
+  map's seed (`Realm2Generator` makes the same map from it, `Map` saying which generator), every land drawn (theme, centre, size,
   its painter's seed, its bridge or pool, whether its Lost Sentry still stands), its waystones and
   the order of the events to come.
 - **When it's written:** within 2 s of a change (an event spawned or defeated, a land or a
@@ -3202,6 +3202,35 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   existing effects, so old clients draw it. Each step calls `Player.UpdateTiles()` (tiles otherwise
   reach a player only when they step onto another square); the Forgotten King's floor does too
   now. Placed objects need their `ObjDesc` and a new `ObjId`. World server only.
+
+- **Realm 2 is an island** (2026-11-26; `Realm2Generator` (`Version` 2), `RealmManager.Realm2.cs`'s
+  `SweepWater`, `RealmSnapshot.Map`, `RealmManager.Snapshot.RestoreLayout`; test
+  `source/Tests/Realm2MapTests.cs`): the starry void (`R2 Abyss`, kept in the XML but no longer
+  drawn) is gone. The map is 640 by 480 (was 1024 by 768) and holds one continent, an oval
+  stretched along the way out (its half-length the map's half-extent that way less 24, its
+  half-breadth 172), its coast wandering by two layers of noise into bays and headlands and kept
+  12-46 tiles off the map's edge; anything the coast cuts off from the spawn goes back to the sea.
+  Along the way out (with ragged borders) it is the starter lands to 58 tiles past the start, the
+  midlands to 150 (the highlands' terrain from about 108), then the Godlands to the far coast:
+  about 160,000 tiles of land in all (the old map had about 185,000), the Godlands about 125,000.
+  The sea is `Dark Water` (no walking) beyond 2-4 tiles of `Shallow Water` along every coast. The
+  Godlands have mountain lakes (noise, never within 22 tiles of the way out's middle line, so the
+  land always goes round them) and two or three rivers from deep inland that wind downhill (by
+  distance to the sea) through any lake to the coast, widening to about 7 tiles, all shallow
+  enough to wade; lakes and rivers are `AreaOf` -1. Snowy Rock thickens towards the far end (and
+  its scenery is firs and grey rocks), Bright Grass thins out, and `Dark Sand` scree lines the
+  Godlands' shores; the starter lands' shore and shore plains follow the coast rather than a ring.
+  Three to five small islands (9-15 tiles across) sit off the Godlands' coast with a bridge or a
+  pool, and the event lands' rules are unchanged: "the void" is now the water, so a land prefers
+  the coast (sticking out over the sea, which it paints over) and a quarter go out in the sea
+  joined by a bridge or pool where there's room. The stretches kept as they are are the Godlands'
+  points furthest from the water near the middle line at 30%, 60% and 88% along it, 34 tiles in
+  radius (was 40). Monsters over deep water off the land (not a quest or an event's) are removed,
+  as they were over the void. A snapshot from the old map (`Map` 0) opens the Nexus's Realm 2 on
+  the new map with its event count and order kept, but its lands, waystones and running land
+  events dropped, those lands queued to come again. `Realm2MapTests` checks five seeds (no void,
+  every walkable tile reachable from the spawn, the kept stretches) and with `R2_PREVIEW=<folder>`
+  writes each map as a picture, with and without eleven event lands drawn in. World server only.
 
 ## Classes, minigames and the economy
 

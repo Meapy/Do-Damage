@@ -24,11 +24,12 @@ opened with a key doesn't).
 
 ## How it's laid out
 
-You arrive on **the shore and lowlands**, at one end of a starry void: beaches round the edge,
-then sand, plains and forest, with the realm's lowland monsters and quests. Next to them are
-**the midlands and highlands**, with the realm's mid and high monsters and quests. Beyond those lies
-**the Godlands**, a broad grey land winding away across the void, with branches, chasms and a few
-islands off its edge joined by bridges and pools. The Godlands' gods live there as in the realm
+Realm 2 is one island in the sea, a long one. You arrive on **the shore and lowlands** at one
+end of it: beaches along the coast, then sand, plains and forest, with the realm's lowland
+monsters and quests. Next come **the midlands and highlands**, with the realm's mid and high
+monsters and quests. Beyond those **the Godlands** stretch to the far coast: grey rock, mountain
+lakes, rivers winding down to the sea (shallow enough to wade, slowly), snow thickening the
+further you go, and a few small islands off the coast joined by bridges and pools. The Godlands' gods live there as in the realm
 (White Demons, Medusas, Beholders and the rest), with their potions and dungeon portals. Three
 stretches of it, near, halfway and far along, always stay as they are: no event's land comes over
 them.
@@ -52,7 +53,8 @@ random order, eleven of the fourteen below (so each Realm 2 has a different mix)
 brings **a land of its own** when it appears: its own ground,
 scenery, ruined walls and monsters, with its boss in an arena at its heart. Every land comes a
 little further from the shore than the last, in any direction, and well apart from the others.
-Most rise out of the Godlands' edge, some out in the void beside it, joined by a bridge or a pool.
+Most rise out of the Godlands, spilling over the coast where they meet it; some rise out in the
+sea beside it, joined by a bridge or a pool.
 Where a land rises, its own monsters take the place of the gods. A land stays once its event is
 beaten.
 
@@ -103,7 +105,7 @@ touched for a minute and a half no longer holds up the next.
   sinking sand round it. The Forgotten Kingdom is built of the
   Avatar's own stone and blue flames; the Jade Garden has stone paths and the ruins of old shrines
   in its forest; the bridges have fences along their edges. The Pentaract has a few more eyes than
-  in the realm. Anything that wanders out over the void is gone.
+  in the realm. Anything that wanders out over deep water is gone.
 - **The Lost Sentry** guards a shrine in the Lost Lands: a side quest, marked light blue on the map
   and in the Realm Events list, that doesn't count toward closing Realm 2. It's as strong as an
   event boss and opens the **Lost Halls** when it dies.
