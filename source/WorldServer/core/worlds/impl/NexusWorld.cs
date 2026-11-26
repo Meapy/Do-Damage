@@ -144,6 +144,15 @@ namespace WorldServer.core.worlds.impl
         // the items a shop has left to put out: the real Nexus's are the game's lists, a copy's its own
         private List<ISellableItem> Stock(TileRegion shop) => _stock != null ? _stock[shop] : MerchantLists.Shops[shop].Item1;
 
+        /// <summary>One of a Nexus's shared vault chests (LinkVaultChests).</summary>
+        public static bool IsVaultChest(objects.Entity e) => e is Container { DbLink: DbNexusChest } && e.World is NexusWorld;
+
+        /// <summary>Guests may put items into the shared vault chests but only registered accounts
+        /// take them out, so a throwaway guest can't empty them.</summary>
+        public static bool MayTakeFromVault(objects.Player player) => player.Client?.Account != null && !player.Client.Account.Guest;
+
+        public const string GUEST_VAULT_REFUSAL = "Register your account to take items out of the Nexus vault chests.";
+
         // The map's shared vault chests keep their items in Redis, one record per tile: the tile a
         // chest stood on in the castle Nexus, which the garden's chests carry as their names
         // ("61_70", tools/build_nexus.py CHESTS), so they kept their items when it moved. A copy's

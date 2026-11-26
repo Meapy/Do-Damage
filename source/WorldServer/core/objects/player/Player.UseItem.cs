@@ -103,6 +103,15 @@ namespace WorldServer.core.objects
                 return;
             }
 
+            // using an item straight from a Nexus vault chest takes it out too: not for guests
+            if (NexusWorld.IsVaultChest(entity) && !NexusWorld.MayTakeFromVault(this))
+            {
+                entity.ForceUpdate(slot);
+                SendError(NexusWorld.GUEST_VAULT_REFUSAL);
+                Client.SendPacket(new InvResult() { Result = 1 });
+                return;
+            }
+
             var container = entity as IContainer;
             if (this.DistTo(entity) > 3)
             {

@@ -2,6 +2,9 @@ Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line
 
 ## For players
 
+### Nexus
+- **The shared vault chests are for registered players:** a guest can still put items into the four shared vault chests in the Nexus's vault yard, but taking one out (moving it to their inventory, dropping it, breaking it down or using it straight from the chest) says "Register your account to take items out of the Nexus vault chests." Registered players use them as before.
+
 ### King
 - **The King's Royal Decree:** the King's tomes (the Priest's heal again) are replaced by nine **scepters**, Tin Scepter T0 to Scepter of the Last Dynasty T8. The royal seal falls where he aims (up to 9 tiles, 260 ms later): 160 up to 680 damage within 3 to 4.5 tiles, and the enemies under it are **Condemned** for 4 to 8 s, taking 5% more damage from every hit, with a gold crown drawn over each. A Condemned enemy that dies, by anyone's hand, pays **Tribute** to everyone who damaged it and the King: a stack each of +10 damage on every shot that strikes an enemy, added after defense, up to 10 stacks (+100); 10 s after a player's last new stack they fade, one a second. The stacks show as gold coins circling the player's feet, and each payment flies a coin from the fallen enemy to each who earned it. The first three of each decree to fall also restore the King's mana (8 up to 18). Drawn: the seal falling out of the sky with its shadow growing, landing in a flash, shockwaves and thrown-up coins, its mark (a ring of twelve marks round a gem) left on the ground; the Condemned's crowns bobbing, blinking in their last second. Kings with a tome equipped find it moved to their inventory; the scepters drop as the other newer classes' abilities do.
 - **A new look and five skins:** the King is redrawn in the classes' own style (a three-pointed crown with a ruby, white hair and beard, an ermine collar over a crimson robe, a gold scepter). The Armoire sells the Sun Pharaoh, the Frost Sovereign, the Usurper and the Hollow King at 200 gold and the 16 by 16 **Eclipse King** at 800 (a broad warrior king: a gold crown over a dark beard, an ermine mantle over black steel, the black sun on his breastplate, a black-sun mace-scepter), each with something quiet round it (drifting sand; a few flakes of snow; smoke and smouldering red eyes; a cold mist and eyes burning blue in the empty helm; the black sun's corona breathing). Dyes work on the King and every skin.
@@ -147,7 +150,16 @@ Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line
 - **Files:** `client/src/kabam/rotmg/assets/prod/xmls/Equip.xml`, `client-rs/CHANGELOG.md`.
 - **Redeploy:** the client. Nothing in Redis.
 
+### Guests can't take from the Nexus's shared vault chests
+
+- **What and why:** asked for: the Nexus's shared vault chests (`DbNexusChest`) only give items to registered accounts, so a throwaway guest can't empty them. Putting items in stays open to everyone.
+- **World server:** `NexusWorld.IsVaultChest`, `MayTakeFromVault` and the refusal text; checked in `InvSwapHandler` (before the potion-stack and swap paths, only when an item leaves a chest for a non-chest), `MessageHandlers.CanTakeFrom` (drops and break-downs from a chest) and `Player.UseItem` (using an item from the chest). An admin's copy of the Nexus counts too.
+- **Redeploy:** world servers only; nobody is disconnected, nothing in Redis changes. The refusal is server text, shown by every client.
+- **Wiki:** `website/wiki/items.md` (the shared chests' note).
+
 ## Checks
+
+- Guests and the Nexus vault chests: the world server builds. Not tried in game (a guest would have to walk the bot across the islands to a chest); the checks are the guild vault's, keyed on the account's `guest` flag.
 
 - Superior: the item's block is identical in the server's and the client's XML, and the client's file parses. Not looked at in game.
 

@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Nexus
+- **The shared vault chests are for registered players:** guests can still put items into the Nexus's shared vault chests, but need to register their account to take any out.
+
 ### Quests
 - **This month's gift is more room:** until 27 December, every account can claim a free character slot and vault chest on the quest log's Daily Rewards tab (from 5 stars). They come as a Char Slot Unlocker and a Vault Chest Unlocker in your vault's gift chest: use them in your vault.
 

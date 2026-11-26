@@ -79,7 +79,8 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
   next {{v:unlock_doubles}}...); the gold price stays the same and doesn't count towards it. The
   garden has room for 120 chests.
 - (Not in your vault but in the Nexus: four **shared vault chests** in the vault yard, north
-  across the spawn's pond, that every player can put items in and take them from. They keep
+  across the spawn's pond, that every player can put items in and every registered player can
+  take them from: a guest can put items in, but needs to register to take any out. They keep
   their items through restarts.)
 - **Gift chests**, 42 of them in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in. When you have more gifts than they hold, an emptied gift chest fills straight up with the next ones.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.

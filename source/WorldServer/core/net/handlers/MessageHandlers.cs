@@ -49,6 +49,9 @@ namespace WorldServer.core.net.handlers
             // the guild vault: members and up (GuildHallWorld.MayTake)
             if (GuildHallWorld.IsVaultChest(container) && !((GuildHallWorld)container.World).MayTake(player))
                 return false;
+            // the Nexus's shared vault chests: registered accounts only (NexusWorld.MayTakeFromVault)
+            if (NexusWorld.IsVaultChest(container) && !NexusWorld.MayTakeFromVault(player))
+                return false;
             var dx = entity.X - player.X;
             var dy = entity.Y - player.Y;
             return dx * dx + dy * dy <= 1;
