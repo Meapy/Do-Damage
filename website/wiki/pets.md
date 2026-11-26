@@ -75,7 +75,8 @@ size and level, the food to its next level, and the damage and healing it does n
   his window and press **Grow it**.
 - **Tune a Huge pet** at level 30 (since 2.6.7): click the damage, HP or MP box in his window
   for what to make stronger, then what to take it from. Each step moves 5% from one to the other
-  for 1,000 fame, up to 25% either way on each, and you can move it back the same way. The boxes
+  for 1,000 fame, up to 25% either way on each, and you can move it back the same way (paying
+  again). The first click on a "taken from" button shows its price; click it again to pay. The boxes
   show how it's tuned, and the tuning stays with the pet.
 - **Grow your pen** to feed bigger pets. Every account's pen feeds Tiny pets; each bigger size is
   bought once, for fame or gold: Small 2,000 fame or 200 gold, Medium 5,000 or 400, Large 10,000
