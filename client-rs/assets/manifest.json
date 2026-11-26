@@ -1454,6 +1454,12 @@
    "h": 16
   },
   {
+   "name": "monkFountains16x16",
+   "file": "kabam/rotmg/assets/custom/images/MonkFountains16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,
@@ -3168,6 +3174,26 @@
    "dir": "right"
   },
   {
+   "name": "monkSkins8",
+   "file": "kabam/rotmg/assets/custom/images/MonkSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/MonkSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "monkSkins16",
+   "file": "kabam/rotmg/assets/custom/images/MonkSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/MonkSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3758,7 +3784,8 @@
   "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
   "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
   "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
-  "kabam/rotmg/assets/custom/xmls/DruidSkins.xml"
+  "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/MonkSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

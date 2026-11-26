@@ -559,6 +559,15 @@ class Gear:
                     "at once, a new one calling the oldest home"
                     % (n("range", "8"), n("impactDamage"), n("radius"), n("duration"), n("pulseDamage"), heal,
                        n("totalDamage"), n("amount"), n("pearls", "1")))
+        if e == "FlowStrike":
+            # a Monk's fountain (Player.Flow.cs): a dash to where you aim, stopping short of a wall,
+            # striking within 1.2 tiles of the way (FlowPathWidth), then a burst and a heal a fifth
+            # more for each Chi spent (ChiPercent); all five Chi: Armor Broken and Berserk
+            return ("flows to where you aim (up to %s tiles), %s damage to every enemy on the way, then bursts where "
+                    "you land: %s damage within %s tiles and %s HP to you and allies within %s tiles, a fifth more "
+                    "for each Chi spent (every third punch that lands builds one, up to five); with all five, the "
+                    "enemies are Armor Broken for 3s and you go Berserk for 4s"
+                    % (n("maxDistance", "6"), n("totalDamage"), n("impactDamage"), n("radius"), n("amount"), n("range")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

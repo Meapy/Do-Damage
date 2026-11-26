@@ -26,6 +26,14 @@
 //! - The Mosshide Hermit: three fireflies wandering round them, blinking.
 //! - The Archdruid: its eyes glowing in the skull, leaves circling slowly round it, and
 //!   grass springing up in its footsteps.
+//!
+//! The Monk's skins from the Armoire (`<SkinLook>`, tools/draw_monk.py):
+//! - The Iron Lotus: a lotus of light turning under them, petals drifting down round them.
+//! - The Stormfist Disciple: lightning jumping between their fists, sparks crackling off them.
+//! - The Ember Fist: flames licking up from their fists, embers rising, a warm glow underfoot.
+//! - The Jade Wanderer: mist curling round their feet, bamboo leaves drifting past.
+//! - The Celestial Grandmaster: golden beads circling behind its head, its eyes glowing sky
+//!   blue, its palms glowing, golden lotuses blooming in its steps.
 
 use bsk_render::{Renderer, Tint};
 use std::collections::{HashMap, VecDeque};
@@ -51,6 +59,11 @@ pub enum SkinLook {
     Moonbloom,
     Hermit,
     Archdruid,
+    Lotus,
+    Storm,
+    Ember,
+    Jade,
+    Grandmaster,
 }
 
 impl SkinLook {
@@ -64,13 +77,21 @@ impl SkinLook {
             "moonbloom" => SkinLook::Moonbloom,
             "hermit" => SkinLook::Hermit,
             "archdruid" => SkinLook::Archdruid,
+            "lotus" => SkinLook::Lotus,
+            "storm" => SkinLook::Storm,
+            "ember" => SkinLook::Ember,
+            "jade" => SkinLook::Jade,
+            "grandmaster" => SkinLook::Grandmaster,
             _ => return None,
         })
     }
 
     /// A 16-pixel skin's (drawn at half its size to stand as tall as the 8-pixel classes).
     pub fn sixteen(self) -> bool {
-        !matches!(self, SkinLook::Oracle | SkinLook::Warden | SkinLook::Moonbloom | SkinLook::Hermit)
+        !matches!(
+            self,
+            SkinLook::Oracle | SkinLook::Warden | SkinLook::Moonbloom | SkinLook::Hermit | SkinLook::Lotus | SkinLook::Storm | SkinLook::Ember | SkinLook::Jade
+        )
     }
 }
 
@@ -404,6 +425,54 @@ pub fn ground(r: &mut Renderer, w: &Wearer, trails: &Trails, to_screen: &dyn Fn(
                 }
             }
         }
+        SkinLook::Lotus => {
+            // a lotus of light turning slowly under them
+            let spin = ms * 0.0004;
+            p.glow(x, y, 0.55 * t, 0.23 * t, 0xFF9AC8, 0.14);
+            for i in 0..8 {
+                let a = spin + i as f32 * TAU / 8.0;
+                let at = |r: f32, b: f32| [x + r * t * b.cos(), y + 0.42 * r * t * b.sin()];
+                let (c, al) = if i % 2 == 0 { (0xFF9AC8, 0.32) } else { (0xFFD0E4, 0.24) };
+                p.tri([at(0.08, a), at(0.26, a - 0.34), at(0.5, a)], c, al);
+                p.tri([at(0.08, a), at(0.26, a + 0.34), at(0.5, a)], c, al);
+            }
+            p.glow(x, y, 0.12 * t, 0.05 * t, 0xFFE070, 0.5);
+        }
+        SkinLook::Ember => {
+            p.glow(x, y, 0.5 * t, 0.21 * t, 0xFF6020, 0.12 + 0.05 * (ms * 0.011).sin().abs());
+        }
+        SkinLook::Storm => {
+            let flick = h(7, (now / 70) as u32);
+            p.glow(x, y, 0.48 * t, 0.2 * t, 0x60C8FF, 0.08 + 0.08 * flick);
+        }
+        SkinLook::Jade => {
+            // mist curling round their feet
+            for i in 0..5u32 {
+                let (ph, c) = cycle(now, i, 3000);
+                let a = h(i, c) * TAU + ph * 1.2;
+                let d = (0.18 + 0.3 * h(i + 5, c)) * t;
+                p.glow(x + d * a.cos(), y + 0.45 * d * a.sin(), (0.2 + 0.18 * ph) * t, (0.09 + 0.06 * ph) * t, 0xC8F0DC, 0.2 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Grandmaster => {
+            p.glow(x, y, 0.55 * t, 0.22 * t, 0xFFD86A, 0.12 + 0.04 * (ms * 0.002).sin());
+            // golden lotuses blooming where it stepped, and fading
+            for (mx, my, age, _) in trails.marks(w.id, now) {
+                let [sx, sy] = to_screen(mx, my);
+                let open = (age * 5.0).min(1.0);
+                let fade = 1.0 - age;
+                for i in 0..6 {
+                    let a = i as f32 * TAU / 6.0 + 0.3;
+                    let r = 0.09 * tile * open;
+                    let tip = [sx + r * a.cos(), sy + 0.45 * r * a.sin()];
+                    let l = [sx + 0.45 * r * (a - 0.5).cos(), sy + 0.2 * r * (a - 0.5).sin()];
+                    let rr = [sx + 0.45 * r * (a + 0.5).cos(), sy + 0.2 * r * (a + 0.5).sin()];
+                    p.tri([[sx, sy], l, tip], 0xFFD86A, 0.75 * fade);
+                    p.tri([[sx, sy], rr, tip], 0xFFF0B0, 0.75 * fade);
+                }
+                p.dot(sx, sy, 0.025 * tile, 0xFFFFFF, fade);
+            }
+        }
         SkinLook::Warden | SkinLook::Hermit => {}
     }
 }
@@ -640,6 +709,93 @@ pub fn air(r: &mut Renderer, w: &Wearer, now: i32) {
                 p.diamond(lx, ly, 0.05 * t, 0.09 * t, a * 1.5, c1, mix(c1, 0xFFFFFF, 0.35), 0.35 + 0.45 * depth.max(0.0));
             }
         }
+        SkinLook::Lotus => {
+            // petals drifting down round them, swaying
+            for i in 0..3u32 {
+                let (ph, c) = cycle(now, i * 5, 3000);
+                let side = if (i + c) % 2 == 0 { -1.0 } else { 1.0 };
+                let sway = (ph * 6.0 + i as f32 * 2.0).sin();
+                let lx = x + side * (0.2 + 0.25 * h(i, c)) * t + 0.08 * t * sway;
+                let ly = y - (0.95 - 0.9 * ph) * t;
+                let fade = (ph * 5.0).min(1.0) * ((1.0 - ph) * 4.0).min(1.0);
+                p.diamond(lx, ly, 0.06 * t, 0.04 * t, sway * 0.7, 0xFF9AC8, 0xFFE0EE, 0.85 * fade);
+            }
+        }
+        SkinLook::Storm => {
+            // lightning jumping from fist to fist over their head, now and then
+            let (ph, c) = cycle(now, 2, 900);
+            let (l, r) = ([x - 0.3 * t, y - 0.36 * t], [x + 0.3 * t, y - 0.36 * t]);
+            if ph < 0.3 {
+                let k = 1.0 - ph / 0.3;
+                let mut prev = l;
+                for j in 1..=6u32 {
+                    let f = j as f32 / 6.0;
+                    let arch = (f * PI).sin() * 0.45 * t;
+                    let jit = (h(j, c) - 0.5) * 0.12 * t;
+                    let pt = if j == 6 { r } else { [l[0] + (r[0] - l[0]) * f + jit, l[1] - arch + jit * 0.5] };
+                    p.line(prev, pt, 0.035 * t, 0x8AF0FF, 0.9 * k);
+                    p.line(prev, pt, 0.014 * t, 0xFFFFFF, k);
+                    prev = pt;
+                }
+            }
+            // sparks crackling at each fist
+            for (i, f) in [l, r].iter().enumerate() {
+                let tw = h(i as u32, (now / 80) as u32);
+                p.glow(f[0], f[1], 0.12 * t, 0.12 * t, 0x60C8FF, 0.3 + 0.3 * tw);
+                p.twinkle(f[0] + (tw - 0.5) * 0.08 * t, f[1] - tw * 0.06 * t, 0.06 * t * tw, 0xC0F4FF, tw);
+            }
+        }
+        SkinLook::Ember => {
+            // flames licking up from their fists
+            for (s, side) in [(0u32, -1.0f32), (1, 1.0)] {
+                let (fx, fy) = (x + side * 0.3 * t, y - 0.34 * t);
+                p.glow(fx, fy, 0.14 * t, 0.14 * t, 0xFF8030, 0.4);
+                for k in 0..6u32 {
+                    let (ph, c) = cycle(now, s * 11 + k, 520);
+                    let dx = (h(k + s * 7, c) - 0.5) * 0.1 * t;
+                    p.dot(fx + dx * (1.0 + ph), fy - ph * 0.3 * t, (0.07 - 0.05 * ph) * t, ramp(&FIRE, ph), 1.0 - ph);
+                }
+            }
+            // embers rising off them
+            for i in 0..6u32 {
+                let (ph, c) = cycle(now, i, 1800);
+                let fx = x + (h(i, c) - 0.5) * 0.8 * t + 0.08 * t * (ph * 5.0 + i as f32).sin();
+                p.dot(fx, y - (0.2 + 1.1 * ph) * t, 0.035 * t, ramp(&FIRE, 0.2 + 0.6 * ph), 1.0 - ph);
+            }
+        }
+        SkinLook::Jade => {
+            // bamboo leaves drifting past
+            for i in 0..2u32 {
+                let (ph, c) = cycle(now, i * 7, 3600);
+                if h(i, c) < 0.3 {
+                    continue;
+                }
+                let dir = if (i + c) % 2 == 0 { -1.0 } else { 1.0 };
+                let sway = (ph * 5.0 + i as f32).sin();
+                let lx = x + dir * (0.55 - 1.1 * ph) * t;
+                let ly = y - (0.9 - 0.6 * ph) * t + 0.06 * t * sway;
+                let fade = (ph * 5.0).min(1.0) * ((1.0 - ph) * 5.0).min(1.0);
+                p.diamond(lx, ly, 0.03 * t, 0.11 * t, 1.2 * dir + sway * 0.4, 0x5AC878, 0xB8F0C8, 0.85 * fade);
+            }
+        }
+        SkinLook::Grandmaster => {
+            // its eyes glowing sky blue
+            p.glow(x + 0.02 * t, y - 0.66 * t, 0.13 * t, 0.05 * t, 0xAAF0FF, 0.25 + 0.1 * (ms * 0.003).sin());
+            // golden beads circling behind its head, brighter passing in front
+            for i in 0..8 {
+                let a = ms * 0.0011 + i as f32 * TAU / 8.0;
+                let depth = a.sin();
+                let (bx, by) = (x + 0.36 * t * a.cos(), y - 0.8 * t + 0.08 * t * depth);
+                let near = 0.35 + 0.65 * (depth * 0.5 + 0.5);
+                p.glow(bx, by, 0.07 * t, 0.07 * t, 0xFFD86A, 0.4 * near);
+                p.dot(bx, by, 0.045 * t, if i % 4 == 0 { 0xFFFFFF } else { 0xFFD86A }, near);
+            }
+            // its palms glowing with chi, breathing
+            let breath = 0.5 + 0.5 * (ms * 0.0025).sin();
+            for side in [-1.0f32, 1.0] {
+                p.glow(x + side * 0.3 * t, y - 0.32 * t, 0.1 * t, 0.1 * t, 0xFFE9A0, 0.2 + 0.25 * breath);
+            }
+        }
     }
 }
 
@@ -653,6 +809,8 @@ mod tests {
         assert_eq!(SkinLook::named("nope"), None);
         assert_eq!(SkinLook::named("archdruid"), Some(SkinLook::Archdruid));
         assert!(SkinLook::Archdruid.sixteen() && SkinLook::Aurora.sixteen() && !SkinLook::Hermit.sixteen());
+        assert_eq!(SkinLook::named("grandmaster"), Some(SkinLook::Grandmaster));
+        assert!(SkinLook::Grandmaster.sixteen() && !SkinLook::Lotus.sixteen() && !SkinLook::Jade.sixteen());
         let mut t = Trails::default();
         t.walk(1, 10.0, 10.0, 0);
         t.walk(1, 10.1, 10.0, 50);

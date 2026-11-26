@@ -1656,5 +1656,16 @@
 "Download": "İndir",
 "Saved to {path}": "Kaydedildi: {path}",
 "The replay couldn't be saved ({e}).": "Tekrar kaydedilemedi ({e}).",
-"That isn't a replay file.": "Bu bir tekrar dosyası değil."
+"That isn't a replay file.": "Bu bir tekrar dosyası değil.",
+"Flowing Strike": "Akan Darbe",
+"Flows": "Akış",
+"On the way": "Yol boyunca",
+"{n} damage to each enemy you pass": "Geçtiğin her düşmana {n} hasar",
+"Burst": "Patlama",
+"{n} HP to you and allies within {range}": "Sana ve {range} içindeki dostlara {n} CP",
+"Chi": "Chi",
+"+{p}% burst and heal for each Chi spent": "Harcanan her Chi için patlama ve iyileştirmeye +%{p}",
+"Every third punch that lands builds a Chi, up to five": "İsabet eden her üçüncü yumruk bir Chi biriktirir, en fazla beş",
+"All five spent: enemies Armor Broken, you Berserk": "Beşi de harcanınca: düşmanların zırhı kırılır, sen çılgına dönersin",
+"Flows through your enemies and bursts like a fountain where you land": "Düşmanlarının arasından akar ve vardığın yerde bir çeşme gibi fışkırır"
 }

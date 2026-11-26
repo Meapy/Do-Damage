@@ -1523,6 +1523,25 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let look = scene.particles.ward_look(obj.id);
         crate::ward::shell(renderer, px, py - 20.0 * size * k, 33.0 * size * k, ward as f32 / most as f32, look, scene.time, alpha);
     }
+    // a Monk's Chi: its orbs circling them (`chi.rs`)
+    for (_, item) in items.iter() {
+        let Item::Sprite { obj, desc } = item else { continue };
+        if !desc.player || hidden(obj) || scene.particles.disabled {
+            continue;
+        }
+        let chi = obj.stat_int(bsk_proto::stat::CHI).unwrap_or(0);
+        let look = scene.particles.chi.look(obj.id, scene.time);
+        if chi <= 0 && look.1 >= crate::chi::SPENT_MS {
+            continue;
+        }
+        let alpha = fade(scene, obj, desc) * if Some(obj.id) == world.me { 1.0 } else { scene.show.player_alpha };
+        if alpha <= 0.0 {
+            continue;
+        }
+        let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0;
+        let [px, py] = scene.stand(obj);
+        crate::chi::orbs(renderer, px, py, crate::auras::TILE * k * size, chi, look, scene.time, alpha);
+    }
     // Darkness on us (`ConditionEffect` Darkness, as the AIR client drew it): the world goes dark
     // but for a little light round us, under the names, bars and numbers
     if let Some(me) = world.player().filter(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::DARKNESS)) {

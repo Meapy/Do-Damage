@@ -47,6 +47,7 @@
         // Doomed Realms class abilities (WorldServer/core/objects/player/Player.UseItem.Doomed.cs)
         TidePearl,
         BuildTower,
+        FlowStrike,
         MonsterToss,
         PartyAOE,
         MiniPot,

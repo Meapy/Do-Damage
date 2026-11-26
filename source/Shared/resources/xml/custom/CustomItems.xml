@@ -1275,15 +1275,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>0</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>0</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="6" amount="110">HealNova</Activate>
-		<Activate maxDistance="10">Teleport</Activate>
+		<Activate maxDistance="6" totalDamage="120" impactDamage="180" radius="2.5" amount="110" range="6">FlowStrike</Activate>
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>50</MpCost>
@@ -1294,15 +1293,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>1</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>1</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="6" amount="145">HealNova</Activate>
-		<Activate maxDistance="11">Teleport</Activate>
+		<Activate maxDistance="6" totalDamage="150" impactDamage="220" radius="2.5" amount="145" range="6">FlowStrike</Activate>
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>55</MpCost>
@@ -1313,15 +1311,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>2</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>2</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="6.5" amount="225">HealNova</Activate>
-		<Activate maxDistance="13">Teleport</Activate>
+		<Activate maxDistance="6.5" totalDamage="185" impactDamage="270" radius="2.75" amount="225" range="6.5">FlowStrike</Activate>
 		<Usable/>
 		<BagType>1</BagType>
 		<MpCost>65</MpCost>
@@ -1332,15 +1329,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>3</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>3</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="7.5" amount="255">HealNova</Activate>
-		<Activate maxDistance="14">Teleport</Activate>
+		<Activate maxDistance="6.5" totalDamage="220" impactDamage="320" radius="2.75" amount="255" range="7.5">FlowStrike</Activate>
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>1</FameBonus>
@@ -1352,15 +1348,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>4</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>4</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="7.5" amount="285">HealNova</Activate>
-		<Activate maxDistance="16">Teleport</Activate>
+		<Activate maxDistance="7" totalDamage="260" impactDamage="380" radius="3" amount="285" range="7.5">FlowStrike</Activate>
 		<Usable/>
 		<BagType>2</BagType>
 		<FameBonus>2</FameBonus>
@@ -1372,15 +1367,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>5</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>5</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="8" amount="320">HealNova</Activate>
-		<Activate maxDistance="17">Teleport</Activate>
+		<Activate maxDistance="7" totalDamage="300" impactDamage="440" radius="3" amount="320" range="8">FlowStrike</Activate>
 		<Usable/>
 		<BagType>4</BagType>
 		<FameBonus>3</FameBonus>
@@ -1392,15 +1386,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>6</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>6</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="8" amount="335">HealNova</Activate>
-		<Activate maxDistance="19">Teleport</Activate>
+		<Activate maxDistance="7.5" totalDamage="345" impactDamage="500" radius="3.25" amount="335" range="8">FlowStrike</Activate>
 		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
 		<Usable/>
@@ -1416,15 +1409,14 @@
 		<Class>Equipment</Class>
 		<Item/>
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>8</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>8</Tier>
-		<Description>Water from the Nexus fountains, that heals your friends and carries you along.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
-		<Activate range="10" amount="380">HealNova</Activate>
-		<Activate maxDistance="21">Teleport</Activate>
+		<Activate maxDistance="8" totalDamage="440" impactDamage="630" radius="3.5" amount="380" range="10">FlowStrike</Activate>
 		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
 		<Usable/>

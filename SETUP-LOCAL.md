@@ -763,6 +763,25 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   layouts) leaves the god where it rose. `iso_stack.py` makes Tester an admin on test stacks.
   World server only.
 
+- **The Monk reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Flow.cs`, the
+  `FlowStrike` activate, `StatDataType.Chi` (224); the nine fountains in both `CustomItems.xml`
+  and `DoomedRealms.xml` copies; the Rust client's `chi.rs`, `particles/flow.rs` (relic look 66),
+  the skins' looks in `auras.rs` and the tooltip in `hud.rs`): every third fist shot (a weapon of
+  slot type 200) that strikes an enemy builds a Chi, up to 5, fading one a second after 4 s
+  without a punch landing; the stat goes to everyone and the client draws it as orbs circling the
+  Monk. A fountain's Flowing Strike moves the Monk to where they aim (`maxDistance`, stopping
+  before a wall or a shut Oryx-chain gate), strikes every enemy within 1.2 tiles of the way for
+  `totalDamage`, then bursts where they land: `impactDamage` within `radius` and `amount` healed
+  within `range` (players and turrets), +20% each for every Chi spent, all of which it spends;
+  with 5, the enemies there are Armor Broken 3 s and the Monk Berserk 4 s. T0-T8: reach 6-8,
+  way 120-440, burst 180-630 in 2.5-3.5, heal 110-380 (as before) in 6-10; MP unchanged. The
+  Monk is redrawn and the Armoire sells it five skins (`tools/draw_monk.py`, as the Druid's:
+  the Monk's block (index 30) of `players.png`/`playersMask.png`, `MonkSkins8x8.png`,
+  `MonkSkins16x16.png` and masks, `MonkFountains16x16.png` (the fountains' icons by tier) and
+  both `MonkSkins.xml`, types 0xE220-0xE224): the Iron Lotus, the Stormfist Disciple, the Ember
+  Fist and the Jade Wanderer at 200 gold, the 16 by 16 Celestial Grandmaster at 800, each with
+  its `<SkinLook>` drawn round it.
+
 - **The Druid's pearls** (2026-11-25; `WorldServer/core/objects/TidePearl.cs`,
   `Player.TidePearls.cs`, the `TidePearl` activate with `pulseDamage`, `pulseHeal` and `pearls` in
   `ActivateEffect.cs`; the nine pearls in both `DoomedRealms.xml` copies; the Rust client's
@@ -3155,7 +3174,7 @@ XML in step.
   are in `Player.UseItem.Doomed.cs` (PearlAbility, Summon, Forcefield, SamuraiAbility,
   TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`; the
   Father's censers' Ward is `Player.Ward.cs`; the Mechanic's BuildTower is `Player.Turrets.cs`
-  and its turrets `Turret.cs`), and
+  and its turrets `Turret.cs`; the Monk's Chi and FlowStrike are `Player.Flow.cs`), and
   their summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
   slot types 126 and 128 are 26 and 28 elsewhere, which betterSkillys uses for pet eggs and lutes;
   the clients name them in `ItemConstants`.

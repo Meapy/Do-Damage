@@ -3128,6 +3128,19 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             r.push(row("", tr("One more thrown calls the oldest home").to_owned()));
             (tr("Pearl"), r)
         }
+        // a Monk's fountain (the server's `Player.Flow.cs`)
+        "FlowStrike" => {
+            let r = vec![
+                row(tr("Flows"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("On the way"), tf!("{n} damage to each enemy you pass", n = num("totalDamage"))),
+                row(tr("Burst"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row(tr("Heals"), tf!("{n} HP to you and allies within {range}", n = num("amount"), range = sqrs(num("range")))),
+                row(tr("Chi"), tf!("+{p}% burst and heal for each Chi spent", p = CHI_PERCENT)),
+                row("", tr("Every third punch that lands builds a Chi, up to five").to_owned()),
+                row("", tr("All five spent: enemies Armor Broken, you Berserk").to_owned()),
+            ];
+            (tr("Flowing Strike"), r)
+        }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
@@ -3243,6 +3256,9 @@ const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
 const PEARL_SPLASH: f64 = 2.0;
 const PEARL_PULSE_SECS: f64 = 0.5;
 const PEARL_STRUCK_PERCENT: i32 = 20;
+
+/// How much more a Monk's burst does and heals for each Chi spent (the server's `ChiPercent`).
+const CHI_PERCENT: i32 = 20;
 
 /// A Mechanic's turret's health, its blueprint's `hp` (the server's `Turret.DEFAULT_HP` without).
 fn turret_hp(a: &bsk_data::xml::Element) -> f64 {
@@ -3630,6 +3646,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, with {hp} HP", hp = turret_hp(a)),
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "TidePearl" => tr("Throws a pearl that lies in a tide pool, then rushes back to you").to_owned(),
+        "FlowStrike" => tr("Flows through your enemies and bursts like a fountain where you land").to_owned(),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
         "RemoveNegativeConditionsSelf" => tr("Removes your negative conditions").to_owned(),

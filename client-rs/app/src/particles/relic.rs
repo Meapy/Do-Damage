@@ -153,7 +153,11 @@ pub mod look {
     pub const PEARL_RECALL: u8 = 64;
     /// The pearl back in its Druid's hand (the target), having struck `object_type` enemies.
     pub const PEARL_HOME: u8 = 65;
-    pub const LAST: u8 = 65;
+    /// A Monk's Flowing Strike (`Player.Flow.cs`; drawn by `flow.rs`): the Monk (the target, still
+    /// where they set off) flows to pos1 over `duration` ms and a fountain bursts there, pos2.x
+    /// across; `object_type` the tier plus 16 for each Chi spent.
+    pub const FLOW: u8 = 66;
+    pub const LAST: u8 = 66;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -790,6 +794,11 @@ impl Particles {
         // and the Druid's pearls
         if (look::PEARL_THROW..=look::PEARL_HOME).contains(&look) {
             self.tide_look(e, look, world, now);
+            return;
+        }
+        // and the Monk's Flowing Strike
+        if look == look::FLOW {
+            self.flow_look(e, world, now);
             return;
         }
         // and the Crucible's caches
@@ -2103,6 +2112,10 @@ impl Particles {
             }
             look::PEARL_THROW..=look::PEARL_HOME => {
                 self.test_tide(which, world, now);
+                return;
+            }
+            look::FLOW => {
+                self.test_flow(world, now);
                 return;
             }
             _ => return,

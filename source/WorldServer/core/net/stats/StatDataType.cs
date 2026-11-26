@@ -144,6 +144,9 @@
         // the Realm Pass pet effect a pet wears (Shared.pass, its id; sent only when there is one),
         // drawn round it by the Rust client (petfx.rs); an older client ignores it.
         PetEffect = 223,
+        // a Monk's Chi (0 to Player.ChiMax; Player.Flow.cs), sent to everyone: the Rust client
+        // draws the orbs circling them (chi.rs); an older client ignores it.
+        Chi = 224,
         None = 255
     }
 }

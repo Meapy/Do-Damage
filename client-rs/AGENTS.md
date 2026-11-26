@@ -182,6 +182,16 @@ the gaps between NewTicks. Its flags:
   back to 0 at sign-in unless the account owns it. Add it to the account's `skins` first, 2-byte
   little-endian types: `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214),
   then `hset char.1.<id> skin 57876`. A pet out stands in front of you in the Nexus.
+- To try a class on the test copy (2026-11-26): `hset char.1.<id> charType <type in decimal>`,
+  then give it that class's gear in Redis: `/gear` gives nothing to a level 20 character ("starter
+  gear for characters below level 20"), and the old class's weapon and ability are dropped from
+  their slots. `items` is 28 little-endian ushorts (0xFFFF empty), written from Python:
+  `python -c "import sys,struct; sys.stdout.buffer.write(b''.join(struct.pack('<H', i & 0xffff) for i in [0x5810, 0x581b] + [-1] * 26))" | redis-cli -p <port> -x hset char.1.<id> items`.
+- `/autoaim` toggles: with `--aim auto` already turning it on, saying it too turns it off. A
+  monster `/spawn`ed in a vault stays there across runs, on the spot you arrive at, and hides you
+  in every shot after: spawn it a step away or test in the Nexus.
+- `--effect` took only values up to 255 until 2026-11-26 (it was a `u8`), so `--effect 256` and up
+  (the looks from 56 on: turrets, caches, pearls, the Monk's Flow) did nothing, without a word.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display

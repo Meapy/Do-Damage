@@ -603,6 +603,8 @@ pub mod stat {
     pub const AURA: u8 = 222;
     /// The Realm Pass effect a pet wears (its id; `petfx.rs` draws it).
     pub const PET_FX: u8 = 223;
+    /// A Monk's Chi, 0 to 5 (the server's `Player.Flow.cs`; `chi.rs` draws its orbs).
+    pub const CHI: u8 = 224;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

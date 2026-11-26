@@ -285,6 +285,7 @@ namespace WorldServer.core.objects
                         entity.StackShred(shred.Percent, shred.Max, shred.DurationMs);
                     ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
                     RelicHit(entity, dmg, entity.Health <= 0, ref tickTime);
+                    ChiHit(bulletId);
                     FrontlineHit(dmg);
                 }
                 else if (!projectile.FromWeapon && Inventory[1]?.ObjectType == projectile.ContainerType)

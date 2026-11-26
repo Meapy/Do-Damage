@@ -8310,12 +8310,12 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj5</File>
-			<Index>0x10a</Index>
+			<File>monkFountains16x16</File>
+			<Index>7</Index>
 		</Texture>
 		<SlotType>130</SlotType>
 		<Tier>7</Tier>
-		<Description>Legends say that the fountains of the Nexus were all made out of this one bit of power.</Description>
+		<Description>The Nexus fountains' water, flowing through your fists. Flow to where you aim, striking all in your way, and burst like a fountain where you land, healing your friends. Every Chi your punches have built makes the burst stronger.</Description>
 		<Sound>spell/major_heal</Sound>
 		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
 		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
@@ -8325,8 +8325,7 @@
 		<BagType>9</BagType>
 		<FameBonus>5</FameBonus>
 		<MpCost>90</MpCost>
-		<Activate range="9" amount="350">HealNova</Activate>
-		<Activate maxDistance="20">Teleport</Activate>
+		<Activate maxDistance="8" totalDamage="390" impactDamage="560" radius="3.25" amount="350" range="9">FlowStrike</Activate>
 		<Soulbound />
 	</Object>
 	<Object type="0xD1AF" id="Toothpaste Poison">
@@ -11935,7 +11934,7 @@
 	</Object>
 	<Object type="0xD252" id="Monk">
 		<Class>Player</Class>
-		<Description>.</Description>
+		<Description>A master of the flowing fist. Every third punch that lands builds Chi, up to five; the Flowing Strike spends it all, carrying the Monk through their enemies to burst like a fountain where they land.</Description>
 		<AnimatedTexture>
 			<File>drPlayers</File>
 			<Index>30</Index>

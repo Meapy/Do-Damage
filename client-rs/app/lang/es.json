@@ -1656,5 +1656,16 @@
 "Download": "Descargar",
 "Saved to {path}": "Guardado en {path}",
 "The replay couldn't be saved ({e}).": "No se pudo guardar la repetición ({e}).",
-"That isn't a replay file.": "Ese archivo no es una repetición."
+"That isn't a replay file.": "Ese archivo no es una repetición.",
+"Flowing Strike": "Golpe fluido",
+"Flows": "Fluye",
+"On the way": "Por el camino",
+"{n} damage to each enemy you pass": "{n} de daño a cada enemigo que atravieses",
+"Burst": "Estallido",
+"{n} HP to you and allies within {range}": "{n} PV para ti y tus aliados a {range}",
+"Chi": "Chi",
+"+{p}% burst and heal for each Chi spent": "+{p}% de estallido y curación por cada Chi gastado",
+"Every third punch that lands builds a Chi, up to five": "Cada tercer puñetazo que acierta acumula un Chi, hasta cinco",
+"All five spent: enemies Armor Broken, you Berserk": "Al gastar los cinco: enemigos con la armadura rota, tú enfurecido",
+"Flows through your enemies and bursts like a fountain where you land": "Fluye a través de tus enemigos y estalla como una fuente donde aterrizas"
 }
