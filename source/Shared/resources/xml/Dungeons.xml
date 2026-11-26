@@ -33,7 +33,6 @@
 			<Goal>GC Boss</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<!-- the Fungal Cavern's second part, through the portal the Crystal Worm Mother leaves: its
@@ -47,7 +46,6 @@
 			<Goal>mc</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Cultist Hideout">
@@ -55,7 +53,6 @@
 		<Height>256</Height>
 		<MapJM>Dungeons/Cultist Hideout.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="The Void">
@@ -75,7 +72,6 @@
 		<Height>256</Height>
 		<MapJM>Dungeons/Secluded Thicket.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Snake Pit">
@@ -176,7 +172,6 @@
 		<MapJM>Dungeons/Oryx's Castle.jm</MapJM>
 		<VisibilityType>2</VisibilityType>
 		<Dungeon/>
-		<DisableTeleport/>
 	</World>
 	<World id="Tomb of the Ancients">
 		<Width>256</Width>
@@ -256,7 +251,6 @@
 		<Height>119</Height>
 		<MapJM>Dungeons/Lair of Draconis.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="The Ivory Wyvern">
@@ -441,7 +435,6 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/The Shatters.jm</MapJM>
-		<DisableTeleport/>
 		<VisibilityType>2</VisibilityType>
 		<Dungeon/>
 	</World>
@@ -494,7 +487,6 @@
 			<Goal>EH Beekeeper</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Admin Arena">

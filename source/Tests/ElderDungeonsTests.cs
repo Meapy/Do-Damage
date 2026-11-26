@@ -164,6 +164,16 @@ namespace Tests
             Assert.All(worlds, w => Assert.True(w.AllowTeleport, $"{w.IdName} disables teleport"));
         }
 
+        // Every world allows teleporting except the hubs and the admin test maps
+        [Fact]
+        public void EveryDungeonAllowsTeleport()
+        {
+            var noTeleport = new[] { "Nexus", "Vault", "Daily Quest Room", "testadmin1", "oldnexus" };
+            var worlds = Data.Value.Data.AllWorlds.Where(w => !noTeleport.Contains(w.IdName)).ToList();
+            Assert.True(worlds.Count >= 50, $"only {worlds.Count} worlds");
+            Assert.All(worlds, w => Assert.True(w.AllowTeleport, $"{w.IdName} disables teleport"));
+        }
+
         // The Shatters runs on hidden objects that watch each other by name (switches, gates, bridge
         // closers, timers, chest spawners): each needs its Elder copy and that copy its behaviour,
         // or the Elder Shatters' gates open at once and its bosses leave no loot.

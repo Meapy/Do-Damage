@@ -18,6 +18,7 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **This month's gift is more room:** until 27 December, every account can claim a free character slot and vault chest on the quest log's Daily Rewards tab (from 5 stars). They come as a Char Slot Unlocker and a Vault Chest Unlocker in your vault's gift chest: use them in your vault.
 
 ### Dungeons
+- **Teleport in every dungeon:** you can now teleport to a friend in every dungeon, Oryx's Castle, the Shatters, the Nest, Lair of Draconis and the caverns included, and in the Gauntlet, the Underground Mine and Zombies.
 - **The Hive, remade:** the Queen Bee's hive is now laid out anew every run, round rooms of honeycomb with honey puddles that slow you. Its bees fight as their maker meant: Fat Bees come back angry, Mini Hives keep sending out Small Bees until they burst, eggs crack at the first hit and their larvae grow into bees, and the Queen darts about stinging and dazing, resting between attacks while she throws honey bombs and eggs.
 
 ### King

@@ -28,6 +28,7 @@ Release 2.6.9: the Monk and the King reworked, death replays line up, super elix
 - **The Super Elixir of Health:** a new red twin of the magic one, 250 HP a drink and the same 9999 doses. It's in the arena goal (Roar of the Crowd): its 400-fame tier now gives both elixirs, and its loot rolls it as often as the magic one (uncommon).
 
 ### Dungeons
+- **Teleport in every dungeon:** `/tp` (and clicking a player to teleport) now works in every dungeon. Eight regular ones refused it: Fungal Cavern, Crystal Cavern, Cultist Hideout, Secluded Thicket, Oryx's Castle, Lair of Draconis, the Shatters and the Nest; and four of the custom ones: the Gauntlet, the Underground Mine, ????? and Zombies. Only the Nexus, the Vault and the Daily Quest Room still refuse it.
 - **The Hive, remade after its maker's design:** the Hive (first a player-made dungeon, Suestwo's UGC1) is laid out anew each run from 20 round rooms (radius 4 to 7, the start 6, the Queen's 10), always five rooms between the start and the Queen, joined by 3-wide halls, with puddles of slowing, sinking honey and chunks of comb. Each room holds 3-5 Fat Bees, 0-3 Fat Angry Bees, 2-5 Small Bees or a Mini Hive, and a few Maggot Eggs of one kind; the Queen's room has eggs of all three round her.
 - **The bees:** Fat Bees shoot aimed stingers, and a quarter turn into Fat Angry Bees when they die; Fat Angry Bees chase you for 8 seconds at a time and make you bleed; Small Bees charge and sting on contact, circling the Queen near her; a Mini Hive sends out a Small Bee every 3 seconds (up to 6) and bursts into 2-3 more at a quarter of its health; a Maggot Egg cracks at its first hit into 2-3 larvae, which circle the Queen, nip and slow, and turn into Fat Bees after 10 seconds.
 - **The Queen Bee** stays unhurt until you come within 7 tiles, then cycles: 3 seconds of rings of 8 stingers, 2 seconds resting unhurt (flashing green, drifting after you), 3.5 seconds of three dazing globs of honey at a time, 2 more resting; throughout she throws a slowing honey bomb (100 within 3 tiles) every 5 seconds and a Maggot Egg every 3 (at most 8 near her). Her health grows a fifth for each extra player. Bees that hatch in the fight (from her eggs or a room's) give no experience or loot.
@@ -116,7 +117,16 @@ Release 2.6.9: the Monk and the King reworked, death replays line up, super elix
 - **Redeploy:** world server only (it reads `quests.json` at start); nobody is disconnected. Redis: nothing to migrate; claims go in each account's `progress` as before.
 - **Wiki and changelog:** `website/wiki/quests.md`, `client-rs/CHANGELOG.md` (Quests).
 
+### Teleport in every dungeon
+
+- **What and why:** the owner asked for teleporting to work in every dungeon. `<DisableTeleport/>` is gone from every `<Dungeon/>` world in `source/Shared/resources/xml/Dungeons.xml` (Fungal Cavern, Crystal Cavern, Cultist Hideout, Secluded Thicket, Oryx's Castle, Lair of Draconis, The Shatters, The Nest) and `custom/DoomedRealmsWorlds.xml` (The Gauntlet, Underground Mine, ?????, Zombies). Kept on the hubs (Nexus, Vault, Daily Quest Room in `Worlds.xml`) and the admin maps `testadmin1` and `oldnexus` (admins teleport anywhere). The client takes `AllowPlayerTeleport` from the server's MapInfo, so no client change. In the Gauntlet players can now skip ahead by teleporting to whoever is furthest; say if that should go back.
+- **Tests:** `ElderDungeonsTests.EveryDungeonAllowsTeleport` (every world but the five above).
+- **Redeploy:** world server only (it reads the XML at start); nobody is disconnected. Redis: nothing.
+- **Wiki and changelog:** `client-rs/CHANGELOG.md` (Dungeons); the wiki said nothing of where teleport is refused, so nothing to change there.
+
 ## Checks
+
+- Teleport in every dungeon: `dotnet test source\Tests --filter AllowsTeleport` passed (the new test and the Elder one). Not tried in game: the refusal is one check on the world's flag (`Player.Teleport.cs`), unchanged.
 
 - December's gift: `dotnet test source\Tests` 541 passed, with the new quest test. Not tried in game: the unlockers and the gift chest are unchanged.
 
