@@ -228,6 +228,9 @@ namespace WorldServer.core.objects
             }
         }
 
+        // a King's decree on it (Player.Decree.cs): Condemned, it pays him tribute as it falls
+        public Player.Decree Condemned;
+
         public int Damage(Player from, ref TickTime time, int dmg, bool noDef, bool itsPoison = false, params ConditionEffect[] effs)
         {
             // the Empowered Forgotten King can always be hurt: his Elder fight's hiding and crystal
@@ -369,6 +372,10 @@ namespace WorldServer.core.objects
                 ClearOwnSquare();
                 // an Elder dungeon's boss leaves its remains, for a Necromantic Relic
                 resurrection.BossResurrection.BossDied(this);
+                // Condemned by a King: the Crown's Due
+                if (Condemned is { } decree && decree.Holds(this))
+                    decree.King.PayTribute(this, decree);
+                Condemned = null;
             }
             Dead = true;
             World.LeaveWorld(this);

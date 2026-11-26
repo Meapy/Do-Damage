@@ -763,6 +763,23 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   layouts) leaves the god where it rose. `iso_stack.py` makes Tester an admin on test stacks.
   World server only.
 
+- **The King reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Decree.cs`, the
+  `RoyalDecree` activate with `tributeMp`, `Enemy.Condemned`, `StatDataType.Tribute` (225); the
+  nine scepters in both `CustomItems.xml` copies, 0x58B0-0x58B8, slot type 134; the Rust client's
+  `particles/decree.rs` (relic looks 67-69), the bonus in `crates/world` `combat.rs`, the skins'
+  looks in `auras.rs`, the tooltip in `hud.rs`): the King's tomes give way to scepters. The seal
+  falls 260 ms after the cast where aimed (`maxDistance` 9), `impactDamage` within `radius`, and
+  the enemies there are Condemned for `duration` (Cursed, a crown over each). A Condemned enemy
+  that dies while the King is alive and in its world gives a stack of Tribute to every player in
+  its `DamageCounter` and to the King: +10 on each shot that damages an enemy, after defense, at
+  most 10 stacks, fading one a second 10 s after the last; the King gets `tributeMp` for the first
+  3 of each decree. T0-T8: radius 3-4.5, seal 160-680, 4-8 s, mana 8-18, MP 50-95. Existing Kings'
+  tomes are moved to the inventory (`MoveMisfits`). The King is redrawn and the Armoire sells it
+  five skins (`tools/draw_king.py`: the King's block (index 24) of `players.png`/`playersMask.png`,
+  `KingSkins8x8.png`, `KingSkins16x16.png` and masks, `KingScepters16x16.png`, both
+  `KingSkins.xml`, types 0xE240-0xE244): the Sun Pharaoh, the Frost Sovereign, the Usurper and the
+  Hollow King at 200 gold, the 16 by 16 Eclipse King at 800.
+
 - **The Monk reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Flow.cs`, the
   `FlowStrike` activate, `StatDataType.Chi` (224); the nine fountains in both `CustomItems.xml`
   and `DoomedRealms.xml` copies; the Rust client's `chi.rs`, `particles/flow.rs` (relic look 66),

@@ -752,7 +752,16 @@
     "Censer of the Bulwark",
     "Censer of the Unbroken Vigil",
     "Censer of the Iron Choir",
-    "Censer of the Last Rite"
+    "Censer of the Last Rite",
+    "Tin Scepter",
+    "Copper Scepter",
+    "Bronze Scepter",
+    "Silver Scepter",
+    "Gilded Scepter",
+    "Scepter of the Lion Court",
+    "Scepter of the Sunlit Throne",
+    "Scepter of the High King",
+    "Scepter of the Last Dynasty"
   ],
   "groups": [
     {"name": "Cnidarian Reef", "icon": "Cnidarian Reef Portal", "level": 6, "items": ["Bottled Medusozoan", "Mask of Cnidaria", "Cnidaria Rod"]},

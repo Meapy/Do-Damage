@@ -605,6 +605,10 @@ pub mod stat {
     pub const PET_FX: u8 = 223;
     /// A Monk's Chi, 0 to 5 (the server's `Player.Flow.cs`; `chi.rs` draws its orbs).
     pub const CHI: u8 = 224;
+    /// A player's stacks of a King's Tribute, 0 to 10 (the server's `Player.Decree.cs`): each
+    /// adds `TRIBUTE_DAMAGE` to their shots' hits on enemies, after defence.
+    pub const TRIBUTE: u8 = 225;
+    pub const TRIBUTE_DAMAGE: i32 = 10;
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

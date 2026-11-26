@@ -157,7 +157,15 @@ pub mod look {
     /// where they set off) flows to pos1 over `duration` ms and a fountain bursts there, pos2.x
     /// across; `object_type` the tier plus 16 for each Chi spent.
     pub const FLOW: u8 = 66;
-    pub const LAST: u8 = 66;
+    /// A King's Royal Decree (`Player.Decree.cs`; drawn by `decree.rs`): the seal falling on pos1
+    /// over `duration` ms, pos2.x across; `object_type` the scepter's tier.
+    pub const SEAL: u8 = 67;
+    /// The target Condemned for `duration` ms: a crown over it.
+    pub const CONDEMN: u8 = 68;
+    /// A Condemned enemy fell at pos1: tribute to the players within pos2.x, and mana to the King
+    /// (`source_id`) with 16 added to `object_type`.
+    pub const TRIBUTE: u8 = 69;
+    pub const LAST: u8 = 69;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -799,6 +807,11 @@ impl Particles {
         // and the Monk's Flowing Strike
         if look == look::FLOW {
             self.flow_look(e, world, now);
+            return;
+        }
+        // and the King's Royal Decree
+        if (look::SEAL..=look::TRIBUTE).contains(&look) {
+            self.decree_look(e, look, world, now);
             return;
         }
         // and the Crucible's caches
@@ -2116,6 +2129,10 @@ impl Particles {
             }
             look::FLOW => {
                 self.test_flow(world, now);
+                return;
+            }
+            look::SEAL..=look::TRIBUTE => {
+                self.test_decree(which, world, now);
                 return;
             }
             _ => return,

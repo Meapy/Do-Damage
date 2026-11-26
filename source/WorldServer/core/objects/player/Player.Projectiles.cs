@@ -258,6 +258,10 @@ namespace WorldServer.core.objects
                     ? Turret.Falloff(projectile.Damage, entity.DistTo(projectile.StartX, projectile.StartY), projectile.FalloffReach)
                     : projectile.Damage;
                 var dmg = StatsManager.DamageWithDefense(entity, damage, projectileDesc.ArmorPiercing, entity.Defense);
+                // a King's Tribute: more on every shot, armour or no (Player.Decree.cs; the Rust
+                // client adds the same, combat.rs)
+                if (Tribute > 0 && dmg > 0)
+                    dmg += TributeBonus(Tribute);
                 entity.Health -= dmg;
                 EnterCombat();
 

@@ -147,6 +147,10 @@
         // a Monk's Chi (0 to Player.ChiMax; Player.Flow.cs), sent to everyone: the Rust client
         // draws the orbs circling them (chi.rs); an older client ignores it.
         Chi = 224,
+        // a player's stacks of a King's Tribute (0 to Player.TributeMax; Player.Decree.cs), sent to
+        // everyone: the Rust client adds their bonus to its own shots' hits (combat.rs) and draws
+        // the coins round them (decree.rs); an older client ignores it.
+        Tribute = 225,
         None = 255
     }
 }

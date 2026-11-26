@@ -11694,7 +11694,7 @@
 	</Object>
 	<Object type="0xD24B" id="King">
 		<Class>Player</Class>
-		<Description>The wizard deals damage from a long distance and blasts enemies with powerful spells.</Description>
+		<Description>The King rules the fight. His scepter calls down the royal seal and Condemns the enemies under it: they take more damage from everyone, and each that falls pays tribute to all who brought it down, every stack making their shots hit harder, and restores the King's mana.</Description>
 		<AnimatedTexture>
 			<File>drPlayers</File>
 			<Index>24</Index>
@@ -11703,8 +11703,8 @@
 		<DeathSound>player/wizard_death</DeathSound>
 		<Player />
 		<BloodProb>1.0</BloodProb>
-		<SlotTypes>17, 4, 14, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
-		<Equipment>0xa97, 0xa31, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
+		<SlotTypes>17, 134, 14, 9, 0, 0, 0, 0, 0, 0, 0, 0</SlotTypes>
+		<Equipment>0xa97, 0x58B0, -1, -1, 0xa22, -1, -1, -1, -1, -1, -1, -1</Equipment>
 		<MaxHitPoints max="700">100</MaxHitPoints>
 		<MaxMagicPoints max="400">100</MaxMagicPoints>
 		<Attack max="75">12</Attack>

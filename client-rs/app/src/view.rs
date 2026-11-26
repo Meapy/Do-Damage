@@ -1542,6 +1542,24 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
         let [px, py] = scene.stand(obj);
         crate::chi::orbs(renderer, px, py, crate::auras::TILE * k * size, chi, look, scene.time, alpha);
     }
+    // a King's Tribute: its coins round the feet of whoever carries it (`particles/decree.rs`)
+    for (_, item) in items.iter() {
+        let Item::Sprite { obj, desc } = item else { continue };
+        let stacks = obj.stat_int(bsk_proto::stat::TRIBUTE).unwrap_or(0);
+        if !desc.player || stacks <= 0 || hidden(obj) || scene.particles.disabled {
+            continue;
+        }
+        let alpha = fade(scene, obj, desc) * if Some(obj.id) == world.me { 1.0 } else { scene.show.player_alpha };
+        let size = obj.stat_int(2).unwrap_or(100) as f32 / 100.0;
+        let [px, py] = scene.stand(obj);
+        crate::particles::decree::draw_tribute(renderer, px, py, crate::auras::TILE * k * size, stacks, scene.time, alpha);
+    }
+    // a King's crown over each enemy his decree Condemned (`particles/decree.rs`)
+    for (obj, [x, y]) in &tops {
+        if let Some(crown) = scene.particles.crown(obj.id).filter(|_| !hidden(obj)) {
+            crate::particles::decree::draw_crown(renderer, *x, *y, cam.scale as f32, crown, scene.time, 1.0);
+        }
+    }
     // Darkness on us (`ConditionEffect` Darkness, as the AIR client drew it): the world goes dark
     // but for a little light round us, under the names, bars and numbers
     if let Some(me) = world.player().filter(|me| bsk_world::condition::has(me.conditions(), bsk_world::condition::DARKNESS)) {

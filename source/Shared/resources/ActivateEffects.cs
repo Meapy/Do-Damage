@@ -48,6 +48,7 @@
         TidePearl,
         BuildTower,
         FlowStrike,
+        RoyalDecree,
         MonsterToss,
         PartyAOE,
         MiniPot,

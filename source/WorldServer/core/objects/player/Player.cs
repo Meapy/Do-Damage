@@ -329,6 +329,7 @@ namespace WorldServer.core.objects
             _ward = new StatTypeValue<int>(this, StatDataType.Ward, 0);
             _wardMax = new StatTypeValue<int>(this, StatDataType.WardMax, 0);
             _chi = new StatTypeValue<int>(this, StatDataType.Chi, 0);
+            _tribute = new StatTypeValue<int>(this, StatDataType.Tribute, 0);
 
             Name = account.Name;
             Health = character.Health;
@@ -581,6 +582,7 @@ namespace WorldServer.core.objects
                 RelicTick();
                 WardTick(ref time);
                 ChiTick();
+                TributeTick();
                 LastBreath();
                 UpdateStatTones();
                 GroundEffect(time);
@@ -725,6 +727,8 @@ namespace WorldServer.core.objects
                 stats[StatDataType.Aura] = Aura;
             if (Chi != 0)
                 stats[StatDataType.Chi] = Chi;
+            if (Tribute != 0)
+                stats[StatDataType.Tribute] = Tribute;
             stats[StatDataType.InventoryData0] = Inventory.Data[0]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData1] = Inventory.Data[1]?.GetData() ?? "{}";
             stats[StatDataType.InventoryData2] = Inventory.Data[2]?.GetData() ?? "{}";

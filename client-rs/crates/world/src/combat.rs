@@ -563,11 +563,14 @@ impl World {
                 p.damage
             };
             let dmg = damage_with_defense(damage, defense, desc.armor_piercing, target.conditions(), tdesc.is_some_and(|d| d.player));
-            let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
             if Some(target_id) == me {
                 let (damage, stacked) = self.unstacked_damage(p, desc, dmg, time, data);
                 hits.push(Hit::Player { bullet_id: p.bullet_id, owner_id: p.owner_id, damage, pierced: desc.armor_piercing, stacked });
             } else if target_is_enemy {
+                // a King's Tribute on us: more on every shot, armour or no (`Player.Decree.cs`)
+                let tribute = me.and_then(|m| self.objects.get(&m)).and_then(|m| m.stat_int(bsk_proto::stat::TRIBUTE)).unwrap_or(0).clamp(0, 10);
+                let dmg = if dmg > 0 { dmg + tribute * bsk_proto::stat::TRIBUTE_DAMAGE } else { dmg };
+                let dead = target.stat_int(STAT_HP).is_some_and(|hp| hp <= dmg);
                 hits.push(Hit::Enemy { time, bullet_id: p.bullet_id, target_id, kill: dead, damage: dmg, pierced: desc.armor_piercing });
                 if let Some(i) = self.impacts.last_mut() {
                     i.kill = dead;

@@ -2667,6 +2667,188 @@
 		<Soulbound/>
 	</Object>
 	<!-- END Father's censers -->
+	<!-- BEGIN King's scepters (tools/draw_king.py draws their sprites; the decree is Player.Decree.cs) -->
+	<Object type="0x58B0" id="Tin Scepter">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>0</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>0</Tier>
+		<Description>A tin rod with a crown soldered on. Point it, and the realm's seal falls there all the same. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3" impactDamage="160" duration="4" tributeMp="8">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>50</MpCost>
+		<feedPower>5</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B1" id="Copper Scepter">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>1</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>1</Tier>
+		<Description>A copper scepter, green at the joins. The seal it calls down still marks the condemned. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3" impactDamage="210" duration="4.5" tributeMp="9">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>55</MpCost>
+		<feedPower>10</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B2" id="Bronze Scepter">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>2</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>2</Tier>
+		<Description>A bronze scepter from a border keep, its crown worn smooth by the hands of petty lords. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3.25" impactDamage="260" duration="5" tributeMp="10">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>1</BagType>
+		<MpCost>60</MpCost>
+		<feedPower>20</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B3" id="Silver Scepter">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>3</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>3</Tier>
+		<Description>A silver scepter that rings when raised. Those it condemns hear the ring and know their fate. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3.5" impactDamage="320" duration="5.5" tributeMp="11">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>1</FameBonus>
+		<MpCost>65</MpCost>
+		<feedPower>45</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B4" id="Gilded Scepter">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>4</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>4</Tier>
+		<Description>A gilded scepter of a minor throne. Its seal is heavy, and the coin of the condemned is real. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3.5" impactDamage="380" duration="6" tributeMp="12">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>2</BagType>
+		<FameBonus>2</FameBonus>
+		<MpCost>70</MpCost>
+		<feedPower>90</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B5" id="Scepter of the Lion Court">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>5</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>5</Tier>
+		<Description>The scepter of a court that met under a lion's banner. Its seal leaves a roar in the stone. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="3.75" impactDamage="440" duration="6.5" tributeMp="13">RoyalDecree</Activate>
+		<Usable/>
+		<BagType>4</BagType>
+		<FameBonus>3</FameBonus>
+		<MpCost>75</MpCost>
+		<feedPower>185</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B6" id="Scepter of the Sunlit Throne">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>6</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>6</Tier>
+		<Description>Carried before a throne that stood in the sun. Where its seal falls, the condemned burn bright. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="4" impactDamage="510" duration="7" tributeMp="14">RoyalDecree</Activate>
+		<ActivateOnEquip stat="26" amount="2">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="2">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<ActivateOnEquip stat="0" amount="20">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="20">IncrementStat</ActivateOnEquip>
+		<BagType>4</BagType>
+		<FameBonus>4</FameBonus>
+		<MpCost>80</MpCost>
+		<feedPower>380</feedPower>
+		<DropTradable/>
+	</Object>
+	<Object type="0x58B7" id="Scepter of the High King">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>7</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>7</Tier>
+		<Description>The scepter of a High King, crowned in violet. Kings knelt to it; monsters need not be asked. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="4.25" impactDamage="590" duration="7.5" tributeMp="16">RoyalDecree</Activate>
+		<ActivateOnEquip stat="26" amount="3">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="3">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<ActivateOnEquip stat="0" amount="40">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="40">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>5</FameBonus>
+		<MpCost>85</MpCost>
+		<feedPower>600</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58B8" id="Scepter of the Last Dynasty">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>kingScepters16x16</File>
+			<Index>8</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Tier>8</Tier>
+		<Description>The last scepter of the last dynasty. Its seal is blood-red, and nothing it condemns is spared. The Royal Decree: the seal strikes where you aim and Condemns the enemies under it. Each Condemned enemy that falls pays tribute to all who brought it down: a stack of Tribute, +10 damage on every shot past armour, up to 10 stacks, fading 10 seconds after the last. Your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="4.5" impactDamage="680" duration="8" tributeMp="18">RoyalDecree</Activate>
+		<ActivateOnEquip stat="26" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
+		<BagType>9</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>95</MpCost>
+		<feedPower>855</feedPower>
+		<Soulbound/>
+	</Object>
+	<!-- END King's scepters -->
 	<!-- The Realm Pass's pet food (Shared/pets/PetFood.cs: fed at the Pen Keeper without fame) and Growth Tonic; art by tools/draw_pet_treats.py -->
 	<Object type="0x58A9" id="Pet Biscuit">
 		<Class>Equipment</Class>

@@ -1669,5 +1669,14 @@
 "All five spent: enemies Armor Broken, you Berserk": "Alle vijf verbruikt: vijanden met gebroken pantser, jij razend",
 "Untouchable while you flow": "Onaantastbaar terwijl je stroomt",
 "Each enemy you pass gives back a Chi, up to two": "Elke vijand die je passeert geeft je een Chi terug, tot twee",
+"Royal Decree": "Koninklijk decreet",
+"Seal": "Zegel",
+"Condemned": "Veroordeeld",
+"Tribute": "Tribuut",
+"{time}, taking 25% more damage from everyone": "{time}, lopen 25% meer schade op van iedereen",
+"+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} schade per schot, negeert verdediging, voor iedereen die er een neerhaalt",
+"Stacks up to {n}, fading {time} after the last": "Stapelt tot {n}, vervaagt {time} na de laatste",
+"{n} MP from each of the first {k} to fall": "{n} MP van elk van de eerste {k} die vallen",
+"Condemns the enemies where you aim: those who bring them down hit harder": "Veroordeelt de vijanden waar je op richt: wie ze neerhaalt, slaat harder",
 "Flows through your enemies and bursts like a fountain where you land": "Vloeit door je vijanden en spuit als een fontein op waar je landt"
 }

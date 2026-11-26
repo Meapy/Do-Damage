@@ -1669,5 +1669,14 @@
 "All five spent: enemies Armor Broken, you Berserk": "Les cinq dépensés : ennemis à l'armure brisée, vous en furie",
 "Untouchable while you flow": "Intouchable pendant votre élan",
 "Each enemy you pass gives back a Chi, up to two": "Chaque ennemi traversé vous rend un Chi, jusqu'à deux",
+"Royal Decree": "Décret royal",
+"Seal": "Sceau",
+"Condemned": "Condamnés",
+"Tribute": "Tribut",
+"{time}, taking 25% more damage from everyone": "{time}, subissant 25 % de dégâts en plus de tous",
+"+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} dégâts par tir, ignorant la défense, pour tous ceux qui en abattent un",
+"Stacks up to {n}, fading {time} after the last": "Se cumule jusqu'à {n}, s'estompe {time} après le dernier",
+"{n} MP from each of the first {k} to fall": "{n} PM de chacun des {k} premiers à tomber",
+"Condemns the enemies where you aim: those who bring them down hit harder": "Condamne les ennemis visés : ceux qui les abattent frappent plus fort",
 "Flows through your enemies and bursts like a fountain where you land": "Traverse vos ennemis et jaillit comme une fontaine là où vous arrivez"
 }

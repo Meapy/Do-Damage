@@ -127,6 +127,24 @@ petals, lightning between the fists, burning fists, mist and bamboo leaves, the 
 circling golden beads and lotuses in its steps, and the Avatar's wheel of golden palms turning
 behind it, its glowing third eye and a wheel of light under its feet). Dyes work on all of them.
 
+**The King's Royal Decree.** The King holds a **scepter** (Tin Scepter at T0 up to the Scepter of
+the Last Dynasty at T8) and names the enemies that must fall. The royal seal comes down where he
+aims (up to 9 tiles off) a quarter of a second later, striking everything under it (160 damage at
+T0 up to 680 at T8, within 3 to 4.5 tiles), and those enemies are **Condemned** for 4 to 8
+seconds: a gold crown hangs over each, and they take a quarter more damage from everyone. When a
+Condemned enemy falls, by anyone's hand, it pays **Tribute** to everyone who hurt it, and to the
+King: a stack each, **+10 damage on every shot** that strikes an enemy, straight through its
+defense, up to 10 stacks (+100). The stacks are coins circling your feet; 10 seconds after your
+last new one they start to fade, one a second, so keep the Condemned falling. The first three of
+each decree to fall also give the King back mana (8 at T0 up to 18 at T8). So the King picks the
+targets, the party brings them down, and every one that falls makes the whole party hit harder.
+The King is redrawn, a crown and a white beard over an ermine collar and a crimson robe, and the
+Armoire sells him four skins at 200 gold (the Sun Pharaoh, the Frost Sovereign, the Usurper and the
+Hollow King, an empty suit of armour with cold light in its visor) and the 16 by 16 Eclipse King at
+800, broad in black steel and ermine with the black sun on his chest, each with something quiet of
+its own round it (drifting sand, falling snow, smoke and smouldering eyes, a cold mist, the black
+sun's corona). Dyes work on all of them.
+
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks
 them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%

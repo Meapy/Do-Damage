@@ -782,6 +782,9 @@ namespace WorldServer.core.objects
                     case ActivateEffects.BuildTower:
                         AEBuildTower(time, item, target, eff);
                         break;
+                    case ActivateEffects.RoyalDecree:
+                        AERoyalDecree(time, item, target, eff);
+                        break;
                     case ActivateEffects.FlowStrike:
                         AEFlowStrike(time, item, target, eff);
                         break;

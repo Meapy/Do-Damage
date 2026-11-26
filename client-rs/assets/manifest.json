@@ -1466,6 +1466,12 @@
    "h": 8
   },
   {
+   "name": "kingScepters16x16",
+   "file": "kabam/rotmg/assets/custom/images/KingScepters16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "communitySprites8x8",
    "file": "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png",
    "w": 8,
@@ -3200,6 +3206,26 @@
    "dir": "right"
   },
   {
+   "name": "kingSkins8",
+   "file": "kabam/rotmg/assets/custom/images/KingSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/KingSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "kingSkins16",
+   "file": "kabam/rotmg/assets/custom/images/KingSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/KingSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3792,7 +3818,8 @@
   "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
   "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
   "kabam/rotmg/assets/custom/xmls/MonkSkins.xml",
-  "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml"
+  "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml",
+  "kabam/rotmg/assets/custom/xmls/KingSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"

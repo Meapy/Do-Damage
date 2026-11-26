@@ -1669,5 +1669,14 @@
 "All five spent: enemies Armor Broken, you Berserk": "Все пять потрачены: у врагов пробита броня, вы в ярости",
 "Untouchable while you flow": "Неуязвимость во время рывка",
 "Each enemy you pass gives back a Chi, up to two": "Каждый враг на вашем пути возвращает Ци, до двух",
+"Royal Decree": "Королевский указ",
+"Seal": "Печать",
+"Condemned": "Осуждены",
+"Tribute": "Дань",
+"{time}, taking 25% more damage from everyone": "{time}, получают на 25% больше урона от всех",
+"+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} урона за выстрел без учёта защиты всем, кто его добьёт",
+"Stacks up to {n}, fading {time} after the last": "Складывается до {n}, угасает через {time} после последнего",
+"{n} MP from each of the first {k} to fall": "{n} ОМ с каждого из первых {k} павших",
+"Condemns the enemies where you aim: those who bring them down hit harder": "Осуждает врагов в точке прицела: те, кто их добьёт, бьют сильнее",
 "Flows through your enemies and bursts like a fountain where you land": "Проносится сквозь врагов и бьёт фонтаном там, где вы остановились"
 }

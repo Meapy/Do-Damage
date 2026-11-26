@@ -164,6 +164,13 @@ the gaps between NewTicks. Its flags:
   living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
   bytes in: `printf '\x01\x00\x00\x00' | redis-cli -p <port> -x srem alive.1` (`sadd` to put it
   back). A quoted `"\x01..."` argument or a line on stdin doesn't match and removes nothing.
+- Reading a binary hash field (a character's `items`) with `redis-cli --raw` on Windows turns
+  each newline byte (0x0A) into CR LF, so a script that edits and writes it back shifts every slot after
+  it (2026-11-26). Write the whole value fresh from a file (`redis-cli -x hset char.1.2 items <
+  items.bin`) and check it with `--no-raw`. The old Redis takes one field per `hset`.
+- To see a class's skins as the game draws them, `--credentials ... --stay --screen
+  class:0x<type>` shows its page with every skin and price; in the Nexus the Lil' Oryx pet can
+  stand right on the player and hide them.
 - `--size` is in physical pixels: on a scaled display `--size 1280x720` gave 1024x576 shots, and
   `--mouse` positions are in those. Read them off a `--shot` first. An ability aimed at the HUD
   bar or off the floor (a Mechanic's blueprint at the sky) is refused without a word.

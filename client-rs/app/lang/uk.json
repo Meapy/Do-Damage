@@ -1669,5 +1669,14 @@
 "All five spent: enemies Armor Broken, you Berserk": "Усі п'ять витрачено: у ворогів пробита броня, ви в люті",
 "Untouchable while you flow": "Невразливість під час ривка",
 "Each enemy you pass gives back a Chi, up to two": "Кожен ворог на вашому шляху повертає Ці, до двох",
+"Royal Decree": "Королівський указ",
+"Seal": "Печатка",
+"Condemned": "Засуджені",
+"Tribute": "Данина",
+"{time}, taking 25% more damage from everyone": "{time}, отримують на 25% більше шкоди від усіх",
+"+{n} damage a shot, ignoring defense, to all who bring one down": "+{n} шкоди за постріл без урахування захисту всім, хто його доб'є",
+"Stacks up to {n}, fading {time} after the last": "Накопичується до {n}, згасає через {time} після останнього",
+"{n} MP from each of the first {k} to fall": "{n} ОМ з кожного з перших {k} полеглих",
+"Condemns the enemies where you aim: those who bring them down hit harder": "Засуджує ворогів у точці прицілу: ті, хто їх доб'є, б'ють сильніше",
 "Flows through your enemies and bursts like a fountain where you land": "Пролітає крізь ворогів і б'є фонтаном там, де ви зупинилися"
 }

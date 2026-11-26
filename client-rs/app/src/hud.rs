@@ -3144,6 +3144,19 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             ];
             (tr("Flowing Strike"), r)
         }
+        // a King's scepter (the server's `Player.Decree.cs`: `TributeMax`, `TributeHoldMs`,
+        // `TributeMpKills`)
+        "RoyalDecree" => {
+            let r = vec![
+                row(tr("Seal"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("Burst"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row(tr("Condemned"), tf!("{time}, taking 25% more damage from everyone", time = secs(num("duration")))),
+                row(tr("Tribute"), tf!("+{n} damage a shot, ignoring defense, to all who bring one down", n = bsk_proto::stat::TRIBUTE_DAMAGE)),
+                row("", tf!("Stacks up to {n}, fading {time} after the last", n = 10, time = secs(10.0))),
+                row(tr("Mana"), tf!("{n} MP from each of the first {k} to fall", n = num("tributeMp"), k = 3)),
+            ];
+            (tr("Royal Decree"), r)
+        }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
@@ -3650,6 +3663,7 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "TidePearl" => tr("Throws a pearl that lies in a tide pool, then rushes back to you").to_owned(),
         "FlowStrike" => tr("Flows through your enemies and bursts like a fountain where you land").to_owned(),
+        "RoyalDecree" => tr("Condemns the enemies where you aim: those who bring them down hit harder").to_owned(),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
         "RemoveNegativeConditionsSelf" => tr("Removes your negative conditions").to_owned(),

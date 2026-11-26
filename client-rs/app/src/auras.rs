@@ -36,6 +36,14 @@
 //!   blue, its palms glowing, golden lotuses blooming in its steps.
 //! - The Thousand-Palm Avatar: a wheel of golden palms turning behind it, its third eye's light,
 //!   chi rising off its raised hands, a wheel of light turning under its feet.
+//!
+//! The King's skins from the Armoire (`<SkinLook>`, tools/draw_king.py), each a quiet thing:
+//! - The Sun Pharaoh: a warm glow under their feet, sand drifting past on the wind.
+//! - The Frost Sovereign: a faint ring of frost under them, a few flakes of snow falling.
+//! - The Usurper: a crimson shadow under them, smoke curling up, their red eyes smouldering.
+//! - The Hollow King: a cold mist low round the empty armour, its eyes burning blue in the helm.
+//! - The Eclipse King: the black sun's corona breathing round the emblem on its chest, motes of
+//!   light drawn into it, a thin ring of the same light on the ground.
 
 use bsk_render::{Renderer, Tint};
 use std::collections::{HashMap, VecDeque};
@@ -67,6 +75,11 @@ pub enum SkinLook {
     Jade,
     Grandmaster,
     Avatar,
+    Pharaoh,
+    Frost,
+    Usurper,
+    Hollow,
+    Eclipse,
 }
 
 impl SkinLook {
@@ -86,6 +99,11 @@ impl SkinLook {
             "jade" => SkinLook::Jade,
             "grandmaster" => SkinLook::Grandmaster,
             "avatar" => SkinLook::Avatar,
+            "pharaoh" => SkinLook::Pharaoh,
+            "frost" => SkinLook::Frost,
+            "usurper" => SkinLook::Usurper,
+            "hollow" => SkinLook::Hollow,
+            "eclipse" => SkinLook::Eclipse,
             _ => return None,
         })
     }
@@ -94,7 +112,18 @@ impl SkinLook {
     pub fn sixteen(self) -> bool {
         !matches!(
             self,
-            SkinLook::Oracle | SkinLook::Warden | SkinLook::Moonbloom | SkinLook::Hermit | SkinLook::Lotus | SkinLook::Storm | SkinLook::Ember | SkinLook::Jade
+            SkinLook::Oracle
+                | SkinLook::Warden
+                | SkinLook::Moonbloom
+                | SkinLook::Hermit
+                | SkinLook::Lotus
+                | SkinLook::Storm
+                | SkinLook::Ember
+                | SkinLook::Jade
+                | SkinLook::Pharaoh
+                | SkinLook::Frost
+                | SkinLook::Usurper
+                | SkinLook::Hollow
         )
     }
 }
@@ -490,6 +519,30 @@ pub fn ground(r: &mut Renderer, w: &Wearer, trails: &Trails, to_screen: &dyn Fn(
             }
             p.glow(x, y, 0.12 * t, 0.05 * t, 0xFFFFFF, 0.45);
         }
+        SkinLook::Pharaoh => {
+            p.glow(x, y, 0.48 * t, 0.2 * t, 0xF0B850, 0.12 + 0.03 * (ms * 0.0015).sin());
+        }
+        SkinLook::Frost => {
+            p.glow(x, y, 0.46 * t, 0.19 * t, 0x9AD8FF, 0.1);
+            p.band(x, y, 0.4 * t, 0.17 * t, 0.88, 1.0, 0.0, TAU, 0xE0F6FF, 0.2 + 0.06 * (ms * 0.002).sin());
+        }
+        SkinLook::Usurper => {
+            p.glow(x, y, 0.46 * t, 0.19 * t, 0x901020, 0.12 + 0.04 * (ms * 0.003).sin());
+        }
+        SkinLook::Hollow => {
+            // a cold mist low round the empty armour
+            for i in 0..4u32 {
+                let (ph, c) = cycle(now, i, 3200);
+                let a = h(i, c) * TAU + ph;
+                let d = (0.15 + 0.25 * h(i + 4, c)) * t;
+                p.glow(x + d * a.cos(), y + 0.45 * d * a.sin(), (0.18 + 0.12 * ph) * t, (0.08 + 0.05 * ph) * t, 0x7AA8D8, 0.12 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Eclipse => {
+            // a thin ring of pale light on the ground, as the corona over its head
+            p.glow(x, y, 0.5 * t, 0.21 * t, 0x4050A0, 0.1);
+            p.band(x, y, 0.46 * t, 0.19 * t, 0.9, 1.0, 0.0, TAU, 0xFFF0C8, 0.18 + 0.06 * (ms * 0.0015).sin());
+        }
         SkinLook::Warden | SkinLook::Hermit => {}
     }
 }
@@ -851,6 +904,56 @@ pub fn air(r: &mut Renderer, w: &Wearer, now: i32) {
                 }
             }
         }
+        SkinLook::Pharaoh => {
+            // sand drifting past on the wind
+            for i in 0..5u32 {
+                let (ph, c) = cycle(now, i, 2600);
+                let sx = x + (0.6 - 1.2 * ph) * t;
+                let sy = y - (0.1 + 0.7 * h(i, c)) * t + 0.04 * t * (ph * 8.0 + i as f32).sin();
+                p.dot(sx, sy, 0.02 * t, 0xE8C878, 0.6 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Frost => {
+            for i in 0..4u32 {
+                let (ph, c) = cycle(now, i, 3000);
+                let fx = x + (h(i, c) - 0.5) * 1.0 * t + 0.05 * t * (ph * 6.0 + i as f32).sin();
+                let fy = y - (1.2 - 1.15 * ph) * t;
+                p.dot(fx, fy, 0.028 * t, 0xEAF8FF, 0.75 * (ph * PI).sin());
+            }
+        }
+        SkinLook::Usurper => {
+            // smoke curling up off it
+            for i in 0..3u32 {
+                let (ph, c) = cycle(now, i, 2600);
+                let sx = x + (h(i, c) - 0.5) * 0.5 * t + 0.08 * t * (ph * 4.0 + i as f32).sin();
+                let sy = y - (0.2 + 0.8 * ph) * t;
+                p.glow(sx, sy, (0.06 + 0.07 * ph) * t, (0.06 + 0.07 * ph) * t, 0x5A4858, 0.2 * (ph * PI).sin());
+            }
+            // the eyes smouldering
+            p.glow(x + 0.03 * t, y - 0.68 * t, 0.09 * t, 0.035 * t, 0xFF2030, 0.15 + 0.1 * (ms * 0.004).sin().abs());
+        }
+        SkinLook::Hollow => {
+            // its eyes burning cold in the empty helm, a wisp trailing off now and then
+            let flick = 0.5 + 0.5 * (ms * 0.004).sin();
+            p.glow(x + 0.03 * t, y - 0.68 * t, 0.09 * t, 0.035 * t, 0x7AD8FF, 0.18 + 0.12 * flick);
+            let (ph, _) = cycle(now, 5, 2600);
+            if ph < 0.6 {
+                let k = ph / 0.6;
+                p.glow(x + (0.03 - 0.12 * k) * t, y - (0.7 + 0.25 * k) * t, 0.045 * t, 0.045 * t, 0x9AE4FF, 0.3 * (1.0 - k));
+            }
+        }
+        SkinLook::Eclipse => {
+            // the black sun's corona breathing round the emblem on its chest, a few motes of light drawn in
+            let breath = 0.5 + 0.5 * (ms * 0.0012).sin();
+            let (cx, cy) = (x, y - 0.45 * t);
+            p.band(cx, cy, 0.17 * t, 0.17 * t, 0.7, 1.0, 0.0, TAU, 0xFFF0C8, 0.1 + 0.1 * breath);
+            for i in 0..4u32 {
+                let (ph, c) = cycle(now, i, 2400);
+                let a = h(i, c) * TAU;
+                let d = (0.5 - 0.3 * ph) * t;
+                p.dot(cx + d * a.cos(), cy + d * a.sin(), 0.02 * t, 0xFFF4D8, 0.6 * (ph * PI).sin());
+            }
+        }
     }
 }
 
@@ -868,6 +971,8 @@ mod tests {
         assert!(SkinLook::Grandmaster.sixteen() && !SkinLook::Lotus.sixteen() && !SkinLook::Jade.sixteen());
         assert_eq!(SkinLook::named("avatar"), Some(SkinLook::Avatar));
         assert!(SkinLook::Avatar.sixteen());
+        assert_eq!(SkinLook::named("eclipse"), Some(SkinLook::Eclipse));
+        assert!(SkinLook::Eclipse.sixteen() && !SkinLook::Pharaoh.sixteen() && !SkinLook::Hollow.sixteen());
         let mut t = Trails::default();
         t.walk(1, 10.0, 10.0, 0);
         t.walk(1, 10.1, 10.0, 50);
