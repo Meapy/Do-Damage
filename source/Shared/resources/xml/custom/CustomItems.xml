@@ -2745,6 +2745,61 @@
 		<Soulbound/>
 	</Object>
 	<!-- END King's scepters -->
+	<!-- The Frozen Court's white bags (the Ice Tomb, BehaviorDb.IceTomb.cs IceTombTreasure): the
+	     King's Edict (Player.Decree.cs: spread, condEffect) and the Sharklord's Rimejaw
+	     (Player.Maw.cs: frostbite, condEffect); icons drawn by tools/build_ice_tomb.py
+	     (EDICT_CELL, RIMEJAW_CELL) -->
+	<Object type="0x58B9" id="Edict of the Frozen Court">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>iceTomb16x16</File>
+			<Index>0x36</Index>
+		</Texture>
+		<SlotType>134</SlotType>
+		<Description>The scepter Kaldrun, Ysolde and Hrimgar passed between them while the Court of Winter still ruled, cold enough to burn the hand that holds it. What it condemns, the winter keeps. The Royal Decree: a seal of rime strikes where you aim, Condemning and slowing the enemies under it. Winter's Edict: each Condemned enemy that falls breaks into frost that Condemns and slows every enemy around it, and those pass it on in turn. Each that falls pays tribute to all who brought it down; your first three each decree restore your mana.</Description>
+		<Sound>spell/major_heal</Sound>
+		<Activate maxDistance="9" radius="4" impactDamage="560" duration="7" tributeMp="16" spread="3.5" condEffect="Slowed" condDuration="2" color="0x9FE8FF">RoyalDecree</Activate>
+		<ExtraTooltipData>
+			<EffectInfo name="Winter's Edict" description="A Condemned enemy that falls Condemns every enemy within 3.5 tiles of it for the rest of the decree, and each that falls spreads it again" />
+			<EffectInfo name="Rime Seal" description="Enemies the seal or the Edict Condemns are Slowed for 2 seconds" />
+		</ExtraTooltipData>
+		<ActivateOnEquip stat="21" amount="5">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="27" amount="4">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>100</MpCost>
+		<feedPower>900</feedPower>
+		<Soulbound/>
+	</Object>
+	<Object type="0x58BA" id="Rimejaw">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>iceTomb16x16</File>
+			<Index>0x37</Index>
+		</Texture>
+		<SlotType>5000</SlotType>
+		<Description>A jaw torn from something that swam under the Frozen Lake long before the tomb was sealed over it. Its teeth are ice, and they never melt. The Maw of the Deep: a fin cuts under the ice to where you aim, striking all in its way, and a shark of the frozen deep breaks up through it and bites everything near, twice as hard on the Bloodied. Everything it bites is Slowed, and the Bloodied are frozen solid. You feed on each one bitten, and every bite works you into a Frenzy; with a full Frenzy, a Megalodon of ice rises, and freezes all it bites.</Description>
+		<Activate maxDistance="8" radius="3.25" totalDamage="360" impactDamage="620" amount="55" frostbite="1200" condEffect="Slowed" condDuration="2" color="0x9FE8FF">DeepMaw</Activate>
+		<ExtraTooltipData>
+			<EffectInfo name="Frostbite" description="Everything bitten is Slowed for 2 seconds; the Bloodied it bites are Paralyzed for 1.2 seconds, and a Megalodon's bite Paralyzes everything it bites" />
+		</ExtraTooltipData>
+		<Sound>spell/magic_nova</Sound>
+		<ActivateOnEquip stat="21" amount="4">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="22" amount="5">IncrementStat</ActivateOnEquip>
+		<Usable/>
+		<ActivateOnEquip stat="0" amount="60">IncrementStat</ActivateOnEquip>
+		<ActivateOnEquip stat="3" amount="60">IncrementStat</ActivateOnEquip>
+		<BagType>6</BagType>
+		<FameBonus>6</FameBonus>
+		<MpCost>95</MpCost>
+		<feedPower>900</feedPower>
+		<Soulbound/>
+	</Object>
 	<!-- The Realm Pass's pet food (Shared/pets/PetFood.cs: fed at the Pen Keeper without fame) and Growth Tonic; art by tools/draw_pet_treats.py -->
 	<Object type="0x58A9" id="Pet Biscuit">
 		<Class>Equipment</Class>

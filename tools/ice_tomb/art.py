@@ -1292,3 +1292,114 @@ def platinum_sword():
 
 def spectral_court(frames, tint):
     return [spectral(f, tint) for f in frames]
+
+
+# =================================================================================================
+# the tall walls' lower faces (<WallBase>, 8x8): under the frosted brow (wall_face, glacier_face),
+# the same blocks and ice going down, darker towards the floor, with no snow on them
+
+def wall_base(seed):
+    rnd = random.Random(seed * 211 + 5)
+    img = _blank("#1f3352")
+    for y in range(8):
+        for x in range(8):
+            off = 2 if (y // 3) % 2 else 0
+            if y % 3 == 2 or (x + off) % 4 == 3:
+                put(img, x, y, "#132238")
+            elif (x + off) % 4 == 0 or y % 3 == 0:
+                put(img, x, y, "#2a4268")
+    # frost caught in a seam now and then
+    if rnd.random() < 0.6:
+        put(img, rnd.randrange(8), rnd.choice((2, 5)), "#5c8cb8")
+    return img
+
+
+def glacier_base(seed):
+    rnd = random.Random(seed * 59 + 23)
+    img = _blank("#25557f")
+    for y in range(8):
+        for x in range(8):
+            put(img, x, y, "#2a5f8e" if y < 4 else "#214c74")
+    x = rnd.randrange(8)
+    for y in range(0, 8):
+        if rnd.random() < 0.75:
+            put(img, x, y, "#5a98c8")
+    put(img, rnd.randrange(8), rnd.randrange(8), "#183c60")
+    return img
+
+
+# =================================================================================================
+# the Court's white-bag treasures (16x16, as the King's scepters and the Sharklord's spells are)
+
+def _hex(img, x, y, h, a=255):
+    put(img, x, y, h, a)
+
+
+def edict_scepter():
+    """The Edict of the Frozen Court, the King's: laid out as his scepters (the head up to the
+    right, the shaft down to the left), a shaft of pale rime, a teal collar, an orb of the Court's
+    ice crowned with three icicle points and a frost gem burning in it."""
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    # the shaft, lit along its upper edge
+    for i in range(8):
+        x, y = 9 - i, 8 + i
+        _hex(img, x, y, "#9ab4d4")
+        _hex(img, x + 1, y, "#dcf6ff" if i % 3 else "#ffffff")
+        _hex(img, x, y + 1, "#34465e")
+    _hex(img, 1, 15, "#5ec4e8"); _hex(img, 1, 14, "#a8f0ff")   # a frost ferrule
+    # the collar
+    for (x, y) in ((9, 7), (10, 7), (10, 8), (8, 8)):
+        _hex(img, x, y, "#0f7699")
+    _hex(img, 9, 8, "#5ec4e8")
+    # the orb
+    cx, cy, r = 11.5, 4.6, 3.0
+    for y in range(1, 9):
+        for x in range(7, 16):
+            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
+            if d <= r:
+                _hex(img, x, y, "#5ec4e8" if d < r - 0.9 else "#2c6a9a")
+    _hex(img, 10, 3, "#ffffff"); _hex(img, 11, 3, "#dcf6ff")    # its shine
+    _hex(img, 12, 5, "#00e5e5"); _hex(img, 11, 5, "#aaffff"); _hex(img, 12, 4, "#aaffff")  # the gem
+    # three icicle points crowning it
+    for (x, y) in ((11, 0), (11, 1), (8, 1), (14, 1)):
+        _hex(img, x, y, "#ffffff")
+    _hex(img, 9, 2, "#dcf6ff"); _hex(img, 13, 2, "#dcf6ff")
+    # frost sparkling off it
+    for (x, y, h) in ((3, 4, "#a8f0ff"), (2, 4, "#5ec4e8"), (4, 4, "#5ec4e8"), (3, 3, "#5ec4e8"), (3, 5, "#5ec4e8"),
+                      (15, 9, "#a8f0ff"), (6, 1, "#5ec4e8")):
+        _hex(img, x, y, h)
+    return img
+
+
+def rimejaw():
+    """Rimejaw, the Sharklord's: a shark's jaws as his spells show them, gaping out of a hole in
+    the ice: a rim of frosted ice round them, white teeth top and bottom, the black water of the
+    deep inside with a frost glint, icicles hanging from the rim."""
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    cx, cy = 7.5, 7.5
+    for y in range(16):
+        for x in range(16):
+            dx, dy = (x + 0.5 - cx) / 7.2, (y + 0.5 - cy) / 6.2
+            d = math.hypot(dx, dy)
+            if d > 1.0:
+                continue
+            if d > 0.78:
+                h = "#e2f0fa" if dy < 0 else ("#8cbede" if d > 0.9 else "#bfe4f8")
+            elif d > 0.66:
+                h = "#4a80ae"
+            else:
+                h = "#0e2440" if abs(dy) > 0.25 else "#1a3a5e"
+            _hex(img, x, y, h)
+    # the teeth: a row along the top of the mouth, one along the bottom
+    for x in range(3, 13, 2):
+        _hex(img, x, 4, "#ffffff"); _hex(img, x + 1, 4, "#c8ecff"); _hex(img, x, 5, "#ffffff")
+        _hex(img, x + 1, 11, "#ffffff"); _hex(img, x, 11, "#c8ecff"); _hex(img, x + 1, 10, "#ffffff")
+    # the glint of the deep
+    _hex(img, 7, 7, "#40e0ff"); _hex(img, 8, 8, "#40e0ff"); _hex(img, 8, 7, "#aaffff")
+    # icicles off the rim
+    for (x, n) in ((4, 2), (8, 3), (11, 2)):
+        for k in range(n):
+            if 14 + k < 16:
+                _hex(img, x, 14 + k, "#a8f0ff" if k else "#dcf6ff")
+    _hex(img, 1, 2, "#a8f0ff"); _hex(img, 14, 1, "#ffffff")
+    return img

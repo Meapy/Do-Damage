@@ -1712,5 +1712,8 @@
 "The Way Opens": "Yol açılıyor",
 "All gold is {percent}% off for the next {n} hour!|All gold is {percent}% off for the next {n} hours!": "Tüm altınlar {n} saat boyunca %{percent} indirimli!",
 "All gold is {percent}% off for the next {n} minute!|All gold is {percent}% off for the next {n} minutes!": "Tüm altınlar {n} dakika boyunca %{percent} indirimli!",
-"Click to open the Gold Store.": "Altın Mağazası'nı açmak için tıkla."
+"Click to open the Gold Store.": "Altın Mağazası'nı açmak için tıkla.",
+"Calving Glacier": "Çöken Buzul",
+"Frozen Hours": "Donmuş Saatler",
+"Wolf Moon": "Kurt Ayı"
 }

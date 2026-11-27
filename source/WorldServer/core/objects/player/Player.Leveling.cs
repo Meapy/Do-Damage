@@ -283,7 +283,9 @@ namespace WorldServer.core.objects
             foreach (var entry in World.Quests)
             {
                 var quest = entry.Value;
-                if (quest.ObjectDesc == null || !quest.ObjectDesc.Quest)
+                // one just killed may not have left the world yet: it would stay the quest
+                // (the Ice Tomb's seals, the arrow kept on a broken one)
+                if (quest.Dead || quest.ObjectDesc == null || !quest.ObjectDesc.Quest)
                     continue;
 
                 var maxVisibleLevel = Math.Min(quest.ObjectDesc.Level + 5, 20);

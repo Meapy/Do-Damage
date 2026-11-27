@@ -122,6 +122,13 @@
 				<Index>0x79</Index>
 			</Texture>
 		</Top>
+		<WallHeight>2</WallHeight>
+		<WallBase>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x81</Index>
+			</Texture>
+		</WallBase>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 		<Static />
@@ -142,6 +149,13 @@
 				<Index>0x7b</Index>
 			</Texture>
 		</Top>
+		<WallHeight>2</WallHeight>
+		<WallBase>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x81</Index>
+			</Texture>
+		</WallBase>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 		<Static />
@@ -172,6 +186,13 @@
 				<Index>0x7f</Index>
 			</Texture>
 		</Top>
+		<WallHeight>2</WallHeight>
+		<WallBase>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x82</Index>
+			</Texture>
+		</WallBase>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
 		<Static />
@@ -1001,6 +1022,9 @@
 		<StasisImmune />
 		<OccupySquare />
 		<EnemyOccupySquare />
+		<Quest />
+		<Level>20</Level>
+		<ShowName />
 		<XpMult>0</XpMult>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -1057,6 +1081,9 @@
 		<StasisImmune />
 		<OccupySquare />
 		<EnemyOccupySquare />
+		<Quest />
+		<Level>20</Level>
+		<ShowName />
 		<XpMult>0</XpMult>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -1113,6 +1140,9 @@
 		<StasisImmune />
 		<OccupySquare />
 		<EnemyOccupySquare />
+		<Quest />
+		<Level>20</Level>
+		<ShowName />
 		<XpMult>0</XpMult>
 		<HitSound>monster/stone_walls_hit</HitSound>
 		<DeathSound>monster/stone_walls_death</DeathSound>
@@ -1694,5 +1724,43 @@
 		<Sound>spell/light_heal</Sound>
 		<Activate objectId="Lil' Hrimgar" cooldown="10" petDps="1365" petSize="Huge" petEffects="Axes make enemies Bleed for 2s; Hailstorm strikes all enemies within 2 tiles of its target; The Shattering: a spiral of axes every 10s; Makes you Berserk for 2s every 10s" petHp="57" petHpMs="2500" petMp="24" petMpMs="2000">PermaPet</Activate>
 		<InvUse />
+	</Object>
+	<Object type="0xCA85" id="Court Gate">
+		<Class>Character</Class>
+		<Texture>
+			<File>iceTomb16x16</File>
+			<Index>0x33</Index>
+		</Texture>
+		<Animation prob="1.0">
+			<Frame time="0.25">
+				<Texture>
+					<File>iceTomb16x16</File>
+					<Index>0x33</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>iceTomb16x16</File>
+					<Index>0x34</Index>
+				</Texture>
+			</Frame>
+			<Frame time="0.25">
+				<Texture>
+					<File>iceTomb16x16</File>
+					<Index>0x35</Index>
+				</Texture>
+			</Frame>
+		</Animation>
+		<Size>130</Size>
+		<DisplayId>The Sealed Door</DisplayId>
+		<Enemy />
+		<MaxHitPoints>1000</MaxHitPoints>
+		<Defense>0</Defense>
+		<XpMult>0</XpMult>
+		<Level>20</Level>
+		<Quest />
+		<ShowName />
+		<StasisImmune />
+		<NoMiniMap />
 	</Object>
 </Objects>

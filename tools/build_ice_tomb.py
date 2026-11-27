@@ -74,6 +74,29 @@ SHEET16 = ("iceTomb16x16", "IceTomb16x16.png")
 CHARS16 = ("iceTombChars16x16", "IceTombChars16x16.png")
 CHARS32 = ("iceTombChars32x32", "IceTombChars32x32.png")
 PLATINUM_SWORD_CELL = 0x80  # the Platinum Sword's icon on IceTomb8x8.png (main)
+# the Court's white-bag treasures' icons on IceTomb16x16.png (their XML, CustomItems.xml, both
+# copies, names these cells): last on the sheet, so cells added before them would move them
+EDICT_CELL, RIMEJAW_CELL = 0x36, 0x37
+# the tomb's walls stand this many tiles tall (<WallHeight>, the Rust client's draw_wall), their
+# frosted brow on top and plain blocks below (<WallBase>, cells after the sword's)
+WALL_HEIGHT = 2
+# a second band of the tomb's dead in every room, wandering its far side (the tomb felt empty with
+# only each room's own): kind -> monsters, put round a spot half way out from the middle
+PATROLS = {
+    "crypt": ["Rimebound Mummy", "Rimebound Mummy", "Frost Wraith"],
+    "revenants": ["Frozen Revenant", "Frozen Revenant"],
+    "lake": ["Frost Wraith", "Frost Wraith", "Rime Serpent"],
+    "den": ["Frostfang Hound", "Frostfang Hound", "Frostfang Hound"],
+    "shrine": ["Aurora Wisp", "Aurora Wisp", "Frost Wraith"],
+    "gallery": ["Frost Wraith", "Glacial Scarab", "Glacial Scarab"],
+    "chasm": ["Glacial Scarab", "Glacial Scarab", "Frost Wraith"],
+    "nest": ["Glacial Scarab", "Glacial Scarab", "Glacial Scarab", "Glacial Scarab"],
+    "crevasse": ["Frostfang Hound", "Glacial Scarab", "Glacial Scarab"],
+    "ossuary": ["Rimebound Mummy", "Rimebound Mummy", "Frost Wraith"],
+    "fortress": ["Frozen Revenant", "Glacier Golem"],
+    "rings": ["Aurora Wisp", "Frost Wraith", "Frost Wraith"],
+    "lair": ["Frostfang Hound", "Frostfang Hound"],
+}
 
 
 class Types:
@@ -344,6 +367,9 @@ def invisible(types, name):
     return e
 
 
+WALLS = []   # (the wall's element, a glacier wall?), for main() to give each its <WallBase>
+
+
 def objects(types, s8, s16, c16, c32):
     out = []
     for name, fn in art.SHOTS.items():
@@ -365,6 +391,8 @@ def objects(types, s8, s16, c16, c32):
                 texture(rt, SHEET8[0], s8.add(art.wall_face(k)))
         top = sub(e, "Top")
         texture(top, SHEET8[0], s8.add(art.wall_top(0)))
+        sub(e, "WallHeight", WALL_HEIGHT)
+        WALLS.append((e, sconce is None))
         sub(e, "HitSound", "monster/stone_walls_hit")
         sub(e, "DeathSound", "monster/stone_walls_death")
         for tag in ("Static", "FullOccupy", "OccupySquare", "EnemyOccupySquare", "BlocksSight"):
@@ -474,6 +502,10 @@ def objects(types, s8, s16, c16, c32):
             sub(e, tag, v)
         for tag in ("Static", "StasisImmune", "OccupySquare", "EnemyOccupySquare"):
             sub(e, tag)
+        # a quest: the arrow leads to the nearest seal or keeper left
+        sub(e, "Quest")
+        sub(e, "Level", 20)
+        sub(e, "ShowName")
         sub(e, "XpMult", 0)
         sub(e, "HitSound", "monster/stone_walls_hit")
         sub(e, "DeathSound", "monster/stone_walls_death")
@@ -533,6 +565,18 @@ def objects(types, s8, s16, c16, c32):
         icon = s16.add(pet_icon(sprites[boss][0]))
         out += boss_pets.pet_objects(lambda n: types.get(n, OBJECT_TYPES), name, spec, CHARS32[0], row(boss),
                                      [row(f) for f in forms], SHEET16[0], icon)
+
+    # the Court's Gate: rises at the Sealed Door once its three lanterns burn, the quest that
+    # leads everyone back there, gone as the Court rises (IceTomb.cs SealedDoor)
+    e, _ = animated_static(types, s16, "Court Gate", [art.rime_gate(f) for f in range(3)], "0.25", 130, False,
+                           cls="Character", static=False)
+    sub(e, "DisplayId", "The Sealed Door")
+    sub(e, "Enemy")
+    for tag, v in (("MaxHitPoints", 1000), ("Defense", 0), ("XpMult", 0), ("Level", 20)):
+        sub(e, tag, v)
+    for tag in ("Quest", "ShowName", "StasisImmune", "NoMiniMap"):
+        sub(e, tag)
+    out.append(e)
     return out
 
 
@@ -1055,6 +1099,13 @@ def build_map():
         m.try_place(scx + 5 + k // 2, y0 - 1, "Frost Brazier")
     for f in furnish:
         f()
+    # the patrols, after everything else so they take what's left
+    for cell in fillers + list(SEALS):
+        kind = SEALS[cell][2] if cell in SEALS else kinds[cell]
+        cx, cy = centre(cell)
+        a = rnd.random() * math.tau
+        px, py = cx + math.cos(a) * 8, cy + math.sin(a) * 8
+        scatter(m, rnd, px, py, 6, PATROLS[kind])
     return m
 
 
@@ -1119,6 +1170,17 @@ def main():
     cell = s8.add(art.platinum_sword())
     assert cell == PLATINUM_SWORD_CELL, ("the Platinum Sword's icon moved to cell 0x%x: change its "
                                          "<Index> in DoomedRealms.xml (both copies) and PLATINUM_SWORD_CELL" % cell)
+    # the tall walls' lower faces, after the sword so it keeps its cell
+    bases = {False: s8.add(art.wall_base(0)), True: s8.add(art.glacier_base(0))}
+    for e, glacier in WALLS:
+        base = ET.Element("WallBase")
+        texture(base, SHEET8[0], bases[glacier])
+        e.insert(list(e).index(e.find("WallHeight")) + 1, base)
+    # the white-bag treasures' icons, last on the 16x16 sheet
+    cells = (s16.add(art.edict_scepter()), s16.add(art.rimejaw()))
+    assert cells == (EDICT_CELL, RIMEJAW_CELL), ("the Court's treasures' icons moved to cells %s: change their "
+                                                 "<Index> in CustomItems.xml (both copies) and EDICT_CELL, "
+                                                 "RIMEJAW_CELL" % (cells,))
     os.makedirs(IMAGES, exist_ok=True)
     s8.write(os.path.join(IMAGES, SHEET8[1]))
     s16.write(os.path.join(IMAGES, SHEET16[1]))

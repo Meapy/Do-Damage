@@ -736,6 +736,37 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   once a gold sword (`drLofiObj4` 0xaa), is the tomb's own now: platinum with a teal guard, drawn
   in `tools/ice_tomb/art.py` (`PLATINUM_SWORD`) onto `IceTomb8x8.png` at 0x80 by
   `tools/build_ice_tomb.py`, which stops if the cell moves (`PLATINUM_SWORD_CELL`).
+- **The Ice Tomb harder, taller, busier and guided** (2026-11-27; `Dungeons.xml`, `tools/build_ice_tomb.py`,
+  `tools/ice_tomb/art.py`, `custom/IceTomb*.xml`, `BehaviorDb.IceTomb.cs`, `IceTomb.cs`
+  `SealedDoor`, `CrucibleRules` cues 44-46 and the client's `crucible.rs`, the Rust client's
+  `draw_wall` and `ObjectDesc.wall_base`): the tomb's `<VisibilityType>` is 0 (everything in
+  sight radius, `MinSightRadius` 22): with line of sight (1) walls behind walls were sent late and
+  the floor beside them hung the sky's cliffs (`islands::ICE`) until they came. Its corridors are
+  5 wide (`corridor="5"`, 3 before: with tall walls the narrow ones read as canyons of stacked
+  walls), and each room has a second band of monsters (`PATROLS`, 79 to 131 in the source map).
+  Its three walls are `<WallHeight>2</WallHeight>` (3 stacked badly) with a `<WallBase>`
+  texture under the frosted brow (cells after
+  the Platinum Sword's on `IceTomb8x8.png`); the Rust client draws a tall wall's sides top-down,
+  skips a side against a wall as tall, and draws it at `TALL_WALL_SEEN_THROUGH` (38%) while it
+  stands over the player on the screen (`tall_wall_cover`), any world's tall walls but stacked
+  floors'. Quests: the seals are `<Quest/>` like their keepers, and with all three broken the
+  Sealed Door puts a `Court Gate` (invulnerable, the unused `rime_gate` art) there, removed as the
+  Court rises; `Player.FindQuest` skips a dead quest monster, which stayed the quest until it left
+  the world (a broken seal kept the arrow). Keepers' last phases: the Rime Colossus `Calving` (25%: Armored, two Glacier
+  Golems), the Aurora Matron `Eclipse` (25%: Invulnerable while her four wisps live, 20 s at most,
+  then `Deep Night`), the Frostfang Alpha `Blood Moon` (30%: a howl for four hounds and three
+  pounces). The Court Heart's rotation adds Calving Glacier (Kaldrun: `FloorLayers` of turning
+  avalanche arms and waves), Frozen Hours (Ysolde: a six-hour `SectorChime` of Aurora Light) and
+  Wolf Moon (Hrimgar: three Frostfang Hounds and `LavaVeins` of Frost Fissure); calms 4.5 s (5.5).
+  The Court drops two white bags at 0.3% each (`IceTombTreasure`, both `CustomItems.xml`, icons
+  on `IceTomb16x16.png` at `EDICT_CELL`/`RIMEJAW_CELL`): the King's **Edict of the Frozen Court**
+  (0x58B9: a Royal Decree with `spread="3.5"`, `Player.SpreadDecree`: a Condemned enemy that falls
+  Condemns the enemies round it for the rest of the decree, and `condEffect="Slowed"
+  condDuration="2"` on all it Condemns; 560 within 4, 7 s, 16 MP, 100 MP) and the Sharklord's
+  **Rimejaw** (0x58BA: a Deep Maw with `frostbite="1200"`, Paralyzed for the Bloodied bitten or
+  all from a Megalodon, `Player.Frozen`, and Slowed 2 s on all; 360 / 620 within 3.25, 55 HP).
+  An untiered scepter or spell takes the top tier's look and its Activate's `color`. World server
+  and client together (the cues, walls and items' icons are the client's).
 - **The Ice Tomb remade** (2026-11-27; `tools/build_ice_tomb.py`, `tools/ice_tomb/`,
   `Dungeons/Ice Tomb.jm`, `custom/IceTomb*.xml`, `Dungeons.xml`, `BehaviorDb.IceTomb.cs`,
   `IceTomb.cs`, `IceCourt.cs`, `Tests/IceTombTests.cs`): a random layout of twenty shaped rooms

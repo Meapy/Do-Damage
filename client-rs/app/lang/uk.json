@@ -1712,5 +1712,8 @@
 "The Way Opens": "Шлях відкрито",
 "All gold is {percent}% off for the next {n} hour!|All gold is {percent}% off for the next {n} hours!": "Усе золото зі знижкою {percent}% ще {n} годину!|Усе золото зі знижкою {percent}% ще {n} години!|Усе золото зі знижкою {percent}% ще {n} годин!",
 "All gold is {percent}% off for the next {n} minute!|All gold is {percent}% off for the next {n} minutes!": "Усе золото зі знижкою {percent}% ще {n} хвилину!|Усе золото зі знижкою {percent}% ще {n} хвилини!|Усе золото зі знижкою {percent}% ще {n} хвилин!",
-"Click to open the Gold Store.": "Натисніть, щоб відкрити Крамницю золота."
+"Click to open the Gold Store.": "Натисніть, щоб відкрити Крамницю золота.",
+"Calving Glacier": "Обвал льодовика",
+"Frozen Hours": "Застиглі години",
+"Wolf Moon": "Вовчий місяць"
 }

@@ -147,6 +147,9 @@ namespace WorldServer.core.objects
         // The look's ObjectType: the tier, 16 more for a Megalodon.
         public static ushort MawLookCode(int tier, bool megalodon) => (ushort)(Math.Clamp(tier, 0, 15) + (megalodon ? 16 : 0));
 
+        // Rimejaw's frostbite: does a bite freeze this enemy solid?
+        public static bool Frozen(int frostbite, bool bloodied, bool megalodon) => frostbite > 0 && (bloodied || megalodon);
+
         private void AEDeepMaw(TickTime time, Item item, Position target, ActivateEffect eff)
         {
             var world = World;
@@ -154,8 +157,9 @@ namespace WorldServer.core.objects
                 return;
             var from = new Position(X, Y);
             var spot = ClampAbilityTarget(target, eff.MaximumDistance > 0 ? eff.MaximumDistance : 8);
-            var tier = Math.Clamp(item.Tier, 0, MawColors.Length - 1);
-            var color = MawColors[tier];
+            // an untiered spell looks as grand as the last tier, in its own colour
+            var tier = item.Tier < 0 ? MawColors.Length - 1 : Math.Clamp(item.Tier, 0, MawColors.Length - 1);
+            var color = eff.Color != 0 && eff.Color != uint.MaxValue ? eff.Color | 0xFF000000 : MawColors[tier];
             var megalodon = Frenzy >= FrenzyMax;
             if (megalodon)
             {
@@ -193,6 +197,10 @@ namespace WorldServer.core.objects
 
             // the bite
             var amount = eff.Amount;
+            // the Ice Tomb's Maw (Rimejaw): all it bites are Slowed (condEffect, condDuration),
+            // the Bloodied frozen solid (Paralyzed `frostbite` ms), all of them by a Megalodon
+            var slowMs = eff.EffectDuration > 0 ? (int)(eff.EffectDuration * 1000) : 0;
+            var frostbite = eff.Frostbite;
             After(ms, (w, t) =>
             {
                 if (World != w || Dead)
@@ -202,7 +210,12 @@ namespace WorldServer.core.objects
                 {
                     bitten++;
                     var dmg = BiteDamage(bite, e.Health, e.MaxHealth);
+                    var bloodied = Bloodied(e.Health, e.MaxHealth);
                     RelicDamage(e, dmg, ref t, false);
+                    if (!e.Dead && slowMs > 0)
+                        e.ApplyConditionEffect(ConditionEffectIndex.Slowed, slowMs);
+                    if (!e.Dead && Frozen(frostbite, bloodied, megalodon))
+                        e.ApplyConditionEffect(ConditionEffectIndex.Paralyzed, frostbite);
                     if (megalodon && !e.Dead)
                     {
                         e.Bleed(this, dmg * MegalodonBleedPercent / 100, MegalodonBleedMs);

@@ -140,6 +140,9 @@ pub struct ObjectDesc {
     pub texture: TextureData,
     /// `<Top>`: a wall's top face.
     pub top: Option<TextureData>,
+    /// `<WallBase>`: a tall wall's (`<WallHeight>`) sides below its topmost tile, which keep
+    /// `texture` (the Ice Tomb's frosted brow over plain blocks of ice).
+    pub wall_base: Option<TextureData>,
     /// `<Model>`: the name of a 3D model.
     pub model: Option<String>,
     pub shadow_size: i32,
@@ -331,6 +334,7 @@ impl ObjectDesc {
             class: ObjectClass::parse(xml.text_of("Class").unwrap_or("")),
             texture: TextureData::from_xml(xml),
             top: xml.child("Top").map(TextureData::from_xml),
+            wall_base: xml.child("WallBase").map(TextureData::from_xml),
             model: xml.text_of("Model").map(str::to_owned),
             shadow_size: xml.int("ShadowSize", 100),
             player: xml.has("Player"),
