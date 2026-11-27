@@ -157,7 +157,7 @@ break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, a
 his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
 (**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
 treasure (the old Ice Tomb Chest's, half again as often) and, only here, the **Platinum Sword**
-(a cleaving slash flanked by two frost shards that slow), potions, and rarely its own pet; the
+(a long cleaving slash flanked by two frost shards that slow), potions, and rarely its own pet; the
 keepers drop Defense and Vitality potions.
 
 ## Underwater: the Ocean Trench and the Cnidarian Reef

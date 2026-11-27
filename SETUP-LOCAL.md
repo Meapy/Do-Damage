@@ -728,10 +728,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   `BehaviorDb.IceTomb.cs`, `DoomedMonsters.cs`): the Ice Tomb's sword now, in `IceTombTreasure()`
   at the bows' and wands' 0.25%, and no longer dropped by Oryx 4 (50%) or the Christmas Oryx (10%).
   A volley of three (`<VolleyProjectiles>1,0,1</VolleyProjectiles>`, `<ArcGap>14</ArcGap>`, rate
-  100%): a cleaving Beam Slash, 215-255 `<MultiHit/>`, range 4.25, flanked by two Iceblast
-  shards, 45-60 with `Slowed` 1.5 s, range 4.18. Point-blank on one target about 340 a second (the
-  T15 Sword of Ascension's 346), the slash alone 235 (the T13's 262); was 170-190 at 150% and
-  range 8, 270 a second from twice a sword's reach. Its sprite and type code are kept.
+  100%): a cleaving silver slash (`Oryx Champion Slash`, pale trail), 180-220 `<MultiHit/>`, range 7, flanked by two Iceblast shards,
+  35-50 with `Slowed` 1.5 s, speed 120, range 6. Point-blank on one target about 285 a second
+  (between the T14's 278 and the T15's 346), the slash alone 200 at range (a T9's, for twice a
+  sword's reach); was 170-190 at 150% and range 8, 270 a second. Its sprite and type code are kept.
 - **The Ice Tomb remade** (2026-11-27; `tools/build_ice_tomb.py`, `tools/ice_tomb/`,
   `Dungeons/Ice Tomb.jm`, `custom/IceTomb*.xml`, `Dungeons.xml`, `BehaviorDb.IceTomb.cs`,
   `IceTomb.cs`, `IceCourt.cs`, `Tests/IceTombTests.cs`): a random layout of twenty shaped rooms
