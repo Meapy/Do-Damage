@@ -10,6 +10,9 @@ Release 2.6.11
 
 - **The Ice Tomb's new look:** the tomb's nine kinds of dead, the three Seal Keepers, the three relics, the Frozen Court in each of its forms (Permafrost, Polar Night, the Shattered, their ice blocks and shades, and the Lil' pets made from them) and the tomb's 14 shots redrawn pixel by pixel in the game's own monster style: bold silhouettes, two or three tones a material, solid pixels for the client's outline, glowing eyes and cores. Hrimgar now wears a whole wolf's head, the Frostfang Alpha is blue-maned and the Rime Colossus stone and steel with a gold-sealed lid, so no two look alike.
 
+### Arena
+- **The Ivory Wyvern can be beaten again:** in the Arena the (Elder) Ivory Wyvern could stay invulnerable for good, throwing its four soul flames every 20 seconds. It now moves on to the flames' fight 2.5 s after throwing them, whether or not all four landed, and comes out to fight once they're dead.
+
 ## Details
 
 ### The Frozen Court on the Tomb's turns
@@ -55,7 +58,15 @@ nothing redeploys.
 - **Deploys:** world server and client (new art and XML; an older client draws the Herald and its land blank). Nobody is disconnected.
 - **Not done:** not fought in game; health and damage may want tuning after a run.
 
+### The Ivory Wyvern stuck throwing soul flames
+
+- **What and why:** after reaching 60% the Wyvern returns to its spawn, turns invulnerable and tosses the Red, Blue, Green and Black Soul Flames (4 and 8 tiles east and west), then waited (`EntityExistsTransition`) for a Red Soul Flame within 20 tiles before waiting for all four to die. `TossObject` silently drops a toss onto an impassable tile, so where the Red one's spot is a wall (the Arena's ring, a spawn near its edge) it never came: the Wyvern stayed in that state, invulnerable, re-throwing the flames every 20 s. It now moves on after 2.5 s (the toss lands at 1.5 s), so it waits only for the flames that did land.
+- **Files:** `source/WorldServer/logic/db/BehaviorDb.Wyvern.cs` (the regular and the Elder Wyvern share it).
+- **Deploys:** the world server only. Nobody is disconnected; Redis untouched.
+
 ## Checks
+
+- Ivory Wyvern: the world server builds; ArenaSeason2 and Elder tests pass (113). Not fought in game.
 
 - Rime Herald: the world server builds; `dotnet test` passes (567), with the Herald in `TheNewEventsAreQuestsOfLevelTwenty`; `build_realm2.py` reruns clean (60 grounds, 190 objects), every new id unique.
 - Ice Tomb sprites: rendered with the client's outline beside the game's own monsters and shots; one run on an isolated stack (slot 1) spawning the Court, relics and the tomb's dead in a vault showed the new art in the client. `build_ice_tomb.py` changes only the four sheets; `build_wiki.py` builds.
