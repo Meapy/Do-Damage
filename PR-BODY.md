@@ -10,6 +10,8 @@ Release 2.6.11
 
 - **The Ice Tomb's new look:** the tomb's nine kinds of dead, the three Seal Keepers, the three relics, the Frozen Court in each of its forms (Permafrost, Polar Night, the Shattered, their ice blocks and shades, and the Lil' pets made from them) and the tomb's 14 shots redrawn pixel by pixel in the game's own monster style: bold silhouettes, two or three tones a material, solid pixels for the client's outline, glowing eyes and cores. Hrimgar now wears a whole wolf's head, the Frostfang Alpha is blue-maned and the Rime Colossus stone and steel with a gold-sealed lid, so no two look alike.
 
+- **The Void, the Elder Void and the Empowered Void Entity, softer in a group:** the Void Entity 250,000 health solo (was 300,000), +25,000 for each extra player (was +60,000: 20%, now 10%); the Elder Void Entity 400,000 (was 500,000), +20,000 a player (was +37,500: 15%, halved in Elder dungeons, now 10% halved); the Empowered Void Entity 550,000 (1.375 times the Elder's, was about 667,000), +20,000 a player, its shots 17% harder than the Elder's calm and 30% enraged (was 30% and 45%), 10% less.
+
 ### Arena
 - **The Ivory Wyvern can be beaten again:** in the Arena the (Elder) Ivory Wyvern could stay invulnerable for good, throwing its four soul flames every 20 seconds. It now moves on to the flames' fight 2.5 s after throwing them, whether or not all four landed, and comes out to fight once they're dead.
 
@@ -64,7 +66,15 @@ nothing redeploys.
 - **Files:** `source/WorldServer/logic/db/BehaviorDb.Wyvern.cs` (the regular and the Elder Wyvern share it).
 - **Deploys:** the world server only. Nobody is disconnected; Redis untouched.
 
+### The Void Entities' health and the Empowered one's damage
+
+- **What and why:** the owner asked for less health and less per-player health on the three Void Entities, and 10% less damage on the Empowered (Necromantic) one. Void Entity 300k -> 250k, Elder 500k -> 400k; `ScaleHP2(elder ? 15 : 20)` -> `ScaleHP2(10)` for both (the Elder Void's share is halved by `GroupScaling`, so 5%). The Empowered form takes its health from the Elder's (`EmpoweredHealth.ScaleFor(400000)` = 1.375, so 550,000) and the same per-player share; its `Empowered.Tunings` entry is the default with damage times 0.9 (1.17 calm, 1.305 enraged), haste unchanged. Soul attacks (novas, Wailing Souls, phases) are unchanged.
+- **Files:** `source/Shared/resources/xml/prod/EmbeddedData_lostHallsObjectsCXML.xml` (`LH Void Entity`), `custom/ElderObjects.xml` and `custom/Resurrection.xml` (both copies each: `MaxHitPoints` only), `source/WorldServer/logic/db/BehaviorDb.Void.cs`, `source/WorldServer/core/resurrection/Empowered.cs`, `source/Tests/EmpoweredPhaseTests.cs` (`EmpoweredVoidHitsATenthSofter`; `EmpoweredMalusIsSofter` compares with the Marble Colossus now), `website/wiki/necromantic-relic.md`, the changelog, SETUP-LOCAL.md. `Resurrection.xml` was patched by hand: a full `build_resurrection.py` run rewrites hand-tuned items and halves Max potion chances in `resurrection.json` (it has drifted, as before).
+- **Deploys:** the world server and the client together (XML). Nobody is disconnected. Redis untouched.
+
 ## Checks
+
+- Void Entities: the world server builds; Empowered, Elder dungeon and BehaviorStates tests pass (119). `build_wiki.py` shows 250,000, 400,000 and 550,000. Not fought in game.
 
 - Ivory Wyvern: the world server builds; ArenaSeason2 and Elder tests pass (113). Not fought in game.
 

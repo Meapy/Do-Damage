@@ -104,13 +104,25 @@ namespace Tests
                     $"Last Breath's ring at {radius} tiles has no gap");
         }
 
+        // the Empowered Void Entity's shots hit a tenth softer than the default; it fights as fast
+        [Fact]
+        public void EmpoweredVoidHitsATenthSofter()
+        {
+            var v = Empowered.TuningFor("Elder LH Void Entity");
+            var d = Empowered.DefaultTuning;
+            Assert.Equal(d.Damage * 0.9, v.Damage, 3);
+            Assert.Equal(d.EnragedDamage * 0.9, v.EnragedDamage, 3);
+            Assert.Equal(d.Haste, v.Haste);
+            Assert.Equal(d.EnragedHaste, v.EnragedHaste);
+        }
+
         // Empowered Malus fights softer and slower than the others, and his ritual souls can be
         // broken in time
         [Fact]
         public void EmpoweredMalusIsSofter()
         {
             var malus = Empowered.TuningFor("Elder LH Malus 2");
-            var other = Empowered.TuningFor("Elder LH Void Entity");
+            var other = Empowered.TuningFor("Elder LH Marble Colossus");
             Assert.Equal(Empowered.DefaultTuning, other);
             Assert.True(malus.Damage < other.Damage && malus.EnragedDamage < other.EnragedDamage);
             Assert.True(malus.Haste < other.Haste && malus.EnragedHaste < other.EnragedHaste);

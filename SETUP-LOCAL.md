@@ -724,6 +724,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Void Entities' health** (2026-11-27; `EmbeddedData_lostHallsObjectsCXML.xml`, both `ElderObjects.xml` and `Resurrection.xml`, `BehaviorDb.Void.cs`, `Empowered.cs` `Tunings`): the Void Entity 250,000 health, the Elder 400,000 (the Empowered 550,000 from it), each `ScaleHP2(10)` (5% in the Elder Void, `GroupScaling`); the Empowered Void Entity's shots at 0.9 times the default tuning (1.17, 1.305 enraged). World server and client.
 - **The Platinum Sword reworked as Rimebrand** (2026-11-27; `custom/DoomedRealms.xml`, both copies;
   shown as Rimebrand through `<DisplayId>`, its id `Platinum Sword` kept for loot, prices and listings;
   `BehaviorDb.IceTomb.cs`, `DoomedMonsters.cs`): the Ice Tomb's sword now, in `IceTombTreasure()`

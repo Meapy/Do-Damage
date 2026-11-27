@@ -61,7 +61,7 @@ An Empowered boss is the same boss, and it fights as it always did, but stronger
   {{v:raise_defense}} more defense (less for a boss already heavily armoured). In a group each player
   adds the same share as on the Elder boss;
 - its own shots hit 30% harder, and everything it does is a quarter faster (Malus, whose own fight
-  is already crowded, only 15% harder and a tenth faster);
+  is already crowded, only 15% harder and a tenth faster; the Void Entity's shots 17% harder);
 - for its first moments it is rising and can't be hurt.
 
 The souls fight for it too. Every soul shot the boss fires (the bolts, fast bolts, orbs and shards
@@ -72,7 +72,7 @@ of its Soul Nova and its phases) leaves you **Quiet** for a second: no mana whil
 - **Wailing Souls:** two ghosts that hunt the players and fire bolts at them, every 11 seconds, up to
   {{v:raise_souls}} at once. They go when the boss falls.
 - **Enraged,** below 30% health: faster still (nearly half as fast again as the Elder boss), shots
-  45% harder (Malus: a quarter faster, 25% harder), a Soul Nova every 5 seconds and three Wailing
+  45% harder (Malus: a quarter faster, 25% harder; the Void Entity: 30% harder), a Soul Nova every 5 seconds and three Wailing
   Souls every 8, glowing pink.
 
 ### Its phases
