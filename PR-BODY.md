@@ -2,6 +2,9 @@ Release 2.6.11
 
 ## For players
 
+### Realm
+- **A new realm event, the Rime Herald**, in both realms: the Frozen Court's herald, who always leaves the Ice Tomb's portal. It walks its ground throwing ice lances, rings of snowflakes and slowing hail; at 65% it raises four Frozen Sarcophagi round it and is Armored until they are broken, each letting out one of its dead, and raises them again a while after; below 30% it calls a whiteout and stalks and charges under falling hail. It drops the Ice Tomb's Frozen Wand, Arctic Bow and Tome of Frigid Protection, Defense and Wisdom potions. In the realm it comes on a patch of snowfield, rime ice and barrow flagstones; in Realm 2 it brings the **Frozen Barrow**, a land of snow, cracked ice, frigid pools (which sting and slow), graves, ice spires and braziers, with Barrow Mummies (with Ice Mites), Rime Wraiths and Frostfang Wolves, and quests the Barrow Colossus and the Frostfang Packmother, who can open the Ice Cave. A Realm 2 now shows eleven of its fifteen lands.
+
 ### Dungeons
 - **The Frozen Court fights like the Tomb of the Ancients' gods, harder:** the Crucible floors, banners, caches, shades and last stands stay, the three circle the Heart of Winter at the Tomb's pace (Kaldrun 5 tiles out, Hrimgar 6, Ysolde 7 the other way round), and each of the three now runs on the Tomb's turns. Every new turn opens with a taunt and 3 s behind a blue shield (untouchable). At 40% two **relics** come out (one more at 25%), shards of ice that circle their maker 2 tiles out and fire a three-shot fan every 2-2.4 s until shot down or their maker falls: Kaldrun's slow (Rime Relic, 5,000 health, 45 defence), Ysolde's darken (Aurora Relic, 4,000, 25), Hrimgar's bleed (Reaver Relic, 4,500, 35). Below 6% each **rages**: glowing red, chasing players, its whole kit plus its last stand's attacks and two more relics; the last one standing still makes its last stand below 15% and rages in it below 6%. Each also has a new turn: **Kaldrun** (as Bes) a ring of 20 snowflakes every 6 s from 80% and Armored while his relics are out; **Ysolde** (as Nut) a turning cross of quieting violet ribbons from 80%, and Aurora's Grace now keeps coming every 30 s through her relic turns; **Hrimgar** (as Geb) calls up to three hounds and lobs hailstones from 75%. His **Frenzy** at 50%, which he skipped (see Details), now comes every time.
 
@@ -45,8 +48,16 @@ nothing redeploys.
   squashed mid-session, naming the Doomed Realms content, folding testing pitfalls into the notes
   they belong with.
 
+### The Rime Herald and the Frozen Barrow
+
+- **What and why:** the owner asked for a realm event that drops the Ice Tomb's portal, made like the Gilded Thief, Starborn Colossus and Blight Mother (a set piece in Realm 1, a land in Realm 2). The Rime Herald is the Court's herald: a walking phase, a sealed phase behind sarcophagi (Armored while any stands, `EntitiesNotExistsTransition` or 30 s), a hail phase (`Starfall` on the players) that raises the sarcophagi again after 20 s, and below 30% a whiteout then stalk-and-charge with its dead. It always drops the Ice Tomb Portal; its quests drop the Ice Cave Portal at 0.3, as the other lands' quests drop the easier dungeon.
+- **Files:** `BehaviorDb.RealmEvents.cs` (Rime Herald, Herald's Sarcophagus, Herald's Dead, and the Frozen Barrow's six monsters), `RealmManager.cs` (`_events`, taunt, spawn line, `EventParts`, `ScaledEventMonsters`), `RealmManager.Snapshot.cs`, `RealmEventGrounds.cs` (`FrozenBarrow`), `Realm2Themes.cs` (`frost`), `Realm2EventPainter.cs` (its arena: rime ice, a ring of graves, a frigid moat, flagstone causeways, braziers and spires), `RealmEventsTests.cs`; art and data in `tools/realm2/art.py` (frost palette, scenery, a rime wall, the Herald and its sarcophagus drawn), `tools/realm2/adapted.py` (the land's monsters from the Ice Tomb's art), `tools/build_realm2.py` (grounds, monsters, sounds); regenerated the Realm2 XML (both copies), `Realm2Chars16x16.png`, `Realm2Env8x8.png` (its later cells move along; the XML follows) and `tools/realm2/types.json`. Wiki: `progression.md`, `realm-2.md`, `dungeons.md`.
+- **Deploys:** world server and client (new art and XML; an older client draws the Herald and its land blank). Nobody is disconnected.
+- **Not done:** not fought in game; health and damage may want tuning after a run.
+
 ## Checks
 
+- Rime Herald: the world server builds; `dotnet test` passes (567), with the Herald in `TheNewEventsAreQuestsOfLevelTwenty`; `build_realm2.py` reruns clean (60 grounds, 190 objects), every new id unique.
 - Ice Tomb sprites: rendered with the client's outline beside the game's own monsters and shots; one run on an isolated stack (slot 1) spawning the Court, relics and the tomb's dead in a vault showed the new art in the client. `build_ice_tomb.py` changes only the four sheets; `build_wiki.py` builds.
 - Circling: the world server builds; BehaviorStates, IceTomb and ArenaSeason2 tests pass.
 - Frozen Court: the world server builds; `dotnet test` (BehaviorStates, IceTomb, ArenaSeason2, ElderDungeons: 110 passed); `build_ice_tomb.py` rerun changes only the relics (map unchanged); the relic sprites looked at; `build_wiki.py` builds.

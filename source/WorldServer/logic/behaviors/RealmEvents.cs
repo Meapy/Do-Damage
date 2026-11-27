@@ -9,8 +9,8 @@ using WorldServer.utils;
 
 namespace WorldServer.logic.behaviors
 {
-    // Behaviours of the realm events added with the Thieves' Bazaar, the Starfall Crater and the
-    // Blightwood (BehaviorDb.RealmEvents.cs).
+    // Behaviours of the realm events added with the Thieves' Bazaar, the Starfall Crater, the
+    // Blightwood and the Frozen Barrow (BehaviorDb.RealmEvents.cs).
 
     /// <summary>
     /// The Gilded Thief's vanishing trick: with a player chasing it, every so often it puffs into

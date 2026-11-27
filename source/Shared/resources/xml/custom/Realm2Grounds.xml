@@ -1217,4 +1217,93 @@
 		<BlendPriority>4</BlendPriority>
 		<Color>0x4A6A1A</Color>
 	</Ground>
+	<Ground type="0x7838" id="R2 Snowfield">
+		<RandomTexture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd4</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd5</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd6</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd7</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>5</BlendPriority>
+		<Color>0xDCE8F4</Color>
+	</Ground>
+	<Ground type="0x7839" id="R2 Rime Ice">
+		<RandomTexture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd8</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xd9</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xda</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xdb</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>6</BlendPriority>
+		<Color>0x7AB8E0</Color>
+	</Ground>
+	<Ground type="0x783A" id="R2 Barrow Flagstones">
+		<RandomTexture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xdc</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xdd</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xde</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xdf</Index>
+			</Texture>
+		</RandomTexture>
+		<BlendPriority>7</BlendPriority>
+		<Color>0x3E5A7C</Color>
+	</Ground>
+	<Ground type="0x783B" id="R2 Frigid Pool">
+		<RandomTexture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xe0</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xe1</Index>
+			</Texture>
+			<Texture>
+				<File>realm2Env8x8</File>
+				<Index>0xe2</Index>
+			</Texture>
+		</RandomTexture>
+		<Sink />
+		<Speed>0.6</Speed>
+		<MinDamage>30</MinDamage>
+		<MaxDamage>30</MaxDamage>
+		<Animate dx="0.05" dy="0.05">Flow</Animate>
+		<BlendPriority>4</BlendPriority>
+		<Color>0x163A60</Color>
+	</Ground>
 </GroundTypes>

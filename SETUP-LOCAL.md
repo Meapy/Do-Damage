@@ -1452,7 +1452,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   so a Realm 2 shows 11 of its 14 lands; its lands spread along the Godlands by that count.
   Their drops are UTs that had no source: the Heart of Gold Prism, Keychain Cutlass, Dueling Daggers,
   Comet of Calamity, Starlight Recurve, Moonbeam Blade, Gaseous Glaive, Corrosion Cutter and Sewer
-  Cocktail (0.6% each). Admins: `/realmevent <word> [here]` starts one of the realm's events nearby (with `here`, 8 tiles east of you),
+  Cocktail (0.6% each). A fourth, the Rime Herald (2026-11-27), opens the Ice Tomb (its portal
+  always): it raises four Herald's Sarcophagi at 65% (`TossObject`) and is Armored while any
+  stands, each `TransformOnDeath` into a Herald's Dead; it raises them again 20 s after they fall
+  (or 30 s on); below 30% a whiteout, then it stalks and charges under `Starfall` hail. Its land,
+  the Frozen Barrow (`frost`), has Barrow Mummies (with Ice Mites), Rime Wraiths and Frostfang
+  Wolves, adapted from the Ice Tomb's art (`tools/realm2/adapted.py`), and quests the Barrow
+  Colossus and Frostfang Packmother (Ice Cave Portal, 0.3); it drops the Ice Tomb's Frozen Wand,
+  Arctic Bow and Tome of Frigid Protection (0.4%). A Realm 2 shows 11 of 15 lands. Admins: `/realmevent <word> [here]` starts one of the realm's events nearby (with `here`, 8 tiles east of you),
   `/realm2 next <land>` brings that land next.
 
 - **The Necromantic items' looks** (2026-11-12; server `Player.RelicPowers.cs` `Fx`/`RelicFx`,

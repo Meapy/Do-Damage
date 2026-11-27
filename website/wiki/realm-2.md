@@ -49,7 +49,7 @@ but some of what they hold is:
 
 Events come one at a time, as in the realm (more at once when it's busy). First the two easy ones,
 the **Lucky Ent God** and the **Lucky Djinn**, in the midlands. Then come the big events in a
-random order, eleven of the fourteen below (so each Realm 2 has a different mix), and each one
+random order, eleven of the fifteen below (so each Realm 2 has a different mix), and each one
 brings **a land of its own** when it appears: its own ground,
 scenery, ruined walls and monsters, with its boss in an arena at its heart. Every land comes a
 little further from the shore than the last, in any direction, and well apart from the others.
@@ -78,6 +78,7 @@ touched for a minute and a half no longer holds up the next.
 | The Thieves' Bazaar | Gilded Thief | Cutpurse (with Hoard Rats), Bazaar Bruiser, Gold Gremlin | Bandit King, Gilded Effigy |
 | The Starfall Crater | Starborn Colossus | Astral Sentinel (with Star Motes), Meteorling, Void Watcher | Star Prism, Comet Wraith |
 | The Blightwood | Blight Mother | Rot Shambler (with Spore Puffs), Shroom Brute, Blight Webspinner | Mycelial Horror, Rotcap Elder |
+| The Frozen Barrow | Rime Herald | Barrow Mummy (with Ice Mites), Rime Wraith, Frostfang Wolf | Barrow Colossus, Frostfang Packmother |
 
 - **Monsters** roam in small groups, as the gods do, and are about as strong. They drop as the gods
   do (tiered gear up to T10 armour, and a stat potion of their land's kind now and then) and count
@@ -91,11 +92,12 @@ touched for a minute and a half no longer holds up the next.
   Tombs), Undead Lair (the Bonefields), Magic Woods (the Jade Garden; its Oni Warlord can open the
   Forbidden Jungle too), Cave of a Thousand Treasures (the Dragon's Roost), Manor of the Immortals
   (the Forgotten Kingdom), Forest Maze (the Honey Meadow), Pirate Cave (the Thieves' Bazaar), Ice
-  Cave (the Starfall Crater) and Toxic Sewers (the Blightwood). Each land always has its two; one
+  Cave (the Starfall Crater), Toxic Sewers (the Blightwood) and Ice Cave (the Frozen Barrow,
+  whose Rime Herald opens the Ice Tomb). Each land always has its two; one
   that dies comes back within a minute or so.
 - Some lands have ground of their own to watch for: the Dragon's Roost's **lava** and the Forgotten
   Kingdom's **crystal lava** burn, the Sunken Tombs' **sinking sand** slows you and pulls you under,
-  the Blightwood's **bogs** sting and slow you, and the Honey Meadow's **honey**, the Starfall
+  the Blightwood's **bogs** and the Frozen Barrow's **frigid pools** sting and slow you, and the Honey Meadow's **honey**, the Starfall
   Crater's **starlight** and the Tidepools' and Wreck Coast's water slow you.
 - Bosses that bring a map of their own bring it in their land's colours: the Hermit God's island
   in the Tidepools' seagrass and kelp with a deep lagoon, the Skull Shrine's court in the

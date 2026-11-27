@@ -127,7 +127,7 @@ follow him round the room and burst when he dies.
 
 ## The Ice Tomb
 
-The Lord of the Lost Lands' portal, or an Ice Tomb Key, opens a frozen tomb laid out anew each
+The Lord of the Lost Lands' portal, the Rime Herald's (a realm event, always), or an Ice Tomb Key, opens a frozen tomb laid out anew each
 run, hanging in a polar night with the aurora rippling across the sky round it. Its rooms are
 turned about and joined by rough-hewn passages that wind from one to the next. It has twenty
 rooms, each something of their own: cross-shaped crypts whose

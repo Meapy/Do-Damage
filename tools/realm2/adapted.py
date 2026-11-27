@@ -308,6 +308,13 @@ ADAPTED = {
         "rules": [((0, 40), ["#1a0e1e", "#3a2040", "#5a3060", "#7a4a80", "#b090b0"])],
         "contrast": 1.15,
     }),
+    # --- the Frozen Barrow: the Ice Tomb's own dead, out in the realm in their own colours
+    "R2 Barrow Mummy": ("frost", {"from": "Rimebound Mummy", "rules": []}),
+    "R2 Rime Wraith": ("frost", {"from": "Frost Wraith", "rules": []}),
+    "R2 Frostfang Wolf": ("frost", {"from": "Frostfang Hound", "rules": []}),
+    "R2 Ice Mite": ("frost", {"from": "Glacial Scarab", "rules": []}),
+    "R2 Barrow Colossus": ("frost", {"from": "Rime Colossus", "rules": []}),
+    "R2 Frostfang Packmother": ("frost", {"from": "Frostfang Alpha", "rules": []}),
     # --- the realm events' own (both realms)
     # the Gilded Thief: a sneak in royal plum, its sack bulging with gold
     "Gilded Thief": ("thief", {
@@ -360,6 +367,11 @@ ADAPTED = {
         "from": "GC Mushroom Circler Melee",
         "rules": [((340, 30), ["#3a2040", "#6a3a6a", "#9a5a9a"]), ((170, 200), ["#8ae040", "#eaffb0"]),
                   ("light", ["#a8d050", "#eaffb0"]), ((25, 40), ["#5a7a22", "#a8d050"])],
+    }),
+    # the dead the Rime Herald's sarcophagi let out: the tomb's mummies, greyed by the grave
+    "Herald's Dead": ("frost", {
+        "from": "Rimebound Mummy",
+        "rules": [((150, 260), ["#262c38", "#4a5262", "#7a8496", "#aab4c4", "#d0d8e2"])],
     }),
     "Sporeling": ("blight", {
         "from": "GC Mushroom Spiral Mage",

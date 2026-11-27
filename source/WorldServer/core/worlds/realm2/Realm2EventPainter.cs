@@ -212,6 +212,16 @@ namespace WorldServer.core.worlds.realm2
                     _c.Ring(c, ArenaRadius + 6, 12, "R2 Giant Toadstool");
                     _c.Ring(c, ArenaRadius - 5, 6, "R2 Glowcap", 0.5);
                     break;
+                case "frost":
+                    // the barrow's court: old flagstones round a ring of frozen graves, a moat of
+                    // meltwater with four ways across, braziers of cold fire, spires of ice beyond
+                    _c.Circle(c, ArenaRadius - 2, "R2 Rime Ice");
+                    _c.Ring(c, ArenaRadius - 4, 8, "R2 Frozen Grave", 0.2);
+                    _c.Annulus(c, ArenaRadius + 2, ArenaRadius + 3, "R2 Frigid Pool");
+                    _c.Cross(c, ArenaRadius + 4, "R2 Barrow Flagstones", 2);
+                    _c.Ring(c, ArenaRadius + 1, 4, "R2 Frost Brazier", 0.39);
+                    _c.Ring(c, ArenaRadius + 6, 12, "R2 Ice Spire", 0.1);
+                    break;
             }
         }
 

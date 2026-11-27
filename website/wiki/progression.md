@@ -147,11 +147,17 @@ Three of them play differently from the rest:
   left to ripen, bursts into a ring of spores and a Sporeling, so someone has to weed while the
   rest fight. Her spore clouds make you Sick (no healing). At 60% she tears up her roots and stalks
   you, and at 25% every pod she has ripens at once.
+- **The Rime Herald**, the Frozen Court's herald, walks a barrow of snow and old graves throwing
+  ice lances, rings of snowflakes and hail that slows you. At 65% it raises four **Frozen
+  Sarcophagi** round it and is Armored until they are broken, each letting out one of its dead,
+  and raises them again every 20 seconds or so. Below 30% it calls a whiteout and runs you down
+  under falling hail. It always leaves the portal to the **Ice Tomb**.
 
 Each drops weapons found nowhere else: the Heart of Gold Prism, Keychain Cutlass and Dueling
 Daggers (the Gilded Thief), the Comet of Calamity, Starlight Recurve and Moonbeam Blade (the
 Starborn Colossus) and the Gaseous Glaive, Corrosion Cutter and Sewer Cocktail (the Blight
-Mother).
+Mother). The Rime Herald drops the Ice Tomb's Frozen Wand, Arctic Bow and Tome of Frigid
+Protection instead.
 
 Events scale with the players around them. An event boss has 60% of its health when 1 or 2
 players fight it, and 20% more for each extra player who comes near, up to three times its health;
