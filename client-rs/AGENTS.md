@@ -189,6 +189,9 @@ the gaps between NewTicks. Its flags:
 - `--effect 270` repeats the Maw every half second, so a shot shows two or three on top of each
   other: judge how heavy an effect looks from a real cast (`--mouse` on the target, `--hold
   space:150`), not from `--effect`.
+- The world log doesn't always say `RealmManager.Restore` or `opened again` (2026-11-27, a fresh
+  copy of the data): wait instead for port 2052 (plus the slot) to listen and a
+  `NexusGuide.OpenDungeon` line; the client signed in fine then.
 - `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
   characters (a class, items, `alive.1`) are lost and must be made again after each start.
 - To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it

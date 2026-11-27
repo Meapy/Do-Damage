@@ -386,6 +386,7 @@ def joined(parts):
 HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Controller|Event Hive Corpse|Loot Balloon|Loot Chest|Treasure Cache|Ivory Loot")
 # bosses a script brings in, which the dungeon's map doesn't place
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
+                 "Ice Tomb": "Kaldrun, the Rime Warden",
                  "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
                  "The Elder Shatters": "Elder shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Elder Cemetery": "Elder Ghost of Skuld",

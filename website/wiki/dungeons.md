@@ -125,6 +125,37 @@ him; armoured at the back of the room in a storm of flames and lava bombs; and a
 healing in the middle with two invulnerable **Experimental Soldier Bees** of one colour, which
 follow him round the room and burst when he dies.
 
+## The Ice Tomb
+
+The Lord of the Lost Lands' portal, or an Ice Tomb Key, opens a frozen tomb laid out anew each
+run, from twenty rooms that are each something of their own: cross-shaped crypts whose
+**sarcophagi** crack open when you come near and let out a mummy, frozen lakes of **thin ice**
+that cracks under you if you stand still and breaks into freezing water (it slows you, pulls you
+down and hurts) before it freezes over again, with a **Rime Serpent** surfacing out of them,
+**chasms** you cross on an ice bridge that freezes across as you come to the edge, octagon
+shrines, hounds' dens, galleries round a pit, a crevasse, a honeycomb nest and an ossuary.
+
+Three of the rooms hold **seals**, each guarded by a keeper: the **Rime Colossus** (the Seal of
+the Warden), the **Aurora Matron** (the Seal of the Oracle) and the **Frostfang Alpha** (the Seal
+of the Reaver). A seal can't be hurt while its keeper lives. At the **Sealed Door** a lantern
+lights for each seal broken; with all three broken, come to the door and it opens: the wall
+behind it falls away, a bridge of ice builds itself across the dark, and a great round hall
+rises at its end, a snowflake flaring on its floor, where **the Frozen Court** wakes on its three
+thrones.
+
+The Court is fought all at once, like the Crucible's champions: **Kaldrun, the Rime Warden**
+(90,000 health), **Ysolde, the Aurora Oracle** (70,000) and **Hrimgar, the Frost Reaver**
+(80,000). Banners name each of their moves. In turn the hall is swept by an **Avalanche**, an
+**Aurora Veil**, **Frost Fissures**, a **Blizzard** and a **Hailstorm**, each only while the one
+who calls it lives, and caches like the Crucible's fall in the hall between. Kaldrun raises a
+**Glacial Bulwark** at 60% of his health, walling himself in behind four Rime Pillars until they
+break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, and again every
+30 seconds; Hrimgar hunts the nearest player, leaps on them and goes into a **Frenzy** at half
+his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
+(**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
+treasure (the old Ice Tomb Chest's, half again as often), potions, and rarely its own pet; the
+keepers drop Defense and Vitality potions.
+
 ## Underwater: the Ocean Trench and the Cnidarian Reef
 
 ![The Cnidarian Reef, under the sea](cnidarian-reef)

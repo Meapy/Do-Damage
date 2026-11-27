@@ -31,7 +31,10 @@ namespace WorldServer.logic
         private const double CourtSight = 28;
         // the caches the Court's hall drops (CrucibleCaches): the tomb's frost, storm, hex and rending
         private static readonly string[] TombCaches = { "Frost Cask", "Stormglass Jar", "Hex Urn", "Rending Crate" };
-        private const string Kaldrun = "Kaldrun, the Rime Warden", Ysolde = "Ysolde, the Aurora Oracle", Hrimgar = "Hrimgar, the Frost Reaver";
+        // one to a line: the wiki (tools/wiki_data.py) reads them
+        private const string Kaldrun = "Kaldrun, the Rime Warden";
+        private const string Ysolde = "Ysolde, the Aurora Oracle";
+        private const string Hrimgar = "Hrimgar, the Frost Reaver";
         private const uint FrostGlow = 0xFF9FE8FF, AuroraGlow = 0xFF4AE8A4, SteelGlow = 0xFF9AB4D4, VioletGlow = 0xFF9060D8;
 
         // The tomb's treasure, once the old Ice Tomb Chest's: each of the Court drops it at half the

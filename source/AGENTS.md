@@ -48,6 +48,10 @@ dotnet test source\Tests
   and send the bot to the Godlands (`--fight --say "/godlands"`): it died within 30 s.
 - **Stopping cleanly:** Ctrl+C or SIGTERM: `GameServer.Stop` ends the loop and
   `ConnectionListener.Shutdown` disconnects (and so saves) each player. A forced kill skips that.
+- Rewriting a dungeon's behaviours: `ArenaSeason2Tests` fails if a monster the Arena's season 2
+  still fights (`ArenaSeason2.cs`) loses its behaviour; keep those in a file of their own (the old
+  Ice Tomb trio is in `BehaviorDb.IceTombArena.cs`). New object ids must not repeat any in the
+  XML anywhere (a shot named `Snowflake` clashed with a Permapets object): no test catches it.
 
 ## Rolling deploys (world proxy)
 
