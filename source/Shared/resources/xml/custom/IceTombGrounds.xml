@@ -439,7 +439,7 @@
 				<Index>0x49</Index>
 			</Texture>
 		</RandomTexture>
-		<Color>0x1A2436</Color>
+		<Color>0x2C5E8C</Color>
 	</Ground>
 	<Ground type="0xCA18" id="Glacier Floor">
 		<RandomTexture>

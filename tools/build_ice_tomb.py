@@ -124,7 +124,7 @@ GROUNDS = {
     "Permafrost": ("0xA8DCF6", {"MinDamage": 75, "MaxDamage": 90}),
     "Ice Floe": ("0xCFE6F6", {"SlideAmount": 0.85, "Slippery": None}),
     "Ice Floe Rim": ("0xE8F6FF", {}),
-    "Ice Tomb Wall Floor": ("0x1A2436", {}),
+    "Ice Tomb Wall Floor": ("0x2C5E8C", {}),
     "Glacier Floor": ("0x4A78A2", {"BlendPriority": 10}),
     "Tomb Mosaic": ("0x4A6488", {}),
     "Bone Floor": ("0x4A5262", {}),

@@ -34,12 +34,20 @@ namespace Shared.resources
         // empty tiles kept round the layout (<RandomLayout margin="56">): room for what's built in
         // the dark round it later (the Elder Tomb's Hall of Judgement, core/resurrection/TombCourt.cs)
         public readonly int Margin;
+        // the share of corridors that bend (<RandomLayout winding="0.8">): the room they lead to is
+        // set off to one side, and the corridor turns once or twice on its way there, now and then
+        // through a small landing at a turn. 0, every corridor straight, door to door
+        public readonly double Winding;
+        // each room may be laid mirrored, left to right and top to bottom (<RandomLayout mirror="1">)
+        public readonly bool Mirror;
 
         public RandomLayoutDesc(XElement e)
         {
             Keep = Split(e.GetAttribute("keep", ""));
             Entrance = Split(e.GetAttribute("entrance", ""));
             Margin = e.GetAttribute("margin", 4);
+            Winding = System.Math.Clamp(e.GetAttribute("winding", 0.0), 0.0, 1.0);
+            Mirror = e.GetAttribute("mirror", 0) != 0;
             Small = e.GetAttribute("small", 0.4);
             Medium = e.GetAttribute("medium", 0.65);
             Large = e.GetAttribute("large", 1.0);

@@ -390,8 +390,8 @@ TILES = {
     # the floe the Shattered Lake leaves, and its rim
     "Ice Floe": (smooth("#cfe6f6", ["#bcdcf0", "#ddf0fb"], specks=3, sparkle=("#ffffff", "#e8f6ff")), 3),
     "Ice Floe Rim": (smooth("#f2faff", ["#dceefa"], specks=2), 2),
-    # under the walls
-    "Ice Tomb Wall Floor": (smooth("#18202e", ["#1c2636"], specks=2), 2),
+    # under the walls: the glacier's ice, which shows where a wall stands at the edge of the drop
+    "Ice Tomb Wall Floor": (facets("#2c5e8c", "#4a86b8", "#1e4670", "#9cd4f4"), 2),
     # the glacier caves: packed blue snow and ice; the old tomb's mosaic in its finer rooms; the
     # ossuary's slate strewn with bone
     "Glacier Floor": (smooth("#4a78a2", ["#5486ae", "#42709a"], specks=3, sparkle=("#cfeaff", "#7aaad2"), deep="#44709a"), 6),

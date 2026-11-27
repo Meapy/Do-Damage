@@ -733,7 +733,9 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   banners (cues 29-43, encounter "floor" 10 in `crucible.rs`). The old trio (Defender, Support,
   Attacker) only fights in the Arena now (`BehaviorDb.IceTombArena.cs`). The tomb hangs in a polar
   night (`<Background>10</Background>`, the client's `aurorasky.rs` and `islands::ICE`), its chasms
-  open onto it, and its lake ice is slippery (`<SlideAmount>` with `<Slippery/>`, which the Rust
+  open onto it, its passages wind and its rooms come mirrored (`<RandomLayout winding="1"
+  mirror="1">`, `DungeonGenerator.AttachBent` and `Flip`; any random-layout world may use them;
+  look at layouts with `tools/ice_tomb/draw_layout.py`), and its lake ice is slippery (`<SlideAmount>` with `<Slippery/>`, which the Rust
   client honours since 2026-11-27; other grounds' SlideAmount stays unused). Rebuild the map, XML and
   sheets with `python tools/build_ice_tomb.py` (`--preview` draws the map), then
   `python tools/gen_rs_manifest.py`.

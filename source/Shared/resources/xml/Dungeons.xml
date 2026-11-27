@@ -267,7 +267,7 @@
 		<Width>176</Width>
 		<Height>220</Height>
 		<MapJM>Dungeons/Ice Tomb.jm</MapJM>
-		<RandomLayout passage="4" corridor="3" margin="56" keep="Chasm Mist">
+		<RandomLayout passage="4" corridor="3" margin="56" keep="Chasm Mist" winding="1" mirror="1">
 			<Goal>Seal of the Warden</Goal>
 			<Goal>Seal of the Oracle</Goal>
 			<Goal>Seal of the Reaver</Goal>

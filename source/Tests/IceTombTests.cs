@@ -108,6 +108,18 @@ namespace Tests
                     Assert.Equal(CourtCell.Void, Cell(data, tiles[q.X, q.Y]));
                 Assert.True(plan.EntryS >= TombCourtPlan.MinWalk, $"seed {seed}: a bridge of only {plan.EntryS:0.0}");
                 different.Add(Draw(tiles, null));
+                // BSK_LAYOUT_DUMP=<folder>: the first layouts as JSON (each square's ground and
+                // object), for drawing them with the tiles (a script reads them)
+                var dump = Environment.GetEnvironmentVariable("BSK_LAYOUT_DUMP");
+                if (!string.IsNullOrEmpty(dump) && seed < 6)
+                {
+                    Directory.CreateDirectory(dump);
+                    var ground = Enumerable.Range(0, h).Select(y => Enumerable.Range(0, w).Select(x =>
+                        data.Tiles.TryGetValue(tiles[x, y].TileId, out var td) ? td.ObjectId : "").ToArray()).ToArray();
+                    var objs = Enumerable.Range(0, h).Select(y => Enumerable.Range(0, w).Select(x => tiles[x, y].TileObj ?? "").ToArray()).ToArray();
+                    File.WriteAllText(Path.Combine(dump, $"seed{seed}.json"),
+                        System.Text.Json.JsonSerializer.Serialize(new { width = w, height = h, ground, objs }));
+                }
                 if (seed < 2)
                     _out.WriteLine($"seed {seed}: {w}x{h}, bridge {plan.EntryS:0.0} squares\n{Draw(tiles, plan)}");
             }
