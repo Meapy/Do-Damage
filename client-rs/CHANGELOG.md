@@ -15,7 +15,8 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ## Unreleased
 
 ### Dungeons
-- **The Frozen Court fights like the Tomb of the Ancients' gods, harder:** on top of its moving floors, each of the three now turns as its health falls behind a blue shield, sends out relics of ice that circle it firing (at 40% and 25%), and rages red below 6%, chasing you down. Kaldrun rings the hall with snowflakes and is armored while his relics are out, Ysolde weaves a cross of quieting ribbons, and Hrimgar calls his hounds and lobs hailstones; Hrimgar's Frenzy, which he nearly always skipped, now comes every time at half his health.
+- **The Frozen Court fights like the Tomb of the Ancients' gods, harder:** on top of its moving floors, the three now circle the Heart of Winter as Bes, Nut and Geb circle their tomb, each turns as its health falls behind a blue shield, sends out relics of ice that circle it firing (at 40% and 25%), and rages red below 6%, chasing you down. Kaldrun rings the hall with snowflakes and is armored while his relics are out, Ysolde weaves a cross of quieting ribbons, and Hrimgar calls his hounds and lobs hailstones; Hrimgar's Frenzy, which he nearly always skipped, now comes every time at half his health.
+- **The Ice Tomb's new look:** every creature in it, the Seal Keepers, the Frozen Court (and their pets) and all their shots are redrawn in bold, bright pixel art like the rest of the game's monsters, each with a shape of its own: no more pale blue blurs on the ice.
 
 ## 2.6.10 (2026-11-27)
 

@@ -192,6 +192,11 @@ Example, the Arena (portal in the shrine's floor north-west of the spawn; monste
   for a Mechanic's blueprint in the vault): check the log for `sent:` naming `UseItem`, and MP in
   the shot, before reading anything into it; one run that sends it is enough. Test an ability's
   logic with a server unit test rather than spending runs on it.
+- **Looking at monsters:** Tester's character on the copied data is a Mechanic, and its turrets
+  and pet kill what you `/spawn` in a vault within seconds (a Court boss inside 20 s), and the
+  monsters crowd onto you. For a sprite's look, render the sheet with an outline instead (as
+  `tools/ice_tomb/pixels.py`'s were checked); for a shot in game, take it a few seconds after the
+  last `/spawn`.
 - **Your own shots:** the Nexus lets nobody shoot. Without `--aim`, `--hold f` sent no
   `PlayerShoot`; `--hold i:100` (autofire) with `--mouse` does. The `--hold` steps start at the
   first world joined, after `--shot-after`'s clock has started, so keep a leading `--hold -:<ms>`
