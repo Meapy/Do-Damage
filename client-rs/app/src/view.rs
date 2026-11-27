@@ -2272,6 +2272,16 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
     let Some(side) = side else { return };
     // `<WallHeight>`: a pillar, as tall as a floor, in pieces a tile tall, its sides all stone
     let tall = desc.xml.number("WallHeight", 1.0);
+    // a tall wall's sides under its topmost tile (`<WallBase>`), its brow on top
+    let base = desc
+        .wall_base
+        .as_ref()
+        .and_then(|t| scene.texture_src(t, obj.id))
+        .and_then(|s| scene.sprites.atlas(s))
+        .unwrap_or(side);
+    // a tall wall standing in front of you (between you and the camera) is seen through, so it
+    // never hides you or what's shooting at you
+    let alpha = if tall > 1.0 && scene.world.levels.is_none() { tall_wall_alpha(scene, xi, yi, tall) } else { 1.0 };
 
     // Sides, in Wall.addWall order: north, east, south, west; neighbours at sqX/sqY.
     let corners = [
@@ -2290,23 +2300,30 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         if cross >= 0.0 {
             continue;
         }
-        if tall != 1.0 {
-            let s = shade(normal(v0, v1, [b[0], b[1], z]));
-            let mut low = z;
-            while low < z + tall - 0.01 {
-                let high = (low + 1.0).min(z + tall);
-                let quad = cam.quad([a[0], a[1], high], [b[0], b[1], high], [a[0], a[1], low]);
-                renderer.sprite(side, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
-                low = high;
-            }
-            continue;
-        }
         let (sx, sy) = (xi as i32 + nx, yi as i32 + ny);
-        let neighbour_wall = scene
+        let neighbour = scene
             .world
             .occupant_at(obj.level, sx, sy)
             .and_then(|o| scene.data.objects.get(&o.object_type))
-            .is_some_and(|d| d.class.is_wall());
+            .filter(|d| d.class.is_wall());
+        let neighbour_wall = neighbour.is_some();
+        if tall != 1.0 {
+            // against a wall as tall, the side is inside the block: nothing to draw
+            if neighbour.is_some_and(|d| d.xml.number("WallHeight", 1.0) >= tall) {
+                continue;
+            }
+            let s = shade(normal(v0, v1, [b[0], b[1], z]));
+            // from the top down, so a part-tile piece falls at the foot
+            let mut high = z + tall;
+            while high > z + 0.01 {
+                let low = (high - 1.0).max(z);
+                let quad = cam.quad([a[0], a[1], high], [b[0], b[1], high], [a[0], a[1], low]);
+                let tex = if high >= z + tall - 0.01 { side } else { base };
+                renderer.sprite(tex, quad, Tint { mul: [s, s, s, alpha], add: [0.0; 3] });
+                high = low;
+            }
+            continue;
+        }
         // black against another wall, or against ground not yet seen; on stacked floors a side
         // with nothing beyond faces open air, and shows its stone
         let unknown = scene.world.levels.is_none() && scene.world.level_tile(obj.level, sx, sy).is_none();
@@ -2322,13 +2339,60 @@ fn draw_wall(scene: &Scene, renderer: &mut Renderer, obj: &GameObj, desc: &Objec
         let v0 = [xi, yi, z];
         let s = shade(normal(v0, [xi + 1.0, yi, z], [xi + 1.0, yi + 1.0, z]));
         let quad = cam.quad(v0, [xi + 1.0, yi, z], [xi, yi + 1.0, z]);
-        renderer.sprite(top, quad, Tint { mul: [s, s, s, 1.0], add: [0.0; 3] });
+        renderer.sprite(top, quad, Tint { mul: [s, s, s, alpha], add: [0.0; 3] });
     }
+}
+
+/// How solid a tall wall at (`xi`, `yi`) is drawn: see-through (`TALL_WALL_SEEN_THROUGH`) while
+/// it stands over you on the screen, so you're never lost behind it, solid again a tile clear.
+fn tall_wall_alpha(scene: &Scene, xi: f64, yi: f64, tall: f64) -> f32 {
+    let Some(me) = scene.world.me.and_then(|id| scene.world.objects.get(&id)) else { return 1.0 };
+    let cam = scene.camera;
+    let foot = cam.to_screen(xi + 0.5, yi + 0.5, 0.0);
+    let head = cam.to_screen(xi + 0.5, yi + 0.5, tall);
+    let you = cam.to_screen(me.x, me.y, 0.4);
+    tall_wall_cover(foot, head, you, cam.scale as f32)
+}
+
+pub const TALL_WALL_SEEN_THROUGH: f32 = 0.38;
+
+/// The pure part of `tall_wall_alpha`: a wall whose foot and head (its middle at the ground and
+/// at its top) are drawn at `foot` and `head`, and you at `you`, a tile being `tile` pixels.
+fn tall_wall_cover(foot: [f32; 2], head: [f32; 2], you: [f32; 2], tile: f32) -> f32 {
+    // across: how far you are beside the wall's column; up: where you are along it, 0 at its foot
+    let (ux, uy) = (head[0] - foot[0], head[1] - foot[1]);
+    let len = (ux * ux + uy * uy).sqrt().max(1.0);
+    let (dx, dy) = (you[0] - foot[0], you[1] - foot[1]);
+    let along = (dx * ux + dy * uy) / len;
+    let across = ((dx * uy - dy * ux) / len).abs();
+    if along < 0.2 * tile || along > len + 0.6 * tile {
+        return 1.0;
+    }
+    // full cover within a tile of the column, easing back to solid over the next
+    let edge = ((across - tile) / tile).clamp(0.0, 1.0);
+    TALL_WALL_SEEN_THROUGH + (1.0 - TALL_WALL_SEEN_THROUGH) * edge
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_tall_wall_is_seen_through_only_while_over_you() {
+        // a wall three tiles tall, 40 px a tile: its foot at (100, 300), its head 120 px up
+        let (foot, head, tile) = ([100.0, 300.0], [100.0, 180.0], 40.0);
+        // behind it, up its column
+        assert_eq!(tall_wall_cover(foot, head, [100.0, 240.0], tile), TALL_WALL_SEEN_THROUGH);
+        // in front of it, below its foot
+        assert_eq!(tall_wall_cover(foot, head, [100.0, 340.0], tile), 1.0);
+        // well beside it
+        assert_eq!(tall_wall_cover(foot, head, [200.0, 240.0], tile), 1.0);
+        // half a tile past the first tile beside it: half way back
+        let a = tall_wall_cover(foot, head, [160.0, 240.0], tile);
+        assert!(a > TALL_WALL_SEEN_THROUGH && a < 1.0, "{a}");
+        // past its head
+        assert_eq!(tall_wall_cover(foot, head, [100.0, 100.0], tile), 1.0);
+    }
 
     #[test]
     fn expiry_flashes_only_in_the_warning_window() {

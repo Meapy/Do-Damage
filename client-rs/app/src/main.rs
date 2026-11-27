@@ -10,6 +10,7 @@ mod chi;
 mod changelog;
 mod collection;
 mod community;
+mod goldsale;
 mod connected;
 mod crosshair;
 mod crucible;
@@ -307,6 +308,8 @@ struct App {
     /// The community goals window and its banners, and what it asked of the server.
     community: community::Community,
     community_acts: Vec<community::Act>,
+    /// A gold discount's banner (Black Friday), shown on entering the Nexus.
+    gold_sale: goldsale::GoldSale,
     /// The Collection (the vault's stand) and the Pen Keeper's window, and what they ask of the
     /// server: a Collection request, the Pen Keeper's acts (act, inventory slot).
     collection: collection::Collection,
@@ -3130,6 +3133,18 @@ impl App {
                 log::info!("pass: {act:?}");
                 game.pass(act);
             }
+            // A gold discount's banner: a click on it opens the Gold Store in the browser.
+            if let Some(notice) = game.gold_sale.take() {
+                self.gold_sale.show(notice, now);
+            }
+            if !self.community.open && !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
+                let sale = &mut self.gold_sale;
+                let before = self.clicks.len();
+                self.clicks.retain(|&(down, pos)| !(down && sale.click(pos)));
+                if self.clicks.len() < before {
+                    login::open_link(screens::GOLD_STORE);
+                }
+            }
             // The community goals: a click on a banner opens them; while open they take the mouse.
             if !self.community.open && !self.quests.open && !self.pass.open && !self.options_ui.open && !self.game_menu {
                 let (window, acts) = (&mut self.community, &mut self.community_acts);
@@ -3819,6 +3834,8 @@ impl App {
                 self.glass.draw_big(&mut ui, &lay, show, &game.chat, world.player().and_then(|p| p.name()).unwrap_or(""), world.player(), mouse, now);
                 if game.dying.is_none() {
                     let below = self.quests.toasts_end(&lay);
+                    self.gold_sale.draw(&mut ui, &lay, below, now);
+                    let below = self.gold_sale.end(&lay, below);
                     self.community.draw_banners(&mut ui, &lay, below, now);
                     let button = self.hud.pass.map(|_| lay.pass_button(self.hud.in_vault));
                     self.pass.draw_toasts(&mut ui, &lay, button, below, now);
@@ -3846,6 +3863,7 @@ impl App {
             && !self.quests.on_toast(mouse)
             && !self.community.open
             && !self.community.on_banner(mouse)
+            && !self.gold_sale.on(mouse)
             && !self.collection.open
             && !self.pet_pen.open
             && self.npcs.window.is_none()
@@ -4496,6 +4514,7 @@ fn main() {
         search_map: 0,
         community: Default::default(),
         community_acts: Vec::new(),
+        gold_sale: Default::default(),
         collection: Default::default(),
         pet_pen: Default::default(),
         keeper_acts: Vec::new(),

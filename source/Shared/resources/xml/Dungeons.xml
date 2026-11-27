@@ -267,13 +267,15 @@
 		<Width>176</Width>
 		<Height>220</Height>
 		<MapJM>Dungeons/Ice Tomb.jm</MapJM>
-		<RandomLayout passage="4" corridor="3" margin="56" keep="Chasm Mist" winding="1" mirror="1">
+		<RandomLayout passage="4" corridor="5" margin="56" keep="Chasm Mist" winding="1" mirror="1">
 			<Goal>Seal of the Warden</Goal>
 			<Goal>Seal of the Oracle</Goal>
 			<Goal>Seal of the Reaver</Goal>
 			<Goal>Sealed Door</Goal>
 		</RandomLayout>
-		<VisibilityType>1</VisibilityType>
+		<!-- everything in sight radius, walls or not: with line of sight, walls behind walls came
+		     late and the floor beside them hung over the sky until they did -->
+		<VisibilityType>0</VisibilityType>
 		<!-- the whole Court in view from its middle -->
 		<MinSightRadius>22</MinSightRadius>
 		<!-- the polar night round it (the client's aurorasky.rs) -->

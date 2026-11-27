@@ -225,6 +225,12 @@ the gaps between NewTicks. Its flags:
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display
   Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
 - `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
+- A bare `cargo run` in `client-rs` stops with "could not determine which binary to run"
+  (2026-11-27): run `cargo run -p bsk-client -- <flags>`. The package is `bsk-client` but its
+  binary is `target/release/betterskillys.exe` (`-p betterskillys` finds nothing), and a fresh
+  worktree's first release build takes about 5 minutes. To aim at the vault's Training Dummy
+  with a sword, `--say "/vault" --mouse 320,530 --hold -:3000 --hold i:100` at `--size 1280x720`
+  (read the dummy's place off a first `--shot`); `/position` says where you stand.
 - No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
 - Death replays need no server either: `--account http://127.0.0.1:1 --replay <file>`. How a
   saved one's hits line up with their shots (`app/src/replay/sync.rs`) is printed, hit by hit, by

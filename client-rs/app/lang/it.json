@@ -1709,5 +1709,11 @@
 "Shattered Lake": "Lago infranto",
 "The Court Mourns": "La Corte è in lutto",
 "The Court Falls": "La Corte cade",
-"The Way Opens": "La via si apre"
+"The Way Opens": "La via si apre",
+"All gold is {percent}% off for the next {n} hour!|All gold is {percent}% off for the next {n} hours!": "Tutto l'oro scontato del {percent}% per {n} altra ora!|Tutto l'oro scontato del {percent}% per altre {n} ore!",
+"All gold is {percent}% off for the next {n} minute!|All gold is {percent}% off for the next {n} minutes!": "Tutto l'oro scontato del {percent}% per {n} altro minuto!|Tutto l'oro scontato del {percent}% per altri {n} minuti!",
+"Click to open the Gold Store.": "Clicca per aprire il Negozio dell'oro.",
+"Calving Glacier": "Ghiacciaio che si frantuma",
+"Frozen Hours": "Ore gelate",
+"Wolf Moon": "Luna del lupo"
 }

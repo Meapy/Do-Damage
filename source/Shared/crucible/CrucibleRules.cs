@@ -118,6 +118,8 @@ namespace Shared.crucible
             [33] = "Blizzard", [34] = "Frost Fissures", [35] = "Hailstorm", [36] = "Aurora's Grace", [37] = "Reaver's Frenzy",
             [38] = "Permafrost", [39] = "Polar Night", [40] = "Shattered Lake", [41] = "The Court Mourns",
             [42] = "The Court Falls", [43] = "The Way Opens",
+            // (2.6.10) Kaldrun's, Ysolde's and Hrimgar's third phases
+            [44] = "Calving Glacier", [45] = "Frozen Hours", [46] = "Wolf Moon",
         };
 
         /// The "floor" an Ice Tomb banner carries: clients from 2.6.9 show floors from 10 on as

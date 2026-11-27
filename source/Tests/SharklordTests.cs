@@ -86,6 +86,30 @@ namespace Tests
             Assert.Equal(Player.FinMaxMs, Player.FinMs(40));
         }
 
+        // the Frozen Court's white bag: a Maw whose bite slows everything and freezes the Bloodied
+        // (all of them from a Megalodon), a little under a T8's bite for it
+        [Fact]
+        public void RimejawFreezesTheBloodied()
+        {
+            var data = Data.Value;
+            var jaw = data.Items[data.IdToObjectType["Rimejaw"]];
+            Assert.Equal(5000, jaw.SlotType);
+            Assert.Equal(-1, jaw.Tier);
+            Assert.Equal(6, jaw.BagType);
+            var eff = Assert.Single(jaw.ActivateEffects);
+            Assert.Equal(ActivateEffects.DeepMaw, eff.Effect);
+            Assert.Equal(1200, eff.Frostbite);
+            Assert.Equal(2f, eff.EffectDuration);
+            var t8 = data.Items.Values.Single(i => i.SlotType == 5000 && i.Tier == 8).ActivateEffects[0];
+            Assert.Equal(0, t8.Frostbite);
+            Assert.True(eff.ImpactDamage < t8.ImpactDamage && eff.TotalDamage < t8.TotalDamage);
+
+            Assert.False(Player.Frozen(0, true, true));
+            Assert.False(Player.Frozen(1200, false, false));
+            Assert.True(Player.Frozen(1200, true, false));
+            Assert.True(Player.Frozen(1200, false, true));
+        }
+
         // the look's ObjectType: the tier, 16 more for a Megalodon (particles/maw.rs reads it so)
         [Fact]
         public void TheLookCarriesTheMegalodon()

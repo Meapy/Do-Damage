@@ -12,6 +12,18 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.10 (2026-11-27)
+
+### Gold Store
+- **Sales show in the Nexus:** while the Gold Store has a sale on, entering the Nexus shows a banner saying how much gold is off and for how long (at most once every 10 minutes). Click it to open the Gold Store.
+
+### Items
+- **The Platinum Sword is now Rimebrand:** reworked as the Ice Tomb's own sword, a rare drop from the Frozen Court (Oryx no longer drops it). It has a new look to match, platinum with a frost-teal guard, and each swing is a platinum slash that cleaves through every enemy in its path, flanked by two frost shards that slow what they hit. It still reaches far (7 tiles, the shards 6), trading some damage for it, and hits hardest when all three land up close.
+- **Two white bags from the Frozen Court:** the **Edict of the Frozen Court**, a scepter for the King whose decree spreads: every Condemned enemy that falls condemns and slows the enemies round it, and they pass it on; and **Rimejaw**, an oceanic spell for the Sharklord whose shark breaks up through the ice, slowing everything it bites and freezing the Bloodied solid (a Megalodon freezes them all).
+
+### Dungeons
+- **The Ice Tomb, harder, busier and clearer:** its walls stand twice as tall, frosted brows over dark blocks of ice, and turn see-through when you're behind them; they no longer pop in late, leaving the floor hanging over the sky. The passages between rooms are wider, and every room has a second band of the tomb's dead wandering it. The arrow now leads you from keeper to seal, then back to the Sealed Door, where a gate of rime rises once all three seals are broken, and on to the Court. Each Seal Keeper has a last phase (the Colossus calves golems out of the glacier, the Matron hides in the dark of her wisps, the Alpha leads a Blood Moon hunt), and the Frozen Court has three new phases with their own banners: **Calving Glacier**, **Frozen Hours** and **Wolf Moon**, with shorter calms between.
+
 ## 2.6.9 (2026-11-27)
 
 ### Gold Store

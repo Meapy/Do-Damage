@@ -33,7 +33,7 @@ namespace Tests
         public void EveryScepterIsARoyalDecree()
         {
             var data = Data.Value;
-            var scepters = data.Items.Values.Where(i => i.SlotType == 134).OrderBy(i => i.Tier).ToList();
+            var scepters = data.Items.Values.Where(i => i.SlotType == 134 && i.Tier >= 0).OrderBy(i => i.Tier).ToList();
             Assert.Equal(Enumerable.Range(0, 9), scepters.Select(s => s.Tier));
             ActivateEffect before = null;
             foreach (var s in scepters)
@@ -68,6 +68,28 @@ namespace Tests
         public void CondemnedIsFivePercent()
         {
             Assert.Equal(5, Player.CondemnedPercent);
+        }
+
+        // the Frozen Court's white bag: a Royal Decree that slows and spreads, a T8's power or near it,
+        // in the tomb's frost (its own colour) rather than a tier's
+        [Fact]
+        public void TheEdictSpreadsTheDecree()
+        {
+            var data = Data.Value;
+            var edict = data.Items[data.IdToObjectType["Edict of the Frozen Court"]];
+            Assert.Equal(134, edict.SlotType);
+            Assert.Equal(-1, edict.Tier);
+            Assert.Equal(6, edict.BagType);
+            var eff = Assert.Single(edict.ActivateEffects);
+            Assert.Equal(ActivateEffects.RoyalDecree, eff.Effect);
+            Assert.Equal(3.5f, eff.Spread);
+            Assert.Equal(2f, eff.EffectDuration);
+            Assert.Equal(0x9FE8FFu, eff.Color);
+            var t8 = data.Items.Values.Single(i => i.SlotType == 134 && i.Tier == 8).ActivateEffects[0];
+            Assert.True(eff.ImpactDamage < t8.ImpactDamage && eff.Radius < t8.Radius,
+                "the Edict pays for its spreading with a smaller seal than the T8's");
+            // the ordinary scepters don't spread
+            Assert.All(data.Items.Values.Where(i => i.SlotType == 134 && i.Tier >= 0), s => Assert.Equal(0f, s.ActivateEffects[0].Spread));
         }
 
         // a decree's first TributeMpKills enemies to fall pay the King mana, the rest only heal

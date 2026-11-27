@@ -366,7 +366,36 @@ class Gear:
             lo = wd._int(wd._text(proj, "MinDamage") or wd._text(proj, "Damage"), 0)
             hi = wd._int(wd._text(proj, "MaxDamage") or wd._text(proj, "Damage"), lo)
             shots = wd._int(wd._text(el, "NumProjectiles"), 1)
-            if hi:
+            # a volley that gives each shot its own projectile (<VolleyProjectiles>1,0,1</...>, the
+            # Platinum Sword's slash between two shards): each kind's damage, and what it inflicts
+            # when that isn't the same for all of them
+            volley = [wd._int(v.strip(), 0) for v in (wd._text(el, "VolleyProjectiles") or "").split(",") if v.strip()]
+            kinds = {(p.get("id") or "0").strip(): p for p in el.findall("Projectile")}
+            look = lambda p: (wd._text(p, "MinDamage"), wd._text(p, "MaxDamage"), wd._text(p, "Damage"),
+                              [(c.text, c.get("duration")) for c in p.findall("ConditionEffect")])
+            used = [kinds.get(str(v), kinds.get("0")) for v in volley]
+            if hi and len(volley) > 1 and any(look(p) != look(used[0]) for p in used if p is not None):
+                order, counts = [], {}
+                for n in range(shots):
+                    k = str(volley[min(n, len(volley) - 1)])
+                    k = k if k in kinds else "0"
+                    if k not in counts:
+                        order.append(k)
+                    counts[k] = counts.get(k, 0) + 1
+                order.sort(key=lambda k: (k != "0", k))
+                segs = []
+                for k in order:
+                    p = kinds[k]
+                    plo = wd._int(wd._text(p, "MinDamage") or wd._text(p, "Damage"), 0)
+                    phi = wd._int(wd._text(p, "MaxDamage") or wd._text(p, "Damage"), plo)
+                    d = "%d&ndash;%d" % (plo, phi) if plo != phi else "%d" % plo
+                    inflicts = ", ".join("%s %ss" % ((c.text or "").strip(), num(c.get("duration"), "?"))
+                                         for c in p.findall("ConditionEffect"))
+                    if k != "0" and inflicts:
+                        d += ' <span class="dim">(%s)</span>' % self.h.esc(inflicts)
+                    segs.append(("%d &times; " % counts[k] if counts[k] > 1 else "") + d)
+                out.append("Damage <b>%s</b>" % " + ".join(segs))
+            elif hi:
                 dmg = "%d&ndash;%d" % (lo, hi) if lo != hi else "%d" % lo
                 out.append("Damage <b>%s</b>%s" % (dmg, " &times; %d" % shots if shots > 1 else ""))
             speed = float(wd._text(proj, "Speed") or 0)
@@ -574,12 +603,18 @@ class Gear:
             # Condemned taking CondemnedPercent (5%) more damage; each that dies gives everyone who hurt it (and the King) a stack of
             # Tribute, TributeDamage a shot past defense, up to TributeMax, fading one a second
             # TributeHoldMs after the last; the King's mana for the first TributeMpKills a decree
+            # the Ice Tomb's Edict: `condEffect`/`condDuration` on all it Condemns, and `spread`
+            # (SpreadDecree): a Condemned enemy that falls Condemns those round it
+            slowed = (", and Slowed for %ss" % n("condDuration")) if g("condEffect") == "Slowed" and g("condDuration") else ""
+            spread = ("; Winter's Edict: each Condemned enemy that falls Condemns every enemy within %s tiles of it "
+                      "for the rest of the decree%s, and those spread it again when they fall"
+                      % (n("spread"), " (Slowed too)" if slowed else "")) if g("spread") else ""
             return ("calls the royal seal down where you aim (up to %s tiles): %s damage within %s tiles, and the "
-                    "enemies under it are Condemned for %ss, taking 5%% more damage from everyone; each "
+                    "enemies under it are Condemned for %ss, taking 5%% more damage from everyone%s; each "
                     "Condemned enemy that falls gives everyone who hurt it, and you, a stack of Tribute: +10 "
                     "damage on every shot, past defense, up to 10 stacks, fading one a second 10s after the "
-                    "last; the first three of each decree also restore %s MP to you"
-                    % (n("maxDistance", "9"), n("impactDamage"), n("radius"), n("duration"), n("tributeMp")))
+                    "last; the first three of each decree also restore %s MP to you%s"
+                    % (n("maxDistance", "9"), n("impactDamage"), n("radius"), n("duration"), slowed, n("tributeMp"), spread))
         if e == "DeepMaw":
             # a Sharklord's oceanic spell (Player.Maw.cs): FinPathWidth, BiteDamage, FeedMax,
             # BiteFrenzyMax, FrenzyMax, FrenzySpeed/FrenzyDex, MegalodonPercent, MegalodonBleedPercent
@@ -589,8 +624,13 @@ class Gear:
                     "a stack of Frenzy for each (up to 2). Frenzy (up to 5, also from kills and every fourth shot on "
                     "the Bloodied) gives +4 Speed and Dexterity a stack; cast at full Frenzy, it is all spent on a "
                     "Megalodon: half again the reach and bite, twice the healing, and everything bitten bleeds for "
-                    "half the bite more and is Slowed"
-                    % (n("maxDistance", "8"), n("totalDamage"), n("radius"), n("impactDamage"), n("amount")))
+                    "half the bite more and is Slowed%s"
+                    % (n("maxDistance", "8"), n("totalDamage"), n("radius"), n("impactDamage"), n("amount"),
+                       # the Ice Tomb's Rimejaw (Player.Frozen): `condEffect` on all it bites, `frostbite` ms
+                       # of Paralyzed on the Bloodied, on all of them from a Megalodon
+                       ("; Frostbite: everything bitten is Slowed for %ss, and the Bloodied are frozen solid "
+                        "(Paralyzed) for %ss, and everything a Megalodon bites too" % (n("condDuration"), "%g" % (int(g("frostbite")) / 1000)))
+                       if g("frostbite") else ""))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

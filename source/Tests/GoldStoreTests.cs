@@ -215,5 +215,24 @@ namespace Tests
             var least = new GoldPack { id = "least", gold = 50, price = 0.50m };
             Assert.Same(least, GoldStore.Discounted(new[] { least }, d, Now.AddHours(1), Now)[0]);
         }
+
+        [Fact]
+        public void APlayerIsToldOfADiscountOnceEveryTenMinutes()
+        {
+            var d = GoldStore.BlackFriday;
+            Assert.Null(GoldStore.DiscountToTell(_db, d, 7, Now)); // none running
+            GoldStore.StartDiscount(_db, d, Now);
+            Assert.Equal(TimeSpan.FromHours(21), GoldStore.DiscountToTell(_db, d, 7, Now.AddHours(3)));
+            Assert.Null(GoldStore.DiscountToTell(_db, d, 7, Now.AddHours(3))); // told already
+            Assert.NotNull(GoldStore.DiscountToTell(_db, d, 8, Now.AddHours(3))); // each account its own
+            var ttl = _db.KeyTimeToLive(GoldStore.DiscountToldKey(7));
+            Assert.True(ttl > TimeSpan.FromMinutes(9) && ttl <= TimeSpan.FromMinutes(10));
+            _db.KeyDelete(GoldStore.DiscountToldKey(7)); // ten minutes on
+            Assert.NotNull(GoldStore.DiscountToTell(_db, d, 7, Now.AddHours(3)));
+            // over: nobody is told, nor counted as told
+            _db.KeyDelete(GoldStore.DiscountToldKey(9));
+            Assert.Null(GoldStore.DiscountToTell(_db, d, 9, Now.AddHours(24)));
+            Assert.False(_db.KeyExists(GoldStore.DiscountToldKey(9)));
+        }
     }
 }

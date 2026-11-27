@@ -104,6 +104,11 @@ namespace Shared.resources
         // a King's scepter (Player.Decree.cs): the mana each of a decree's first Condemned enemies
         // pays him as it falls
         public readonly int TributeMp;
+        // the Ice Tomb's scepter (Player.Decree.cs): a Condemned enemy that falls condemns those
+        // within this many tiles of it with the same decree (Winter's Edict)
+        public readonly float Spread;
+        // the Ice Tomb's Maw (Player.Maw.cs): the Bloodied it bites are frozen solid this long (ms)
+        public readonly int Frostbite;
 
         public ActivateEffect(XElement e)
         {
@@ -202,6 +207,8 @@ namespace Shared.resources
             PulseHeal = e.GetAttribute<int>("pulseHeal");
             MaxPearls = e.GetAttribute<int>("pearls", 1);
             TributeMp = e.GetAttribute<int>("tributeMp");
+            Spread = e.GetAttribute<float>("spread");
+            Frostbite = e.GetAttribute<int>("frostbite");
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

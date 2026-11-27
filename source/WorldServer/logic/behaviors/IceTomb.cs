@@ -25,6 +25,8 @@ namespace WorldServer.logic.behaviors
         public static readonly string[] Bosses = { "Kaldrun, the Rime Warden", "Ysolde, the Aurora Oracle", "Hrimgar, the Frost Reaver" };
         public static readonly string[] Seals = { "Seal of the Warden", "Seal of the Oracle", "Seal of the Reaver" };
         public static readonly string[] Lanterns = { "Warden's Lantern", "Oracle's Lantern", "Reaver's Lantern" };
+        // the gate rising at the Sealed Door once all three seals are broken: the quest back there
+        public const string CourtGate = "Court Gate";
         public const uint Ice = 0xFF9FE8FF, Frost = 0xFFDCF6FF, Aurora = 0xFF4AE8A4, Steel = 0xFF9AB4D4, Deep = 0xFF2C5A86;
 
         public static ushort Tile(Entity host, string id) =>
@@ -364,14 +366,16 @@ namespace WorldServer.logic.behaviors
     }
 
     // The Sealed Door (its invisible host in the door room): a lantern lit for each seal broken
-    // (the map's square turned to its lit one), told to everyone; with all three, and someone in
-    // the room, its wall opens on the dark and the Frozen Court assembles (IceCourt.Raise).
+    // (the map's square turned to its lit one), told to everyone; with all three the Court Gate
+    // rises there, a quest so the arrow leads everyone back, and with someone in the room its wall
+    // opens on the dark, the Gate goes and the Frozen Court assembles (IceCourt.Raise), its three
+    // the quest from then on.
     internal class SealedDoor : Behavior
     {
         private sealed class Door
         {
             public readonly bool[] Lit = new bool[3];
-            public bool Opened;
+            public bool Opened, Gate;
             public int Cool;
         }
 
@@ -401,9 +405,26 @@ namespace WorldServer.logic.behaviors
                     : $"The {IceTomb.Seals[i]} shatters, and a lantern lights at the Sealed Door. {left} seal{(left == 1 ? "" : "s")} left.";
                 w.ForeachPlayer(p => p.SendInfo(msg));
             }
+            if (d.Lit.All(l => l) && !d.Gate)
+            {
+                d.Gate = true;
+                var gate = Entity.Resolve(host.GameServer, IceTomb.CourtGate);
+                if (gate != null)
+                {
+                    gate.Move(host.X, host.Y);
+                    w.EnterWorld(gate);
+                    IceTomb.Fx(w, host.X, host.Y, EffectType.Diffuse, IceTomb.Frost, 4f);
+                }
+            }
             if (d.Lit.All(l => l) && w.Players.Values.Any(p => !p.Dead && p.DistTo(host) <= 14))
             {
                 d.Opened = true;
+                var gateType = IceTomb.Object(host, IceTomb.CourtGate);
+                foreach (var g in w.Enemies.Values.Where(e => e.ObjectType == gateType).ToList())
+                {
+                    IceTomb.Fx(w, g.X, g.Y, EffectType.Diffuse, IceTomb.Ice, 4f);
+                    w.LeaveWorld(g);
+                }
                 IceTomb.Cue(w, CrucibleCues.WayOpens, 0);
                 IceCourt.Raise(w, host);
             }

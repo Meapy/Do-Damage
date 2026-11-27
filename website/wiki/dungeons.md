@@ -136,12 +136,19 @@ rooms, each something of their own: cross-shaped crypts whose
 down and hurts) before it freezes over again, with a **Rime Serpent** surfacing out of them,
 **chasms** dropping away into the sky below, crossed on an ice bridge that freezes across as
 you come to the edge, octagon
-shrines, hounds' dens, galleries round a pit, a crevasse, a honeycomb nest and an ossuary.
+shrines, hounds' dens, galleries round a pit, a crevasse, a honeycomb nest and an ossuary, each
+with a second band of the tomb's dead wandering it; the passages between them are five tiles
+wide. Its walls stand two tiles tall and turn see-through while you're behind one.
 
 Three of the rooms hold **seals**, each guarded by a keeper: the **Rime Colossus** (the Seal of
 the Warden), the **Aurora Matron** (the Seal of the Oracle) and the **Frostfang Alpha** (the Seal
-of the Reaver). A seal can't be hurt while its keeper lives. At the **Sealed Door** a lantern
-lights for each seal broken; with all three broken, come to the door and it opens: the wall
+of the Reaver). A seal can't be hurt while its keeper lives. Each keeper has a last phase: the
+Colossus, armoured, calves two **Glacier Golems** out of the ice below a quarter of its health;
+the Matron hides in the dark of four Aurora Wisps, untouchable until they're shot down (or 20
+seconds pass), then fights on harder; the Alpha calls the pack for a **Blood Moon** below 30%
+and pounces three times in a row. The quest arrow leads to the nearest keeper or seal left. At
+the **Sealed Door** a lantern lights for each seal broken; with all three broken a gate of rime
+rises there and the arrow leads back to it. Come to the door and it opens: the wall
 behind it falls away, a bridge of ice builds itself across the dark, and a great round hall
 rises at its end, a snowflake flaring on its floor, where **the Frozen Court** wakes on its three
 thrones.
@@ -149,14 +156,22 @@ thrones.
 The Court is fought all at once, like the Crucible's champions: **Kaldrun, the Rime Warden**
 (90,000 health), **Ysolde, the Aurora Oracle** (70,000) and **Hrimgar, the Frost Reaver**
 (80,000). Banners name each of their moves. In turn the hall is swept by an **Avalanche**, an
-**Aurora Veil**, **Frost Fissures**, a **Blizzard** and a **Hailstorm**, each only while the one
-who calls it lives, and caches like the Crucible's fall in the hall between. Kaldrun raises a
+**Aurora Veil**, **Frost Fissures**, a **Blizzard**, a **Hailstorm**, Kaldrun's **Calving
+Glacier** (arms of avalanche turning round the hall while waves of it roll out from the middle),
+Ysolde's **Frozen Hours** (the hall cut into six hours, the aurora burning in them by turns) and
+Hrimgar's **Wolf Moon** (three of his hounds loosed in the hall while rime cracks out under
+you), each only while the one who calls it lives, and caches like the Crucible's fall in the
+hall between. Kaldrun raises a
 **Glacial Bulwark** at 60% of his health, walling himself in behind four Rime Pillars until they
 break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, and again every
 30 seconds; Hrimgar hunts the nearest player, leaps on them and goes into a **Frenzy** at half
 his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
 (**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
-treasure (the old Ice Tomb Chest's, half again as often), potions, and rarely its own pet; the
+treasure (the old Ice Tomb Chest's, half again as often) and, only here, **Rimebrand**
+(a long cleaving slash flanked by two frost shards that slow), two white bags for the newer
+classes, the King's **Edict of the Frozen Court** (a decree that spreads from every Condemned
+enemy that falls to those round it, slowing them) and the Sharklord's **Rimejaw** (a bite that
+slows all it catches and freezes the Bloodied solid), potions, and rarely its own pet; the
 keepers drop Defense and Vitality potions.
 
 ## Underwater: the Ocean Trench and the Cnidarian Reef

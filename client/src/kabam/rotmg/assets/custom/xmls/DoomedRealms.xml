@@ -4608,24 +4608,42 @@
 	</Object>
 	<Object type="0xD0F7" id="Platinum Sword">
 		<Class>Equipment</Class>
+		<DisplayId>Rimebrand</DisplayId>
 		<Item />
 		<Texture>
-			<File>drLofiObj4</File>
-			<Index>0xaa</Index>
+			<File>iceTomb8x8</File>
+			<Index>0x80</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Description>An ancient sword made of enchanted platinum.</Description>
-		<RateOfFire>1.5</RateOfFire>
+		<Description>Forged for the Frozen Court from platinum that never warms. Its slash cleaves through every foe in its path, flanked by two shards of rime that slow whatever they strike.</Description>
+		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
 		<Projectile>
-			<ObjectId>Beam Slash</ObjectId>
+			<ObjectId>Oryx Champion Slash</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>170</MinDamage>
-			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>800</LifetimeMS>
+			<MinDamage>180</MinDamage>
+			<MaxDamage>220</MaxDamage>
+			<LifetimeMS>700</LifetimeMS>
+			<MultiHit />
+			<ParticleTrail intensity="0.08" lifetimeMS="120">0xE8F4FF</ParticleTrail>
 		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Iceblast Missile</ObjectId>
+			<Speed>120</Speed>
+			<MinDamage>35</MinDamage>
+			<MaxDamage>50</MaxDamage>
+			<LifetimeMS>500</LifetimeMS>
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+			<ParticleTrail intensity="0.05" lifetimeMS="75">0xDEFFF7</ParticleTrail>
+		</Projectile>
+		<ExtraTooltipData>
+			<EffectInfo name="Rime Shards" description="Two frost shards flank each slash for 35-50 each, slowing what they hit for 1.5 seconds" />
+		</ExtraTooltipData>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
+		<NumProjectiles>3</NumProjectiles>
+		<VolleyProjectiles>1,0,1</VolleyProjectiles>
+		<ArcGap>14</ArcGap>
 		<OldSound>bladeSwing</OldSound>
 	</Object>
 	<Object type="0xD0F8" id="Orb of the Chaos Walker">

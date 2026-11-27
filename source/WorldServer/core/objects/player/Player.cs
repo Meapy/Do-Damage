@@ -496,6 +496,17 @@ namespace WorldServer.core.objects
                 var freeGuildsUntil = GuildPrice.FreeUntil(settings);
                 if (GuildPrice.Free(freeGuildsUntil, DateTime.UtcNow))
                     SendInfo(GuildPrice.Message(freeGuildsUntil.Value));
+                // a gold discount (Shared/database/GoldStore.cs): a banner, and a chat line for
+                // clients without it, at most once every 10 minutes an account
+                var sale = Shared.database.GoldStore.BlackFriday;
+                var saleLeft = Shared.database.GoldStore.DiscountToTell(Client.GameServer.Database.Conn, sale, AccountId, DateTime.UtcNow);
+                if (saleLeft != null)
+                {
+                    Client.SendPacket(GlobalNotificationMessage.GoldSaleBanner(sale.PercentOff, saleLeft.Value, sale.Name));
+                    var hours = (int)Math.Ceiling(saleLeft.Value.TotalHours);
+                    SendInfo($"{sale.Name}: all gold is {sale.PercentOff}% off in the Gold Store (dodmg.com/gold.html) for the next " +
+                             (hours > 1 ? $"{hours} hours." : $"{Math.Max(1, (int)Math.Ceiling(saleLeft.Value.TotalMinutes))} minutes."));
+                }
             }
 
             commands.Command.AutoAim.Resend(this);

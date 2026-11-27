@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shared.resources;
 using WorldServer.core.net.datas;
 using WorldServer.core.net.stats;
@@ -63,6 +64,10 @@ namespace WorldServer.core.objects
             public uint Color;
             // how many of its enemies have paid the King mana so far
             public int Paid;
+            // Winter's Edict (the Ice Tomb's scepter): an enemy of this decree that falls condemns
+            // those within Spread of it, Slowed for SlowMs, the decree held no longer than it was
+            public float Spread;
+            public int SlowMs;
 
             public bool Holds(Enemy e) => King?.World != null && King.World == e.World && !King.Dead && Now <= Until;
         }
@@ -73,15 +78,19 @@ namespace WorldServer.core.objects
             if (world == null)
                 return;
             var spot = ClampAbilityTarget(target, eff.MaximumDistance > 0 ? eff.MaximumDistance : DecreeReach);
-            var tier = Math.Clamp(item.Tier, 0, DecreeColors.Length - 1);
-            var color = DecreeColors[tier];
+            // an untiered scepter looks as grand as the last tier, in its own colour
+            var tier = item.Tier < 0 ? DecreeColors.Length - 1 : Math.Clamp(item.Tier, 0, DecreeColors.Length - 1);
+            var color = eff.Color != 0 && eff.Color != uint.MaxValue ? eff.Color | 0xFF000000 : DecreeColors[tier];
             var radius = eff.Radius > 0 ? eff.Radius : 3;
+            var slowMs = eff.EffectDuration > 0 ? (int)(eff.EffectDuration * 1000) : 0;
             var decree = new Decree
             {
                 King = this,
                 Mp = eff.TributeMp,
                 Tier = tier,
                 Color = color,
+                Spread = eff.Spread,
+                SlowMs = slowMs,
             };
             var ms = eff.DurationMS > 0 ? eff.DurationMS : 5000;
 
@@ -105,6 +114,8 @@ namespace WorldServer.core.objects
                 foreach (var e in EnemiesNear(spot.X, spot.Y, radius))
                 {
                     Condemn(e, decree, ms);
+                    if (slowMs > 0)
+                        e.ApplyConditionEffect(ConditionEffectIndex.Slowed, slowMs);
                     RelicDamage(e, eff.ImpactDamage, ref t, false);
                 }
             });
@@ -191,6 +202,40 @@ namespace WorldServer.core.objects
             }
             if (mp > 0)
                 ActivateHealMp(this, mp);
+            if (decree.Spread > 0)
+                SpreadDecree(e, decree);
+        }
+
+        // Winter's Edict: the cold of a fallen enemy's decree takes those round it. Each enemy
+        // there not already under a holding decree is Condemned by this one, for what is left of
+        // it, and Slowed; a frost seal flares where it fell. One that falls in turn spreads it on.
+        public static IEnumerable<Enemy> SpreadTargets(IEnumerable<Enemy> near, Enemy fallen) =>
+            near.Where(n => n != fallen && !n.Dead && !(n.Condemned is { } d && d.Holds(n)));
+
+        private void SpreadDecree(Enemy fallen, Decree decree)
+        {
+            var world = World;
+            var left = (int)(decree.Until - Now);
+            if (world == null || left <= 0)
+                return;
+            var at = new Position(fallen.X, fallen.Y);
+            world.BroadcastIfVisible(new ShowEffect
+            {
+                EffectType = EffectType.Relic,
+                TargetObjectId = Id,
+                Pos1 = at,
+                Pos2 = new Position(decree.Spread, LOOK_SEAL),
+                Color = new ARGB(decree.Color),
+                Duration = 120,
+                ObjectType = (ushort)decree.Tier,
+                SourceId = Id,
+            }, ref at);
+            foreach (var n in SpreadTargets(EnemiesNear(at.X, at.Y, decree.Spread), fallen).ToList())
+            {
+                Condemn(n, decree, left);
+                if (decree.SlowMs > 0)
+                    n.ApplyConditionEffect(ConditionEffectIndex.Slowed, decree.SlowMs);
+            }
         }
     }
 }

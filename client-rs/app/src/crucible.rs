@@ -69,7 +69,7 @@ fn encounter(floor: u8) -> Option<&'static (&'static str, &'static str, u32)> {
 }
 
 /// The champions' phases (`CrucibleCues` on the server): never renumbered.
-const CUES: [&str; 44] = [
+const CUES: [&str; 47] = [
     "",
     mark("Hammerfall"),
     mark("Lockdown"),
@@ -115,6 +115,9 @@ const CUES: [&str; 44] = [
     mark("The Court Mourns"),
     mark("The Court Falls"),
     mark("The Way Opens"),
+    mark("Calving Glacier"),
+    mark("Frozen Hours"),
+    mark("Wolf Moon"),
 ];
 
 pub fn floor_name(floor: u8) -> &'static str {

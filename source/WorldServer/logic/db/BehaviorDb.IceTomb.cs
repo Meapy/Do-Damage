@@ -51,8 +51,11 @@ namespace WorldServer.logic
                 new ItemLoot("Staff of Iceblast", 0.0025),
                 new ItemLoot("Eternal Snowflake Wand", 0.0025),
                 new ItemLoot("Frozen Wand", 0.0025),
+                new ItemLoot("Platinum Sword", 0.0025),
                 new ItemLoot("Snowblind Wand", 0.0025),
                 new ItemLoot("Tome of Frigid Protection", 0.0025),
+                new ItemLoot("Edict of the Frozen Court", 0.003),
+                new ItemLoot("Rimejaw", 0.003),
                 new ItemLoot("Ice Crown", 0.0012),
                 new ItemLoot("Potion of Life", 0.2),
                 new ItemLoot("Potion of Mana", 0.3),
@@ -216,6 +219,11 @@ namespace WorldServer.logic
             .Init("Lake Heart", new State(new ThinIce("Lake Ice", "Cracking Ice", "Frigid Water")))
             .Init("Chasm Heart", new State(new IceBridge("Tomb Abyss", "Ice Bridge", "Ice Bridge Rim", "Chasm Mist")))
             .Init("Sealed Door", new State(new SealedDoor()))
+            // the Court Gate (SealedDoor): only there to lead the way, never to be broken
+            .Init(IceTomb.CourtGate, new State(
+                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new Flash(FrostGlow, 0.6, 999)
+            ))
 
             // ================================================================================
             // the seals and their keepers
@@ -244,7 +252,21 @@ namespace WorldServer.logic
                         new Shoot(14, 3, 16, 0, predictive: 0.3, coolDown: 1800),
                         new Shoot(0, 12, 30, 1, fixedAngle: 0, rotateAngle: 15, coolDown: 2600),
                         new Shoot(0, 3, 120, 2, fixedAngle: 0, rotateAngle: 13, coolDown: 450),
-                        new Grenade(3, 150, 10, coolDown: 3200, color: SteelGlow)
+                        new Grenade(3, 150, 10, coolDown: 3200, color: SteelGlow),
+                        new HpLessTransition(0.25, "Calving")
+                    ),
+                    // the glacier breaks round him: armoured, boulders raining, a ring of iron
+                    // shards, and two golems of the glacier walking out of the ice
+                    new State("Calving",
+                        new Taunt(true, "The glacier breaks. Let it bury you!"),
+                        new Flash(SteelGlow, 0.2, 8),
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                        new Spawn("Glacier Golem", 2, 1, coolDown: 999999),
+                        new Prioritize(new StayCloseToSpawn(0.5, 7), new Follow(0.45, 14, 2)),
+                        new Shoot(14, 5, 12, 0, predictive: 0.3, coolDown: 1700),
+                        new Shoot(0, 3, 120, 2, fixedAngle: 0, rotateAngle: 13, coolDown: 400),
+                        new Shoot(0, 16, 22.5, 1, fixedAngle: 11.25, coolDown: 2600),
+                        new Grenade(3, 160, 10, coolDown: 2200, color: SteelGlow)
                     )
                 ),
                 KeeperLoot()
@@ -271,7 +293,33 @@ namespace WorldServer.logic
                         new Prioritize(new Orbit(0.6, 6, 20, "Seal of the Oracle")),
                         new Shoot(14, 3, 14, 0, predictive: 0.3, coolDown: 1400),
                         new Shoot(0, 4, 90, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 500),
-                        new Spawn("Aurora Wisp", 3, 0, coolDown: 9000)
+                        new Spawn("Aurora Wisp", 3, 0, coolDown: 9000),
+                        new HpLessTransition(0.25, "Eclipse")
+                    ),
+                    // she hides in the dark of her wisps: untouchable while any lives (20 s at most),
+                    // a turning cross of violet ribbons the while; then the night deepens
+                    new State("Eclipse",
+                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                        new State("Call",
+                            new Taunt(true, "Dark, little lights. Hold back the dawn for me."),
+                            new Flash(VioletGlow, 0.3, 6),
+                            new Spawn("Aurora Wisp", 4, 1, coolDown: 999999),
+                            new TimedTransition(1500, "Veil")
+                        ),
+                        new State("Veil",
+                            new Prioritize(new Orbit(0.7, 4, 20, "Seal of the Oracle")),
+                            new Shoot(0, 4, 90, 1, fixedAngle: 45, rotateAngle: 9, coolDown: 450),
+                            new Shoot(14, 3, 14, 0, predictive: 0.3, coolDown: 1700),
+                            new EntitiesNotExistsTransition(18, "Deep Night", "Aurora Wisp"),
+                            new TimedTransition(20000, "Deep Night")
+                        )
+                    ),
+                    new State("Deep Night",
+                        new Flash(VioletGlow, 0.2, 4),
+                        new Prioritize(new Orbit(0.7, 6, 20, "Seal of the Oracle")),
+                        new Shoot(14, 3, 14, 0, predictive: 0.3, coolDown: 1200),
+                        new Shoot(0, 4, 90, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 420),
+                        new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 2600)
                     )
                 ),
                 KeeperLoot()
@@ -301,6 +349,40 @@ namespace WorldServer.logic
                             new Shoot(0, 12, 30, 2, fixedAngle: 0, coolDown: 9999),
                             new Spawn("Frostfang Hound", 3, 1, coolDown: 9000),
                             new TimedTransition(900, "Circle")
+                        ),
+                        new HpLessTransition(0.3, "Blood Moon")
+                    ),
+                    // the pack's last hunt: a howl that calls them all, then three pounces in a row,
+                    // the last bursting into a ring of rime
+                    new State("Blood Moon",
+                        new Taunt(true, "*the Alpha's eyes burn red under the aurora*"),
+                        new Flash(0xFFFF6060, 0.2, 6),
+                        new State("Call",
+                            new Shoot(0, 16, 22.5, 2, fixedAngle: 0, coolDown: 9999),
+                            new Spawn("Frostfang Hound", 4, 1, coolDown: 9999),
+                            new TimedTransition(1000, "Chase")
+                        ),
+                        new State("Chase",
+                            new Prioritize(new StayCloseToSpawn(0.9, 10), new Orbit(1.0, 4, 14)),
+                            new Shoot(12, 4, 12, 1, predictive: 0.4, coolDown: 1000),
+                            new TimedTransition(2600, "Pounce 1")
+                        ),
+                        new State("Pounce 1",
+                            new Flash(0xFFFF6060, 0.12, 2),
+                            new Charge(2.6, 12, 2000),
+                            new Shoot(3, 5, 16, 0, coolDown: 300),
+                            new TimedTransition(850, "Pounce 2")
+                        ),
+                        new State("Pounce 2",
+                            new Charge(2.6, 12, 2000),
+                            new Shoot(3, 5, 16, 0, coolDown: 300),
+                            new TimedTransition(850, "Pounce 3")
+                        ),
+                        new State("Pounce 3",
+                            new Charge(2.6, 12, 2000),
+                            new Shoot(3, 5, 16, 0, coolDown: 300),
+                            new Shoot(0, 12, 30, 1, fixedAngle: 15, coolDown: 9999, coolDownOffset: 600),
+                            new TimedTransition(1100, "Call")
                         )
                     )
                 ),
@@ -349,28 +431,28 @@ namespace WorldServer.logic
                             new FloorWave("Avalanche", 18, 5, 3, 70, everyMs: 3400),
                             new TimedTransition(12000, "Calm 2")
                         ),
-                        new State("Calm 2", new TimedTransition(5500, "Aurora")),
+                        new State("Calm 2", new TimedTransition(4500, "Aurora")),
                         new State("Aurora",
                             new EntityNotExistsTransition(Ysolde, 40, "Calm 3"),
                             new EncounterCue(32, Ysolde),
                             new SweepingArms("Aurora Light", 3, 3, 18, 2.2, 15, warnMs: 2000, warnTile: "Rime Warning"),
                             new TimedTransition(14000, "Calm 3")
                         ),
-                        new State("Calm 3", new TimedTransition(5500, "Fissures")),
+                        new State("Calm 3", new TimedTransition(4500, "Fissures")),
                         new State("Fissures",
                             new EntityNotExistsTransition(Hrimgar, 40, "Calm 4"),
                             new EncounterCue(34, Hrimgar, shake: true),
                             new LavaVeins("Frost Fissure", "Frozen Scar", 3, 13, 18, everyMs: 3800, warnMs: 900, warnTile: "Rime Warning"),
                             new TimedTransition(12000, "Calm 4")
                         ),
-                        new State("Calm 4", new TimedTransition(5500, "Blizzard")),
+                        new State("Calm 4", new TimedTransition(4500, "Blizzard")),
                         new State("Blizzard",
                             new EntityNotExistsTransition(Ysolde, 40, "Calm 5"),
                             new EncounterCue(33, Ysolde),
                             new TideSweep("Blizzard", 18, 3, 3.5, 2, 4.5, warnMs: 1800, everyMs: 6000, warnTile: "Rime Warning"),
                             new TimedTransition(14000, "Calm 5")
                         ),
-                        new State("Calm 5", new TimedTransition(5500, "Hailstorm")),
+                        new State("Calm 5", new TimedTransition(4500, "Hailstorm")),
                         new State("Hailstorm",
                             new EntityNotExistsTransition(Hrimgar, 40, "Calm 6"),
                             new EncounterCue(35, Hrimgar),
@@ -378,7 +460,39 @@ namespace WorldServer.logic
                                 effect: ConditionEffectIndex.Slowed, effectMs: 1500, fillMs: 1600),
                             new TimedTransition(12000, "Calm 6")
                         ),
-                        new State("Calm 6", new TimedTransition(5500, "Avalanche"))
+                        new State("Calm 6", new TimedTransition(4500, "Calving")),
+                        // Kaldrun's Calving Glacier: arms of avalanche turning round the hall while
+                        // waves of it roll out from the middle; step through a wave's gap, keep ahead
+                        // of the arms
+                        new State("Calving",
+                            new EntityNotExistsTransition(Kaldrun, 40, "Calm 7"),
+                            new EncounterCue(44, Kaldrun, shake: true),
+                            new FloorLayers(
+                                new SweepingArms("Avalanche", 4, 4, 18, 2.0, 14, warnMs: 2000, warnTile: "Rime Warning"),
+                                new FloorWave("Avalanche", 18, 4.5, 3, 70, everyMs: 4600)),
+                            new TimedTransition(13000, "Calm 7")
+                        ),
+                        new State("Calm 7", new TimedTransition(4500, "Frozen Hours")),
+                        // Ysolde's Frozen Hours: the hall cut into six hours, the aurora burning in
+                        // them by turns
+                        new State("Frozen Hours",
+                            new EntityNotExistsTransition(Ysolde, 40, "Calm 8"),
+                            new EncounterCue(45, Ysolde),
+                            new SectorChime("Aurora Light", 6, 3, 18, new[] { "101010", "010101", "110110", "011011", "100100" },
+                                warnMs: 1400, litMs: 1300, gapMs: 800, warnTile: "Rime Warning"),
+                            new TimedTransition(14000, "Calm 8")
+                        ),
+                        new State("Calm 8", new TimedTransition(4500, "Wolf Moon")),
+                        // Hrimgar's Wolf Moon: his hounds loosed in the hall, rime cracking out under
+                        // whoever they chase
+                        new State("Wolf Moon",
+                            new EntityNotExistsTransition(Hrimgar, 40, "Calm 9"),
+                            new EncounterCue(46, Hrimgar, shake: true),
+                            new Spawn("Frostfang Hound", 3, 1, coolDown: 999999),
+                            new LavaVeins("Frost Fissure", "Frozen Scar", 2, 10, 18, everyMs: 4400, warnMs: 900, warnTile: "Rime Warning"),
+                            new TimedTransition(12000, "Calm 9")
+                        ),
+                        new State("Calm 9", new TimedTransition(4500, "Avalanche"))
                     ),
                     // the last of them, below 15%: the whole floor against the players
                     new State("Permafrost",
