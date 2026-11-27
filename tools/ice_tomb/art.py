@@ -1257,5 +1257,38 @@ def item_icon(name):
     return cv.img
 
 
+# The Platinum Sword (the Court's treasure; its XML is DoomedRealms.xml's): laid out as the tiered
+# swords are (lofiObj5new's Sword of Acclaim: the point at the lower left, a crossguard across the
+# blade and the grip up to the right), in the tomb's colours. A platinum blade lit along its upper
+# edge, rime over the point, a guard of the Court's teal with a frost gem at its heart, a grip of
+# its dark steel and a frost pommel.
+PLATINUM_SWORD = [
+    "......gp",
+    "..tl.gbg",
+    "....lbg.",
+    "...wcl..",
+    "..wsd.l.",
+    ".wsd..t.",
+    "fsd.....",
+    "ft......",
+]
+PLATINUM_SWORD_COLOURS = {
+    "w": "#ffffff", "s": "#c4d2e6", "d": "#6e84aa",    # the blade: edge, flat, back
+    "f": "#a8f0ff",                                      # rime on the point
+    "t": "#0f7699", "l": "#5ec4e8", "c": "#00e5e5",     # the guard: ends, arms, gem
+    "g": "#1c2636", "b": "#5c7494", "p": "#aaffff",     # the grip, its wrap, the pommel
+}
+
+
+def platinum_sword():
+    img = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    for y, row in enumerate(PLATINUM_SWORD):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                h = PLATINUM_SWORD_COLOURS[ch]
+                img.putpixel((x, y), (int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16), 255))
+    return img
+
+
 def spectral_court(frames, tint):
     return [spectral(f, tint) for f in frames]

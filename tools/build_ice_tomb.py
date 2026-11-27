@@ -73,6 +73,7 @@ SHEET8 = ("iceTomb8x8", "IceTomb8x8.png")
 SHEET16 = ("iceTomb16x16", "IceTomb16x16.png")
 CHARS16 = ("iceTombChars16x16", "IceTombChars16x16.png")
 CHARS32 = ("iceTombChars32x32", "IceTombChars32x32.png")
+PLATINUM_SWORD_CELL = 0x80  # the Platinum Sword's icon on IceTomb8x8.png (main)
 
 
 class Types:
@@ -1113,6 +1114,11 @@ def main():
     m = build_map()
     g = grounds(types, s8)
     o = objects(types, s8, s16, c16, c32)
+    # the Platinum Sword's icon (the Court's treasure; its XML, DoomedRealms.xml, both copies,
+    # names this cell): last on the sheet, so cells added before it would move it
+    cell = s8.add(art.platinum_sword())
+    assert cell == PLATINUM_SWORD_CELL, ("the Platinum Sword's icon moved to cell 0x%x: change its "
+                                         "<Index> in DoomedRealms.xml (both copies) and PLATINUM_SWORD_CELL" % cell)
     os.makedirs(IMAGES, exist_ok=True)
     s8.write(os.path.join(IMAGES, SHEET8[1]))
     s16.write(os.path.join(IMAGES, SHEET16[1]))

@@ -4610,8 +4610,8 @@
 		<Class>Equipment</Class>
 		<Item />
 		<Texture>
-			<File>drLofiObj4</File>
-			<Index>0xaa</Index>
+			<File>iceTomb8x8</File>
+			<Index>0x80</Index>
 		</Texture>
 		<SlotType>1</SlotType>
 		<Description>Forged for the Frozen Court from platinum that never warms. Its slash cleaves through every foe in its path, flanked by two shards of rime that slow whatever they strike.</Description>

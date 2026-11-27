@@ -731,7 +731,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   100%): a cleaving silver slash (`Oryx Champion Slash`, pale trail), 180-220 `<MultiHit/>`, range 7, flanked by two Iceblast shards,
   35-50 with `Slowed` 1.5 s, speed 120, range 6. Point-blank on one target about 285 a second
   (between the T14's 278 and the T15's 346), the slash alone 200 at range (a T9's, for twice a
-  sword's reach); was 170-190 at 150% and range 8, 270 a second. Its sprite and type code are kept.
+  sword's reach); was 170-190 at 150% and range 8, 270 a second. Its type code is kept; its icon,
+  once a gold sword (`drLofiObj4` 0xaa), is the tomb's own now: platinum with a teal guard, drawn
+  in `tools/ice_tomb/art.py` (`PLATINUM_SWORD`) onto `IceTomb8x8.png` at 0x80 by
+  `tools/build_ice_tomb.py`, which stops if the cell moves (`PLATINUM_SWORD_CELL`).
 - **The Ice Tomb remade** (2026-11-27; `tools/build_ice_tomb.py`, `tools/ice_tomb/`,
   `Dungeons/Ice Tomb.jm`, `custom/IceTomb*.xml`, `Dungeons.xml`, `BehaviorDb.IceTomb.cs`,
   `IceTomb.cs`, `IceCourt.cs`, `Tests/IceTombTests.cs`): a random layout of twenty shaped rooms
