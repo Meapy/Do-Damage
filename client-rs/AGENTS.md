@@ -192,6 +192,11 @@ the gaps between NewTicks. Its flags:
 - The world log doesn't always say `RealmManager.Restore` or `opened again` (2026-11-27, a fresh
   copy of the data): wait instead for port 2052 (plus the slot) to listen and a
   `NexusGuide.OpenDungeon` line; the client signed in fine then.
+- Teleporting onto ground no one can walk on (a chasm's `Tomb Abyss`) is refused by the client
+  without a word: the server said "Teleported" and the shot showed the player where they were
+  (2026-11-27). `/tq <id>` now lands beside such an object. A random-layout dungeon's rooms differ
+  each run, so reach one with `/tq <an object in it>` (`Lake Heart`, `Chasm Heart`, a keeper)
+  rather than coordinates, and expect "There is no ..." when that run didn't pick the room.
 - `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
   characters (a class, items, `alive.1`) are lost and must be made again after each start.
 - To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it

@@ -128,11 +128,13 @@ follow him round the room and burst when he dies.
 ## The Ice Tomb
 
 The Lord of the Lost Lands' portal, or an Ice Tomb Key, opens a frozen tomb laid out anew each
-run, from twenty rooms that are each something of their own: cross-shaped crypts whose
-**sarcophagi** crack open when you come near and let out a mummy, frozen lakes of **thin ice**
-that cracks under you if you stand still and breaks into freezing water (it slows you, pulls you
+run, hanging in a polar night with the aurora rippling across the sky round it. It has twenty
+rooms, each something of their own: cross-shaped crypts whose
+**sarcophagi** crack open when you come near and let out a mummy, frozen lakes of slippery
+**thin ice** (you slide on it) that cracks under you if you stand still and breaks into freezing water (it slows you, pulls you
 down and hurts) before it freezes over again, with a **Rime Serpent** surfacing out of them,
-**chasms** you cross on an ice bridge that freezes across as you come to the edge, octagon
+**chasms** dropping away into the sky below, crossed on an ice bridge that freezes across as
+you come to the edge, octagon
 shrines, hounds' dens, galleries round a pit, a crevasse, a honeycomb nest and an ossuary.
 
 Three of the rooms hold **seals**, each guarded by a keeper: the **Rime Colossus** (the Seal of

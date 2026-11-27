@@ -731,7 +731,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   keepers; the Sealed Door raises the Hall of Judgement's causeway and hall (`TombCourtPlan`) for
   the Frozen Court, three bosses fought at once with the Crucible's floors, caches and cue
   banners (cues 29-43, encounter "floor" 10 in `crucible.rs`). The old trio (Defender, Support,
-  Attacker) only fights in the Arena now (`BehaviorDb.IceTombArena.cs`). Rebuild the map, XML and
+  Attacker) only fights in the Arena now (`BehaviorDb.IceTombArena.cs`). The tomb hangs in a polar
+  night (`<Background>10</Background>`, the client's `aurorasky.rs` and `islands::ICE`), its chasms
+  open onto it, and its lake ice is slippery (`<SlideAmount>` with `<Slippery/>`, which the Rust
+  client honours since 2026-11-27; other grounds' SlideAmount stays unused). Rebuild the map, XML and
   sheets with `python tools/build_ice_tomb.py` (`--preview` draws the map), then
   `python tools/gen_rs_manifest.py`.
 - **The Hive after its maker's design** (2026-11-26; `tools/build_hive.py`, `Dungeons/The Hive.jm`,

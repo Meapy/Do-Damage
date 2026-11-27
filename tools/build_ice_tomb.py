@@ -103,11 +103,12 @@ GROUNDS = {
     "Ice Tomb Floor": ("0x4A6684", {}),
     "Ice Tomb Inlay": ("0x34496A", {}),
     "Rime Runner": ("0x26346A", {}),
-    "Snowdrift": ("0xD6E2F0", {"Speed": 0.85}),
-    "Court Marble": ("0xB8C6D8", {}),
+    "Snowdrift": ("0xDCE8F4", {"Speed": 0.85, "BlendPriority": 30}),
+    "Court Marble": ("0xC8D6E8", {}),
     "Court Rim": ("0x5E7AA0", {}),
-    "Court Sigil": ("0x3AC8A0", {}),
-    "Lake Ice": ("0x4680AC", {}),
+    "Court Sigil": ("0x7AD8F0", {}),
+    # slippery: you slide on it (SlideAmount, Slippery: the Rust client's World.walk)
+    "Lake Ice": ("0x5E9CCC", {"SlideAmount": 0.85, "Slippery": None}),
     # the lake about to break under you (harmless: get off it)
     "Cracking Ice": ("0x9CD0F0", {}),
     # broken through: it slows you to a crawl and the cold burns
@@ -121,15 +122,22 @@ GROUNDS = {
     "Frozen Scar": ("0x2C4A6A", {}),
     "Polar Dark": ("0x1C1638", {"MinDamage": 80, "MaxDamage": 100}),
     "Permafrost": ("0xA8DCF6", {"MinDamage": 75, "MaxDamage": 90}),
-    "Ice Floe": ("0xBCE0F4", {}),
+    "Ice Floe": ("0xCFE6F6", {"SlideAmount": 0.85, "Slippery": None}),
     "Ice Floe Rim": ("0xE8F6FF", {}),
     "Ice Tomb Wall Floor": ("0x1A2436", {}),
-    "Glacier Floor": ("0x44729A", {}),
+    "Glacier Floor": ("0x4A78A2", {"BlendPriority": 10}),
     "Tomb Mosaic": ("0x4A6488", {}),
     "Bone Floor": ("0x4A5262", {}),
-    "Tomb Abyss": ("0x04080E", {"NoWalk": None}),
-    "Ice Bridge": ("0x8CC4E8", {}),
-    "Ice Bridge Rim": ("0xDCF6FF", {}),
+    # a drop into the open sky under the tomb (see-through; the floors beside it hang cliffs of
+    # ice into it, the client's islands.rs, <NoUnderside/>), drawn over the floors beside it
+    "Tomb Abyss": ("0x04080E", {"NoWalk": None, "NoUnderside": None, "BlendPriority": 100}),
+    # over the open dark (the Court's causeway), arches of ice hang under them (the client's
+    # islands.rs, <Piers>stone</Piers>)
+    "Ice Bridge": ("0x8CC4E8", {"Piers": "stone"}),
+    "Ice Bridge Rim": ("0xDCF6FF", {"Piers": "stone"}),
+    # what the client hangs under the tomb's edges (islands::ICE); never laid
+    "Ice Tomb Underside Rock": ("0x2C5E8C", {"NoWalk": None}),
+    "Ice Tomb Underside Rim": ("0xCDDCEC", {"NoWalk": None}),
 }
 
 
@@ -141,6 +149,15 @@ def grounds(types, sheet):
         rt = sub(e, "RandomTexture")
         for img in tiles[name]:
             texture(rt, SHEET8[0], sheet.add(img))
+        if name in art.EDGES:
+            # its edge and corner, drawn where it meets another ground (ground.rs `edged`)
+            edge, corner, inner, same = art.EDGES[name]
+            texture(sub(e, "Edge"), SHEET8[0], sheet.add(edge))
+            texture(sub(e, "Corner"), SHEET8[0], sheet.add(corner))
+            if inner is not None:
+                texture(sub(e, "InnerCorner"), SHEET8[0], sheet.add(inner))
+            if same:
+                sub(e, "SameTypeEdgeMode")
         for k, v in extra.items():
             if k == "Animate":
                 sub(e, "Animate", v[0], **v[1])
@@ -362,9 +379,9 @@ def objects(types, s8, s16, c16, c32):
             ("Frozen Statue", [art.statue()], None, 120, True),
             ("Bones", [art.bones()], None, 90, False),
             ("Icefall", [art.icefall(f) for f in range(3)], "0.3", 130, True),
-            ("Warden's Throne", [art.throne("warden")], None, 140, True),
-            ("Oracle's Throne", [art.throne("oracle")], None, 140, True),
-            ("Reaver's Throne", [art.throne("reaver")], None, 140, True)):
+            ("Warden's Throne", [art.throne("warden")], None, 190, True),
+            ("Oracle's Throne", [art.throne("oracle")], None, 190, True),
+            ("Reaver's Throne", [art.throne("reaver")], None, 190, True)):
         e, _ = animated_static(types, s16, name, frames, time, size, blocks)
         out.append(e)
     # walls of ice raised in the Court (Kaldrun's Glacial Bulwark)

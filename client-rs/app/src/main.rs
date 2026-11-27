@@ -13,6 +13,7 @@ mod community;
 mod connected;
 mod crosshair;
 mod crucible;
+mod aurorasky;
 mod cruciblesky;
 mod death;
 mod emotes;

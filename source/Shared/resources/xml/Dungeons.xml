@@ -276,6 +276,8 @@
 		<VisibilityType>1</VisibilityType>
 		<!-- the whole Court in view from its middle -->
 		<MinSightRadius>22</MinSightRadius>
+		<!-- the polar night round it (the client's aurorasky.rs) -->
+		<Background>10</Background>
 		<Dungeon/>
 	</World>
 	<World id="Battle for the Nexus">

@@ -246,6 +246,9 @@ pub struct World {
     /// The speed of the ground under us, before sinking (`on_move`).
     ground_speed: f64,
     sink_level: i32,
+    /// Our velocity carried over from the last step (tiles/ms), for sliding on slippery ground
+    /// (`<SlideAmount>`, the Ice Tomb's lake ice).
+    slide: (f64, f64),
     pub projectiles: Vec<Projectile>,
     /// Where projectiles struck since the app last took them (for the sparks).
     pub impacts: Vec<combat::Impact>,
@@ -298,6 +301,7 @@ impl World {
             move_multiplier: 1.0,
             ground_speed: 1.0,
             sink_level: 0,
+            slide: (0.0, 0.0),
             projectiles: Vec::new(),
             impacts: Vec::new(),
             random: Random::new(seed),

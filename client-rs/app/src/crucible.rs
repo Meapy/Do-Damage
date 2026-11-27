@@ -195,7 +195,14 @@ impl Climb {
                 self.started = Some(now - m.seconds * 1000);
                 self.title = Some((m.floor, m.champion, now));
             }
-            kind::CUE => self.cue = Some((m.cue, m.floor, m.champion, m.text.clone(), now)),
+            kind::CUE => {
+                // an encounter's first word may be a cue: it is that encounter from then on (no
+                // climb tracker)
+                if encounter(m.floor).is_some() {
+                    self.floor = m.floor;
+                }
+                self.cue = Some((m.cue, m.floor, m.champion, m.text.clone(), now));
+            }
             kind::CLEARED => {
                 self.cleared = self.cleared.max(m.floor);
                 self.cleared_banner = Some((m.floor, m.seconds, now));

@@ -149,6 +149,23 @@ fn a_ghost_follows_and_settles_behind() {
 }
 
 #[test]
+fn ice_slides() {
+    // a floor of ice (SlideAmount): we gather speed slowly, and carry on when the keys let go
+    let mut d = data();
+    d.add_grounds(r#"<Grounds><Ground type="0x01" id="Ice"><SlideAmount>0.85</SlideAmount><Slippery/></Ground></Grounds>"#).unwrap();
+    let mut w = world(&d);
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 100);
+    // slower to start than on plain floor (0.96 tiles in 100 ms)
+    assert!(x > 5.5 - 0.96 + 0.2 && x < 5.5, "x = {x}");
+    let (x2, _) = walk(&mut w, &d, 0.0, 0.0, 200);
+    assert!(x2 < x - 0.3, "still sliding: {x} then {x2}");
+    // and it comes to a stop
+    let (x3, _) = walk(&mut w, &d, 0.0, 0.0, 3000);
+    let (x4, _) = walk(&mut w, &d, 0.0, 0.0, 200);
+    assert!(x3 > 0.5 && (x4 - x3).abs() < 1e-6, "x = {x3}, then {x4}");
+}
+
+#[test]
 fn walking_west_is_free() {
     let d = data();
     let mut w = world(&d);

@@ -21,9 +21,8 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from black_between.bosses import Canvas, R, poly_mask, ell_mask, sparkle, orb, spectral  # noqa: E402
-from black_between.small import put  # noqa: E402
+from black_between.small import put, C  # noqa: E402
 from crucible.bosses import thick, line, rect_mask, glow_ring  # noqa: E402
-from crucible.small import stone, liquid, pattern, cracked  # noqa: E402
 
 # =================================================================================================
 # palettes (dark .. light)
@@ -47,103 +46,391 @@ WOOD = R("#2a1c14", "#4a3422", "#6e5034", "#94744e")
 STONE = R("#1e2838", "#2c3a50", "#40546e", "#5c7290")
 
 
-def _tile(fn, seed):
-    rnd = random.Random(seed * 7919 + 29)
-    img = Image.new("RGBA", (8, 8), (0, 0, 0, 255))
-    fn(img, rnd)
+def _blank(c="#000000"):
+    img = Image.new("RGBA", (8, 8), C(c) + (255,))
     return img
 
 
-def frosted(base, dark, light, rime="#e8f8ff"):
-    """Flagstones under a skin of frost: mottled stone, a seam on some edges, rime creeping in
-    from a corner."""
-    plain = stone(base, dark, light, fleck=rime, seam=dark)
+def _clear():
+    return Image.new("RGBA", (8, 8), (0, 0, 0, 0))
 
+
+def _blob(img, rnd, colour, n, size=(1, 2), avoid=()):
+    """A few soft specks: n patches of 1 or 2 pixels, kept off the squares in avoid."""
+    for _ in range(n):
+        x, y = rnd.randrange(8), rnd.randrange(8)
+        if (x, y) in avoid:
+            continue
+        put(img, x, y, colour)
+        if rnd.randint(*size) == 2:
+            nx, ny = (x + 1, y) if rnd.random() < 0.5 else (x, y + 1)
+            if (nx, ny) not in avoid:
+                put(img, nx, ny, colour)
+
+
+def _crack(img, rnd, colour, length, start=None, glow=None):
+    """A hairline crack wandering across the square; with glow, a fainter halo beside it."""
+    x, y = start if start else (rnd.randrange(8), rnd.randrange(8))
+    dx, dy = rnd.choice(((1, 0), (0, 1), (1, 1), (1, -1)))
+    for _ in range(length):
+        if glow:
+            put(img, x + dy, y - dx, glow)
+        put(img, x, y, colour)
+        if rnd.random() < 0.45:
+            x += dx
+            y += dy
+        else:
+            x += rnd.choice((dx, dy, 0)) or 1
+            y += rnd.choice((dy, 0))
+        if not (0 <= x < 8 and 0 <= y < 8):
+            break
+
+
+def slab(base, seam, light, dark, frost=None, cracked=None, vein=None):
+    """One flagstone to a square: a darker seam along its right and lower edges, a lit upper-left
+    corner, a face kept quiet (a few specks); frost creeping in from a corner on some, a crack in
+    one."""
     def make(seed):
-        img = plain(seed)
-        rnd = random.Random(seed * 31 + 7)
-        cx, cy = rnd.choice(((0, 0), (7, 0), (0, 7), (7, 7)))
-        for _ in range(5 + seed % 4):
-            x = max(0, min(7, cx + rnd.randint(-2, 2)))
-            y = max(0, min(7, cy + rnd.randint(-2, 2)))
-            put(img, x, y, rime if rnd.random() < 0.4 else light)
+        rnd = random.Random(seed * 131 + 5)
+        img = _blank(base)
+        for i in range(8):
+            put(img, 7, i, seam)
+            put(img, i, 7, seam)
+        put(img, 0, 0, light)
+        put(img, 1, 0, light)
+        put(img, 0, 1, light)
+        put(img, 6, 6, dark)
+        face = {(x, y) for x in range(7) for y in range(7)}
+        _blob(img, rnd, light, 2, avoid={(x, y) for x in range(8) for y in range(8)} - face)
+        _blob(img, rnd, dark, 2, avoid={(x, y) for x in range(8) for y in range(8)} - face)
+        if frost and seed % 3 == 1:
+            cx, cy = rnd.choice(((0, 0), (6, 0), (0, 6), (6, 6)))
+            for x, y in ((cx, cy), (cx + (1 if cx == 0 else -1), cy), (cx, cy + (1 if cy == 0 else -1))):
+                put(img, x, y, frost[0])
+            put(img, cx, cy, frost[1])
+        if cracked and seed == 3:
+            _crack(img, rnd, cracked, 5, start=(1, rnd.randrange(2, 5)))
+        if vein and seed % 2 == 1:
+            # a vein through the stone, from one side to another
+            x, y = 0, rnd.randrange(1, 6)
+            while x < 7 and 0 <= y < 7:
+                put(img, x, y, vein)
+                x += 1
+                y += rnd.choice((-1, 0, 0, 1))
         return img
     return make
 
 
-def ice_sheet(cols, crack, sparkle_c="#ffffff", cracks=1):
-    """Clear ice: bands of colour slanting across, a fine crack or two, a glint."""
+def smooth(base, shades, specks=3, sparkle=None, cracks=None, deep=None):
+    """Even ground (packed snow, clear ice, still water): a base with a few close shades in soft
+    patches, a glint now and then, a fine crack in some, a darker hollow in others."""
     def make(seed):
-        def f(img, rnd):
-            for y in range(8):
-                for x in range(8):
-                    k = (x + y * 2 + seed * 3) // 3 + (1 if rnd.random() < 0.12 else 0)
-                    put(img, x, y, cols[k % len(cols)])
-            for _ in range(cracks):
-                x, y = rnd.randrange(8), rnd.randrange(8)
-                for _ in range(4):
-                    put(img, x, y, crack)
-                    x = max(0, min(7, x + rnd.choice((-1, 1))))
-                    y = max(0, min(7, y + rnd.choice((-1, 0, 1))))
-            put(img, rnd.randrange(8), rnd.randrange(8), sparkle_c)
-        return _tile(f, seed)
+        rnd = random.Random(seed * 977 + 13)
+        img = _blank(base)
+        if deep and seed % 2 == 0:
+            cx, cy = rnd.randrange(2, 6), rnd.randrange(2, 6)
+            for x in range(8):
+                for y in range(8):
+                    if (x - cx) ** 2 + (y - cy) ** 2 * 1.4 < 5:
+                        put(img, x, y, deep)
+        for c in shades:
+            _blob(img, rnd, c, specks)
+        if cracks and seed % 3 == 2:
+            _crack(img, rnd, cracks, 6)
+        if sparkle and seed % 3 == 1:
+            x, y = rnd.randrange(1, 7), rnd.randrange(1, 7)
+            put(img, x, y, sparkle[0])
+            put(img, x - 1, y, sparkle[1])
+            put(img, x, y + 1, sparkle[1])
+        return img
     return make
 
 
-def drift(cols, shadow):
+def drift(base, shadow, light, sparkle="#ffffff"):
+    """Snow: soft, its shadows pooled low in the square, a sparkle or two."""
     def make(seed):
-        def f(img, rnd):
-            for y in range(8):
-                for x in range(8):
-                    v = math.sin((x + seed * 2) * 0.8) * 1.2 + y * 0.35 + rnd.random() * 0.7
-                    put(img, x, y, cols[int(v) % len(cols)])
+        rnd = random.Random(seed * 211 + 3)
+        img = _blank(base)
+        sx = rnd.randrange(8)
+        for x in range(8):
+            h = 6 + round(math.sin((x - sx) * 0.7) * 1.2)
+            for y in range(h, 8):
+                put(img, x, y, shadow)
+        _blob(img, rnd, light, 3)
+        if seed % 2 == 0:
+            put(img, rnd.randrange(8), rnd.randrange(6), sparkle)
+        return img
+    return make
+
+
+def mosaic(a, b, grout, gold):
+    """The old tomb's floor: small square tiles in two blues, a gold stud where four meet in some."""
+    def make(seed):
+        rnd = random.Random(seed * 7 + 1)
+        img = _blank(a)
+        for y in range(8):
+            for x in range(8):
+                if x % 4 == 3 or y % 4 == 3:
+                    put(img, x, y, grout)
+                elif (x // 4 + y // 4 + seed) % 2:
+                    put(img, x, y, b)
+        if seed % 2 == 0:
+            put(img, 3, 3, gold)
+        put(img, rnd.choice((0, 4)), rnd.choice((0, 4)), "#5a7aa4")
+        return img
+    return make
+
+
+def runner(base, weave):
+    """The deep blue runner: a quiet weave of rows; its gold border is its edge (RUNNER_EDGE)."""
+    def make(seed):
+        img = _blank(base)
+        for y in range(8):
+            for x in range(8):
+                if (y + seed) % 4 == 0 and (x + y // 4) % 2 == 0:
+                    put(img, x, y, weave)
+        return img
+    return make
+
+
+def luminous(base, core, hem=None, streaks=2):
+    """A floor that glows (the aurora's light, the Court's sigil): an even light with brighter
+    streaks running up it, and a hem of another colour at its foot."""
+    def make(seed):
+        rnd = random.Random(seed * 53 + 9)
+        img = _blank(base)
+        for _ in range(streaks):
+            x = rnd.randrange(8)
+            top = rnd.randrange(0, 3)
+            for y in range(top, top + rnd.randrange(3, 6)):
+                put(img, x, y, core)
+        if hem:
+            for x in range(8):
+                if rnd.random() < 0.6:
+                    put(img, x, 7, hem)
+        return img
+    return make
+
+
+def fissure(base, glow, core, halo):
+    """A crack splitting the floor from side to side, light welling up out of it."""
+    def make(seed):
+        rnd = random.Random(seed * 17 + 4)
+        img = _blank(base)
+        horizontal = seed % 2 == 0
+        p = rnd.randrange(2, 6)
+        for i in range(8):
+            q = max(1, min(6, p))
+            x, y = (i, q) if horizontal else (q, i)
+            hx, hy = (i, q - 1) if horizontal else (q - 1, i)
+            put(img, hx, hy, halo)
+            put(img, x, y, glow)
+            if rnd.random() < 0.5:
+                put(img, x, y, core)
+            p += rnd.choice((-1, 0, 0, 1))
+        return img
+    return make
+
+
+def open_drop(mist, glint):
+    """A drop into the open: see-through, so the sky the tomb hangs in shows through it (and the
+    glacier's cliffs, the client's islands.rs), a wisp of mist drifting across it."""
+    def make(seed):
+        rnd = random.Random(seed * 19 + 5)
+        img = _clear()
+        y = rnd.randrange(8)
+        for x in range(rnd.randrange(0, 3), rnd.randrange(5, 8)):
+            put(img, x, y, mist, 70)
+            if rnd.random() < 0.5:
+                put(img, x, y + 1, mist, 40)
+        if seed % 3 == 0:
+            put(img, rnd.randrange(8), rnd.randrange(8), glint, 90)
+        return img
+    return make
+
+
+def starry(base, faint, bright):
+    def make(seed):
+        rnd = random.Random(seed * 3 + 77)
+        img = _blank(base)
+        _blob(img, rnd, faint, 3, size=(1, 1))
+        if seed % 2 == 0:
+            put(img, rnd.randrange(8), rnd.randrange(8), bright)
+        return img
+    return make
+
+
+def facets(base, light, line, white):
+    """Thick old ice in facets: lit planes, darker seams between them, a white glint."""
+    def make(seed):
+        rnd = random.Random(seed * 59 + 2)
+        img = _blank(base)
+        a = rnd.randrange(2, 6)
+        for i in range(8):
+            put(img, i, max(0, min(7, a + (i - 4) // 2)), line)
+        for y in range(8):
+            for x in range(8):
+                if y < a + (x - 4) // 2 - 1 and (x + y) % 5 == 0:
+                    put(img, x, y, light)
+        put(img, rnd.randrange(8), rnd.randrange(8), white)
+        return img
+    return make
+
+
+def outline(base, ring, inner=None):
+    """A marked square: a bright frame round a calm middle (where something is about to fall)."""
+    def make(seed):
+        img = _blank(base)
+        for i in range(8):
+            for x, y in ((i, 0), (i, 7), (0, i), (7, i)):
+                put(img, x, y, ring)
+        if inner:
+            for x, y in ((3, 3), (4, 4), (3 + seed % 2, 4 - seed % 2)):
+                put(img, x, y, inner)
+        return img
+    return make
+
+
+def boulders(base, shadow, light):
+    """Snow tumbling: rounded clumps, each lit on top and shadowed below."""
+    def make(seed):
+        rnd = random.Random(seed * 41 + 8)
+        img = _blank(base)
+        for _ in range(2):
+            cx, cy = rnd.randrange(1, 7), rnd.randrange(1, 7)
+            for x in range(cx - 1, cx + 2):
+                put(img, x, cy + 1, shadow)
+            put(img, cx, cy - 1, light)
+            put(img, cx - 1, cy, light)
+        return img
+    return make
+
+
+def gale(base, streak, shadow):
+    """Wind-driven snow: short streaks racing across (the tile flows, Animate)."""
+    def make(seed):
+        rnd = random.Random(seed * 23 + 6)
+        img = _blank(base)
+        for _ in range(3):
+            x, y = rnd.randrange(8), rnd.randrange(8)
+            for i in range(3):
+                put(img, x + i, y, streak)
+            put(img, x + 3, y, shadow)
+        return img
+    return make
+
+
+def ripple(base, ripples, glint):
+    """Black water: short ripples lying across it, a glint (the tile flows, Animate)."""
+    def make(seed):
+        rnd = random.Random(seed * 13 + 1)
+        img = _blank(base)
+        for c in ripples:
             for _ in range(2):
-                put(img, rnd.randrange(8), rnd.randrange(8), shadow)
-        return _tile(f, seed)
+                x, y = rnd.randrange(7), rnd.randrange(8)
+                put(img, x, y, c)
+                put(img, x + 1, y, c)
+        if seed % 2 == 0:
+            put(img, rnd.randrange(8), rnd.randrange(8), glint)
+        return img
+    return make
+
+
+def crazed(base, deep, crack, shadow):
+    """Ice breaking: two or three bold cracks running across it from edge to edge, white where
+    they open, the dark water showing along them."""
+    def make(seed):
+        rnd = random.Random(seed * 71 + 3)
+        img = _blank(base)
+        for k in range(2 + seed % 2):
+            horizontal = (k + seed) % 2 == 0
+            p = rnd.randrange(1, 7)
+            for i in range(8):
+                x, y = (i, p) if horizontal else (p, i)
+                sx, sy = (i, p + 1) if horizontal else (p + 1, i)
+                put(img, sx, sy, deep)
+                put(img, x, y, crack)
+                if rnd.random() < 0.35:
+                    p = max(1, min(6, p + rnd.choice((-1, 1))))
+        put(img, rnd.randrange(8), rnd.randrange(8), shadow)
+        return img
     return make
 
 
 # name -> (art, variants)
 TILES = {
-    # the tomb's halls: pale flagstones furred with frost, darker inlay, a runner of deep blue
-    "Ice Tomb Floor": (frosted("#4a6684", "#3e5872", "#587696"), 4),
-    "Ice Tomb Inlay": (pattern(["#2c3f5c", "#34496a", "#3e5678"], lambda x, y, s: ((x // 2 + y // 2 + s) % 3), fleck="#8cc8ea"), 3),
-    "Rime Runner": (pattern(["#1e2a5a", "#26346a", "#30407c", "#d8c070"], lambda x, y, s: 3 if x in (0, 7) and (y + s) % 3 == 0 else (x + y + s) % 3), 2),
-    "Snowdrift": (drift(["#c4d4e6", "#d6e2f0", "#e6eef8", "#f6faff"], "#a8bcd4"), 4),
-    # the Frozen Court: white marble veined with frost, an aurora sigil laid in it
-    "Court Marble": (frosted("#b8c6d8", "#a6b6ca", "#ccd8e6", rime="#ffffff"), 4),
-    "Court Rim": (pattern(["#5e7aa0", "#4c6890", "#7290b6", "#e8c048"], lambda x, y, s: 3 if (x * 3 + y + s) % 11 == 0 else (x + 2 * y + s) % 3), 3),
-    "Court Sigil": (pattern(["#2a8a74", "#3ac8a0", "#9060d8", "#c4ffe4"], lambda x, y, s: (x + y + s) % 4 if (x + y) % 2 else 1), 2),
-    # the frozen lake: thin ice over black water. It cracks under whoever stands on it
-    # (ThinIce in BehaviorDb.IceTomb.cs), and breaks
-    "Lake Ice": (ice_sheet(["#3a6e9a", "#4680ac", "#5490bc", "#4074a2"], "#9cd0f0"), 4),
-    "Cracking Ice": (cracked("#4680ac", "#2a5a82", "#ffffff"), 3),
-    # freezing water: walkable, slow, and it burns with cold
-    "Frigid Water": (liquid(["#0a1a34", "#0e2444", "#123056", "#0a1e3c"], "#4a90c8"), 4),
-    # where something is coming (any of the fights): pale stripes, harmless
-    "Rime Warning": (pattern(["#5a8ab0", "#8cc8ea", "#dcf6ff"], lambda x, y, s: ((x + y + s) // 2) % 3), 3),
+    # the tomb's halls: blue flagstones, rime creeping in at their corners; a darker inlaid stone;
+    # a runner of deep blue (trimmed in gold by its edge)
+    "Ice Tomb Floor": (slab("#3e5a7c", "#2a3e5a", "#4e6c90", "#34506e", frost=("#9cc8e6", "#e2f4ff"), cracked="#2a3e5a"), 4),
+    "Ice Tomb Inlay": (slab("#2c405e", "#1e2c44", "#3a5276", "#24364e", frost=("#6a9cc8", "#a8d4f0")), 3),
+    "Rime Runner": (runner("#24327a", "#2c3c8a"), 2),
+    "Snowdrift": (drift("#dce8f4", "#c2d4e8", "#eef4fb"), 4),
+    # the Frozen Court: polished white marble, a darker rim at its walls, the snowflake laid in it
+    # glowing (outlined by its edge)
+    "Court Marble": (slab("#c8d6e8", "#a8bad2", "#e2ecf8", "#bccbe0", vein="#a2b8d6"), 6),
+    "Court Rim": (slab("#3c5478", "#283c5a", "#4e6a92", "#344a6a", frost=("#8cb8dc", "#d8b860")), 3),
+    "Court Sigil": (luminous("#7ad8f0", "#d4f8ff", streaks=2), 3),
+    # the frozen lake: clear thin ice over black water, dark where it's deep, a hairline crack
+    # here and there. It cracks under whoever stands on it (ThinIce in BehaviorDb.IceTomb.cs),
+    # and breaks; it is slippery (SlideAmount)
+    "Lake Ice": (smooth("#5e9ccc", ["#66a4d2", "#5896c6"], specks=1, sparkle=("#ffffff", "#9fd2f0"), cracks="#90c8ec", deep="#4c88ba"), 6),
+    "Cracking Ice": (crazed("#6aa8d6", "#123a60", "#f2fbff", "#4a84b6"), 3),
+    # freezing water: walkable, slow, and it burns with cold (a rim of ice round it: its edge)
+    "Frigid Water": (ripple("#0c2846", ["#163a60", "#1e4a74"], "#6ab4e0"), 4),
+    # where something is coming (any of the fights): a frame of frost round each square, harmless
+    "Rime Warning": (outline("#4e80ae", "#bfe8ff", inner="#8cc8ea"), 2),
     # the Court's phases: each walkable, each burning with cold
-    "Avalanche": (drift(["#dceaf8", "#f0f6ff", "#ffffff", "#bcd2ea"], "#8cb0d4"), 3),
-    "Aurora Light": (pattern(["#1aa070", "#4ae8a4", "#9060d8", "#c4ffe4"], lambda x, y, s: ((x * 2 - y + s) // 2) % 4), 3),
-    "Blizzard": (pattern(["#ffffff", "#dcecf8", "#b0cce4", "#e8f4ff"], lambda x, y, s: ((x - y * 2 + s * 3) // 2) % 4), 3),
-    "Frost Fissure": (cracked("#0e2440", "#1a3a5e", "#a8f0ff"), 3),
-    "Frozen Scar": (stone("#2c4a6a", "#24405e", "#36587c", fleck="#8cc8ea"), 3),
-    "Polar Dark": (pattern(["#0c0a1e", "#1c1638", "#5a2a9a", "#0e0c26"], lambda x, y, s: 2 if (x * 5 + y * 3 + s) % 13 == 0 else (x + y) % 2 * 3), 3),
-    "Permafrost": (ice_sheet(["#8cc8ea", "#a8dcf6", "#dcf6ff", "#5ec4e8"], "#ffffff", cracks=2), 3),
+    "Avalanche": (boulders("#eef4fc", "#b8cce2", "#ffffff"), 3),
+    "Aurora Light": (luminous("#3cd8a2", "#b4fce0", hem="#8a6ae8", streaks=3), 3),
+    "Blizzard": (gale("#d8e8f6", "#ffffff", "#a8c0da"), 3),
+    "Frost Fissure": (fissure("#0e2038", "#5ad4ff", "#e0faff", "#1e4a72"), 4),
+    "Frozen Scar": (fissure("#34567c", "#5a86b0", "#7aa6cc", "#3c5f86"), 2),
+    "Polar Dark": (starry("#120e28", "#2e2458", "#9c86f0"), 3),
+    "Permafrost": (facets("#8ccaee", "#c8ecff", "#5aa4d6", "#ffffff"), 3),
     # the floe the Shattered Lake leaves, and its rim
-    "Ice Floe": (ice_sheet(["#a8d4ee", "#bce0f4", "#cce8f8", "#9cc8e6"], "#ffffff"), 3),
-    "Ice Floe Rim": (pattern(["#e8f6ff", "#ffffff", "#bcdcf0"], lambda x, y, s: (x + y + s) % 3), 2),
+    "Ice Floe": (smooth("#cfe6f6", ["#bcdcf0", "#ddf0fb"], specks=3, sparkle=("#ffffff", "#e8f6ff")), 3),
+    "Ice Floe Rim": (smooth("#f2faff", ["#dceefa"], specks=2), 2),
     # under the walls
-    "Ice Tomb Wall Floor": (stone("#1a2436", "#141c2c", "#222e42"), 2),
-    # the glacier caves: rough blue ice underfoot, and the old tomb's mosaic in its finer rooms
-    "Glacier Floor": (ice_sheet(["#3c6890", "#44729a", "#365f86", "#4a7aa2"], "#7ab4dc"), 4),
-    "Tomb Mosaic": (pattern(["#3a5274", "#4a6488", "#2e4462", "#c8a850"], lambda x, y, s: 3 if (x + y) % 8 == 0 and (x - y) % 4 == 0 else ((x // 2 + y // 2) % 2) * (1 + s % 2) + ((x + y) % 2) * 0), 4),
-    "Bone Floor": (stone("#4a5262", "#3e4656", "#5a6474", fleck="#d8d8e0", flecks=3), 3),
-    # the chasms: a drop into the dark, mist drifting far below; and the bridges of ice that freeze
-    # across them as someone comes near (IceBridge in BehaviorDb.IceTomb.cs)
-    "Tomb Abyss": (pattern(["#020408", "#04080e", "#060c16", "#03060c"], lambda x, y, s: ((x * 3 + y * 7 + s * 5) % 17) // 5, fleck="#1a3a5e"), 4),
-    "Ice Bridge": (ice_sheet(["#7ab4dc", "#8cc4e8", "#9cd0f0", "#6ca6d2"], "#dcf6ff"), 3),
-    "Ice Bridge Rim": (pattern(["#dcf6ff", "#ffffff", "#a8dcf6", "#5ec4e8"], lambda x, y, s: (x + y * 2 + s) % 4), 2),
+    "Ice Tomb Wall Floor": (smooth("#18202e", ["#1c2636"], specks=2), 2),
+    # the glacier caves: packed blue snow and ice; the old tomb's mosaic in its finer rooms; the
+    # ossuary's slate strewn with bone
+    "Glacier Floor": (smooth("#4a78a2", ["#5486ae", "#42709a"], specks=3, sparkle=("#cfeaff", "#7aaad2"), deep="#44709a"), 6),
+    "Tomb Mosaic": (mosaic("#2e4870", "#38557e", "#1e3050", "#d4ac4c"), 4),
+    "Bone Floor": (slab("#4c505c", "#363a46", "#5c606c", "#42464f", frost=("#d8d4c8", "#f0ece0")), 4),
+    # the chasms: a drop into the dark, mist far below; and the bridges of ice that freeze across
+    # them as someone comes near (IceBridge in BehaviorDb.IceTomb.cs), rimmed by their edge
+    "Tomb Abyss": (open_drop("#9cc4e6", "#ffffff"), 4),
+    "Ice Bridge": (facets("#86c2e8", "#b4e0f8", "#6aa8d6", "#ffffff"), 3),
+    "Ice Bridge Rim": (smooth("#d6eefb", ["#b8dcf2", "#eaf8ff"], specks=2), 2),
+    # never laid: what the client hangs under the tomb's edges into the polar night round it
+    # (islands::ICE): the glacier's blue ice streaked with light, under a band of snow
+    "Ice Tomb Underside Rock": (facets("#2c5e8c", "#4a86b8", "#1e4670", "#9cd4f4"), 4),
+    "Ice Tomb Underside Rim": (drift("#cddcec", "#9cb6d2", "#e6eff8"), 3),
+}
+
+# edges (ground.rs `edged`): name -> (edge facing west, corner at the upper left, inner corner or
+# None, same-type mode). Drawn where the ground meets another (same-type mode) or nothing.
+
+
+def _edge(cols, corner_cols=None):
+    e = _clear()
+    for i, c in enumerate(cols):
+        for y in range(8):
+            put(e, i, y, c)
+    k = _clear()
+    for i, c in enumerate(corner_cols or cols[:1]):
+        put(k, i, 0, c)
+        put(k, 0, i, c)
+    return e, k
+
+
+EDGES = {
+    # gold trim along the runner
+    "Rime Runner": _edge(["#1a2250", "#d8b050"]) + (None, True),
+    # the snowflake's frost-blue outline and inner glow
+    "Court Sigil": _edge(["#2a78b8", "#4aaedc"]) + (None, True),
+    # a lip of ice round open water
+    "Frigid Water": _edge(["#dcf4ff", "#7ab8e0"]) + (None, True),
 }
 
 
@@ -152,54 +439,62 @@ def tiles():
 
 
 # =================================================================================================
-# walls (8x8): blocks of old ice over dark stone; the top face frosted
+# walls (8x8): blocks of old stone under ice, icicles hanging off their brows; the glacier's own
+# walls of clear blue ice; snow on top
 
 def wall_face(seed, sconce=False, frame=0):
     rnd = random.Random(seed * 101 + 3)
-    img = Image.new("RGBA", (8, 8), (0, 0, 0, 255))
+    img = _blank("#24395a")
     for y in range(8):
         for x in range(8):
-            row = y // 4
-            brick = (x + (2 if row else 0)) // 4
-            edge = y % 4 == 3 or (x + (2 if row else 0)) % 4 == 3
-            c = ICE_DEEP[0] if edge else ICE_DEEP[1 + (brick + row + seed) % 2]
-            if not edge and rnd.random() < 0.12:
-                c = ICE_DEEP[3]
-            put(img, x, y, c)
+            row = (y - 2) // 3
+            off = 2 if row % 2 else 0
+            if y >= 2 and ((y - 2) % 3 == 2 or (x + off) % 4 == 3):
+                put(img, x, y, "#172840")
+            elif y >= 2 and ((x + off) % 4 == 0 or (y - 2) % 3 == 0):
+                put(img, x, y, "#2e4870")
+    # the brow: snow on the lip, icicles below it
     for x in range(8):
+        put(img, x, 0, "#e2f0fa")
+        put(img, x, 1, "#8cbede" if x % 3 else "#bfe4f8")
+    for x in (rnd.randrange(0, 3), rnd.randrange(4, 8)):
+        put(img, x, 2, "#9cd0f0")
         if rnd.random() < 0.6:
-            put(img, x, 0, ICE[3])
+            put(img, x, 3, "#6aaad6")
     if sconce:
         # a sconce of blue flame
-        put(img, 3, 6, STEEL[2]); put(img, 4, 6, STEEL[2]); put(img, 3, 5, STEEL[1]); put(img, 4, 5, STEEL[1])
+        put(img, 3, 7, "#5c7494"); put(img, 4, 7, "#5c7494"); put(img, 3, 6, "#34465e"); put(img, 4, 6, "#34465e")
         f = frame % 2
-        put(img, 3, 4, FROST[1 + f]); put(img, 4, 4, FROST[2 - f]); put(img, 3 + f, 3, FROST[3]); put(img, 4 - f, 2, FROST[2])
+        put(img, 3, 5, FROST[1 + f]); put(img, 4, 5, FROST[2 - f]); put(img, 3 + f, 4, FROST[3]); put(img, 4 - f, 3, FROST[2])
     return img
 
 
 def glacier_face(seed):
-    """A wall of the glacier caves: rough blue ice in slabs, bright where it catches the light."""
+    """A wall of the glacier caves: clear blue ice, deepening downwards, light caught in it in
+    tall streaks, snow along its brow."""
     rnd = random.Random(seed * 53 + 17)
-    img = Image.new("RGBA", (8, 8), (0, 0, 0, 255))
+    img = _blank("#2e6696")
     for y in range(8):
         for x in range(8):
-            v = math.sin(x * 1.3 + seed) + math.cos(y * 0.9 + seed * 2) + rnd.random() * 0.8
-            put(img, x, y, ICE[0] if v < 0 else (ICE[1] if v < 1.2 else ICE[2]))
+            put(img, x, y, "#3a78aa" if y < 3 else ("#2e6696" if y < 6 else "#245682"))
     for _ in range(2):
         x = rnd.randrange(8)
-        for y in range(rnd.randrange(2, 6)):
-            put(img, x, y, ICE[3])
+        top = rnd.randrange(1, 3)
+        for y in range(top, top + rnd.randrange(3, 6)):
+            put(img, x, y, "#7ab8e2")
+        put(img, x, top, "#c8ecff")
+    put(img, rnd.randrange(8), rnd.randrange(4, 8), "#1c4670")
+    for x in range(8):
+        put(img, x, 0, "#e6f2fb")
     return img
 
 
 def wall_top(seed):
     rnd = random.Random(seed * 37 + 11)
-    img = Image.new("RGBA", (8, 8), (0, 0, 0, 255))
-    for y in range(8):
-        for x in range(8):
-            v = rnd.random()
-            put(img, x, y, SNOW[1] if v > 0.3 else (SNOW[0] if v > 0.1 else SNOW[2]))
-    for _ in range(2):
+    img = _blank("#d2e0ee")
+    _blob(img, rnd, "#c0d2e6", 4)
+    _blob(img, rnd, "#e6f0f9", 3)
+    if seed % 2 == 0:
         put(img, rnd.randrange(8), rnd.randrange(8), "#ffffff")
     return img
 
@@ -330,15 +625,26 @@ def rime_gate(frame=0):
 
 
 def throne(who):
-    """One of the Court's thrones, carved of ice, its sitter's colour in its back."""
+    """One of the Court's thrones, carved of ice: a tall back rising into three spires of crystal,
+    its sitter's sigil glowing in it (the Warden's steel, the Oracle's aurora, the Reaver's frost),
+    broad arms and a step of snow-dusted ice."""
     cv = Canvas(16, 16)
     c = {"warden": STEEL, "oracle": AURORA, "reaver": FROST}[who]
-    cv.shade(rect_mask(3, 2, 12, 9), ICE_DEEP)
-    cv.shade(rect_mask(2, 9, 13, 12), ICE)
-    cv.shade(rect_mask(3, 12, 5, 15), ICE_DEEP); cv.shade(rect_mask(10, 12, 12, 15), ICE_DEEP)
-    for y in range(3, 8):
-        cv.px(7, y, c[2]); cv.px(8, y, c[3])
-    cv.px(3, 1, SNOW[3]); cv.px(12, 1, SNOW[3]); cv.px(7, 1, c[3]); cv.px(8, 1, c[3])
+    # the back and its spires
+    cv.shade(poly_mask([(3, 5), (4, 2), (5, 4), (7, 0), (8, 0), (10, 4), (11, 2), (12, 5), (12, 10), (3, 10)]), ICE)
+    for x, y in ((4, 2), (7, 0), (8, 0), (11, 2)):
+        cv.px(x, y, ICE[3])
+    # the sigil
+    cv.px(7, 4, c[3]); cv.px(8, 4, c[3]); cv.px(7, 5, c[2]); cv.px(8, 5, c[2]); cv.px(6, 5, c[1]); cv.px(9, 5, c[1])
+    cv.px(7, 6, c[2]); cv.px(8, 6, c[1]); cv.px(7, 3, c[1]); cv.px(8, 3, c[2])
+    # the seat, the arms, the step
+    cv.shade(rect_mask(4, 9, 11, 10), ICE_DEEP)
+    cv.shade(rect_mask(2, 8, 3, 12), ICE); cv.shade(rect_mask(12, 8, 13, 12), ICE)
+    cv.px(2, 8, ICE[3]); cv.px(13, 8, ICE[2])
+    cv.shade(rect_mask(4, 11, 11, 12), ICE)
+    cv.shade(rect_mask(2, 13, 13, 14), ICE_DEEP)
+    for x in range(2, 14, 2):
+        cv.px(x, 13, SNOW[2])
     return cv.img
 
 

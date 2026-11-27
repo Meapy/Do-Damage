@@ -60,6 +60,9 @@ pub const VOID: Style = Style { rock: "BB Underside Rock", soil: "BB Underside R
 /// The Crucible's floors in their sky (tools/build_crucible.py): dark stone flecked with embers
 /// under a band of dressed stone and gold, fading into the dusk.
 pub const CRUCIBLE: Style = Style { rock: "Crucible Underside Rock", soil: "Crucible Underside Rim", haze: 0x1A1220 };
+/// The Ice Tomb over its polar abyss (tools/build_ice_tomb.py): the glacier it is cut into, blue
+/// ice streaked with light under a band of snow, fading into the night.
+pub const ICE: Style = Style { rock: "Ice Tomb Underside Rock", soil: "Ice Tomb Underside Rim", haze: 0x081430 };
 
 /// A side of a column of rock, from a to b (going round its square clockwise), from `top` down to
 /// `bottom`: `deep` how deep its foot is (0 to 1 of `MAX_DEPTH`, for the haze), `tone` its stone's

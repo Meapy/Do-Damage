@@ -49,18 +49,23 @@
 				<Index>0x08</Index>
 			</Texture>
 		</RandomTexture>
-		<Color>0x26346A</Color>
-	</Ground>
-	<Ground type="0xCA03" id="Snowdrift">
-		<RandomTexture>
+		<Edge>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x09</Index>
 			</Texture>
+		</Edge>
+		<Corner>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x0a</Index>
 			</Texture>
+		</Corner>
+		<SameTypeEdgeMode />
+		<Color>0x26346A</Color>
+	</Ground>
+	<Ground type="0xCA03" id="Snowdrift">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x0b</Index>
@@ -69,12 +74,6 @@
 				<File>iceTomb8x8</File>
 				<Index>0x0c</Index>
 			</Texture>
-		</RandomTexture>
-		<Speed>0.85</Speed>
-		<Color>0xD6E2F0</Color>
-	</Ground>
-	<Ground type="0xCA04" id="Court Marble">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x0d</Index>
@@ -83,6 +82,13 @@
 				<File>iceTomb8x8</File>
 				<Index>0x0e</Index>
 			</Texture>
+		</RandomTexture>
+		<Speed>0.85</Speed>
+		<BlendPriority>30</BlendPriority>
+		<Color>0xDCE8F4</Color>
+	</Ground>
+	<Ground type="0xCA04" id="Court Marble">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x0f</Index>
@@ -91,11 +97,6 @@
 				<File>iceTomb8x8</File>
 				<Index>0x10</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0xB8C6D8</Color>
-	</Ground>
-	<Ground type="0xCA05" id="Court Rim">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x11</Index>
@@ -108,24 +109,19 @@
 				<File>iceTomb8x8</File>
 				<Index>0x13</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x5E7AA0</Color>
-	</Ground>
-	<Ground type="0xCA06" id="Court Sigil">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x14</Index>
 			</Texture>
+		</RandomTexture>
+		<Color>0xC8D6E8</Color>
+	</Ground>
+	<Ground type="0xCA05" id="Court Rim">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x15</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x3AC8A0</Color>
-	</Ground>
-	<Ground type="0xCA07" id="Lake Ice">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x16</Index>
@@ -134,6 +130,11 @@
 				<File>iceTomb8x8</File>
 				<Index>0x17</Index>
 			</Texture>
+		</RandomTexture>
+		<Color>0x5E7AA0</Color>
+	</Ground>
+	<Ground type="0xCA06" id="Court Sigil">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x18</Index>
@@ -142,27 +143,27 @@
 				<File>iceTomb8x8</File>
 				<Index>0x19</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x4680AC</Color>
-	</Ground>
-	<Ground type="0xCA08" id="Cracking Ice">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x1a</Index>
 			</Texture>
+		</RandomTexture>
+		<Edge>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x1b</Index>
 			</Texture>
+		</Edge>
+		<Corner>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x1c</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x9CD0F0</Color>
+		</Corner>
+		<SameTypeEdgeMode />
+		<Color>0x7AD8F0</Color>
 	</Ground>
-	<Ground type="0xCA09" id="Frigid Water">
+	<Ground type="0xCA07" id="Lake Ice">
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
@@ -180,16 +181,6 @@
 				<File>iceTomb8x8</File>
 				<Index>0x20</Index>
 			</Texture>
-		</RandomTexture>
-		<Speed>0.45</Speed>
-		<Sink />
-		<MinDamage>45</MinDamage>
-		<MaxDamage>60</MaxDamage>
-		<Animate dx=".25">Flow</Animate>
-		<Color>0x0E2444</Color>
-	</Ground>
-	<Ground type="0xCA0A" id="Rime Warning">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x21</Index>
@@ -198,15 +189,17 @@
 				<File>iceTomb8x8</File>
 				<Index>0x22</Index>
 			</Texture>
+		</RandomTexture>
+		<SlideAmount>0.85</SlideAmount>
+		<Slippery />
+		<Color>0x5E9CCC</Color>
+	</Ground>
+	<Ground type="0xCA08" id="Cracking Ice">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x23</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x8CC8EA</Color>
-	</Ground>
-	<Ground type="0xCA0B" id="Avalanche">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x24</Index>
@@ -215,17 +208,15 @@
 				<File>iceTomb8x8</File>
 				<Index>0x25</Index>
 			</Texture>
+		</RandomTexture>
+		<Color>0x9CD0F0</Color>
+	</Ground>
+	<Ground type="0xCA09" id="Frigid Water">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x26</Index>
 			</Texture>
-		</RandomTexture>
-		<MinDamage>75</MinDamage>
-		<MaxDamage>90</MaxDamage>
-		<Color>0xF0F6FF</Color>
-	</Ground>
-	<Ground type="0xCA0C" id="Aurora Light">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x27</Index>
@@ -239,6 +230,73 @@
 				<Index>0x29</Index>
 			</Texture>
 		</RandomTexture>
+		<Edge>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2a</Index>
+			</Texture>
+		</Edge>
+		<Corner>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2b</Index>
+			</Texture>
+		</Corner>
+		<SameTypeEdgeMode />
+		<Speed>0.45</Speed>
+		<Sink />
+		<MinDamage>45</MinDamage>
+		<MaxDamage>60</MaxDamage>
+		<Animate dx=".25">Flow</Animate>
+		<Color>0x0E2444</Color>
+	</Ground>
+	<Ground type="0xCA0A" id="Rime Warning">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2c</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2d</Index>
+			</Texture>
+		</RandomTexture>
+		<Color>0x8CC8EA</Color>
+	</Ground>
+	<Ground type="0xCA0B" id="Avalanche">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2e</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x2f</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x30</Index>
+			</Texture>
+		</RandomTexture>
+		<MinDamage>75</MinDamage>
+		<MaxDamage>90</MaxDamage>
+		<Color>0xF0F6FF</Color>
+	</Ground>
+	<Ground type="0xCA0C" id="Aurora Light">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x31</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x32</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x33</Index>
+			</Texture>
+		</RandomTexture>
 		<MinDamage>70</MinDamage>
 		<MaxDamage>85</MaxDamage>
 		<Color>0x4AE8A4</Color>
@@ -247,15 +305,15 @@
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2a</Index>
+				<Index>0x34</Index>
 			</Texture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2b</Index>
+				<Index>0x35</Index>
 			</Texture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2c</Index>
+				<Index>0x36</Index>
 			</Texture>
 		</RandomTexture>
 		<MinDamage>65</MinDamage>
@@ -268,15 +326,19 @@
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2d</Index>
+				<Index>0x37</Index>
 			</Texture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2e</Index>
+				<Index>0x38</Index>
 			</Texture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x2f</Index>
+				<Index>0x39</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x3a</Index>
 			</Texture>
 		</RandomTexture>
 		<MinDamage>80</MinDamage>
@@ -287,15 +349,11 @@
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x30</Index>
+				<Index>0x3b</Index>
 			</Texture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x31</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x32</Index>
+				<Index>0x3c</Index>
 			</Texture>
 		</RandomTexture>
 		<Color>0x2C4A6A</Color>
@@ -304,72 +362,8 @@
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
-				<Index>0x33</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x34</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x35</Index>
-			</Texture>
-		</RandomTexture>
-		<MinDamage>80</MinDamage>
-		<MaxDamage>100</MaxDamage>
-		<Color>0x1C1638</Color>
-	</Ground>
-	<Ground type="0xCA11" id="Permafrost">
-		<RandomTexture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x36</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x37</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x38</Index>
-			</Texture>
-		</RandomTexture>
-		<MinDamage>75</MinDamage>
-		<MaxDamage>90</MaxDamage>
-		<Color>0xA8DCF6</Color>
-	</Ground>
-	<Ground type="0xCA12" id="Ice Floe">
-		<RandomTexture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x39</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x3a</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x3b</Index>
-			</Texture>
-		</RandomTexture>
-		<Color>0xBCE0F4</Color>
-	</Ground>
-	<Ground type="0xCA13" id="Ice Floe Rim">
-		<RandomTexture>
-			<Texture>
-				<File>iceTomb8x8</File>
-				<Index>0x3c</Index>
-			</Texture>
-			<Texture>
-				<File>iceTomb8x8</File>
 				<Index>0x3d</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0xE8F6FF</Color>
-	</Ground>
-	<Ground type="0xCA14" id="Ice Tomb Wall Floor">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x3e</Index>
@@ -379,9 +373,11 @@
 				<Index>0x3f</Index>
 			</Texture>
 		</RandomTexture>
-		<Color>0x1A2436</Color>
+		<MinDamage>80</MinDamage>
+		<MaxDamage>100</MaxDamage>
+		<Color>0x1C1638</Color>
 	</Ground>
-	<Ground type="0xCA18" id="Glacier Floor">
+	<Ground type="0xCA11" id="Permafrost">
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
@@ -395,15 +391,17 @@
 				<File>iceTomb8x8</File>
 				<Index>0x42</Index>
 			</Texture>
+		</RandomTexture>
+		<MinDamage>75</MinDamage>
+		<MaxDamage>90</MaxDamage>
+		<Color>0xA8DCF6</Color>
+	</Ground>
+	<Ground type="0xCA12" id="Ice Floe">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x43</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x44729A</Color>
-	</Ground>
-	<Ground type="0xCA19" id="Tomb Mosaic">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x44</Index>
@@ -412,6 +410,13 @@
 				<File>iceTomb8x8</File>
 				<Index>0x45</Index>
 			</Texture>
+		</RandomTexture>
+		<SlideAmount>0.85</SlideAmount>
+		<Slippery />
+		<Color>0xCFE6F6</Color>
+	</Ground>
+	<Ground type="0xCA13" id="Ice Floe Rim">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x46</Index>
@@ -421,9 +426,9 @@
 				<Index>0x47</Index>
 			</Texture>
 		</RandomTexture>
-		<Color>0x4A6488</Color>
+		<Color>0xE8F6FF</Color>
 	</Ground>
-	<Ground type="0xCA1A" id="Bone Floor">
+	<Ground type="0xCA14" id="Ice Tomb Wall Floor">
 		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
@@ -433,15 +438,15 @@
 				<File>iceTomb8x8</File>
 				<Index>0x49</Index>
 			</Texture>
+		</RandomTexture>
+		<Color>0x1A2436</Color>
+	</Ground>
+	<Ground type="0xCA18" id="Glacier Floor">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x4a</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x4A5262</Color>
-	</Ground>
-	<Ground type="0xCA15" id="Tomb Abyss">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x4b</Index>
@@ -458,16 +463,16 @@
 				<File>iceTomb8x8</File>
 				<Index>0x4e</Index>
 			</Texture>
-		</RandomTexture>
-		<NoWalk />
-		<Color>0x04080E</Color>
-	</Ground>
-	<Ground type="0xCA16" id="Ice Bridge">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x4f</Index>
 			</Texture>
+		</RandomTexture>
+		<BlendPriority>10</BlendPriority>
+		<Color>0x4A78A2</Color>
+	</Ground>
+	<Ground type="0xCA19" id="Tomb Mosaic">
+		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x50</Index>
@@ -476,11 +481,6 @@
 				<File>iceTomb8x8</File>
 				<Index>0x51</Index>
 			</Texture>
-		</RandomTexture>
-		<Color>0x8CC4E8</Color>
-	</Ground>
-	<Ground type="0xCA17" id="Ice Bridge Rim">
-		<RandomTexture>
 			<Texture>
 				<File>iceTomb8x8</File>
 				<Index>0x52</Index>
@@ -490,6 +490,123 @@
 				<Index>0x53</Index>
 			</Texture>
 		</RandomTexture>
+		<Color>0x4A6488</Color>
+	</Ground>
+	<Ground type="0xCA1A" id="Bone Floor">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x54</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x55</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x56</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x57</Index>
+			</Texture>
+		</RandomTexture>
+		<Color>0x4A5262</Color>
+	</Ground>
+	<Ground type="0xCA15" id="Tomb Abyss">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x58</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x59</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5a</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5b</Index>
+			</Texture>
+		</RandomTexture>
+		<NoWalk />
+		<NoUnderside />
+		<BlendPriority>100</BlendPriority>
+		<Color>0x04080E</Color>
+	</Ground>
+	<Ground type="0xCA16" id="Ice Bridge">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5c</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5d</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5e</Index>
+			</Texture>
+		</RandomTexture>
+		<Piers>stone</Piers>
+		<Color>0x8CC4E8</Color>
+	</Ground>
+	<Ground type="0xCA17" id="Ice Bridge Rim">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x5f</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x60</Index>
+			</Texture>
+		</RandomTexture>
+		<Piers>stone</Piers>
 		<Color>0xDCF6FF</Color>
+	</Ground>
+	<Ground type="0xCA1B" id="Ice Tomb Underside Rock">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x61</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x62</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x63</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x64</Index>
+			</Texture>
+		</RandomTexture>
+		<NoWalk />
+		<Color>0x2C5E8C</Color>
+	</Ground>
+	<Ground type="0xCA1C" id="Ice Tomb Underside Rim">
+		<RandomTexture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x65</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x66</Index>
+			</Texture>
+			<Texture>
+				<File>iceTomb8x8</File>
+				<Index>0x67</Index>
+			</Texture>
+		</RandomTexture>
+		<NoWalk />
+		<Color>0xCDDCEC</Color>
 	</Ground>
 </GroundTypes>

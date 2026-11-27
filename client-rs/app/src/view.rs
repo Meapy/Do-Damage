@@ -1308,6 +1308,10 @@ pub fn draw(scene: &Scene, renderer: &mut Renderer, redrawer: &mut Redrawer, gro
             ground.crucible_sky.draw(renderer, &cam, scene.time);
             Some(&crate::islands::CRUCIBLE)
         }
+        crate::aurorasky::SKY_AURORA => {
+            ground.aurora_sky.draw(renderer, &cam, scene.time);
+            Some(&crate::islands::ICE)
+        }
         _ => None,
     };
     if let Some(style) = islands {
