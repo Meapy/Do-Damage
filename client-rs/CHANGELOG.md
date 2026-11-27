@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Items
+- **The Platinum Sword, reworked:** now the Ice Tomb's own sword, a rare drop from the Frozen Court (Oryx no longer drops it). Each swing is a platinum slash that cleaves through every enemy in its path, flanked by two frost shards that slow what they hit. Its reach is a sword's again, close to twice as strong up close as before.
+
 ## 2.6.9 (2026-11-27)
 
 ### Gold Store

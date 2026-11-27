@@ -51,6 +51,7 @@ namespace WorldServer.logic
                 new ItemLoot("Staff of Iceblast", 0.0025),
                 new ItemLoot("Eternal Snowflake Wand", 0.0025),
                 new ItemLoot("Frozen Wand", 0.0025),
+                new ItemLoot("Platinum Sword", 0.0025),
                 new ItemLoot("Snowblind Wand", 0.0025),
                 new ItemLoot("Tome of Frigid Protection", 0.0025),
                 new ItemLoot("Ice Crown", 0.0012),

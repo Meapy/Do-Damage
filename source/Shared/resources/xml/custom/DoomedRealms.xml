@@ -4614,18 +4614,34 @@
 			<Index>0xaa</Index>
 		</Texture>
 		<SlotType>1</SlotType>
-		<Description>An ancient sword made of enchanted platinum.</Description>
-		<RateOfFire>1.5</RateOfFire>
+		<Description>Forged for the Frozen Court from platinum that never warms. Its slash cleaves through every foe in its path, flanked by two shards of rime that slow whatever they strike.</Description>
+		<RateOfFire>1</RateOfFire>
 		<Sound>weapon/glass_sword</Sound>
 		<Projectile>
 			<ObjectId>Beam Slash</ObjectId>
 			<Speed>100</Speed>
-			<MinDamage>170</MinDamage>
-			<MaxDamage>190</MaxDamage>
-			<LifetimeMS>800</LifetimeMS>
+			<MinDamage>215</MinDamage>
+			<MaxDamage>255</MaxDamage>
+			<LifetimeMS>425</LifetimeMS>
+			<MultiHit />
 		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Iceblast Missile</ObjectId>
+			<Speed>110</Speed>
+			<MinDamage>45</MinDamage>
+			<MaxDamage>60</MaxDamage>
+			<LifetimeMS>380</LifetimeMS>
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+			<ParticleTrail intensity="0.05" lifetimeMS="75">0xDEFFF7</ParticleTrail>
+		</Projectile>
+		<ExtraTooltipData>
+			<EffectInfo name="Rime Shards" description="Two frost shards flank each slash for 45-60 each, slowing what they hit for 1.5 seconds" />
+		</ExtraTooltipData>
 		<BagType>6</BagType>
 		<FameBonus>5</FameBonus>
+		<NumProjectiles>3</NumProjectiles>
+		<VolleyProjectiles>1,0,1</VolleyProjectiles>
+		<ArcGap>14</ArcGap>
 		<OldSound>bladeSwing</OldSound>
 	</Object>
 	<Object type="0xD0F8" id="Orb of the Chaos Walker">

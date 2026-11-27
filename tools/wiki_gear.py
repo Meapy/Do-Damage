@@ -366,7 +366,36 @@ class Gear:
             lo = wd._int(wd._text(proj, "MinDamage") or wd._text(proj, "Damage"), 0)
             hi = wd._int(wd._text(proj, "MaxDamage") or wd._text(proj, "Damage"), lo)
             shots = wd._int(wd._text(el, "NumProjectiles"), 1)
-            if hi:
+            # a volley that gives each shot its own projectile (<VolleyProjectiles>1,0,1</...>, the
+            # Platinum Sword's slash between two shards): each kind's damage, and what it inflicts
+            # when that isn't the same for all of them
+            volley = [wd._int(v.strip(), 0) for v in (wd._text(el, "VolleyProjectiles") or "").split(",") if v.strip()]
+            kinds = {(p.get("id") or "0").strip(): p for p in el.findall("Projectile")}
+            look = lambda p: (wd._text(p, "MinDamage"), wd._text(p, "MaxDamage"), wd._text(p, "Damage"),
+                              [(c.text, c.get("duration")) for c in p.findall("ConditionEffect")])
+            used = [kinds.get(str(v), kinds.get("0")) for v in volley]
+            if hi and len(volley) > 1 and any(look(p) != look(used[0]) for p in used if p is not None):
+                order, counts = [], {}
+                for n in range(shots):
+                    k = str(volley[min(n, len(volley) - 1)])
+                    k = k if k in kinds else "0"
+                    if k not in counts:
+                        order.append(k)
+                    counts[k] = counts.get(k, 0) + 1
+                order.sort(key=lambda k: (k != "0", k))
+                segs = []
+                for k in order:
+                    p = kinds[k]
+                    plo = wd._int(wd._text(p, "MinDamage") or wd._text(p, "Damage"), 0)
+                    phi = wd._int(wd._text(p, "MaxDamage") or wd._text(p, "Damage"), plo)
+                    d = "%d&ndash;%d" % (plo, phi) if plo != phi else "%d" % plo
+                    inflicts = ", ".join("%s %ss" % ((c.text or "").strip(), num(c.get("duration"), "?"))
+                                         for c in p.findall("ConditionEffect"))
+                    if k != "0" and inflicts:
+                        d += ' <span class="dim">(%s)</span>' % self.h.esc(inflicts)
+                    segs.append(("%d &times; " % counts[k] if counts[k] > 1 else "") + d)
+                out.append("Damage <b>%s</b>" % " + ".join(segs))
+            elif hi:
                 dmg = "%d&ndash;%d" % (lo, hi) if lo != hi else "%d" % lo
                 out.append("Damage <b>%s</b>%s" % (dmg, " &times; %d" % shots if shots > 1 else ""))
             speed = float(wd._text(proj, "Speed") or 0)
