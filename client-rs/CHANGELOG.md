@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.10 (2026-11-27)
 
 ### Gold Store
 - **Sales show in the Nexus:** while the Gold Store has a sale on, entering the Nexus shows a banner saying how much gold is off and for how long (at most once every 10 minutes). Click it to open the Gold Store.
