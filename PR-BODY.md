@@ -1,6 +1,9 @@
-Release 2.6.10: the Platinum Sword reworked as Rimebrand, the Ice Tomb's sword. Deploys the world server and client; nobody is disconnected.
+Release 2.6.10: the Platinum Sword reworked as Rimebrand, the Ice Tomb's sword, and a Nexus banner for Gold Store sales. Deploys the world server and client; nobody is disconnected.
 
 ## For players
+
+### Gold Store
+- **Sales show in the Nexus:** while the Gold Store has a discount on (Black Friday's half price), entering the Nexus shows a gold banner at the top: "Black Friday. All gold is 50% off for the next 21 hours!", counting down while it shows (minutes in the last hour), and a click opens the Gold Store. An account sees it at most once every 10 minutes; a chat line says the same, which is all a client not yet updated shows.
 
 ### Items
 - **The Platinum Sword is now Rimebrand:** renamed and reworked as the Ice Tomb's own sword, a rare drop from each of the Frozen Court (0.25%, as the tomb's bows and wands); Oryx 4 and the Christmas Oryx no longer drop it. Each swing fires three: a platinum slash, 180-220, that cleaves through every enemy in its path out to 7 tiles, flanked by two frost shards, 35-50 each out to 6 tiles, that slow what they hit for 1.5 seconds. At 100% rate of fire instead of 150% (8 tiles before): up close on one enemy about 285 damage a second, between the T14 and T15 swords, and about 200 from the slash alone at range, the price of twice a sword's reach. A new icon to match the tomb's gear: a platinum blade with rime on the point, a teal guard with a frost gem, a dark steel grip and a frost pommel (it was a plain gold sword). Swords already owned change with it.
@@ -15,5 +18,14 @@ Release 2.6.10: the Platinum Sword reworked as Rimebrand, the Ice Tomb's sword. 
 - **Deploys:** the world server and the client together (both read the sword's XML: a client not yet updated keeps firing the old single slash, which the server's rate check may refuse, until it updates). Nobody is disconnected.
 - **Redis:** nothing migrated; the type code (0xD0F7) is kept, so owned swords take the new stats.
 
+### A Nexus banner for Gold Store sales
+- **What:** a player entering the Nexus while a gold discount runs (`GoldStore.BlackFriday`, whose end the account server keeps in `gold.discount.black-friday-2026`) gets a banner and a chat line, at most once every 10 minutes an account (`GoldStore.DiscountToTell`: SET NX on `gold.told.<account>` with a 10-minute expiry, so it holds across world servers and rolling restarts).
+- **Message:** no new one. `GlobalNotification` (69) kind 1 carries "<percent off>|<seconds left>|<name>" (`GlobalNotificationMessage.GoldSaleBanner`). Clients before this take only dungeon-key colours from that message and ignore it; they get the chat line.
+- **Client:** `app/src/goldsale.rs` (parsing, the hours-then-minutes line, the banner: the community banners' look in gold with the HUD's coin, 12 s, under the quest popups and above the community banners; a click opens `screens::GOLD_STORE`, and the crosshair stays off it), `game.rs` (`gold_sale`), `main.rs`. Three new lines in every `app/lang/*.json`.
+- **Server:** `Shared/database/GoldStore.cs`, `WorldServer/core/objects/player/Player.cs` (the Nexus block beside the other event lines), `GlobalNotificationMessage.cs`.
+- **Deploys:** the world server and the client; either works without the other. Nobody is disconnected. Redis: `gold.told.<account>` keys, gone after 10 minutes.
+- **Timing:** the live Black Friday sale ends 2026-11-28 10:07 UTC, so the banner shows players only if this release deploys before then; after that nothing is sent until there's another `GoldDiscount`.
+
 ## Checks
+- **Gold sale banner:** `dotnet test source\Tests --filter GoldStore` 13 passed, with `APlayerIsToldOfADiscountOnceEveryTenMinutes` (none before it starts, 21 h left told once, not again within 10 minutes, each account its own, again after, nothing once over); `cargo test -p bsk-client` 134 passed, with `goldsale` (parsing, refusing a key colour or an ended discount; hours rounded up, minutes in the last hour) and the translation checks. In game on an isolated stack (slot 5, a fresh copy of the data, the sale started by the account server): signing in to the Nexus showed the gold "Black Friday" banner under the quest popups, "All gold is 50% off for the next 24 hours!", and the chat line. The click and the 10-minute repeat weren't tried in game.
 - **Rimebrand (Platinum Sword):** `dotnet test source\Tests` (563 passed) and `cargo test -p bsk-client` pass; both XML copies parse with the same sword block; the wiki builds (`tools/build_wiki.py --out <scratch>`) with the card reading "180-220 + 2 x 35-50 (Slowed 1.5s), range 7, hits several" and dropping from the three of the Court, the Elysian Staff's still "200-250 x 3". Seen in game on an isolated stack (slot 1): a Warrior firing at the vault's Training Dummy shows the silver slashes (the Oryx Champion Slash sprite, with a pale trail) between the cyan frost shards, and the tooltip, weapon slot and inventory show the new icon; the tooltip reads 180-220, 3 shots, range 7, 100%, with the Rime Shards line.

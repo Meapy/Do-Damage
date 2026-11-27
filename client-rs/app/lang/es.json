@@ -1709,5 +1709,8 @@
 "Shattered Lake": "Lago quebrado",
 "The Court Mourns": "La Corte llora",
 "The Court Falls": "La Corte cae",
-"The Way Opens": "El camino se abre"
+"The Way Opens": "El camino se abre",
+"All gold is {percent}% off for the next {n} hour!|All gold is {percent}% off for the next {n} hours!": "¡Todo el oro con un {percent}% de descuento durante {n} hora más!|¡Todo el oro con un {percent}% de descuento durante {n} horas más!",
+"All gold is {percent}% off for the next {n} minute!|All gold is {percent}% off for the next {n} minutes!": "¡Todo el oro con un {percent}% de descuento durante {n} minuto más!|¡Todo el oro con un {percent}% de descuento durante {n} minutos más!",
+"Click to open the Gold Store.": "Haz clic para abrir la Tienda de oro."
 }

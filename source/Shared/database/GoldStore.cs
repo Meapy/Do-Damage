@@ -136,6 +136,26 @@ namespace Shared.database
         // --- discounts ---------------------------------------------------------------------
 
         public static string DiscountKey(string id) => "gold.discount." + id;
+        public static string DiscountToldKey(int accountId) => "gold.told." + accountId;
+
+        /// <summary>How often a player entering the Nexus is told of a running discount.</summary>
+        public static readonly TimeSpan DiscountTellEvery = TimeSpan.FromMinutes(10);
+
+        /// <summary>
+        /// How long the discount has left, when the account is to be told of it now: it runs, and
+        /// they weren't told in the last DiscountTellEvery (from now they count as told). Null
+        /// otherwise. The world server asks this as a player enters the Nexus.
+        /// </summary>
+        public static TimeSpan? DiscountToTell(IDatabase db, GoldDiscount d, int accountId, DateTime now)
+        {
+            var v = (string)db.StringGet(DiscountKey(d.Id));
+            if (v == null || !DateTime.TryParse(v, null, DateTimeStyles.RoundtripKind, out var ends))
+                return null;
+            var left = ends.ToUniversalTime() - now;
+            if (left <= TimeSpan.Zero)
+                return null;
+            return db.StringSet(DiscountToldKey(accountId), 1, DiscountTellEvery, When.NotExists) ? left : null;
+        }
 
         /// <summary>
         /// Black Friday 2026: every pack half price for a day, from the first time the account

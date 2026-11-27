@@ -14,6 +14,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 
 ## Unreleased
 
+### Gold Store
+- **Sales show in the Nexus:** while the Gold Store has a sale on, entering the Nexus shows a banner saying how much gold is off and for how long (at most once every 10 minutes). Click it to open the Gold Store.
+
 ### Items
 - **The Platinum Sword is now Rimebrand:** reworked as the Ice Tomb's own sword, a rare drop from the Frozen Court (Oryx no longer drops it). It has a new look to match, platinum with a frost-teal guard, and each swing is a platinum slash that cleaves through every enemy in its path, flanked by two frost shards that slow what they hit. It still reaches far (7 tiles, the shards 6), trading some damage for it, and hits hardest when all three land up close.
 

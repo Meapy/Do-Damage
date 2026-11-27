@@ -1709,5 +1709,8 @@
 "Shattered Lake": "Parçalanmış Göl",
 "The Court Mourns": "Saray yasta",
 "The Court Falls": "Saray düşüyor",
-"The Way Opens": "Yol açılıyor"
+"The Way Opens": "Yol açılıyor",
+"All gold is {percent}% off for the next {n} hour!|All gold is {percent}% off for the next {n} hours!": "Tüm altınlar {n} saat boyunca %{percent} indirimli!",
+"All gold is {percent}% off for the next {n} minute!|All gold is {percent}% off for the next {n} minutes!": "Tüm altınlar {n} dakika boyunca %{percent} indirimli!",
+"Click to open the Gold Store.": "Altın Mağazası'nı açmak için tıkla."
 }

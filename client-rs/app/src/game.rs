@@ -178,6 +178,8 @@ pub struct Game {
     teleport_asked: Option<(i32, i32)>,
     /// Dungeon keys the server says we have (`GlobalNotification`), as colours.
     pub keys: Vec<u32>,
+    /// A gold discount the server just told us of (`GlobalNotification` kind 1), for its banner.
+    pub gold_sale: Option<crate::goldsale::Notice>,
     /// When merchants last spoke (`Merchant.update`'s balloons every 5 s), and which message.
     merchant_talk: std::collections::HashMap<i32, (i32, usize)>,
     /// When the ability (Space) can be used again (`Player.nextAltAttack_`).
@@ -498,6 +500,7 @@ impl Game {
             held_ability: None,
             teleport_asked: None,
             keys: Vec::new(),
+            gold_sale: None,
             merchant_talk: Default::default(),
             next_ability: 0,
             last_invisible: i32::MIN / 2,
@@ -926,6 +929,9 @@ impl Game {
             ServerMessage::BuyResult(b) => {
                 let name = if b.result == 0 { "" } else { "*Error*" };
                 self.add_chat(name, "", &b.result_string, 0, 0, -1, now);
+            }
+            ServerMessage::GlobalNotification(n) if n.kind == crate::goldsale::KIND => {
+                self.gold_sale = crate::goldsale::parse(&n.text);
             }
             ServerMessage::GlobalNotification(n) => {
                 let key = match n.text.as_str() {
