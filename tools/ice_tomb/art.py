@@ -942,6 +942,30 @@ def alpha(frame=0, bite=False):
             cv.px(15, 7 + k, "#ffffff")
     return cv.img
 
+def relic(who, frame=0, flare=False):
+    """One of the Court's relics, which circle their maker as the Tomb's artifacts do: a shard of
+    ice hanging in the air, its maker's light caught in it (the Warden's steel, the Oracle's aurora,
+    the Reaver's blood-red), chips of ice turning round it."""
+    shard, core = {"warden": (FROST, STEEL), "oracle": (AURORA, VIOLET),
+                   "reaver": (ICE, R("#5a0e14", "#a01e28", "#e84a50", "#ffc4c4"))}[who]
+    cv = Canvas(16, 16)
+    bob = frame % 2
+    for (x, y) in ell_mask(8, 15, 3.2, 0.8):
+        cv.px(x, y, "#000000", 60)
+    cv.shade(poly_mask([(8, 1 + bob), (12, 6 + bob), (8, 13 + bob), (4, 6 + bob)]), shard,
+             grad=lambda x, y: 2 if x < 8 else 1)
+    orb(cv, 8, 6.5 + bob, 1.8 + (0.8 if flare else 0), core, glow=core[3])
+    sparkle(cv, 6, 3 + bob, shard[3])
+    cv.px(2, 9 - bob, shard[2]); cv.px(14, 4 + bob, shard[2])
+    return cv.img
+
+
+def relics():
+    """name -> ([frames], attack frame)"""
+    return {name: ([relic(who, 0), relic(who, 1)], relic(who, 0, True))
+            for name, who in (("Rime Relic", "warden"), ("Aurora Relic", "oracle"), ("Reaver Relic", "reaver"))}
+
+
 
 def minions():
     """name -> ([frames], attack frame)"""

@@ -161,12 +161,19 @@ Glacier** (arms of avalanche turning round the hall while waves of it roll out f
 Ysolde's **Frozen Hours** (the hall cut into six hours, the aurora burning in them by turns) and
 Hrimgar's **Wolf Moon** (three of his hounds loosed in the hall while rime cracks out under
 you), each only while the one who calls it lives, and caches like the Crucible's fall in the
-hall between. Kaldrun raises a
-**Glacial Bulwark** at 60% of his health, walling himself in behind four Rime Pillars until they
-break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, and again every
-30 seconds; Hrimgar hunts the nearest player, leaps on them and goes into a **Frenzy** at half
-his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
-(**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
+hall between. Each of the three fights as one of the Tomb of the Ancients' gods does, harder:
+every new turn as its health falls opens with a taunt and three seconds behind a blue shield
+(nothing hurts it), its **relics** come out at 40% (two) and 25% (one more) and circle it,
+firing, until they're shot down or it falls, and below 6% it **rages**, glowing red, running you
+down with everything it has and more relics. Kaldrun (as Bes) rings the hall with snowflakes from
+80%, raises a **Glacial Bulwark** at 60%, walling himself in behind four Rime Pillars until they
+break, and is Armored while his relics are out; Ysolde (as Nut) weaves a turning cross of
+quieting ribbons from 80%, and her **Aurora's Grace** heals the whole Court from half her
+health, and again every 30 seconds; Hrimgar (as Geb) hunts the nearest player and leaps on
+them, calls his hounds and lobs hailstones from 75%, and goes into a **Frenzy** at half his
+health. Each that falls leaves its Shade fighting on, and the last one standing makes a last
+stand below 15% (**Permafrost**, **Polar Night** or the **Shattered Lake**), raging in it below
+6%. Each of the Court drops the tomb's
 treasure (the old Ice Tomb Chest's, half again as often) and, only here, **Rimebrand**
 (a long cleaving slash flanked by two frost shards that slow), two white bags for the newer
 classes, the King's **Edict of the Frozen Court** (a decree that spreads from every Condemned

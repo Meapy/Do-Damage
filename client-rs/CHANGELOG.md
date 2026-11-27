@@ -12,6 +12,11 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## Unreleased
+
+### Dungeons
+- **The Frozen Court fights like the Tomb of the Ancients' gods, harder:** on top of its moving floors, each of the three now turns as its health falls behind a blue shield, sends out relics of ice that circle it firing (at 40% and 25%), and rages red below 6%, chasing you down. Kaldrun rings the hall with snowflakes and is armored while his relics are out, Ysolde weaves a cross of quieting ribbons, and Hrimgar calls his hounds and lobs hailstones; Hrimgar's Frenzy, which he nearly always skipped, now comes every time at half his health.
+
 ## 2.6.10 (2026-11-27)
 
 ### Gold Store

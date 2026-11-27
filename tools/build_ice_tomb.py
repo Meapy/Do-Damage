@@ -273,6 +273,17 @@ COURT = {
     "Hrimgar's Shade": ("Hrimgar Shade", [], 100000, 0, "Hrimgar, the Frost Reaver", [
         foe(0, "Frozen Soul", 150, 55, 2800, 110)]),
 }
+# the Court's relics (16x16), out at 40% and 25% of each one's health and in its rage, circling it
+# as the Tomb of the Ancients' artifacts do (BehaviorDb.IceTomb.cs Relic): name -> (health, defence,
+# size, sound, [projectiles])
+RELICS = {
+    "Rime Relic": (5000, 45, 110, "monster/stone_walls", [
+        foe(0, "Rime Shard", 130, 75, 1500, effects=[SLOW])]),
+    "Aurora Relic": (4000, 25, 110, "monster/ghosts", [
+        foe(0, "Aurora Spark", 120, 80, 1500, effects=[("Darkness", 1)])]),
+    "Reaver Relic": (4500, 35, 110, "monster/stone_walls", [
+        foe(0, "Frost Fang", 140, 110, 1000, effects=[("Bleeding", 1.5)])]),
+}
 BOSSES = ("Kaldrun, the Rime Warden", "Ysolde, the Aurora Oracle", "Hrimgar, the Frost Reaver")
 # who sounds like whom (existing sounds)
 SOUNDS = {
@@ -485,6 +496,9 @@ def objects(types, s8, s16, c16, c32):
         out.append(e)
     for name, (hp, defense, size, flags, shots) in KEEPERS.items():
         out.append(character(name, CHARS16[0], rows16[name], size, hp, defense, shots, flags))
+    for name, frames in art.relics().items():
+        hp, defense, size, sound, shots = RELICS[name]
+        out.append(character(name, CHARS16[0], c16.add(*frames), size, hp, defense, shots, ("noxp",), sound=sound))
 
     # breakables: the seals (warded 0, bare 1, cracked 2), the Rime Pillars, the Heart of Winter
     seal_cells = [s16.add(art.seal(0, f)) for f in range(4)]

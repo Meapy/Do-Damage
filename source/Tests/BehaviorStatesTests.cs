@@ -102,5 +102,22 @@ namespace Tests
             Assert.True(found.Count == 0, "Oryx 4 invulnerable in: " + string.Join(", ", found));
             Assert.Contains(Monsters(), m => m.Monster == "Oryx the Mad God 4" && m.State.Name == "Pre Hadouken");
         }
+
+        // A behaviour's states share one list of names, the last of a name winning: Hrimgar's three
+        // hunts were named alike, so the first one's leap went to the last one's, and he never
+        // reached his Frenzy. The Frozen Court's names stay their own, and each has the Tomb of
+        // the Ancients' turns: relics at 40% and 25%, a rage below 6%.
+        [Fact]
+        public void FrozenCourtStatesAreTheirOwn()
+        {
+            foreach (var boss in new[] { "Kaldrun, the Rime Warden", "Ysolde, the Aurora Oracle", "Hrimgar, the Frost Reaver" })
+            {
+                var names = Monsters().Where(m => m.Monster == boss && m.State.Name != "").Select(m => m.State.Name).ToList();
+                var twice = names.GroupBy(n => n).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                Assert.True(twice.Count == 0, $"{boss}: states named alike: {string.Join(", ", twice)}");
+                foreach (var turn in new[] { "Relics", "Relics 2", "Rage", "Last Rage", "Rage shield" })
+                    Assert.Contains(turn, names);
+            }
+        }
     }
 }

@@ -133,6 +133,9 @@ dotnet test source\Tests                                                        
   `logic/behaviors/` and `logic/transitions/`. `ArenaSeason2Tests` fails if a monster the Arena's
   season 2 still fights (`ArenaSeason2.cs`) loses its behaviour, so when you rewrite a dungeon,
   keep those in a file of their own (as `BehaviorDb.IceTombArena.cs` keeps the old Ice Tomb trio).
+  A monster's states share one list of names, the last of a name winning, with no warning: a
+  helper that builds the same named states twice (a cycle reused in several phases) sends every
+  copy's transitions into the last copy. Give such helpers a prefix (`ReaverCycle(turn, ...)`).
 - **The second behaviour engine:** some monsters run on `logic/doomed/DoomedRuntime.cs` (its own
   composites, attacks, movement, spawning, events and loot), defined in
   `logic/doomed/DoomedMonsters.cs` and registered in `BehaviorDb.DoomedMonsters.cs` with
