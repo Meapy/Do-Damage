@@ -11,7 +11,7 @@ Players know it as **Do Damage** (the client, the website, anything players read
   and every change made here. Add to its "Changes from upstream" when you change behaviour or add
   content; "Classes, minigames and the economy" says where those live.
 - [client/AGENTS.md](client/AGENTS.md): the old AIR client. **Deprecated**: don't build, test or
-  change it unless the owner asks.
+  change it unless the owner asks; its `src/` still holds the game's art and XML.
 - `website/` is dodmg.com (built by `tools/build_site.py`); `deploy/` installs everything on the
   VPSes.
 
@@ -36,13 +36,13 @@ Two Ubuntu 24.04 VPSes with systemd services, installed together by one deploy (
 |---|---|---|
 | Caddy | 80, 443, 8080 | the website; `/play` redirects to play.dodmg.com; `/api`, `/ws` and 8080 forwarded there for older clients |
 | Discord bot (`bsk-discord`) | none | release posts, server status, Marketplace listings, slash commands, linked accounts (SETUP-LOCAL.md, "Discord") |
-| Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (SSH tunnel); everyone else goes to Europe 2 |
+| Testing (`bsk-world`, `bsk-redis-tunnel`) | 2051 | admin-only world server on the game's Redis (SSH tunnel), where each pull request's world server goes; everyone else goes to Europe 2 |
 
 Its old Redis, account server and gateways are masked: their data is from 2026-11-07, not live.
 
 **This PC:** the old live servers are stopped since 2026-10-16 (`source/Redis/data` is that day's
-data, not live). `tools/update_relay.py` may run on 8080, sending desktop clients built for this
-PC to dodmg.com. Isolated test servers use 6380 / 8081 / 2052, slot N adding N
+data: the test copy, not live). `tools/update_relay.py` may run on 8080, sending desktop clients
+built for this PC to dodmg.com. Isolated test servers use 6380 / 8081 / 2052, slot N adding N
 (`tools/testclient/iso_stack.py`, under `build/iso*/`). Another server on this PC uses 8888, 2050
 and 843: don't take those ports. `world_proxy.py` and `rolling_restart.py` must keep working on
 Windows and Linux. `Run Server.bat` starts a copy on the old data, so it asks first; never run test
@@ -54,9 +54,7 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
   first, every time, unless they just asked for it. Test on an isolated stack. What disconnects
   whom:
   - a deploy (each merge to `main`: `.github/workflows/deploy.yml` runs `deploy/deploy.py`) kicks
-    nobody: rolling world servers, a new gateway slot while the old hands over, an account server
-    restart that only pauses sign-ins, Caddy reloads keep WebSockets (SETUP-LOCAL.md, "Deploys
-    that kick nobody");
+    nobody (SETUP-LOCAL.md, "Deploys that kick nobody");
   - restarting `bsk-world` itself kicks everyone (saved first);
   - restarting a gateway slot (`bsk-gateway@<slot>`) or Caddy drops nearly everyone on it; the
     Rust client takes them back to the Nexus by itself.
@@ -64,12 +62,12 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
   `taskkill /F` (what `rolling_restart.py stop` uses on Windows) skips the save; from a script,
   attach to its console and send Ctrl+C (`AttachConsole`, `GenerateConsoleCtrlEvent`).
 - **Never drive a player's window** ("Do Damage", or "betterSkillys" for the AIR client). Test
-  with the Rust client's scripted flags, in its own window, on an isolated stack.
-- **Write down testing pitfalls.** When a test trips on something not obvious (a flag that doesn't
-  do what it seems to, a setup step, test data to fix first, a cause you couldn't find), add it to
-  the testing notes of the part you tested (client-rs/AGENTS.md, "Testing against the servers";
-  source/AGENTS.md, "Build, test, deploy") in the same commit, with what works instead, so the
-  next session doesn't lose the same time.
+  with the Rust client's scripted flags, in its own window, on an isolated stack. In game, test
+  only what the tests and builds can't show, in one run.
+- **Write down testing pitfalls.** When a test trips on something not obvious, add it with what
+  works instead to the testing notes of the part you tested (client-rs/AGENTS.md, "Testing
+  against the servers"; source/AGENTS.md, "Build and test") in the same commit. Fold it into the
+  note it belongs with rather than adding a dated line, and delete notes that stop being true.
 - **Client and server ship together** when a message changes. Keep old clients working with a new
   server where possible, and say in the commit which side needs redeploying.
 - **Client releases** are published by the deploy on merge to `main`, signed with the
@@ -95,12 +93,13 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
   generator when it misses the change, and edit the hand-written guides (`website/wiki/*.md`).
   Measured tables (Gear statistics) stay as measured; add a note when one goes out of date.
 - **Languages:** the Rust client's text goes through `tr` / `tf!` / `tn!` with a translation in
-  every `client-rs/app/lang/*.json`, in the same commit, written as a native player would say it
-  (client-rs/AGENTS.md, "Languages"). Its tests fail on a missing or unused line.
+  every `client-rs/app/lang/*.json`, in the same commit (client-rs/AGENTS.md, "Languages").
 - **Game content is edited in place.** Items, monsters, worlds and behaviours are in the
   repository's XML, maps and C#; change them directly, keeping the server's and the client's copy
   of an XML in step. A file whose first line says "Generated by tools/<script>" is the exception:
-  change that script and rerun it.
+  change that script and rerun it. Content first made for Doomed Realms is the game's own now: in
+  docs and player text call it what it is ("the newer classes", "the minigames"), and leave the
+  `Doomed` names in code, files and Redis keys as they are.
 - **DNS** for dodmg.com is at Register365 with a one-day TTL; check several resolvers (1.1.1.1,
   8.8.8.8, 9.9.9.9) before relying on a change.
 
@@ -108,10 +107,11 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
 
 - **`main` gets one squashed commit per released version**, through a pull request; nothing
   else lands on it.
-- **Collecting work:** finished work goes into the next version's branch, `release/<version>`
-  (`git branch --list 'release/*'`; with none, create it from `main` named for the next patch
-  version, and reset its PR-BODY.md to the empty template: the title line, `## For players`,
-  `## Details`, `## Checks`).
+- **Collecting work:** finished work goes into the next version's branch, `release/<version>`,
+  named for the version after `main`'s newest "Release x.y.z" commit (`git branch --list
+  'release/*'`; older ones may linger after their squash and take nothing). With none, create it
+  from `main` and reset its PR-BODY.md to the empty template: the title line, `## For players`,
+  `## Details`, `## Checks`.
   - **[PR-BODY.md](PR-BODY.md)** is the release's pull request body, written as work goes in, in
     the same commit as the work. For players: the piece summed up in its group (fuller than the
     changelog). Details: a `### ` part per piece: what and why, files touched (and what was
@@ -119,10 +119,13 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
     migrated, anything the owner must do, what's not done. Checks: how it was tested. Keep both
     sides' parts when rebasing.
   - Sessions work in worktrees under `.claude/worktrees/`, rebase onto the release branch, then
-    fast-forward it from the main checkout:
-    `git -C <main checkout> fetch . <branch>:release/<version>` (refuses anything but a
-    fast-forward), or `git -C <main checkout> merge --ff-only <branch>` when the main checkout has
-    the release branch checked out. A hook stops edits into the main checkout from a worktree.
+    fast-forward it from the main checkout: `git -C <main checkout> merge --ff-only <branch>`
+    when the main checkout has the release branch checked out, else
+    `git -C <main checkout> fetch . <branch>:release/<version>` (both refuse anything but a
+    fast-forward; `fetch` into the checked-out branch leaves its files stale). A hook stops edits
+    into the main checkout from a worktree.
+  - **A release squashed mid-session:** `git rebase --onto release/<new> <old release tip>`, then
+    redo the PR-BODY.md and CHANGELOG.md parts in the new sections.
   - **Clean up once it's in:** check `git status --short` is clean (`__pycache__` and `TODO.MD`
     don't count) and `git merge-base --is-ancestor <branch> release/<version>`, then
     `git -C <main checkout> worktree remove <worktree>` and `branch -D <branch>`. Don't reach for
@@ -165,7 +168,8 @@ copies under the live process names (`redis-server.exe`, `App.exe`, `WorldServer
 
 - Python 3 (`tools/`, `deploy/`), the .NET 8 SDK (servers), Rust stable with
   `wasm32-unknown-unknown` and `wasm-bindgen-cli` (`client-rs/`), and WSL Ubuntu 24.04 with Rust
-  (the Linux gateway).
+  (the Linux gateway). AIR SDK 32 in `tools/airsdk/` is only for the deprecated AIR client.
 - Git Bash rewrites arguments starting with `/` into Windows paths: prefix `MSYS_NO_PATHCONV=1`
   for slash commands, and give Windows programs `C:/Users/...` paths, not `/c/Users/...`.
-- AIR SDK 32 in `tools/airsdk/`, only for the deprecated AIR client.
+- Write long scripts and text full of backticks or quotes to a file and run that, rather than
+  passing them through a shell heredoc.

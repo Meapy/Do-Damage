@@ -10,11 +10,14 @@ what's still to port.
 
 ```
 python tools\gen_rs_manifest.py              # after the asset lists change
-cd client-rs; cargo run                      # desktop, development layout
+cd client-rs; cargo run -p bsk-client        # desktop, development layout (a bare `cargo run` can't pick a binary)
 cargo test -p bsk-client                     # includes the translation checks
 python tools\build_client_rs.py              # build\client-rs\native: exe + assets\
 python tools\build_client_rs.py --web        # build\client-rs\web: index.html + wasm + assets/
 ```
+
+The package is `bsk-client`, its binary `betterskillys` (`target/<profile>/betterskillys.exe`). A
+fresh worktree's first release build takes about 5 minutes.
 
 - **Releasing to players** (ask the owner first; ../AGENTS.md, Git, "Releasing"): on the release
   branch raise the version and name the changelog section, then squash-merge its pull request. The
@@ -23,11 +26,9 @@ python tools\build_client_rs.py --web        # build\client-rs\web: index.html +
   `--account https://<site>/api --package --publish` and stops the deploy if the version wasn't
   raised. It writes `dist\Do-Damage-windows.zip` (the website's download) and the release's files
   (only the blobs the server lacks, `bsk-publish --known`), and the `deploy` job puts them on the
-  VPS at `<account>/client/`. `python deploy\deploy.py` from the main checkout is the fallback.
-  Never publish without `--account` (the script refuses): a build without it has
-  `http://127.0.0.1:8080` built in and strands players (2.1.1, the first 2.2.0). Desktop clients
-  switch at their next portal or on the menu; browsers at the next page load. Check
-  `https://dodmg.com/api/client/windows/latest.json` afterwards.
+  VPS at `<account>/client/`. Never publish without `--account` (the script refuses): a build
+  without it has `http://127.0.0.1:8080` built in and strands players. Desktop clients switch at
+  their next portal or on the menu; browsers at the next page load.
 - **Versions:** `[workspace.package] version` in `Cargo.toml`, or `[workspace.metadata] release`
   for a four-part one (1.1.3.1, baked in as `BSK_VERSION`; it must extend the version). Every
   version needs a `CHANGELOG.md` section (a test checks), and `--publish` refuses while
@@ -104,10 +105,21 @@ cargo run -p bsk-bot -- --account http://127.0.0.1:8095/api --gateway ws://127.0
 python tools\testclient\iso_stack.py --slot 1 stop
 ```
 
-**The bot** (`bsk-bot`) logs in, joins the Nexus with the first living character (or makes a
-Wizard) and follows Reconnects through new connections; it exits non-zero if disconnected. The
-second form goes through the gateway, as a browser does. Every 10 s it logs the server's ping and
-the gaps between NewTicks. Its flags:
+- `iso_stack.py start` makes Tester (account 1) an admin, so `/dungeon`, `/tq`, `/empower` work;
+  with no account 1 in the data (a fresh stack) it says so. Start a client only once the world
+  server takes players: port 2052 (plus the slot) listens and its log (`build/iso<N>/ws/ws.out`)
+  has `NexusGuide.OpenDungeon` (`RealmManager.Restore` or `opened again` don't always show).
+  Before that the account server lists no world servers and the client stops at the server list.
+- Each `start --data-from` copies the data again: changes made to the test copy are lost.
+- No server is needed for the menu and sign-in screens (`--account http://127.0.0.1:1 --shot ...`)
+  or a death replay (`--account http://127.0.0.1:1 --replay <file>`).
+
+### The bot
+
+`bsk-bot` logs in, joins the Nexus with the first living character (`--char <id>` picks one, or it
+makes a Wizard) and follows Reconnects through new connections; it exits non-zero if
+disconnected. The second form above goes through the gateway, as a browser does. Every 10 s it
+logs the server's ping and the gaps between NewTicks. Its flags:
 
 - `--say "/godlands;;/god"`: lines (split by `;;`) 3 s apart after each join. God mode is lost
   with each world change, so `--say` it after joining (`"/gear;;/arena;;/god"`).
@@ -118,6 +130,8 @@ the gaps between NewTicks. Its flags:
   beside it, or the repository's.
 - `--enter "Wine Cellar Portal;;Oryx's Sanctuary Portal"`: take the first portal with each id,
   once each (with `/tq` and `/smite` it walks the Oryx chain).
+- `--vault "put <inv> <chest>;take <chest> <inv>;upgrade;buychest [gold];goto x y;wait <s>"`: vault
+  moves in turn.
 - `--arena-vote "5;0"`: vote at each Arena break (1-5 a combine pick, 0 Next) and log `ArenaVotes`.
 - `--visit-answer yes|no|wait`: answer `/visit` requests, logging each.
 - `--ping "1;3"`: ping those kinds (0 look, 1 danger, 2 go, 3 loot, 4 help) and log every
@@ -125,125 +139,101 @@ the gaps between NewTicks. Its flags:
 - `--shots`: log every enemy volley seen (monster, projectile id, count, spread, angle, damage):
   `/spawn` a monster in a `/vault` to check its behaviour.
 
-**The client** can be scripted too (desktop only):
+### The client's scripted flags (desktop only)
 
 | Flag | What |
 |---|---|
-| `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character (a new Wizard if none) |
+| `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character in the list (a new Wizard if none); never saved |
 | `--stay` | With `--credentials`: stop at the character list |
-| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin, rank 6 in the stack's Redis), `sprites-item:<item id>`, `class:0x<type>` (a class's page) or `replay:<account>:<char>` (that death's summary, then its replay) |
+| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin), `sprites-item:<item id>`, `class:0x<type>` (a class's page, every skin and price) or `replay:<account>:<char>` (that death's summary, then its replay) |
 | `--replay <file>` | Play a saved death replay (`.bskreplay`) over the first screen, signed in or not |
 | `--no-update` | Don't look for or install updates |
 | `--bench` | No vsync or frame cap, and every 2 s the frame rate, CPU time by section and draw calls in the log (measure a release build) |
 | `--shot <png> --shot-after <seconds>` | Save one frame, then quit |
+| `--size WxH` | Open the window at this size (physical pixels) |
+| `--look off\|glow\|vivid\|all` | The glow and colours for this run, whatever the options say |
+| `--lang <code>` | Use that language for this run |
 | `--walk-to x,y[;x,y...]` | Walk to world positions in turn |
-| `--hold <key>:<ms>` | Hold keys in turn: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires, `i` toggles autofire, `-` waits |
-| `--aim <degrees>` / `--aim auto` | Where `f` fires, or at the nearest enemy (`/autoaim`: needs an admin on the test stack) |
+| `--hold <key>:<ms>` | Hold keys in turn, from the first world joined: `w a s d q e r o z 0 1`-`8 space hp mp`, `f` fires toward `--aim`, `i` toggles autofire, `-` waits |
+| `--aim <degrees>` / `--aim auto` | Where `f` fires, or at the nearest enemy (turns on `/autoaim`, which needs an admin) |
+| `--mouse x,y` | Put the mouse there and ignore the real one: tooltips, aiming |
+| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining (also `middle`, `mdown`, `mup` for pings), timed from the first world joined |
 | `--say <text>` | Chat lines or commands split by `;;`, each once another world is joined or 3 s after the last |
-| `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`, `Vault` in a vault, `ScryingGlass`...) |
+| `--npc <class>` | Open that NPC's window once in the game (`GuildBoard`, `PotionStorage`, `Vault` in a vault, `ScryingGlass`, `CommunityGoals`...) |
+| `--champions <board>` | Open the Champions board at that board |
 | `--chat <channel>[:text]` | Open the chat box on `all`, `local`, `guild` or `party`, with the text typed in |
 | `--quests <tab>` | Open the quest log at `daily`, `weekly`, `monthly`, `login`, `achievements` or `customize` |
 | `--pass <tab>` | Open the Realm Pass at `rewards`, `earn`, `looks` or `pets` |
 | `--options <tab>` | Open Options at `controls`, `gameplay`, `graphics`, `visuals`, `crosshair`, `sound` or `language` |
 | `--effect <type>` | Show that `ShowEffect` type on you every half second (101 and up: the Necromantic, Ascendant and Father looks, `relic::look`, 133 to 138 the ward's; 140 to 148: the halos' forcefields, tier 0 to 8; 2xx: look xx, for the looks from 39 on; 243 plays the Vial of Cascading Dusk's whole cascade) |
 | `--type <text>` | Type into the first NPC prompt, the guild board, the forge's or vault's search, the Marketplace's price or the Scrying Glass's chat |
-| `--lang <code>` | Use that language for this run |
-| `--size WxH` | Open the window at this size (physical pixels) |
-| `--mouse x,y` | Put the mouse there and ignore the real one: tooltips, aiming |
-| `--mouse-script "down@ms:x,y;move@ms:x,y;up@ms:x,y;right@ms:x,y"` | Mouse steps after joining (also `middle`, `mdown`, `mup` for pings), timed from the first world joined; positions in window pixels, read off a `--shot` first |
+| `--display-of <text>` | Open on the display that window is on (Windows only; by default Visual Studio Code's) |
 
-- From Git Bash use `MSYS_NO_PATHCONV=1` and a Windows path for `--credentials`
-  (`C:/Users/...`), or it stays on the sign-in screen. `--shot` too: a `/c/Users/...` path saves
-  nothing.
-- `iso_stack.py start` makes Tester (account 1) an admin, so `/dungeon`, `/tq`, `/empower` work;
-  with no account 1 in the data (a fresh stack) it says so. Start the client only once the world
-  log (`build/iso<N>/ws/ws.out`) has `RealmManager.Restore` or `opened again`: before that the
-  account server lists no world servers and the client stops at the server list.
-- `--credentials` plays the first living character in the list (the lowest id), and no flag picks
-  another. To play a different class on an isolated copy, take the others out of the account's
-  living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
-  bytes in: `printf '\x01\x00\x00\x00' | redis-cli -p <port> -x srem alive.1` (`sadd` to put it
-  back). A quoted `"\x01..."` argument or a line on stdin doesn't match and removes nothing.
-- Reading a binary hash field (a character's `items`) with `redis-cli --raw` on Windows turns
-  each newline byte (0x0A) into CR LF, so a script that edits and writes it back shifts every slot after
-  it (2026-11-26). Write the whole value fresh from a file (`redis-cli -x hset char.1.2 items <
-  items.bin`) and check it with `--no-raw`. The old Redis takes one field per `hset`.
-- To see a class's skins as the game draws them, `--credentials ... --stay --screen
-  class:0x<type>` shows its page with every skin and price; in the Nexus the Lil' Oryx pet can
-  stand right on the player and hide them.
-- `--size` is in physical pixels: on a scaled display `--size 1280x720` gave 1024x576 shots, and
-  `--mouse` positions are in those. Read them off a `--shot` first. An ability aimed at the HUD
-  bar or off the floor (a Mechanic's blueprint at the sky) is refused without a word.
-- `--hold space:<ms>` didn't use a Mechanic's blueprint in the vault (2026-11-24): four presses, MP
-  still full, cause not found. Check MP in the shot before trusting a scripted ability, and test an
-  ability's logic with a server unit test rather than spending runs on it.
-- The window's size isn't the same from run to run: without `--size` it was 1280x800, and with
-  `--size 1280x720` one run came out 2560x1369 (2026-11-25). Take a `--shot` first and read
-  `--mouse` positions off that run's size, or the aim lands off the floor.
-- `--hold space:<ms>` sent the ability in 3 of 7 runs with the same flags (2026-11-25, a Druid in
-  a vault): the client's log line `sent: {...}` names `UseItem` when it went. Check it before
-  reading anything into a shot; one run that sends it is enough.
-- On the copied data (2026-11-26) `--credentials` played Tester's character 2 (the Mechanic), not
-  character 1, though both are in `alive.1`: before changing a character for a test, check which
-  one the first run plays (the class in its shot's character card), or change both.
-- `--effect 270` repeats the Maw every half second, so a shot shows two or three on top of each
-  other: judge how heavy an effect looks from a real cast (`--mouse` on the target, `--hold
-  space:150`), not from `--effect`.
-- The world log doesn't always say `RealmManager.Restore` or `opened again` (2026-11-27, a fresh
-  copy of the data): wait instead for port 2052 (plus the slot) to listen and a
-  `NexusGuide.OpenDungeon` line; the client signed in fine then.
-- Teleporting onto ground no one can walk on (a chasm's `Tomb Abyss`) is refused by the client
-  without a word: the server said "Teleported" and the shot showed the player where they were
-  (2026-11-27). `/tq <id>` now lands beside such an object. A random-layout dungeon's rooms differ
-  each run, so reach one with `/tq <an object in it>` (`Lake Heart`, `Chasm Heart`, a keeper)
-  rather than coordinates, and expect "There is no ..." when that run didn't pick the room.
-- `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
-  characters (a class, items, `alive.1`) are lost and must be made again after each start.
-- To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it
-  back to 0 at sign-in unless the account owns it. Add it to the account's `skins` first, 2-byte
-  little-endian types: `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214),
-  then `hset char.1.<id> skin 57876`. A pet out stands in front of you in the Nexus.
-- To try a class on the test copy (2026-11-26): `hset char.1.<id> charType <type in decimal>`,
-  then give it that class's gear in Redis: `/gear` gives nothing to a level 20 character ("starter
-  gear for characters below level 20"), and the old class's weapon and ability are dropped from
-  their slots. `items` is 28 little-endian ushorts (0xFFFF empty), written from Python:
-  `python -c "import sys,struct; sys.stdout.buffer.write(b''.join(struct.pack('<H', i & 0xffff) for i in [0x5810, 0x581b] + [-1] * 26))" | redis-cli -p <port> -x hset char.1.<id> items`.
-- To see your own shots (2026-11-26): `--hold f:<ms>` never fired (no `PlayerShoot` in the `sent:`
-  lines; F also drinks a potion); `--hold i:100` (autofire) with `--mouse` does. The Nexus doesn't
-  let you shoot at all. The `--hold` steps start when the first world is joined, after
-  `--shot-after`'s clock, so a long `--hold -:<ms>` first can leave the shot taken before the
-  autofire: keep the wait short (3000). On the test stack your Lil' Oryx fights the vault's dummy:
-  its hits count in `EnemyHit` and its shots (grey blades) fly from where you stand, so neither
-  shows that you fired.
-- `/autoaim` toggles: with `--aim auto` already turning it on, saying it too turns it off. A
-  monster `/spawn`ed in a vault stays there across runs, on the spot you arrive at, and hides you
-  in every shot after: spawn it a step away or test in the Nexus.
-- `--effect` took only values up to 255 until 2026-11-26 (it was a `u8`), so `--effect 256` and up
-  (the looks from 56 on: turrets, caches, pearls, the Monk's Flow) did nothing, without a word.
-- `--credentials` logins are never saved; a run without it signs in with the owner's saved login
-  (their email on screen): don't share those shots.
-- Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display
-  Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
-- `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
-- A bare `cargo run` in `client-rs` stops with "could not determine which binary to run"
-  (2026-11-27): run `cargo run -p bsk-client -- <flags>`. The package is `bsk-client` but its
-  binary is `target/release/betterskillys.exe` (`-p betterskillys` finds nothing), and a fresh
-  worktree's first release build takes about 5 minutes. To aim at the vault's Training Dummy
-  with a sword, `--say "/vault" --mouse 320,530 --hold -:3000 --hold i:100` at `--size 1280x720`
-  (read the dummy's place off a first `--shot`); `/position` says where you stand.
-- No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
-- Death replays need no server either: `--account http://127.0.0.1:1 --replay <file>`. How a
-  saved one's hits line up with their shots (`app/src/replay/sync.rs`) is printed, hit by hit, by
-  `BSK_REPLAY=<file> cargo test -p bsk-client lines_up_a_saved_replay -- --ignored --nocapture`:
-  quicker than catching a hit in a `--shot`.
-- Screenshots for the website (2026-11-25): `--npc GuildBoard` on the test account shows "Not in
-  guild" and an empty board, `--say "/crucible"` stays in the Nexus (the test account hasn't
-  reached Arena round 50), and `--npc ChampionsBoard` shows real players' names from the copied
-  data, so leave that one out or rename them in the stack's Redis first. A `--size 1600x900` shot
-  came out 1280x720 on a 125% display.
+Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus. A run without
+`--credentials` signs in with the owner's saved login (their email on screen): don't share those
+shots. `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`), and the
+log's `sent: {...}` lines show each message sent.
 
 Example, the Arena (portal in the shrine's floor north-west of the spawn; monsters come 60 s in):
 `--walk-to "62.5,56;62.5,40;52,40;36,40;34.5,31.5" --hold 0:200 --hold -:6000 --hold f:100000 --aim auto --shot a.png --shot-after 95`.
+
+### Pitfalls
+
+- **Git Bash:** use `MSYS_NO_PATHCONV=1` and `C:/Users/...` paths for `--credentials` and
+  `--shot`: a `/c/Users/...` path stays on the sign-in screen or saves nothing.
+- **Window size changes from run to run** (1280x800 without `--size`; `--size 1280x720` gave
+  2560x1369 once and 1024x576 on a scaled display): take a `--shot` first and read `--mouse` and
+  `--mouse-script` positions off that run's size, or the aim lands off the floor. An ability aimed
+  at the HUD bar or off the floor is refused without a word.
+- **Which character plays:** check the class in the first shot's character card before changing
+  one for a test (on the copied data `--credentials` played Tester's character 2, not 1); or
+  change both, or take the others out of `alive.1` (The test copy's data, below).
+- **Abilities:** `--hold space:<ms>` doesn't always send it (3 of 7 runs with the same flags; never
+  for a Mechanic's blueprint in the vault): check the log for `sent:` naming `UseItem`, and MP in
+  the shot, before reading anything into it; one run that sends it is enough. Test an ability's
+  logic with a server unit test rather than spending runs on it.
+- **Your own shots:** the Nexus lets nobody shoot. Without `--aim`, `--hold f` sent no
+  `PlayerShoot`; `--hold i:100` (autofire) with `--mouse` does. The `--hold` steps start at the
+  first world joined, after `--shot-after`'s clock has started, so keep a leading `--hold -:<ms>`
+  short (3000). Your Lil' Oryx pet fights the vault's dummy too (its grey blades fly from where
+  you stand, its hits count in `EnemyHit`), so neither shows that you fired. To hit the Training
+  Dummy with a sword: `--size 1280x720 --say "/vault" --mouse 320,530 --hold -:3000 --hold i:100`
+  (read its place off a first `--shot`; `/position` says where you stand).
+- **`/autoaim` toggles:** with `--aim auto` already on, saying it turns it off.
+- **Teleports:** `/tq <id>` lands beside the object; teleporting onto ground no one can walk on is
+  refused by the client without a word. A random-layout dungeon's rooms differ each run, so reach
+  one with `/tq <an object in it>` (`Lake Heart`, `Chasm Heart`, a keeper) and expect "There is
+  no ..." when that run didn't pick the room.
+- **What hides the player:** a monster `/spawn`ed in a vault stays across runs on the spot you
+  arrive at (spawn it a step away, or test in the Nexus), and in the Nexus a pet can stand on you.
+- **`--effect` repeats** every half second, so two or three overlap in a shot: judge how heavy an
+  effect looks from a real cast (`--mouse` on the target, `--hold space:150`).
+- **Website screenshots:** on the test account `--npc GuildBoard` shows "Not in guild" and an
+  empty board, `/crucible` stays in the Nexus (Arena round 50 not reached), and
+  `--npc ChampionsBoard` shows real players' names from the copied data: leave it out or rename
+  them in the stack's Redis first.
+- **Replay sync:** how a saved replay's hits line up with their shots (`app/src/replay/sync.rs`) is
+  printed hit by hit by
+  `BSK_REPLAY=<file> cargo test -p bsk-client lines_up_a_saved_replay -- --ignored --nocapture`,
+  quicker than catching a hit in a `--shot`.
+
+### The test copy's data
+
+Binary values go in through `redis-cli -x` (the last argument from stdin), written whole from
+Python or `printf`: a quoted `"\x01..."` argument or a typed line doesn't match. Never read one
+with `--raw` and write it back: on Windows that turns each 0x0A byte into CR LF and shifts every
+slot after it (check with `--no-raw`). The old Redis takes one field per `hset`.
+
+- **Play another character:** take the others out of the living set and put them back after:
+  `printf '\x01\x00\x00\x00' | redis-cli -p <port> -x srem alive.1` (`sadd` to put it back).
+- **Change class:** `hset char.1.<id> charType <type in decimal>`, then give it that class's gear
+  (`/gear` gives nothing at level 20, and the old weapon and ability are dropped). `items` is 28
+  little-endian ushorts (0xFFFF empty):
+  `python -c "import sys,struct; sys.stdout.buffer.write(b''.join(struct.pack('<H', i & 0xffff) for i in [0x5810, 0x581b] + [-1] * 26))" | redis-cli -p <port> -x hset char.1.<id> items`.
+- **Wear a skin:** the server resets `skin` to 0 at sign-in unless the account owns it, so add it
+  to the account's `skins` first (2-byte little-endian types):
+  `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214), then
+  `hset char.1.<id> skin 57876`.
 
 ## Layout
 
@@ -260,6 +250,7 @@ Example, the Arena (portal in the shrine's floor north-west of the spawn; monste
 | `app` | The winit app (`betterskillys` binary, also the wasm module) |
 | `bot` | Headless client for tests |
 | `gateway` | Web server and WebSocket bridge |
+| `publish` | `bsk-publish`, the release tool |
 
 - **Assets:** development reads `client/src` directly; packaged builds carry
   `assets/manifest.json` and `assets/`. Atlas pages are 4096² or the GPU's limit (WebGL2 may be
