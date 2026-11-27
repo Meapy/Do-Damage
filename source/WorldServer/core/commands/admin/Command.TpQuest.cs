@@ -31,9 +31,24 @@ namespace WorldServer.core.commands
                         player.SendError($"There is no {id} in this world.");
                         return false;
                     }
+                    // something standing where no one can (a chasm's heart over its drop): the
+                    // nearest square beside it that can be walked on
+                    double tx = target.X, ty = target.Y;
+                    if (player.World.Levels == null && !player.World.IsPassable(tx, ty))
+                    {
+                        var best = double.MaxValue;
+                        for (var dx = -10; dx <= 10; dx++)
+                            for (var dy = -10; dy <= 10; dy++)
+                            {
+                                double sx = (int)target.X + dx + 0.5, sy = (int)target.Y + dy + 0.5;
+                                var d = dx * dx + dy * dy;
+                                if (d < best && player.World.IsPassable(sx, sy))
+                                    (best, tx, ty) = (d, sx, sy);
+                            }
+                    }
                     player.ResetNewbiePeriod();
-                    player.TeleportPosition(time, target.X, target.Y, z: target.Z);
-                    player.SendInfo($"Teleported to {target.ObjectDesc.IdName}: ({target.X}, {target.Y})");
+                    player.TeleportPosition(time, (float)tx, (float)ty, z: target.Z);
+                    player.SendInfo($"Teleported to {target.ObjectDesc.IdName}: ({tx}, {ty})");
                     return true;
                 }
 

@@ -350,7 +350,7 @@ namespace Tests
             var book = NewBook();
             // not before its first day, nor after its last
             Assert.Empty(book.OpenGifts(new DateTime(2026, 10, 26, 23, 59, 0, DateTimeKind.Utc)));
-            Assert.Empty(book.OpenGifts(open.AddMinutes(1)));
+            Assert.DoesNotContain(gift, book.OpenGifts(open.AddMinutes(1)));
             Assert.False(book.ClaimGift(gift.Id, open.AddMinutes(1)).Ok);
             Assert.False(book.ClaimGift(gift.Id, Wed).Ok);
             Assert.Contains(gift, book.OpenGifts(open));
@@ -364,6 +364,22 @@ namespace Tests
             Assert.True(back.GiftClaimed(gift));
             Assert.False(back.ClaimGift(gift.Id, open).Ok);
             Assert.False(NewBook().ClaimGift("no_such_gift", open).Ok);
+        }
+
+        [Fact]
+        public void DecembersGiftIsACharacterSlotAndAVaultChest()
+        {
+            var gift = Data.Gift("slots_2026_12");
+            Assert.NotNull(gift);
+            var book = NewBook();
+            Assert.DoesNotContain(gift, book.OpenGifts(new DateTime(2026, 11, 26, 23, 59, 0, DateTimeKind.Utc)));
+            Assert.DoesNotContain(gift, book.OpenGifts(new DateTime(2026, 12, 28, 0, 0, 0, DateTimeKind.Utc)));
+            var open = new DateTime(2026, 12, 27, 23, 59, 0, DateTimeKind.Utc);
+            Assert.Contains(gift, book.OpenGifts(open));
+            var claim = book.ClaimGift(gift.Id, open);
+            Assert.True(claim.Ok, claim.Message);
+            Assert.Equal(new[] { "Char Slot Unlocker", "Vault Chest Unlocker" }, claim.Rewards.Select(r => r.Item).OrderBy(s => s));
+            Assert.False(book.ClaimGift(gift.Id, open).Ok);
         }
 
         [Fact]

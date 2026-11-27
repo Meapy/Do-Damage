@@ -149,6 +149,23 @@ fn a_ghost_follows_and_settles_behind() {
 }
 
 #[test]
+fn ice_slides() {
+    // a floor of ice (SlideAmount): we gather speed slowly, and carry on when the keys let go
+    let mut d = data();
+    d.add_grounds(r#"<Grounds><Ground type="0x01" id="Ice"><SlideAmount>0.85</SlideAmount><Slippery/></Ground></Grounds>"#).unwrap();
+    let mut w = world(&d);
+    let (x, _) = walk(&mut w, &d, -1.0, 0.0, 100);
+    // slower to start than on plain floor (0.96 tiles in 100 ms)
+    assert!(x > 5.5 - 0.96 + 0.2 && x < 5.5, "x = {x}");
+    let (x2, _) = walk(&mut w, &d, 0.0, 0.0, 200);
+    assert!(x2 < x - 0.3, "still sliding: {x} then {x2}");
+    // and it comes to a stop
+    let (x3, _) = walk(&mut w, &d, 0.0, 0.0, 3000);
+    let (x4, _) = walk(&mut w, &d, 0.0, 0.0, 200);
+    assert!(x3 > 0.5 && (x4 - x3).abs() < 1e-6, "x = {x3}, then {x4}");
+}
+
+#[test]
 fn walking_west_is_free() {
     let d = data();
     let mut w = world(&d);
@@ -374,6 +391,99 @@ fn a_kill_the_server_never_confirms_is_taken_back() {
     // The server never removed it (it dealt less than we thought): it can be shot again.
     let hits = shoot(&mut w, 3, 1500);
     assert!(matches!(hits[..], [combat::Hit::Enemy { target_id: 3, .. }]), "{hits:?}");
+}
+
+#[test]
+fn a_kings_tribute_adds_to_our_hits() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/><Defense>20</Defense></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>30</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    let mut pirate = obj(3, 0x30, 5.5, 3.5, 0);
+    pirate.status.stats = vec![StatData { id: 1, value: StatValue::Int(1000) }].into();
+    w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+    let shoot = |w: &mut World, id: i32, at: i32| {
+        w.add_projectile(combat::Projectile::new(2, id, 0x40, 0, -std::f64::consts::FRAC_PI_2, at, 5.5, 5.5, 1.0, 30, false));
+        let mut hits = Vec::new();
+        for t in (at..at + 400).step_by(10) {
+            hits.extend(w.update_projectiles(t, &d));
+        }
+        hits
+    };
+    let hits = shoot(&mut w, 1, 0);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 10, .. }]), "{hits:?}");
+    // three stacks: 10 more each, past its armour
+    w.objects.get_mut(&2).unwrap().stats.insert(stat::TRIBUTE, StatValue::Int(3));
+    let hits = shoot(&mut w, 2, 1000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 40, .. }]), "{hits:?}");
+    // the target Condemned by a decree too: 5% more before the tribute (10 after defense: 10.5, 10)
+    w.objects.get_mut(&3).unwrap().stats.insert(stat::CONDEMNED, StatValue::Int(1));
+    w.objects.get_mut(&2).unwrap().stats.insert(stat::TRIBUTE, StatValue::Int(0));
+    let hits = shoot(&mut w, 3, 2000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 10, .. }]), "{hits:?}");
+}
+
+#[test]
+fn a_condemned_enemy_takes_a_little_more() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>200</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    let mut pirate = obj(3, 0x30, 5.5, 3.5, 0);
+    pirate.status.stats = vec![StatData { id: 1, value: StatValue::Int(10_000) }, StatData { id: stat::CONDEMNED, value: StatValue::Int(1) }].into();
+    w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+    w.add_projectile(combat::Projectile::new(2, 1, 0x40, 0, -std::f64::consts::FRAC_PI_2, 0, 5.5, 5.5, 1.0, 200, false));
+    let mut hits = Vec::new();
+    for t in (0..400).step_by(10) {
+        hits.extend(w.update_projectiles(t, &d));
+    }
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 210, .. }]), "{hits:?}");
+}
+
+#[test]
+fn a_sharklords_shots_hit_the_bloodied_harder() {
+    let mut d = data();
+    d.add_objects(
+        r#"<Objects>
+            <Object type="0x30" id="Pirate"><Class>Character</Class><Enemy/></Object>
+            <Object type="0x40" id="Slasher"><Projectile id="0"><ObjectId>Blade</ObjectId><Speed>100</Speed><LifetimeMS>1000</LifetimeMS><Damage>30</Damage></Projectile></Object>
+        </Objects>"#,
+    )
+    .unwrap();
+    let mut w = world(&d);
+    let mut pirate = obj(3, 0x30, 5.5, 3.5, 0);
+    pirate.status.stats = vec![StatData { id: 0, value: StatValue::Int(1000) }, StatData { id: 1, value: StatValue::Int(1000) }].into();
+    w.apply_update(&Update { new_objs: vec![pirate].into(), ..Default::default() }, &d, 0);
+    let shoot = |w: &mut World, id: i32, at: i32| {
+        w.add_projectile(combat::Projectile::new(2, id, 0x40, 0, -std::f64::consts::FRAC_PI_2, at, 5.5, 5.5, 1.0, 30, false));
+        let mut hits = Vec::new();
+        for t in (at..at + 400).step_by(10) {
+            hits.extend(w.update_projectiles(t, &d));
+        }
+        hits
+    };
+    // a Sharklord, the pirate at full health: as it is
+    w.objects.get_mut(&2).unwrap().object_type = stat::SHARKLORD;
+    let hits = shoot(&mut w, 1, 0);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 30, .. }]), "{hits:?}");
+    // under half its health: a fifth more
+    w.objects.get_mut(&3).unwrap().stats.insert(1, StatValue::Int(400));
+    let hits = shoot(&mut w, 2, 1000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 36, .. }]), "{hits:?}");
+    // anyone else: as it is
+    w.objects.get_mut(&2).unwrap().object_type = 0x40;
+    let hits = shoot(&mut w, 3, 2000);
+    assert!(matches!(hits[..], [combat::Hit::Enemy { damage: 30, .. }]), "{hits:?}");
 }
 
 #[test]

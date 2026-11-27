@@ -12,6 +12,55 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.9 (2026-11-27)
+
+### Gold Store
+- **Black Friday: all gold half price for 24 hours:** from this update, every pack in the Gold Store costs half as much for one day, with the same gold and bonus (1,100 gold for €5, 12,500 for €50). The store shows how long is left.
+- **Gold is sold in euros:** the Gold Store's prices are now in euros, the same numbers as before: €1 for 100 gold up to €100 for 12,500.
+
+### Realm 2
+- **Realm 2 is an island:** the starry void between its lands is gone. Realm 2 is now one smaller island in the sea, from the beaches where you arrive to the Godlands at the far end, with mountain lakes, rivers you can wade, snowy peaks, and small islands off the coast joined by bridges. Event lands rise across the Godlands and spill out over the coast.
+
+### Pets
+- **Tuning asks before it spends:** each tuning step at the Pen Keeper now takes two clicks, the first showing its price, so trying the buttons out no longer spends fame.
+
+### Nexus
+- **The shared vault chests are for registered players:** guests can still put items into the Nexus's shared vault chests, but need to register their account to take any out.
+
+### Quests
+- **This month's gift is more room:** until 27 December, every account can claim a free character slot and vault chest on the quest log's Daily Rewards tab (from 5 stars). They come as a Char Slot Unlocker and a Vault Chest Unlocker in your vault's gift chest: use them in your vault.
+
+### Dungeons
+- **The Ice Tomb, remade:** a new tomb every run, its rooms turned about and joined by rough-hewn passages that wind from one to the next, hanging in a polar night with the aurora rippling across the sky round it, with slippery lake ice that cracks under you, chasms that drop away into the sky below and whose bridges freeze across, sarcophagi that break open and three seals guarded by keepers. Break all three and the Sealed Door opens onto a bridge of ice and a great hall where the **Frozen Court** wakes: three bosses fought at once, with the Crucible's banners, sweeping floors, caches and last stands, each with its own pet.
+- **Teleport in every dungeon:** you can now teleport to a friend in every dungeon, Oryx's Castle, the Shatters, the Nest, Lair of Draconis and the caverns included, and in the Gauntlet, the Underground Mine and Zombies.
+- **The Hive, remade:** the Queen Bee's hive is now laid out anew every run, round rooms of honeycomb with honey puddles that slow you. Its bees fight as their maker meant: Fat Bees come back angry, Mini Hives keep sending out Small Bees until they burst, eggs crack at the first hit and their larvae grow into bees, and the Queen darts about stinging and dazing, resting between attacks while she throws honey bombs and eggs.
+
+### King
+- **The King's Royal Decree:** the King now holds a scepter and calls down the royal seal where you aim. It strikes the enemies under it and **Condemns** them: a crown hangs over each, and they take 5% more damage from everyone. Every Condemned enemy that falls pays **Tribute** to everyone who helped bring it down: a stack of **+10 damage on every shot**, straight through defense, up to 10 stacks, fading 10 seconds after your last; the first three of each decree also give the King back mana. A King's tome moves to the inventory; new Kings start with a Tin Scepter.
+- **A new look and five skins:** the King is redrawn, crown, white beard, ermine and crimson, and the Armoire sells him the Sun Pharaoh, the Frost Sovereign, the Usurper and the Hollow King at 200 gold and the broad Eclipse King, black steel with a black sun on his chest, at 800, each with something quiet round it. Dyes work on the King and every skin.
+
+### Monk
+- **The Monk flows:** every third punch that lands builds a **Chi**, a golden orb circling you, up to five. The Monk's fountains are now the **Flowing Strike**: you flow to where you aim, striking every enemy on the way, and a fountain bursts where you land, hitting the enemies round you and healing you and your allies. It spends all your Chi, each making the burst and the heal a fifth stronger; spend all five for a **Flow**, which breaks the enemies' armor and sends you Berserk. Nothing can touch you while you flow, and every enemy you pass gives back a Chi (up to two), so a strike through a crowd leaves you halfway to the next. Your fists throw palms of chi, each tier its own colour, and every fountain has a new icon.
+- **A new look and five skins:** the Monk is redrawn, a shaven head with a topknot, a saffron robe and prayer beads, and the Armoire sells it five skins, each with something round it: the Iron Lotus (a lotus underfoot, drifting petals), the Stormfist Disciple (lightning between the fists), the Ember Fist (burning fists) and the Jade Wanderer (mist and bamboo leaves) at 200 gold, and two tall ones at 800: the Celestial Grandmaster (golden beads circling its head, lotuses blooming in its steps) and the four-armed Thousand-Palm Avatar (a wheel of golden palms turning behind it, its third eye glowing). Dyes work on the Monk and every skin.
+
+### Sharklord
+- **Blood in the water:** to a Sharklord, every enemy under half its health is **Bloodied**: a drop of blood hangs over it, and your shots do 20% more to it. Bloodied hits, kills and bites work you into a **Frenzy**, fins circling your feet, up to five, each +4 Speed and Dexterity, calming 5 seconds after the last. The oceanic spells are now the **Maw of the Deep**: a fin cuts through the ground to where you aim, striking everything in its way, and a shark bursts up out of a whirlpool and bites everything there, twice as hard on the Bloodied, feeding you for each one bitten. Cast it at full Frenzy and you spend it all on a **Megalodon**: half again as big, twice the feeding, and everything it bites bleeds and is slowed. The spells have new names and icons, from the Reef Tooth to the Megalodon Tooth (Tidal Wave is now the Jaws of the Abyss).
+- **A new look and five skins:** the Sharklord is redrawn, a shark's head with its fin and its grin over a sea-green robe and a staff crowned with a great tooth, and the Armoire sells the Hammerhead (rings of its sense pulsing over the ground), the Tiger Shark (bubbles), the Lanternshark (glowing spots and drifting light) and the Whale Shark (little pilot fish circling it) at 200 gold, and the huge Megalodon at 800, a crown of teeth over open jaws and a bone trident, a great fin's shadow circling it through dark water. Dyes work on the Sharklord and every skin.
+
+### The Crucible
+- **The Crucible Leaderboard lists its top ten:** its window always shows places #1 to #10, solo and group, with a dash where no climb holds a place yet. Its trophy now stands west of the samurai statue, so its sign no longer covers the Arena Leaderboard's.
+
+### Items
+- **Super elixirs last:** the Super Elixir of Magic no longer vanishes after one drink: each drink takes a dose off (9999 of them), and the slot and tooltip show how many are left. A new **Super Elixir of Health** (250 HP a drink) joins it in the arena goal's rewards and loot.
+- **Superior shows its buff:** the staff's tooltip and the damage numbers on your screen now match what it has dealt since 2.5.8: 60-95 a shot, and each hit stripping 1% of the enemy's defense for 5 seconds, up to 10 times.
+
+### Death replays
+- **Hits land where they hit:** in a replay, the shot that hurt the character now meets them on screen, its damage showing as it strikes, and the shots that missed fly past them as they did. The character no longer trails a step behind where they really were, and walks smoothly. Replays saved before play this way too.
+
+### Wiki
+- **Oryx's drops are on the wiki:** searching or filtering for the Lil' Oryx pets, Oryx's shards and anything else from Oryx 1, Oryx 2 and Oryx the Infernal Mad God (and the Task Master) now finds them, with his drops on the Pets, gear and dungeon pages. The wiki had missed his loot altogether.
+- **The wiki is quicker to find your way around:** every long page opens as a list of its sections, each saying in a line what it covers and how much it holds ("153 entries", "61 rows"); open just the one you want, or all of them, and the wiki remembers what you opened. Tables under their own headings (each weapon kind on Gear statistics, each goal's loot) open one at a time, long tables show their first rows with a filter and columns you can click to sort, and links and searches open the part they point to. The page's parts are listed under it in the menu, tables and cards use the whole width of your screen (three or more cards to a row), and screenshots sit beside the text on wide screens.
+
 ## 2.6.8 (2026-11-25)
 
 ### The Void

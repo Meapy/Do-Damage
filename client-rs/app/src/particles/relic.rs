@@ -153,7 +153,25 @@ pub mod look {
     pub const PEARL_RECALL: u8 = 64;
     /// The pearl back in its Druid's hand (the target), having struck `object_type` enemies.
     pub const PEARL_HOME: u8 = 65;
-    pub const LAST: u8 = 65;
+    /// A Monk's Flowing Strike (`Player.Flow.cs`; drawn by `flow.rs`): the Monk (the target, still
+    /// where they set off) flows to pos1 over `duration` ms and a fountain bursts there, pos2.x
+    /// across; `object_type` the tier plus 16 for each Chi spent.
+    pub const FLOW: u8 = 66;
+    /// A King's Royal Decree (`Player.Decree.cs`; drawn by `decree.rs`): the seal falling on pos1
+    /// over `duration` ms, pos2.x across; `object_type` the scepter's tier.
+    pub const SEAL: u8 = 67;
+    /// The target Condemned for `duration` ms: a crown over it.
+    pub const CONDEMN: u8 = 68;
+    /// A Condemned enemy fell at pos1: tribute to the players within pos2.x, and mana to the King
+    /// (`source_id`) with 16 added to `object_type`.
+    pub const TRIBUTE: u8 = 69;
+    /// A Sharklord's Maw of the Deep (`Player.Maw.cs`; drawn by `maw.rs`): from the target (the
+    /// Sharklord) a fin to pos1 over `duration` ms, and jaws there pos2.x across;
+    /// `object_type` the spell's tier, 16 more for a Megalodon.
+    pub const MAW: u8 = 70;
+    /// The Sharklord (the target) feeding on pos2.x enemies bitten round pos1.
+    pub const FEED: u8 = 71;
+    pub const LAST: u8 = 71;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -790,6 +808,21 @@ impl Particles {
         // and the Druid's pearls
         if (look::PEARL_THROW..=look::PEARL_HOME).contains(&look) {
             self.tide_look(e, look, world, now);
+            return;
+        }
+        // and the Monk's Flowing Strike
+        if look == look::FLOW {
+            self.flow_look(e, world, now);
+            return;
+        }
+        // and the King's Royal Decree
+        if (look::SEAL..=look::TRIBUTE).contains(&look) {
+            self.decree_look(e, look, world, now);
+            return;
+        }
+        // and the Sharklord's Maw of the Deep
+        if (look::MAW..=look::FEED).contains(&look) {
+            self.maw_look(e, look, world, now);
             return;
         }
         // and the Crucible's caches
@@ -2105,6 +2138,18 @@ impl Particles {
                 self.test_tide(which, world, now);
                 return;
             }
+            look::FLOW => {
+                self.test_flow(world, now);
+                return;
+            }
+            look::SEAL..=look::TRIBUTE => {
+                self.test_decree(which, world, now);
+                return;
+            }
+            look::MAW..=look::FEED => {
+                self.test_maw(which, world, now);
+                return;
+            }
             _ => return,
         };
         // (centred on us, where a shot can see it, but for what flies between us and somewhere else)
@@ -3174,6 +3219,20 @@ impl Particles {
                 self.decal(DecalKind::Clock, x, y, 5.0, c, now, 2000, Some(id));
                 self.decal(DecalKind::Ring, x, y, 5.0, c, now, 420, None);
                 self.debris(x, y, 24, &[c, 0xD0A040, 0xF2D282], 100.0, 4.0, 5.0, 900, 0);
+            }
+            // the Ice Tomb's Frozen Court: frost cracking out over the floor round them, a ring of
+            // cold, ice and snow thrown up (the aurora's green for Ysolde's, violet for her night)
+            29..=43 => {
+                let c = match cue {
+                    32 | 33 | 36 => 0x4AE8A4,
+                    39 => 0x9060D8,
+                    _ => 0x9FE8FF,
+                };
+                self.decal(DecalKind::Ring, x, y, 6.0, c, now, 600, None);
+                self.decal(DecalKind::Ring, x, y, 3.5, 0xFFFFFF, now + 120, 450, None);
+                self.decal(DecalKind::Cracks, x, y, 4.0, 0xDCF6FF, now, 2000, None);
+                self.debris(x, y, 36, &[0xDCF6FF, 0x8CC8EA, c, 0xFFFFFF], 120.0, 6.0, 6.0, 900, 0);
+                self.puffs(x, y, 12, &[0xE8F4FF, 0xBCD2EA], 240.0, 1.4, 1.0, 1300, 60);
             }
             // Vaelith: the Sovereign's decree: his star drawn on the floor, a column of light; the
             // echoes each in their floor's colour; the Crucible breaking; the void unbound

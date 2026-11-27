@@ -106,6 +106,66 @@ Archdruid at 800, each with something of its own round it (rising bubbles, falli
 moonlight, fireflies, and the Archdruid's circling leaves and grass in its footsteps). Dyes work
 on all of them.
 
+**The Monk's Chi and Flowing Strike.** A Monk fights with their fists, up close, and every third
+punch that lands builds a **Chi**: a golden orb circling them, up to five (one shot counts once,
+however many enemies it passes through). Stop landing punches for 4 seconds and they fade, one a
+second. The Monk's fountain is the **Flowing Strike**: the Monk flows to where they aim (6 tiles at
+T0 up to 8 at T8, stopping short of a wall), striking every enemy within about a tile of the way
+(120 damage at T0 up to 440 at T8), and where they land a fountain bursts, hitting the enemies
+round them (180 at T0 up to 630 at T8) and healing them and the allies near them (110 up to 380).
+The strike spends every Chi, each making the burst and the heal a fifth stronger, so five make it
+twice as strong; with all five it's a **Flow**: the enemies in the burst are Armor Broken for 3
+seconds and the Monk goes Berserk for 4. Nothing can hurt the Monk while they flow, and the strike
+keeps its momentum: every enemy struck on the way gives back a Chi, up to two, a moment after the
+burst, so a strike aimed through a line of enemies leaves the Monk part way to the next. The fists
+throw palms of chi, each tier its own colour after its name. So the Monk dives in, punches until
+the orbs spin fast and golden, flows through the pack and lands in the middle of it. The Armoire
+sells the Monk four skins at 200 gold (the Iron Lotus, the Stormfist Disciple, the Ember Fist and
+the Jade Wanderer) and two 16 by 16 skins at 800, the Celestial Grandmaster and the four-armed
+Thousand-Palm Avatar, each with something of its own round it (a lotus underfoot and drifting
+petals, lightning between the fists, burning fists, mist and bamboo leaves, the Grandmaster's
+circling golden beads and lotuses in its steps, and the Avatar's wheel of golden palms turning
+behind it, its glowing third eye and a wheel of light under its feet). Dyes work on all of them.
+
+**The King's Royal Decree.** The King holds a **scepter** (Tin Scepter at T0 up to the Scepter of
+the Last Dynasty at T8) and names the enemies that must fall. The royal seal comes down where he
+aims (up to 9 tiles off) a quarter of a second later, striking everything under it (160 damage at
+T0 up to 680 at T8, within 3 to 4.5 tiles), and those enemies are **Condemned** for 4 to 8
+seconds: a gold crown hangs over each, and they take 5% more damage from everyone. When a
+Condemned enemy falls, by anyone's hand, it pays **Tribute** to everyone who hurt it, and to the
+King: a stack each, **+10 damage on every shot** that strikes an enemy, straight through its
+defense, up to 10 stacks (+100). The stacks are coins circling your feet; 10 seconds after your
+last new one they start to fade, one a second, so keep the Condemned falling. The first three of
+each decree to fall also give the King back mana (8 at T0 up to 18 at T8). So the King picks the
+targets, the party brings them down, and every one that falls makes the whole party hit harder.
+The King is redrawn, a crown and a white beard over an ermine collar and a crimson robe, and the
+Armoire sells him four skins at 200 gold (the Sun Pharaoh, the Frost Sovereign, the Usurper and the
+Hollow King, an empty suit of armour with cold light in its visor) and the 16 by 16 Eclipse King at
+800, broad in black steel and ermine with the black sun on his chest, each with something quiet of
+its own round it (drifting sand, falling snow, smoke and smouldering eyes, a cold mist, the black
+sun's corona). Dyes work on all of them.
+
+**The Sharklord's Maw of the Deep.** The Sharklord hunts by the smell of blood. Every enemy under
+half its health is **Bloodied** to them (a drop of blood hangs over it, which only Sharklords
+see), and their shots do **20% more** to it. Every fourth shot that lands on a Bloodied enemy,
+every enemy they hurt that dies, and the Maw's bites work them into a **Frenzy**: fins circling
+their feet, up to five, each **+4 Speed and +4 Dexterity**, calming one a second from 5 seconds
+after the last. Their oceanic spells (the Reef Tooth at T0 up to the Megalodon Tooth at T8; the
+starting Tidal Wave is now the Jaws of the Abyss, T7) are the **Maw of the Deep**: a fin cuts
+through the ground to where they aim (up to 8 tiles), striking every enemy within a tile of its way
+(90 damage at T0 up to 390 at T8), and a shark bursts up out of a whirlpool there and bites
+everything within 2.5 to 3.5 tiles (160 up to 680), **twice that to the Bloodied**. The Sharklord
+feeds on what it bites, healing 15 (T0) up to 60 (T8) for each enemy bitten, up to three, and
+gains a stack of Frenzy for each, up to two. Cast at full Frenzy, every stack is spent on a
+**Megalodon**: half again the reach and the bite, twice the feeding, and everything it bites
+bleeds for half the bite more over 3 seconds and is Slowed. So the Sharklord, slow and sturdy,
+wears enemies down to Bloodied, grows fast in the Frenzy, and then chooses: keep the speed, or
+spend it on a Megalodon. The Sharklord is redrawn, a shark's head with its fin over a sea-green
+robe and a staff crowned with a great tooth, and the Armoire sells four skins at 200 gold (the
+Hammerhead, the Tiger Shark, the Lanternshark with its glowing spots, and the Whale Shark with
+little pilot fish circling it) and the 16 by 16 Megalodon at 800, a crown of teeth over open jaws
+and a bone trident, a great fin's shadow circling it through dark water. Dyes work on all of them.
+
 **The Ascendant's forcefields.** An Ascendant's halo leaves a forcefield where it's cast, and every
 player standing in it takes a share less damage from each hit. Standing in several at once stacks
 them: the strongest counts in full, the next at half, the next at a quarter and so on, so two 10%

@@ -235,6 +235,9 @@ pub struct World {
     /// In a picture of someone else's world (the Nexus's Scrying Glass), the player it follows:
     /// what we'd see as them (floors over them see-through), though we don't play them.
     pub watched: Option<i32>,
+    /// An object monsters' shots fly through: a replay's player, whose hits come from the
+    /// recording, each with its shot (`app/src/replay/sync.rs`).
+    pub untouchable: Option<i32>,
     pub last_tick_id: i32,
     /// When other objects were last moved (`update`): where a new tick's glide starts from.
     last_update: Option<i32>,
@@ -243,6 +246,9 @@ pub struct World {
     /// The speed of the ground under us, before sinking (`on_move`).
     ground_speed: f64,
     sink_level: i32,
+    /// Our velocity carried over from the last step (tiles/ms), for sliding on slippery ground
+    /// (`<SlideAmount>`, the Ice Tomb's lake ice).
+    slide: (f64, f64),
     pub projectiles: Vec<Projectile>,
     /// Where projectiles struck since the app last took them (for the sparks).
     pub impacts: Vec<combat::Impact>,
@@ -289,11 +295,13 @@ impl World {
             objects: Default::default(),
             me: None,
             watched: None,
+            untouchable: None,
             last_tick_id: -1,
             last_update: None,
             move_multiplier: 1.0,
             ground_speed: 1.0,
             sink_level: 0,
+            slide: (0.0, 0.0),
             projectiles: Vec::new(),
             impacts: Vec::new(),
             random: Random::new(seed),

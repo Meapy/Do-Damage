@@ -92,6 +92,20 @@ grows and armours itself and fills the chamber with crystal buds that burst into
 that slow you, and prisms in every direction. It drops Life and Mana potions, the Crystallised
 Fang's Venom, the Crystallised Mist and the Mark of the Crystal Entity.
 
+## The Hive
+
+The Queen Bee's hive, a dungeon first made by a player (Suestwo). Its portal comes from the
+realm's Killer Bee Nest, and The Hive Key opens it anywhere. It is laid out anew each run: round
+rooms of honeycomb joined by halls, always five rooms between the start and the Queen. Puddles of
+honey slow you and pull you down. The rooms hold **Fat Bees** (a quarter come back angry when
+they die), **Fat Angry Bees** that chase you and make you bleed, **Small Bees** that charge in and
+sting, **Mini Hives** that keep sending Small Bees out until they burst, and **Maggot Eggs** that
+crack at the first hit, letting out larvae that grow into Fat Bees after ten seconds. The
+**Queen Bee** wakes when you come near and darts about her room, stinging in rings and dazing you
+with honey, resting unhurt (flashing green) between attacks, while she throws slowing honey bombs
+and more eggs at you. Bees hatched during the fight give no experience or loot. She drops
+Dexterity potions, Bottled Honey, the Honey Scepter and the Orb of Sweet Demise.
+
 ## The Nest
 
 When the realm's Killer Bee Nest falls, it opens two portals: the Hive and, beside it, **the
@@ -110,6 +124,40 @@ with fireballs, bees and flames on the floor that break your armour; calling Kil
 him; armoured at the back of the room in a storm of flames and lava bombs; and at the end,
 healing in the middle with two invulnerable **Experimental Soldier Bees** of one colour, which
 follow him round the room and burst when he dies.
+
+## The Ice Tomb
+
+The Lord of the Lost Lands' portal, or an Ice Tomb Key, opens a frozen tomb laid out anew each
+run, hanging in a polar night with the aurora rippling across the sky round it. Its rooms are
+turned about and joined by rough-hewn passages that wind from one to the next. It has twenty
+rooms, each something of their own: cross-shaped crypts whose
+**sarcophagi** crack open when you come near and let out a mummy, frozen lakes of slippery
+**thin ice** (you slide on it) that cracks under you if you stand still and breaks into freezing water (it slows you, pulls you
+down and hurts) before it freezes over again, with a **Rime Serpent** surfacing out of them,
+**chasms** dropping away into the sky below, crossed on an ice bridge that freezes across as
+you come to the edge, octagon
+shrines, hounds' dens, galleries round a pit, a crevasse, a honeycomb nest and an ossuary.
+
+Three of the rooms hold **seals**, each guarded by a keeper: the **Rime Colossus** (the Seal of
+the Warden), the **Aurora Matron** (the Seal of the Oracle) and the **Frostfang Alpha** (the Seal
+of the Reaver). A seal can't be hurt while its keeper lives. At the **Sealed Door** a lantern
+lights for each seal broken; with all three broken, come to the door and it opens: the wall
+behind it falls away, a bridge of ice builds itself across the dark, and a great round hall
+rises at its end, a snowflake flaring on its floor, where **the Frozen Court** wakes on its three
+thrones.
+
+The Court is fought all at once, like the Crucible's champions: **Kaldrun, the Rime Warden**
+(90,000 health), **Ysolde, the Aurora Oracle** (70,000) and **Hrimgar, the Frost Reaver**
+(80,000). Banners name each of their moves. In turn the hall is swept by an **Avalanche**, an
+**Aurora Veil**, **Frost Fissures**, a **Blizzard** and a **Hailstorm**, each only while the one
+who calls it lives, and caches like the Crucible's fall in the hall between. Kaldrun raises a
+**Glacial Bulwark** at 60% of his health, walling himself in behind four Rime Pillars until they
+break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, and again every
+30 seconds; Hrimgar hunts the nearest player, leaps on them and goes into a **Frenzy** at half
+his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
+(**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
+treasure (the old Ice Tomb Chest's, half again as often), potions, and rarely its own pet; the
+keepers drop Defense and Vitality potions.
 
 ## Underwater: the Ocean Trench and the Cnidarian Reef
 

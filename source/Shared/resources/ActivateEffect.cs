@@ -101,6 +101,9 @@ namespace Shared.resources
         public readonly int PulseDamage;
         public readonly int PulseHeal;
         public readonly int MaxPearls;
+        // a King's scepter (Player.Decree.cs): the mana each of a decree's first Condemned enemies
+        // pays him as it falls
+        public readonly int TributeMp;
 
         public ActivateEffect(XElement e)
         {
@@ -198,6 +201,7 @@ namespace Shared.resources
             PulseDamage = e.GetAttribute<int>("pulseDamage");
             PulseHeal = e.GetAttribute<int>("pulseHeal");
             MaxPearls = e.GetAttribute<int>("pearls", 1);
+            TributeMp = e.GetAttribute<int>("tributeMp");
 
             if (e.Attribute("totalDamage") != null)
                 TotalDamage = Utils.FromString(e.Attribute("totalDamage").Value);

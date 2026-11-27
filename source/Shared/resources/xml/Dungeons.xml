@@ -33,7 +33,6 @@
 			<Goal>GC Boss</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<!-- the Fungal Cavern's second part, through the portal the Crystal Worm Mother leaves: its
@@ -47,7 +46,6 @@
 			<Goal>mc</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Cultist Hideout">
@@ -55,7 +53,6 @@
 		<Height>256</Height>
 		<MapJM>Dungeons/Cultist Hideout.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="The Void">
@@ -75,7 +72,6 @@
 		<Height>256</Height>
 		<MapJM>Dungeons/Secluded Thicket.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Snake Pit">
@@ -88,10 +84,16 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Queen Bee's hive (Suestwo's player-made dungeon, UGC1): its rooms are built by
+	     tools/build_hive.py after the dungeon's own generator and joined anew for every visit, the
+	     Queen's room ending a branch five rooms from the start -->
 	<World id="The Hive">
-		<Width>256</Width>
-		<Height>256</Height>
+		<Width>130</Width>
+		<Height>104</Height>
 		<MapJM>Dungeons/The Hive.jm</MapJM>
+		<RandomLayout passage="3" corridor="3">
+			<Goal path="5">TH Queen Bee</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
@@ -170,7 +172,6 @@
 		<MapJM>Dungeons/Oryx's Castle.jm</MapJM>
 		<VisibilityType>2</VisibilityType>
 		<Dungeon/>
-		<DisableTeleport/>
 	</World>
 	<World id="Tomb of the Ancients">
 		<Width>256</Width>
@@ -250,7 +251,6 @@
 		<Height>119</Height>
 		<MapJM>Dungeons/Lair of Draconis.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="The Ivory Wyvern">
@@ -260,11 +260,24 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Ice Tomb; built by tools/build_ice_tomb.py. Laid out anew every visit: the three seal
+	     rooms and the Sealed Door end branches, each chasm's mist keeps its two sides one room,
+	     and dark is kept round the layout for the Frozen Court (IceCourt.cs) -->
 	<World id="Ice Tomb">
-		<Width>256</Width>
-		<Height>256</Height>
+		<Width>176</Width>
+		<Height>220</Height>
 		<MapJM>Dungeons/Ice Tomb.jm</MapJM>
+		<RandomLayout passage="4" corridor="3" margin="56" keep="Chasm Mist" winding="1" mirror="1">
+			<Goal>Seal of the Warden</Goal>
+			<Goal>Seal of the Oracle</Goal>
+			<Goal>Seal of the Reaver</Goal>
+			<Goal>Sealed Door</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
+		<!-- the whole Court in view from its middle -->
+		<MinSightRadius>22</MinSightRadius>
+		<!-- the polar night round it (the client's aurorasky.rs) -->
+		<Background>10</Background>
 		<Dungeon/>
 	</World>
 	<World id="Battle for the Nexus">
@@ -435,7 +448,6 @@
 		<Width>256</Width>
 		<Height>256</Height>
 		<MapJM>Dungeons/The Shatters.jm</MapJM>
-		<DisableTeleport/>
 		<VisibilityType>2</VisibilityType>
 		<Dungeon/>
 	</World>
@@ -488,7 +500,6 @@
 			<Goal>EH Beekeeper</Goal>
 		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Admin Arena">

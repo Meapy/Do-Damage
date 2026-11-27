@@ -95,6 +95,10 @@ namespace WorldServer.core.net.stats
             if (host.HasConditionEffect(ConditionEffectIndex.Curse))
                 d *= 1.25;
 
+            // Condemned by a King's decree (Player.Decree.cs; the Rust client's combat.rs too)
+            if (host is Enemy enemy && enemy.IsCondemned)
+                d *= 1 + Player.CondemnedPercent / 100.0;
+
             return (int)d;
         }
 

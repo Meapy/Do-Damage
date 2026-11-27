@@ -670,6 +670,12 @@ pub fn slot_reversed(o: &GameObj, slot: u8) -> bool {
     bsk_data::imprint::reversed(o.stat_str(slot_data_stat(slot)).unwrap_or(""))
 }
 
+/// The doses left on the item in a slot, from its data (`ItemData.Doses`): only an item of many
+/// doses with no next one (the super elixirs) counts them there, and only once it's been used.
+pub fn slot_doses(o: &GameObj, slot: u8) -> Option<i32> {
+    crate::petlevels::data_int(o.stat_str(slot_data_stat(slot)).unwrap_or(""), "Doses")
+}
+
 /// The health and magic potions kept in stacks (`PotionInventoryModel`): item, slot id.
 pub const POTIONS: [(i32, u8); 2] = [(2594, 254), (2595, 255)];
 
@@ -707,6 +713,9 @@ pub struct Slot {
     /// whether a staff's shots are reversed.
     pub corruption: [i32; 4],
     pub reversed: bool,
+    /// The doses an item of many doses with no next one (the super elixirs) has left, from its
+    /// data (`ItemData.Doses`); none while it's full or for any other item.
+    pub doses: Option<i32>,
     rect: [f32; 4],
 }
 
@@ -1245,6 +1254,7 @@ impl Panel {
                 imprints: slot_imprints(me, i),
                 corruption: slot_corruption(me, i),
                 reversed: slot_reversed(me, i),
+                doses: slot_doses(me, i),
                 rect: grid_slot(equip, s, 4, i as u32),
             });
         }
@@ -1260,6 +1270,7 @@ impl Panel {
                 imprints: slot_imprints(me, first + i),
                 corruption: slot_corruption(me, first + i),
                 reversed: slot_reversed(me, first + i),
+                doses: slot_doses(me, first + i),
                 rect: grid_slot(lay.inventory_box(), s, 4, i as u32),
             });
         }
@@ -1276,6 +1287,7 @@ impl Panel {
                 imprints: [0; 4],
                 corruption: [0; 4],
                 reversed: false,
+                doses: None,
                 rect: grid_slot(lay.potion_box(), s, 2, k as u32),
             });
         }
@@ -1355,6 +1367,7 @@ impl Panel {
                             imprints: slot_imprints(bag, i),
                             corruption: slot_corruption(bag, i),
                             reversed: slot_reversed(bag, i),
+                            doses: slot_doses(bag, i),
                             rect: grid_slot(ib, s, 4, i as u32),
                         });
                     }
@@ -2228,7 +2241,7 @@ fn draw_slot(ui: &mut Ui, lay: &Layout, slot: &Slot, dragged: bool, target: bool
         draw_item_marks(ui, slot.imprints, slot.corruption != [0; 4], slot.rect, s);
     }
     if !empty && !matches!(slot.kind, SlotKind::Potion(_)) {
-        let doses = ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned));
+        let doses = slot.doses.map(|n| n.to_string()).or_else(|| ui.data.objects.get(&(slot.item as u16)).and_then(|d| d.xml.text_of("Doses").or(d.xml.text_of("Quantity")).map(str::to_owned)));
         if let Some(n) = doses {
             let nw = ui.measure(&n, small, true);
             ui.label(&n, x + w - nw - 4.0 * s, y + h - small * 1.3, small, true, color::TEXT);
@@ -2756,6 +2769,9 @@ pub fn draw_overlay(ui: &mut Ui, lay: &Layout, world: &World, panel: &Panel, sta
         let xp = me.filter(|m| m.id == slot.owner).map_or((0, 0, [0; 3]), |m| pet_xp(ui.data, m, slot.index, slot.item));
         let mut lines = item_tooltip_pet(ui.data, slot.item, me, slot.kind, slot.imprints, xp);
         let corrupted = corruption_lines(ui.data, slot.item, slot.corruption, slot.reversed);
+        if let Some(n) = slot.doses {
+            set_doses(&mut lines, n);
+        }
         lines.extend(imprint_lines(ui.data, slot.item, slot.imprints));
         lines.extend(corrupted);
         lines
@@ -2899,6 +2915,14 @@ impl Line {
     /// A little space between the tooltip's parts.
     pub(crate) fn gap() -> Self {
         Line::new("", 5.0, false, ATTR)
+    }
+}
+
+/// The tooltip's Doses line showing the `left` an item has rather than the full count.
+fn set_doses(lines: &mut [Line], left: i32) {
+    let label = format!("{}: ", tr("Doses"));
+    if let Some(l) = lines.iter_mut().find(|l| l.pieces.len() == 2 && l.pieces[0].0 == label) {
+        l.pieces[1].0 = left.to_string();
     }
 }
 
@@ -3104,6 +3128,51 @@ fn activate_rows(a: &bsk_data::xml::Element, share: f64) -> (String, Vec<(String
             r.push(row("", tr("One more thrown calls the oldest home").to_owned()));
             (tr("Pearl"), r)
         }
+        // a Monk's fountain (the server's `Player.Flow.cs`)
+        "FlowStrike" => {
+            let r = vec![
+                row(tr("Flows"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("On the way"), tf!("{n} damage to each enemy you pass", n = num("totalDamage"))),
+                row(tr("Burst"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row(tr("Heals"), tf!("{n} HP to you and allies within {range}", n = num("amount"), range = sqrs(num("range")))),
+                row(tr("Chi"), tf!("+{p}% burst and heal for each Chi spent", p = CHI_PERCENT)),
+                row("", tr("Every third punch that lands builds a Chi, up to five").to_owned()),
+                row("", tr("All five spent: enemies Armor Broken, you Berserk").to_owned()),
+                // (the server's `FlowGuardMs` and `ChiEcho`)
+                row("", tr("Untouchable while you flow").to_owned()),
+                row("", tr("Each enemy you pass gives back a Chi, up to two").to_owned()),
+            ];
+            (tr("Flowing Strike"), r)
+        }
+        // a King's scepter (the server's `Player.Decree.cs`: `TributeMax`, `TributeHoldMs`,
+        // `TributeMpKills`)
+        "RoyalDecree" => {
+            let r = vec![
+                row(tr("Seal"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("Burst"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row(tr("Condemned"), tf!("{time}, taking 5% more damage from everyone", time = secs(num("duration")))),
+                row(tr("Tribute"), tf!("+{n} damage a shot, ignoring defense, to all who bring one down", n = bsk_proto::stat::TRIBUTE_DAMAGE)),
+                row("", tf!("Stacks up to {n}, fading {time} after the last", n = 10, time = secs(10.0))),
+                row(tr("Mana"), tf!("{n} MP from each of the first {k} to fall", n = num("tributeMp"), k = 3)),
+            ];
+            (tr("Royal Decree"), r)
+        }
+        // a Sharklord's oceanic spell (the server's `Player.Maw.cs`: `FeedMax`, `FrenzyMax`,
+        // `FrenzySpeed`, `FrenzyBloodHits`, `MegalodonPercent`)
+        "DeepMaw" => {
+            let r = vec![
+                row(tr("Fin"), tf!("where you aim, up to {range} away", range = sqrs(num("maxDistance")))),
+                row(tr("On the way"), tf!("{n} damage to each enemy in its way", n = num("totalDamage"))),
+                row(tr("Bite"), tf!("{n} damage within {range}", n = num("impactDamage"), range = sqrs(num("radius")))),
+                row("", tr("Twice as much to the Bloodied (under half health)").to_owned()),
+                row(tr("Feeds"), tf!("{n} HP for each enemy bitten, up to {k}", n = num("amount"), k = 3)),
+                row(tr("Frenzy"), tf!("+{n} Speed and Dexterity a stack, up to {k}", n = 4, k = crate::particles::maw::FRENZY_MAX)),
+                row("", tr("Bites, kills and every fourth shot on the Bloodied add stacks").to_owned()),
+                row("", tr("At full Frenzy it's a Megalodon: half again as big, and its bite bleeds").to_owned()),
+                row("", tf!("Your shots do {p}% more to the Bloodied", p = bsk_proto::stat::BLOODIED_PERCENT)),
+            ];
+            (tr("Maw of the Deep"), r)
+        }
         "Summon" => {
             let mut r = vec![row(tr("Summons"), tf!("{effect} for {time}", effect = text("objectId"), time = secs(num("duration"))))];
             r.extend(ally_shot_rows(a).unwrap_or_default());
@@ -3219,6 +3288,9 @@ const TURRET_OVERCLOCK_PERCENT: f64 = 150.0;
 const PEARL_SPLASH: f64 = 2.0;
 const PEARL_PULSE_SECS: f64 = 0.5;
 const PEARL_STRUCK_PERCENT: i32 = 20;
+
+/// How much more a Monk's burst does and heals for each Chi spent (the server's `ChiPercent`).
+const CHI_PERCENT: i32 = 20;
 
 /// A Mechanic's turret's health, its blueprint's `hp` (the server's `Turret.DEFAULT_HP` without).
 fn turret_hp(a: &bsk_data::xml::Element) -> f64 {
@@ -3606,6 +3678,9 @@ fn activate_detail(a: &bsk_data::xml::Element) -> String {
         "BuildTower" if has("allyMs") => tf!("Builds a turret where you aim, with {hp} HP", hp = turret_hp(a)),
         "BuildTower" => tf!("Builds a {object} for {time} secs", object = text("objectId"), time = num("duration")),
         "TidePearl" => tr("Throws a pearl that lies in a tide pool, then rushes back to you").to_owned(),
+        "FlowStrike" => tr("Flows through your enemies and bursts like a fountain where you land").to_owned(),
+        "DeepMaw" => tr("Sends a shark to bite where you aim, feeding you and working you into a Frenzy").to_owned(),
+        "RoyalDecree" => tr("Condemns the enemies where you aim: those who bring them down hit harder").to_owned(),
         "Pet" => tf!("Summons the pet {object}", object = text("objectId")),
         "RemoveNegativeConditions" => tf!("Removes negative conditions from allies within {range} sqrs", range = num("range")),
         "RemoveNegativeConditionsSelf" => tr("Removes your negative conditions").to_owned(),

@@ -144,7 +144,7 @@ namespace Tests
             foreach (var p in packs)
                 Assert.Equal(p.price * 100, p.gold - p.bonus); // the base rate, bonus on top
             Assert.Equal(0, packs[0].bonus);
-            // each bigger pack gives more gold per dollar than the one before
+            // each bigger pack gives more gold per euro than the one before
             for (var i = 1; i < packs.Length; i++)
                 Assert.True(packs[i].gold / packs[i].price > packs[i - 1].gold / packs[i - 1].price);
             Assert.Single(packs, p => p.best);
@@ -170,6 +170,50 @@ namespace Tests
             Assert.True(GoldStore.ValidOrderId(Order));
             Assert.False(GoldStore.ValidOrderId("../" + Order));
             Assert.False(GoldStore.ValidOrderId("short"));
+        }
+
+        [Fact]
+        public void TheStoreSellsInEurosWhateverAnOldConfigSays()
+        {
+            Assert.Equal("EUR", new Shared.PayPalSettings().Currency);
+            var old = Newtonsoft.Json.JsonConvert.DeserializeObject<Shared.PayPalSettings>("{\"clientId\":\"x\",\"currency\":\"USD\"}");
+            Assert.Equal("x", old.ClientId);
+            Assert.Equal("EUR", old.Currency);
+        }
+
+        [Fact]
+        public void BlackFridayHalvesEveryPackForADayFromTheFirstStart()
+        {
+            var d = GoldStore.BlackFriday;
+            var ends = GoldStore.StartDiscount(_db, d, Now);
+            Assert.Equal(Now.AddHours(24), ends);
+            // a later start (the next deploy, another restart) keeps the first day
+            Assert.Equal(ends, GoldStore.StartDiscount(_db, d, Now.AddHours(3)));
+            Assert.Equal(ends, GoldStore.StartDiscount(_db, d, Now.AddDays(30)));
+
+            var packs = GoldStore.Discounted(GoldStore.DefaultPacks, d, ends, Now.AddHours(23));
+            Assert.Equal(new[] { "0.50", "2.50", "5.00", "10.00", "25.00", "50.00" }, packs.Select(p => p.PriceText));
+            Assert.Equal(GoldStore.DefaultPacks.Select(p => (decimal?)p.price), packs.Select(p => p.was));
+            Assert.Equal(GoldStore.DefaultPacks.Select(p => p.gold), packs.Select(p => p.gold)); // the same gold
+            // the configured packs aren't changed, and once it ends they're sold as they were
+            Assert.Null(GoldStore.DefaultPacks[0].was);
+            Assert.Same(GoldStore.DefaultPacks, GoldStore.Discounted(GoldStore.DefaultPacks, d, ends, Now.AddHours(24)));
+        }
+
+        [Fact]
+        public void ADiscountStartsOnlyBeforeItsLastStartAndNeverUnderFiftyCents()
+        {
+            var d = GoldStore.BlackFriday;
+            Assert.Null(GoldStore.StartDiscount(_db, d, d.LastStart));
+            Assert.Same(GoldStore.DefaultPacks, GoldStore.Discounted(GoldStore.DefaultPacks, d, null, Now));
+
+            var cheap = new[] { new GoldPack { id = "tiny", gold = 60, price = 0.60m }, new GoldPack { id = "odd", gold = 333, price = 3.33m } };
+            var packs = GoldStore.Discounted(cheap, d, Now.AddHours(1), Now);
+            Assert.Equal("0.50", packs[0].PriceText);
+            Assert.Equal("1.67", packs[1].PriceText); // to the cent
+            // a pack already at the least isn't marked as discounted
+            var least = new GoldPack { id = "least", gold = 50, price = 0.50m };
+            Assert.Same(least, GoldStore.Discounted(new[] { least }, d, Now.AddHours(1), Now)[0]);
         }
     }
 }

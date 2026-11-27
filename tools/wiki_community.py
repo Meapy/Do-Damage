@@ -118,9 +118,9 @@ class Community:
             lines = []
             for t, rs in enumerate(tiers[:len(shares)]):
                 at = max(1, math.ceil(g["goal"] * shares[t]))
-                lines.append('%s <span class="dim">at %s</span>: %s' % (self.tier_label(t), "{:,}".format(at), self.rewards(rs)))
-            lines.append('%s <span class="dim">each level</span>: %s' % (self.overdrive_label(), self.rewards(self.goal_rewards(g, "bonus", "defaultBonus"))))
-            lines.append('<b>Top %d</b>: %s' % (self.c.get("topCount", 3), self.rewards(self.goal_rewards(g, "top", "defaultTop"))))
+                lines.append(('%s <span class="dim">at %s</span>' % (self.tier_label(t), "{:,}".format(at)), self.rewards(rs)))
+            lines.append(('%s <span class="dim">each level</span>' % self.overdrive_label(), self.rewards(self.goal_rewards(g, "bonus", "defaultBonus"))))
+            lines.append(('<b>Top %d</b>' % self.c.get("topCount", 3), self.rewards(self.goal_rewards(g, "top", "defaultTop"))))
             minimum = g.get("minimum", 1)
             share = "{:,}".format(minimum) if minimum > 1 else "1"
             what = esc(fill(g["text"], g["goal"]))
@@ -129,8 +129,10 @@ class Community:
             if names:
                 what += '<br><span class="dim">Counts: %s.</span>' % esc(", ".join(names))
             rows.append('<tr id="goal-%s"><td><b>%s</b>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>'
-                        % (esc(g["id"]), esc(g["title"]), note, what, share, "<br>".join(lines)))
-        return ('<div class="table-wrap"><table><thead><tr><th>Goal</th><th>What the realm does (to begin with)</th>'
+                        % (esc(g["id"]), esc(g["title"]), note, what, share,
+                           # a tier a line: its name and goal beside its rewards
+                           '<dl class="g-tiers">%s</dl>' % "".join("<dt>%s</dt><dd>%s</dd>" % l for l in lines)))
+        return ('<div class="table-wrap"><table class="goals"><thead><tr><th>Goal</th><th>What the realm does (to begin with)</th>'
                 "<th>Your share to claim</th><th>Rewards</th></tr></thead><tbody>%s</tbody></table></div>" % "".join(rows))
 
     def tiers(self):

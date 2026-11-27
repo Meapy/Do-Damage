@@ -11,9 +11,11 @@ namespace Shared.terrain
 {
     // Builds a new layout for a dungeon out of the rooms of its hand-made map. The map is cut into
     // rooms (wide areas, with the monsters and objects standing in them) and corridors (narrow
-    // passages), then the rooms are joined again in a random tree with straight corridors: the
-    // spawn room is the root and every goal room (boss, key room) ends a branch. Each instance
-    // picks a size, which sets how many of the other rooms are used and how long the corridors get.
+    // passages), then the rooms are joined again in a random tree with corridors: the spawn room is
+    // the root and every goal room (boss, key room) ends a branch. Each instance picks a size, which
+    // sets how many of the other rooms are used and how long the corridors get. Corridors run straight
+    // from door to door, or with `winding` some bend on the way (`AttachBent`); with `mirror` each
+    // room may be laid flipped (`Flip`).
     public static class DungeonGenerator
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -126,7 +128,9 @@ namespace Shared.terrain
             public bool[,] Halo;    // Has grown by Spacing, offset by Spacing
             public bool Start, Goal;
             public string GoalId;   // the goal object it holds
+            public (int x, int y)? Entry;   // its entrance marker, if it has one
             public readonly List<Door>[] Doors = new List<Door>[4];
+            public Room[] Flips;    // with `mirror`: itself, flipped left to right, top to bottom, both
         }
 
         private sealed class Source
@@ -372,7 +376,10 @@ namespace Shared.terrain
                     room.Doors[d] = FindDoors(room, area, d, desc.Corridor);
                 var entrance = cells.Where(c => entrances.Contains(map[c.x, c.y].TileObj ?? "")).Select(c => (c.x, c.y)).DefaultIfEmpty((-1, -1)).First();
                 if (entrance.Item1 >= 0)
+                {
+                    room.Entry = (entrance.Item1 - minX, entrance.Item2 - minY);
                     KeepNearestDoors(room, entrance.Item1 - minX, entrance.Item2 - minY, desc.Corridor);
+                }
                 rooms.Add(room);
             }
 
@@ -401,13 +408,9 @@ namespace Shared.terrain
             source.Start.Start = true;
             foreach (var room in rooms)
             {
-                room.Halo = new bool[room.W + 2 * Spacing, room.H + 2 * Spacing];
-                for (var x = 0; x < room.W; x++)
-                    for (var y = 0; y < room.H; y++)
-                        if (room.Has[x, y])
-                            for (var i = 0; i <= 2 * Spacing; i++)
-                                for (var j = 0; j <= 2 * Spacing; j++)
-                                    room.Halo[x + i, y + j] = true;
+                MakeHalo(room);
+                if (desc.Mirror)
+                    room.Flips = new[] { room, Flip(room, true, false, desc.Corridor), Flip(room, false, true, desc.Corridor), Flip(room, true, true, desc.Corridor) };
 
                 if (room.Start)
                     continue;
@@ -425,6 +428,43 @@ namespace Shared.terrain
                 return null;
             }
             return source;
+        }
+
+        private static void MakeHalo(Room room)
+        {
+            room.Halo = new bool[room.W + 2 * Spacing, room.H + 2 * Spacing];
+            for (var x = 0; x < room.W; x++)
+                for (var y = 0; y < room.H; y++)
+                    if (room.Has[x, y])
+                        for (var i = 0; i <= 2 * Spacing; i++)
+                            for (var j = 0; j <= 2 * Spacing; j++)
+                                room.Halo[x + i, y + j] = true;
+        }
+
+        // the room laid mirrored: its squares, its doors (found again) and its entrance
+        private static Room Flip(Room room, bool fx, bool fy, int width)
+        {
+            var flip = new Room() { W = room.W, H = room.H, Start = room.Start, Goal = room.Goal, GoalId = room.GoalId };
+            flip.Tiles = new TerrainTile[room.W, room.H];
+            flip.Has = new bool[room.W, room.H];
+            flip.Area = new bool[room.W, room.H];
+            for (var x = 0; x < room.W; x++)
+                for (var y = 0; y < room.H; y++)
+                {
+                    int nx = fx ? room.W - 1 - x : x, ny = fy ? room.H - 1 - y : y;
+                    flip.Tiles[nx, ny] = room.Tiles[x, y];
+                    flip.Has[nx, ny] = room.Has[x, y];
+                    flip.Area[nx, ny] = room.Area[x, y];
+                }
+            for (var d = 0; d < 4; d++)
+                flip.Doors[d] = FindDoors(flip, flip.Area, d, width);
+            if (room.Entry is (int ex, int ey))
+            {
+                flip.Entry = (fx ? room.W - 1 - ex : ex, fy ? room.H - 1 - ey : ey);
+                KeepNearestDoors(flip, flip.Entry.Value.x, flip.Entry.Value.y, width);
+            }
+            MakeHalo(flip);
+            return flip;
         }
 
         // a room with an entrance marker keeps only the doors within a few tiles of the nearest one to
@@ -581,13 +621,15 @@ namespace Shared.terrain
 
             public TerrainTile[,] Build()
             {
-                var start = Source.Start;
+                // with `mirror`, each room the way round it falls this time
+                Room Way(Room r) => r.Flips == null ? r : r.Flips[Rand.Next(r.Flips.Length)];
+                var start = Way(Source.Start);
                 if (!Fits(start, (CanvasSize - start.W) / 2, (CanvasSize - start.H) / 2))
                     return null;
                 Place(start, (CanvasSize - start.W) / 2, (CanvasSize - start.H) / 2);
 
-                var fillers = Source.Fillers.OrderBy(_ => Rand.Next()).Take(Rooms).ToList();
-                var goals = Source.Goals.OrderBy(_ => Rand.Next()).ToList();
+                var fillers = Source.Fillers.OrderBy(_ => Rand.Next()).Take(Rooms).Select(Way).ToList();
+                var goals = Source.Goals.OrderBy(_ => Rand.Next()).Select(Way).ToList();
                 var chains = Math.Max(1, goals.Count);
                 var main = (int)Math.Round(fillers.Count * Desc.MainPath);
                 var spurs = new List<Room>();
@@ -675,6 +717,12 @@ namespace Shared.terrain
                     var db = Pick(b.Doors[back]);
                     if (da == null || db == null || !SideFree(a, d, da.Perp, da.Perp + Desc.Corridor - 1))
                         continue;
+                    if (Desc.Winding > 0 && Rand.NextDouble() < Desc.Winding)
+                    {
+                        if (AttachBent(a, b, d, da, db))
+                            return true;
+                        continue;
+                    }
 
                     var gap = Rand.Next(Desc.MinGap, MaxGap + 1);
                     var horizontal = d % 2 == 0;
@@ -749,6 +797,144 @@ namespace Shared.terrain
                     return true;
                 }
                 return false;
+            }
+
+            // A corridor that bends: b is set off to one side, and the corridor leaves a's door, runs
+            // out a way, turns aside, and (once or twice) turns back on towards b's door; now and then
+            // a turn opens into a small landing. Worked in (t, p): t how far out from a's side
+            // (0 the first square past it, gap - 1 the last before b's), p across.
+            private bool AttachBent(Room a, Room b, int d, Door da, Door db)
+            {
+                var w = Desc.Corridor;
+                var (ax, ay) = Pos[a];
+                var horizontal = d % 2 == 0;
+                var s = d < 2 ? 1 : -1;
+                // a fifth run straight on (rough-walled all the same), the rest turn once or twice
+                var roll = Rand.NextDouble();
+                var bends = roll < 0.2 ? 0 : roll < 0.65 ? 1 : 2;
+                var least = bends == 0 ? Math.Max(3, Desc.MinGap) : bends == 1 ? w + 4 : 2 * w + 7;
+                var gap = Rand.Next(least, Math.Max(least, bends == 0 ? MaxGap : MaxGap + w + 6) + 1);
+
+                // where the corridor turns (t of each turn's first square) and how far aside it goes
+                var turns = new int[bends];
+                if (bends == 1)
+                    turns[0] = Rand.Next(2, gap - 2 - w + 1);
+                else if (bends == 2)
+                {
+                    turns[0] = Rand.Next(2, gap - 2 - 2 * w - 3 + 1);
+                    turns[1] = Rand.Next(turns[0] + w + 3, gap - 2 - w + 1);
+                }
+                int Jog() => (Rand.Next(2) == 0 ? -1 : 1) * Rand.Next(w + 2, w + 9);
+                var perps = new int[bends + 1];
+                perps[0] = (horizontal ? ay : ax) + da.Perp;
+                for (var k = 0; k < bends; k++)
+                    perps[k + 1] = perps[k] + Jog();
+
+                var aFace = d == 0 ? ax + a.W : d == 1 ? ay + a.H : d == 2 ? ax - 1 : ay - 1;
+                int At(int t) => aFace + s * t;     // t to the canvas's coordinate along
+                int T(int along) => (along - aFace) * s;
+                int bPerp = perps[bends] - db.Perp, bAlong = d < 2 ? aFace + gap : aFace - gap - (horizontal ? b.W : b.H) + 1;
+                int bx = horizontal ? bAlong : bPerp, by = horizontal ? bPerp : bAlong;
+                if (!Fits(b, bx, by))
+                    return false;
+
+                var cells = new HashSet<(int t, int p)>();
+                void Carve(int t0, int t1, int p0, int p1)
+                {
+                    for (var t = Math.Min(t0, t1); t <= Math.Max(t0, t1); t++)
+                        for (var p = Math.Min(p0, p1); p <= Math.Max(p0, p1); p++)
+                            cells.Add((t, p));
+                }
+                // out of a, each lane from its floor to the first turn (or straight into b)
+                for (var i = 0; i < w; i++)
+                    Carve(T((horizontal ? ax : ay) + da.Outer[i]) + 1, bends == 0 ? T(bAlong + db.Outer[i]) - 1 : turns[0] + w - 1, perps[0] + i, perps[0] + i);
+                for (var k = 0; k < bends; k++)
+                {
+                    // the turn, across to the next line
+                    Carve(turns[k], turns[k] + w - 1, perps[k], perps[k + 1] + w - 1);
+                    Carve(turns[k], turns[k] + w - 1, perps[k + 1], perps[k] + w - 1);
+                    // on to the next turn, or into b
+                    if (k + 1 < bends)
+                        Carve(turns[k], turns[k + 1] + w - 1, perps[k + 1], perps[k + 1] + w - 1);
+                    // a landing at the turn, a square wider all round
+                    if (Rand.NextDouble() < 0.35)
+                        Carve(turns[k] - 1, turns[k] + w, Math.Min(perps[k], perps[k + 1]) - 1, Math.Max(perps[k], perps[k + 1]) + w);
+                }
+                if (bends > 0)
+                    for (var i = 0; i < w; i++)
+                        Carve(turns[bends - 1], T(bAlong + db.Outer[i]) - 1, perps[bends] + i, perps[bends] + i);
+
+                (int x, int y) XY(int t, int p) => horizontal ? (At(t), p) : (p, At(t));
+                bool InCanvas(int x, int y) => x >= Margin && y >= Margin && x < CanvasSize - Margin && y < CanvasSize - Margin;
+                var ida = Placed.FindIndex(p => p.room == a) + 1;
+                foreach (var (t, p) in cells)
+                {
+                    var (x, y) = XY(t, p);
+                    if (!InCanvas(x, y))
+                        return false;
+                    var o = Owner[x, y];
+                    var inGap = t >= 0 && t < gap;
+                    if (!(o == 0 || (!inGap && o == ida)))
+                        return false;
+                    // nothing else within two squares of it in the gap, so walls fit between
+                    if (inGap)
+                        for (var i = -2; i <= 2; i++)
+                            for (var j = -2; j <= 2; j++)
+                            {
+                                if (t + i < 0 || t + i >= gap || cells.Contains((t + i, p + j)))
+                                    continue;
+                                var (nx, ny) = XY(t + i, p + j);
+                                if (!InCanvas(nx, ny) || Owner[nx, ny] != 0)
+                                    return false;
+                            }
+                }
+
+                // hand-cut walls: here and there the corridor's side bulges out a square, in stretches
+                // (where nothing else comes near), never at a door
+                var phase = Rand.NextDouble() * 20;
+                var rough = 0.3 + Rand.NextDouble() * 0.35;
+                var bulges = new HashSet<(int t, int p)>();
+                foreach (var (t, p) in cells)
+                    foreach (var (ct, cp) in new[] { (t, p - 1), (t, p + 1), (t - 1, p), (t + 1, p) })
+                    {
+                        if (ct < 1 || ct > gap - 2 || cells.Contains((ct, cp)) || bulges.Contains((ct, cp)))
+                            continue;
+                        var noise = (Math.Sin(ct * 0.85 + cp * 1.3 + phase) + Math.Sin(ct * 0.31 - cp * 0.57 + phase * 1.7)) / 2;
+                        if (noise < 1 - rough)
+                            continue;
+                        var clear = true;
+                        for (var i = -2; i <= 2 && clear; i++)
+                            for (var j = -2; j <= 2 && clear; j++)
+                            {
+                                if (ct + i < 0 || ct + i >= gap || cells.Contains((ct + i, cp + j)) || bulges.Contains((ct + i, cp + j)))
+                                    continue;
+                                var (nx, ny) = XY(ct + i, cp + j);
+                                clear = InCanvas(nx, ny) && Owner[nx, ny] == 0;
+                            }
+                        if (clear)
+                            bulges.Add((ct, cp));
+                    }
+                cells.UnionWith(bulges);
+
+                Place(b, bx, by);
+                UsedSides[a].Add((d, da.Perp, da.Perp + w - 1));
+                UsedSides[b].Add(((d + 2) % 4, db.Perp, db.Perp + w - 1));
+                foreach (var (t, p) in cells)
+                {
+                    var (x, y) = XY(t, p);
+                    Lanes.Add((x, y, x, y));
+                    if (Owner[x, y] == 0)
+                        Owner[x, y] = -1;
+                    if (t >= 0 && t < gap)
+                        for (var i = -1; i <= 1; i++)
+                            for (var j = -1; j <= 1; j++)
+                            {
+                                var (nx, ny) = XY(t + i, p + j);
+                                if (Owner[nx, ny] == 0)
+                                    Owner[nx, ny] = -1;
+                            }
+                }
+                return true;
             }
 
             // doors near the middle of a side are likelier

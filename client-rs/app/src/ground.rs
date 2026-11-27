@@ -56,6 +56,8 @@ pub struct Ground {
     pub void_sky: crate::voidsky::VoidSky,
     /// The ember sky round the Crucible's floors (`cruciblesky`).
     pub crucible_sky: crate::cruciblesky::CrucibleSky,
+    /// The polar night round the Ice Tomb (`aurorasky`).
+    pub aurora_sky: crate::aurorasky::AuroraSky,
 }
 
 /// What a connected wall draws: its faces, its side and top textures.

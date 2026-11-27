@@ -259,7 +259,7 @@ pub fn migrated_xp(old_raise: i32, max: i32) -> i32 {
 }
 
 /// A number in a slot's data (`"PetXp":120`), if it's there.
-fn data_int(json: &str, key: &str) -> Option<i32> {
+pub(crate) fn data_int(json: &str, key: &str) -> Option<i32> {
     let i = json.find(&format!("\"{key}\":"))?;
     let rest = json[i + key.len() + 3..].trim_start();
     let end = rest.find(|c: char| !(c.is_ascii_digit() || c == '-')).unwrap_or(rest.len());

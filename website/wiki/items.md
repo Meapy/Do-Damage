@@ -58,6 +58,9 @@ the Sword of Dark Enchantment drop in white bags; Potions of Oryx and Potions of
 
 - **Health and magic potions** heal you. They stack up to {{v:potion_stack}} in the HP and MP slots;
   <kbd>F</kbd> and <kbd>V</kbd> drink them.
+- **Super elixirs** (of Health and of Magic, from the arena's [community goal](community-goals.html))
+  give 250 HP or MP a drink and hold 9999 doses; each drink takes one off, and the slot shows
+  how many are left.
 - **Stat potions** raise a stat for good, up to your class's highest. See
   [Getting stronger](progression.html#stat-potions-and-maxing).
 - **Potion storage**, in your vault, keeps stat potions safe: {{v:storage_base}} of each to start,
@@ -76,7 +79,8 @@ falling all over it: `/vault` or the Vault portal on the Nexus spawn's island. I
   next {{v:unlock_doubles}}...); the gold price stays the same and doesn't count towards it. The
   garden has room for 120 chests.
 - (Not in your vault but in the Nexus: four **shared vault chests** in the vault yard, north
-  across the spawn's pond, that every player can put items in and take them from. They keep
+  across the spawn's pond, that every player can put items in and every registered player can
+  take them from: a guest can put items in, but needs to register to take any out. They keep
   their items through restarts.)
 - **Gift chests**, 42 of them in the two fenced yards either side of the path, where things sent to you arrive. You can take items out but not put them in. When you have more gifts than they hold, an emptied gift chest fills straight up with the next ones.
 - The **Potion Storage**, the Armoire and the Guild Chronicle.
@@ -129,7 +133,7 @@ up and buy them. The Broker keeps 5% of each sale. Untradeable items can't be li
 Every shop here sells for fame, except the gold shops: the **Elder keys** (`/shop elderkeys`, and
 the Bazaar's Elder key stalls), the patterned cloths in `/shop dyes`, `/shop donor`,
 `/shop donorpets` and `/shop america`. Gold isn't
-earned in game: it's bought in the [Gold Store](../gold.html) on this site ($1 for 100 gold, with
+earned in game: it's bought in the [Gold Store](../gold.html) on this site (€1 for 100 gold, with
 bonus gold on bigger packs), with PayPal or a card, and reaches your account at once, even while
 you play.
 

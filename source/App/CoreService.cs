@@ -27,6 +27,8 @@ namespace App
         public readonly ChampionsService Champions;
         // the gold store's PayPal (Controllers/GoldController.cs); sells nothing without its keys
         public readonly PayPal PayPal;
+        // when GoldStore.BlackFriday ends (null: it never started here)
+        public readonly DateTime? GoldDiscountEnds;
 
         public readonly List<ushort> PlayerClasses;
         public readonly Dictionary<ushort, string> _classes;
@@ -70,6 +72,13 @@ namespace App
 
             PayPal = new PayPal(Config.serverSettings.paypal ?? new PayPalSettings());
             Logger.Info(PayPal.Enabled ? $"Gold store: PayPal {PayPal.Mode}, prices in {PayPal.Currency}" : "Gold store: closed (no PayPal keys)");
+            // a discount starts only while the store sells, so a closed store doesn't use up its day
+            if (PayPal.Enabled)
+            {
+                GoldDiscountEnds = GoldStore.StartDiscount(Database.Conn, GoldStore.BlackFriday, DateTime.UtcNow);
+                if (GoldDiscountEnds > DateTime.UtcNow)
+                    Logger.Info($"Gold store: {GoldStore.BlackFriday.Name}, {GoldStore.BlackFriday.PercentOff}% off until {GoldDiscountEnds:u}");
+            }
 
             Status = new StatusHistory(this);
 

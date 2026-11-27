@@ -55,9 +55,24 @@ namespace App.Controllers
 
         private IActionResult Error(string message, int status = 400) => Json(new { error = message }, status);
 
-        private static object Pack(GoldPack p) => new { p.id, p.gold, p.bonus, price = p.PriceText, p.best };
+        private static object Pack(GoldPack p) => new
+        {
+            p.id, p.gold, p.bonus, price = p.PriceText, p.best,
+            was = p.was?.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
+        };
 
-        private GoldPack[] Packs => GoldStore.Packs(_core.Config.serverSettings.paypal.packs);
+        // at the discount's price while one runs: an order is made, and checked, at what's shown
+        private GoldPack[] Packs => GoldStore.Discounted(GoldStore.Packs(_core.Config.serverSettings.paypal.packs),
+            GoldStore.BlackFriday, _core.GoldDiscountEnds, DateTime.UtcNow);
+
+        private object Discount()
+        {
+            var ends = _core.GoldDiscountEnds;
+            if (ends == null || ends <= DateTime.UtcNow)
+                return null;
+            var d = GoldStore.BlackFriday;
+            return new { name = d.Name, percentOff = d.PercentOff, ends = ends.Value.ToString("o") };
+        }
 
         private object History(int accountId) =>
             GoldStore.History(_core.Database.Conn, accountId).Select(o => new
@@ -102,7 +117,8 @@ namespace App.Controllers
                 clientId = pp.Enabled ? pp.ClientId : "",
                 currency = pp.Currency,
                 sandbox = pp.Mode != "live",
-                packs = Packs.Select(Pack).ToArray()
+                packs = Packs.Select(Pack).ToArray(),
+                discount = Discount()
             });
         }
 

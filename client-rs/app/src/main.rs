@@ -6,12 +6,14 @@
 mod audio;
 mod auras;
 mod champions;
+mod chi;
 mod changelog;
 mod collection;
 mod community;
 mod connected;
 mod crosshair;
 mod crucible;
+mod aurorasky;
 mod cruciblesky;
 mod death;
 mod emotes;
@@ -330,7 +332,7 @@ struct App {
     /// once in the game, wherever we stand.
     champions_test: Option<String>,
     /// `--effect <type>` (tests): show that effect on us every half second, and when it last did.
-    effect_test: Option<(u8, i32)>,
+    effect_test: Option<(u16, i32)>,
     /// The Changelog window and the "updated" note.
     changelog: changelog::ChangelogUi,
     /// The "updated" note was looked at for this run.

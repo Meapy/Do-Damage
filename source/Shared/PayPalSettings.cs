@@ -19,8 +19,9 @@ namespace Shared
         public string secret { get; set; } = "";
         // the PayPal account the money goes to. Empty: the account that owns the REST app.
         public string payeeEmail { get; set; } = "";
-        // US dollars: $1 is 100 gold (GoldStore.DefaultPacks)
-        public string currency { get; set; } = "USD";
+        // The store sells in euros, €1 for 100 gold (GoldStore.DefaultPacks); until 2.6.9 it was US
+        // dollars. A "currency" left in an older config is ignored: the packs' prices are euros.
+        public const string StoreCurrency = "EUR";
         // the shop's name on PayPal's pages and the buyer's receipt
         public string brandName { get; set; } = "Do Damage";
         // null or empty: GoldStore.DefaultPacks
@@ -32,7 +33,7 @@ namespace Shared
         public string ClientId => Pick(clientId, "BSK_PAYPAL_CLIENT_ID");
         public string Secret => Pick(secret, "BSK_PAYPAL_SECRET");
         public string PayeeEmail => Pick(payeeEmail, "BSK_PAYPAL_PAYEE");
-        public string Currency => string.IsNullOrWhiteSpace(currency) ? "USD" : currency.Trim().ToUpperInvariant();
+        public string Currency => StoreCurrency;
         public bool Enabled => ClientId.Length > 0 && Secret.Length > 0;
 
         public string ApiBase =>

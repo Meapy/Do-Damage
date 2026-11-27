@@ -70,6 +70,7 @@ namespace WorldServer.core.objects
             DamageCounter = new DamageCounter(this);
             _glowcolor = new StatTypeValue<int>(this, StatDataType.GlowEnemy, 0);
             _defense = new StatTypeValue<int>(this, StatDataType.Defense, ObjectDesc.Defense);
+            _condemned = new StatTypeValue<int>(this, StatDataType.Condemned, 0);
             if (ObjectDesc.IdName == DpsMeter.ObjectId)
                 DpsMeter = new DpsMeter(this);
         }
@@ -124,6 +125,7 @@ namespace WorldServer.core.objects
         {
             DpsMeter?.Tick();
             ShredTick();
+            CondemnTick();
             Empowered?.Tick(this, ref time);
 
             // objects without MaxHitPoints (anchors, spawners, traps) start at 0 HP; they end
@@ -154,6 +156,8 @@ namespace WorldServer.core.objects
         {
             base.ExportStats(stats, isOtherPlayer);
             stats[StatDataType.GlowEnemy] = GlowEnemy;
+            if (IsCondemned)
+                stats[StatDataType.Condemned] = 1;
         }
 
         public void ClasifyEnemy()
@@ -225,6 +229,29 @@ namespace WorldServer.core.objects
                 MaxHealth = (int)Math.Round(MaxHealth * 1.25, 0);
                 Defense += 3;
                 GlowEnemy = 0x82D9BC;
+            }
+        }
+
+        // a King's decree on it (Player.Decree.cs): Condemned, it takes Player.CondemnedPercent
+        // more damage (StatsManager.DamageWithDefense) and pays tribute as it falls. The Condemned
+        // stat tells clients while it lasts.
+        public Player.Decree Condemned { get; private set; }
+        private StatTypeValue<int> _condemned;
+
+        public bool IsCondemned => Condemned != null && Environment.TickCount64 <= Condemned.Until;
+
+        public void Condemn(Player.Decree decree)
+        {
+            Condemned = decree;
+            _condemned.SetValue(1);
+        }
+
+        private void CondemnTick()
+        {
+            if (Condemned != null && !IsCondemned)
+            {
+                Condemned = null;
+                _condemned.SetValue(0);
             }
         }
 
@@ -369,6 +396,14 @@ namespace WorldServer.core.objects
                 ClearOwnSquare();
                 // an Elder dungeon's boss leaves its remains, for a Necromantic Relic
                 resurrection.BossResurrection.BossDied(this);
+                // Condemned by a King: the Crown's Due
+                if (Condemned is { } decree && decree.Holds(this))
+                    decree.King.PayTribute(this, decree);
+                Condemned = null;
+                // a Sharklord who hurt it: blood in the water, the Frenzy grows
+                foreach (var p in DamageCounter.GetHitters().Keys)
+                    if (p != null && p.IsSharklord && p.World == World && !p.Dead)
+                        p.FrenzyKill();
             }
             Dead = true;
             World.LeaveWorld(this);

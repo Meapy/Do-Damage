@@ -75,7 +75,8 @@ size and level, the food to its next level, and the damage and healing it does n
   his window and press **Grow it**.
 - **Tune a Huge pet** at level 30 (since 2.6.7): click the damage, HP or MP box in his window
   for what to make stronger, then what to take it from. Each step moves 5% from one to the other
-  for 1,000 fame, up to 25% either way on each, and you can move it back the same way. The boxes
+  for 1,000 fame, up to 25% either way on each, and you can move it back the same way (paying
+  again). The first click on a "taken from" button shows its price; click it again to pay. The boxes
   show how it's tuned, and the tuning stays with the pet.
 - **Grow your pen** to feed bigger pets. Every account's pen feeds Tiny pets; each bigger size is
   bought once, for fame or gold: Small 2,000 fame or 200 gold, Medium 5,000 or 400, Large 10,000
@@ -136,8 +137,9 @@ the chain (damage a second at level 30; half that at level 1):
 Until 27 November 2026, every account can claim a free Lil' Oryx from the quest log's Daily
 Rewards tab.
 
-The bosses of the two hardest places do the same: each of [The Black Between](dungeons.html)'s
-three bosses and [The Crucible](crucible.html)'s five champions has a **1% chance** to drop a
+The bosses of the hardest places do the same: each of [The Black Between](dungeons.html)'s
+three bosses, [The Crucible](crucible.html)'s five champions and the
+[Ice Tomb](dungeons.html#the-ice-tomb)'s Frozen Court has a **1% chance** to drop a
 little copy of itself, in a white bag. It fights as its boss does, with the boss's own shots in
 its patterns (weaving volleys, rings that turn, its blast on the enemy and everything round it),
 and the champions' pets take on their champion's last form every 10 seconds to throw out its
@@ -151,6 +153,9 @@ least about 1,510 a second at level 30, ahead of any pet grown to Huge:
 | Lil' Nerissa | Nerissa, the Tidecaller | about 1,510 | slows; heals you over 2 s every 8 s |
 | Lil' Pyrrhax | Pyrrhax, the Forge Tyrant | about 1,510 | makes you Berserk for 2 s every 10 s |
 | Lil' Chronarch | Chronarch, the Hour Thief | about 1,510 | slows; makes you Speedy for 2 s every 8 s |
+| Lil' Kaldrun | Kaldrun, the Rime Warden | about 1,510 | breaks armor; slows round its target; makes you Armored for 2 s every 10 s |
+| Lil' Ysolde | Ysolde, the Aurora Oracle | about 1,510 | heals you over 2 s every 10 s |
+| Lil' Hrimgar | Hrimgar, the Frost Reaver | about 1,510 | makes enemies round its target bleed; makes you Berserk for 2 s every 10 s |
 | Lil' Vaelith | Vaelith, the Crucible Sovereign | about 1,980 | breaks armor; makes you Damaging for 2 s every 10 s |
 | Lil' Vesper | Vesper, the Dusk Star | about 2,430 | slows |
 | Lil' Aurel | Aurel, the Dawn Blade | about 2,790 | breaks armor; the Sunwheel every 9.5 s |

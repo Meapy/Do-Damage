@@ -18,6 +18,9 @@ use std::f64::consts::PI;
 pub(crate) mod cache;
 pub(crate) mod relic;
 pub(crate) mod turret;
+pub(crate) mod decree;
+pub(crate) mod maw;
+mod flow;
 mod tide;
 
 #[derive(Clone, Debug)]
@@ -203,6 +206,16 @@ pub struct Particles {
     turrets: Vec<turret::TurretLook>,
     /// The Druids' pearls lying in their pools (`tide.rs`, looks 61 to 65).
     pools: Vec<tide::PoolLook>,
+    /// The Monks' Flowing Strikes: their ways and lotuses (`flow.rs`, look 66).
+    flows: Vec<flow::FlowLook>,
+    /// The Kings' seals' marks on the ground and the crowns over the Condemned (`decree.rs`, looks
+    /// 67 to 69).
+    seals: Vec<decree::SealLook>,
+    crowns: Vec<decree::Crown>,
+    /// The Sharklords' Maws of the Deep: their fins and jaws (`maw.rs`, looks 70 and 71).
+    maws: Vec<maw::MawLook>,
+    /// The Monks' Chi as we last saw it, by player id (`chi.rs`).
+    pub chi: crate::chi::ChiMemory,
     /// The Crucible's caches' charges in flight to their champions (`cache.rs`, look 59).
     shells: Vec<cache::Shell>,
 }
@@ -303,6 +316,10 @@ impl Particles {
         self.wards.clear();
         self.turrets.clear();
         self.pools.clear();
+        self.flows.clear();
+        self.seals.clear();
+        self.crowns.clear();
+        self.maws.clear();
         self.shells.clear();
         self.ward_on = None;
         self.dusk_on = None;
@@ -632,11 +649,12 @@ impl Particles {
     /// `--effect <type>` (tests): show that effect on us (0: an area attack beside us; 101 to 138
     /// the Necromantic items' looks, `relic::look`; 140 to 148 the Ascendant's forcefields by tier;
     /// 2xx look xx too, for the looks from 39 on).
-    pub fn test_effect(&mut self, effect_type: u8, world: &World, now: i32) {
+    pub fn test_effect(&mut self, effect_type: u16, world: &World, now: i32) {
         if effect_type >= 200 {
-            self.test_relic(effect_type - 200, world, now);
+            self.test_relic((effect_type - 200).min(255) as u8, world, now);
             return;
         }
+        let effect_type = effect_type as u8;
         if (140..=148).contains(&effect_type) {
             self.test_field(effect_type - 140, world, now);
             return;
@@ -681,6 +699,9 @@ impl Particles {
         self.relic_update(world, now);
         self.turret_update(world, now, dt);
         self.tide_update(world, now);
+        self.flow_update(now);
+        self.decree_update(now);
+        self.maw_update(now);
         self.cache_update(world, now);
         // the steps of everyone in a skin (only the Realm Pass's leave marks, `auras.rs`), and of
         // pets whose effect leaves a trail (`petfx.rs`)
@@ -689,7 +710,12 @@ impl Particles {
             if obj.stat_int(76).unwrap_or(0) != 0 || pet_trail() {
                 self.trails.walk(obj.id, obj.x, obj.y, now);
             }
+            // a Monk's Chi, for its orbs' flashes as it's built and spent (`chi.rs`)
+            if let Some(chi) = obj.stat_int(bsk_proto::stat::CHI) {
+                self.chi.see(obj.id, chi, now);
+            }
         }
+        self.chi.prune(now);
         self.trails.prune(now);
         let dt = dt.max(0);
         let mut spawned = Vec::new();
@@ -1134,6 +1160,9 @@ impl Particles {
         self.draw_decals(cam, renderer, level);
         self.draw_turrets(cam, renderer, level);
         self.draw_pools(cam, renderer, level);
+        self.draw_flows(cam, renderer, level);
+        self.draw_seals(cam, renderer, level);
+        self.draw_maws(cam, renderer, level);
         for m in self.marks.iter().filter(|m| m.level == level) {
             let t = (self.now - m.start) as f64 / m.ms as f64;
             let fill = t.clamp(0.0, 1.0);
@@ -1522,13 +1551,13 @@ mod tests {
             let mut e = effect(41, 99, (5.0, 5.0), (2.0, look as f32));
             e.duration = 1500;
             p.show_effect(&e, &world, 0);
-            assert!(!p.list.is_empty() || !p.decals.is_empty() || !p.auras.is_empty() || !p.turrets.is_empty() || !p.pools.is_empty(), "look {look} shows nothing");
+            assert!(!p.list.is_empty() || !p.decals.is_empty() || !p.auras.is_empty() || !p.turrets.is_empty() || !p.pools.is_empty() || !p.flows.is_empty() || !p.seals.is_empty() || !p.crowns.is_empty() || !p.maws.is_empty(), "look {look} shows nothing");
             let mut now = 0;
             while now < 12_000 {
                 now += 50;
                 p.update(&world, now, 50);
             }
-            assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty() && p.turrets.is_empty() && p.pools.is_empty(), "look {look} stays");
+            assert!(p.list.is_empty() && p.decals.is_empty() && p.auras.is_empty() && p.turrets.is_empty() && p.pools.is_empty() && p.flows.is_empty() && p.seals.is_empty() && p.crowns.is_empty() && p.maws.is_empty(), "look {look} stays");
         }
         // an unknown look does nothing, and particles off shows nothing
         p.show_effect(&effect(41, 99, (5.0, 5.0), (2.0, 99.0)), &world, 0);

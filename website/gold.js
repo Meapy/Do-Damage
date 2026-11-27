@@ -44,7 +44,7 @@
   }
 
   function money(price) {
-    var cur = state.store ? state.store.currency : "USD";
+    var cur = state.store ? state.store.currency : "EUR";
     try {
       return new Intl.NumberFormat(undefined, { style: "currency", currency: cur, currencyDisplay: "narrowSymbol" }).format(+price);
     } catch (e) {
@@ -140,7 +140,7 @@
       unit.className = "gold-pack-unit";
       unit.textContent = "gold";
       b.appendChild(unit);
-      // the bonus, and what the pack would cost at the base rate ($1 for 100 gold)
+      // the bonus, and what the pack would cost at the base rate (€1 for 100 gold)
       var base = p.gold - p.bonus;
       var percent = base > 0 ? Math.round((p.bonus / base) * 100) : 0;
       var bonus = document.createElement("span");
@@ -150,10 +150,12 @@
       b.appendChild(bonus);
       var price = document.createElement("span");
       price.className = "gold-price";
-      if (p.bonus > 0) {
+      // struck through: the pack's usual price during a discount, else its gold at the base rate
+      var usual = p.was || (p.bonus > 0 ? (p.gold / 100).toFixed(2) : null);
+      if (usual) {
         var was = document.createElement("s");
         was.className = "gold-was";
-        was.textContent = money((p.gold / 100).toFixed(2));
+        was.textContent = money(usual);
         price.appendChild(was);
       }
       price.appendChild(document.createTextNode(money(p.price)));
@@ -161,7 +163,7 @@
       var per = p.price / p.gold;
       var each = document.createElement("span");
       each.className = "gold-each " + (per <= cheapest * 1.001 && packs.length > 1 ? "good" : "dim");
-      each.textContent = (p.bonus > 0 ? "Save " + Math.round((1 - per * 100) * 100) + "% · " : "") +
+      each.textContent = (per * 100 < 0.995 ? "Save " + Math.round((1 - per * 100) * 100) + "% · " : "") +
         money((per * 100).toFixed(2)) + " per 100";
       b.appendChild(each);
       b.addEventListener("click", function () { choose(p); });
@@ -208,7 +210,13 @@
     what.textContent = number(p.gold) + " gold";
     line.appendChild(what);
     var cost = document.createElement("b");
-    cost.textContent = money(p.price);
+    if (p.was) {
+      var was = document.createElement("s");
+      was.className = "gold-was";
+      was.textContent = money(p.was);
+      cost.appendChild(was);
+    }
+    cost.appendChild(document.createTextNode(money(p.price)));
     line.appendChild(cost);
     box.appendChild(line);
     var who = document.createElement("p");
@@ -430,6 +438,44 @@
     };
   }
 
+  // --- A discount -------------------------------------------------------------------------------
+
+  // the banner counts down to the discount's end, then the packs go back to their usual prices
+  // (the server prices an order itself, so a page left open can't buy at the old price)
+  var dealTimer = null;
+  function showDiscount(d) {
+    clearInterval(dealTimer);
+    var box = $("gold-deal");
+    var ends = d ? Date.parse(d.ends) : NaN;
+    if (!d || !(ends > Date.now())) { box.hidden = true; return; }
+    function tick() {
+      var left = Math.max(0, Math.floor((ends - Date.now()) / 1000));
+      if (!left) {
+        clearInterval(dealTimer);
+        box.hidden = true;
+        request("store").then(function (store) {
+          var chosen = state.pack && state.pack.id;
+          state.store.packs = store.packs || [];
+          showPacks(state.store.packs);
+          var again = state.store.packs.filter(function (p) { return p.id === chosen; })[0];
+          if (again) choose(again);
+        }).catch(function () {});
+        return;
+      }
+      var h = Math.floor(left / 3600), m = Math.floor(left / 60) % 60, s = left % 60;
+      var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+      box.innerHTML = "";
+      box.appendChild(document.createTextNode(d.name + ": every pack " + d.percentOff + "% off, for "));
+      var clock = document.createElement("b");
+      clock.textContent = h + ":" + pad(m) + ":" + pad(s);
+      box.appendChild(clock);
+      box.appendChild(document.createTextNode(" more."));
+    }
+    box.hidden = false;
+    tick();
+    dealTimer = setInterval(tick, 1000);
+  }
+
   // --- Start -------------------------------------------------------------------------------------
 
   request("store")
@@ -437,6 +483,7 @@
       state.store = store;
       $("gold-sandbox").hidden = !(store.enabled && store.sandbox);
       showPacks(store.packs || []);
+      showDiscount(store.enabled ? store.discount : null);
       refreshMe();
       if (!store.enabled) {
         $("gold-closed").hidden = false;

@@ -244,7 +244,6 @@
 		<Height>61</Height>
 		<MapJM>Doomed/The Gauntlet.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Sheep Herding Minigame">
@@ -273,7 +272,6 @@
 		<Height>256</Height>
 		<MapJM>Doomed/Underground Mine.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Party Cellar">
@@ -288,7 +286,6 @@
 		<Height>95</Height>
 		<MapJM>Doomed/Secret.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 	<World id="Shop">
@@ -317,7 +314,6 @@
 		<Height>90</Height>
 		<MapJM>Doomed/Zombies.jm</MapJM>
 		<VisibilityType>1</VisibilityType>
-		<DisableTeleport/>
 		<Dungeon/>
 	</World>
 </Worlds>

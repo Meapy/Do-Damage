@@ -41,6 +41,9 @@ RS_ONLY_SETS = [
     ("crucible8x8", "kabam/rotmg/assets/custom/images/Crucible8x8.png", 8, 8),
     ("crucible16x16", "kabam/rotmg/assets/custom/images/Crucible16x16.png", 16, 16),
     ("crucible32x32", "kabam/rotmg/assets/custom/images/Crucible32x32.png", 32, 32),
+    # the Ice Tomb's floors, walls, scenery and shots (tools/build_ice_tomb.py)
+    ("iceTomb8x8", "kabam/rotmg/assets/custom/images/IceTomb8x8.png", 8, 8),
+    ("iceTomb16x16", "kabam/rotmg/assets/custom/images/IceTomb16x16.png", 16, 16),
     # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
     ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
@@ -85,6 +88,14 @@ RS_ONLY_SETS = [
     ("mechanicShots8x8", "kabam/rotmg/assets/custom/images/MechanicShots8x8.png", 8, 8),
     # the Druid's pearls, tier 0 to 8 (tools/draw_pearls.py)
     ("druidPearls16x16", "kabam/rotmg/assets/custom/images/DruidPearls16x16.png", 16, 16),
+    # the Monk's fountains, the Flowing Strike's icons by tier (tools/draw_monk.py)
+    ("monkFountains16x16", "kabam/rotmg/assets/custom/images/MonkFountains16x16.png", 16, 16),
+    # the Monk's fists' chi strikes, a shot by tier (tools/draw_monk.py)
+    ("monkStrikes8x8", "kabam/rotmg/assets/custom/images/MonkStrikes8x8.png", 8, 8),
+    # the King's scepters, the Royal Decree's icons by tier (tools/draw_king.py)
+    ("kingScepters16x16", "kabam/rotmg/assets/custom/images/KingScepters16x16.png", 16, 16),
+    # the Sharklord's oceanic spells, the Maw of the Deep's icons by tier (tools/draw_sharklord.py)
+    ("sharklordMaws16x16", "kabam/rotmg/assets/custom/images/SharklordMaws16x16.png", 16, 16),
     # sprites players drew in the Sprite Editor and admins approved (tools/community_sprites.py)
     ("communitySprites8x8", "kabam/rotmg/assets/custom/images/CommunitySprites8x8.png", 8, 8),
     ("communitySprites16x16", "kabam/rotmg/assets/custom/images/CommunitySprites16x16.png", 16, 16),
@@ -133,6 +144,21 @@ RS_ONLY_CHARS = [
      "kabam/rotmg/assets/custom/images/DruidSkinsMask8x8.png"),
     ("druidSkins16", "kabam/rotmg/assets/custom/images/DruidSkins16x16.png", 16, 16, 112, 48, "right",
      "kabam/rotmg/assets/custom/images/DruidSkinsMask16x16.png"),
+    # the Monk's skins sold at the Armoire, with their dye masks (tools/draw_monk.py)
+    ("monkSkins8", "kabam/rotmg/assets/custom/images/MonkSkins8x8.png", 8, 8, 56, 24, "right",
+     "kabam/rotmg/assets/custom/images/MonkSkinsMask8x8.png"),
+    ("monkSkins16", "kabam/rotmg/assets/custom/images/MonkSkins16x16.png", 16, 16, 112, 48, "right",
+     "kabam/rotmg/assets/custom/images/MonkSkinsMask16x16.png"),
+    # the King's skins sold at the Armoire, with their dye masks (tools/draw_king.py)
+    ("kingSkins8", "kabam/rotmg/assets/custom/images/KingSkins8x8.png", 8, 8, 56, 24, "right",
+     "kabam/rotmg/assets/custom/images/KingSkinsMask8x8.png"),
+    ("kingSkins16", "kabam/rotmg/assets/custom/images/KingSkins16x16.png", 16, 16, 112, 48, "right",
+     "kabam/rotmg/assets/custom/images/KingSkinsMask16x16.png"),
+    # the Sharklord's skins sold at the Armoire, with their dye masks (tools/draw_sharklord.py)
+    ("sharklordSkins8", "kabam/rotmg/assets/custom/images/SharklordSkins8x8.png", 8, 8, 56, 24, "right",
+     "kabam/rotmg/assets/custom/images/SharklordSkinsMask8x8.png"),
+    ("sharklordSkins16", "kabam/rotmg/assets/custom/images/SharklordSkins16x16.png", 16, 16, 112, 48, "right",
+     "kabam/rotmg/assets/custom/images/SharklordSkinsMask16x16.png"),
     # Oryx's Inferno's Infernal Court and Oryx 4 (tools/build_hash_cellar.py)
     ("hashCellarChars16x16", "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png", 16, 16, 112, 16, "right"),
     ("hashCellarCharsDown16x16", "kabam/rotmg/assets/custom/images/HashCellarCharsDown16x16.png", 16, 16, 112, 16, "down"),
@@ -154,6 +180,9 @@ RS_ONLY_CHARS = [
     # the Crucible's champions, their echoes and its minions (tools/build_crucible.py)
     ("crucibleChars16x16", "kabam/rotmg/assets/custom/images/CrucibleChars16x16.png", 16, 16, 112, 16, "right"),
     ("crucibleChars32x32", "kabam/rotmg/assets/custom/images/CrucibleChars32x32.png", 32, 32, 224, 32, "right"),
+    # the Ice Tomb's monsters, keepers and the Frozen Court (tools/build_ice_tomb.py)
+    ("iceTombChars16x16", "kabam/rotmg/assets/custom/images/IceTombChars16x16.png", 16, 16, 112, 16, "right"),
+    ("iceTombChars32x32", "kabam/rotmg/assets/custom/images/IceTombChars32x32.png", 32, 32, 224, 32, "right"),
 ]
 # (name, file): 3D models only the Rust client draws: the Nexus garden's houses, teahouse,
 # storehouse, pagoda, smithy, torii, railings and fences (tools/build_nexus_garden.py)
@@ -174,7 +203,8 @@ RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/IceTombGrounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
@@ -183,9 +213,14 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/IceTombObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
                       "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
-                      "kabam/rotmg/assets/custom/xmls/DruidSkins.xml"]
+                      "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/MonkSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml",
+                      "kabam/rotmg/assets/custom/xmls/KingSkins.xml",
+                      "kabam/rotmg/assets/custom/xmls/SharklordSkins.xml"]
 ADD_EMOTE = re.compile(r'addEmote\("((?:[^"\\]|\\.)*)",\s*AssetLibrary\.getImageFromSet\("(\w+)",\s*(\d+)\)(?:,\s*([\d.]+))?')
 
 EMBED_VAR = re.compile(

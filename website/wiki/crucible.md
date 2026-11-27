@@ -314,7 +314,7 @@ Vaelith's a second, at their last level), and each helps you in its champion's w
 
 ## The leaderboard
 
-The **Crucible Leaderboard** trophy stands in the Arena court, beside the Arena Leaderboard. Its
+The **Crucible Leaderboard** trophy stands in the Arena court, west of the samurai statue. Its
 sign shows the best solo climb and the best group climb; press **View** for the top ten of each.
 Climbs rank by the **floors cleared**, then the **quicker time** to the last of them. Solo and
 group climbs are kept apart (a climb begun by a group stays a group's, however many are left).

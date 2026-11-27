@@ -164,6 +164,13 @@ the gaps between NewTicks. Its flags:
   living set and put them back afterwards. The members are 4-byte little-endian ids, so pipe the
   bytes in: `printf '\x01\x00\x00\x00' | redis-cli -p <port> -x srem alive.1` (`sadd` to put it
   back). A quoted `"\x01..."` argument or a line on stdin doesn't match and removes nothing.
+- Reading a binary hash field (a character's `items`) with `redis-cli --raw` on Windows turns
+  each newline byte (0x0A) into CR LF, so a script that edits and writes it back shifts every slot after
+  it (2026-11-26). Write the whole value fresh from a file (`redis-cli -x hset char.1.2 items <
+  items.bin`) and check it with `--no-raw`. The old Redis takes one field per `hset`.
+- To see a class's skins as the game draws them, `--credentials ... --stay --screen
+  class:0x<type>` shows its page with every skin and price; in the Nexus the Lil' Oryx pet can
+  stand right on the player and hide them.
 - `--size` is in physical pixels: on a scaled display `--size 1280x720` gave 1024x576 shots, and
   `--mouse` positions are in those. Read them off a `--shot` first. An ability aimed at the HUD
   bar or off the floor (a Mechanic's blueprint at the sky) is refused without a word.
@@ -176,18 +183,53 @@ the gaps between NewTicks. Its flags:
 - `--hold space:<ms>` sent the ability in 3 of 7 runs with the same flags (2026-11-25, a Druid in
   a vault): the client's log line `sent: {...}` names `UseItem` when it went. Check it before
   reading anything into a shot; one run that sends it is enough.
+- On the copied data (2026-11-26) `--credentials` played Tester's character 2 (the Mechanic), not
+  character 1, though both are in `alive.1`: before changing a character for a test, check which
+  one the first run plays (the class in its shot's character card), or change both.
+- `--effect 270` repeats the Maw every half second, so a shot shows two or three on top of each
+  other: judge how heavy an effect looks from a real cast (`--mouse` on the target, `--hold
+  space:150`), not from `--effect`.
+- The world log doesn't always say `RealmManager.Restore` or `opened again` (2026-11-27, a fresh
+  copy of the data): wait instead for port 2052 (plus the slot) to listen and a
+  `NexusGuide.OpenDungeon` line; the client signed in fine then.
+- Teleporting onto ground no one can walk on (a chasm's `Tomb Abyss`) is refused by the client
+  without a word: the server said "Teleported" and the shot showed the player where they were
+  (2026-11-27). `/tq <id>` now lands beside such an object. A random-layout dungeon's rooms differ
+  each run, so reach one with `/tq <an object in it>` (`Lake Heart`, `Chasm Heart`, a keeper)
+  rather than coordinates, and expect "There is no ..." when that run didn't pick the room.
 - `iso_stack.py start --data-from` copies the data again: changes made to the test copy's
   characters (a class, items, `alive.1`) are lost and must be made again after each start.
 - To wear a skin on the test copy, setting the character's `skin` isn't enough: the server puts it
   back to 0 at sign-in unless the account owns it. Add it to the account's `skins` first, 2-byte
   little-endian types: `printf '\x14\xe2' | redis-cli -p <port> -x hset account.1 skins` (0xE214),
   then `hset char.1.<id> skin 57876`. A pet out stands in front of you in the Nexus.
+- To try a class on the test copy (2026-11-26): `hset char.1.<id> charType <type in decimal>`,
+  then give it that class's gear in Redis: `/gear` gives nothing to a level 20 character ("starter
+  gear for characters below level 20"), and the old class's weapon and ability are dropped from
+  their slots. `items` is 28 little-endian ushorts (0xFFFF empty), written from Python:
+  `python -c "import sys,struct; sys.stdout.buffer.write(b''.join(struct.pack('<H', i & 0xffff) for i in [0x5810, 0x581b] + [-1] * 26))" | redis-cli -p <port> -x hset char.1.<id> items`.
+- To see your own shots (2026-11-26): `--hold f:<ms>` never fired (no `PlayerShoot` in the `sent:`
+  lines; F also drinks a potion); `--hold i:100` (autofire) with `--mouse` does. The Nexus doesn't
+  let you shoot at all. The `--hold` steps start when the first world is joined, after
+  `--shot-after`'s clock, so a long `--hold -:<ms>` first can leave the shot taken before the
+  autofire: keep the wait short (3000). On the test stack your Lil' Oryx fights the vault's dummy:
+  its hits count in `EnemyHit` and its shots (grey blades) fly from where you stand, so neither
+  shows that you fired.
+- `/autoaim` toggles: with `--aim auto` already turning it on, saying it too turns it off. A
+  monster `/spawn`ed in a vault stays there across runs, on the spot you arrive at, and hides you
+  in every shot after: spawn it a step away or test in the Nexus.
+- `--effect` took only values up to 255 until 2026-11-26 (it was a `u8`), so `--effect 256` and up
+  (the looks from 56 on: turrets, caches, pearls, the Monk's Flow) did nothing, without a word.
 - `--credentials` logins are never saved; a run without it signs in with the owner's saved login
   (their email on screen): don't share those shots.
 - Runs with `--shot`, `--hold` or `--mouse-script` open without taking focus, on the display
   Visual Studio Code is on (`--display-of <text>` picks another, Windows only).
 - `RUST_LOG=info,betterskillys=debug` logs every chat line (`chat <name>: <text>`).
 - No server is needed for the menu and sign-in screens: `--account http://127.0.0.1:1 --shot`.
+- Death replays need no server either: `--account http://127.0.0.1:1 --replay <file>`. How a
+  saved one's hits line up with their shots (`app/src/replay/sync.rs`) is printed, hit by hit, by
+  `BSK_REPLAY=<file> cargo test -p bsk-client lines_up_a_saved_replay -- --ignored --nocapture`:
+  quicker than catching a hit in a `--shot`.
 - Screenshots for the website (2026-11-25): `--npc GuildBoard` on the test account shows "Not in
   guild" and an empty board, `--say "/crucible"` stays in the Nexus (the test account hasn't
   reached Arena round 50), and `--npc ChampionsBoard` shows real players' names from the copied

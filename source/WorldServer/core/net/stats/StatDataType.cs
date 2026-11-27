@@ -144,6 +144,20 @@
         // the Realm Pass pet effect a pet wears (Shared.pass, its id; sent only when there is one),
         // drawn round it by the Rust client (petfx.rs); an older client ignores it.
         PetEffect = 223,
+        // a Monk's Chi (0 to Player.ChiMax; Player.Flow.cs), sent to everyone: the Rust client
+        // draws the orbs circling them (chi.rs); an older client ignores it.
+        Chi = 224,
+        // a player's stacks of a King's Tribute (0 to Player.TributeMax; Player.Decree.cs), sent to
+        // everyone: the Rust client adds their bonus to its own shots' hits (combat.rs) and draws
+        // the coins round them (decree.rs); an older client ignores it.
+        Tribute = 225,
+        // an enemy Condemned by a King's decree (1 while it is; Player.Decree.cs): it takes
+        // Player.CondemnedPercent more damage, which the Rust client adds to the hits it works
+        // out for its own shots (combat.rs); an older client ignores it.
+        Condemned = 226,
+        // a Sharklord's Frenzy (0 to Player.FrenzyMax; Player.Maw.cs), sent to everyone: the Rust
+        // client draws the fins circling them (particles/maw.rs); an older client ignores it.
+        Frenzy = 227,
         None = 255
     }
 }

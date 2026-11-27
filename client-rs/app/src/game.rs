@@ -1668,7 +1668,10 @@ impl Game {
             use_type: 0,
         };
         self.send(msg.into());
-        if consumable {
+        // An item that counts its doses down (the super elixirs) stays until its last.
+        let left = self.world.as_ref().and_then(|w| w.objects.get(&owner)).and_then(|o| crate::hud::slot_doses(o, slot));
+        let stays = !xml.has("SuccessorId") && left.unwrap_or_else(|| xml.int("Doses", 0)) > 1;
+        if consumable && !stays {
             self.predict(owner, slot, -1);
         }
         true

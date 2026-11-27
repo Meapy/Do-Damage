@@ -51,8 +51,7 @@ namespace Tests
         // (ConditionEffectBehavior.OnStateExit), the parent's with it, so the parent's effect is
         // gone for good after the first visit. The Shatters' obelisk controller lost its
         // Invincible that way, got killed, and left the bridge obelisks invulnerable for ever.
-        // The monsters below did it already and haven't been gone over; some need it (the Hive's
-        // Queen Bee is only ever hurt because its root's Invulnerable goes when 'idle' is left),
+        // The monsters below did it already and haven't been gone over; some may need it,
         // so fix them one at a time, by playing the fight, rather than in ConditionEffectBehavior.
         private static readonly HashSet<string> Known = new HashSet<string>
         {
@@ -60,7 +59,7 @@ namespace Tests
             "Earth Power", "EH Blue Guardian Bee", "EH Event Hive Corpse", "EH Event Hive", "EH Hive Bomb",
             "EH Red Guardian Bee", "EH Yellow Guardian Bee", "Elder Tomb Fire Turret",
             "Elder Tomb Frost Turret", "Elder Tomb Thunder Turret", "Fire Elemental", "Fire Power",
-            "LH Colossus Pillar", "Elder LH Colossus Pillar", "md1 Head of Shaitan", "shtrs Defense System", "TH Queen Bee",
+            "LH Colossus Pillar", "Elder LH Colossus Pillar", "md1 Head of Shaitan", "shtrs Defense System",
             "Tomb Fire Turret", "Tomb Frost Turret", "Tomb Thunder Turret", "Water Elemental", "Water Power",
         };
 

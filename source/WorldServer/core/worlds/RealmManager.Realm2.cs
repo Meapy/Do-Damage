@@ -14,7 +14,7 @@ namespace WorldServer.core.worlds
     // the shore and lowlands, the midlands and the Godlands, whose monsters live by terrain as in
     // the realm. Events come as the realm's do (EnsureQuest: one at a time for a few players, more
     // for a crowd): first the two Lucky gods in their midland clearings, then the lands' events in a
-    // random order, each bringing its own land, drawn into the Godlands (or out in the void with a
+    // random order, each bringing its own land, drawn into the Godlands (or out in the sea with a
     // bridge or pool) further from the shore than the last, in any direction. Each land keeps its
     // monsters, in small groups as the gods are, and two of each of its quests. Realm 2 needs the Lucky
     // gods and eleven of its fourteen lands to close (EventsNeeded), more for a crowd; once every land
@@ -142,8 +142,8 @@ namespace WorldServer.core.worlds
 
         // Where the next land goes: the eleven it needs spread evenly along the Godlands from the midlands to
         // its far end (the nth at about n/11 of the way), never nearer the shore than the last, any
-        // way across; best on the Godlands' edge, sticking out into the void, so its middle stays
-        // free (or, a quarter of the time, out in the void beside it, joined by a bridge or pool);
+        // way across; best on the Godlands' coast, sticking out into the sea, so its middle stays
+        // free (or, a quarter of the time, out in the sea beside it, joined by a bridge or pool);
         // out of sight of everyone but not far from someone, and clear of the events still running.
         // `force` (a drought): players only need to be off the land's heart, not out of it, and
         // needn't be near; `anywhere`: nor does the way out, and lands need only be 60 apart.
@@ -206,7 +206,7 @@ namespace WorldServer.core.worlds
             return null;
         }
 
-        // whether any of a ring of points round c lies in an area `what` takes (or, with voidToo, in the void)
+        // whether any of a ring of points round c lies in an area `what` takes (or, with voidToo, in the water)
         private bool Covers(IntPoint c, double r, Func<Realm2Area, bool> what, bool voidToo = false)
         {
             for (var a = 0.0; a < Math.PI * 2; a += Math.PI / 8)
@@ -558,23 +558,22 @@ namespace WorldServer.core.worlds
 
         private bool NearBeacon(int x, int y, double r) => Beacons().Any(b => b.DistTo(x + 0.5f, y + 0.5f) < r);
 
-        // ---- the abyss: what wanders or is spawned out over the void (flying minions, a summon
-        // thrown off the edge) is gone, so no monster floats out there where nobody can follow
+        // ---- the deep water: what wanders or is spawned out over the sea or a lake (flying minions,
+        // a summon thrown off the coast) is gone, so no monster floats out there where nobody can follow
 
-        private ushort _abyss;
-
-        private void SweepAbyss()
+        private void SweepWater()
         {
-            if (_abyss == 0 && !World.GameServer.Resources.GameData.IdToTileType.TryGetValue("R2 Abyss", out _abyss))
-                return;
             if (_partTypes.Count == 0)
                 LoadPartTypes();
+            var tiles = World.GameServer.Resources.GameData.Tiles;
             foreach (var enemy in World.Enemies.Values.ToArray())
             {
                 if (enemy.Dead || _partTypes.ContainsKey(enemy.ObjectType) || enemy.ObjectDesc.Quest)
                     continue;
                 int x = (int)enemy.X, y = (int)enemy.Y;
-                if (x >= 0 && y >= 0 && x < World.Map.Width && y < World.Map.Height && World.Map[x, y].TileId == _abyss)
+                if (x < 0 || y < 0 || x >= World.Map.Width || y >= World.Map.Height || Layout.AreaAt(x, y) != null)
+                    continue;
+                if (tiles.TryGetValue(World.Map[x, y].TileId, out var desc) && desc.NoWalk)
                     World.LeaveWorld(enemy);
             }
         }

@@ -258,6 +258,15 @@ namespace WorldServer.core.objects
                     ? Turret.Falloff(projectile.Damage, entity.DistTo(projectile.StartX, projectile.StartY), projectile.FalloffReach)
                     : projectile.Damage;
                 var dmg = StatsManager.DamageWithDefense(entity, damage, projectileDesc.ArmorPiercing, entity.Defense);
+                // a Sharklord's Blood in the Water: more on a Bloodied enemy (Player.Maw.cs; the
+                // Rust client works out the same, combat.rs)
+                var bloodied = IsSharklord && Bloodied(entity.Health, entity.MaxHealth);
+                if (IsSharklord)
+                    dmg = BloodiedDamage(dmg, entity.Health, entity.MaxHealth);
+                // a King's Tribute: more on every shot, armour or no (Player.Decree.cs; the Rust
+                // client adds the same, combat.rs)
+                if (Tribute > 0 && dmg > 0)
+                    dmg += TributeBonus(Tribute);
                 entity.Health -= dmg;
                 EnterCombat();
 
@@ -285,6 +294,9 @@ namespace WorldServer.core.objects
                         entity.StackShred(shred.Percent, shred.Max, shred.DurationMs);
                     ImprintHit(entity, dmg, entity.Health <= 0, ref tickTime);
                     RelicHit(entity, dmg, entity.Health <= 0, ref tickTime);
+                    ChiHit(bulletId);
+                    if (bloodied)
+                        FrenzyBloodHit(bulletId);
                     FrontlineHit(dmg);
                 }
                 else if (!projectile.FromWeapon && Inventory[1]?.ObjectType == projectile.ContainerType)

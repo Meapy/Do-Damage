@@ -100,7 +100,10 @@ as well as its items. You need **5 stars** to collect it (see below).
 {{gen:quests_login}}
 
 Now and then there's a **gift** above the track for a while: a free item every account can claim
-once, before its countdown runs out, from 5 stars. Until 27 November 2026 it's a Lil' Oryx Generator.
+once, before its countdown runs out, from 5 stars. Until 27 November 2026 it's a Lil' Oryx Generator;
+from 27 November to 27 December 2026 it's a **Char Slot Unlocker** and a **Vault Chest Unlocker**:
+take them from the gift chest and use them in your vault for one more character slot and one more
+vault chest.
 
 ## Achievements
 

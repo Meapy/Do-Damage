@@ -65,6 +65,19 @@ namespace WorldServer.core.net.handlers
             var conFrom = (IContainer)from;
             var conTo = (IContainer)to;
 
+            // the Nexus's shared vault chests: guests put items in but don't take them out
+            var nexusFrom = NexusWorld.IsVaultChest(from);
+            var nexusTo = NexusWorld.IsVaultChest(to);
+            if (nexusFrom != nexusTo && !NexusWorld.MayTakeFromVault(player) &&
+                (nexusFrom ? conFrom.Inventory[slotFrom] : conTo.Inventory[slotTo]) != null)
+            {
+                player.SendError(NexusWorld.GUEST_VAULT_REFUSAL);
+                from.ForceUpdate(slotFrom);
+                to.ForceUpdate(slotTo);
+                player.Client.SendPacket(new InvResult() { Result = 1 });
+                return;
+            }
+
             // taking one out of a potion stack: into an empty inventory or backpack slot
             if (from == player)
                 foreach (var stack in player.PotionStacks)

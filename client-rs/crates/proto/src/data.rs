@@ -603,6 +603,27 @@ pub mod stat {
     pub const AURA: u8 = 222;
     /// The Realm Pass effect a pet wears (its id; `petfx.rs` draws it).
     pub const PET_FX: u8 = 223;
+    /// A Monk's Chi, 0 to 5 (the server's `Player.Flow.cs`; `chi.rs` draws its orbs).
+    pub const CHI: u8 = 224;
+    /// A player's stacks of a King's Tribute, 0 to 10 (the server's `Player.Decree.cs`): each
+    /// adds `TRIBUTE_DAMAGE` to their shots' hits on enemies, after defence.
+    pub const TRIBUTE: u8 = 225;
+    pub const TRIBUTE_DAMAGE: i32 = 10;
+    /// An enemy Condemned by a King's decree (1 while it is; the server's `Player.Decree.cs`):
+    /// it takes `CONDEMNED_PERCENT` more damage, after defense.
+    pub const CONDEMNED: u8 = 226;
+    pub const CONDEMNED_PERCENT: i32 = 5;
+    /// A Sharklord's Frenzy, 0 to 5 (the server's `Player.Maw.cs`; `particles/maw.rs` draws its fins).
+    pub const FRENZY: u8 = 227;
+    /// The Sharklord's class: their shots do `BLOODIED_PERCENT` more to a Bloodied enemy (under
+    /// half its health), after defence.
+    pub const SHARKLORD: u16 = 0xD24E;
+    pub const BLOODIED_PERCENT: i32 = 20;
+
+    /// Bloodied to a Sharklord: under half its health (the server's `Player.Bloodied`).
+    pub fn bloodied(hp: i32, max_hp: i32) -> bool {
+        max_hp > 0 && hp > 0 && hp * 2 < max_hp
+    }
     /// `INVDATA0`..`INVDATA11` and `BACKPACKDATA0`..`BACKPACKDATA7`: per-slot item data (JSON).
     pub const ITEM_DATA: std::ops::RangeInclusive<u8> = 122..=141;
 

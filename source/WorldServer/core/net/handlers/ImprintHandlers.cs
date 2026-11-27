@@ -222,7 +222,8 @@ namespace WorldServer.core.net.handlers
                 PetTune = data?.PetTune,
                 PetUpgrade = data?.PetUpgrade,
                 Corruption = data?.Corruption,
-                Unique = data?.Unique
+                Unique = data?.Unique,
+                Doses = data?.Doses
             };
         }
 

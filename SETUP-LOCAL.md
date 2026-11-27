@@ -115,7 +115,7 @@ that stays the same from server to server (`core/worlds/RealmSnapshots.cs`,
 
 - **What's kept:** the realm's name, the events defeated toward closing, the events running (by
   name and place, not their health) and a realm's events still to come. For Realm 2 also its
-  map's seed (`Realm2Generator` makes the same map from it), every land drawn (theme, centre, size,
+  map's seed (`Realm2Generator` makes the same map from it, `Map` saying which generator), every land drawn (theme, centre, size,
   its painter's seed, its bridge or pool, whether its Lost Sentry still stands), its waystones and
   the order of the events to come.
 - **When it's written:** within 2 s of a change (an event spawned or defeated, a land or a
@@ -671,11 +671,13 @@ Players buy gold at https://dodmg.com/gold.html (`website/gold.html`, `gold.js`)
 
 1. A PayPal **Business** account for the address the money should go to (a personal account can be upgraded for free), with the email confirmed.
 2. At https://developer.paypal.com, Apps & Credentials, make a REST app under that account: its client id and secret. The Sandbox tab has test keys and test buyer accounts; Live has the real ones.
-3. Copy `deploy/paypal.example.json` to `deploy/paypal.local.json` in the main checkout (git-ignored) and fill in `mode` (`sandbox` first, `live` for real money), `clientId`, `secret` and `payeeEmail` (the PayPal account paid; empty means the account that owns the app). `currency` (USD by default) and `packs` (id, gold, bonus included in gold, price, best) can change; drop `packs` for the defaults (`GoldStore.DefaultPacks`: $1 = 100 gold, with bonus gold of 5% at $5, 10% at $10, 15% at $20, 20% at $50 and 25% at $100). For deploys from GitHub, put the same JSON in the `PAYPAL_CONFIG` secret of the production environment. A deploy without either keeps the settings already on the server (`install.sh`); `server.json` there is mode 600.
+3. Copy `deploy/paypal.example.json` to `deploy/paypal.local.json` in the main checkout (git-ignored) and fill in `mode` (`sandbox` first, `live` for real money), `clientId`, `secret` and `payeeEmail` (the PayPal account paid; empty means the account that owns the app). The store sells in euros (`PayPalSettings.StoreCurrency`; dollars until 2.6.9, and a `currency` left in the file is ignored). `packs` (id, gold, bonus included in gold, price in euros, best) can change; drop `packs` for the defaults (`GoldStore.DefaultPacks`: €1 = 100 gold, with bonus gold of 5% at €5, 10% at €10, 15% at €20, 20% at €50 and 25% at €100). For deploys from GitHub, put the same JSON in the `PAYPAL_CONFIG` secret of the production environment. A deploy without either keeps the settings already on the server (`install.sh`); `server.json` there is mode 600.
 4. In the REST app, **Webhooks**, add `https://play.dodmg.com/api/gold/paypal-webhook` with the events `CHECKOUT.ORDER.APPROVED`, `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.PENDING`, `PAYMENT.CAPTURE.REFUNDED` and `PAYMENT.CAPTURE.REVERSED`. It pays in orders whose page was closed after approval and payments PayPal held back, and takes refunded or charged-back gold back. Its body is never trusted: each event only names an order or capture, which the server looks up at PayPal with its own keys.
 5. Deploy (the account server restarts; nobody is disconnected), and buy the smallest pack in sandbox with a sandbox buyer account before switching `mode` to `live`.
 
 **Records** (Redis): `gold.order.<PayPal order id>` (unpaid ones expire after a day, paid ones are kept), `gold.orders.<account>`, `gold.capture.<capture id>`, `gold.sales` (gold, orders, refunds and `cents.<currency>` sold) and `gold.log` (every payment and refund, newest first, the last 1,000, with the buyer's PayPal address). The account server's log has a "Gold:" line for each order, payment, pending payment and refund. A refund takes back as much of the gold as is left and logs what was already spent (`missing`); a partial refund is only logged. Store sessions (`gold.session.<token>`) last an hour after the last request; an account may make 12 orders an hour.
+
+**Discounts:** a `GoldDiscount` in `GoldStore.cs` (`GoldStore.BlackFriday`: 50% off for 24 hours) starts the first time an account server that has it starts with PayPal enabled, before its `LastStart`; `gold.discount.<id>` keeps when it ends, so it runs once. The store sells the packs at the cut price (to the cent, at least €0.50) while it runs, and the page shows a countdown and the usual prices struck through. To end one early, set its key to a past time and restart `bsk-account`.
 
 **Testing** without money: `python tools\testclient\paypal_mock.py --port 18099` (a stand-in for PayPal's API), `python tools\testclient\iso_stack.py --slot N start --paypal http://127.0.0.1:18099`, then `python tools\testclient\gold_store_test.py --account http://127.0.0.1:<account port>` runs the whole flow (23 checks: paying once, pending, closed page, made-up webhooks, refunds, refusals); `dotnet test source\Tests --filter GoldStoreTests` tests the Redis side. The page itself, built with `tools\build_site.py` and served with `/api` forwarded to the stack, takes `?mockpay=http://127.0.0.1:18099` on localhost for a button that pays at the stand-in. Windows sometimes reserves port ranges (`netsh int ipv4 show excludedportrange protocol=tcp`; on 2026-11-19 8021-8120, every slot's account port): pick a slot whose ports are clear.
 
@@ -722,6 +724,32 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **The Ice Tomb remade** (2026-11-27; `tools/build_ice_tomb.py`, `tools/ice_tomb/`,
+  `Dungeons/Ice Tomb.jm`, `custom/IceTomb*.xml`, `Dungeons.xml`, `BehaviorDb.IceTomb.cs`,
+  `IceTomb.cs`, `IceCourt.cs`, `Tests/IceTombTests.cs`): a random layout of twenty shaped rooms
+  (thin-ice lakes, chasms with freezing bridges, crypts with sarcophagi) and three seals behind
+  keepers; the Sealed Door raises the Hall of Judgement's causeway and hall (`TombCourtPlan`) for
+  the Frozen Court, three bosses fought at once with the Crucible's floors, caches and cue
+  banners (cues 29-43, encounter "floor" 10 in `crucible.rs`). The old trio (Defender, Support,
+  Attacker) only fights in the Arena now (`BehaviorDb.IceTombArena.cs`). The tomb hangs in a polar
+  night (`<Background>10</Background>`, the client's `aurorasky.rs` and `islands::ICE`), its chasms
+  open onto it, its passages wind and its rooms come mirrored (`<RandomLayout winding="1"
+  mirror="1">`, `DungeonGenerator.AttachBent` and `Flip`; any random-layout world may use them;
+  look at layouts with `tools/ice_tomb/draw_layout.py`), and its lake ice is slippery (`<SlideAmount>` with `<Slippery/>`, which the Rust
+  client honours since 2026-11-27; other grounds' SlideAmount stays unused). Rebuild the map, XML and
+  sheets with `python tools/build_ice_tomb.py` (`--preview` draws the map), then
+  `python tools/gen_rs_manifest.py`.
+- **The Hive after its maker's design** (2026-11-26; `tools/build_hive.py`, `Dungeons/The Hive.jm`,
+  `Dungeons.xml`, `BehaviorDb.Hive.cs`, `Tests/RandomDungeonTests.cs`): the Hive follows its
+  original player-made files (Suestwo's UGC1, github.com/Suestwo/UGC1). The map is 20 round rooms
+  drawn from HiveGen.xml's numbers and joined anew each visit (`<RandomLayout>`, the Queen five
+  rooms from the start); the behaviours are TheHive.xml's (the Queen's sting / rest / daze / rest
+  cycle with honey bombs and thrown eggs, Fat Bees coming back angry, Mini Hives swarming,
+  eggs cracking at a hit, larvae growing into bees). What hatches in the fight is the
+  no-experience `TH Fat Bees 2` / `TH Red Fat Bees 2`, without loot; the Queen Bee Summoner, Bee
+  Egg and Wine Cellar Incantation drops aren't used. Rebuild the map with
+  `python tools/build_hive.py`.
+
 - **Death replays** (2026-11-25; `WorldServer/core/replay/ReplayRecorder.cs`,
   `Shared/database/DeathReplays.cs`, `App/Controllers/FameController.cs` `/fame/replay`, the Rust
   client's `app/src/replay.rs` and `crates/net/src/replay.rs`): every player outside the Nexus is
@@ -731,7 +759,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   snapshot, about 20-25 s kept. A real death saves it gzipped to `replay.<account>.<char>` for 30
   days (for good in the all-time Legends). The death screen's Watch replay plays it; Download
   saves a `.bskreplay` file (the stored bytes), which plays again dropped on the window or with
-  `--replay <file>`.
+  `--replay <file>`. Since the server hears of the player late, the client lines them up
+  (`app/src/replay/sync.rs`, 2026-11-25): the player is shown along their recorded places a
+  lead early (fitted per replay, 0-400 ms), each shot's hit when and where its shot meets them,
+  and monsters' other shots fly through them.
 
 - **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
   layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from
@@ -748,6 +779,72 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   their artifacts circle the Empowered god too. A tomb with no room for the hall (none in 40
   layouts) leaves the god where it rose. `iso_stack.py` makes Tester an admin on test stacks.
   World server only.
+
+- **The Sharklord reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Maw.cs`, the
+  `DeepMaw` activate, `StatDataType.Frenzy` (227), hooks in `Player.Projectiles.cs` and
+  `Enemy.Death`; the nine oceanic spells rewritten in place, both `CustomItems.xml` copies
+  0x581c-0x5823 and Tidal Wave 0xD115 in both `DoomedRealms.xml` copies, ids kept and new names as
+  `DisplayId`; the Rust client's `particles/maw.rs` (relic looks 70-71), the bonus in
+  `crates/world` `combat.rs`, the skins' looks in `auras.rs`, the tooltip in `hud.rs`): an enemy
+  under half its health is Bloodied to a Sharklord (`ObjectType` 0xD24E): their shots do 20% more
+  to it (`BloodiedPercent`, after defense and Condemned, before Tribute). Frenzy (0-5) comes from
+  every 4th weapon shot on a Bloodied enemy, every enemy they hurt that dies, and the Maw's bites
+  (1 per enemy, at most 2); each stack is +4 Speed and +4 Dexterity (an `ActivateBoost` offset),
+  fading one a second from 5 s after the last. The Maw: a fin from the Sharklord to the target
+  (`maxDistance` 8, 24 tiles a second, 120-420 ms), `totalDamage` to enemies within 1 tile of its
+  way; then `impactDamage` within `radius`, doubled on the Bloodied, `amount` healed for each
+  bitten (at most 3). At full Frenzy it spends all on a Megalodon: 150% radius and bite, twice the
+  healing, bitten enemies Bleed for half the bite over 3 s and are Slowed 2.5 s. T0-T8: fin
+  90-390, bite 160-680, radius 2.5-3.5, heal 15-60, MP 50-95. The Sharklord is redrawn and the
+  Armoire sells five skins (`tools/draw_sharklord.py`: the Sharklord's block (index 20) of
+  `players.png`/`playersMask.png`, `SharklordSkins8x8.png`, `SharklordSkins16x16.png` and masks,
+  `SharklordMaws16x16.png`, both `SharklordSkins.xml`, types 0xE250-0xE254): the Hammerhead, the
+  Tiger Shark, the Lanternshark and the Whale Shark at 200 gold, the 16 by 16 Megalodon at 800.
+
+- **The King reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Decree.cs`, the
+  `RoyalDecree` activate with `tributeMp`, `Enemy.Condemned`, `StatDataType.Tribute` (225); the
+  nine scepters in both `CustomItems.xml` copies, 0x58B0-0x58B8, slot type 134; the Rust client's
+  `particles/decree.rs` (relic looks 67-69), the bonus in `crates/world` `combat.rs`, the skins'
+  looks in `auras.rs`, the tooltip in `hud.rs`): the King's tomes give way to scepters. The seal
+  falls 260 ms after the cast where aimed (`maxDistance` 9), `impactDamage` within `radius`, and
+  the enemies there are Condemned for `duration` (5% more damage from every hit,
+  `CondemnedPercent`, stat 226 for the client; a crown over each). A Condemned enemy
+  that dies while the King is alive and in its world gives a stack of Tribute to every player in
+  its `DamageCounter` and to the King: +10 on each shot that damages an enemy, after defense, at
+  most 10 stacks, fading one a second 10 s after the last; the King gets `tributeMp` for the first
+  3 of each decree. T0-T8: radius 3-4.5, seal 160-680, 4-8 s, mana 8-18, MP 50-95. Existing Kings'
+  tomes are moved to the inventory (`MoveMisfits`). The King is redrawn and the Armoire sells it
+  five skins (`tools/draw_king.py`: the King's block (index 24) of `players.png`/`playersMask.png`,
+  `KingSkins8x8.png`, `KingSkins16x16.png` and masks, `KingScepters16x16.png`, both
+  `KingSkins.xml`, types 0xE240-0xE244): the Sun Pharaoh, the Frost Sovereign, the Usurper and the
+  Hollow King at 200 gold, the 16 by 16 Eclipse King at 800.
+
+- **The Monk reworked** (2026-11-26; `WorldServer/core/objects/player/Player.Flow.cs`, the
+  `FlowStrike` activate, `StatDataType.Chi` (224); the nine fountains in both `CustomItems.xml`
+  and `DoomedRealms.xml` copies; the Rust client's `chi.rs`, `particles/flow.rs` (relic look 66),
+  the skins' looks in `auras.rs` and the tooltip in `hud.rs`): every third fist shot (a weapon of
+  slot type 200) that strikes an enemy builds a Chi, up to 5, fading one a second after 4 s
+  without a punch landing; the stat goes to everyone and the client draws it as orbs circling the
+  Monk. A fountain's Flowing Strike moves the Monk to where they aim (`maxDistance`, stopping
+  before a wall or a shut Oryx-chain gate), strikes every enemy within 1.2 tiles of the way for
+  `totalDamage`, then bursts where they land: `impactDamage` within `radius` and `amount` healed
+  within `range` (players and turrets), +20% each for every Chi spent, all of which it spends;
+  with 5, the enemies there are Armor Broken 3 s and the Monk Berserk 4 s. The Monk is
+  Invulnerable while flowing (`FlowGuardMs`, 300 ms), and gets back a Chi for each enemy struck
+  on the way, at most 2 (`ChiEcho`), 380 ms after the burst (`FlowEchoMs`); the look's
+  ObjectType carries it (tier + 16 a Chi spent + 128 a Chi given back, `FlowLookCode`), and the
+  client flies an orb home for each. T0-T8: reach 6-8,
+  way 120-440, burst 180-630 in 2.5-3.5, heal 110-380 (as before) in 6-10; MP unchanged. The
+  Monk is redrawn and the Armoire sells it five skins (`tools/draw_monk.py`, as the Druid's:
+  the Monk's block (index 30) of `players.png`/`playersMask.png`, `MonkSkins8x8.png`,
+  `MonkSkins16x16.png` and masks, `MonkFountains16x16.png` (the fountains' icons by tier) and
+  both `MonkSkins.xml`, types 0xE220-0xE224): the Iron Lotus, the Stormfist Disciple, the Ember
+  Fist and the Jade Wanderer at 200 gold, the 16 by 16 Celestial Grandmaster and Thousand-Palm
+  Avatar (0xE225, the second row of `MonkSkins16x16.png`) at 800, each with its `<SkinLook>` drawn
+  round it. The fists T0-T15 fire their tier's chi strike (`MonkStrikes8x8.png`, `monkStrikes8x8`;
+  both `MonkStrikes.xml`, projectiles 0xE228-0xE237, "Monk Chi Strike <tier>", also from
+  `draw_monk.py`) instead of the Bone Proj; the Enthroned Fists keep their own shots and Fists
+  of Broken Bones its bone.
 
 - **The Druid's pearls** (2026-11-25; `WorldServer/core/objects/TidePearl.cs`,
   `Player.TidePearls.cs`, the `TidePearl` activate with `pulseDamage`, `pulseHeal` and `pearls` in
@@ -1168,6 +1265,11 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   teleports (`Game::haunting`), and shows the banner with the follow arrows and Continue. Options,
   Gameplay, "Stay as a ghost when you die" (`lingerAtGrave`) goes straight to the summary instead.
 
+- **Super elixirs keep their doses** (2026-11-26; `Player.UseItem.cs`, `ItemData.Doses`,
+  `client-rs/app/src/hud.rs` `slot_doses`): a consumable with more than one `<Doses>` and no
+  `<SuccessorId>` counts its doses down in its item data and stays until the last (it used to go
+  after one). The `Super Elixir of Health` (0xD13E, `custom/DoomedRealms.xml`) joins the magic one
+  in the arena community goal.
 - **Health and magic potion stacks** (2026-11-16; `Shared/resources/data/init.xml`,
   `MaxStackablePotions`, and `client-rs/app/src/hud.rs`, `MAX_STACKED`): each stack holds up to
   10 potions instead of 6. The client and world server both enforce the limit. Existing counts
@@ -2466,7 +2568,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Castle nexus and vault** (`tools/build_castle_maps.py`): the nexus (`Exalt/Nexus Castle.jm`, 97 by 92 tiles, was `Nexus New Auru.jm`, 377 by 392) is a castle courtyard in the client's and website's look: curtain walls and towers with lit windows and a dark moat, the keep's great hall with the 21 realm portal tiles, the spawn with the healing fountains, two market wards with every shop's old stall count, and a south yard with the arena portals (`DoomedWorlds.NexusPortals` moved with them), the Wine Cellar and the memorial. The four shared nexus chests stay on their old tiles, which are their Redis keys (`DbNexusChest`). The vault (`Exalt/Vault Castle.jm`, was `Vault New Auru.jm`) is a cellar of Oryx's Sanctuary high walls with the same 60 vault chest and 26 gift chest tiles. Both are generated: change the script and rerun it. The old maps are still in the repository. The nexus was reworked on 2026-10-29 (see "The Nexus reworked around the market"): no south yard any more.
   - **Event maps:** the script also writes a decorated copy of each map per event in its `EVENTS` (now `Halloween`: jack-o'-lanterns, green candles, fallen leaves, dead and autumn trees, a cauldron), in decoration slots the layouts mark, so nothing players use moves. `serverSettings.mapEvent` in `wServer.json` (empty by default) picks them: a world whose map is `<map>.jm` loads `<map> <mapEvent>.jm` where one exists (`World.LoadMapFromData`). A world server reads it when it starts, so a rolling deploy switches it without kicking anyone.
 - **Assassin poison** (world server): `PoisonEnemy` in `Player.UseItem.cs` ignores defense (it took defense off the total), spreads `TotalDamage` over `DurationMS` from the elapsed tick time with one hit a second (it hit every 1.2 s for a per-second amount, so it ran 20% long), and stops when the enemy dies or leaves the world (a dead enemy's timer used to fire every tick forever). `Enemy.Damage` kills at 0 health: it caps damage at the enemy's health, so the old `Health < 0` check let poison and other ability damage leave monsters alive on 0.
-- **Nexus vault chests keep their items:** the shared Vault Chests the nexus map places (four of them) were plain containers, emptied by every world server restart. `NexusWorld.LinkVaultChests` links each to a Redis record (`DbNexusChest`) when the nexus starts: the hash `nexusChests`, fields `items.<x>_<y>` and `datas.<x>_<y>` for the chest's tile. Every change to a chest is saved at once, as vault chests are. Moving a chest in the map starts it empty (its old items stay under the old tile's fields).
+- **Nexus vault chests keep their items:** the shared Vault Chests the nexus map places (four of them) were plain containers, emptied by every world server restart. `NexusWorld.LinkVaultChests` links each to a Redis record (`DbNexusChest`) when the nexus starts: the hash `nexusChests`, fields `items.<x>_<y>` and `datas.<x>_<y>` for the chest's tile. Every change to a chest is saved at once, as vault chests are. Moving a chest in the map starts it empty (its old items stay under the old tile's fields). Since 2026-11-26 only registered accounts take items out (`NexusWorld.MayTakeFromVault`: swaps, drops, break-downs and using an item from the chest); guests can still put items in.
 - **Training Dummy in the vault:** a `Training Dummy` (`custom/CustomObjects.xml`, type 0x4976, for the server and the client) stands 5 tiles east of the vault's spawn (`tools/build_castle_maps.py`), in reach of every weapon. It's an enemy with 1,000,000 HP that every hit heals back to full, so it never dies, and gives no experience. A player's first hit starts 5 seconds; then `DpsMeter` (`Enemy.DpsMeter`, fed by `DamageCounter.HitBy`, which every shot and ability hit goes through) tells that player alone, in chat, the damage they did and the damage a second: "Training Dummy: 1,234 damage in 5 seconds, 246 DPS." The next hit starts another 5 seconds.
 - **Servers screen (Rust client 1.1.3)**: the character list has a Servers button again (the "Server:" pill under the characters opens it too). It lists the world servers from `/char/list` with Normal/Crowded/Full and the player count, as the AIR client's `ServersScreen` does; a click picks the server and returns to the characters, and the choice is kept (`preferredServer`). The AIR client's screen (title screen, Servers) is unchanged. Client only.
 - `client/src/WebMain.as`: on a first run the map scale setting (`mscale`) is undefined until the player enters the game. The first window resize divided by it and asked for a 0-pixel-wide Stage3D back buffer (Error #3780); it now defaults to 1.
@@ -2796,6 +2898,7 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 - **Community goals** (2026-11-04; `Shared/community/`, `resources/data/community.json`, `WorldServer/core/community/`, `client-rs/app/src/community.rs`): goals the whole server shares, tuned in `community.json` (its `_about` says how). Each Monday (UTC, as the weekly quests) 3 goals are drawn from a pool of 15, one per group, the groups in a fixed seeded order so each comes back only after the others (`CommunityData.Draw`); the week's draw is kept in Redis (`community:week:<yyyyMMdd>`), so editing the pool only changes later weeks, and `specials` with `from`/`until` days run besides. Every player's quest event (`QuestTracker.Event`, so not guests, the Nexus, vaults, minigames or spawned monsters) is counted by `CommunityGoals.Count` from any world thread into dictionaries, and sent every 5 s: `community:<goal>@<start>` holds the total (`HINCRBY`, so both world servers of a rolling deploy add safely), `...:who` each account's share (sorted set), `...:claimed` the claims (`<account>:<tier>`, 255 the top's prize). A kill, dungeon clear, realm close or Arena wave carries one `QuestEvent.Occurrence` for everyone it counts for, so the total gets it once and each helper's share once. Tiers at 25/50/75/100% (`tierShares`, `defaultTiers` unless the goal has its own `tiers`); an account at the goal's `minimum` claims each tier reached, the top 3 the `top` prize once it ends; ended goals stay claimable a week (`claimWeeks`). Claims `SADD` before paying (`QuestTracker.PayRewards`: fame, items to the gift chest), so none is paid twice on either server. The server whose add crosses a tier announces it to its players (one line for a jump over several): a chat line from the Warcaller to all, and a `COMMUNITY_NOTICE` banner for clients that asked. Messages 128-131 (`COMMUNITY_REQUEST`, `COMMUNITY_DATA`, `COMMUNITY_CLAIM`, `COMMUNITY_NOTICE`); the Rust client asks once a world (for its "reward waiting" banner) and every 4 s while the window is open, the server answering at most once a second. The Warcaller (`Warcaller.cs`, object 0x498c in both `CustomObjects.xml`, class `CommunityGoals`, cells 8-9 of `QuestNpcs16x16.png` by `tools/draw_quest_npcs.py`) stands at the spawn island's north point (`tools/build_nexus.py` `WARCALLER`, checked passable), greets players with what waits and calls out a goal's standing every 75 s to those near. `/goals` lists them in chat, and `/warcaller` takes a player in front of him (`Warcaller.Spot`; from outside the Nexus through `LoadHandler`'s arrival spots, as `/forge` and `/market`); `/goaladmin list | add <n> [goal] | reset [goal] | scale <id> <x>` (admins, test servers) adds to a goal, starts it afresh or sets a goal's scale (the clock is `/questadmin time`'s). **Overdrive:** past 100%, a level every `bonusStep` (25%) of the goal up to `bonusTiers` (8, so 300%), each paying the goal's `bonus`; claimed as tiers 100+, 253 all of a goal's waiting levels (`CommunityData.BONUS_TIER`, `CommunityGoals.CLAIM_BONUS`). **Loot:** a reward `{"roll": n}` draws n items from the goal's own `loot` (weights, a rarity each), resolved at claim time (`CommunityData.Resolve`, `Random.Shared`); each Overdrive level multiplies an entry's weight by 1 + `rarityLift[rarity]` × level, the top's prize rolls at the highest level, and a roll of `announceFrom` (legendary) or rarer is announced to the server (notice kind 5). `Validate` warns of goals that share their tiers or their loot. **Sizing:** a run's goal is fixed at first sight (`HSETNX community:<run> goal`, the goal as written × `community:scale`[id], `CommunityData.Nice`, two significant digits); when a week's run ends, the first server to see it settles it once (`HSETNX ... settled`) and moves the scale by `NextScale`: × (total/goal ÷ `adapt.target` 1.2)^0.5, held to 0.75-1.35 a run and 0.4-4 in all. A run first seen after it ended (from before this, or a long stop) is marked `settled unseen` and never moves the scale; specials are never scaled. `COMMUNITY_DATA` carries each goal's goal as written, its Overdrive levels and its loot with each entry's chance at a tier and at the highest level (both ten-thousandths). Unit tests: `CommunityDataTests`. The wiki's Community Goals page comes from the data (`tools/wiki_community.py`), loot odds included. **Finishing early** (2026-11-04): a running week's goal at its last Overdrive level (`CommunityData.Finished`) is finished by the first server to see it (`HSETNX ... finished`), unless under `early.minHours` (6) are left: it picks a bonus goal (`CommunityData.NextGoal`: a group not in this week, and where it can, nor in last week's (as kept) or next week's (as drawn, not kept yet), seeded by the week; else none) and pushes `<slot>,<goal>,<unix start>,<heat>` onto `community:week:<yyyyMMdd>:early`. `CommunityData.Runs` chains each slot's runs from it: the finished run ends at the bonus's start, the bonus run (`CommunityRun.Bonus`, key `<goal>@<yyyyMMddHHmmss>`) runs to the weekly reset, and its goal is the goal as written × its scale × its heat. Heat (`CommunityData.Heat`): the finished run's heat × `PaceStep`, its pace over a week (total/goal ÷ weeks taken, against `adapt.target`, ^`damping`) held to 1-`early.maxStep` (3), the product at most `early.maxHeat` (8), so quick finishes in a row compound until the reset. Settling counts every run by its pace over a week (`NextScale(..., weeks, cut)`, against its goal without heat), and a run finished early (`CommunityRun.Cut`) can grow by up to `early.maxStep` rather than `adapt.maxStep`. The ended run's top claim as any ended run's; each server announces the bonus runs it sees start (notice kind 4). No message change. One server at a time starts a run's bonus goal (`community:<run>:finishing`, a minute's lock); goals finished in the same pass each get their own, the goals already in Redis's list counting as used; `Runs` keeps each goal once a week (a second start of it is left out, its slot carrying on), and a finished run still running a minute later is tried again. Two goals that finished in the same pass once got the same bonus goal in the same second, and the duplicate key stopped every refresh (2026-11-05). **Rebalanced** (2026-11-09): on the VPS every goal was reaching its last Overdrive level (3× the goal) within hours to three days, the goals as written being 10-100× under a week's play (the week of 2026-11-02: 194,670 kills, 38,691 gods, 40,860 potions, 1,236 dungeons, 427 forges, 85 realms closed, from `weeklyStats:<week>` and `weeklyKills:<week>` by object type). The goals as written now match a week (oryx 250, gods 45,000, events 4,000, realms 75, dungeons 1,200, hard 600, elder 300, monsters 200,000, bosses 6,000, cubes 5,000, fame 30,000, potions 35,000, arena 1,200, forge 350, levels 3,000), minimums raised to match, `adapt.minScale` 0.25 and `early.maxHeat` 4. `community:scale` keeps beside each scale the goal it was measured against (`<id>:base`), and `CommunityGoals.Scales` ignores a scale without a matching one, so changing a goal in `community.json` starts its scale again at 1 (the old 3-4× scales would have multiplied the new goals). Four new goals (19 in the pool): `party` (dungeons cleared in a party, in the dungeons group), `whitebags` (white bag items, group `loot`), `questers` (quests claimed, group `quests`) and `logins` (daily rewards, group `logins`); `QuestTracker.Claim` now passes quest claims and daily rewards to `CommunityGoals.Count`, since the quest book counts those itself. No trade goal: two friends could trade one item back and forth. **Six more** (2026-11-09, 25 in the pool), on events already counted, with `filter.names` (exact world `IdName`s, or potion item ids; potions drunk from storage are named `Potion of <stat>`): `raids` (Lost Halls, Shatters, Void, both Draconis and Ivory Wyvern lairs, Shaitan, Ice Tomb, Puppet Master's Encore; group `raids`), and in group `themed` `seas` (pirate caves, Davy Jones, Ocean Trench, docks, grotto, reef, beach, with their Elder versions), `undead` (Undead Lair, Manor, Haunted Cemetery, Tomb of the Ancients), `wilds` (Forest Maze to Woodland Labyrinth, 15 forest and jungle dungeons) and `strange` (Mad Lab, Cursed Library, Theatre, Candyland, Sewers, Ruins, Ice Cave, Cultist Hideout, Parasite Chambers, Crawling Depths), and `battle_pots` (Attack, Dexterity and Speed potions, in the potions group). Their sizes are estimates from the week's totals (a share of 1,236 dungeons and 40,860 potions) until `adapt` corrects them. The wiki lists each named goal's dungeons (`wiki_community.py`). **Bonus goals eased** (2026-11-13): the goals after an early finish were too hard to complete, so `early.maxStep` is 2 (was 3: a quick finish at most doubles the bonus goal and the finished goal's next run) and `early.maxHeat` 2.5 (was 4). `CommunityData.Runs` reads each stored heat at today's limits (`Recap`: each run's step from the one before held to `maxStep`, the whole to `maxHeat`), and a server that first reads a running bonus goal fixed bigger than that gives lowers its `goal` to match (`CommunityGoals.Refresh`, logged "eased from"), never raising one: so the deploy that carries a lowering eases the bonus goals already running, and settling divides by the recapped heat. **Each goal by its own history** (2026-11-20): a bonus goal came up at +233% (Many Hands, `questers`) although its last run had fallen well short, because heat carried the pace of the goal it replaced (and of the ones before it that week) into its size. Heat is gone: `CommunityRun.Heat`, `EarlyStart.Heat`, `CommunityData.Heat`, `PaceStep`, `Recap` and `early.maxHeat`. A bonus run's goal is the goal as written × its own scale, as a week's; a finished run still raises its own goal's next scale by up to `early.maxStep`. `FinishEarly` pushes `<slot>,<goal>,<unix start>` (a fourth field from before is ignored), settling uses the run's goal as it is, and `NextScale` holds the step to 1 when the total fell short of the goal, so a short run (a bonus goal) that didn't reach its goal never makes it harder by its pace over a week. A running bonus goal fixed bigger than its own scale gives is eased to it (logged "eased from ... its own size") the first time a server reads it, so the deploy eases those running.
 
 - **Elder dungeons: teleport, Potions of Max, the audit** (2026-11-06; `DoomedRealmsWorlds.xml`; `DoomedMonsters.cs` patched to match; the Elder bosses' `ElderLoot` in `BehaviorDb.PirateCave.cs`, `SpiderDen`, `Beachzone`, `ForbiddenJungle` and `DavyJones`; `source/Tests/ElderDungeonsTests.cs`): every Elder dungeon allows teleporting (Doomed Realms' `AllowTeleport = false` made eight of them `<DisableTeleport/>`; the Elder worlds built from betterSkillys maps now always allow it). Each Elder dungeon's boss can drop a Potion of Max: Pirate Cave Attack, Spider Den Defense, Beach Zone Speed, Jungle Dexterity and Davy Jones Wisdom are new at 5%; Doomed Realms' Elder Septavius (Wisdom, 100%), Elder Stheno (Speed, 100%) and Elder Limon (Dexterity, 80%) are 5%; the others stay as they were (Elder Tomb Life 1%, Elder Manor's Coffin Attack 1%, Elder Malphas Vitality and Defense 5%, Elder Thessal and the Coral Gift Mana 10%, the Elder Draconis balloons 6%). `ElderDungeonsTests` checks each boss's potion (0.5% to 10%) and the teleport, and lists every Elder monster's loot and the Elder portals, keys and worlds for reading over; a bot visit to all 13 found each loads. Left as the regular dungeons have them: no exit portal from the Spider Den, Snake Pit and Sprite World bosses (players go home with R), and the invisible Spawner (no behaviour) on the Abyss and Snake Pit maps.
+- **Teleport in every dungeon** (2026-11-26; `Dungeons.xml`, `custom/DoomedRealmsWorlds.xml`; `ElderDungeonsTests.EveryDungeonAllowsTeleport`): no `<Dungeon/>` world has `<DisableTeleport/>` any more (it was on Fungal Cavern, Crystal Cavern, Cultist Hideout, Secluded Thicket, Oryx's Castle, Lair of Draconis, the Shatters, the Nest, the Gauntlet, the Underground Mine, ????? and Zombies). Only the Nexus, the Vault, the Daily Quest Room and the admin maps `testadmin1` and `oldnexus` refuse it; the test checks every other world.
 - **Drink stat potions from loot bags** (2026-11-06; the Rust client's `options.rs` `Tab::Gameplay`, `Toggle::AutoDrink`, `autoDrinkPotions` in the settings file; `main.rs` `auto_drink`): Options has a Gameplay tab with this one switch, off by default. While it's on, the client sends a `UseItem` for each plain stat potion (a `<Potion/>` whose one `Activate` is an `IncrementStat` of 1 to 10 with no `storeAmount`, so not a Potion of Max or of Oryx) in the bag the player stands on, 250 ms apart, as a double-click would; the server stores a maxed stat's. Each slot and item is asked for once per bag, so one the server refuses (full storage, a trade) isn't asked for again until the player steps onto another bag. The Options tabs go on a row of their own under the title when they don't fit beside it at 11 points (the window 40 units taller). Client only.
 - **Empowered fights see through invisibility; soul shots silence** (2026-11-15; `World.EmpoweredBosses`, `BossResurrection.InEmpoweredFight` (within `FightRange`, 40 tiles, of an Empowered boss still fighting), `IPlayer.IsVisibleToEnemy(ignoreInvisible)`, `EntityUtils.GetNearestEntity`'s `ignoreInvisible`, `PlayerWithinTransition`, `NoPlayerWithinTransition`, `DoomedRuntime`'s `gate` (`IsEntityPresent`, `IsEntityNotPresent`, `EntityLesserThan`), `Empowered.Tick`; `tools/build_resurrection.py` `SOUL_QUIET`, `Tests/EmpoweredPhaseTests.cs` `EverySoulShotSilences`): in an Empowered boss's fight the Invisible effect no longer hides a player from the checks that move the fight on (players near or gone, the Empowered layer's "someone to fight", which used to skip every phase while the group was cloaked), for the boss and every monster near it, in both behaviour engines; hidden admins, paused players and the newbie period still hide. Aiming is unchanged, so the cloak still dodges aimed shots. The four soul shots (projectiles 90-93) put Quiet on for 1 s; the two `Resurrection.xml` copies were patched to what the generator writes for them, since running it rewrites much more (it has drifted from the committed files). World server and client.
 - **Empowered Malus softer, Empowered bosses doable** (2026-11-13; `core/resurrection/Empowered.cs` `Tuning`, `Tunings`, `TuningFor`, `EmpoweredPhases.cs` `Arena.BlastCap`, `LastBreathRings`, `EmpoweredSignatures.cs` `RitualSoulShare`, `source/Tests/EmpoweredPhaseTests.cs`): an Empowered boss's damage multiplier and haste come from a per-boss table, the default 1.3 / 1.45 damage and 1.25 / 1.45 haste (calm / enraged); Empowered Malus (`Elder LH Malus 2`) takes 1.15 / 1.25 and 1.1 / 1.25, since his Elder fight already cycles four cultists' patterns. His Cult Sigils' marks are 0.85x and 1.25x the soul bolt (were 1.0x and 1.5x); his Blood Moon Ritual's souls have 1.2% of his health each (was 2%), with four rings of 8 bolts during the chant (was six of 10) and one ring of 20 if it holds (was two of 24). For every Empowered boss a phase blast deals at most 350 before the boss's damage scale (`Arena.BlastDamage`), so none kills a full-health 670-health player outright; Last Breath's opening rings have 6, 10 and 14 marks of radius 1.2 at 3.5, 6.5 and 9.5 tiles (were 8, 14 and 20 of 1.4: solid walls), leaving over a tile between marks; the Soul Nova holds while a phase attack plays. World server only. Since 2026-11-18 each ritual soul left standing heals him `RitualHealShare` (1%, was 2.5%): a whole ritual's 7.5% every 17 seconds outhealed a player on their own.
@@ -3117,6 +3220,35 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   reach a player only when they step onto another square); the Forgotten King's floor does too
   now. Placed objects need their `ObjDesc` and a new `ObjId`. World server only.
 
+- **Realm 2 is an island** (2026-11-26; `Realm2Generator` (`Version` 2), `RealmManager.Realm2.cs`'s
+  `SweepWater`, `RealmSnapshot.Map`, `RealmManager.Snapshot.RestoreLayout`; test
+  `source/Tests/Realm2MapTests.cs`): the starry void (`R2 Abyss`, kept in the XML but no longer
+  drawn) is gone. The map is 640 by 480 (was 1024 by 768) and holds one continent, an oval
+  stretched along the way out (its half-length the map's half-extent that way less 24, its
+  half-breadth 172), its coast wandering by two layers of noise into bays and headlands and kept
+  12-46 tiles off the map's edge; anything the coast cuts off from the spawn goes back to the sea.
+  Along the way out (with ragged borders) it is the starter lands to 58 tiles past the start, the
+  midlands to 150 (the highlands' terrain from about 108), then the Godlands to the far coast:
+  about 160,000 tiles of land in all (the old map had about 185,000), the Godlands about 125,000.
+  The sea is `Dark Water` (no walking) beyond 2-4 tiles of `Shallow Water` along every coast. The
+  Godlands have mountain lakes (noise, never within 22 tiles of the way out's middle line, so the
+  land always goes round them) and two or three rivers from deep inland that wind downhill (by
+  distance to the sea) through any lake to the coast, widening to about 7 tiles, all shallow
+  enough to wade; lakes and rivers are `AreaOf` -1. Snowy Rock thickens towards the far end (and
+  its scenery is firs and grey rocks), Bright Grass thins out, and `Dark Sand` scree lines the
+  Godlands' shores; the starter lands' shore and shore plains follow the coast rather than a ring.
+  Three to five small islands (9-15 tiles across) sit off the Godlands' coast with a bridge or a
+  pool, and the event lands' rules are unchanged: "the void" is now the water, so a land prefers
+  the coast (sticking out over the sea, which it paints over) and a quarter go out in the sea
+  joined by a bridge or pool where there's room. The stretches kept as they are are the Godlands'
+  points furthest from the water near the middle line at 30%, 60% and 88% along it, 34 tiles in
+  radius (was 40). Monsters over deep water off the land (not a quest or an event's) are removed,
+  as they were over the void. A snapshot from the old map (`Map` 0) opens the Nexus's Realm 2 on
+  the new map with its event count and order kept, but its lands, waystones and running land
+  events dropped, those lands queued to come again. `Realm2MapTests` checks five seeds (no void,
+  every walkable tile reachable from the spawn, the kept stretches) and with `R2_PREVIEW=<folder>`
+  writes each map as a picture, with and without eleven event lands drawn in. World server only.
+
 ## Classes, minigames and the economy
 
 Where the newer classes, their items and pets, the minigames, the second behaviour engine and the
@@ -3136,7 +3268,7 @@ XML in step.
   are in `Player.UseItem.Doomed.cs` (PearlAbility, Summon, Forcefield, SamuraiAbility,
   TomeDamage, PartyAOE, MultiDecoy, MonsterToss, MiniPot; the forcefield is `Forcefield.cs`; the
   Father's censers' Ward is `Player.Ward.cs`; the Mechanic's BuildTower is `Player.Turrets.cs`
-  and its turrets `Turret.cs`), and
+  and its turrets `Turret.cs`; the Monk's Chi and FlowStrike are `Player.Flow.cs`), and
   their summons and pearl substitutes are allies in `BehaviorDb.DoomedAllies.cs`. Their
   slot types 126 and 128 are 26 and 28 elsewhere, which betterSkillys uses for pet eggs and lutes;
   the clients name them in `ItemConstants`.

@@ -7,7 +7,7 @@ namespace WorldServer.core.worlds.realm2
 {
     /// <summary>
     /// Draws an event's land when its event comes (RealmManager.Realm2.cs): a blob of its own
-    /// grounds, scenery and ruined walls over the Godlands (or out in the void, joined by a bridge or
+    /// grounds, scenery and ruined walls over the Godlands (or out in the sea, joined by a bridge or
     /// a pool), with an arena at its heart dressed for its boss. What it doesn't draw is left unset,
     /// so the world keeps it.
     /// </summary>
@@ -42,7 +42,7 @@ namespace WorldServer.core.worlds.realm2
 
         /// <summary>
         /// Draws the land. `land` says which world tiles are land already; `link` is the land to cross
-        /// to when this one is out in the void (bridge or pool), or null.
+        /// to when this one is out in the sea (bridge or pool), or null.
         /// </summary>
         public void Paint(Func<int, int, bool> land, IntPoint? linkTo, bool pool)
         {

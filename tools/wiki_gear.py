@@ -559,6 +559,38 @@ class Gear:
                     "at once, a new one calling the oldest home"
                     % (n("range", "8"), n("impactDamage"), n("radius"), n("duration"), n("pulseDamage"), heal,
                        n("totalDamage"), n("amount"), n("pearls", "1")))
+        if e == "FlowStrike":
+            # a Monk's fountain (Player.Flow.cs): a dash to where you aim, stopping short of a wall,
+            # striking within 1.2 tiles of the way (FlowPathWidth), then a burst and a heal a fifth
+            # more for each Chi spent (ChiPercent); all five Chi: Armor Broken and Berserk; Invulnerable
+            # while flowing (FlowGuardMs), a Chi back for each enemy on the way, up to two (ChiEcho)
+            return ("flows to where you aim (up to %s tiles), %s damage to every enemy on the way, then bursts where "
+                    "you land: %s damage within %s tiles and %s HP to you and allies within %s tiles, a fifth more "
+                    "for each Chi spent (every third punch that lands builds one, up to five); with all five, the "
+                    "enemies are Armor Broken for 3s and you go Berserk for 4s; you can't be hurt while you flow, and each enemy struck on the way gives back a Chi, up to two"
+                    % (n("maxDistance", "6"), n("totalDamage"), n("impactDamage"), n("radius"), n("amount"), n("range")))
+        if e == "RoyalDecree":
+            # a King's scepter (Player.Decree.cs): the seal falls DecreeFallMs after the cast, the
+            # Condemned taking CondemnedPercent (5%) more damage; each that dies gives everyone who hurt it (and the King) a stack of
+            # Tribute, TributeDamage a shot past defense, up to TributeMax, fading one a second
+            # TributeHoldMs after the last; the King's mana for the first TributeMpKills a decree
+            return ("calls the royal seal down where you aim (up to %s tiles): %s damage within %s tiles, and the "
+                    "enemies under it are Condemned for %ss, taking 5%% more damage from everyone; each "
+                    "Condemned enemy that falls gives everyone who hurt it, and you, a stack of Tribute: +10 "
+                    "damage on every shot, past defense, up to 10 stacks, fading one a second 10s after the "
+                    "last; the first three of each decree also restore %s MP to you"
+                    % (n("maxDistance", "9"), n("impactDamage"), n("radius"), n("duration"), n("tributeMp")))
+        if e == "DeepMaw":
+            # a Sharklord's oceanic spell (Player.Maw.cs): FinPathWidth, BiteDamage, FeedMax,
+            # BiteFrenzyMax, FrenzyMax, FrenzySpeed/FrenzyDex, MegalodonPercent, MegalodonBleedPercent
+            return ("sends a fin through the ground to where you aim (up to %s tiles), %s damage to each enemy in "
+                    "its way; there a shark bursts up and bites everything within %s tiles for %s damage, twice that "
+                    "to the Bloodied (under half their health); you heal %s for each enemy bitten (up to 3) and gain "
+                    "a stack of Frenzy for each (up to 2). Frenzy (up to 5, also from kills and every fourth shot on "
+                    "the Bloodied) gives +4 Speed and Dexterity a stack; cast at full Frenzy, it is all spent on a "
+                    "Megalodon: half again the reach and bite, twice the healing, and everything bitten bleeds for "
+                    "half the bite more and is Slowed"
+                    % (n("maxDistance", "8"), n("totalDamage"), n("radius"), n("impactDamage"), n("amount")))
         if e in ("Summon", "Pet", "ObjectToss", "MonsterToss") and name:
             verb = "throws" if "Toss" in e else "summons"
             many = int(g("amount") or 1) if e == "ObjectToss" else 1

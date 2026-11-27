@@ -24,7 +24,7 @@
   --gutter: clamp(16px, 4vw, 64px);
   /* the page grows with the screen, so big screens aren't mostly empty sides */
   --max: clamp(1280px, 88vw, 2000px);
-  --wiki-max: 1680px; /* the wiki grows wider on big screens, for its wide tables and card grids */
+  --wiki-max: 2000px; /* the wiki grows wider on big screens, for its wide tables and card grids */
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: dark;
 }
@@ -454,12 +454,13 @@ body.lb-open { overflow: hidden; }
 
 /* --- The wiki (tools/build_wiki.py, wiki/wiki.js) ------------------------------------------ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.wiki .bar { padding-left: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); padding-right: max(var(--gutter), calc((100% - var(--wiki-max)) / 2)); }
+.wiki .bar { padding-left: max(clamp(14px, 2.4vw, 40px), calc((100% - var(--wiki-max)) / 2)); padding-right: max(clamp(14px, 2.4vw, 40px), calc((100% - var(--wiki-max)) / 2)); }
 .wiki-layout {
-  max-width: var(--wiki-max); margin: 0 auto; padding: 40px var(--gutter) 0;
-  display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 44px; align-items: start;
+  --wiki-gutter: clamp(14px, 2.4vw, 40px);
+  max-width: var(--wiki-max); margin: 0 auto; padding: 24px var(--wiki-gutter) 0;
+  display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 32px; align-items: start;
 }
-.wiki-side { position: sticky; top: 76px; z-index: 5; padding-bottom: 16px; }
+.wiki-side { position: sticky; top: 72px; z-index: 5; padding-bottom: 16px; }
 .wiki-nav nav { max-height: calc(100vh - 170px); overflow: auto; overscroll-behavior: contain; }
 .wiki-search { position: relative; margin-bottom: 18px; }
 .wiki-search input, .filter input {
@@ -525,7 +526,9 @@ body.lb-open { overflow: hidden; }
   font: 500 .88rem var(--body); cursor: pointer;
 }
 .chip:hover, .chip:focus-visible { color: var(--gold); border-color: var(--ember); outline: none; }
-.start-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 1.4em; max-width: 1100px; }
+/* six tiles: a row of six on a wide screen, two rows of three, three of two, or one column */
+.start-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 1.4em; }
+@media (min-width: 1700px) { .start-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 @media (max-width: 1100px) { .start-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .start-tiles { grid-template-columns: 1fr; } }
 .wmap-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
@@ -547,7 +550,10 @@ body.lb-open { overflow: hidden; }
 .wcard-text span, .start-text > span { color: var(--text-muted); font-size: .88rem; line-height: 1.45; }
 
 /* a page's picture beside its title, and screenshots in the text: click for full size (site.js) */
-.wiki-head.has-banner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 44%); gap: 28px; align-items: center; }
+.wiki-head.has-banner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 40%); gap: 28px; align-items: start; }
+.wiki-head .wiki-lead { margin-top: 16px; }
+.wiki-head .wiki-lead .note { margin: 0; max-width: none; }
+.wiki-head .wiki-lead .note li { margin-bottom: .3em; }
 .prose .shot { margin: 0 0 1.6em; max-width: 860px; }
 .wiki-banner { margin: 0; }
 .prose .shot a, .wiki-banner a { display: block; border: 1px solid var(--line-hi); background: var(--bg-deep); line-height: 0; }
@@ -578,35 +584,91 @@ body.lb-open { overflow: hidden; }
 .to-top[hidden] { display: none; }
 
 .wiki-main { min-width: 0; }
-.wiki-head { margin-bottom: 28px; }
+.wiki-head { margin-bottom: 20px; }
 .wiki-head h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); color: var(--gold); margin-bottom: .3em; overflow-wrap: anywhere; }
 .wiki-head .sub { max-width: 42em; margin: 0; }
-.toc { margin: 0 0 30px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); }
-.toc p { margin: 0 0 .5em; font: 700 .72rem var(--pixel); color: var(--ember); letter-spacing: .12em; text-transform: uppercase; }
-.toc ul { margin: 0; padding: 0; list-style: none; columns: 2 220px; column-gap: 28px; }
-.toc li { break-inside: avoid; padding: 2px 0; }
-.toc a { color: var(--text-dim); font-size: .93rem; }
-.toc a:hover, .toc a[aria-current] { color: var(--gold); }
-/* on wide screens "On this page" stands beside the page and follows it down (wiki.js marks where you are) */
-@media (min-width: 1280px) {
-  .has-toc .wiki-main { display: grid; grid-template-columns: minmax(0, 1fr) 200px; column-gap: 36px; }
-  .has-toc .wiki-main > * { grid-column: 1; }
-  .has-toc .wiki-main > .toc {
-    grid-column: 2; grid-row: 1 / span 5; align-self: start; position: sticky; top: 92px;
-    margin: 0; padding: 0; background: none; border: 0;
-  }
-  .has-toc .toc p { padding-left: 12px; }
-  .has-toc .toc ul { columns: auto; max-height: calc(100vh - 150px); overflow: auto; overscroll-behavior: contain; border-left: 1px solid var(--line); }
-  .has-toc .toc li { padding: 0; }
-  .has-toc .toc a { display: block; padding: 4px 6px 4px 10px; border-left: 2px solid transparent; font-size: .86rem; line-height: 1.35; }
-  .has-toc .toc a[aria-current] { border-left-color: var(--ember); }
-}
+/* the page's parts, under its entry in the page list (wiki.js marks the one being read) */
+.wiki-nav .nav-toc { list-style: none; margin: 2px 0 8px 21px; padding: 0; display: grid; gap: 0; border-left: 1px solid var(--line); }
+.wiki-nav .nav-toc a { display: block; padding: 3px 10px; margin-left: -1px; font-size: .84rem; font-weight: 400; line-height: 1.35; color: var(--text-muted); border-left: 2px solid transparent; background: none; }
+.wiki-nav .nav-toc a:hover { color: var(--text); background: none; }
+.wiki-nav .nav-toc a[aria-current] { color: var(--gold); border-left-color: var(--ember); background: none; }
 
-/* Running text keeps a readable width; wide tables and card grids take the whole column. */
+/* Running text keeps a readable width; a table is as wide as it needs, up to the whole column (a
+   squeezed table wraps every cell onto many lines, or scrolls sideways), and card grids take it all. */
 .prose { max-width: none; }
-.prose > :where(p, ul, ol, blockquote, .note, .legend, .table-wrap) { max-width: 780px; }
-.prose > .table-wrap.wide { width: fit-content; max-width: 100%; }
+:is(.prose, .fold-body, .acc-body) > :where(p, ul, ol, blockquote, .note, .legend) { max-width: 820px; }
+:is(.prose, .fold-body, .acc-body) > .table-wrap { width: fit-content; max-width: 100%; }
 .prose > * + h2 { margin-top: 2em; }
+
+/* --- Sections that fold (wiki.js): a panel each, its name, what it holds and, closed, its first line;
+   open, its name stays at the top while it's read, to close it from anywhere ----------------------- */
+.fold { margin: 0 0 8px; background: rgba(22, 16, 37, .55); border: 1px solid var(--line); }
+.fold[open] { background: transparent; border-color: var(--line-hi); }
+.fold > summary {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 3px 12px;
+  padding: 12px 16px; cursor: pointer; list-style: none; background: var(--surface);
+}
+.fold > summary::-webkit-details-marker, .acc > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { background: var(--surface-hi); }
+.fold > summary:focus-visible, .acc > summary:focus-visible { outline: 2px solid var(--ember); outline-offset: -2px; }
+.fold[open] > summary { position: sticky; top: 60px; z-index: 4; border-bottom: 1px solid var(--line); }
+.fold > summary::before, .acc > summary::before {
+  content: ""; grid-row: 1; justify-self: center; width: 8px; height: 8px; margin-top: -3px;
+  border-right: 2px solid var(--ember); border-bottom: 2px solid var(--ember); transform: rotate(-45deg); transition: transform .15s ease;
+}
+.fold[open] > summary::before, .acc[open] > summary::before { transform: rotate(45deg); }
+.prose .fold > summary :is(h2, h3) { margin: 0; font-size: clamp(1.1rem, 2.2vw, 1.38rem); color: var(--text); scroll-margin-top: 70px; }
+.fold > summary .anchor, .acc > summary .anchor { display: none; }
+.fold-info, .acc-info { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.fold-info span, .acc-info span {
+  padding: 1px 9px; border: 1px solid var(--line-hi); border-radius: 999px; background: var(--bg-deep);
+  font-size: .74rem; color: var(--text-dim); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.fold-gist { grid-column: 2 / -1; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: .88rem; line-height: 1.45; color: var(--text-muted); }
+.fold[open] .fold-gist { display: none; }
+.fold-body { display: flow-root; padding: 16px 18px 6px; }
+.fold-body > :last-child { margin-bottom: 14px; }
+/* tables and card lists under their own headings: a list that opens one at a time */
+.acc { border-top: 1px solid var(--line); }
+.acc:not(.acc + .acc) { margin-top: 8px; }
+.acc:not(:has(+ .acc)) { border-bottom: 1px solid var(--line); margin-bottom: 1.2em; }
+.acc > summary { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 6px; cursor: pointer; list-style: none; }
+.acc > summary:hover { background: var(--surface); }
+.acc > summary::before { width: 7px; height: 7px; }
+.prose .acc > summary :is(h3, h4, h5) { margin: 0; scroll-margin-top: 80px; }
+.prose .acc > summary h3 { font-size: 1.02rem; }
+.acc[open] > summary { background: var(--surface); }
+.acc-body { display: flow-root; padding: 12px 4px 4px 14px; }
+.acc-body .acc-body { padding-left: 0; }
+.acc-body .acc > summary { padding-left: 0; }
+.fold-bar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 8px; font-size: .8rem; color: var(--text-muted); }
+.fold-bar span { margin-right: auto; font: 700 .66rem var(--pixel); color: var(--ember); letter-spacing: .1em; text-transform: uppercase; }
+.fold-bar button, .tbl-more {
+  padding: 5px 12px; background: var(--surface); border: 1px solid var(--line-hi); color: var(--text-dim);
+  font: 600 .8rem var(--body); cursor: pointer;
+}
+.fold-bar button:hover, .tbl-more:hover { border-color: var(--ember); color: var(--text); }
+/* a long table: a filter over it, its first rows and a button for the rest, and columns that sort */
+.tbl-tools { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+.tbl-tools input {
+  width: min(280px, 100%); padding: 7px 10px; background: var(--bg-deep); border: 1px solid var(--line-hi); color: var(--text); font: .88rem var(--body);
+}
+.tbl-tools input:focus { outline: none; border-color: var(--ember); }
+.tbl-count { font-size: .8rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.table-wrap:has(+ .tbl-more:not([hidden])) { margin-bottom: 0; border-bottom-style: dashed; }
+.tbl-more { display: block; margin: 0 0 1.4em; }
+.tbl-more[hidden] { display: none; }
+.prose th.sortable { cursor: pointer; user-select: none; }
+.prose th.sortable:hover { color: var(--gold); }
+.prose th.sortable::after { content: "\2195"; margin-left: 5px; font-size: .8em; opacity: .3; }
+.prose th[aria-sort="descending"]::after { content: "\2193"; opacity: 1; color: var(--ember); }
+.prose th[aria-sort="ascending"]::after { content: "\2191"; opacity: 1; color: var(--ember); }
+/* where a section is wide, its screenshots stand beside the text rather than between it */
+.fold-body, .acc-body { container-type: inline-size; }
+@container (min-width: 1150px) {
+  .fold-body > figure.shot { float: right; width: clamp(300px, calc(100% - 860px), 640px); margin: 4px 0 18px 32px; }
+}
+:is(.fold-body, .acc-body) > :is(.table-wrap, .tbl-tools, .its, .dgs, .acc, .filter, .shops, .classes, .nx, .its-group, .fold-bar) { clear: both; }
 .prose h2 { font-size: clamp(1.35rem, 3.2vw, 1.8rem); color: var(--text); scroll-margin-top: 80px; }
 .prose h3 { font-size: 1.12rem; margin-top: 1.6em; color: var(--gold); scroll-margin-top: 80px; }
 .prose h4 { margin: 1.2em 0 .5em; font: 700 .8rem var(--pixel); color: var(--ember); letter-spacing: .08em; text-transform: uppercase; }
@@ -626,11 +688,17 @@ body.lb-open { overflow: hidden; }
 .note p:last-child { margin: 0; }
 .table-wrap { overflow-x: auto; margin: 0 0 1.4em; border: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
 .prose table { width: 100%; border-collapse: collapse; font-size: .92rem; }
-.prose th { position: sticky; top: 0; padding: 10px 14px; background: var(--surface-hi); color: var(--text); text-align: left; font-weight: 600; white-space: nowrap; }
+.prose th { position: sticky; top: 0; padding: 10px 14px; background: var(--surface-hi); color: var(--text); text-align: left; font-weight: 600; }
 .prose td { padding: 9px 14px; border-top: 1px solid var(--line); color: var(--text-dim); vertical-align: top; }
 .prose tbody tr:nth-child(even) td { background: rgba(22, 16, 37, .55); }
 .prose td code { white-space: nowrap; }
 .cmds td:first-child { white-space: nowrap; }
+/* a goal's rewards: a line per tier, its name and goal beside what it gives */
+.goals td:last-child { min-width: min(610px, 75vw); }
+.goals td:nth-child(2) { min-width: 180px; }
+.g-tiers { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; align-items: center; margin: 0; }
+.g-tiers dt { white-space: nowrap; }
+.g-tiers dd { margin: 0; }
 /* the Quests page (tools/wiki_quests.py): rewards in a row, the daily reward track, name colours */
 .q-rewards { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
 .q-fame b { color: var(--gold); }
@@ -640,7 +708,7 @@ body.lb-open { overflow: hidden; }
 .q-swatch { display: inline-block; width: .9em; height: .9em; border-radius: 50%; vertical-align: -.1em; }
 .chain td:first-child { font: 700 .85rem var(--pixel); color: var(--ember); white-space: nowrap; }
 .dim { color: var(--text-muted); }
-.balance td, .balance th { white-space: nowrap; }
+.balance td, .balance th { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 .balance td.n, .balance th.n { text-align: right; font-variant-numeric: tabular-nums; }
 .balance td.t { font: 700 .85rem var(--pixel); color: var(--ember); }
 .balance td.wide { white-space: normal; min-width: 240px; }
@@ -668,7 +736,7 @@ body.lb-open { overflow: hidden; }
 .legend { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: .88rem; }
 .legend .danger { --heat: var(--gold); }
 
-.dgs, .classes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 12px; margin: 0 0 1em; }
+.dgs, .classes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); gap: 12px; margin: 0 0 1em; }
 .prose .dgs, .prose .classes { max-width: none; }
 .dg, .cls { padding: 16px 18px 14px; background: var(--surface); border: 1px solid var(--line); scroll-margin-top: 80px; }
 .dg:target, .cls:target { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
@@ -676,7 +744,7 @@ body.lb-open { overflow: hidden; }
 .dg h3, .cls h3 { margin: 0; font-size: 1.05rem; color: var(--text); }
 .dg .danger { --heat: color-mix(in oklab, var(--gold), var(--blood) calc((var(--d) - 1) * 20%)); flex: none; }
 .dg dl, .cls dl { margin: 0; display: grid; gap: 5px; font-size: .88rem; line-height: 1.45; }
-.dg dl > div, .cls dl > div { display: grid; grid-template-columns: 98px minmax(0, 1fr); gap: 10px; }
+.dg dl > div, .cls dl > div { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 8px; }
 .dg dt, .cls dt { color: var(--text-muted); }
 .dg dd, .cls dd { margin: 0; color: var(--text-dim); }
 .dg dd strong, .cls dd strong { color: var(--text); font-weight: 600; }
@@ -731,14 +799,22 @@ body.lb-open { overflow: hidden; }
   display: block; background-repeat: no-repeat; image-rendering: pixelated;
   filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
-.its { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 10px; margin: 0 0 1.4em; }
+.its { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); gap: 10px; margin: 0 0 1.4em; }
+/* an item card: its sprite beside its name and tag, and everything else across the whole card below */
 .it {
-  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px;
+  display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 0 12px; align-items: start; align-content: start; padding: 12px 14px;
   background: var(--surface); border: 1px solid var(--line); scroll-margin-top: 80px;
 }
 .it:target { border-color: var(--ember); box-shadow: 0 0 0 1px var(--ember); }
-.it-body { min-width: 0; }
-.prose .it h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 4px; font-size: .98rem; color: var(--text); }
+.it > .ico { width: 48px; height: 48px; }
+.it > .ico i { zoom: .83; }
+.it-body { display: contents; }
+.it-body > * { grid-column: 1 / -1; min-width: 0; }
+.it-body > h3 + * { margin-top: 8px !important; }
+.prose .it h3 {
+  grid-column: 2; grid-row: 1; align-self: center; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: 4px 8px; margin: 0; font-size: .98rem; color: var(--text);
+}
 .tag {
   flex: none; padding: 2px 6px; border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); color: var(--c);
   font: 700 .62rem var(--pixel); letter-spacing: .06em; white-space: nowrap;
@@ -771,7 +847,7 @@ body.lb-open { overflow: hidden; }
 .nx[data-cat="weapons"] .nx-card:not([data-cat="weapons"]), .nx[data-cat="abilities"] .nx-card:not([data-cat="abilities"]),
 .nx[data-cat="armor"] .nx-card:not([data-cat="armor"]), .nx[data-cat="rings"] .nx-card:not([data-cat="rings"]),
 .nx-card[hidden] { display: none; }
-.nx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 12px; }
+.nx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr)); gap: 12px; }
 .nx-card {
   position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px 16px;
   background: linear-gradient(160deg, rgba(139, 92, 246, .10), transparent 45%), var(--surface);
@@ -833,6 +909,10 @@ body.lb-open { overflow: hidden; }
 }
 .banner figcaption { margin-top: 14px; font-size: .85rem; color: var(--text-muted); }
 .fr-item { display: inline-flex; align-items: center; gap: 8px; margin: 2px 14px 2px 0; vertical-align: middle; }
+/* in a table an item's icon is smaller, so a row of rewards stays a line high */
+.prose td .ico { width: 36px; height: 36px; border-width: 1px; border-radius: 4px; }
+.prose td .ico i { zoom: .625; }
+.prose td .fr-item { gap: 6px; margin: 1px 12px 1px 0; }
 .fr-name { color: var(--text); }
 .fr-n { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
 .prose .fr-recipe {
@@ -848,7 +928,7 @@ body.lb-open { overflow: hidden; }
 .fr-list td.fr-fame { text-align: right; }
 .fr-ing { min-width: 260px; }
 
-.wiki-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.wiki-pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
 .wiki-pager a { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; min-width: 0; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-weight: 600; }
 .wiki-pager a:hover { border-color: var(--ember); color: var(--gold); }
 .wiki-pager span { font: 700 .66rem var(--pixel); color: var(--ember); letter-spacing: .1em; text-transform: uppercase; }
@@ -1027,6 +1107,8 @@ body.lb-open { overflow: hidden; }
 .gold-head h1 .sprite { filter: drop-shadow(0 0 18px rgba(255, 198, 92, .45)); animation: gold-bob 3s ease-in-out infinite; }
 @keyframes gold-bob { 50% { transform: translateY(-6px); } }
 .gold-banner { margin: 0 0 24px; padding: 12px 16px; border: 1px dashed var(--gold); background: rgba(255, 198, 92, .08); color: var(--gold); font-weight: 600; }
+.gold-banner.gold-deal { border-style: solid; border-color: var(--ember); background: linear-gradient(90deg, rgba(255, 122, 61, .18), rgba(255, 198, 92, .08)); color: var(--text); }
+.gold-deal b { color: var(--gold); font-family: var(--pixel); }
 .gold-banner.gold-closed { border-color: var(--blood); background: rgba(255, 61, 90, .08); color: #ff8fa0; }
 
 .gold-steps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }

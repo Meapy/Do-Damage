@@ -67,7 +67,23 @@ impl World {
             vy = speed * angle.sin();
         }
         let (x, y) = (player.x, player.y);
-        if let Some(ground) = self.square_at(x as i32, y as i32, player.z, data).0.and_then(|t| data.grounds.get(&t)) {
+        let ground = self.square_at(x as i32, y as i32, player.z, data).0.and_then(|t| data.grounds.get(&t));
+        // Slippery ground (`Player.update`'s slideAmount): what we were doing carries on, the
+        // keys only steering it a little each frame (scaled to a 60 fps frame, so it slides alike
+        // at any frame rate). Only grounds that ask for it with `<Slippery/>` (the Ice Tomb's):
+        // the older dungeons' ice has a SlideAmount the AIR client used, which players here have
+        // never had to deal with
+        let slide = ground.filter(|g| g.xml.has("Slippery")).map_or(0.0, |g| g.slide_amount).clamp(0.0, 0.99);
+        if slide > 0.0 && !has(conditions, condition::PARALYZED) {
+            let keep = slide.powf(dt.max(0) as f64 / (1000.0 / 60.0));
+            vx = self.slide.0 * keep + vx * (1.0 - keep);
+            vy = self.slide.1 * keep + vy * (1.0 - keep);
+            if vx.hypot(vy) < MIN_MOVE_SPEED * 0.05 {
+                (vx, vy) = (0.0, 0.0);
+            }
+        }
+        self.slide = (vx, vy);
+        if let Some(ground) = ground {
             if ground.push {
                 vx -= ground.animate.dx / 1000.0;
                 vy -= ground.animate.dy / 1000.0;
@@ -98,6 +114,16 @@ impl World {
             let shooting = now.is_some_and(|t| p.attack_phase(t).is_some());
             if (rel_x != 0.0 || rel_y != 0.0) && !shooting {
                 p.facing = vy.atan2(vx);
+            }
+        }
+        if dt > 0 {
+            // a wall stops a slide: carry on only with what we really moved
+            self.slide = ((nx - x) / dt as f64, (ny - y) / dt as f64);
+            if self.slide.0.abs() > vx.abs() {
+                self.slide.0 = vx;
+            }
+            if self.slide.1.abs() > vy.abs() {
+                self.slide.1 = vy;
             }
         }
         if !(moved && self.place(me, nx, ny, data)) {

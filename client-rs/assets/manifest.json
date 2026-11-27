@@ -1304,6 +1304,18 @@
    "h": 32
   },
   {
+   "name": "iceTomb8x8",
+   "file": "kabam/rotmg/assets/custom/images/IceTomb8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "iceTomb16x16",
+   "file": "kabam/rotmg/assets/custom/images/IceTomb16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
    "name": "customAssets32x32",
    "file": "kabam/rotmg/assets/custom/images/CustomAssets32x32.png",
    "w": 32,
@@ -1450,6 +1462,30 @@
   {
    "name": "druidPearls16x16",
    "file": "kabam/rotmg/assets/custom/images/DruidPearls16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "monkFountains16x16",
+   "file": "kabam/rotmg/assets/custom/images/MonkFountains16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "monkStrikes8x8",
+   "file": "kabam/rotmg/assets/custom/images/MonkStrikes8x8.png",
+   "w": 8,
+   "h": 8
+  },
+  {
+   "name": "kingScepters16x16",
+   "file": "kabam/rotmg/assets/custom/images/KingScepters16x16.png",
+   "w": 16,
+   "h": 16
+  },
+  {
+   "name": "sharklordMaws16x16",
+   "file": "kabam/rotmg/assets/custom/images/SharklordMaws16x16.png",
    "w": 16,
    "h": 16
   },
@@ -3168,6 +3204,66 @@
    "dir": "right"
   },
   {
+   "name": "monkSkins8",
+   "file": "kabam/rotmg/assets/custom/images/MonkSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/MonkSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "monkSkins16",
+   "file": "kabam/rotmg/assets/custom/images/MonkSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/MonkSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
+   "name": "kingSkins8",
+   "file": "kabam/rotmg/assets/custom/images/KingSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/KingSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "kingSkins16",
+   "file": "kabam/rotmg/assets/custom/images/KingSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/KingSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
+   "name": "sharklordSkins8",
+   "file": "kabam/rotmg/assets/custom/images/SharklordSkins8x8.png",
+   "mask": "kabam/rotmg/assets/custom/images/SharklordSkinsMask8x8.png",
+   "w": 8,
+   "h": 8,
+   "sheet_w": 56,
+   "sheet_h": 24,
+   "dir": "right"
+  },
+  {
+   "name": "sharklordSkins16",
+   "file": "kabam/rotmg/assets/custom/images/SharklordSkins16x16.png",
+   "mask": "kabam/rotmg/assets/custom/images/SharklordSkinsMask16x16.png",
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 48,
+   "dir": "right"
+  },
+  {
    "name": "hashCellarChars16x16",
    "file": "kabam/rotmg/assets/custom/images/HashCellarChars16x16.png",
    "mask": null,
@@ -3300,6 +3396,26 @@
   {
    "name": "crucibleChars32x32",
    "file": "kabam/rotmg/assets/custom/images/CrucibleChars32x32.png",
+   "mask": null,
+   "w": 32,
+   "h": 32,
+   "sheet_w": 224,
+   "sheet_h": 32,
+   "dir": "right"
+  },
+  {
+   "name": "iceTombChars16x16",
+   "file": "kabam/rotmg/assets/custom/images/IceTombChars16x16.png",
+   "mask": null,
+   "w": 16,
+   "h": 16,
+   "sheet_w": 112,
+   "sheet_h": 16,
+   "dir": "right"
+  },
+  {
+   "name": "iceTombChars32x32",
+   "file": "kabam/rotmg/assets/custom/images/IceTombChars32x32.png",
    "mask": null,
    "w": 32,
    "h": 32,
@@ -3636,7 +3752,8 @@
   "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml",
   "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml",
-  "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml"
+  "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml",
+  "kabam/rotmg/assets/custom/xmls/IceTombGrounds.xml"
  ],
  "object_xml": [
   "kabam/rotmg/assets/custom/xmls/CustomItems.xml",
@@ -3756,9 +3873,14 @@
   "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
   "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
   "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
+  "kabam/rotmg/assets/custom/xmls/IceTombObjects.xml",
   "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
   "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
-  "kabam/rotmg/assets/custom/xmls/DruidSkins.xml"
+  "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/MonkSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/MonkStrikes.xml",
+  "kabam/rotmg/assets/custom/xmls/KingSkins.xml",
+  "kabam/rotmg/assets/custom/xmls/SharklordSkins.xml"
  ],
  "region_xml": [
   "kabam/rotmg/assets/prod/xmls/Regions.xml"
