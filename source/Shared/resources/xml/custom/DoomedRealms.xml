@@ -4608,6 +4608,7 @@
 	</Object>
 	<Object type="0xD0F7" id="Platinum Sword">
 		<Class>Equipment</Class>
+		<DisplayId>Rimebrand</DisplayId>
 		<Item />
 		<Texture>
 			<File>iceTomb8x8</File>
