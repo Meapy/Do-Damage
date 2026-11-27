@@ -532,6 +532,9 @@ namespace WorldServer.logic
             // own turn among them (Kaldrun's Glacial Bulwark at 60%, Ysolde's Aurora's Grace from
             // 50%, Hrimgar's Frenzy at 50%), and the last of them standing, below 15%, makes its
             // last stand, the whole floor turned against the players, and rages in it below 6%.
+            // They circle the Heart as the Tomb's three circle their anchor (at its pace, 3 to 4: an
+            // Orbit's speed is its walking speed), Kaldrun 5 tiles out, Hrimgar 6, Ysolde 7 the
+            // other way round.
             //
             // Kaldrun, the Rime Warden (Bes): he holds the middle, circling the Heart close. Glacial
             // lances that break armour, rings of iron shards, slowing rime; at 80% the Rime Wall
@@ -544,13 +547,13 @@ namespace WorldServer.logic
                     new BossStats(90000, 55, 1.0, 0.35),
                     Encased(),
                     new State("Fight", Kit(
-                        new Prioritize(new Orbit(0.45, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
                         new HpLessTransition(0.8, "Rime Wall")
                     )),
                     CourtTurn("Rime Wall", "Impudence! The Court of Winter does not answer to the warm.", Kit(
                         WardenKit(),
-                        new Prioritize(new Orbit(0.45, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         new Shoot(0, 20, 18, 4, fixedAngle: 0, coolDown: 6000),
                         new HpLessTransition(0.6, "Bulwark"))),
                     new State("Bulwark",
@@ -575,21 +578,21 @@ namespace WorldServer.logic
                         )
                     ),
                     new State("Fight 2", Kit(
-                        new Prioritize(new Orbit(0.5, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
                         WardenSpiral(650),
                         new HpLessTransition(0.4, "Relics")
                     )),
                     CourtTurn("Relics", "My relics shall hold where the glacier broke!", Kit(
                         new ConditionEffectBehavior(ConditionEffectIndex.Armored),
-                        new Prioritize(new Orbit(0.5, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
                         WardenSpiral(650),
                         new Spawn("Rime Relic", 2, 0),
                         new HpLessTransition(0.25, "Relics 2"))),
                     CourtTurn("Relics 2", "Ice upon ice. You will not reach me.", Kit(
                         new ConditionEffectBehavior(ConditionEffectIndex.Armored),
-                        new Prioritize(new Orbit(0.5, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
                         WardenSpiral(600),
                         new Shoot(0, 20, 18, 4, fixedAngle: 9, coolDown: 6000),
@@ -597,7 +600,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.15, "Fight 3"))),
                     new State("Fight 3", Kit(
                         new ConditionEffectBehavior(ConditionEffectIndex.Armored),
-                        new Prioritize(new Orbit(0.5, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.3)),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
                         WardenSpiral(600),
                         new EntitiesNotExistsTransition(40, "Permafrost", Ysolde, Hrimgar),
@@ -608,7 +611,7 @@ namespace WorldServer.logic
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Permafrost"),
                         new Taunt(true, "Then let the whole Court freeze, and you with it!"),
-                        new Prioritize(new Orbit(0.35, 2, CourtSight, "Court Heart")),
+                        new Prioritize(new Orbit(2, 3, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         PermafrostKit(),
                         new HpLessTransition(0.06, "Last Rage")
                     )),
@@ -622,8 +625,8 @@ namespace WorldServer.logic
                 IceTombTreasure(),
                 new Threshold(0.01, new ItemLoot("Lil' Kaldrun Generator", 0.02))
             )
-            // Ysolde, the Aurora Oracle (Nut): she keeps her distance on a wide circle round the
-            // Heart, weaving ribbons of the aurora (the violet ones quiet you), rings of sparks, slow
+            // Ysolde, the Aurora Oracle (Nut): she circles the Heart the other way, outside the
+            // others, weaving ribbons of the aurora (the violet ones quiet you), rings of sparks, slow
             // souls that darken; at 80% her Ribbons (a turning cross of violet ones); at 50% and
             // every 30 s after, Aurora's Grace: 10 s healing each of the Court 1.5% every 2 s,
             // unless she's stunned (a Stormglass Jar). Last below 15%: Polar Night.
@@ -632,12 +635,12 @@ namespace WorldServer.logic
                     new BossStats(70000, 20, 1.0, 0.35),
                     Encased(),
                     new State("Fight", Kit(
-                        new Prioritize(new Orbit(0.55, 11, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new HpLessTransition(0.8, "Ribbons")
                     )),
                     CourtTurn("Ribbons", "Impudence! Let the lights take your voices.", Kit(
-                        new Prioritize(new Orbit(0.6, 11, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(0, 4, 90, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 900),
                         new HpLessTransition(0.5, "Grace"))),
@@ -645,26 +648,26 @@ namespace WorldServer.logic
                         new EncounterCue(36),
                         new Taunt(true, "Rise, my Court. The lights have not gone out yet."),
                         new Flash(AuroraGlow, 0.3, 10),
-                        new Prioritize(new Orbit(0.3, 11, CourtSight, "Court Heart", orbitClockwise: true)),
+                        new Prioritize(new Orbit(2, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         new CourtGrace(0.015, 2000),
                         new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 2000),
                         new TimedTransition(10000, "Fight 2")
                     ),
                     new State("Fight 2", Kit(
-                        new Prioritize(new Orbit(0.55, 11, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2600),
                         new HpLessTransition(0.4, "Relics"),
                         GraceCycle("Fight 2"))),
                     CourtTurn("Relics", "My relics shall make your little lives end the swifter!", Kit(
-                        new Prioritize(new Orbit(0.55, 9.5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2400),
                         new Spawn("Aurora Relic", 2, 0),
                         new HpLessTransition(0.25, "Relics 2")),
                         GraceCycle("Relics")),
                     CourtTurn("Relics 2", "Brighter, little lights. Brighter!", Kit(
-                        new Prioritize(new Orbit(0.6, 9.5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2400),
                         new Shoot(0, 4, 90, 1, fixedAngle: 45, rotateAngle: 12, coolDown: 800),
@@ -672,7 +675,7 @@ namespace WorldServer.logic
                         new HpLessTransition(0.15, "Fight 3")),
                         GraceCycle("Relics 2")),
                     new State("Fight 3", Kit(
-                        new Prioritize(new Orbit(0.6, 9.5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.2, orbitClockwise: true)),
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(0, 4, 90, 1, fixedAngle: 45, rotateAngle: 12, coolDown: 800),
                         new EntitiesNotExistsTransition(40, "Polar Night", Kaldrun, Hrimgar),
@@ -683,7 +686,7 @@ namespace WorldServer.logic
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Polar Night"),
                         new Taunt(true, "The lights go out. In the dark, there is only the cold."),
-                        new Prioritize(new Orbit(0.3, 3, CourtSight, "Court Heart", orbitClockwise: true)),
+                        new Prioritize(new Orbit(2.5, 3, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         PolarNightKit(),
                         new HpLessTransition(0.06, "Last Rage")
                     )),
@@ -697,8 +700,8 @@ namespace WorldServer.logic
                 IceTombTreasure(),
                 new Threshold(0.01, new ItemLoot("Lil' Ysolde Generator", 0.02))
             )
-            // Hrimgar, the Frost Reaver (Geb): he hunts you round the hall, axes thrown to bleed you
-            // and fangs, then leaps on someone and bursts a ring of hailstones where he lands; at 75%
+            // Hrimgar, the Frost Reaver (Geb): he circles the Heart, axes thrown to bleed you and
+            // fangs, then leaps on someone and bursts a ring of hailstones where he lands; at 75%
             // the Pack (his hounds, as Geb's scarabs, and hailstones lobbed over), at 50% his Frenzy
             // (faster, and a spiral of rime through the leaps). Last below 15%: the Shattered Lake.
             .Init(Hrimgar,
@@ -742,7 +745,7 @@ namespace WorldServer.logic
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Shattered Lake"),
                         new Taunt(true, "The ice breaks! Swim, little ones!"),
-                        new Prioritize(new Follow(0.5, CourtSight, 4)),
+                        new Prioritize(new Follow(1.2, CourtSight, 4)),
                         ShatteredKit(),
                         new HpLessTransition(0.06, "Last Rage")
                     )),
@@ -892,7 +895,7 @@ namespace WorldServer.logic
         private static IStateChildren[] WardenRage() => Kit(
             Rage(),
             new ConditionEffectBehavior(ConditionEffectIndex.Armored),
-            new Prioritize(new Follow(0.55, CourtSight, 2), new Orbit(0.5, 6, CourtSight, "Court Heart")),
+            new Prioritize(new Follow(1.2, CourtSight, 2), new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
             WardenKit(),
             PermafrostKit(),
             WardenSpiral(450),
@@ -926,17 +929,20 @@ namespace WorldServer.logic
 
         private static IStateChildren[] OracleRage() => Kit(
             Rage(),
-            new Prioritize(new Follow(0.6, CourtSight, 5), new Orbit(0.6, 9.5, CourtSight, "Court Heart", orbitClockwise: true)),
+            new Prioritize(new Follow(1.3, CourtSight, 5), new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
             OracleKit(),
             PolarNightKit(),
             new Spawn("Aurora Relic", 2, 0));
 
-        // Hrimgar's hunt: he runs you down throwing axes and fangs, then leaps, and his landing bursts
-        // a ring of hailstones. `pace` shortens it all (his Frenzy); `turn` names its states.
-        private static State[] ReaverCycle(string turn, double pace) => new[]
+        // Hrimgar's hunt: he circles the middle as Geb does, throwing axes and fangs, then leaps on
+        // someone, and his landing bursts a ring of hailstones. `pace` shortens it all (his Frenzy);
+        // `chase` runs players down instead (his rage); `turn` names its states.
+        private static State[] ReaverCycle(string turn, double pace, bool chase = false) => new[]
         {
             new State(turn + " hunt",
-                new Prioritize(new Follow(0.6 / pace, CourtSight, 4), new Orbit(0.5, 8, CourtSight, "Court Heart")),
+                chase
+                    ? new Prioritize(new Follow(1.5, CourtSight, 4), new Orbit(3 / pace, 6, CourtSight, "Court Heart"))
+                    : new Prioritize(new Orbit(3 / pace, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                 new Shoot(10, 2, 16, 0, predictive: 0.3, coolDown: (int)(1000 * pace)),
                 new Shoot(14, 3, 14, 1, predictive: 0.4, coolDown: (int)(1400 * pace)),
                 new TimedTransition((int)(5500 * pace), turn + " brace")
@@ -972,11 +978,11 @@ namespace WorldServer.logic
             new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000),
             HailLobs(1100),
             new Spawn("Reaver Relic", 2, 0),
-            ReaverCycle(turn, 0.6));
+            ReaverCycle(turn, 0.6, chase: true));
 
         // a relic of the Court (the Tomb's artifacts): it circles its maker close, firing, and
-        // shatters when its maker falls. Kept within 2.4 of its maker, and Ysolde to 9.5 of the
-        // middle while hers are out, so they clear the thrones (13.5) and pillars (15, IceCourt.cs)
+        // shatters when its maker falls. Kept within 2.4 of its maker, the Court within 7.5 of
+        // the middle, so they clear the thrones (13.5) and pillars (15, IceCourt.cs)
         private static State Relic(string maker, int every) => new State(
             new Prioritize(new Orbit(2.5, 2, CourtSight, maker, speedVariance: 0.2, radiusVariance: 0.4)),
             new Shoot(12, 3, 14, 0, predictive: 0.3, coolDown: every),
@@ -993,7 +999,7 @@ namespace WorldServer.logic
             ),
             new State("Linger",
                 new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                new Prioritize(new Orbit(0.25, 14, 40, "Court Heart", radiusVariance: 0.1)),
+                new Prioritize(new Orbit(1.2, 14, 40, "Court Heart", speedVariance: 0.1, radiusVariance: 0.1)),
                 new Shoot(0, 8, 45, 0, fixedAngle: turn, rotateAngle: 11, coolDown: every),
                 new EntitiesNotExistsTransition(45, "Fade", Kaldrun, Ysolde, Hrimgar)
             ),
