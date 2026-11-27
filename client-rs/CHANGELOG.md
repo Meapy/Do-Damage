@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.9 (2026-11-27)
 
 ### Gold Store
 - **Black Friday: all gold half price for 24 hours:** from this update, every pack in the Gold Store costs half as much for one day, with the same gold and bonus (1,100 gold for €5, 12,500 for €50). The store shows how long is left.

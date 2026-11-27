@@ -1,4 +1,4 @@
-Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive and the Ice Tomb remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world and account servers, client and website; nobody is disconnected. Black Friday: all gold half price for the first 24 hours after the deploy, and the Gold Store now sells in euros. The Monk's Flowing Strike, the King's Royal Decree the Sharklord's Maw of the Deep and the Ice Tomb's Frozen Court need the world server and client together.
+Release 2.6.9: the Monk, the King and the Sharklord reworked, death replays line up, super elixirs that last, the Hive and the Ice Tomb remade, Realm 2 an island, and a free character slot and vault chest. Deploys the world and account servers, client and website; nobody is disconnected. Black Friday: all gold half price for the first 24 hours after the deploy, and the Gold Store now sells in euros. The Monk's Flowing Strike, the King's Royal Decree, the Sharklord's Maw of the Deep and the Ice Tomb's Frozen Court need the world server and client together.
 
 ## For players
 
