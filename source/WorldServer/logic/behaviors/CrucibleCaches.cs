@@ -81,7 +81,7 @@ namespace WorldServer.logic.behaviors
         // how far from its champion a cache still counts as its (the floors reach 33 at most)
         public const double ChampionRange = 45;
 
-        private static readonly string[] Warning = { "Crumbling Floor", "Crucible Warning" };
+        private static readonly string[] Warning = { "Crumbling Floor", "Crucible Warning", "Rime Warning", "Cracking Ice" };
 
         public static int KindOf(Entity e) => Array.FindIndex(Kinds, k => k.Id == e.ObjectDesc?.IdName);
 
@@ -219,13 +219,18 @@ namespace WorldServer.logic.behaviors
         }
 
         // the kind to drop: by weight, not the one just dropped
-        public static int Pick(Random rng, int not)
+        // `only`: the kinds that may fall (all, when null): the Ice Tomb's are its own frost, storm,
+        // hex and rending
+        public static int Pick(Random rng, int not, bool[] only = null)
         {
-            var total = Kinds.Where((k, i) => i != not).Sum(k => k.Weight);
+            bool Can(int i) => i != not && (only == null || only[i]);
+            var total = Kinds.Where((k, i) => Can(i)).Sum(k => k.Weight);
+            if (total <= 0)
+                return Math.Max(0, not);
             var roll = rng.Next(total);
             for (var i = 0; i < Kinds.Length; i++)
             {
-                if (i == not)
+                if (!Can(i))
                     continue;
                 roll -= Kinds[i].Weight;
                 if (roll < 0)
@@ -246,11 +251,14 @@ namespace WorldServer.logic.behaviors
         private const double FromChampion = 5, Reach = 34;
 
         private readonly int _firstMs, _everyMs;
+        private readonly bool[] _only;
 
-        public CrucibleCaches(int firstMs = 10000, int everyMs = 18000)
+        public CrucibleCaches(int firstMs = 10000, int everyMs = 18000, params string[] only)
         {
             _firstMs = firstMs;
             _everyMs = everyMs;
+            if (only.Length > 0)
+                _only = CrucibleCache.Kinds.Select(k => only.Contains(k.Id)).ToArray();
         }
 
         private sealed class Clock
@@ -287,7 +295,7 @@ namespace WorldServer.logic.behaviors
                 if (spot == null)
                     continue;
                 placed.Add(spot.Value);
-                var kind = CrucibleCache.Pick(Random, c.Last);
+                var kind = CrucibleCache.Pick(Random, c.Last, _only);
                 c.Last = kind;
                 CrucibleCache.Drop(host, spot.Value, kind);
             }

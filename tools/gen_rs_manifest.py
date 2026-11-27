@@ -41,6 +41,9 @@ RS_ONLY_SETS = [
     ("crucible8x8", "kabam/rotmg/assets/custom/images/Crucible8x8.png", 8, 8),
     ("crucible16x16", "kabam/rotmg/assets/custom/images/Crucible16x16.png", 16, 16),
     ("crucible32x32", "kabam/rotmg/assets/custom/images/Crucible32x32.png", 32, 32),
+    # the Ice Tomb's floors, walls, scenery and shots (tools/build_ice_tomb.py)
+    ("iceTomb8x8", "kabam/rotmg/assets/custom/images/IceTomb8x8.png", 8, 8),
+    ("iceTomb16x16", "kabam/rotmg/assets/custom/images/IceTomb16x16.png", 16, 16),
     # the Divine Forge and the Enchanter, and the imprints' wisps and bolt (tools/draw_forge_sprite.py)
     ("customAssets32x32", "kabam/rotmg/assets/custom/images/CustomAssets32x32.png", 32, 32),
     ("imprintFx8x8", "kabam/rotmg/assets/custom/images/ImprintFx8x8.png", 8, 8),
@@ -177,6 +180,9 @@ RS_ONLY_CHARS = [
     # the Crucible's champions, their echoes and its minions (tools/build_crucible.py)
     ("crucibleChars16x16", "kabam/rotmg/assets/custom/images/CrucibleChars16x16.png", 16, 16, 112, 16, "right"),
     ("crucibleChars32x32", "kabam/rotmg/assets/custom/images/CrucibleChars32x32.png", 32, 32, 224, 32, "right"),
+    # the Ice Tomb's monsters, keepers and the Frozen Court (tools/build_ice_tomb.py)
+    ("iceTombChars16x16", "kabam/rotmg/assets/custom/images/IceTombChars16x16.png", 16, 16, 112, 16, "right"),
+    ("iceTombChars32x32", "kabam/rotmg/assets/custom/images/IceTombChars32x32.png", 32, 32, 224, 32, "right"),
 ]
 # (name, file): 3D models only the Rust client draws: the Nexus garden's houses, teahouse,
 # storehouse, pagoda, smithy, torii, railings and fences (tools/build_nexus_garden.py)
@@ -197,7 +203,8 @@ RS_ONLY_GROUND_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusGardenGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/NexusIslandsGrounds.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenGrounds.xml",
-                      "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml"]
+                      "kabam/rotmg/assets/custom/xmls/CrucibleGrounds.xml",
+                      "kabam/rotmg/assets/custom/xmls/IceTombGrounds.xml"]
 RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/ElysiumObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Realm2Objects.xml",
@@ -206,6 +213,7 @@ RS_ONLY_OBJECT_XML = ["kabam/rotmg/assets/custom/xmls/HashCellarObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/Resurrection.xml",
                       "kabam/rotmg/assets/custom/xmls/BlackBetweenObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/CrucibleObjects.xml",
+                      "kabam/rotmg/assets/custom/xmls/IceTombObjects.xml",
                       "kabam/rotmg/assets/custom/xmls/PassSkins.xml",
                       "kabam/rotmg/assets/custom/xmls/MechanicSkins.xml",
                       "kabam/rotmg/assets/custom/xmls/DruidSkins.xml",

@@ -12,6 +12,10 @@
 //! - a floor cleared, and the victory: rays turning behind the words, sparks thrown out.
 //!
 //! The sky (`cruciblesky.rs`) takes the floor and the ascent from here (`sky_state`).
+//!
+//! The same banners show other fights outside the Crucible, as encounters of their own: a
+//! "floor" from `ENCOUNTER` on (the Ice Tomb's Frozen Court) has no climb tracker, its own
+//! kicker on the title card and its own colour.
 
 use crate::hud::{object_icon, Layout, Ui};
 use crate::i18n::{mark, tf, tr};
@@ -55,8 +59,17 @@ const FLOOR_NAMES: [&str; 6] = [
     mark("The Apex"),
 ];
 
+/// The first "floor" that is an encounter outside the Crucible (`CrucibleCues.IceTombFloor`).
+pub const ENCOUNTER: u8 = 10;
+/// Each encounter's name (its title card), kicker and colour, from `ENCOUNTER` on.
+const ENCOUNTERS: [(&str, &str, u32); 1] = [(mark("The Frozen Court"), mark("THE ICE TOMB"), 0x9FE8FF)];
+
+fn encounter(floor: u8) -> Option<&'static (&'static str, &'static str, u32)> {
+    floor.checked_sub(ENCOUNTER).and_then(|i| ENCOUNTERS.get(i as usize))
+}
+
 /// The champions' phases (`CrucibleCues` on the server): never renumbered.
-const CUES: [&str; 29] = [
+const CUES: [&str; 44] = [
     "",
     mark("Hammerfall"),
     mark("Lockdown"),
@@ -86,9 +99,28 @@ const CUES: [&str; 29] = [
     mark("Molten Sea"),
     mark("Zero Hour"),
     mark("Final Aria"),
+    // the Ice Tomb's Frozen Court
+    mark("The Frozen Court Wakes"),
+    mark("Avalanche"),
+    mark("Glacial Bulwark"),
+    mark("Aurora Veil"),
+    mark("Blizzard"),
+    mark("Frost Fissures"),
+    mark("Hailstorm"),
+    mark("Aurora's Grace"),
+    mark("Reaver's Frenzy"),
+    mark("Permafrost"),
+    mark("Polar Night"),
+    mark("Shattered Lake"),
+    mark("The Court Mourns"),
+    mark("The Court Falls"),
+    mark("The Way Opens"),
 ];
 
 pub fn floor_name(floor: u8) -> &'static str {
+    if let Some((name, _, _)) = encounter(floor) {
+        return tr(name);
+    }
     FLOOR_NAMES.get(floor as usize).map(|n| tr(n)).unwrap_or("")
 }
 
@@ -105,6 +137,9 @@ fn roman(n: u8) -> &'static str {
 }
 
 pub fn floor_color(floor: u8) -> u32 {
+    if let Some((_, _, c)) = encounter(floor) {
+        return *c;
+    }
     FLOOR_COLOR[(floor as usize).min(FLOOR_COLOR.len() - 1)]
 }
 
@@ -209,7 +244,10 @@ impl Climb {
 
     /// Everything over the world: the tracker, then whichever moments are running.
     pub fn draw(&self, ui: &mut Ui, lay: &Layout, now: i32) {
-        self.draw_tracker(ui, lay, now);
+        // an encounter outside the Crucible has no climb to track
+        if encounter(self.floor).is_none() {
+            self.draw_tracker(ui, lay, now);
+        }
         if let Some((from, to, at)) = self.ascend {
             draw_ascend(ui, lay, from, to, now - at);
         }
@@ -465,7 +503,11 @@ fn draw_title(ui: &mut Ui, lay: &Layout, floor: u8, champion: u16, age: i32) {
     let top = h * 0.2;
     let ks = lay.font(15.0);
     let ts = lay.font(34.0);
-    centred(ui, &tf!("FLOOR {floor}", floor = roman(floor)), cx, top, ks, true, glow, a, w * 0.9);
+    let kicker = match encounter(floor) {
+        Some((_, k, _)) => tr(k).to_owned(),
+        None => tf!("FLOOR {floor}", floor = roman(floor)),
+    };
+    centred(ui, &kicker, cx, top, ks, true, glow, a, w * 0.9);
     let name = floor_name(floor);
     centred(ui, name, cx, top + ks * 1.6, ts, true, color::TEXT, a, w * 0.92);
     // the line drawn out from the middle

@@ -112,7 +112,18 @@ namespace Shared.crucible
             [21] = "Echo of the Hours", [22] = "The Crucible Breaks", [23] = "Unbound",
             // the champions' last stands (2.6.5), one each, in the order of the floors
             [24] = "Last Bastion", [25] = "Tsunami", [26] = "Molten Sea", [27] = "Zero Hour", [28] = "Final Aria",
+            // the Ice Tomb's Frozen Court (2.6.9; WorldServer logic/behaviors/IceTomb.cs), shown as an
+            // encounter of its own (FloorNumber IceTombFloor)
+            [29] = "The Frozen Court Wakes", [30] = "Avalanche", [31] = "Glacial Bulwark", [32] = "Aurora Veil",
+            [33] = "Blizzard", [34] = "Frost Fissures", [35] = "Hailstorm", [36] = "Aurora's Grace", [37] = "Reaver's Frenzy",
+            [38] = "Permafrost", [39] = "Polar Night", [40] = "Shattered Lake", [41] = "The Court Mourns",
+            [42] = "The Court Falls", [43] = "The Way Opens",
         };
+
+        /// The "floor" an Ice Tomb banner carries: clients from 2.6.9 show floors from 10 on as
+        /// encounters outside the Crucible (no climb tracker, their own title and colour).
+        public const byte IceTombFloor = 10;
+        public const byte CourtWakes = 29, WayOpens = 43, CourtFalls = 42, CourtMourns = 41;
 
         public static string Name(byte cue) => Names.TryGetValue(cue, out var n) ? n : "";
     }

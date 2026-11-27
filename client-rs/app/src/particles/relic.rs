@@ -3220,6 +3220,20 @@ impl Particles {
                 self.decal(DecalKind::Ring, x, y, 5.0, c, now, 420, None);
                 self.debris(x, y, 24, &[c, 0xD0A040, 0xF2D282], 100.0, 4.0, 5.0, 900, 0);
             }
+            // the Ice Tomb's Frozen Court: frost cracking out over the floor round them, a ring of
+            // cold, ice and snow thrown up (the aurora's green for Ysolde's, violet for her night)
+            29..=43 => {
+                let c = match cue {
+                    32 | 33 | 36 => 0x4AE8A4,
+                    39 => 0x9060D8,
+                    _ => 0x9FE8FF,
+                };
+                self.decal(DecalKind::Ring, x, y, 6.0, c, now, 600, None);
+                self.decal(DecalKind::Ring, x, y, 3.5, 0xFFFFFF, now + 120, 450, None);
+                self.decal(DecalKind::Cracks, x, y, 4.0, 0xDCF6FF, now, 2000, None);
+                self.debris(x, y, 36, &[0xDCF6FF, 0x8CC8EA, c, 0xFFFFFF], 120.0, 6.0, 6.0, 900, 0);
+                self.puffs(x, y, 12, &[0xE8F4FF, 0xBCD2EA], 240.0, 1.4, 1.0, 1300, 60);
+            }
             // Vaelith: the Sovereign's decree: his star drawn on the floor, a column of light; the
             // echoes each in their floor's colour; the Crucible breaking; the void unbound
             _ => {

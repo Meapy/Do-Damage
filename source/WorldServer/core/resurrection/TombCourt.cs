@@ -90,7 +90,7 @@ namespace WorldServer.core.resurrection
             court.Walk(boss);
         }
 
-        private sealed class Court
+        internal sealed class Court
         {
             private readonly World _world;
             private readonly TombCourtPlan _plan;
@@ -593,7 +593,7 @@ namespace WorldServer.core.resurrection
                 Fx(w, x + 0.5f, y + 0.5f, EffectType.Concentrate, Fire, new Position(x + 0.5f, y + 0.5f), new Position(x + 2.5f, y + 0.5f));
             }
 
-            private static void SetGround(World w, WmapTile t, ushort ground)
+            internal static void SetGround(World w, WmapTile t, ushort ground)
             {
                 if (!t.Exists || t.TileId == ground)
                     return;
@@ -605,7 +605,7 @@ namespace WorldServer.core.resurrection
 
             // something standing on a square: a new id, so the clients take it for a new object,
             // and joined to its neighbours (a wall) as the finished hall will have them
-            private static void Place(World w, WmapTile t, ushort type, string cfg)
+            internal static void Place(World w, WmapTile t, ushort type, string cfg)
             {
                 t.ObjType = type;
                 t.ObjDesc = w.GameServer.Resources.GameData.ObjectDescs[type];
@@ -616,7 +616,7 @@ namespace WorldServer.core.resurrection
             }
 
             // nothing standing there any more: its id stays, so the clients are told it's gone
-            private static void Unplace(WmapTile t)
+            internal static void Unplace(WmapTile t)
             {
                 t.ObjType = 0;
                 t.ObjDesc = null;
@@ -627,7 +627,7 @@ namespace WorldServer.core.resurrection
 
         // an effect at a spot, sent to those near it, centred on themselves where the effect needs
         // an object the client knows (only the spots matter to these)
-        private static void Fx(World w, float x, float y, EffectType type, uint color, Position pos1, Position pos2 = default, int duration = 0)
+        internal static void Fx(World w, float x, float y, EffectType type, uint color, Position pos1, Position pos2 = default, int duration = 0)
         {
             foreach (var p in w.Players.Values)
                 if ((p.X - x) * (p.X - x) + (p.Y - y) * (p.Y - y) < World.CULL_RANGE * World.CULL_RANGE)
@@ -643,7 +643,7 @@ namespace WorldServer.core.resurrection
         }
 
         // something thrown from one spot to another (no object it starts from)
-        private static void FxThrow(World w, Position from, Position to, uint color, int seconds)
+        internal static void FxThrow(World w, Position from, Position to, uint color, int seconds)
         {
             foreach (var p in w.Players.Values)
                 if (Math.Min(p.DistTo(to.X, to.Y), p.DistTo(from.X, from.Y)) < World.CULL_RANGE)
@@ -660,7 +660,7 @@ namespace WorldServer.core.resurrection
 
         // the steps of the show, run in buckets of a few timers; after each, everyone near is sent
         // the squares changed (players are otherwise sent them only as they step onto another)
-        private sealed class Steps
+        internal sealed class Steps
         {
             private readonly SortedDictionary<int, List<Action<World>>> _at = new SortedDictionary<int, List<Action<World>>>();
 

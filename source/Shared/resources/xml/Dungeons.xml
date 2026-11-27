@@ -260,11 +260,22 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Ice Tomb; built by tools/build_ice_tomb.py. Laid out anew every visit: the three seal
+	     rooms and the Sealed Door end branches, each chasm's mist keeps its two sides one room,
+	     and dark is kept round the layout for the Frozen Court (IceCourt.cs) -->
 	<World id="Ice Tomb">
-		<Width>256</Width>
-		<Height>256</Height>
+		<Width>176</Width>
+		<Height>220</Height>
 		<MapJM>Dungeons/Ice Tomb.jm</MapJM>
+		<RandomLayout passage="4" corridor="3" margin="56" keep="Chasm Mist">
+			<Goal>Seal of the Warden</Goal>
+			<Goal>Seal of the Oracle</Goal>
+			<Goal>Seal of the Reaver</Goal>
+			<Goal>Sealed Door</Goal>
+		</RandomLayout>
 		<VisibilityType>1</VisibilityType>
+		<!-- the whole Court in view from its middle -->
+		<MinSightRadius>22</MinSightRadius>
 		<Dungeon/>
 	</World>
 	<World id="Battle for the Nexus">
