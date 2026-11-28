@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using WorldServer.core.net.datas;
 using WorldServer.core.objects;
@@ -16,15 +16,25 @@ namespace WorldServer.logic.behaviors
     /// The Gilded Thief's vanishing trick: with a player chasing it, every so often it puffs into
     /// smoke and comes out of it `min` to `max` tiles away (never more than `home` tiles from where it
     /// came into the world, and never closer to a player than it was), leaving `decoy` where it stood.
+    /// Where it will come out is marked on the ground (Strike.Arrival) `warnMs` before.
     /// </summary>
     internal class ThiefBlink : Behavior
     {
         private readonly Cooldown _coolDown;
         private readonly double _min, _max, _home, _chased;
         private readonly string _decoy;
+        private readonly int _warnMs;
 
-        public ThiefBlink(Cooldown coolDown, double min = 6, double max = 11, double home = 24, double chased = 12, string decoy = null)
+        private sealed class Pending
         {
+            public float X, Y;
+            public int Left;
+        }
+
+        public ThiefBlink(Cooldown coolDown, double min = 6, double max = 11, double home = 24, double chased = 12, string decoy = null,
+            int warnMs = 700)
+        {
+            _warnMs = warnMs;
             _coolDown = coolDown.Normalize(6000);
             _min = min;
             _max = max;
@@ -37,6 +47,16 @@ namespace WorldServer.logic.behaviors
 
         protected override void TickCore(Entity host, TickTime time, ref object state)
         {
+            if (state is Pending p)
+            {
+                p.Left -= time.ElapsedMsDelta;
+                if (p.Left > 0)
+                    return;
+                if (host.World != null)
+                    Blink(host, p.X, p.Y);
+                state = _coolDown.Next(Random);
+                return;
+            }
             var cool = (int)state - time.ElapsedMsDelta;
             if (cool > 0)
             {
@@ -62,21 +82,33 @@ namespace WorldServer.logic.behaviors
                 var hy = y - home.Y;
                 if (hx * hx + hy * hy > _home * _home || !world.IsPassable(x, y, true))
                     continue;
-                if (world.Players.Values.Any(p => p.DistTo(x, y) < Math.Max(4, before)))
+                if (world.Players.Values.Any(pl => pl.DistTo(x, y) < Math.Max(4, before)))
                     continue;
 
-                Puff(host, host.X, host.Y);
-                if (_decoy != null && Entity.Resolve(world.GameServer, _decoy) is Enemy decoy)
+                if (_warnMs > 0)
                 {
-                    decoy.Spawned = true;
-                    decoy.Move(host.X, host.Y);
-                    world.EnterWorld(decoy);
+                    Strike.Arrival(host, new Position(x, y), _warnMs, 0xFFFFD24A, 1.0);
+                    state = new Pending { X = x, Y = y, Left = _warnMs };
+                    return;
                 }
-                host.Move(x, y);
-                Puff(host, x, y);
+                Blink(host, x, y);
                 state = _coolDown.Next(Random);
                 return;
             }
+        }
+
+        private void Blink(Entity host, float x, float y)
+        {
+            var world = host.World;
+            Puff(host, host.X, host.Y);
+            if (_decoy != null && Entity.Resolve(world.GameServer, _decoy) is Enemy decoy)
+            {
+                decoy.Spawned = true;
+                decoy.Move(host.X, host.Y);
+                world.EnterWorld(decoy);
+            }
+            host.Move(x, y);
+            Puff(host, x, y);
         }
 
         private static void Puff(Entity host, float x, float y)

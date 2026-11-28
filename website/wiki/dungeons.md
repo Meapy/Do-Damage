@@ -255,7 +255,8 @@ The Haunted Cemetery is four worlds in a row: a graveyard whose arena calls wave
 through its gates, then the Ghost Bride's arena, the Grave Caretaker's and, at the end, the
 Ghost of Skuld in his crypt. Each arena's portal opens when its fight is won. The Grave
 Caretaker's blue flames circle him and burst on whoever comes close; once he falls, those left
-come after you.
+come after you. Between his volleys Skuld fades and drifts to another part of his crypt: a green
+ring on the floor, closing in, marks where he'll come back into sight a second later.
 
 Half the time the Ghost of Skuld leaves the portal to the **Elder Cemetery**, and an Elder
 Cemetery Key opens one anywhere: the same four worlds, every monster in its Elder version

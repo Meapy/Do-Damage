@@ -133,7 +133,8 @@ worth more loot than anything around it. They're the realm's main quests.
 Three of them play differently from the rest:
 
 - **The Gilded Thief** counts its stolen hoard until someone comes near, then runs. It stays
-  away from you, blinks off in a puff of smoke leaving a decoy that looks just like it (decoys burst
+  away from you, blinks off in a puff of smoke leaving a decoy that looks just like it (a gold ring
+  on the ground shows where it will come out, a moment before; decoys burst
   into coins when hit), and throws gold bombs that land where their mark shows. Each time it loses
   a quarter of its health it drops a **Gilded Coffer** full of potions, and a third of those are
   mimics that bite when you come close. Catch it within three minutes of being seen, or it gets

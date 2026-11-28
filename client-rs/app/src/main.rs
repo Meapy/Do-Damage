@@ -3646,9 +3646,11 @@ impl App {
             }
             if let (Some((kind, last)), Some(world)) = (&mut self.effect_test, &game.world) {
                 // (the Necromantic items' looks, 101 and up, last longer: every 0.9 s; the Vial of
-                // Cascading Dusk's whole cascade, 243, every 4 s)
+                // Cascading Dusk's whole cascade, 243, every 4 s; a boss's arrival mark, 40, every
+                // 1.5 s)
                 let every = match *kind {
                     243 => 4000,
+                    40 => 1500,
                     101.. => 900,
                     _ => 500,
                 };

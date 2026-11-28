@@ -241,7 +241,8 @@ struct GroundMark {
     color: u32,
     start: i32,
     ms: i32,
-    /// 0: a circle filling in; 1: the Mysterious One's rift opening out (pos2.y).
+    /// 0: a circle filling in; 1: the Mysterious One's rift opening out; 2: where a boss that
+    /// teleports is about to appear (pos2.y 0, 1 and -1).
     style: u8,
     /// The height it lies at (ours when it came) and so its floor, on stacked floors: drawn with
     /// that floor's ground, not under a raised one.
@@ -627,10 +628,11 @@ impl Particles {
                 let (vx, vy) = ((p1.0 - p2.0) / life as f64, (p1.1 - p2.1) / life as f64);
                 self.add(Particle::new(p2.0, p2.1, 0.0, 0xFFFFFF, 0.0, life, Motion::Throw).moving(vx, vy, 0.0));
             }
-            // GroundMark: a circle at pos1, radius pos2.x, filling over `duration` ms.
+            // GroundMark: a circle at pos1, radius pos2.x, filling over `duration` ms; pos2.y its
+            // style (negative for a boss's arrival, which clients before it drew as a plain mark)
             40 => {
                 let radius = (p2.0).clamp(0.2, 20.0);
-                let style = if p2.1 >= 0.5 { 1 } else { 0 };
+                let style = if p2.1 >= 0.5 { 1 } else if p2.1 <= -0.5 { 2 } else { 0 };
                 let z = world.my_z();
                 let level = world.levels.as_ref().map_or(0, |l| ((z + 0.01) / l.height).floor().max(0.0) as u8);
                 self.marks.push(GroundMark { x: p1.0, y: p1.1, radius, color, start: now, ms: e.duration.clamp(1, 20_000), style, z, level });
@@ -683,6 +685,8 @@ impl Particles {
             5 | 10 => ShowEffect { pos1: bsk_proto::WorldPos { x: 3.0, y: 0.0 }, ..e },
             8 | 12 => ShowEffect { pos1: bsk_proto::WorldPos { x, y }, pos2: bsk_proto::WorldPos { x: x + 2.5, y }, ..e },
             15 => ShowEffect { pos1: bsk_proto::WorldPos { x: 0.5, y: 4.0 }, ..e },
+            // a boss's arrival mark (style -1), filling over 1.2 s
+            40 => ShowEffect { pos2: bsk_proto::WorldPos { x: 1.2, y: -1.0 }, duration: 1200, color: 0xFFB040FF, ..e },
             _ => e,
         };
         self.show_effect(&e, world, now);
@@ -1176,11 +1180,20 @@ impl Particles {
                 }
             };
             if flash {
-                disc(renderer, m.radius, if m.style == 1 { 0xE0B0FF } else { 0xFFFFFF }, 0.55);
+                let rgb = match m.style {
+                    1 => 0xE0B0FF,
+                    2 => m.color,
+                    _ => 0xFFFFFF,
+                };
+                disc(renderer, m.radius, rgb, 0.55);
                 continue;
             }
             if m.style == 1 {
                 self.draw_rift(cam, renderer, m, fill);
+                continue;
+            }
+            if m.style == 2 {
+                self.draw_arrival(cam, renderer, m, fill);
                 continue;
             }
             disc(renderer, m.radius, m.color, 0.14);
@@ -1195,6 +1208,48 @@ impl Particles {
                 let tint = Tint::color(m.color, 0.9);
                 renderer.triangle(renderer.white(), [o0, o1, i1], [[0.5, 0.5]; 3], tint);
                 renderer.triangle(renderer.white(), [o0, i1, i0], [[0.5, 0.5]; 3], tint);
+            }
+        }
+    }
+
+    /// Where a boss that teleports is about to appear (a mark of style 2): unlike the marks of what
+    /// will land, no filling disc, but a ring of its colour on the spot, four arcs closing in on it
+    /// as they turn, and a bright core growing in its middle, until it arrives and the spot flashes.
+    fn draw_arrival(&self, cam: &Camera, renderer: &mut Renderer, m: &GroundMark, fill: f64) {
+        const SIDES: usize = 40;
+        let z = m.z;
+        let at = |r: f64, a: f64| cam.to_screen(m.x + r * a.cos(), m.y + r * a.sin(), z);
+        let centre = cam.to_screen(m.x, m.y, z);
+        let white = renderer.white();
+        let band = |renderer: &mut Renderer, r: f64, w: f64, a0: f64, a1: f64, rgb: u32, alpha: f32| {
+            let (o0, o1, i0, i1) = (at(r, a0), at(r, a1), at((r - w).max(0.0), a0), at((r - w).max(0.0), a1));
+            renderer.triangle(white, [o0, o1, i1], [[0.5, 0.5]; 3], Tint::color(rgb, alpha));
+            renderer.triangle(white, [o0, i1, i0], [[0.5, 0.5]; 3], Tint::color(rgb, alpha));
+        };
+        let step = 2.0 * PI / SIDES as f64;
+        // the spot: a faint disc and a thin ring
+        for i in 0..SIDES {
+            let (a0, a1) = (step * i as f64, step * (i + 1) as f64);
+            renderer.triangle(white, [centre, at(m.radius, a0), at(m.radius, a1)], [[0.5, 0.5]; 3], Tint::color(m.color, 0.1));
+            band(renderer, m.radius, 0.08, a0, a1, m.color, 0.85);
+        }
+        // four arcs closing in from twice as far out, turning faster as they come
+        let r = m.radius * (1.0 + (1.0 - fill));
+        let spin = (self.now - m.start) as f64 / 1000.0 * (1.0 + 2.5 * fill);
+        let alpha = (0.45 + 0.5 * fill) as f32;
+        for arc in 0..4 {
+            let base = spin + arc as f64 * PI / 2.0;
+            for k in 0..6 {
+                let (a0, a1) = (base + k as f64 * 0.15, base + (k + 1) as f64 * 0.15);
+                band(renderer, r, 0.14, a0, a1, m.color, alpha);
+            }
+        }
+        // the core, growing until it comes
+        let core = m.radius * 0.45 * fill;
+        if core > 0.02 {
+            for i in 0..SIDES {
+                let (a0, a1) = (step * i as f64, step * (i + 1) as f64);
+                renderer.triangle(white, [centre, at(core, a0), at(core, a1)], [[0.5, 0.5]; 3], Tint::color(0xFFFFFF, 0.25 + 0.35 * fill as f32));
             }
         }
     }
@@ -1391,6 +1446,18 @@ mod tests {
         body.extend(7i32.to_be_bytes());
         let Ok(bsk_proto::ServerMessage::ShowEffect(new)) = bsk_proto::ServerMessage::decode(15, &body) else { panic!() };
         assert_eq!(new.source_id, Some(7));
+    }
+
+    #[test]
+    fn arrival_marks_have_their_own_style() {
+        let world = World::new(10, 10, "test", 1);
+        let mut p = Particles::default();
+        for (y, style) in [(0.0, 0), (1.0, 1), (-1.0, 2)] {
+            let mut e = effect(40, 99, (5.0, 5.0), (1.2, y));
+            e.duration = 800;
+            p.show_effect(&e, &world, 1000);
+            assert_eq!(p.marks.last().unwrap().style, style);
+        }
     }
 
     #[test]
