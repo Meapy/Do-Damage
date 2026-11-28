@@ -344,6 +344,17 @@ killed you (and tell the staff if something looks wrong). **Download** saves the
 that plays again when you drop it on the game's window. Replays are kept for 30 days, and for good
 when the death makes the all-time Legends.
 
+A death that doesn't happen is kept too. When an amulet that resurrects (or a ring's
+[Guardian Angel](imprints.html)) carries a character off from a killing blow, those last seconds
+are saved as a replay, and the Legends' **Deaths Saved** tab lists the server's latest 30: who,
+what would have killed them and where, the item that saved them, and the blow they lived through
+(its damage against the health they had left). Click one to watch it; it ends in gold, with what
+saved them. The tab also counts every death cheated on the server.
+
+Every replay has a **Comments** tab beside its hits (the C key switches to it): what other
+players thought of the death or the close call. Anyone signed in to an account can add a line
+(140 characters at most, one every few seconds); comments last as long as their replay does.
+
 The living have their own boards: the [Hall of Champions](champions.html) in the Nexus, whose top 10s
 hold rewards of their own.
 

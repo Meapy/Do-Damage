@@ -18,6 +18,10 @@
 //! The big view also shows the gear the one watched wears (from the picture's stats: anyone may
 //! see a player's equipment), each item's tooltip on hover, and its Ask to join button (8) asks
 //! them, as `/visit` does, to let us in where they are; the server's replies show under the picture.
+//! The chat's last tab, Replays, lists the server's 20 latest deaths and deaths saved (an amulet
+//! that resurrects, a ring's Guardian Angel: `/fame/feed`), newest first; one clicked plays over
+//! the game in the replay viewer (`replay.rs`), where players leave comments under it.
+//!
 //! Over the picture's top left, the watched player's quest as their own top left shows it: its
 //! health, and who did how much damage (the server's `QuestObjId` and `QuestDamageFull` for them,
 //! in the feed).
@@ -32,6 +36,7 @@ use crate::textedit::LineEdit;
 use crate::theme::{self, color};
 use crate::view::{self, Camera, Scene, Show};
 use bsk_data::GameData;
+use bsk_net::replay::{FeedEntry, ReplayId};
 use bsk_proto::ServerMessage;
 use bsk_render::{Renderer, Tint};
 use bsk_world::{GameObj, MoveInput, Projectile, World};
@@ -60,6 +65,8 @@ const ASK_MS: i32 = 40_000;
 /// Chat lines kept, and the most typed in one.
 const CHAT_KEEP: usize = 100;
 const CHAT_MAX: usize = 200;
+/// How often the Replays tab is asked for again while it shows, ms.
+const FEED_EVERY_MS: i32 = 30_000;
 
 /// The frame's stone and trim.
 const STONE_DARK: u32 = 0x1A1329;
@@ -179,6 +186,8 @@ enum Hit {
     /// One of the gear slots of the one shown.
     Gear(u8),
     Tab(Tab),
+    /// A row of the Replays tab: watch it.
+    Replay(usize),
 }
 
 /// What the big view's chat shows and where a line typed in it goes: the watchers' own chat, or
@@ -188,15 +197,19 @@ pub enum Tab {
     #[default]
     Watchers,
     Game(ChatChannel),
+    /// The latest deaths and deaths saved, to watch again.
+    Replays,
 }
 
 impl Tab {
-    const ALL: [Tab; 5] = [Tab::Watchers, Tab::Game(ChatChannel::All), Tab::Game(ChatChannel::Local), Tab::Game(ChatChannel::Guild), Tab::Game(ChatChannel::Party)];
+    const ALL: [Tab; 6] =
+        [Tab::Watchers, Tab::Game(ChatChannel::All), Tab::Game(ChatChannel::Local), Tab::Game(ChatChannel::Guild), Tab::Game(ChatChannel::Party), Tab::Replays];
 
     fn label(self) -> &'static str {
         match self {
             Tab::Watchers => tr("Watchers"),
             Tab::Game(c) => c.label(),
+            Tab::Replays => tr("Replays"),
         }
     }
 
@@ -204,6 +217,7 @@ impl Tab {
         match self {
             Tab::Watchers => crate::hud::GLASS_COLOUR,
             Tab::Game(c) => c.colour(),
+            Tab::Replays => crate::screens::SAVED_GOLD,
         }
     }
 }
@@ -240,6 +254,13 @@ pub struct Glass {
     /// Ask to join was pressed (its time is taken when next drawn), and when.
     asked: bool,
     asked_at: Option<i32>,
+    /// The Replays tab: the list (or why there's none), when it was last asked for, whether to
+    /// ask now, and the replay picked to watch.
+    feed: Option<Result<Vec<FeedEntry>, String>>,
+    feed_at: Option<i32>,
+    want_feed: bool,
+    watch: Option<ReplayId>,
+    feed_scroll: usize,
 }
 
 fn inside(r: [f32; 4], (x, y): (f64, f64)) -> bool {
@@ -281,7 +302,25 @@ impl Glass {
         if tab != self.tab {
             self.tab = tab;
             self.chat_scroll = 0;
+            if tab == Tab::Replays {
+                self.want_feed = true;
+                self.feed_scroll = 0;
+            }
         }
+    }
+
+    /// What the Replays tab asks of the app: its list (again), and a replay to watch.
+    pub fn take_replay_asks(&mut self) -> (bool, Option<ReplayId>) {
+        (std::mem::take(&mut self.want_feed), self.watch.take())
+    }
+
+    /// The Replays tab's list, as read.
+    pub fn set_feed(&mut self, feed: Result<Vec<FeedEntry>, String>, now: i32) {
+        // a list that didn't come keeps the one shown
+        if feed.is_ok() || !matches!(self.feed, Some(Ok(_))) {
+            self.feed = Some(feed);
+        }
+        self.feed_at = Some(now);
     }
 
     pub fn close(&mut self) {
@@ -346,6 +385,10 @@ impl Glass {
 
     /// Each frame: watch while the glass is near us in the Nexus, and move the picture on.
     pub fn tick(&mut self, world: Option<&World>, map: &str, data: &GameData, now: i32, dt: i32) {
+        if self.open && self.tab == Tab::Replays && self.feed_at.is_some_and(|at| now - at >= FEED_EVERY_MS) {
+            self.feed_at = Some(now);
+            self.want_feed = true;
+        }
         // Between worlds (a portal's reconnect, a dropped connection): the new connection's
         // server knows nothing of our watching, and takes nothing from us before our player is
         // in, so forget it all and ask again once we're there.
@@ -469,6 +512,10 @@ impl Glass {
     }
 
     pub fn scroll(&mut self, rows: i32) {
+        if self.tab == Tab::Replays {
+            self.feed_scroll = (self.feed_scroll as i32 - rows).clamp(0, 100) as usize;
+            return;
+        }
         // (drawing holds it to the rows there are)
         self.chat_scroll = (self.chat_scroll as i32 + rows).clamp(0, 100_000) as usize;
     }
@@ -479,6 +526,11 @@ impl Glass {
     pub fn key(&mut self, code: KeyCode, text: Option<&str>, ctrl: bool, shift: bool) {
         match code {
             KeyCode::Escape => self.close(),
+            // the Replays tab has nothing to type into
+            KeyCode::Enter | KeyCode::NumpadEnter if self.tab == Tab::Replays => {}
+            KeyCode::PageUp if self.tab == Tab::Replays => self.scroll(5),
+            KeyCode::PageDown if self.tab == Tab::Replays => self.scroll(-5),
+            _ if self.tab == Tab::Replays && !matches!(code, KeyCode::Tab | KeyCode::ArrowLeft | KeyCode::ArrowRight) => {}
             KeyCode::Enter | KeyCode::NumpadEnter => {
                 let line = std::mem::take(&mut self.input.text);
                 self.input = LineEdit::new("", CHAT_MAX);
@@ -487,6 +539,7 @@ impl Glass {
                     match self.tab {
                         Tab::Watchers => self.said.push(line.to_owned()),
                         Tab::Game(c) => self.game_said.push(c.send_line(line)),
+                        Tab::Replays => {}
                     }
                     self.chat_scroll = 0;
                 }
@@ -532,6 +585,11 @@ impl Glass {
             Some(Hit::Prev) => self.out.push(4),
             Some(Hit::Next) => self.out.push(3),
             Some(Hit::Tab(tab)) => self.pick_tab(tab),
+            Some(Hit::Replay(i)) => {
+                if let Some(e) = self.feed.as_ref().and_then(|f| f.as_ref().ok()).and_then(|f| f.get(i)).filter(|e| e.has_replay) {
+                    self.watch = Some(e.id);
+                }
+            }
             Some(Hit::Join) => {
                 self.out.push(8);
                 self.asked = true;
@@ -766,6 +824,11 @@ impl Glass {
             self.hits.push((Hit::Tab(tab), rect));
             x += w + gap;
         }
+        if self.tab == Tab::Replays {
+            let top = ty + tab_h + 10.0 * s;
+            self.draw_replays(ui, [r[0], top, r[2], r[1] + r[3] - top], s, mouse);
+            return;
+        }
 
         let size = (13.0 * s).round().max(9.0);
         let line_h = (size * 1.35).round();
@@ -777,7 +840,7 @@ impl Glass {
         let inner = [field[0] + 10.0 * s, field[1], field[2] - 20.0 * s, field[3]];
         let placeholder = match self.tab {
             Tab::Watchers => tr("Say something to the other watchers…"),
-            Tab::Game(_) => tr("Say something, or /help"),
+            Tab::Game(_) | Tab::Replays => tr("Say something, or /help"),
         };
         crate::hud::draw_line_edit(ui, &self.input, inner, size, placeholder, now);
 
@@ -826,6 +889,7 @@ impl Glass {
                     add(ui, &mut rows, (line.stars >= 0).then_some(line.stars), line.pieces(me));
                 }
             }
+            Tab::Replays => {}
         }
         rows.reverse();
         self.chat_scroll = self.chat_scroll.min(rows.len().saturating_sub(fit));
@@ -852,6 +916,106 @@ impl Glass {
             let more = tr("Newer lines below (Page Down)");
             ui.label_fit(more, r[0] + pad, field[1] - 4.0 * s - line_h, width, (size * 0.9).round(), true, color::ACCENT_HI);
         }
+    }
+}
+
+impl Glass {
+    /// The Replays tab: the latest deaths (a red edge) and deaths saved (a gold one, the item
+    /// that saved them beside), newest first, each with who, what and how long ago, and how
+    /// many have commented; one with a replay kept opens it.
+    fn draw_replays(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, mouse: (f64, f64)) {
+        let pad = 12.0 * s;
+        let width = r[2] - 2.0 * pad;
+        let size = (13.0 * s).round().max(9.0);
+        let feed = match &self.feed {
+            None => {
+                ui.label_fit(tr("Reading the replays…"), r[0] + pad, r[1], width, size, false, color::TEXT_MUTED);
+                return;
+            }
+            Some(Err(e)) => {
+                let e = e.clone();
+                ui.label_fit(&e, r[0] + pad, r[1], width, size, false, color::DANGER);
+                return;
+            }
+            Some(Ok(f)) if f.is_empty() => {
+                ui.label_fit(tr("No one has died or been saved yet."), r[0] + pad, r[1], width, size, false, color::TEXT_MUTED);
+                return;
+            }
+            Some(Ok(f)) => f.clone(),
+        };
+        let hint_s = (11.0 * s).round().max(8.0);
+        let row_h = (52.0 * s).round();
+        let bottom = r[1] + r[3] - pad - hint_s * 1.5;
+        let fit = (((bottom - r[1]) / row_h).floor().max(1.0)) as usize;
+        self.feed_scroll = self.feed_scroll.min(feed.len().saturating_sub(fit));
+        let data = ui.data;
+        for (k, e) in feed.iter().enumerate().skip(self.feed_scroll).take(fit) {
+            let y = r[1] + (k - self.feed_scroll) as f32 * row_h;
+            let rr = [r[0] + pad, y, width, row_h - 5.0 * s];
+            let over = e.has_replay && inside(rr, mouse);
+            let (edge, tint) = if e.saved() { (crate::screens::SAVED_GOLD, crate::screens::SAVED_GOLD) } else { (color::DANGER, 0xFFFFFF) };
+            theme::fill(ui.renderer, rr, 6.0 * s, tint, if over { 0.12 } else if e.saved() { 0.05 } else { 0.03 });
+            theme::fill(ui.renderer, [rr[0], rr[1] + 5.0 * s, 3.0 * s, rr[3] - 10.0 * s], 1.5 * s, edge, if over { 1.0 } else { 0.7 });
+            // the character's look
+            let class = data.objects.get(&e.object_type);
+            let skin = (e.skin != 0).then(|| data.objects.get(&(e.skin as u16))).flatten();
+            if let Some(d) = skin.or(class) {
+                crate::screens::portrait(ui, d, e.tex1, e.tex2, rr[0] + 24.0 * s, rr[1] + rr[3] / 2.0, s * 0.7);
+            }
+            let x = rr[0] + 46.0 * s;
+            // the item that saved them, on the right; or a death's fame
+            let right = if e.saved() {
+                let side = 30.0 * s;
+                let ir = [rr[0] + rr[2] - side - 8.0 * s, rr[1] + (rr[3] - side) / 2.0, side, side];
+                ui.slot_box(ir, Some(crate::screens::SAVED_GOLD), false, s);
+                if e.saver_type > 0 {
+                    ui.item_icon(e.saver_type as i32, 80, ir[0] + side / 2.0, ir[1] + side / 2.0, s * 0.66);
+                }
+                ir[0] - 8.0 * s
+            } else {
+                rr[0] + rr[2] - 8.0 * s
+            };
+            let ns = (14.0 * s).round();
+            let when = crate::screens::time_ago(e.ago);
+            let ws = (11.0 * s).round();
+            let ww = ui.measure(&when, ws, false);
+            ui.label(&when, right - ww, rr[1] + 6.0 * s, ws, false, color::TEXT_MUTED);
+            ui.label_fit(&e.name, x, rr[1] + 4.0 * s, (right - ww - 8.0 * s - x).max(10.0), ns, true, color::TEXT);
+            let class_name = class.map_or("", |d| d.display_id.as_str());
+            let how = if e.saved() {
+                crate::screens::saved_line("", &e.killer, &e.world, &e.saver, e.angel)
+            } else {
+                let by = if e.killer.is_empty() { tr("something") } else { e.killer.as_str() };
+                if e.world.is_empty() { tf!("killed by {by}", by) } else { tf!("killed by {by} in {world}", by, world = e.world) }
+            };
+            let mut line = format!("{} · {class_name} · {how}", tf!("Lv {level}", level = e.level));
+            let hs = (11.0 * s).round().max(8.0);
+            // too long for the row: cut, with an ellipsis, short of the item
+            let room = right - x;
+            if ui.measure(&line, hs, false) > room {
+                while line.chars().count() > 4 && ui.measure(&format!("{line}…"), hs, false) > room {
+                    line.pop();
+                }
+                line = format!("{}…", line.trim_end());
+            }
+            ui.label_fit(&line, x, rr[1] + 4.0 * s + ns * 1.3, room, hs, false,if e.saved() { crate::screens::SAVED_GOLD } else { color::TEXT_DIM });
+            let foot = if !e.has_replay {
+                tr("No replay kept").to_owned()
+            } else if e.comments > 0 {
+                tn!(e.comments, "Watch · {n} comment|Watch · {n} comments")
+            } else {
+                tr("Watch · be the first to comment").to_owned()
+            };
+            ui.label_fit(&foot, x, rr[1] + 4.0 * s + ns * 1.3 + hs * 1.35, right - x, hs, over, if over { color::ACCENT_HI } else { color::TEXT_MUTED });
+            self.hits.push((Hit::Replay(k), rr));
+        }
+        let shown = feed.len().min(fit);
+        let hint = if feed.len() > fit {
+            tf!("{from} to {to} of {all} · scroll for more", from = self.feed_scroll + 1, to = self.feed_scroll + shown, all = feed.len())
+        } else {
+            tr("Click one to watch it again and comment").to_owned()
+        };
+        ui.label_fit(&hint, r[0] + pad, r[1] + r[3] - pad - hint_s * 1.2, width, hint_s, false, color::TEXT_MUTED);
     }
 }
 

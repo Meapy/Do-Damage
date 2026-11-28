@@ -288,6 +288,83 @@ pub struct RecentDeath {
     pub ago: i64,
 }
 
+/// One line of `/fame/saved`: a death saved on the server (an amulet that resurrects, a ring's
+/// Guardian Angel), newest first.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SavedDeath {
+    /// The save's own number, naming its replay.
+    pub id: i64,
+    pub account_id: i32,
+    pub char_id: i32,
+    pub name: String,
+    pub object_type: u16,
+    pub tex1: i32,
+    pub tex2: i32,
+    pub skin: i32,
+    pub level: i32,
+    pub fame: i32,
+    /// Stats maxed, of 8.
+    pub maxed: i32,
+    pub killer: String,
+    pub world: String,
+    /// What saved them: the item's type and name, and whether it was a ring's Guardian Angel.
+    pub saver_type: u16,
+    pub saver: String,
+    pub angel: bool,
+    /// The blow that would have killed them: its damage, the health it met, their most health
+    /// (0 when no hit was seen).
+    pub blow: i32,
+    pub hp_before: i32,
+    pub max_hp: i32,
+    /// A replay was kept.
+    pub replay: bool,
+    /// Seconds before the server answered.
+    pub ago: i64,
+}
+
+/// `/fame/saved`: how many deaths have been saved ever, and the latest.
+pub fn parse_saved_deaths(xml: &str) -> Result<(i64, Vec<SavedDeath>), String> {
+    if let Some(e) = error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let root = doc.root_element();
+    let total = root.attribute("total").and_then(parse_int).unwrap_or(0);
+    let saves: Vec<SavedDeath> = root
+        .children()
+        .filter(|c| c.has_tag_name("Save"))
+        .map(|e| {
+            let int = |n: &str| child_text(e, n).and_then(parse_int).unwrap_or(0);
+            let yes = |n: &str| child_text(e, n).is_some_and(|t| t.trim().eq_ignore_ascii_case("true"));
+            SavedDeath {
+                id: e.attribute("id").and_then(parse_int).unwrap_or(0),
+                account_id: e.attribute("accountId").and_then(parse_int).unwrap_or(0) as i32,
+                char_id: e.attribute("charId").and_then(parse_int).unwrap_or(0) as i32,
+                name: child_text(e, "Name").unwrap_or("").to_owned(),
+                object_type: int("ObjectType") as u16,
+                tex1: int("Tex1") as i32,
+                tex2: int("Tex2") as i32,
+                skin: int("Texture") as i32,
+                level: int("Level") as i32,
+                fame: int("Fame") as i32,
+                maxed: int("Maxed") as i32,
+                killer: child_text(e, "Killer").unwrap_or("").to_owned(),
+                world: child_text(e, "World").unwrap_or("").to_owned(),
+                saver_type: int("SaverType") as u16,
+                saver: child_text(e, "Saver").unwrap_or("").to_owned(),
+                angel: yes("Angel"),
+                blow: int("Blow") as i32,
+                hp_before: int("HpBefore") as i32,
+                max_hp: int("MaxHp") as i32,
+                replay: yes("Replay"),
+                ago: int("Ago"),
+            }
+        })
+        .collect();
+    // never fewer than listed (a list older than its count)
+    Ok((total.max(saves.len() as i64), saves))
+}
+
 /// `/fame/recent`.
 pub fn parse_recent_deaths(xml: &str) -> Result<Vec<RecentDeath>, String> {
     if let Some(e) = error_text(xml) {
@@ -1165,6 +1242,23 @@ mod tests {
         assert_eq!((d[0].account_id, d[0].char_id, d[0].object_type, d[0].level, d[0].total_fame), (1, 9, 782, 12, 40));
         assert_eq!((d[0].killer.as_str(), d[0].world.as_str(), d[0].ago), ("Pirate", "Realm", 95));
         assert_eq!((d[1].name.as_str(), d[1].killer.as_str()), ("B", ""));
+    }
+
+    #[test]
+    fn saved_deaths() {
+        let xml = r#"<SavedDeaths total="41"><Save id="40" accountId="1" charId="9"><Name>Tester</Name><ObjectType>782</ObjectType>
+            <Texture>0</Texture><Tex1>0</Tex1><Tex2>0</Tex2><Level>20</Level><Fame>900</Fame><Maxed>6</Maxed>
+            <Killer>Oryx</Killer><World>Realm</World><SaverType>2721</SaverType><Saver>Amulet of Life</Saver>
+            <Angel>false</Angel><Blow>310</Blow><HpBefore>42</HpBefore><MaxHp>700</MaxHp><Replay>true</Replay>
+            <Time>1700000000</Time><Ago>95</Ago></Save>
+            <Save id="39" accountId="2" charId="3"><Name>B</Name><Angel>true</Angel></Save></SavedDeaths>"#;
+        let (total, d) = parse_saved_deaths(xml).unwrap();
+        assert_eq!((total, d.len()), (41, 2));
+        assert_eq!((d[0].id, d[0].account_id, d[0].char_id, d[0].level, d[0].fame, d[0].maxed), (40, 1, 9, 20, 900, 6));
+        assert_eq!((d[0].saver_type, d[0].saver.as_str(), d[0].angel, d[0].replay), (2721, "Amulet of Life", false, true));
+        assert_eq!((d[0].blow, d[0].hp_before, d[0].max_hp, d[0].ago), (310, 42, 700, 95));
+        assert_eq!((d[1].name.as_str(), d[1].angel, d[1].replay, d[1].blow), ("B", true, false, 0));
+        assert_eq!(parse_saved_deaths("<SavedDeaths/>").unwrap(), (0, Vec::new()));
     }
 
     #[test]

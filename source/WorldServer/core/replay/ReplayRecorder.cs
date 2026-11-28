@@ -50,6 +50,9 @@ namespace WorldServer.core.replay
         public const byte KindMessage = 0;
         public const byte KindHurt = 1;
         public const byte KindDeath = 2;
+        // the end of a death saved (an amulet, a ring's Guardian Angel): the would-be killer, then
+        // what saved them (its type and name); a client that doesn't know it passes it over
+        public const byte KindSaved = 3;
 
         // what dealt a hit (KindHurt)
         public const byte FromShot = 0;
@@ -100,6 +103,12 @@ namespace WorldServer.core.replay
 
         private static long Now => Environment.TickCount64;
 
+        /// <summary>
+        /// The last hit taken since the replay began: what it took off after defense, the health it
+        /// met, and the most health then (all 0 when none was).
+        /// </summary>
+        public (int Dealt, int HpBefore, int MaxHp) LastHit { get; private set; }
+
         public static bool Records(World world) => world != null && world is not NexusWorld;
 
         private void Reset()
@@ -111,6 +120,7 @@ namespace WorldServer.core.replay
             _sightStamp = -1;
             _ticks = 0;
             _world = null;
+            LastHit = default;
         }
 
         /// <summary>After the player's own update and tick (their world's thread).</summary>
@@ -376,14 +386,16 @@ namespace WorldServer.core.replay
                 w.Write(flags);
                 w.Flush();
                 Append(KindHurt, Now);
+                LastHit = (dealt, _player.Health + dealt, _player.Stats[0]);
             }
         }
 
         /// <summary>
         /// The player died (their world's thread): the replay as the client reads it, gzipped,
-        /// or null when there's none (they died the moment they came in).
+        /// or null when there's none (they died the moment they came in). With <paramref name="saver"/>
+        /// they didn't: what saved them (an amulet, a ring), and the replay ends with that instead.
         /// </summary>
-        public byte[] Finish(string killer)
+        public byte[] Finish(string killer, (ushort Type, string Name)? saver = null)
         {
             var p = _player;
             lock (this)
@@ -438,12 +450,17 @@ namespace WorldServer.core.replay
                                 i += 13 + n;
                             }
                         }
-                        // the death itself
+                        // the death itself, or what saved them from it
                         w.Write((int)(now - start));
-                        w.Write(KindDeath);
+                        w.Write(saver == null ? KindDeath : KindSaved);
                         _scratch.Position = 0;
                         _scratch.SetLength(0);
                         _scratchWriter.WriteUTF16(killer ?? "");
+                        if (saver is { } by)
+                        {
+                            _scratchWriter.Write(by.Type);
+                            _scratchWriter.WriteUTF16(by.Name ?? "");
+                        }
                         _scratchWriter.Flush();
                         w.Write((int)_scratch.Length);
                         w.Write(_scratch.GetBuffer(), 0, (int)_scratch.Length);

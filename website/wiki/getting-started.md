@@ -263,7 +263,10 @@ the stone water basins at its corners do. From there:
   and picks someone new every 45 seconds. Press **Watch** to open it big: the arrows (or the
   Left and Right keys) go through everyone who can be watched, **Stay on this player** keeps it on
   them, and beside it a chat for everyone watching: the player you watch sees what you say there,
-  and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. The corner of
+  and its tabs (or the Tab key) switch to the All, Local, Guild and Party chats. Its last tab,
+  **Replays**, lists the 20 latest deaths and [deaths saved](progression.html) on the server
+  with how many have commented: click one to watch it there and then, comment on it, and Back
+  returns to the glass. The corner of
   the picture shows the gear they wear (hover an item for its details), its top corner the boss
   they're after once it's in sight (its health, and the top five by damage, with their own share
   when they're not among them), and **Ask to join** asks

@@ -145,7 +145,7 @@ logs the server's ping and the gaps between NewTicks. Its flags:
 |---|---|
 | `--credentials <file>` | Sign in with the file's `email:` and `password:` and play the first character in the list (a new Wizard if none); never saved |
 | `--stay` | With `--credentials`: stop at the character list |
-| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin), `sprites-item:<item id>`, `class:0x<type>` (a class's page, every skin and price) or `replay:<account>:<char>` (that death's summary, then its replay) |
+| `--screen <name>` | With `--credentials --stay`: show `home`, `account`, `discord`, `discord-code`, `sprites`, `sprites-mine`, `sprites-review` (needs an admin), `sprites-item:<item id>`, `class:0x<type>` (a class's page, every skin and price), `replay:<account>:<char>` (that death's summary, then its replay), `replay:s:<n>` (death saved number n's replay) or `legends:<tab>` (`week`, `month`, `all`, `recent`, `saved`) |
 | `--replay <file>` | Play a saved death replay (`.bskreplay`) over the first screen, signed in or not |
 | `--no-update` | Don't look for or install updates |
 | `--bench` | No vsync or frame cap, and every 2 s the frame rate, CPU time by section and draw calls in the log (measure a release build) |
@@ -221,6 +221,16 @@ Example, the Arena (portal in the shrine's floor north-west of the spawn; monste
   printed hit by hit by
   `BSK_REPLAY=<file> cargo test -p bsk-client lines_up_a_saved_replay -- --ignored --nocapture`,
   quicker than catching a hit in a `--shot`.
+- **One client an account:** two clients signed in to the same account at once drop each other
+  ("The connection dropped: you're back in the Nexus"), resetting the glass, open windows and
+  `--mouse-script` steps under them. Run scripted clients one after another, never side by side.
+- **A death saved:** put an amulet that resurrects in the ring slot (slot 3 of `items`, e.g. the
+  Amulet of Mother Nature, 0xD0ED, below), then
+  `--say "/vault;;/position;;/position;;/position;;/kill Tester Oryx"`. `/kill <name> <killer>`
+  calls the death directly (no hit, so the save shows no blow); the `/position` lines keep you
+  in the vault about 9 s first, as a `/kill` straight after `/vault` runs the moment the vault
+  is joined and leaves an empty replay. The amulet is used up: put it back before each run.
+  `/fame/saved` and `/fame/feed` show the save at once.
 
 ### The test copy's data
 

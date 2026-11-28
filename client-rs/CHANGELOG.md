@@ -25,6 +25,11 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 ### Arena
 - **The Ivory Wyvern can be beaten again:** in the Arena it could get stuck throwing its four soul flames over and over, never taking damage. It now carries on with the fight whatever lands.
 
+### Replays
+- **Deaths saved, replayed:** when an amulet that resurrects (or a ring's Guardian Angel) carries you off from a killing blow, those last seconds are kept as a replay, as a death's are. The Legends have a new **Deaths Saved** tab listing the latest, lit in gold, with what would have killed them, where, the amulet that saved them and the blow they lived through; click one to watch it end in a burst of holy light.
+- **Comment on replays:** every replay now has a Comments tab beside its hits, where signed-in players can say what they thought of a death or a close call.
+- **Replays in the Scrying Glass:** the glass's new **Replays** tab lists the 20 latest deaths and deaths saved on the server, with how many have commented; click one to watch it right there in the Nexus, comment, and go back to the glass.
+
 ## 2.6.10 (2026-11-27)
 
 ### Gold Store

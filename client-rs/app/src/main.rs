@@ -125,6 +125,8 @@ enum Request {
     Legends,
     /// The server's latest deaths (the Legends screen's Recent Deaths).
     RecentDeaths,
+    /// Its latest deaths saved (Deaths Saved).
+    SavedDeaths,
     /// A dead character's fame summary.
     Fame,
     /// A new guest account.
@@ -253,6 +255,14 @@ struct App {
     /// the replay's Back returns to.
     replay_open: Option<std::path::PathBuf>,
     replay_back: screens::Screen,
+    /// A replay asked for by name (Deaths Saved, the Scrying Glass's Replays), opened once read.
+    replay_fetch: Option<(bsk_net::replay::ReplayId, Pending<bsk_net::http::Response>)>,
+    /// The replay plays over the game (from the Scrying Glass) rather than as a menu screen.
+    replay_over_game: bool,
+    /// The replay's comments asked for, or a comment posted (true), answered with them.
+    comments_request: Option<(bool, Pending<bsk_net::http::Response>)>,
+    /// The Scrying Glass's Replays list, asked for.
+    glass_feed_request: Option<Pending<bsk_net::http::Response>>,
     /// The Discord screen's code: when it came (it lasts `DISCORD_CODE_SECS`), and when the
     /// character list was last asked for to see whether the Discord bot has taken it.
     discord_code_at: Option<Instant>,
@@ -1476,17 +1486,30 @@ impl App {
             }
             Action::WatchReplay => {
                 if let Some(file) = &self.replay_file {
-                    self.replay = Some(replay::Viewer::new(file.clone()));
-                    self.replay_back = screens::Screen::Death;
-                    self.front.show(screens::Screen::Replay);
+                    let mut v = replay::Viewer::new(file.clone());
+                    if let Some((a, c)) = self.fame_of {
+                        v = v.with_id(bsk_net::replay::ReplayId::Death(a, c));
+                    }
+                    self.open_replay(v, screens::Screen::Death);
+                }
+            }
+            Action::WatchSaved(id) => {
+                if let Some(endpoint) = &self.endpoint {
+                    let id = bsk_net::replay::ReplayId::Saved(id);
+                    self.replay_fetch = Some((id, endpoint.replay_of(id)));
+                    self.front.busy = tr("Loading the replay…").into();
+                    self.front.show(screens::Screen::Busy);
                 }
             }
             Action::Legends(span) => {
                 if let Some(endpoint) = &self.endpoint {
                     self.front.legends = None;
                     self.front.recent = None;
+                    self.front.saved = None;
                     self.request = Some(if span == screens::TIMESPANS[screens::RECENT].0 {
                         (Request::RecentDeaths, endpoint.recent_deaths())
+                    } else if span == screens::TIMESPANS[screens::SAVED].0 {
+                        (Request::SavedDeaths, endpoint.saved_deaths())
                     } else {
                         (Request::Legends, endpoint.legends(span))
                     });
@@ -1570,6 +1593,11 @@ impl App {
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
+        self.glass_feed_request = None;
+        if std::mem::take(&mut self.replay_over_game) {
+            self.replay = None;
+            self.comments_request = None;
+        }
         self.collection.reset();
         self.pet_pen.reset();
         self.npc_request = None;
@@ -1627,6 +1655,11 @@ impl App {
         self.community.reset();
         self.vault.reset();
         self.glass.reset();
+        self.glass_feed_request = None;
+        if std::mem::take(&mut self.replay_over_game) {
+            self.replay = None;
+            self.comments_request = None;
+        }
         self.collection.reset();
         self.pet_pen.reset();
         self.npc_request = None;
@@ -1780,9 +1813,86 @@ impl App {
         }
     }
 
+    /// Opens a replay in the viewer: as a menu screen (Back goes to `back`), or over the game
+    /// while playing (from the Scrying Glass; Back goes back to the glass).
+    fn open_replay(&mut self, mut v: replay::Viewer, back: screens::Screen) {
+        v.can_comment = self.account.is_some() && !self.guest;
+        self.replay = Some(v);
+        if matches!(self.phase, Phase::Playing(_)) {
+            self.replay_over_game = true;
+        } else {
+            self.replay_over_game = false;
+            self.replay_back = back;
+            self.front.show(screens::Screen::Replay);
+        }
+    }
+
+    /// What the replay viewer asked for (Back, its comments, a comment).
+    fn replay_outs(&mut self) {
+        let Some(v) = self.replay.as_mut() else { return };
+        for out in v.take_out() {
+            match out {
+                replay::Out::Back => {
+                    if self.replay_over_game {
+                        self.replay_over_game = false;
+                        self.replay = None;
+                        self.comments_request = None;
+                        return;
+                    }
+                    self.front.show(self.replay_back);
+                }
+                replay::Out::LoadComments(id) => {
+                    if let Some(endpoint) = &self.endpoint {
+                        self.comments_request = Some((false, endpoint.comments(id)));
+                    }
+                }
+                replay::Out::Comment(id, text) => {
+                    if let (Some(endpoint), Some((email, password))) = (&self.endpoint, &self.account) {
+                        self.comments_request = Some((true, endpoint.comment(email, password, id, &text)));
+                    }
+                }
+            }
+        }
+    }
+
+    /// The answers about replays: one asked for by name (opened), its comments, and the
+    /// Scrying Glass's list.
+    fn advance_replays(&mut self) {
+        self.replay_outs();
+        if let Some((id, response)) = self.replay_fetch.as_ref().and_then(|(id, p)| p.take().map(|r| (*id, r))) {
+            self.replay_fetch = None;
+            let playing = matches!(self.phase, Phase::Playing(_));
+            match login::reached(response).and_then(|xml| bsk_net::replay::parse_answer(&xml)) {
+                Ok(file) => {
+                    // from the menu's Busy screen, Back goes to the legends
+                    self.open_replay(replay::Viewer::new(file).with_id(id), screens::Screen::Legends);
+                }
+                Err(e) => {
+                    log::info!("no replay {}: {e}", id.name());
+                    if !playing {
+                        self.front.message = Some((tr("That replay is no longer kept.").into(), true));
+                        self.front.show(screens::Screen::Legends);
+                    }
+                }
+            }
+        }
+        if let Some((posted, response)) = self.comments_request.as_ref().and_then(|(posted, p)| p.take().map(|r| (*posted, r))) {
+            self.comments_request = None;
+            if let Some(v) = self.replay.as_mut() {
+                v.set_comments(login::reached(response).and_then(|xml| bsk_net::replay::parse_comments(&xml)), posted);
+            }
+        }
+        if let Some(response) = self.glass_feed_request.as_ref().and_then(|p| p.take()) {
+            self.glass_feed_request = None;
+            let now = self.now();
+            self.glass.set_feed(login::reached(response).and_then(|xml| bsk_net::replay::parse_feed(&xml)), now);
+        }
+    }
+
     /// Move through the sign-in steps as their answers arrive.
     fn advance(&mut self) {
         self.advance_npcs();
+        self.advance_replays();
         // a death's replay, read
         if let Some(response) = self.replay_request.as_ref().and_then(|p| p.take()) {
             self.replay_request = None;
@@ -1889,6 +1999,21 @@ impl App {
                                 self.front_action(screens::Action::SpriteEditor);
                                 self.sprite_editor.test_screen(s);
                             }
+                            // a death saved's replay: `replay:s:<save>`
+                            Some(s) if s.starts_with("replay:s:") => {
+                                if let Ok(id) = s[9..].parse() {
+                                    self.front_action(screens::Action::WatchSaved(id));
+                                }
+                            }
+                            // the Legends at a tab: `legends:week` ... `legends:recent`, `legends:saved`
+                            Some(s) if s.starts_with("legends") => {
+                                let span = s.strip_prefix("legends:").unwrap_or("week");
+                                if let Some(i) = screens::TIMESPANS.iter().position(|t| t.0 == span) {
+                                    self.front.timespan = i;
+                                    self.front.show(Screen::Legends);
+                                    self.front_action(screens::Action::Legends(screens::TIMESPANS[i].0));
+                                }
+                            }
                             // a death's summary and its replay: `replay:<account>:<character>`
                             Some(s) if s.starts_with("replay:") => {
                                 let ids: Vec<i32> = s[7..].split(':').filter_map(|n| n.parse().ok()).collect();
@@ -1985,6 +2110,13 @@ impl App {
                 Ok(list) => self.front.recent = Some(list),
                 Err(e) => {
                     self.front.recent = Some(Vec::new());
+                    self.front.message = Some((e, true));
+                }
+            },
+            Request::SavedDeaths => match login::reached(response).and_then(|xml| bsk_net::account::parse_saved_deaths(&xml)) {
+                Ok(list) => self.front.saved = Some(list),
+                Err(e) => {
+                    self.front.saved = Some((0, Vec::new()));
                     self.front.message = Some((e, true));
                 }
             },
@@ -2150,6 +2282,14 @@ impl App {
             if pressed {
                 self.front_keys.push((code, text.clone(), self.ctrl_held, self.shift_held));
             }
+            return;
+        }
+        // A replay over the game (from the Scrying Glass): keys go to it.
+        if self.replay_over_game && matches!(self.phase, Phase::Playing(_)) {
+            if pressed {
+                self.front_keys.push((code, text.clone(), self.ctrl_held, self.shift_held));
+            }
+            self.keys.remove(&code);
             return;
         }
         // The Scrying Glass's big view: keys go to its chat and its arrows.
@@ -2419,6 +2559,8 @@ impl App {
                 if self.options_ui.paste(&text, &mut self.settings) {
                     self.settings.save();
                 }
+            } else if let (true, Some(v)) = (self.replay_over_game || self.front.screen == screens::Screen::Replay, self.replay.as_mut()) {
+                v.paste(&text);
             } else if self.glass.open {
                 self.glass.paste(&text);
             } else {
@@ -2593,6 +2735,7 @@ impl App {
                             self.replay_back = self.front.screen;
                         }
                         self.replay = Some(replay::Viewer::new(file));
+                        self.replay_over_game = false;
                         self.front.show(screens::Screen::Replay);
                     }
                     Err(e) => {
@@ -2612,7 +2755,7 @@ impl App {
                 if editing && !self.options_ui.open {
                     editor_out.extend(self.sprite_editor.key(code, text.as_deref(), ctrl, shift));
                 } else if let (true, false, Some(v)) = (watching, self.options_ui.open, self.replay.as_mut()) {
-                    v.key(code, data);
+                    v.key(code, text.as_deref(), ctrl, shift, data);
                 } else {
                     actions.extend(self.front.key(code, text.as_deref(), ctrl, shift));
                 }
@@ -2651,11 +2794,7 @@ impl App {
                 v.drag(mouse, data);
                 v.tick(data, dt);
                 self.front.clicked |= std::mem::take(&mut v.clicked);
-                for out in v.take_out() {
-                    match out {
-                        replay::Out::Back => self.front.show(self.replay_back),
-                    }
-                }
+                // what it asks (Back, its comments) is taken in `advance_replays`
             }
             for out in editor_out {
                 self.front.message = None;
@@ -3214,6 +3353,28 @@ impl App {
                     self.glass.say(&t);
                 }
             }
+            // a replay from the glass, over the game: it takes the keys and the mouse
+            if self.replay_over_game {
+                if let Some(v) = self.replay.as_mut() {
+                    for (code, text, ctrl, shift) in std::mem::take(&mut self.front_keys) {
+                        v.key(code, text.as_deref(), ctrl, shift, data);
+                    }
+                    for (down, pos) in std::mem::take(&mut self.clicks) {
+                        if down {
+                            v.click(pos, data);
+                        } else {
+                            v.release();
+                        }
+                    }
+                    v.drag(mouse, data);
+                    v.tick(data, dt);
+                    v.clicked = false;
+                } else {
+                    self.replay_over_game = false;
+                }
+                self.right_clicks.clear();
+                self.mouse_down = false;
+            }
             if self.glass.open {
                 for (down, pos) in std::mem::take(&mut self.clicks) {
                     if down {
@@ -3222,6 +3383,15 @@ impl App {
                 }
                 self.right_clicks.clear();
                 self.mouse_down = false;
+            }
+            let (want_feed, watch) = self.glass.take_replay_asks();
+            if let Some(endpoint) = &self.endpoint {
+                if want_feed && self.glass_feed_request.is_none() {
+                    self.glass_feed_request = Some(endpoint.replay_feed());
+                }
+                if let Some(id) = watch {
+                    self.replay_fetch = Some((id, endpoint.replay_of(id)));
+                }
             }
             let (glass_acts, said, chat_lines) = self.glass.take_out();
             if !glass_acts.is_empty() || !said.is_empty() {
@@ -3897,6 +4067,12 @@ impl App {
                 grave::draw_leaving(&mut ui, g, (w as f32, h as f32), now);
             }
         }
+        // a replay from the Scrying Glass, over all the game
+        if let (true, Some(v)) = (self.replay_over_game, self.replay.as_mut()) {
+            let (w, h) = renderer.size();
+            let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
+            v.draw(&mut ui, show, w as f32, h as f32, mouse);
+        }
         if self.game_menu {
             let (w, h) = renderer.size();
             let mut ui = hud::Ui { renderer: &mut *renderer, sprites, data, redrawer: &mut *redrawer, fonts, text: &mut *text };
@@ -4280,6 +4456,18 @@ impl ApplicationHandler<UserEvent> for App {
                 self.wheel -= notches;
                 self.collection.scroll(-notches as i32);
             }
+            WindowEvent::MouseWheel { delta, .. } if self.replay_over_game && matches!(self.phase, Phase::Playing(_)) => {
+                let lines = match delta {
+                    winit::event::MouseScrollDelta::LineDelta(_, y) => y,
+                    winit::event::MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                };
+                self.wheel += lines;
+                let notches = self.wheel.trunc();
+                self.wheel -= notches;
+                if let Some(v) = self.replay.as_mut() {
+                    v.wheel(notches as i32);
+                }
+            }
             WindowEvent::MouseWheel { delta, .. } if self.glass.open && matches!(self.phase, Phase::Playing(_)) => {
                 // the watchers' chat scrolls a row a notch
                 let lines = match delta {
@@ -4488,6 +4676,10 @@ fn main() {
         replay_auto: false,
         replay_open: text_arg("--replay").map(std::path::PathBuf::from),
         replay_back: screens::Screen::Death,
+        replay_fetch: None,
+        replay_over_game: false,
+        comments_request: None,
+        glass_feed_request: None,
         discord_code_at: None,
         sprite_editor: Default::default(),
         discord_asked: None,

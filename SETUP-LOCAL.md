@@ -808,6 +808,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   lead early (fitted per replay, 0-400 ms), each shot's hit when and where its shot meets them,
   and monsters' other shots fly through them.
 
+- **Deaths saved and replay comments** (2026-11-28; `Player.Death.cs` `TryResurrect` and
+  `RecordSave`, `ReplayRecorder.Finish(killer, saver)` and `LastHit`,
+  `Shared/database/leaderboard/DbSavedDeaths.cs`, `Shared/database/ReplayComments.cs`,
+  `FameController` `/fame/saved`, `/fame/feed`, `/fame/comments`, `/fame/comment` and
+  `/fame/replay`'s `saved`; the client's `screens.rs` (Deaths Saved), `replay.rs` (gold ending,
+  Comments tab) and `glass.rs` (Replays tab)): a killing blow taken wearing an amulet that
+  resurrects or a ring with Guardian Angel keeps its replay, ending with a record of kind 3 (the
+  would-be killer, the item's type and name) in place of the death (older clients pass it over).
+  Each save takes a number from `deaths:saved:next` (the count shown), its replay goes to
+  `replay.saved.<n>` for 30 days and its line to the capped list `deaths:saved` (30, JSON: who,
+  what, where, the item, the last hit's damage and the health it met). Comments are named as the
+  client names a replay (`d.<account>.<char>`, `s.<n>`), kept in `replay.comments.<name>` (the
+  newest 50, 140 characters each, one per account every 5 s, not for guests or muted IPs), and
+  expire with their replay (made permanent with an all-time legend's). `/fame/feed` is the
+  Scrying Glass's Replays tab: the 20 latest of the recent deaths and saves together, each with
+  whether its replay is kept and its comment count. In the game the replay viewer plays over the
+  world (`App::replay_over_game`), taking the keys and mouse until Back.
+
 - **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
   layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from
   `BossResurrection.RaiseAt`; `Empowered.Marching`; `WmapTile.ForgetObjectDef`; `Orbit`'s

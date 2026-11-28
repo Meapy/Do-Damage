@@ -7,7 +7,8 @@
 //! what was in sight at its start (its length, then messages: id, length, body), and the records
 //! from there on: when (ms from the start), what kind, its length, then it. A message record is
 //! the message's id and body as the player got it; a hit record is what the server counted of a
-//! hit the player took; the last record is the death.
+//! hit the player took; the last record is the death, or for a death saved (an amulet that
+//! resurrects, a ring's Guardian Angel, `/fame/saved`) what saved them.
 
 use base64::Engine;
 use std::io::Read;
@@ -56,6 +57,8 @@ pub enum Record {
     Hurt(Hurt),
     /// The death, by whom.
     Death(String),
+    /// A death saved: by whom it would have been, and what saved them (its type and name).
+    Saved { killer: String, item_type: u16, item: String },
 }
 
 /// A death's replay.
@@ -85,6 +88,14 @@ pub struct Replay {
 }
 
 impl Replay {
+    /// What saved them, when they didn't die (its type and name): the record it ends with.
+    pub fn saved_by(&self) -> Option<(u16, &str)> {
+        self.records.iter().rev().find_map(|(_, r)| match r {
+            Record::Saved { item_type, item, .. } => Some((*item_type, item.as_str())),
+            _ => None,
+        })
+    }
+
     /// The hits taken, with when (ms from the start).
     pub fn hurts(&self) -> impl Iterator<Item = (i32, &Hurt)> {
         self.records.iter().filter_map(|(t, r)| match r {
@@ -97,6 +108,7 @@ impl Replay {
 const KIND_MESSAGE: u8 = 0;
 const KIND_HURT: u8 = 1;
 const KIND_DEATH: u8 = 2;
+const KIND_SAVED: u8 = 3;
 
 struct Cursor<'a> {
     b: &'a [u8],
@@ -190,6 +202,7 @@ pub fn parse(bytes: &[u8]) -> Result<Replay, String> {
                 flags: body.u8()?,
             }),
             KIND_DEATH => Record::Death(body.string()?),
+            KIND_SAVED => Record::Saved { killer: body.string()?, item_type: body.u16()?, item: body.string()? },
             // a kind a newer server keeps: passed over
             _ => continue,
         };
@@ -208,6 +221,131 @@ pub fn parse_answer(xml: &str) -> Result<Replay, String> {
     let text: String = doc.root_element().text().unwrap_or("").chars().filter(|c| !c.is_whitespace()).collect();
     let zipped = base64::engine::general_purpose::STANDARD.decode(text).map_err(|e| e.to_string())?;
     read_file(zipped)
+}
+
+/// Which replay: a death's (account, character), or a death saved's (the save's number). Its
+/// name is how the server knows it for comments (`ReplayComments.cs`): `d.<account>.<char>`,
+/// `s.<save>`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum ReplayId {
+    Death(i32, i32),
+    Saved(i64),
+}
+
+impl ReplayId {
+    pub fn name(self) -> String {
+        match self {
+            ReplayId::Death(a, c) => format!("d.{a}.{c}"),
+            ReplayId::Saved(id) => format!("s.{id}"),
+        }
+    }
+
+    pub fn parse(name: &str) -> Option<ReplayId> {
+        let mut it = name.split('.');
+        let id = match (it.next()?, it.next(), it.next()) {
+            ("d", Some(a), Some(c)) => ReplayId::Death(a.parse().ok()?, c.parse().ok()?),
+            ("s", Some(n), None) => ReplayId::Saved(n.parse().ok()?),
+            _ => return None,
+        };
+        it.next().is_none().then_some(id)
+    }
+}
+
+/// A comment under a replay (`/fame/comments`), oldest first.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Comment {
+    pub account_id: i32,
+    pub name: String,
+    pub text: String,
+    /// Seconds before the server answered.
+    pub ago: i64,
+}
+
+/// `/fame/comments` and `/fame/comment`'s answer: a replay's comments, oldest first.
+pub fn parse_comments(xml: &str) -> Result<Vec<Comment>, String> {
+    if let Some(e) = crate::account::error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let text = |e: roxmltree::Node, n: &str| e.children().find(|c| c.has_tag_name(n)).and_then(|c| c.text()).unwrap_or("").to_owned();
+    Ok(doc
+        .root_element()
+        .children()
+        .filter(|c| c.has_tag_name("Comment"))
+        .map(|e| Comment {
+            account_id: e.attribute("accountId").and_then(|v| v.parse().ok()).unwrap_or(0),
+            name: text(e, "Name"),
+            text: text(e, "Text"),
+            ago: text(e, "Ago").trim().parse().unwrap_or(0),
+        })
+        .collect())
+}
+
+/// A line of `/fame/feed` (the Scrying Glass's Replays tab): one of the server's latest deaths,
+/// or deaths saved, newest first.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FeedEntry {
+    pub id: ReplayId,
+    pub name: String,
+    pub object_type: u16,
+    pub skin: i32,
+    pub tex1: i32,
+    pub tex2: i32,
+    pub level: i32,
+    pub fame: i32,
+    pub killer: String,
+    pub world: String,
+    /// What saved them (a death saved): the item's type and name, and whether it was a ring's
+    /// Guardian Angel.
+    pub saver_type: u16,
+    pub saver: String,
+    pub angel: bool,
+    pub has_replay: bool,
+    pub comments: i32,
+    /// Seconds before the server answered.
+    pub ago: i64,
+}
+
+impl FeedEntry {
+    pub fn saved(&self) -> bool {
+        matches!(self.id, ReplayId::Saved(_))
+    }
+}
+
+/// `/fame/feed`.
+pub fn parse_feed(xml: &str) -> Result<Vec<FeedEntry>, String> {
+    if let Some(e) = crate::account::error_text(xml) {
+        return Err(e);
+    }
+    let doc = roxmltree::Document::parse(xml).map_err(|e| e.to_string())?;
+    let text = |e: roxmltree::Node, n: &str| e.children().find(|c| c.has_tag_name(n)).and_then(|c| c.text()).unwrap_or("").trim().to_owned();
+    let int = |e: roxmltree::Node, n: &str| text(e, n).parse::<i64>().unwrap_or(0);
+    let yes = |e: roxmltree::Node, n: &str| text(e, n).eq_ignore_ascii_case("true");
+    Ok(doc
+        .root_element()
+        .children()
+        .filter(|c| c.has_tag_name("Replay"))
+        .filter_map(|e| {
+            Some(FeedEntry {
+                id: ReplayId::parse(e.attribute("id")?)?,
+                name: text(e, "Name"),
+                object_type: int(e, "ObjectType") as u16,
+                skin: int(e, "Texture") as i32,
+                tex1: int(e, "Tex1") as i32,
+                tex2: int(e, "Tex2") as i32,
+                level: int(e, "Level") as i32,
+                fame: int(e, "Fame") as i32,
+                killer: text(e, "Killer"),
+                world: text(e, "World"),
+                saver_type: int(e, "SaverType") as u16,
+                saver: text(e, "Saver"),
+                angel: yes(e, "Angel"),
+                has_replay: yes(e, "HasReplay"),
+                comments: int(e, "Comments") as i32,
+                ago: int(e, "Ago"),
+            })
+        })
+        .collect())
 }
 
 /// The extension of a downloaded replay (the server's gzipped recording, as is).
@@ -230,7 +368,12 @@ impl Replay {
     /// A name for its file: who, and which character.
     pub fn file_name(&self) -> String {
         let name: String = self.name.chars().filter(|c| c.is_ascii_alphanumeric()).collect();
-        format!("{}-{}-{}.{FILE_EXTENSION}", if name.is_empty() { "replay" } else { &name }, self.account_id, self.char_id)
+        let name = if name.is_empty() { "replay" } else { &name };
+        match self.saved_by() {
+            // a character may be saved again and again: told apart by when
+            Some(_) => format!("{name}-{}-{}-saved-{}.{FILE_EXTENSION}", self.account_id, self.char_id, self.died_at / 1000),
+            None => format!("{name}-{}-{}.{FILE_EXTENSION}", self.account_id, self.char_id),
+        }
     }
 }
 
@@ -297,6 +440,55 @@ mod tests {
         let (at, h) = r.hurts().next().unwrap();
         assert_eq!((at, h.from, h.source_type, h.source_id, h.raw, h.dealt, h.hp, h.max_hp, h.flags), (14_000, from::SHOT, 0x0600, 55, 120, 100, -20, 700, flag::PIERCE));
         assert_eq!(r.records[2], (15_000, Record::Death("Pirate".into())));
+    }
+
+    #[test]
+    fn reads_a_death_saved() {
+        // the same, ending with what saved them in place of the death
+        let mut b = recording();
+        let death = 4 + 1 + 4 + 8;
+        b.truncate(b.len() - death);
+        b.extend(15_000i32.to_be_bytes());
+        b.push(KIND_SAVED);
+        let body = [&6u16.to_be_bytes()[..], b"Pirate", &0x0aa1u16.to_be_bytes(), &14u16.to_be_bytes(), b"Amulet of Life"].concat();
+        b.extend((body.len() as i32).to_be_bytes());
+        b.extend(&body);
+        let r = parse(&b).unwrap();
+        assert_eq!(r.records[2], (15_000, Record::Saved { killer: "Pirate".into(), item_type: 0x0aa1, item: "Amulet of Life".into() }));
+        assert_eq!(r.saved_by(), Some((0x0aa1, "Amulet of Life")));
+        assert_eq!(r.file_name(), "Tester-2-7-saved-1700000000.bskreplay");
+        assert_eq!(parse(&recording()).unwrap().saved_by(), None);
+    }
+
+    #[test]
+    fn names_a_replay() {
+        assert_eq!(ReplayId::Death(3, 41).name(), "d.3.41");
+        assert_eq!(ReplayId::Saved(7).name(), "s.7");
+        assert_eq!(ReplayId::parse("d.3.41"), Some(ReplayId::Death(3, 41)));
+        assert_eq!(ReplayId::parse("s.7"), Some(ReplayId::Saved(7)));
+        assert_eq!(ReplayId::parse("s.7.1"), None);
+        assert_eq!(ReplayId::parse("d.3"), None);
+        assert_eq!(ReplayId::parse("x.1"), None);
+    }
+
+    #[test]
+    fn reads_comments_and_the_feed() {
+        let xml = r#"<Comments replay="s.4"><Comment accountId="2"><Name>Ana</Name><Text>so close!</Text><Ago>30</Ago></Comment>
+            <Comment accountId="5"><Name>Bo</Name><Text>gg</Text><Ago>4</Ago></Comment></Comments>"#;
+        let c = parse_comments(xml).unwrap();
+        assert_eq!(c.len(), 2);
+        assert_eq!((c[0].account_id, c[0].name.as_str(), c[0].text.as_str(), c[0].ago), (2, "Ana", "so close!", 30));
+        assert_eq!(parse_comments("<Error>Slow down a little</Error>"), Err("Slow down a little".into()));
+        let xml = r#"<Replays><Replay kind="saved" id="s.4"><Name>Ana</Name><ObjectType>782</ObjectType><Level>20</Level>
+            <Killer>Oryx</Killer><World>Realm</World><SaverType>2721</SaverType><Saver>Amulet of Life</Saver><Angel>false</Angel>
+            <HasReplay>true</HasReplay><Comments>2</Comments><Ago>60</Ago></Replay>
+            <Replay kind="death" id="d.2.9"><Name>Bo</Name><HasReplay>false</HasReplay></Replay>
+            <Replay kind="death" id="bad"><Name>C</Name></Replay></Replays>"#;
+        let f = parse_feed(xml).unwrap();
+        assert_eq!(f.len(), 2);
+        assert!(f[0].saved() && f[0].has_replay);
+        assert_eq!((f[0].id, f[0].saver_type, f[0].saver.as_str(), f[0].comments, f[0].ago), (ReplayId::Saved(4), 2721, "Amulet of Life", 2, 60));
+        assert_eq!((f[1].id, f[1].saved(), f[1].has_replay), (ReplayId::Death(2, 9), false, false));
     }
 
     #[test]
