@@ -44,6 +44,8 @@ namespace WorldServer.core.resurrection
             // Malus 2 already cycles his four cultists' attacks and fires five at once in his Fury:
             // sped up as much as the others, his hall was a wall of bullets
             ["Elder LH Malus 2"] = new Tuning(1.15f, 1.25f, 1.1f, 1.25f),
+            // the Void Entity's shots hit 10% softer than the default, calm and enraged
+            ["Elder LH Void Entity"] = new Tuning(1.17f, 1.305f, 1.25f, 1.45f),
         };
 
         public static Tuning TuningFor(string boss) =>

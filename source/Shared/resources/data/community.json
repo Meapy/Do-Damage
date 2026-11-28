@@ -195,6 +195,7 @@
         {"item": "Elder Manor Key", "weight": 10, "rarity": "uncommon"},
         {"item": "Elder Undead Lair Key", "weight": 9, "rarity": "uncommon"},
         {"item": "Elder Ocean Trench Key", "weight": 8, "rarity": "uncommon"},
+        {"item": "Elder Ice Cave Key", "weight": 7, "rarity": "uncommon"},
         {"item": "Elder Tomb Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Abyss Key", "weight": 6, "rarity": "rare"},
         {"item": "Elder Draconis Key", "weight": 3, "rarity": "epic"},

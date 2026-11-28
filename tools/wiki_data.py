@@ -469,8 +469,13 @@ class Data:
                     continue  # a closed dungeon's key doesn't drop (ItemLoot)
                 if kind in ("portal", "item"):
                     lst = idx.setdefault(oid, [])
-                    if not any(m == monster for m, _ in lst):
+                    # a monster that rolls it twice (an Empowered boss's own drops, then its second
+                    # roll) shows the better chance
+                    at = next((i for i, (m, _) in enumerate(lst) if m == monster), None)
+                    if at is None:
                         lst.append((monster, chance))
+                    elif (chance or 0) > (lst[at][1] or 0):
+                        lst[at] = (monster, chance)
         return idx
 
     # --- the Divine Forge ---------------------------------------------------------------------

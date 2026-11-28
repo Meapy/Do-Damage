@@ -40,6 +40,10 @@ namespace WorldServer.core.setpieces
             new RealmEventGrounds("Blight Mother", "R2 Blight Moss", "R2 Mycelium", "R2 Rot Soil",
                 "R2 Giant Toadstool", "R2 Blight Puffball", "R2 Spore Patch", "R2 Glowcap", "R2 Rot Stump");
 
+        public static RealmEventGrounds FrozenBarrow() =>
+            new RealmEventGrounds("Rime Herald", "R2 Snowfield", "R2 Rime Ice", "R2 Barrow Flagstones",
+                "R2 Frozen Grave", "R2 Frozen Grave", "R2 Ice Spire", "R2 Snow Drift", "R2 Icicle Cluster", "R2 Frost Brazier");
+
         public override int Size => Radius * 2 + 1;
 
         public override void RenderSetPiece(World world, IntPoint pos)

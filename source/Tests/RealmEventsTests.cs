@@ -45,7 +45,7 @@ namespace Tests
         public void TheNewEventsAreQuestsOfLevelTwenty()
         {
             var data = Res.Value.GameData;
-            foreach (var id in new[] { "Gilded Thief", "Starborn Colossus", "Blight Mother" })
+            foreach (var id in new[] { "Gilded Thief", "Starborn Colossus", "Blight Mother", "Rime Herald" })
             {
                 var desc = data.ObjectDescs[data.IdToObjectType[id]];
                 Assert.True(desc.Quest, id);

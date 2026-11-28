@@ -13,6 +13,9 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
+        // Daichi's jumps round the temple's corners are marked in jade first (MoveTo3's warnMs)
+        private const uint DaichiGlow = 0xFF6FE0A0;
+
         private _ MountainTemple = () => Behav() // by runes :)
         .Init("Daichi the Fallen",
             new State(
@@ -27,7 +30,7 @@ namespace WorldServer.logic
                     new TimedTransition(4000, "moveTR")
                     ),
                 new State("moveTR",
-                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new TimedTransition(1500, "spawnTR")
                     ),
                 new State("spawnTR",
@@ -35,7 +38,7 @@ namespace WorldServer.logic
                     new TimedTransition(250, "moveBR")
                     ),
                 new State("moveBR",
-                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new TimedTransition(1500, "spawnBR")
                     ),
                 new State("spawnBR",
@@ -43,7 +46,7 @@ namespace WorldServer.logic
                     new TimedTransition(250, "moveBL")
                     ),
                 new State("moveBL",
-                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new TimedTransition(1500, "spawnBL")
                     ),
                 new State("spawnBL",
@@ -51,7 +54,7 @@ namespace WorldServer.logic
                     new TimedTransition(250, "moveTL")
                     ),
                 new State("moveTL",
-                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new TimedTransition(1500, "spawnTL")
                     ),
                 new State("spawnTL",
@@ -85,44 +88,44 @@ namespace WorldServer.logic
                     new TimedTransition(6400, "attackTR")
                     ),
                 new State("attackTR",
-                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.6, "skipToAngy"),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackBL")
+                    new Shoot(15, 22, 15, 2, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackBL")
                     ),
                 new State("attackBL",
-                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.6, "skipToAngy"),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackTL")
+                    new Shoot(15, 22, 15, 4, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackTL")
                     ),
                 new State("attackTL",
-                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.6, "skipToAngy"),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackBR")
+                    new Shoot(15, 22, 15, 3, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackBR")
                     ),
                 new State("attackBR",
-                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.6, "skipToAngy"),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "backToCenter")
+                    new Shoot(15, 22, 15, 5, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "backToCenter")
                     ),
                 new State("skipToAngy",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
@@ -219,44 +222,44 @@ namespace WorldServer.logic
                     new TimedTransition(6400, "attackTRTwo")
                     ),
                 new State("attackTRTwo",
-                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.1, "backToCenterTwo"),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 2, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackBLTwo")
+                    new Shoot(15, 22, 15, 2, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 2, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackBLTwo")
                     ),
                 new State("attackBLTwo",
-                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.1, "backToCenterTwo"),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 4, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackTLTwo")
+                    new Shoot(15, 22, 15, 4, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 4, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackTLTwo")
                     ),
                 new State("attackTLTwo",
-                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(156.5f, 10.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.1, "backToCenterTwo"),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 3, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "attackBRTwo")
+                    new Shoot(15, 22, 15, 3, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 3, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "attackBRTwo")
                     ),
                 new State("attackBRTwo",
-                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true),
+                    new MoveTo3(167.5f, 21.5f, isMapPosition: true, instant: true, warnMs: 800, warnColor: DaichiGlow),
                     new HpLessTransition(0.1, "backToCenterTwo"),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 0, coolDown: 9999, coolDownOffset: 500),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 30, coolDown: 9999, coolDownOffset: 1700),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 60, coolDown: 9999, coolDownOffset: 2900),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4100),
-                    new Shoot(15, 22, 15, 5, fixedAngle: 120, coolDown: 9999, coolDownOffset: 5300),
-                    new TimedTransition(6000, "backToCenterTwo")
+                    new Shoot(15, 22, 15, 5, fixedAngle: 0, coolDown: 9999, coolDownOffset: 1300),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 30, coolDown: 9999, coolDownOffset: 2500),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 60, coolDown: 9999, coolDownOffset: 3700),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 90, coolDown: 9999, coolDownOffset: 4900),
+                    new Shoot(15, 22, 15, 5, fixedAngle: 120, coolDown: 9999, coolDownOffset: 6100),
+                    new TimedTransition(6800, "backToCenterTwo")
                     ),
                 new State("backToCenterTwo",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invincible),

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shared.resources;
@@ -20,7 +20,8 @@ namespace WorldServer.logic.behaviors
         // the client's default throw (ShowEffect Throw with no duration) takes 1.5 s
         public const int ThrowMs = 1500;
 
-        // style (pos2.y): 0 a plain circle filling in; 1 the Mysterious One's rift, opening out
+        // style (pos2.y): 0 a plain circle filling in; 1 the Mysterious One's rift, opening out;
+        // -1 where a boss is about to appear (Arrival)
         public static void Mark(Entity host, Position at, double radius, int ms, uint color, int style = 0)
         {
             var effect = new ShowEffect
@@ -34,6 +35,12 @@ namespace WorldServer.logic.behaviors
             };
             host.World.BroadcastIfVisible(effect, ref at);
         }
+
+        // where a boss that teleports is about to appear: a ring of its colour closing in on the spot
+        // over `ms`, when it arrives there. Clients from 2.6.11 draw it as its own mark; older ones see
+        // a plain mark filling in (a negative style reads as 0 to them).
+        public static void Arrival(Entity host, Position at, int ms, uint color, double radius = 1.2) =>
+            Mark(host, at, radius, ms, color, -1);
 
         public static void Throw(Entity from, Position to, uint color) =>
             from.World.BroadcastIfVisible(new ShowEffect
@@ -1085,21 +1092,33 @@ namespace WorldServer.logic.behaviors
         }
     }
 
-    // Vesper's Starfall Waltz: on entering the state the host blinks to a random walkable spot
-    // between `min` and `max` tiles from its spawn point.
+    // Vesper's Starfall Waltz (and the Orrery's blinks in the Crucible): on entering the state the
+    // host picks a random walkable spot between `min` and `max` tiles from its spawn point, marks it
+    // (Strike.Arrival, in `color`) and blinks there `warnMs` later, once the mark has filled.
     internal class BlinkAround : Behavior
     {
         private readonly double _min;
         private readonly double _max;
+        private readonly int _warnMs;
+        private readonly uint _color;
 
-        public BlinkAround(double min, double max)
+        public BlinkAround(double min, double max, int warnMs = 0, uint color = 0xFFFFFFFF)
         {
             _min = min;
             _max = max;
+            _warnMs = warnMs;
+            _color = color;
+        }
+
+        private sealed class Pending
+        {
+            public Position To;
+            public int Left;
         }
 
         protected override void OnStateEntry(Entity host, TickTime time, ref object state)
         {
+            state = null;
             var c = host.SpawnPoint.Value;
             for (var tries = 0; tries < 20; tries++)
             {
@@ -1108,12 +1127,28 @@ namespace WorldServer.logic.behaviors
                 var (x, y) = (c.X + (float)(d * Math.Cos(a)), c.Y + (float)(d * Math.Sin(a)));
                 if (!Strike.Walkable(host, x, y))
                     continue;
-                host.Move(x, y);
+                if (_warnMs <= 0)
+                {
+                    host.Move(x, y);
+                    return;
+                }
+                var to = new Position(x, y);
+                Strike.Arrival(host, to, _warnMs, _color);
+                state = new Pending { To = to, Left = _warnMs };
                 return;
             }
         }
 
-        protected override void TickCore(Entity host, TickTime time, ref object state) { }
+        protected override void TickCore(Entity host, TickTime time, ref object state)
+        {
+            if (state is not Pending p)
+                return;
+            p.Left -= time.ElapsedMsDelta;
+            if (p.Left > 0)
+                return;
+            state = null;
+            host.Move(p.To.X, p.To.Y);
+        }
     }
 
     // Aurel's Zenith Leap: he marks where a player will be when the mark has filled (`fillMs`: where

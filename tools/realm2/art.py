@@ -68,6 +68,9 @@ PALETTES = {
     # the Blightwood: rot purples, sickly greens and the glow of its spores
     "blight": palette(_1="#1a0e1e", _2="#3a2040", _3="#6a3a6a", _4="#2a3a12", _5="#5a7a22", _6="#a8d050",
                       _7="#8ae040", _8="#eaffb0", e="#7a1a50", E="#d050a0"),
+    # the Frozen Barrow: the Ice Tomb's deep ice and snow, its steel, and the glow of its rime
+    "frost": palette(_1="#1c3466", _2="#2f6fd0", _3="#5fb4f5", _4="#4c5f80", _5="#a8bcd8", _6="#eef6fc",
+                     _7="#3ef0ff", _8="#dcfaff"),
 }
 
 # ------------------------------------------------------------------------------------------------
@@ -475,6 +478,83 @@ MOBS16 = {
 
 # ------------------------------------------------------------------------------------------------
 # Quest monsters, 16 by 16: name -> (area, stand, attack or None[, colours of its own as letters])
+
+# the Rime Herald, the realm event that opens the way to the Ice Tomb, and the sarcophagi it raises
+MOBS16.update({
+    # the Frozen Court's herald: a rime crown, a long mantle of the Court's blue, the Court's sigil
+    # in gold on its chest, a staff tipped with a frozen star
+    "Rime Herald": ("frost", [
+        "......y.y.y.....",
+        "......yyyyy..w..",
+        ".....k66666k.787",
+        ".....kk7k7kk..G.",
+        ".....k66666k..G.",
+        "....k6655566k.G.",
+        "...k333666333kG.",
+        "..k32336663323G.",
+        "..k3233666332kG.",
+        "..k3223yyy322kG.",
+        ".k32223666322kG.",
+        ".k32223666322k..",
+        ".k22223666322k..",
+        "k222213666312k..",
+        "k1111136663111k.",
+        ".kkkkkkkkkkkkk..",
+    ], [
+        "......y.y.y..w.w",
+        "......yyyyy..787",
+        ".....k66666k.888",
+        ".....kk8k8kk.787",
+        ".....k66666k.wGw",
+        "....k6655566k.G.",
+        "...k333666333kG.",
+        "..k32336663323G.",
+        "..k3233666332kG.",
+        "..k3223yyy322kG.",
+        ".k32223666322kG.",
+        ".k32223666322k..",
+        ".k22223666322k..",
+        "k222213666312k..",
+        "k1111136663111k.",
+        ".kkkkkkkkkkkkk..",
+    ]),
+    # a sarcophagus of the frozen dead, standing on end, sealed; cracking as it opens
+    "Herald's Sarcophagus": ("frost", [
+        "................",
+        ".....kkkkkk.....",
+        "....k366663k....",
+        "....k366663k....",
+        "...k36k66k63k...",
+        "...k36676763k...",
+        "...k36666663k...",
+        "...k33666633k...",
+        "...k36yyyy63k...",
+        "...k36666663k...",
+        "...k33666633k...",
+        "...k33366333k...",
+        "...k23333332k...",
+        "...k22222222k...",
+        "..kk11111111kk..",
+        "..kkkkkkkkkkkk..",
+    ], [
+        "................",
+        ".....kkkkkk.....",
+        "....k3w6663k....",
+        "....k36w663k....",
+        "...k36k6wk63k...",
+        "...k36878763k...",
+        "...k366w6663k...",
+        "...k336w6633k...",
+        "...k36yywy63k...",
+        "...k366666w3k...",
+        "...k33666w33k...",
+        "...k3336w333k...",
+        "...k23333332k...",
+        "...k22222222k...",
+        "..kk11111111kk..",
+        "..kkkkkkkkkkkk..",
+    ]),
+})
 
 QUESTS16 = {
     # the sentries' captain: a winged helm, a tower shield with the land's glowing sign, a halberd
@@ -1519,6 +1599,57 @@ DECOR8 = {
         "..G.G...",
         "..G.G...",
     ]),
+    # --- the Frozen Barrow
+    "R2 Ice Spire": ("frost", [
+        "...6....",
+        "...6w...",
+        "..363...",
+        "..3w3...",
+        ".23336..",
+        ".23w33..",
+        "1223333.",
+        "11222221",
+    ]),
+    "R2 Frozen Grave": ("frost", [
+        "........",
+        "..6666..",
+        ".655556.",
+        ".54w445.",
+        ".54ww45.",
+        ".544445.",
+        ".444444.",
+        "66666666",
+    ]),
+    "R2 Snow Drift": ("frost", [
+        "........",
+        "........",
+        "........",
+        "...ww...",
+        ".w6666w.",
+        "66566666",
+        "........",
+        "........",
+    ]),
+    "R2 Icicle Cluster": ("frost", [
+        "........",
+        ".w....w.",
+        ".3..w.3.",
+        ".3.w3.2.",
+        "236322..",
+        "..3.2...",
+        "..2.....",
+        "........",
+    ]),
+    "R2 Frost Brazier": ("frost", [
+        "..7.8...",
+        "..878...",
+        ".87787..",
+        "..888...",
+        ".kgggk..",
+        "..kGk...",
+        "..kGk...",
+        ".kgggk..",
+    ]),
 }
 
 # Each area's wall, painted by build_realm2.py: (area, face colour letter, top colour letter, style)
@@ -1537,6 +1668,7 @@ WALLS = {
     "R2 Bazaar Wall": ("thief", "4", "5", "brick"),
     "R2 Meteor Wall": ("star", "4", "5", "rough"),
     "R2 Blight Wall": ("blight", "2", "3", "rough"),
+    "R2 Rime Wall": ("frost", "2", "3", "rough"),
 }
 
 # The Realm 2 portal, 16 by 16, four frames: a ring of the eleven areas' glows round a swirl.

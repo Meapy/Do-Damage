@@ -13,6 +13,14 @@
 //! The server hears of the player late, so as recorded they'd trail the shots: `sync` moves them
 //! along their recorded places a little early and shows each hit as its shot meets them.
 //!
+//! A death saved (an amulet that resurrects, a ring's Guardian Angel: Legends' Deaths Saved, the
+//! Scrying Glass's Replays) ends in gold rather than red: what saved them, and the blow they
+//! lived through.
+//!
+//! Beside the picture, two tabs: the hits taken, and what players have said about it
+//! (`/fame/comments`), where a signed-in player can add their own (`/fame/comment`), asked of
+//! the app (`Out`) as it holds the account.
+//!
 //! Its Download button saves the recording as a file (`bsk_net::replay::FILE_EXTENSION`): into
 //! Downloads on the desktop, a download in a browser. Dropped on the window (or named with
 //! `--replay <file>`), a saved one plays again, long after the server has let it go.
@@ -23,7 +31,9 @@ use crate::i18n::{tf, tn, tr};
 use crate::theme::{self, color, Kind};
 use crate::view::{self, Camera, Floater, Scene, Show};
 use bsk_data::GameData;
-use bsk_net::replay::{flag, from, Hurt, Record, Replay};
+use crate::screens::SAVED_GOLD;
+use crate::textedit::LineEdit;
+use bsk_net::replay::{flag, from, Comment, Hurt, Record, Replay, ReplayId};
 use bsk_proto::{ServerMessage, StatValue};
 use bsk_world::{Impact, MoveInput, Projectile, World};
 use winit::keyboard::KeyCode;
@@ -58,7 +68,19 @@ enum Event {
     /// One of `Viewer::hurts`.
     Hurt(usize),
     Death,
+    /// A death saved: the light that carried them off.
+    Saved,
 }
+
+/// What shows beside the picture.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Panel {
+    Hits,
+    Comments,
+}
+
+/// The most a comment holds (the server's `ReplayComments.MaxLength`).
+const COMMENT_MAX: usize = 140;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Hit {
@@ -68,12 +90,19 @@ enum Hit {
     Back,
     Timeline,
     Row(usize),
+    Panel(Panel),
+    Field,
+    Post,
 }
 
 /// What the viewer asks of the app.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Out {
     Back,
+    /// Read the replay's comments.
+    LoadComments(ReplayId),
+    /// Say this under it.
+    Comment(ReplayId, String),
 }
 
 pub struct Viewer {
@@ -112,6 +141,23 @@ pub struct Viewer {
     pub clicked: bool,
     /// What the Download button did: where it was saved, or why it wasn't (an error).
     saved: Option<(String, bool)>,
+    /// What saved them, for a death saved (its type and name).
+    saved_by: Option<(u16, String)>,
+    /// Which replay this is on the server (none for a file): what its comments are under.
+    id: Option<ReplayId>,
+    /// Whether the account may comment (signed in, not a guest).
+    pub can_comment: bool,
+    panel: Panel,
+    /// Its comments, once read (or why not), the field typed in, whether it has the keys, and
+    /// a comment being posted.
+    comments: Option<Result<Vec<Comment>, String>>,
+    input: LineEdit,
+    typing: bool,
+    posting: bool,
+    /// Why the last comment wasn't posted.
+    post_error: Option<String>,
+    /// Comments scrolled up from the newest.
+    comments_scroll: usize,
 }
 
 impl Viewer {
@@ -142,8 +188,13 @@ impl Viewer {
                     end = *at;
                     events.push((*at, Event::Death));
                 }
+                Record::Saved { .. } => {
+                    end = *at;
+                    events.push((*at, Event::Saved));
+                }
             }
         }
+        let saved_by = file.saved_by().map(|(t, n)| (t, n.to_owned()));
         // in time order (the recording is, but a message from another thread may be a ms out)
         events.sort_by_key(|e| e.0);
         log::info!("replay of {} ({} s, {} messages, {} hits)", file.name, end / 1000, events.len(), hurts.len());
@@ -174,6 +225,62 @@ impl Viewer {
             out: Vec::new(),
             clicked: false,
             saved: None,
+            saved_by,
+            id: None,
+            can_comment: false,
+            panel: Panel::Hits,
+            comments: None,
+            input: LineEdit::new("", COMMENT_MAX),
+            typing: false,
+            posting: false,
+            post_error: None,
+            comments_scroll: 0,
+        }
+    }
+
+    /// The replay as the server knows it: its comments are read.
+    pub fn with_id(mut self, id: ReplayId) -> Self {
+        self.id = Some(id);
+        self.out.push(Out::LoadComments(id));
+        self
+    }
+
+    /// Its comments, as read or as a comment's post answered.
+    pub fn set_comments(&mut self, comments: Result<Vec<Comment>, String>, posted: bool) {
+        if posted {
+            self.posting = false;
+            match comments {
+                Ok(c) => {
+                    self.comments = Some(Ok(c));
+                    self.input = LineEdit::new("", COMMENT_MAX);
+                    self.post_error = None;
+                    self.comments_scroll = 0;
+                }
+                // what was typed stays, to try again
+                Err(e) => self.post_error = Some(e),
+            }
+        } else {
+            self.comments = Some(comments);
+        }
+    }
+
+    /// Whether the comment field has the keys (pasting goes there).
+    pub fn typing(&self) -> bool {
+        self.typing && self.panel == Panel::Comments
+    }
+
+    pub fn paste(&mut self, text: &str) {
+        if self.typing() {
+            self.input.insert(text);
+        }
+    }
+
+    fn post(&mut self) {
+        let text = self.input.text.trim().to_owned();
+        if let (Some(id), false, false, true) = (self.id, text.is_empty(), self.posting, self.can_comment) {
+            self.posting = true;
+            self.post_error = None;
+            self.out.push(Out::Comment(id, text));
         }
     }
 
@@ -288,6 +395,17 @@ impl Viewer {
                         }
                     }
                 }
+                Event::Saved => {
+                    // rings of holy light where the blow would have killed them
+                    if let Some(o) = world.objects.get(&self.file.target_id) {
+                        let (x, y) = (o.x, o.y);
+                        if !quiet {
+                            self.particles.aoe(x, y, 1.2, 0xFFFFFF);
+                            self.particles.aoe(x, y, 2.6, SAVED_GOLD);
+                            self.particles.aoe(x, y, 4.2, 0xFFB43A);
+                        }
+                    }
+                }
             }
             self.next += 1;
         }
@@ -375,8 +493,20 @@ impl Viewer {
         self.playing = !self.playing;
     }
 
-    pub fn key(&mut self, code: KeyCode, data: &GameData) {
+    /// A key: into the comment field while it has them (Enter posts, Escape leaves it).
+    pub fn key(&mut self, code: KeyCode, text: Option<&str>, ctrl: bool, shift: bool, data: &GameData) {
+        if self.typing() {
+            match code {
+                KeyCode::Enter | KeyCode::NumpadEnter => self.post(),
+                KeyCode::Escape => self.typing = false,
+                _ => {
+                    self.input.key(code, text, ctrl, shift);
+                }
+            }
+            return;
+        }
         match code {
+            KeyCode::KeyC if self.id.is_some() => self.panel = if self.panel == Panel::Comments { Panel::Hits } else { Panel::Comments },
             KeyCode::Escape | KeyCode::Backspace => self.out.push(Out::Back),
             KeyCode::Space | KeyCode::KeyK => self.toggle(data),
             KeyCode::ArrowLeft | KeyCode::KeyJ => self.seek(self.t - STEP_KEY_MS, data),
@@ -390,9 +520,19 @@ impl Viewer {
     }
 
     pub fn click(&mut self, pos: (f64, f64), data: &GameData) {
-        let Some(&(hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)) else { return };
+        let Some(&(hit, _)) = self.hits.iter().find(|(_, r)| inside(*r, pos)) else {
+            self.typing = false;
+            return;
+        };
         self.clicked = true;
+        self.typing = matches!(hit, Hit::Field);
         match hit {
+            Hit::Panel(p) => {
+                self.panel = p;
+                self.typing = p == Panel::Comments && self.can_comment;
+            }
+            Hit::Field => {}
+            Hit::Post => self.post(),
             Hit::Play => self.toggle(data),
             Hit::Speed => self.speed = (self.speed + 1) % SPEEDS.len(),
             Hit::Back => self.out.push(Out::Back),
@@ -438,6 +578,11 @@ impl Viewer {
     }
 
     pub fn wheel(&mut self, notches: i32) {
+        if self.panel == Panel::Comments {
+            let n = self.comments.as_ref().and_then(|c| c.as_ref().ok()).map_or(0, Vec::len);
+            self.comments_scroll = (self.comments_scroll as i32 + notches).clamp(0, n as i32) as usize;
+            return;
+        }
         self.scroll = (self.scroll as i32 + notches).clamp(0, self.hurts.len() as i32) as usize;
     }
 
@@ -451,8 +596,14 @@ impl Viewer {
         // who, and how they died
         let class = ui.data.objects.get(&self.file.object_type).map(|d| d.display_id.clone()).unwrap_or_default();
         let ts = (22.0 * s).round();
-        ui.label_fit(tr("Death replay"), pad, pad, w * 0.5, ts, true, color::TEXT);
-        let sub = tf!("{name} ({class}), killed by {killer} in {world}", name = self.file.name, class = class, killer = self.file.killer, world = self.file.world);
+        let (title, sub) = match &self.saved_by {
+            Some((_, item)) => {
+                let item = if item.is_empty() { tr("an amulet") } else { item.as_str() };
+                (tr("Death saved"), tf!("{name} ({class}), saved from {killer} in {world} by {item}", name = self.file.name, class = class, killer = self.file.killer, world = self.file.world, item))
+            }
+            None => (tr("Death replay"), tf!("{name} ({class}), killed by {killer} in {world}", name = self.file.name, class = class, killer = self.file.killer, world = self.file.world)),
+        };
+        ui.label_fit(title, pad, pad, w * 0.5, ts, true, if self.saved_by.is_some() { SAVED_GOLD } else { color::TEXT });
         ui.label_fit(&sub, pad, pad + ts * 1.25, w - 2.0 * pad, 14.0 * s, false, color::TEXT_DIM);
         let top = pad + ts * 1.25 + 24.0 * s;
 
@@ -463,7 +614,7 @@ impl Viewer {
         let pic = [pad, top, list[0] - pad - 10.0 * s, bottom - top];
 
         self.draw_picture(ui, show, pic, s);
-        self.draw_hits(ui, list, s, mouse);
+        self.draw_side(ui, list, s, mouse);
         self.draw_controls(ui, [pad, h - pad - controls_h, w - 2.0 * pad, controls_h], s, mouse);
     }
 
@@ -499,21 +650,49 @@ impl Viewer {
         let target = self.world.as_ref().and_then(|w| w.objects.get(&self.file.target_id));
         let (hp, max) = target.map_or((0, 0), |o| (o.stat_int(stat::HP).unwrap_or(0), o.stat_int(stat::MAX_HP).unwrap_or(0)));
         let dead = self.t >= self.end as f64;
+        let saved = self.saved_by.is_some();
         let hp = if dead { 0 } else { hp.max(0) };
         let bw = (220.0 * s).min(r[2] - 20.0 * s);
         let b = [r[0] + 10.0 * s, r[1] + 10.0 * s, bw, 20.0 * s];
         theme::fill(ui.renderer, [b[0] - 3.0 * s, b[1] - 3.0 * s, b[2] + 6.0 * s, b[3] + 6.0 * s], 6.0 * s, 0x000000, 0.55);
         theme::fill(ui.renderer, b, 4.0 * s, color::TRACK, 1.0);
-        if max > 0 {
+        if dead && saved {
+            // carried off whole: the bar full, in gold
+            theme::fill(ui.renderer, b, 4.0 * s, SAVED_GOLD, 1.0);
+        } else if max > 0 {
             let k = (hp as f32 / max as f32).clamp(0.0, 1.0);
             theme::fill(ui.renderer, [b[0], b[1], b[2] * k, b[3]], 4.0 * s, 0xE03434, 1.0);
         }
-        let line = tf!("{hp} / {max} HP", hp, max);
+        let line = if dead && saved { tr("Saved!").to_owned() } else { tf!("{hp} / {max} HP", hp, max) };
         let size = 12.0 * s;
         let lw = ui.measure(&line, size, true);
-        ui.label(&line, b[0] + (b[2] - lw) / 2.0, b[1] + (b[3] - size * 1.22) / 2.0, size, true, color::TEXT);
-        // the end: who did it
-        if dead {
+        ui.label(&line, b[0] + (b[2] - lw) / 2.0, b[1] + (b[3] - size * 1.22) / 2.0, size, true, if dead && saved { 0x2A1A00 } else { color::TEXT });
+        // the end of a death saved: a holy light, what saved them, and from whom
+        if let (true, Some((item_type, item))) = (dead, &self.saved_by) {
+            let pulse = 0.5 + 0.5 * (crate::screens::ui_time() as f32 / 420.0).sin();
+            ui.rect(r[0], r[1], r[2], r[3], 0xFFE9A8, 0.12 + 0.06 * pulse);
+            let cx = r[0] + r[2] / 2.0;
+            let top = r[1] + r[3] * 0.14;
+            let side = (64.0 * s).round();
+            let glow = side * (1.5 + 0.12 * pulse);
+            theme::fill(ui.renderer, [cx - glow / 2.0, top - (glow - side) / 2.0, glow, glow], glow / 2.0, SAVED_GOLD, 0.22 + 0.12 * pulse);
+            theme::fill(ui.renderer, [cx - side / 2.0, top, side, side], side / 2.0, 0x2A1A00, 0.7);
+            if *item_type > 0 {
+                ui.item_icon(*item_type as i32, 80, cx, top + side / 2.0, s * 1.35);
+            }
+            let size = (26.0 * s).round();
+            let item = if item.is_empty() { tr("an amulet") } else { item.as_str() };
+            let line = tf!("Saved by {item}", item);
+            let lw = ui.measure(&line, size, true).min(r[2] - 20.0 * s);
+            let ly = top + side + 14.0 * s;
+            let under = tf!("{by}'s blow would have killed them", by = self.file.killer);
+            let us = (14.0 * s).round();
+            let uw = ui.measure(&under, us, false).min(r[2] - 20.0 * s);
+            let bw = lw.max(uw);
+            ui.rect(cx - bw / 2.0 - 14.0 * s, ly - 8.0 * s, bw + 28.0 * s, size * 1.3 + us * 1.4 + 20.0 * s, 0x000000, 0.6);
+            ui.label_fit(&line, cx - lw / 2.0, ly, lw, size, true, SAVED_GOLD);
+            ui.label_fit(&under, cx - uw / 2.0, ly + size * 1.3 + 4.0 * s, uw, us, false, color::TEXT_DIM);
+        } else if dead {
             ui.rect(r[0], r[1], r[2], r[3], 0x400000, 0.35);
             let size = (26.0 * s).round();
             let line = tf!("Killed by {by}", by = self.file.killer);
@@ -538,17 +717,122 @@ impl Viewer {
         }
     }
 
-    fn draw_hits(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, mouse: (f64, f64)) {
+    /// The panel beside the picture: its tabs (the hits, and the comments when the replay is
+    /// the server's), then the one picked.
+    fn draw_side(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, mouse: (f64, f64)) {
         theme::panel(ui.renderer, r, s);
         let pad = 12.0 * s;
-        let hs = (15.0 * s).round();
+        let th = (28.0 * s).round();
+        let ts = (13.0 * s).round();
+        let n_comments = self.comments.as_ref().and_then(|c| c.as_ref().ok()).map(Vec::len);
+        let comments_label = match n_comments {
+            Some(n) if n > 0 => tf!("Comments ({n})", n),
+            _ => tr("Comments").to_owned(),
+        };
+        let mut tabs = vec![(Panel::Hits, tr("Hits taken").to_owned())];
+        if self.id.is_some() {
+            tabs.push((Panel::Comments, comments_label));
+        }
+        let gap = 6.0 * s;
+        let tw = (r[2] - 2.0 * pad - gap * (tabs.len() - 1) as f32) / tabs.len() as f32;
+        for (k, (panel, label)) in tabs.iter().enumerate() {
+            let tr_ = [r[0] + pad + k as f32 * (tw + gap), r[1] + pad, tw, th];
+            let on = *panel == self.panel;
+            let over = inside(tr_, mouse);
+            theme::fill(ui.renderer, tr_, th / 2.0, if on { color::ACCENT } else if over { color::SECONDARY } else { color::CHIP }, 0.95);
+            let lw = ui.measure(label, ts, true).min(tw - 12.0 * s);
+            ui.label_fit(label, tr_[0] + (tw - lw) / 2.0, tr_[1] + (th - ts * 1.22) / 2.0, lw, ts, true, if on { color::ACCENT_TEXT } else { color::TEXT_DIM });
+            if tabs.len() > 1 {
+                self.hits.push((Hit::Panel(*panel), tr_));
+            }
+        }
+        let body = [r[0], r[1] + th + 6.0 * s, r[2], r[3] - th - 6.0 * s];
+        match self.panel {
+            Panel::Comments if self.id.is_some() => self.draw_comments(ui, body, s, mouse),
+            _ => self.draw_hits(ui, body, s, mouse),
+        }
+    }
+
+    /// What players said about it, oldest at the top and the newest at the foot (scrolled up by
+    /// the wheel), and under them the field to add one.
+    fn draw_comments(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, mouse: (f64, f64)) {
+        let pad = 12.0 * s;
+        let size = (13.0 * s).round();
+        let width = r[2] - 2.0 * pad;
+        // the field and Post at the foot, or why there's none
+        let fh = (32.0 * s).round();
+        let field_y = r[1] + r[3] - pad - fh;
+        let mut foot = field_y;
+        if self.can_comment {
+            let post_w = 64.0 * s;
+            let field = [r[0] + pad, field_y, width - post_w - 6.0 * s, fh];
+            ui.field_box(field, self.typing(), s);
+            let inner = [field[0] + 8.0 * s, field[1], field[2] - 16.0 * s, field[3]];
+            crate::hud::draw_line_edit(ui, &self.input, inner, size, tr("Say something about it…"), if self.typing() { crate::screens::ui_time() } else { 530 });
+            self.hits.push((Hit::Field, field));
+            let post = [field[0] + field[2] + 6.0 * s, field_y, post_w, fh];
+            let ready = !self.input.text.trim().is_empty() && !self.posting;
+            ui.button(post, if self.posting { "…" } else { tr("Post") }, if ready { Kind::Primary } else { Kind::Secondary }, ready && inside(post, mouse), s);
+            self.hits.push((Hit::Post, post));
+            if let Some(e) = &self.post_error {
+                let es = (11.0 * s).round();
+                foot -= es * 1.4;
+                ui.label_fit(e, r[0] + pad, foot, width, es, false, color::DANGER);
+            }
+        } else {
+            let line = tr("Sign in to an account to comment.");
+            ui.label_fit(line, r[0] + pad, field_y + (fh - size * 1.22) / 2.0, width, size, false, color::TEXT_MUTED);
+        }
+        let top = r[1] + 6.0 * s;
+        let bottom = foot - 8.0 * s;
+        let comments = match &self.comments {
+            None => {
+                ui.label_fit(tr("Reading the comments…"), r[0] + pad, top, width, size, false, color::TEXT_MUTED);
+                return;
+            }
+            Some(Err(e)) => {
+                let e = e.clone();
+                ui.label_fit(&e, r[0] + pad, top, width, size, false, color::DANGER);
+                return;
+            }
+            Some(Ok(c)) if c.is_empty() => {
+                let t = if self.saved_by.is_some() { tr("No comments yet. Was it skill or luck?") } else { tr("No comments yet. Pay your respects.") };
+                ui.label_fit(t, r[0] + pad, top, width, size, false, color::TEXT_MUTED);
+                return;
+            }
+            Some(Ok(c)) => c.clone(),
+        };
+        // newest first from the foot up, each its name and when, then its lines
+        let line_h = (size * 1.3).round();
+        let mut y = bottom;
+        self.comments_scroll = self.comments_scroll.min(comments.len().saturating_sub(1));
+        for c in comments.iter().rev().skip(self.comments_scroll) {
+            let lines = wrap_words(ui, &c.text, size, width - 10.0 * s);
+            let h = line_h * (lines.len() as f32 + 1.0) + 10.0 * s;
+            if y - h < top {
+                break;
+            }
+            y -= h;
+            theme::fill(ui.renderer, [r[0] + pad * 0.5, y, r[2] - pad, h - 4.0 * s], 5.0 * s, color::CHIP, 0.85);
+            let ns = (12.0 * s).round();
+            ui.label_fit(&c.name, r[0] + pad, y + 4.0 * s, width * 0.6, ns, true, crate::hud::GLASS_COLOUR);
+            let when = crate::screens::time_ago(c.ago);
+            let ww = ui.measure(&when, 11.0 * s, false);
+            ui.label(&when, r[0] + r[2] - pad - ww, y + 5.0 * s, 11.0 * s, false, color::TEXT_MUTED);
+            for (k, l) in lines.iter().enumerate() {
+                ui.label(l, r[0] + pad + 4.0 * s, y + 4.0 * s + line_h * (k as f32 + 1.0), size, false, color::TEXT);
+            }
+        }
+    }
+
+    fn draw_hits(&mut self, ui: &mut Ui, r: [f32; 4], s: f32, mouse: (f64, f64)) {
+        let pad = 12.0 * s;
         let total: i32 = self.hurts.iter().map(|(_, h)| h.dealt).sum();
-        ui.label_fit(tr("Hits taken"), r[0] + pad, r[1] + pad, r[2] * 0.5, hs, true, color::TEXT);
         let count = tn!(self.hurts.len(), "{n} hit|{n} hits");
         let sum = tf!("{count}, {damage} damage", count, damage = total);
-        let sw = ui.measure(&sum, 12.0 * s, false).min(r[2] * 0.5 - pad);
-        ui.label_fit(&sum, r[0] + r[2] - pad - sw, r[1] + pad + 2.0 * s, sw, 12.0 * s, false, color::TEXT_DIM);
-        let y0 = r[1] + pad + hs * 1.6;
+        let ss = 12.0 * s;
+        ui.label_fit(&sum, r[0] + pad, r[1] + 4.0 * s, r[2] - 2.0 * pad, ss, false, color::TEXT_DIM);
+        let y0 = r[1] + 4.0 * s + ss * 1.6;
         let row_h = (46.0 * s).round();
         let fit = (((r[1] + r[3] - pad - y0) / row_h).floor() as usize).max(1);
         if self.hurts.is_empty() {
@@ -568,13 +852,15 @@ impl Viewer {
             let y = y0 + row as f32 * row_h;
             let rr = [r[0] + pad * 0.5, y, r[2] - pad, row_h - 4.0 * s];
             let killing = i == n - 1 && h.hp <= 0;
+            let saved = killing && self.saved_by.is_some();
+            let edge = if saved { SAVED_GOLD } else { color::DANGER };
             let future = (*at as f64) > self.t;
             let over = inside(rr, mouse);
             let bg = if Some(i) == current { color::CHIP_HI } else if over { color::SECONDARY } else { color::CHIP };
             // the killing blow framed in red, its inside as the others'
             let fill = theme::shade(bg, -0.35);
             if killing {
-                theme::frame(ui.renderer, rr, 5.0 * s, (1.5 * s).max(1.0), (color::DANGER, 1.0), ((bg, 1.0), (fill, 1.0)));
+                theme::frame(ui.renderer, rr, 5.0 * s, (1.5 * s).max(1.0), (edge, 1.0), ((bg, 1.0), (fill, 1.0)));
             } else {
                 theme::fill(ui.renderer, rr, 5.0 * s, bg, if future { 0.5 } else { 0.95 });
             }
@@ -596,10 +882,12 @@ impl Viewer {
             ui.label_alpha(&num, rr[0] + rr[2] - 8.0 * s - nw, rr[1] + 5.0 * s, 15.0 * s, true, num_color, alpha);
             let src = self.source(data, h);
             let tw = rr[2] - 16.0 * s - ww - nw - 14.0 * s;
-            ui.label_fit(&src, x + ww, rr[1] + 4.0 * s, tw, ls, true, if killing { color::DANGER } else { color::TEXT });
+            ui.label_fit(&src, x + ww, rr[1] + 4.0 * s, tw, ls, true, if killing { edge } else { color::TEXT });
             // the details under it
             let mut detail = vec![tf!("{hp} / {max} HP left", hp = h.hp.max(0), max = h.max_hp)];
-            if killing {
+            if saved {
+                detail.insert(0, tr("would have killed them").to_owned());
+            } else if killing {
                 detail.insert(0, tr("killing blow").to_owned());
             }
             if h.from != from::AIR && h.raw != h.dealt && h.flags & (flag::DODGED | flag::NO_HARM) == 0 {
@@ -666,8 +954,8 @@ impl Viewer {
             let mh = line[3] * (0.3 + 0.7 * (part * 3.0).min(1.0)) / 2.0;
             ui.rect((hx - s).round(), mid - mh, (2.0 * s).max(1.0), 2.0 * mh, if h.flags & flag::PIERCE != 0 { view::PIERCED_COLOR } else { color::DANGER }, 0.9);
         }
-        // the death at the end, the playhead
-        ui.rect(line[0] + line[2] - 2.0 * s, line[1], 3.0 * s, line[3], color::DANGER, 1.0);
+        // the death (or the save) at the end, the playhead
+        ui.rect(line[0] + line[2] - 2.0 * s, line[1], 3.0 * s, line[3], if self.saved_by.is_some() { SAVED_GOLD } else { color::DANGER }, 1.0);
         let px = line[0] + line[2] * k;
         let hot = self.scrubbing || inside(line, mouse);
         let rad = if hot { 8.0 * s } else { 6.5 * s };
@@ -676,10 +964,43 @@ impl Viewer {
         // under it, the keys, or what Download did
         let (note, c) = match &self.saved {
             Some((t, err)) => (t.as_str(), if *err { color::DANGER } else { color::GOOD }),
+            None if self.id.is_some() => (tr("Space: play or pause · Arrows: step and speed · Click a hit to see it · C: comments"), color::TEXT_MUTED),
             None => (tr("Space: play or pause · Arrows: step and speed · Click a hit to see it"), color::TEXT_MUTED),
         };
         ui.label_fit(note, line[0], line[1] + line[3] + 1.0 * s, line[2], 10.5 * s, false, c);
     }
+}
+
+/// A comment's text in lines that fit `width`, broken between words (a word too long for a line
+/// broken where it must).
+fn wrap_words(ui: &mut Ui, text: &str, size: f32, width: f32) -> Vec<String> {
+    let mut lines = Vec::new();
+    let mut line = String::new();
+    for word in text.split_whitespace() {
+        let tried = if line.is_empty() { word.to_owned() } else { format!("{line} {word}") };
+        if ui.measure(&tried, size, false) <= width {
+            line = tried;
+            continue;
+        }
+        if !line.is_empty() {
+            lines.push(std::mem::take(&mut line));
+        }
+        // a word wider than the line, a piece at a time
+        let mut piece = String::new();
+        for ch in word.chars() {
+            piece.push(ch);
+            if ui.measure(&piece, size, false) > width && piece.chars().count() > 1 {
+                piece.pop();
+                lines.push(std::mem::take(&mut piece));
+                piece.push(ch);
+            }
+        }
+        line = piece;
+    }
+    if !line.is_empty() {
+        lines.push(line);
+    }
+    lines
 }
 
 /// Saves the replay's file: into the Downloads folder (or the home folder), returning where.

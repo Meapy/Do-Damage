@@ -452,6 +452,17 @@ GROUNDS = {
     "R2 Blight Bog": ("blight", p_water(P["blight"]["4"], P["blight"]["5"], P["blight"]["8"]), 3,
                       {"Sink": None, "Speed": "0.6", "MinDamage": "20", "MaxDamage": "20",
                        "Animate": ("Flow", {"dx": "0.05", "dy": "0.05"}), "BlendPriority": "4"}, "0x4A6A1A"),
+    # the Frozen Barrow: snowfields, rimed ice, the barrow's old flagstones where the Rime Herald
+    # waits, and black pools of meltwater that numb whoever wades in
+    "R2 Snowfield": ("frost", p_speckle(C("#dce8f4"), C("#b2c6de"), C("#ffffff"), 0.18), 4,
+                     {"BlendPriority": "5"}, "0xDCE8F4"),
+    "R2 Rime Ice": ("frost", p_cracks(C("#7ab8e0"), C("#d4f2ff"), None, 0.16), 4,
+                    {"BlendPriority": "6"}, "0x7AB8E0"),
+    "R2 Barrow Flagstones": ("frost", p_flagstones(C("#3e5a7c"), C("#22344c"), C("#6a8cb0")), 4,
+                             {"BlendPriority": "7"}, "0x3E5A7C"),
+    "R2 Frigid Pool": ("frost", p_water(C("#0c2846"), C("#1e4a74"), C("#9fd2f0")), 3,
+                       {"Sink": None, "Speed": "0.6", "MinDamage": "30", "MaxDamage": "30",
+                        "Animate": ("Flow", {"dx": "0.05", "dy": "0.05"}), "BlendPriority": "4"}, "0x163A60"),
 }
 
 # ------------------------------------------------------------------------------------------------
@@ -490,10 +501,13 @@ DECOR = {
     "R2 Stardust": ("flat", 100, 100), "R2 Astral Spire": ("block", 120, 150),
     "R2 Giant Toadstool": ("block", 130, 170), "R2 Blight Puffball": ("plain", 90, 120),
     "R2 Rot Stump": ("block", 100, 120), "R2 Spore Patch": ("flat", 100, 100), "R2 Glowcap": ("plain", 90, 110),
+    "R2 Ice Spire": ("block", 110, 150), "R2 Frozen Grave": ("block", 90, 110), "R2 Snow Drift": ("flat", 100, 110),
+    "R2 Icicle Cluster": ("plain", 90, 110), "R2 Frost Brazier": ("block", 90, 110),
 }
 
 # braziers, vents and lanterns flicker: their glow letters swap for a second frame
-FLICKER = {"R2 Bone Brazier", "R2 Soul Brazier", "R2 Ember Vent", "R2 Stone Lantern", "R2 Glowcap", "R2 Star Shard"}
+FLICKER = {"R2 Bone Brazier", "R2 Soul Brazier", "R2 Ember Vent", "R2 Stone Lantern", "R2 Glowcap", "R2 Star Shard",
+           "R2 Frost Brazier"}
 
 # ------------------------------------------------------------------------------------------------
 # monsters: name -> (shown as, health, defence, size, flags, projectiles)
@@ -659,6 +673,18 @@ MOBS = {
         shot("GC Purple Mushroom Spore", 100, 40, 3000, effect=("Sick", 3))], 19),
     "R2 Rotcap Elder": ("Rotcap Elder", 14000, 28, 140, "", [
         shot("GC Green Mushroom Wave", 150, 55, 1800, multi=True), shot("Green Gas", 90, 30, 3200, effect=("Slowed", 2))], 18),
+    # --- the Frozen Barrow: the Ice Tomb's dead (its shots), out in the realm
+    "R2 Ice Mite": ("Ice Mite", 800, 10, 75, "g", [shot("Frost Fang", 60, 90, 500)]),
+    "R2 Barrow Mummy": ("Barrow Mummy", 2400, 18, 100, "g", [
+        shot("Rime Shard", 100, 70, 1600, effect=("Slowed", 1.5)), shot("Tomb Snowflake", 70, 45, 2300)]),
+    "R2 Rime Wraith": ("Rime Wraith", 1700, 8, 100, "gf", [
+        shot("Wraith Wisp", 100, 70, 1900, effect=("Darkness", 1), amplitude=0.7, frequency=1.4)]),
+    "R2 Frostfang Wolf": ("Frostfang Wolf", 1800, 12, 100, "g", [
+        shot("Frost Fang", 110, 110, 600, effect=("Bleeding", 1.5))]),
+    "R2 Barrow Colossus": ("Barrow Colossus", 15000, 28, 140, "", [
+        shot("Ice Boulder", 150, 45, 2400, size=140), shot("Steel Shard", 120, 70, 1600, effect=("Armor Broken", 2))], 19),
+    "R2 Frostfang Packmother": ("Frostfang Packmother", 13000, 20, 130, "", [
+        shot("Frost Fang", 140, 120, 700, effect=("Bleeding", 2)), shot("Rime Shard", 110, 80, 1500, effect=("Slowed", 1.5))], 18),
     # --- the realm events' own monsters (both realms: RealmManager's events, BehaviorDb.RealmEvents.cs)
     # the Gilded Thief, its decoys (named as it is) and the coffers it drops, some of them mimics
     "Gilded Thief": ("Gilded Thief", 30000, 20, 130, "e", [
@@ -681,6 +707,13 @@ MOBS = {
     "Blight Spore Pod": ("Spore Pod", 2500, 0, 100, "es", [
         shot("GC Purple Mushroom Spore", 70, 50, 1800, effect=("Sick", 2))]),
     "Sporeling": ("Sporeling", 1200, 5, 80, "e", [shot("GC Green Mushroom Spear", 70, 80, 900)]),
+    # the Rime Herald, who opens the way to the Ice Tomb, the sarcophagi it raises and the dead in them
+    "Rime Herald": ("Rime Herald", 55000, 30, 200, "e", [
+        shot("Glacial Lance", 150, 100, 1400, effect=("Slowed", 1.5)), shot("Tomb Snowflake", 110, 45, 3200),
+        shot("Hailstone", 140, 50, 2600, size=120), shot("Frost Bolt", 120, 70, 1800, effect=("Slowed", 2))], 20),
+    "Herald's Sarcophagus": ("Frozen Sarcophagus", 6000, 0, 130, "es", [shot("Tomb Snowflake", 80, 45, 1800)]),
+    "Herald's Dead": ("Barrow Dead", 3000, 15, 100, "e", [
+        shot("Rime Shard", 90, 70, 1500, effect=("Slowed", 1.5))]),
 }
 
 # each monster's land
@@ -701,6 +734,7 @@ SOUNDS = {
     "thief": ("monster/goblins_hit", "monster/goblins_death"),
     "star": ("monster/golems_hit", "monster/golems_death"),
     "blight": ("monster/slimes_hit", "monster/slimes_death"),
+    "frost": ("monster/mummies_hit", "monster/mummies_death"),
 }
 
 PORTAL_ID = "Realm2"            # /spawn realm2 finds it by name

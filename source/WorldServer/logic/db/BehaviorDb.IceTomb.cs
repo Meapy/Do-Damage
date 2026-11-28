@@ -1,4 +1,6 @@
-﻿using Shared.crucible;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shared.crucible;
 using Shared.resources;
 using WorldServer.logic.behaviors;
 using WorldServer.logic.behaviors.doomed;
@@ -36,6 +38,8 @@ namespace WorldServer.logic
         private const string Ysolde = "Ysolde, the Aurora Oracle";
         private const string Hrimgar = "Hrimgar, the Frost Reaver";
         private const uint FrostGlow = 0xFF9FE8FF, AuroraGlow = 0xFF4AE8A4, SteelGlow = 0xFF9AB4D4, VioletGlow = 0xFF9060D8;
+        // the Tomb of the Ancients' blue shield, as the Court turns
+        private const uint BlueShield = 0xFF4A7CFF;
 
         // The tomb's treasure, once the old Ice Tomb Chest's: each of the Court drops it at half the
         // chest's chances (the tomb is longer and its three harder than the old chest's were).
@@ -521,20 +525,37 @@ namespace WorldServer.logic
                 )
             )
 
-            // Kaldrun, the Rime Warden: he holds the middle, circling the Heart close. Glacial lances
-            // that break armour, rings of iron shards, slowing rime; at 60% the Glacial Bulwark: he
-            // walls himself in ice, untouchable, lobbing boulders over it, until the four Rime Pillars
-            // round him are broken (or 25 s pass); then snowflake spirals join his kit. Last of the
-            // three, below 15%: Permafrost.
+            // The Court fights as the Tomb of the Ancients' three do, harder, on the Crucible's
+            // floor: each new turn as its health falls opens with a taunt and 3 s behind a blue
+            // shield (CourtTurn: it can't be hurt), its relics come out at 40% and 25% to circle it
+            // (two, then one more), and below 6% it rages, red, running you down. Each keeps its
+            // own turn among them (Kaldrun's Glacial Bulwark at 60%, Ysolde's Aurora's Grace from
+            // 50%, Hrimgar's Frenzy at 50%), and the last of them standing, below 15%, makes its
+            // last stand, the whole floor turned against the players, and rages in it below 6%.
+            // They circle the Heart as the Tomb's three circle their anchor (at its pace, 3 to 4: an
+            // Orbit's speed is its walking speed), Kaldrun 5 tiles out, Hrimgar 6, Ysolde 7 the
+            // other way round.
+            //
+            // Kaldrun, the Rime Warden (Bes): he holds the middle, circling the Heart close. Glacial
+            // lances that break armour, rings of iron shards, slowing rime; at 80% the Rime Wall
+            // (rings of snowflakes); at 60% the Glacial Bulwark: he walls himself in ice,
+            // untouchable, lobbing boulders over it, until the four Rime Pillars round him are
+            // broken (or 25 s pass); then snowflake spirals join his kit. Armoured with his relics
+            // out. Last of the three, below 15%: Permafrost.
             .Init(Kaldrun,
                 new State(
                     new BossStats(90000, 55, 1.0, 0.35),
                     Encased(),
-                    new State("Fight",
-                        new Prioritize(new Orbit(0.45, 6, CourtSight, "Court Heart", radiusVariance: 0.3)),
+                    new State("Fight", Kit(
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
-                        new HpLessTransition(0.6, "Bulwark")
-                    ),
+                        new HpLessTransition(0.8, "Rime Wall")
+                    )),
+                    CourtTurn("Rime Wall", "Impudence! The Court of Winter does not answer to the warm.", Kit(
+                        WardenKit(),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
+                        new Shoot(0, 20, 18, 4, fixedAngle: 0, coolDown: 6000),
+                        new HpLessTransition(0.6, "Bulwark"))),
                     new State("Bulwark",
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new State("Return",
@@ -556,119 +577,183 @@ namespace WorldServer.logic
                             )
                         )
                     ),
-                    new State("Fight 2",
-                        new Prioritize(new Orbit(0.5, 6, CourtSight, "Court Heart", radiusVariance: 0.3)),
+                    new State("Fight 2", Kit(
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
-                        new Shoot(0, 3, 120, 4, fixedAngle: 0, rotateAngle: 11, coolDown: 650),
-                        new HpLessTransition(0.15, "Fight 3")
-                    ),
-                    new State("Fight 3",
-                        new Prioritize(new Orbit(0.5, 6, CourtSight, "Court Heart", radiusVariance: 0.3)),
+                        WardenSpiral(650),
+                        new HpLessTransition(0.4, "Relics")
+                    )),
+                    CourtTurn("Relics", "My relics shall hold where the glacier broke!", Kit(
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                         WardenKit(),
-                        new Shoot(0, 3, 120, 4, fixedAngle: 0, rotateAngle: 11, coolDown: 650),
-                        new EntitiesNotExistsTransition(40, "Permafrost", Ysolde, Hrimgar)
-                    ),
-                    new State("Permafrost",
+                        WardenSpiral(650),
+                        new Spawn("Rime Relic", 2, 0),
+                        new HpLessTransition(0.25, "Relics 2"))),
+                    CourtTurn("Relics 2", "Ice upon ice. You will not reach me.", Kit(
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
+                        WardenKit(),
+                        WardenSpiral(600),
+                        new Shoot(0, 20, 18, 4, fixedAngle: 9, coolDown: 6000),
+                        new Spawn("Rime Relic", 1, 0),
+                        new HpLessTransition(0.15, "Fight 3"))),
+                    new State("Fight 3", Kit(
+                        new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                        new Prioritize(new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
+                        WardenKit(),
+                        WardenSpiral(600),
+                        new EntitiesNotExistsTransition(40, "Permafrost", Ysolde, Hrimgar),
+                        new HpLessTransition(0.06, "Rage")
+                    )),
+                    new State("Permafrost", Kit(
                         new EncounterCue(38, shake: true),
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Permafrost"),
                         new Taunt(true, "Then let the whole Court freeze, and you with it!"),
-                        new Prioritize(new Orbit(0.35, 2, CourtSight, "Court Heart")),
-                        new Shoot(CourtSight, 5, 10, 0, predictive: 0.4, coolDown: 1600),
-                        new Shoot(0, 14, 360.0 / 14, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 2600),
-                        new Shoot(0, 4, 90, 4, fixedAngle: 0, rotateAngle: 9, coolDown: 500)
-                    ),
+                        new Prioritize(new Orbit(2, 3, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
+                        PermafrostKit(),
+                        new HpLessTransition(0.06, "Last Rage")
+                    )),
+                    CourtTurn("Rage", "The end of your path is here, under the ice!", Kit(WardenRage(),
+                        new EntitiesNotExistsTransition(40, "Last Rage", Ysolde, Hrimgar))),
+                    CourtTurn("Last Rage", "Freeze! FREEZE, and be still forever!", Kit(WardenRage(),
+                        new SetAltTexture(1),
+                        new Order(40, "Court Heart", "Permafrost"))),
                     new TransformOnDeath("Kaldrun's Shade")
                 ),
                 IceTombTreasure(),
                 new Threshold(0.01, new ItemLoot("Lil' Kaldrun Generator", 0.02))
             )
-            // Ysolde, the Aurora Oracle: she keeps her distance on a wide circle round the Heart,
-            // weaving ribbons of the aurora (the violet ones quiet you), rings of sparks, slow souls
-            // that darken; at 50% and every 30 s after, Aurora's Grace: 10 s healing each of the
-            // Court 1.5% every 2 s, unless she's stunned (a Stormglass Jar). Last below 15%: Polar
-            // Night.
+            // Ysolde, the Aurora Oracle (Nut): she circles the Heart the other way, outside the
+            // others, weaving ribbons of the aurora (the violet ones quiet you), rings of sparks, slow
+            // souls that darken; at 80% her Ribbons (a turning cross of violet ones); at 50% and
+            // every 30 s after, Aurora's Grace: 10 s healing each of the Court 1.5% every 2 s,
+            // unless she's stunned (a Stormglass Jar). Last below 15%: Polar Night.
             .Init(Ysolde,
                 new State(
                     new BossStats(70000, 20, 1.0, 0.35),
                     Encased(),
-                    new State("Fight",
-                        new Prioritize(new Orbit(0.55, 11, CourtSight, "Court Heart", radiusVariance: 0.2, orbitClockwise: true)),
+                    new State("Fight", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
-                        new HpLessTransition(0.5, "Grace")
-                    ),
+                        new HpLessTransition(0.8, "Ribbons")
+                    )),
+                    CourtTurn("Ribbons", "Impudence! Let the lights take your voices.", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
+                        OracleKit(),
+                        new Shoot(0, 4, 90, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 900),
+                        new HpLessTransition(0.5, "Grace"))),
                     new State("Grace",
                         new EncounterCue(36),
                         new Taunt(true, "Rise, my Court. The lights have not gone out yet."),
                         new Flash(AuroraGlow, 0.3, 10),
-                        new Prioritize(new Orbit(0.3, 11, CourtSight, "Court Heart", orbitClockwise: true)),
+                        new Prioritize(new Orbit(2, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         new CourtGrace(0.015, 2000),
                         new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 2000),
                         new TimedTransition(10000, "Fight 2")
                     ),
-                    new State("Fight 2",
-                        new Prioritize(new Orbit(0.55, 11, CourtSight, "Court Heart", radiusVariance: 0.2, orbitClockwise: true)),
+                    new State("Fight 2", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
                         new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2600),
-                        new TimedTransition(30000, "Grace"),
-                        new HpLessTransition(0.15, "Fight 3")
-                    ),
-                    new State("Fight 3",
-                        new Prioritize(new Orbit(0.55, 11, CourtSight, "Court Heart", radiusVariance: 0.2, orbitClockwise: true)),
+                        new HpLessTransition(0.4, "Relics"),
+                        GraceCycle("Fight 2"))),
+                    CourtTurn("Relics", "My relics shall make your little lives end the swifter!", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
                         OracleKit(),
-                        new EntitiesNotExistsTransition(40, "Polar Night", Kaldrun, Hrimgar)
-                    ),
-                    new State("Polar Night",
+                        new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2400),
+                        new Spawn("Aurora Relic", 2, 0),
+                        new HpLessTransition(0.25, "Relics 2")),
+                        GraceCycle("Relics")),
+                    CourtTurn("Relics 2", "Brighter, little lights. Brighter!", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
+                        OracleKit(),
+                        new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2400),
+                        new Shoot(0, 4, 90, 1, fixedAngle: 45, rotateAngle: 12, coolDown: 800),
+                        new Spawn("Aurora Relic", 1, 0),
+                        new HpLessTransition(0.15, "Fight 3")),
+                        GraceCycle("Relics 2")),
+                    new State("Fight 3", Kit(
+                        new Prioritize(new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
+                        OracleKit(),
+                        new Shoot(0, 4, 90, 1, fixedAngle: 45, rotateAngle: 12, coolDown: 800),
+                        new EntitiesNotExistsTransition(40, "Polar Night", Kaldrun, Hrimgar),
+                        new HpLessTransition(0.06, "Rage")
+                    )),
+                    new State("Polar Night", Kit(
                         new EncounterCue(39, shake: true),
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Polar Night"),
                         new Taunt(true, "The lights go out. In the dark, there is only the cold."),
-                        new Prioritize(new Orbit(0.3, 3, CourtSight, "Court Heart", orbitClockwise: true)),
-                        new Shoot(CourtSight, 3, 14, 1, predictive: 0.3, coolDown: 1500),
-                        new Shoot(0, 2, 180, 0, fixedAngle: 0, rotateAngle: 13, coolDown: 350),
-                        new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2200)
-                    ),
+                        new Prioritize(new Orbit(2.5, 3, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
+                        PolarNightKit(),
+                        new HpLessTransition(0.06, "Last Rage")
+                    )),
+                    CourtTurn("Rage", "This cannot be! The dawn shall not come!", Kit(OracleRage(),
+                        new EntitiesNotExistsTransition(40, "Last Rage", Kaldrun, Hrimgar))),
+                    CourtTurn("Last Rage", "Then dark, and dark, and only dark!", Kit(OracleRage(),
+                        new SetAltTexture(1),
+                        new Order(40, "Court Heart", "Polar Night"))),
                     new TransformOnDeath("Ysolde's Shade")
                 ),
                 IceTombTreasure(),
                 new Threshold(0.01, new ItemLoot("Lil' Ysolde Generator", 0.02))
             )
-            // Hrimgar, the Frost Reaver: he hunts you round the hall, axes thrown to bleed you and
-            // fangs, then leaps on someone and bursts a ring of hailstones where he lands; at 50% his
-            // Frenzy (faster, and a spiral of rime through the leaps). Last below 15%: the Shattered
-            // Lake.
+            // Hrimgar, the Frost Reaver (Geb): he circles the Heart, axes thrown to bleed you and
+            // fangs, then leaps on someone and bursts a ring of hailstones where he lands; at 75%
+            // the Pack (his hounds, as Geb's scarabs, and hailstones lobbed over), at 50% his Frenzy
+            // (faster, and a spiral of rime through the leaps). Last below 15%: the Shattered Lake.
             .Init(Hrimgar,
                 new State(
                     new BossStats(80000, 35, 1.0, 0.35),
                     Encased(),
-                    new State("Fight",
-                        ReaverCycle(1.0),
-                        new HpLessTransition(0.5, "Frenzy")
-                    ),
-                    new State("Frenzy",
+                    new State("Fight", Kit(
+                        new HpLessTransition(0.75, "Pack"),
+                        ReaverCycle("Fight", 1.0))),
+                    CourtTurn("Pack", "To me, my hounds! Run them down!", Kit(
+                        new Spawn("Frostfang Hound", 3, 0, coolDown: 10000),
+                        HailLobs(1500),
+                        new HpLessTransition(0.5, "Frenzy")),
+                        ReaverCycle("Pack", 0.9)),
+                    new State("Frenzy", Kit(
                         new EncounterCue(37, shake: true),
                         new Taunt(true, "HA! NOW we fight!"),
                         new Flash(0xFFFF6060, 0.2, 6),
-                        new State("F",
-                            ReaverCycle(0.75),
-                            new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 700),
-                            new HpLessTransition(0.15, "Fight 3")
-                        )
-                    ),
-                    new State("Fight 3",
-                        ReaverCycle(0.75),
-                        new EntitiesNotExistsTransition(40, "Shattered Lake", Kaldrun, Ysolde)
-                    ),
-                    new State("Shattered Lake",
+                        new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 700),
+                        new HpLessTransition(0.4, "Relics"),
+                        ReaverCycle("Frenzy", 0.75))),
+                    CourtTurn("Relics", "My relics shall tear you from your flesh!", Kit(
+                        new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 700),
+                        HailLobs(1500),
+                        new Spawn("Reaver Relic", 2, 0),
+                        new HpLessTransition(0.25, "Relics 2")),
+                        ReaverCycle("Relics", 0.75)),
+                    CourtTurn("Relics 2", "More! Bring me MORE!", Kit(
+                        new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 650),
+                        HailLobs(1300),
+                        new Spawn("Reaver Relic", 1, 0),
+                        new HpLessTransition(0.15, "Fight 3")),
+                        ReaverCycle("Relics 2", 0.75)),
+                    new State("Fight 3", Kit(
+                        new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 650),
+                        new EntitiesNotExistsTransition(40, "Shattered Lake", Kaldrun, Ysolde),
+                        new HpLessTransition(0.06, "Rage"),
+                        ReaverCycle("Fight 3", 0.75))),
+                    new State("Shattered Lake", Kit(
                         new EncounterCue(40, shake: true),
                         new SetAltTexture(1),
                         new Order(40, "Court Heart", "Shattered Lake"),
                         new Taunt(true, "The ice breaks! Swim, little ones!"),
-                        new Prioritize(new Follow(0.5, CourtSight, 4)),
-                        new Shoot(CourtSight, 2, 16, 0, predictive: 0.4, coolDown: 1100),
-                        new Shoot(CourtSight, 3, 14, 1, predictive: 0.4, coolDown: 1500),
-                        new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000)
-                    ),
+                        new Prioritize(new Follow(1.2, CourtSight, 4)),
+                        ShatteredKit(),
+                        new HpLessTransition(0.06, "Last Rage")
+                    )),
+                    CourtTurn("Rage", "This cannot be! I am the hunt!", Kit(ReaverRage("Rage"),
+                        new EntitiesNotExistsTransition(40, "Last Rage", Kaldrun, Ysolde))),
+                    CourtTurn("Last Rage", "Down into the dark water, all of you!", Kit(ReaverRage("Last Rage"),
+                        new SetAltTexture(1),
+                        new Order(40, "Court Heart", "Shattered Lake"))),
                     new TransformOnDeath("Hrimgar's Shade")
                 ),
                 IceTombTreasure(),
@@ -685,6 +770,10 @@ namespace WorldServer.logic
                     new Flash(SteelGlow, 0.5, 999)
                 )
             )
+            // the Court's relics (the Tomb's artifacts): out at 40% and 25%, and in its rage
+            .Init("Rime Relic", Relic(Kaldrun, 2400))
+            .Init("Aurora Relic", Relic(Ysolde, 2200))
+            .Init("Reaver Relic", Relic(Hrimgar, 2000))
 
             // ================================================================================
             // the Court's pets: each a little copy that fights as its boss does and, every 10 s,
@@ -751,43 +840,154 @@ namespace WorldServer.logic
             )
         );
 
-        private static IStateChildren[] WardenKitArr() => new IStateChildren[]
+        // a list of a state's children, arrays of them (the kits) flattened into it
+        private static IStateChildren[] Kit(params object[] parts)
+        {
+            var all = new List<IStateChildren>();
+            foreach (var p in parts)
+                if (p is IEnumerable<IStateChildren> many)
+                    all.AddRange(many);
+                else
+                    all.Add((IStateChildren)p);
+            return all.ToArray();
+        }
+
+        // one of the Court's turns, the Tomb of the Ancients' way: a taunt, then 3 s behind a blue
+        // shield (it can't be hurt), then on. Its own states (a cycle that runs through the turn)
+        // follow the shield, the first of them first; state names must be the boss's own (a
+        // behaviour's states share one list of names).
+        private static State CourtTurn(string name, string taunt, params object[] parts)
+        {
+            var kit = Kit(parts);
+            var states = kit.OfType<State>().ToList();
+            if (states.Count == 0)
+                states.Add(new State(name + " on"));
+            var children = new List<IStateChildren> { new Taunt(true, taunt) };
+            children.AddRange(kit.Where(c => !(c is State)));
+            children.Add(new State(name + " shield",
+                new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                new Flash(BlueShield, 0.3, 5),
+                new TimedTransition(3000, states[0].Name)));
+            children.AddRange(states);
+            return new State(name, children.ToArray());
+        }
+
+        // the Tomb's rage below 6%: a red glow that doesn't go out
+        private static Flash Rage() => new Flash(0xFFFF0000, 1, 9000001);
+
+        private static IStateChildren[] WardenKit() => new IStateChildren[]
         {
             new Shoot(CourtSight, 3, 12, 0, predictive: 0.4, coolDown: 1900),
             new Shoot(0, 12, 30, 1, fixedAngle: 0, rotateAngle: 15, coolDown: 3000, coolDownOffset: 1500),
             new Shoot(CourtSight, 1, projectileIndex: 2, predictive: 0.6, coolDown: 1100),
         };
 
-        private static State WardenKit() => new State(WardenKitArr());
+        // a spiral of snowflakes, three arms
+        private static Shoot WardenSpiral(int every) => new Shoot(0, 3, 120, 4, fixedAngle: 0, rotateAngle: 11, coolDown: every);
 
-        private static State OracleKit() => new State(
+        private static IStateChildren[] PermafrostKit() => new IStateChildren[]
+        {
+            new Shoot(CourtSight, 5, 10, 0, predictive: 0.4, coolDown: 1600),
+            new Shoot(0, 14, 360.0 / 14, 1, fixedAngle: 0, rotateAngle: 12, coolDown: 2600),
+            new Shoot(0, 4, 90, 4, fixedAngle: 0, rotateAngle: 9, coolDown: 500),
+        };
+
+        private static IStateChildren[] WardenRage() => Kit(
+            Rage(),
+            new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+            new Prioritize(new Follow(1.2, CourtSight, 2), new Orbit(3, 5, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
+            WardenKit(),
+            PermafrostKit(),
+            WardenSpiral(450),
+            new Spawn("Rime Relic", 2, 0));
+
+        private static IStateChildren[] OracleKit() => new IStateChildren[]
+        {
             new Shoot(CourtSight, 3, 14, 0, predictive: 0.3, coolDown: 1500),
             new Shoot(CourtSight, 2, 24, 1, coolDown: 2600, coolDownOffset: 800),
-            new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000, coolDownOffset: 1500)
-        );
+            new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000, coolDownOffset: 1500),
+        };
 
-        // Hrimgar's hunt: he runs you down throwing axes and fangs, then leaps, and his landing bursts
-        // a ring of hailstones. `pace` shortens it all (his Frenzy).
-        private static State ReaverCycle(double pace) => new State(
-            new State("Hunt",
-                new Prioritize(new Follow(0.6 / pace, CourtSight, 4), new Orbit(0.5, 8, CourtSight, "Court Heart")),
+        // Aurora's Grace through one of Ysolde's turns: every 30 s, 10 s of it
+        private static State[] GraceCycle(string turn) => new[]
+        {
+            new State(turn + " on", new TimedTransition(30000, turn + " grace")),
+            new State(turn + " grace",
+                new EncounterCue(36),
+                new Flash(AuroraGlow, 0.3, 10),
+                new CourtGrace(0.015, 2000),
+                new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 2000),
+                new TimedTransition(10000, turn + " on")),
+        };
+
+        private static IStateChildren[] PolarNightKit() => new IStateChildren[]
+        {
+            new Shoot(CourtSight, 3, 14, 1, predictive: 0.3, coolDown: 1500),
+            new Shoot(0, 2, 180, 0, fixedAngle: 0, rotateAngle: 13, coolDown: 350),
+            new Shoot(CourtSight, 1, projectileIndex: 3, predictive: 0.3, coolDown: 2200),
+        };
+
+        private static IStateChildren[] OracleRage() => Kit(
+            Rage(),
+            new Prioritize(new Follow(1.3, CourtSight, 5), new Orbit(4, 7, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5, orbitClockwise: true)),
+            OracleKit(),
+            PolarNightKit(),
+            new Spawn("Aurora Relic", 2, 0));
+
+        // Hrimgar's hunt: he circles the middle as Geb does, throwing axes and fangs, then leaps on
+        // someone, and his landing bursts a ring of hailstones. `pace` shortens it all (his Frenzy);
+        // `chase` runs players down instead (his rage); `turn` names its states.
+        private static State[] ReaverCycle(string turn, double pace, bool chase = false) => new[]
+        {
+            new State(turn + " hunt",
+                chase
+                    ? new Prioritize(new Follow(1.5, CourtSight, 4), new Orbit(3 / pace, 6, CourtSight, "Court Heart"))
+                    : new Prioritize(new Orbit(3 / pace, 6, CourtSight, "Court Heart", speedVariance: 0.2, radiusVariance: 0.5)),
                 new Shoot(10, 2, 16, 0, predictive: 0.3, coolDown: (int)(1000 * pace)),
                 new Shoot(14, 3, 14, 1, predictive: 0.4, coolDown: (int)(1400 * pace)),
-                new TimedTransition((int)(5500 * pace), "Leap Brace")
+                new TimedTransition((int)(5500 * pace), turn + " brace")
             ),
-            new State("Leap Brace",
+            new State(turn + " brace",
                 new Flash(FrostGlow, 0.15, 3),
-                new TimedTransition(700, "Leap")
+                new TimedTransition(700, turn + " leap")
             ),
-            new State("Leap",
+            new State(turn + " leap",
                 new Charge(2.4, (float)CourtSight, 4000),
-                new TimedTransition(1000, "Land")
+                new TimedTransition(1000, turn + " land")
             ),
-            new State("Land",
+            new State(turn + " land",
                 new Shoot(0, 14, 360.0 / 14, 2, fixedAngle: 0, coolDown: 99999),
                 new Shoot(0, 8, 45, 4, fixedAngle: 22.5, coolDown: 99999, coolDownOffset: 300),
-                new TimedTransition(900, "Hunt")
-            )
+                new TimedTransition(900, turn + " hunt")
+            ),
+        };
+
+        // hailstones lobbed over at whoever's near, as Geb's grenades
+        private static Grenade HailLobs(int every) => new Grenade(3, 160, 12, coolDown: every, color: FrostGlow);
+
+        private static IStateChildren[] ShatteredKit() => new IStateChildren[]
+        {
+            new Shoot(CourtSight, 2, 16, 0, predictive: 0.4, coolDown: 1100),
+            new Shoot(CourtSight, 3, 14, 1, predictive: 0.4, coolDown: 1500),
+            new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000),
+        };
+
+        private static IStateChildren[] ReaverRage(string turn) => Kit(
+            Rage(),
+            new Shoot(0, 2, 180, 3, fixedAngle: 0, rotateAngle: 17, coolDown: 550),
+            new Shoot(0, 10, 36, 2, fixedAngle: 0, rotateAngle: 18, coolDown: 3000),
+            HailLobs(1100),
+            new Spawn("Reaver Relic", 2, 0),
+            ReaverCycle(turn, 0.6, chase: true));
+
+        // a relic of the Court (the Tomb's artifacts): it circles its maker close, firing, and
+        // shatters when its maker falls. Kept within 2.4 of its maker, the Court within 7.5 of
+        // the middle, so they clear the thrones (13.5) and pillars (15, IceCourt.cs)
+        private static State Relic(string maker, int every) => new State(
+            new Prioritize(new Orbit(2.5, 2, CourtSight, maker, speedVariance: 0.2, radiusVariance: 0.4)),
+            new Shoot(12, 3, 14, 0, predictive: 0.3, coolDown: every),
+            new State("Guard", new EntityNotExistsTransition(maker, 40, "Shatter")),
+            new State("Shatter", new Suicide())
         );
 
         private static State Shade(int every, double turn) => new State(
@@ -799,7 +999,7 @@ namespace WorldServer.logic
             ),
             new State("Linger",
                 new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                new Prioritize(new Orbit(0.25, 14, 40, "Court Heart", radiusVariance: 0.1)),
+                new Prioritize(new Orbit(1.2, 14, 40, "Court Heart", speedVariance: 0.1, radiusVariance: 0.1)),
                 new Shoot(0, 8, 45, 0, fixedAngle: turn, rotateAngle: 11, coolDown: every),
                 new EntitiesNotExistsTransition(45, "Fade", Kaldrun, Ysolde, Hrimgar)
             ),

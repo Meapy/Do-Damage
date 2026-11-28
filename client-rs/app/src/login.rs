@@ -96,6 +96,34 @@ impl Endpoint {
         http::post_form(&format!("{}/fame/recent", self.account), &[("count", "20")])
     }
 
+    /// `/fame/saved`: the server's latest deaths saved, newest first.
+    pub fn saved_deaths(&self) -> Pending<http::Response> {
+        http::post_form(&format!("{}/fame/saved", self.account), &[("count", "30")])
+    }
+
+    /// `/fame/replay` for any replay: a death's, or a death saved's.
+    pub fn replay_of(&self, id: bsk_net::replay::ReplayId) -> Pending<http::Response> {
+        match id {
+            bsk_net::replay::ReplayId::Death(a, c) => self.replay(a, c),
+            bsk_net::replay::ReplayId::Saved(n) => http::post_form(&format!("{}/fame/replay", self.account), &[("saved", &n.to_string())]),
+        }
+    }
+
+    /// `/fame/feed`: the latest deaths and deaths saved together (the Scrying Glass's Replays).
+    pub fn replay_feed(&self) -> Pending<http::Response> {
+        http::post_form(&format!("{}/fame/feed", self.account), &[("count", "20")])
+    }
+
+    /// `/fame/comments`: a replay's comments.
+    pub fn comments(&self, id: bsk_net::replay::ReplayId) -> Pending<http::Response> {
+        http::post_form(&format!("{}/fame/comments", self.account), &[("replay", &id.name())])
+    }
+
+    /// `/fame/comment`: say something under a replay (answers with its comments).
+    pub fn comment(&self, email: &str, password: &str, id: bsk_net::replay::ReplayId, text: &str) -> Pending<http::Response> {
+        http::post_form(&format!("{}/fame/comment", self.account), &[("guid", email), ("password", password), ("replay", &id.name()), ("text", text)])
+    }
+
     /// `/fame/replay`: a death's replay (`replay.rs`).
     pub fn replay(&self, account_id: i32, char_id: i32) -> Pending<http::Response> {
         let (a, c) = (account_id.to_string(), char_id.to_string());

@@ -61,7 +61,7 @@ An Empowered boss is the same boss, and it fights as it always did, but stronger
   {{v:raise_defense}} more defense (less for a boss already heavily armoured). In a group each player
   adds the same share as on the Elder boss;
 - its own shots hit 30% harder, and everything it does is a quarter faster (Malus, whose own fight
-  is already crowded, only 15% harder and a tenth faster);
+  is already crowded, only 15% harder and a tenth faster; the Void Entity's shots 17% harder);
 - for its first moments it is rising and can't be hurt.
 
 The souls fight for it too. Every soul shot the boss fires (the bolts, fast bolts, orbs and shards
@@ -72,7 +72,7 @@ of its Soul Nova and its phases) leaves you **Quiet** for a second: no mana whil
 - **Wailing Souls:** two ghosts that hunt the players and fire bolts at them, every 11 seconds, up to
   {{v:raise_souls}} at once. They go when the boss falls.
 - **Enraged,** below 30% health: faster still (nearly half as fast again as the Elder boss), shots
-  45% harder (Malus: a quarter faster, 25% harder), a Soul Nova every 5 seconds and three Wailing
+  45% harder (Malus: a quarter faster, 25% harder; the Void Entity: 30% harder), a Soul Nova every 5 seconds and three Wailing
   Souls every 8, glowing pink.
 
 ### Its phases
@@ -93,12 +93,12 @@ reached comes back every 9 to 13 seconds, one at a time, the newest first:
 
 The bosses of the raid-like dungeons (the Elder Shatters, the Elder Lost Halls, the Elder Cultist
 Hideout and the Elder Void, the Elder Tomb of the Ancients, the Lair of Elder Draconis and the
-Elder Ivory Wyvern, the Elder Cemetery) and Thessal of the Elder Ocean Trench have two more phases of their own, at 70%
+Elder Ivory Wyvern, the Elder Cemetery), Thessal of the Elder Ocean Trench and Esben of the Elder Inner Sanctum have two more phases of their own, at 70%
 and 40%, each in the boss's own style and with its own shots: the Sentinel's bridge collapsing in
 a checkerboard, Malus' blood moon ritual (kill his three cultist souls before the chant ends, or
 each heals him by 1% of his health; kill them all and his armour breaks), the Void Entity's closing event horizon,
 Pyyr's meteor shower and fire breath, the Ivory Wyvern's prismatic breath, Thessal's riptides
-and whirlpools and the Ghost Bride's procession down the aisle among them. Each boss's card below names them. Marks on the ground always fill
+and whirlpools, the Ghost Bride's procession down the aisle and Esben's frozen crosses and whiteout among them. Each boss's card below names them. Marks on the ground always fill
 before they strike: step out before they're full. No mark hits a full-health player hard enough
 to kill them outright, even a Wizard with no defense.
 

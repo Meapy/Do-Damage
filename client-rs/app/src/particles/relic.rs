@@ -171,7 +171,13 @@ pub mod look {
     pub const MAW: u8 = 70;
     /// The Sharklord (the target) feeding on pos2.x enemies bitten round pos1.
     pub const FEED: u8 = 71;
-    pub const LAST: u8 = 71;
+    /// The Scroll of the Unwilling (`Player.Unwilling.cs`): an enemy that fell near a Summoner's
+    /// summons rising at pos1 as a frozen thrall (the target) for `duration` ms: frost spreading,
+    /// ice climbing up out of the ground, its soul pulled back in; mist round it while it lasts.
+    pub const THRALL_RISE: u8 = 72;
+    /// A thrall shattering at pos1: shards of ice flung out to pos2.x, frost and snow.
+    pub const THRALL_SHATTER: u8 = 73;
+    pub const LAST: u8 = 73;
 }
 
 /// Falling, tiles a millisecond each millisecond (12 tiles a second each second).
@@ -261,7 +267,7 @@ fn period(look: u8) -> i32 {
         look::FORCEFIELD => 26,
         look::SERPENT_WIND | look::UNDERTOW | look::FORGOTTEN => 32,
         look::DAVY | look::IGNITION | look::PENTAGRAM => 45,
-        look::HELLBRAND | look::CHAOS | look::CONTAGION => 60,
+        look::HELLBRAND | look::CHAOS | look::CONTAGION | look::THRALL_RISE => 60,
         look::GRAVE_FLAMES => 30,
         look::VOW => 50,
         look::DUSK_SPLASH => 90,
@@ -1177,6 +1183,53 @@ impl Particles {
                 }
                 self.aura(look, id, x, y, r, color, now, ms.clamp(600, 6000), false);
             }
+            // the Scroll of the Unwilling: the fallen enemy rises as a thrall. Frost spreads from
+            // where it fell, shards of ice climb up round it, and its soul, pulled out of the
+            // ground, spirals back into it; a cold mist hangs round it while it serves
+            look::THRALL_RISE => {
+                let (cx, cy) = on.unwrap_or((x, y));
+                self.decal(DecalKind::Frost, x, y, 1.3, color, now, 1400, None);
+                self.decal(DecalKind::Ring, x, y, 1.1, 0xE0F8FF, now, 380, None);
+                for i in 0..10 {
+                    let a = i as f64 * 2.0 * PI / 10.0 + self.pm(0.2);
+                    let (sx, sy) = (x + 0.9 * a.cos(), y + 0.9 * a.sin());
+                    let mut p = Particle::new(sx, sy, 0.0, if i % 2 == 0 { 0xFFFFFF } else { color }, 120.0, 520, Motion::Spark)
+                        .moving((cx - sx) * 0.0008, (cy - sy) * 0.0008, 0.0035);
+                    p.delay = i * 25;
+                    self.add(p);
+                }
+                for i in 0..14 {
+                    let angle = 2.0 * PI * i as f64 / 14.0;
+                    let motion = Motion::Swirl { id, angle, speed: 0.2, rad: 0.9, out: -0.0011, rise: 0.0018 };
+                    let mut p = Particle::new(cx, cy, 0.1, self.pick(&[0x7DFFCF, color, 0xFFFFFF]), 120.0, 700, motion);
+                    p.alpha = 0.0;
+                    p.delay = 120 + i * 18;
+                    self.add(p);
+                }
+                self.puffs(x, y, 6, &[0xD0F0FF, 0x8FB6E0, 0x405878], 200.0, 0.5, 0.6, 900, 0);
+                self.aura(look, id, cx, cy, 0.6, color, now, ms.clamp(600, 10_000), true);
+            }
+            // ...and shattering: a burst of ice shards out to the radius, frost, a ring of cold
+            // and snow coming down where it stood
+            look::THRALL_SHATTER => {
+                self.decal(DecalKind::Frost, x, y, r, color, now, 1500, None);
+                self.decal(DecalKind::Ring, x, y, r, 0xE0F8FF, now, 320, None);
+                for i in 0..16 {
+                    let a = i as f64 * 2.0 * PI / 16.0 + self.pm(0.12);
+                    let d = r * (0.7 + 0.3 * self.random());
+                    self.sparker((x, y), (x + d * a.cos(), y + d * a.sin()), if i % 3 == 0 { 0xFFFFFF } else { color }, 170.0, 240);
+                }
+                self.debris(x, y, 14, &[0xFFFFFF, 0xD0F0FF, color], 110.0, 3.5, 5.0, 650, 0);
+                for _ in 0..18 {
+                    let (a, d) = (2.0 * PI * self.random(), r * self.random().sqrt());
+                    let fall = 800 + (self.random() * 500.0) as i32;
+                    let mut p = Particle::new(x + d * a.cos(), y + d * a.sin(), 2.0 + self.random(), self.pick(&[0xFFFFFF, 0xD0F0FF, color]), 80.0, fall, Motion::Plain)
+                        .moving(self.pm(0.3) / 1000.0, self.pm(0.3) / 1000.0, -2.4 / fall as f64);
+                    p.delay = (self.random() * 250.0) as i32;
+                    p.fade = true;
+                    self.add(p);
+                }
+            }
             // the Gravekeeper's Censer: blue flames lit round its user, circling it (an aura) as
             // many as are left; with none left they go out in a puff of smoke
             look::GRAVE_FLAMES => {
@@ -1893,6 +1946,14 @@ impl Particles {
                 p.fade = true;
                 self.add(p);
             }
+            // a thrall's cold mist, curling up round it
+            look::THRALL_RISE => {
+                let angle = 2.0 * PI * self.random();
+                let motion = Motion::Swirl { id: a.id, angle, speed: 0.1, rad: 0.5 + 0.2 * self.random(), out: 0.0, rise: 0.0016 };
+                let mut p = Particle::new(x, y, 0.0, self.pick(&[0xD0F0FF, a.color, 0xFFFFFF]), 110.0, 650, motion);
+                p.alpha = 0.0;
+                self.add(p);
+            }
             // the grave-flames circling their keeper, as many as are left (the radius)
             look::GRAVE_FLAMES => {
                 let n = a.radius.round().max(1.0) as usize;
@@ -2116,6 +2177,8 @@ impl Particles {
             look::WARD_FADE => (1.0, 0xFFE8C860, 0, true),
             look::LAST_RITE => (3.0, 0xFFC8A0FF, 0, true),
             look::CONTAGION => (3.0, 0xFF8FA547, 3000, false),
+            look::THRALL_RISE => (1.0, 0xFF8FD8FF, 8000, false),
+            look::THRALL_SHATTER => (2.5, 0xFF8FD8FF, 0, false),
             look::GRAVE_FLAMES => (3.0, 0xFF60A0FF, 9000, true),
             look::GRAVE_FLAME => (1.5, 0xFF60A0FF, 0, false),
             look::VOW => (1.5, 0xFFF4E8FF, 1500, true),

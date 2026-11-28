@@ -234,7 +234,8 @@ namespace WorldServer.core.worlds
             }),
             Tuple.Create("Gilded Thief", new TauntData() { NameOfDeath = "The Gilded Thief" }),
             Tuple.Create("Starborn Colossus", new TauntData() { NameOfDeath = "The Starborn Colossus" }),
-            Tuple.Create("Blight Mother", new TauntData() { NameOfDeath = "The Blight Mother" })
+            Tuple.Create("Blight Mother", new TauntData() { NameOfDeath = "The Blight Mother" }),
+            Tuple.Create("Rime Herald", new TauntData() { NameOfDeath = "The Rime Herald" })
         };
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -390,7 +391,8 @@ namespace WorldServer.core.worlds
             Tuple.Create("EH Event Hive", (ISetPiece)null),
             Tuple.Create("Gilded Thief", (ISetPiece)RealmEventGrounds.ThievesHoard()),
             Tuple.Create("Starborn Colossus", (ISetPiece)RealmEventGrounds.StarfallCrater()),
-            Tuple.Create("Blight Mother", (ISetPiece)RealmEventGrounds.Blightwood())
+            Tuple.Create("Blight Mother", (ISetPiece)RealmEventGrounds.Blightwood()),
+            Tuple.Create("Rime Herald", (ISetPiece)RealmEventGrounds.FrozenBarrow())
         };
 
         // How some events announce themselves, in place of "... has been spawned!"
@@ -399,6 +401,7 @@ namespace WorldServer.core.worlds
             { "Gilded Thief", "A Gilded Thief has been spotted counting its stolen hoard! Catch it before it gets away!" },
             { "Starborn Colossus", "A star streaks across the sky... and crashes into the realm!" },
             { "Blight Mother", "A creeping blight takes root in the realm! Cut it out before it spreads!" },
+            { "Rime Herald", "Frost spreads across the realm: the Rime Herald has come to open the way to the Ice Tomb!" },
         };
 
         // The parts of each event that are alive while it runs: the first is the one counted
@@ -422,6 +425,7 @@ namespace WorldServer.core.worlds
             { "Gilded Thief", new[] { "Gilded Thief" } },
             { "Starborn Colossus", new[] { "Starborn Colossus", "Star Satellite" } },
             { "Blight Mother", new[] { "Blight Mother" } },
+            { "Rime Herald", new[] { "Rime Herald" } },
         };
 
         // The event monsters whose health follows the players near them (ScaleEventHealth).
@@ -430,7 +434,7 @@ namespace WorldServer.core.worlds
             "Cube God", "Pentaract Tower", "Lord of the Lost Lands", "Ghost Ship", "Grand Sphinx", "Hermit God",
             "Skull Shrine", "Garnet Statue", "Jade Statue", "Lucky Ent God", "Lucky Djinn", "Dragon Head",
             "shtrs Defense System", "EH Event Hive", "EH Blue Guardian Bee", "EH Yellow Guardian Bee", "EH Red Guardian Bee",
-            "LH Lost Sentry", "Gilded Thief", "Starborn Colossus", "Star Satellite", "Blight Mother"
+            "LH Lost Sentry", "Gilded Thief", "Starborn Colossus", "Star Satellite", "Blight Mother", "Rime Herald"
         };
 
         // Events too hard for a small group: they only come once the realm has had this many players.

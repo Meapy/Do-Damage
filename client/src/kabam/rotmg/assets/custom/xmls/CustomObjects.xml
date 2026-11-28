@@ -811,4 +811,95 @@
 		</Texture>
 		<Effect color="0x2FD29A">Vortex</Effect>
 	</Object>
+	<!-- the Elder Ice Cave (custom/DoomedRealmsWorlds.xml): the regular Esben leads to it half
+	     the time and its key drops from the Elder Esben; its spawner opens the Elder Inner
+	     Sanctum once every Elder Big Yeti and Snow Bat Mama is dead -->
+	<Object type="0x7c10" id="Elder Ice Cave Portal">
+		<DisplayId>Elder Ice Cave</DisplayId>
+		<Class>Portal</Class>
+		<IntergamePortal/>
+		<DungeonName>Elder Ice Cave</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x54F</Index>
+		</Texture>
+		<Effect color="0x8FD8FF">Vortex</Effect>
+	</Object>
+	<Object type="0x7c11" id="Elder Ice Cave Key">
+		<Class>Equipment</Class>
+		<Item/>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x54E</Index>
+		</Texture>
+		<SlotType>10</SlotType>
+		<Description>A key of black ice that never melts, which opens a portal to the Elder Ice Cave. Esben has held the cornus inside him for an age down there, and he is losing.</Description>
+		<Sound>use_key</Sound>
+		<Consumable/>
+		<Activate id="Elder Ice Cave Portal">CreatePortal</Activate>
+		<feedPower>200</feedPower>
+		<BagType>7</BagType>
+	</Object>
+	<Object type="0x7c12" id="Elder Inner Sanctum Portal">
+		<DisplayId>The Elder Inner Sanctum</DisplayId>
+		<Class>Portal</Class>
+		<IntergamePortal/>
+		<DungeonName>The Elder Inner Sanctum</DungeonName>
+		<Texture>
+			<File>lofiObj3</File>
+			<Index>0x54F</Index>
+		</Texture>
+		<Effect color="0x8FD8FF">Vortex</Effect>
+	</Object>
+	<!-- the Scroll of the Unwilling's summon (Resurrection.xml; Player.UseItem.Doomed.cs AESummon,
+	     BehaviorDb.DoomedAllies.cs): Esben's shade, throwing fans of icicles and a quieting
+	     boomerang; and the thralls its power raises from enemies that die near the player's
+	     summons (Player.Unwilling.cs) -->
+	<Object type="0x7c13" id="Unwilling Shade Summon">
+		<DisplayId>Esben's Shade</DisplayId>
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>121</Index>
+		</AnimatedTexture>
+		<Effect particle="SwirlingMist" cooldown="0.6">XMLEffect</Effect>
+		<Size>70</Size>
+		<Flying/>
+		<Z>0.2</Z>
+		<Projectile id="0">
+			<ObjectId>Ice Burst</ObjectId>
+			<Speed>80</Speed>
+			<Damage>100</Damage>
+			<Size>90</Size>
+			<LifetimeMS>1200</LifetimeMS>
+			<ParticleTrail>0x8FD8FF</ParticleTrail>
+		</Projectile>
+		<Projectile id="1">
+			<ObjectId>Grey Boomerang</ObjectId>
+			<Speed>65</Speed>
+			<Damage>250</Damage>
+			<Size>100</Size>
+			<LifetimeMS>1500</LifetimeMS>
+			<MultiHit/>
+		</Projectile>
+		<NoMiniMap/>
+	</Object>
+	<Object type="0x7c14" id="Unwilling Thrall">
+		<DisplayId>Unwilling Thrall</DisplayId>
+		<Class>Character</Class>
+		<AnimatedTexture>
+			<File>chars16x16rEncounters</File>
+			<Index>122</Index>
+		</AnimatedTexture>
+		<Effect particle="SwirlingMist" cooldown="0.6">XMLEffect</Effect>
+		<Size>60</Size>
+		<Projectile id="0">
+			<ObjectId>Ghost Boss Slash</ObjectId>
+			<Speed>60</Speed>
+			<Damage>140</Damage>
+			<Size>90</Size>
+			<LifetimeMS>1100</LifetimeMS>
+		</Projectile>
+		<NoMiniMap/>
+	</Object>
 </Objects>

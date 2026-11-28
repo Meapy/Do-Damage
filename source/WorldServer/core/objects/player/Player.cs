@@ -607,6 +607,7 @@ namespace WorldServer.core.objects
                 TickChampion(time.DeltaTime);
                 TickNexusAfk(time);
                 TickVisits();
+                AutoPickupPotions();
                 if (TickCount % 5 == 0)
                     PassiveEffects();
                 TickCount++;

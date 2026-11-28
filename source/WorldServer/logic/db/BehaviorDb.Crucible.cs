@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
@@ -676,10 +676,11 @@ namespace WorldServer.logic
                             new TimedTransition(5000, "Fracture Blink")
                         ),
                         new State("Fracture Blink",
-                            new BlinkAround(G(4), G(11)),
-                            new Flash(ChronoGlow, 0.2, 2),
-                            new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 300),
-                            new TimedTransition(500, "Fracture Fight")
+                            // where he'll be is marked first, and he blinks there once it fills
+                            new BlinkAround(G(4), G(11), warnMs: 800, color: ChronoGlow),
+                            new Flash(ChronoGlow, 0.2, 4),
+                            new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 1100),
+                            new TimedTransition(1300, "Fracture Fight")
                         )
                     ),
                     new State("Reversal Rise",
@@ -728,10 +729,10 @@ namespace WorldServer.logic
                             new TimedTransition(6000, "Zero Blink")
                         ),
                         new State("Zero Blink",
-                            new BlinkAround(G(3), G(8)),
-                            new Flash(ChronoGlow, 0.2, 2),
-                            new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 300),
-                            new TimedTransition(500, "Zero Fight")
+                            new BlinkAround(G(3), G(8), warnMs: 800, color: ChronoGlow),
+                            new Flash(ChronoGlow, 0.2, 4),
+                            new Shoot(0, 12, fixedAngle: 0, projectileIndex: 0, coolDown: 90000000, coolDownOffset: 1100),
+                            new TimedTransition(1300, "Zero Fight")
                         )
                     )
                 ),

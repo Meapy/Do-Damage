@@ -5,7 +5,7 @@ using WorldServer.logic.transitions;
 
 namespace WorldServer.logic
 {
-    // Three realm events of both realms (RealmManager's _events; Realm 2 brings each with a land of
+    // Four realm events of both realms (RealmManager's _events; Realm 2 brings each with a land of
     // its own), and those lands' monsters. tools/build_realm2.py draws them all and writes their XML;
     // the projectile indices here are its MOBS lists.
     //
@@ -19,6 +19,10 @@ namespace WorldServer.logic
     // - The Blight Mother: a spreading rot. She seeds spore pods round her, each healing her while it
     //   stands and bursting into sporelings if left to ripen, so the group has to weed as it fights;
     //   she tears up her roots and stalks the players, then ripens every pod at once.
+    // - The Rime Herald: the Frozen Court's herald, come to open the way to the Ice Tomb (its portal,
+    //   always). It walks its barrow throwing lances and hail; at 65% it raises four sarcophagi round
+    //   it and is Armored until they are broken, each letting out one of its dead, and raises them
+    //   again every 20 s; below 30% it calls a whiteout and runs the players down under the hail.
     partial class BehaviorDb
     {
         private _ RealmEvents = () => Behav()
@@ -391,6 +395,123 @@ namespace WorldServer.logic
                     )
                 ))
 
+        // ================================================================ the Rime Herald
+        .Init("Rime Herald",
+            new State(
+                new DropPortalOnDeath("Ice Tomb Portal", 1.0),
+                new OrderOnDeath(40, "Herald's Sarcophagus", "Crumble"),
+                new OrderOnDeath(40, "Herald's Dead", "Crumble"),
+                new State("Waiting",
+                    new Taunt(0.5, new Cooldown(10000, 3000), "The Court sleeps. Its herald does not.",
+                        "Who comes to the barrow? Who would see the tomb?", "Cold... so cold... and so patient."),
+                    new PlayerWithinTransition(12, "Proclaim"),
+                    new HpLessTransition(0.995, "Proclaim")
+                    ),
+                new State("Proclaim",
+                    new Taunt(true, "Hear me, warm ones! The Frozen Court wakes, and the way to its tomb is mine to open... or to keep shut!"),
+                    new Prioritize(new StayCloseToSpawn(0.5, 12), new Follow(0.4, 12, 5), new Wander(0.3)),
+                    new Shoot(14, 3, shootAngle: 12, projectileIndex: 0, predictive: 0.5, coolDown: 1400),
+                    new Shoot(0, 10, shootAngle: 36, projectileIndex: 1, fixedAngle: 0, rotateAngle: 18, coolDown: 2600),
+                    new Grenade(3, 120, 12, coolDown: 3600, effect: ConditionEffectIndex.Slowed, effectDuration: 1500, color: 0xFF9FE8FF),
+                    new HpLessTransition(0.65, "Raise")
+                    ),
+                // four sarcophagi of its dead round it; while any stands, it is Armored
+                new State("Raise",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Taunt(true, "Rise, dead of the barrow! Hold the way!"),
+                    new Flash(0x9FE8FF, 0.2, 8),
+                    new TossObject("Herald's Sarcophagus", 6, angle: 45, coolDown: 99999),
+                    new TossObject("Herald's Sarcophagus", 6, angle: 135, coolDown: 99999),
+                    new TossObject("Herald's Sarcophagus", 6, angle: 225, coolDown: 99999),
+                    new TossObject("Herald's Sarcophagus", 6, angle: 315, coolDown: 99999),
+                    new TimedTransition(1800, "Sealed")
+                    ),
+                new State("Sealed",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                    new Taunt(0.6, new Cooldown(9000, 2000), "While my dead sleep, I cannot fall!",
+                        "Break them, if you dare wake what is inside.", "The barrow keeps me."),
+                    new Prioritize(new StayCloseToSpawn(0.4, 8), new Wander(0.25)),
+                    new Shoot(14, 3, shootAngle: 12, projectileIndex: 0, predictive: 0.5, coolDown: 1300),
+                    new Shoot(13, 2, shootAngle: 14, projectileIndex: 3, predictive: 0.4, coolDown: 1700),
+                    new Shoot(0, 3, shootAngle: 120, projectileIndex: 1, fixedAngle: 0, rotateAngle: 13, coolDown: 500),
+                    new EntitiesNotExistsTransition(16, "Hail", "Herald's Sarcophagus"),
+                    new TimedTransition(30000, "Hail"),
+                    new HpLessTransition(0.3, "Whiteout")
+                    ),
+                new State("Hail",
+                    new Taunt("You break my dead... then feel the cold they kept!"),
+                    new Prioritize(new StayCloseToSpawn(0.6, 12), new Follow(0.55, 12, 4), new Wander(0.3)),
+                    new Shoot(14, 4, shootAngle: 10, projectileIndex: 0, predictive: 0.5, coolDown: 1100),
+                    new Shoot(0, 3, shootAngle: 120, projectileIndex: 1, fixedAngle: 0, rotateAngle: 13, coolDown: 450),
+                    new Shoot(13, 1, projectileIndex: 2, predictive: 0.4, coolDown: 2000),
+                    new Starfall(Starfall.Area.Players, 14, 2.5, 110, new Cooldown(3200, 600), color: 0xFF9FE8FF,
+                        effect: ConditionEffectIndex.Slowed, effectMs: 1500),
+                    new TimedTransition(20000, "Raise"),
+                    new HpLessTransition(0.3, "Whiteout")
+                    ),
+                new State("Whiteout",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new Taunt(true, "Then let the whole realm freeze, and the tomb take you all!"),
+                    new Flash(0xFFFFFF, 0.15, 12),
+                    new Shoot(0, 20, shootAngle: 18, projectileIndex: 2, fixedAngle: 0, coolDown: 99999),
+                    new TimedTransition(2000, "Run Down")
+                    ),
+                new State("Run Down",
+                    new Shoot(0, 4, shootAngle: 90, projectileIndex: 1, fixedAngle: 0, rotateAngle: 11, coolDown: 400),
+                    new Shoot(13, 3, shootAngle: 14, projectileIndex: 3, predictive: 0.5, coolDown: 1300),
+                    new Starfall(Starfall.Area.Players, 14, 2.5, 120, new Cooldown(2200, 500), perVolley: 2, color: 0xFF9FE8FF,
+                        effect: ConditionEffectIndex.Slowed, effectMs: 1500),
+                    new Spawn("Herald's Dead", maxChildren: 3, initialSpawn: 0, coolDown: 8000),
+                    new State("Stalk",
+                        new Prioritize(new StayCloseToSpawn(1.0, 16), new Follow(0.9, 14, 2), new Wander(0.4)),
+                        new Shoot(14, 5, shootAngle: 10, projectileIndex: 0, predictive: 0.5, coolDown: 900),
+                        new TimedTransition(3500, "Lunge")
+                        ),
+                    new State("Lunge",
+                        new Flash(0x9FE8FF, 0.12, 3),
+                        new Charge(2.4, 12, coolDown: 600),
+                        new Shoot(0, 12, shootAngle: 30, projectileIndex: 1, fixedAngle: 15, coolDown: 99999, coolDownOffset: 700),
+                        new TimedTransition(1300, "Stalk")
+                        )
+                    )
+                ),
+            new Threshold(0.005, LootTemplates.BasicDrop()),
+            new Threshold(0.005, LootTemplates.BasicPots()),
+            new Threshold(0.01,
+                new ItemLoot("Frozen Wand", 0.004),
+                new ItemLoot("Arctic Bow", 0.004),
+                new ItemLoot("Tome of Frigid Protection", 0.004),
+                new ItemLoot("Potion of Defense", 0.5),
+                new ItemLoot("Potion of Wisdom", 0.5)
+                )
+            )
+        // a sarcophagus of its dead: breathes out rime while it stands; broken, its dead walk
+        .Init("Herald's Sarcophagus",
+            new State(
+                new TransformOnDeath("Herald's Dead"),
+                new State("Settle",
+                    new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                    new TimedTransition(1200, "Stand")
+                    ),
+                new State("Stand",
+                    new Shoot(0, 8, shootAngle: 45, fixedAngle: 0, rotateAngle: 22, coolDown: 2400)
+                    ),
+                new State("Crumble",
+                    new Vanish(false)
+                    )
+                ))
+        .Init("Herald's Dead",
+            new State(
+                new State("Walk",
+                    new Prioritize(new StayCloseToSpawn(0.8, 16), new Follow(0.7, 12, 1), new Wander(0.4)),
+                    new Shoot(9, 3, shootAngle: 16, predictive: 0.3, coolDown: 1300),
+                    new TimedTransition(40000, "Crumble")
+                    ),
+                new State("Crumble",
+                    new Vanish(false)
+                    )
+                ))
+
         // ================================================================ the Thieves' Bazaar
         .Init("R2 Hoard Rat",
             new State(
@@ -622,7 +743,94 @@ namespace WorldServer.logic
                     ),
                 new DropPortalOnDeath("Toxic Sewers Portal", 0.3)
                 ),
-            R2Quest("Potion of Defense", "Potion of Vitality"));
+            R2Quest("Potion of Defense", "Potion of Vitality"))
+
+        // ================================================================ the Frozen Barrow
+        .Init("R2 Ice Mite",
+            new State(
+                R2Quip("Skrrk!", "Cold! Cold!", "Click click click!"),
+                new Prioritize(new StayCloseToSpawn(1.2, 16), new Swirl(1.2, 3, 9), new Wander(0.6)),
+                new Shoot(6, 2, shootAngle: 24, coolDown: 600)
+                ),
+            R2Mob("Potion of Speed"))
+        .Init("R2 Barrow Mummy",
+            new State(
+                R2Walk(0.45, 9, 2),
+                new Shoot(9, 3, shootAngle: 14, projectileIndex: 0, predictive: 0.3, coolDown: 1400),
+                new Shoot(3.5, 8, shootAngle: 45, projectileIndex: 1, coolDown: 2600),
+                new Spawn("R2 Ice Mite", maxChildren: 2, initialSpawn: 0, coolDown: 9000, givesNoXp: false)
+                ),
+            R2Mob("Potion of Defense"))
+        .Init("R2 Rime Wraith",
+            new State(
+                new Prioritize(new StayCloseToSpawn(0.7, 16), new Orbit(0.7, 5, 11, speedVariance: 0.2, radiusVariance: 0.6), new Wander(0.35)),
+                new Shoot(10, 2, shootAngle: 18, predictive: 0.4, coolDown: 1200)
+                ),
+            R2Mob("Potion of Wisdom"))
+        .Init("R2 Frostfang Wolf",
+            new State(
+                new State("Stalk",
+                    R2Walk(0.9, 11, 4),
+                    new Shoot(4, 1, coolDown: 700),
+                    new TimedTransition(2600, "Lunge")
+                    ),
+                new State("Lunge",
+                    new Charge(1.8, 9, coolDown: 2000),
+                    new Shoot(3, 3, shootAngle: 20, coolDown: 500),
+                    new TimedTransition(900, "Stalk")
+                    )
+                ),
+            R2Mob("Potion of Speed"))
+        .Init("R2 Barrow Colossus",
+            new State(
+                new State("Guard",
+                    R2Walk(0.4, 12, 3),
+                    new Shoot(13, 3, shootAngle: 16, projectileIndex: 0, predictive: 0.3, coolDown: 2000),
+                    new Shoot(0, 12, shootAngle: 30, projectileIndex: 1, fixedAngle: 0, rotateAngle: 15, coolDown: 2600),
+                    new TimedTransition(6000, "Slam"),
+                    new HpLessTransition(0.3, "Calving")
+                    ),
+                new State("Slam",
+                    new Taunt(0.4, "The barrow holds. I hold it."),
+                    new Flash(0x9AB4D4, 0.2, 4),
+                    new Shoot(0, 3, shootAngle: 120, projectileIndex: 1, fixedAngle: 0, rotateAngle: 13, coolDown: 450),
+                    new Grenade(3, 150, 10, coolDown: 1600, color: 0xFF9AB4D4),
+                    new TimedTransition(4000, "Guard"),
+                    new HpLessTransition(0.3, "Calving")
+                    ),
+                new State("Calving",
+                    new Taunt("The glacier breaks. Let it bury you!"),
+                    new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                    new Prioritize(new StayCloseToSpawn(0.5, 10), new Follow(0.45, 12, 2)),
+                    new Shoot(13, 5, shootAngle: 12, projectileIndex: 0, predictive: 0.3, coolDown: 1700),
+                    new Shoot(0, 3, shootAngle: 120, projectileIndex: 1, fixedAngle: 0, rotateAngle: 13, coolDown: 400),
+                    new Spawn("R2 Barrow Mummy", maxChildren: 2, initialSpawn: 0, coolDown: 999999, givesNoXp: false)
+                    ),
+                new DropPortalOnDeath("Ice Cave Portal", 0.3)
+                ),
+            R2Quest("Potion of Defense", "Potion of Vitality"))
+        .Init("R2 Frostfang Packmother",
+            new State(
+                new State("Circle",
+                    new Prioritize(new StayCloseToSpawn(0.8, 12), new Orbit(0.8, 5, 13), new Wander(0.4)),
+                    new Shoot(12, 3, shootAngle: 14, projectileIndex: 1, predictive: 0.4, coolDown: 1300),
+                    new TimedTransition(3500, "Pounce")
+                    ),
+                new State("Pounce",
+                    new Flash(0x9FE8FF, 0.15, 3),
+                    new Charge(2.4, 12, coolDown: 3000),
+                    new Shoot(3, 4, shootAngle: 18, projectileIndex: 0, coolDown: 400),
+                    new TimedTransition(1100, "Howl")
+                    ),
+                new State("Howl",
+                    new Taunt(0.3, "*a howl that rattles the ice*"),
+                    new Shoot(0, 12, shootAngle: 30, projectileIndex: 1, fixedAngle: 0, coolDown: 9999),
+                    new Spawn("R2 Frostfang Wolf", maxChildren: 2, initialSpawn: 0, coolDown: 12000, givesNoXp: false),
+                    new TimedTransition(900, "Circle")
+                    ),
+                new DropPortalOnDeath("Ice Cave Portal", 0.3)
+                ),
+            R2Quest("Potion of Speed", "Potion of Dexterity"));
 
         // keeps away from players, inside its patch: the Gilded Thief and its decoys
         private static Prioritize ThiefRun(double speed, double distance) =>

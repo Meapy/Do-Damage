@@ -37,6 +37,7 @@ namespace WorldServer.core.resurrection
             "Elder Arena Ghost Bride" => GhostBride(),
             "Elder Arena Grave Caretaker" => GraveCaretaker(),
             "Elder Ghost of Skuld" => Skuld(),
+            "Elder ic Esben the Unwilling" => Esben(),
             _ => Array.Empty<SoulPhase>(),
         };
 
@@ -49,6 +50,7 @@ namespace WorldServer.core.resurrection
             "Elder NM Green Dragon God", "Elder NM Blue Dragon God", "Elder NM Red Dragon God", "Elder NM Black Dragon God",
             "Elder lod Ivory Wyvern", "Elder Thessal the Mermaid Goddess",
             "Elder Arena Ghost Bride", "Elder Arena Grave Caretaker", "Elder Ghost of Skuld",
+            "Elder ic Esben the Unwilling",
         };
 
         private const double High = 0.7, Low = 0.4;
@@ -1007,6 +1009,73 @@ namespace WorldServer.core.resurrection
                         foreach (var p in a.Targets())
                             a.Blast(Arena.P(p), 2.0, 1400, 1.4, PlagueGreen, ConditionEffectIndex.Sick, 2500);
                     });
+                },
+            },
+        };
+
+        // --- The Elder Inner Sanctum ----------------------------------------------------------
+
+        private const uint EsbenFrost = 0xFF8FD8FF, CornusBlue = 0xFF3A6CFF;
+
+        private static SoulPhase[] Esben() => new[]
+        {
+            // the purifier crosses that once held the cornus asleep, drawn in frost round him: four
+            // arms of slowing blasts land outward one after another, each throwing icicles out
+            // across its arm, then the cross again, turned an eighth
+            new SoulPhase
+            {
+                Name = "Frozen Crosses", Below = High, Color = EsbenFrost,
+                Line = "Those crosses kept him asleep. Let me show you what they kept in!",
+                Every = 11000, Busy = 4200,
+                Run = a =>
+                {
+                    var start = a.RandomAngle();
+                    for (var turn = 0; turn < 2; turn++)
+                        for (var step = 1; step <= 5; step++)
+                        {
+                            var angle0 = start + turn * Math.PI / 4;
+                            var dist = step * 2.2;
+                            a.Later(turn * 1900 + step * 220, () =>
+                            {
+                                for (var arm = 0; arm < 4; arm++)
+                                {
+                                    var angle = angle0 + arm * Math.PI / 2;
+                                    var at = a.At(angle, dist);
+                                    if (!a.Walkable(at))
+                                        continue;
+                                    a.Blast(at, 1.3, 1000, 1.2, EsbenFrost, ConditionEffectIndex.Slowed, 1200, landed: () =>
+                                    {
+                                        a.ShootFrom(at, Arena.Sig0, angle + Math.PI / 2);
+                                        a.ShootFrom(at, Arena.Sig0, angle - Math.PI / 2);
+                                    });
+                                }
+                            });
+                        }
+                },
+            },
+            // the cornus breathes through him: he hides in ice while a whiteout of frost orbs
+            // spirals slowly out in three arms, and the ice comes down twice on every player
+            new SoulPhase
+            {
+                Name = "Whiteout", Below = Low, Color = CornusBlue,
+                Line = "I can't hold him... RUN!",
+                Every = 13000, Busy = 4800,
+                Run = a =>
+                {
+                    a.Shield(2500);
+                    a.Gather(CornusBlue, 5);
+                    var start = a.RandomAngle();
+                    a.Repeat(16, 200, i => a.Shoot(Arena.Sig1, start + Arena.Deg(15 * i), 3, Math.PI * 2 / 3), 600);
+                    for (var k = 0; k < 2; k++)
+                        a.Later(800 + k * 1800, () =>
+                        {
+                            foreach (var p in a.Targets())
+                            {
+                                var at = Arena.P(p);
+                                a.Throw(at, EsbenFrost);
+                                a.Blast(at, 1.8, 1400, 1.3, CornusBlue, ConditionEffectIndex.Slowed, 2000);
+                            }
+                        });
                 },
             },
         };

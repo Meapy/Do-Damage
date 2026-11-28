@@ -1,60 +1,54 @@
 # Server development
 
-C# on .NET 8, based on TK-Reborn: `betterSkillys.sln` holds the account server (`App`), the world
-server (`WorldServer`), the shared library (`Shared`) and Redis. Read [../AGENTS.md](../AGENTS.md)
-first, above all: **ask before restarting the live servers**.
+C# on .NET 8, based on TK-Reborn. Read [../AGENTS.md](../AGENTS.md) first, above all: **ask
+before restarting the live servers**. `betterSkillys.sln` holds:
 
 | Project | What it is | Config |
 |---|---|---|
 | `App` | Account server (ASP.NET): login, characters, server list, web endpoints in `Controllers/` | `App/server.json` (Redis, port 8080) |
 | `WorldServer` | The game: worlds, players, monsters, commands, networking | `WorldServer/wServer.json` (Redis, port 2051, public address, realm settings) |
-| `Shared` | Game data (`resources/`), the Redis layer (`database/`), shared types | |
+| `Shared` | Game data (`resources/`), the Redis layer (`database/`), rules with no game code (`quests/`, `pass/`, `crucible/`) | |
+| `Tests` | xUnit tests, mostly one file per feature (`<Feature>Tests.cs`) | |
 | `Redis` | Bundled Redis 3.2 for Windows, `redis.local.conf` | |
 
-## Build, test, deploy
+## Build and test
 
 ```
 dotnet build source\betterSkillys.sln -c Debug
 dotnet build source\WorldServer\WorldServer.csproj -c Debug -o build\wscheck   # just to check it compiles
-dotnet test source\Tests
+dotnet test source\Tests                                                         # -m:1 if MSBuild's node crashes
 ```
 
-- `Optimize` is on for `WorldServer` and `Shared` in Debug too (Debug is what `Run Server.bat`
-  runs).
-- **Live servers** are on the VPS under `/opt/bsk` (`app`, `build/live/<slot>`); this PC's copies
-  (`App/bin/Debug/net8.0`, `build/live/a` and `b`) are stopped since the move.
+- `Optimize` is on for `WorldServer` and `Shared` in Debug too.
 - **Trying a change in game:** `tools/testclient/iso_stack.py start` builds App and WorldServer
-  into `build/iso`, on Redis 6380 (a copy of the live data), account 8081 and world 2052;
+  into `build/iso`, on Redis 6380 (a copy of `source/Redis/data`), account 8081 and world 2052;
   `--slot N` adds N, and in a worktree pass `--data-from <main checkout>\source\Redis\data` or it
   starts empty. Play with the Rust client's scripted flags or the bot (client-rs/AGENTS.md,
   "Testing against the servers"); `iso_stack.py stop` when done.
-- **Slow tests:** an `Assert.True(cond, $"...")` message is built every time, even when the
-  check passes: a map drawing in one made a 40-seed test take minutes a seed. Build such messages
-  only on failure (`if (!cond) Assert.Fail(...)`). If `dotnet test` dies with an MSBuild node
-  crash, run it with `-m:1`.
-- **Logs:** `build/live/<slot>/logs/wServer/<date>/info.txt` and `error.txt`,
-  `App/bin/Debug/net8.0/logs/app/`; on the VPS `/opt/bsk/build/live/<slot>/logs/wServer/`,
-  `/opt/bsk/app/logs/` and `journalctl -u bsk-world` / `-u 'bsk-gateway@*'`. Slow ticks (>200 ms)
-  and message passes (>100 ms) are logged; every 30 s each busy world logs "Tick stats"
-  (`core/worlds/TickProfile.cs`), and GC pauses over 50 ms log "GC pause" (`core/GcPauseLog.cs`).
-  Measure with those. `python deploy\deploy.py --status` shows the services and slots; Redis on
-  the VPS is `redis-cli -p 6379`.
-- **Deploying** happens with the next release (merging its pull request into `main`; ask the
-  owner first) and kicks nobody: world servers roll (below), the account server restart pauses
-  sign-ins for seconds, a new gateway takes a free slot. A message change ships with the client.
-- **Testing a death:** a monster from `/spawn` is "spawned", and its kill is a "got rekt": a
-  gravestone and back to the Nexus, no death record and no replay. For a real death on a test
-  stack, set the character's health low on the copy (`redis-cli -p <port> hset char.1.<id> hp 1`)
-  and send the bot to the Godlands (`--fight --say "/godlands"`): it died within 30 s.
-- **Stopping cleanly:** Ctrl+C or SIGTERM: `GameServer.Stop` ends the loop and
-  `ConnectionListener.Shutdown` disconnects (and so saves) each player. A forced kill skips that.
-- **Looking at random layouts:** `IceTombTests` with `BSK_LAYOUT_DUMP=<folder>` writes six Ice
-  Tomb layouts as JSON; `python tools/ice_tomb/draw_layout.py <out.png> <folder>/seed0.json` draws
-  one with the real tiles, quicker than walking them in game.
-- Rewriting a dungeon's behaviours: `ArenaSeason2Tests` fails if a monster the Arena's season 2
-  still fights (`ArenaSeason2.cs`) loses its behaviour; keep those in a file of their own (the old
-  Ice Tomb trio is in `BehaviorDb.IceTombArena.cs`). New object ids must not repeat any in the
-  XML anywhere (a shot named `Snowflake` clashed with a Permapets object): no test catches it.
+- **Slow tests:** an `Assert.True(cond, $"...")` message is built every time, even when the check
+  passes (a map drawing in one made a 40-seed test take minutes a seed). Build such messages only
+  on failure: `if (!cond) Assert.Fail(...)`.
+- **A real death on a test stack:** a `/spawn`ed monster's kill is a "got rekt" (a gravestone, no
+  death record, no replay). Set the character's health low on the copy
+  (`redis-cli -p <port> hset char.1.<id> hp 1`) and send the bot to the Godlands
+  (`--fight --say "/godlands"`): it dies within 30 s.
+- **`/empower` where the boss's helpers still stand** runs its Elder fight as if it had just
+  started: in the Elder Inner Sanctum the Empowered Esben takes the crosses' path, since the
+  generator is there. Raise a boss in a `/vault` to see what its real revival does (Esben's Risen
+  cycle).
+- **Random layouts:** `IceTombTests` with `BSK_LAYOUT_DUMP=<folder>` writes six Ice Tomb layouts
+  as JSON; `python tools/ice_tomb/draw_layout.py <out.png> <folder>/seed0.json` draws one with the
+  real tiles, quicker than walking them in game.
+- **Logs:** `build/live/<slot>/logs/wServer/<date>/info.txt` and `error.txt` (`build/iso<N>/` on a
+  test stack), `App/bin/Debug/net8.0/logs/app/`; on the VPS
+  `/opt/bsk/build/live/<slot>/logs/wServer/`, `/opt/bsk/app/logs/` and `journalctl -u bsk-world` /
+  `-u 'bsk-gateway@*'`. Slow ticks (>200 ms) and message passes (>100 ms) are logged; every 30 s
+  each busy world logs "Tick stats" (`core/worlds/TickProfile.cs`), and GC pauses over 50 ms log
+  "GC pause" (`core/GcPauseLog.cs`): measure with those. `python deploy\deploy.py --status` shows
+  the VPS services and slots; Redis there is `redis-cli -p 6379`.
+- **Deploying** comes with the next release (ask the owner first; ../AGENTS.md, Git): world
+  servers roll (below), the account server restart pauses sign-ins for seconds, a new gateway
+  takes a free slot. A message change ships with the client.
 
 ## Rolling deploys (world proxy)
 
@@ -80,13 +74,12 @@ dotnet test source\Tests
   on socket threads (the `NetworkHandler` callbacks, `Client.Disconnect`) must never let an
   exception out: on a pool thread it ends the process without saving anyone. Touch a player's
   world state there only through `World.Post`.
-- **Stuck worlds:** `core/WorldWatchdog.cs`, on the main loop, notices a world thread whose loop
-  hasn't come round for 60 s (`BSK_WATCHDOG_SECONDS`): it logs "World watchdog", writes
-  `restart.request` (a rolling restart; players on a stuck world move at once) and saves a heap
-  dump to `build/live/dumps/` (Linux, `createdump`, the newest 2 kept, ~1.5 GB each). Read one with
-  `dotnet-dump analyze <file>` on Linux (WSL): `clrstack -all`, `syncblk`. Try it on an isolated
-  rolling stack started with `BSK_TEST_HANG_NEXUS=<seconds>`, which hangs the Nexus that long after
-  start-up (each new server too); never set it on the VPS.
+- **Stuck worlds:** `core/WorldWatchdog.cs` notices a world thread whose loop hasn't come round
+  for 60 s (`BSK_WATCHDOG_SECONDS`): it logs "World watchdog", writes `restart.request` (players on
+  the stuck world move at once) and saves a heap dump to `build/live/dumps/` (Linux, `createdump`,
+  the newest 2 kept, ~1.5 GB each); read one with `dotnet-dump analyze <file>` in WSL (`clrstack
+  -all`, `syncblk`). `BSK_TEST_HANG_NEXUS=<seconds>` hangs each new server's Nexus that long after
+  start-up, to try it on an isolated rolling stack; never set it on the VPS.
 - **Realms carry over:** each Nexus realm keeps a snapshot in the Redis hash `realms`
   (`core/worlds/RealmSnapshots.cs`, `RealmManager.Snapshot.cs`) that a new server reopens;
   `/uptime` reads `worlds:upSince`. New realm state worth keeping goes in the snapshot; what it
@@ -94,8 +87,8 @@ dotnet test source\Tests
 - **Failed starts:** `start_backend` records a new server as `starting` and stops it (SIGTERM, or
   Ctrl+Break on Windows) if it doesn't listen in time; a deploy stops a `starting` server a dead
   tool left. Never leave a world server running that the state doesn't list.
-- **Client addresses:** the proxy sends message 250 (`PROXY_INFO`) before the Hello; only a server
-  behind the proxy takes it.
+- **Client addresses:** the proxy (and the gateway) sends message 250 (`PROXY_INFO`) before the
+  Hello; the world server takes it only as a connection's first message, behind the proxy.
 - **Testing:** `iso_stack.py --slot N start --rolling`, then `rolling_restart.py --iso N deploy`
   (front 2052+N, slots 12052+N and 22052+N). Test world servers run as `dotnet WorldServer.dll`,
   never `WorldServer.exe`.
@@ -107,13 +100,13 @@ dotnet test source\Tests
   vault) is a branch (`WorldBranch`) on its root's thread; `World.SignalIO` wakes it and
   `World.Post` runs code on a world's thread.
 - **New worlds:** `WorldManager.CreateNewWorldAsync` from a world thread: the map and entities are
-  built on a pool thread, then attached, and the callback runs on the caller's thread. Building
-  inline froze the realm and its dungeons.
+  built on a pool thread, then attached, and the callback runs on the caller's thread. Never build
+  a world inline: it froze the realm and its dungeons.
 - **Sending:** messages from one pass of a thread's loop go out together (`BeginBatch` /
   `FlushBatch`, `core/connection/NetworkHandler.cs`), order kept.
 - **Incoming messages:** ids in `networking/packets/MessageIds.cs`; handlers derive from
   `IMessageHandler` in `core/net/handlers/` and are found by reflection (no registration). An
-  unknown id counts as packet spam (32 disconnect). Keep the clients' ids in step.
+  unknown id counts as packet spam (32 disconnect). Keep the client's ids in step.
 - **Text players read:** the server's text reaches everyone in English. For new features send ids
   and numbers and let the Rust client word them (client-rs/AGENTS.md, "Languages"), keeping English
   text as a fallback for older clients.
@@ -136,66 +129,64 @@ dotnet test source\Tests
 ## Content
 
 - **Items, objects, grounds:** XML in `Shared/resources/xml`; most files have a client copy under
-  `client/src/kabam/rotmg/assets/` (what the Rust client reads): edit both. Characters
-  store items by type code, so never renumber an object. Some tools keep type codes stable for
-  what they write (`tools/<name>/types.json`); a file whose first line says "Generated by
-  tools/<script>" is rewritten by that script, so change the script and rerun it.
+  `client/src/kabam/rotmg/assets/` (what the Rust client reads): edit both. Characters store items
+  by type code, so never renumber an object. New object ids must not repeat any id in any XML (a
+  shot named `Snowflake` clashed with a Permapets object): no test catches it. Some tools keep
+  type codes stable for what they write (`tools/<name>/types.json`).
 - **Behaviours:** `logic/db/BehaviorDb.<Area>.cs`, partial classes of `BehaviorDb`, built from
-  `logic/behaviors/` and `logic/transitions/`.
+  `logic/behaviors/` and `logic/transitions/`. `ArenaSeason2Tests` fails if a monster the Arena's
+  season 2 still fights (`ArenaSeason2.cs`) loses its behaviour, so when you rewrite a dungeon,
+  keep those in a file of their own (as `BehaviorDb.IceTombArena.cs` keeps the old Ice Tomb trio).
+  A monster's states share one list of names, the last of a name winning, with no warning: a
+  helper that builds the same named states twice (a cycle reused in several phases) sends every
+  copy's transitions into the last copy. Give such helpers a prefix (`ReaverCycle(turn, ...)`).
 - **The second behaviour engine:** some monsters run on `logic/doomed/DoomedRuntime.cs` (its own
   composites, attacks, movement, spawning, events and loot), defined in
   `logic/doomed/DoomedMonsters.cs` and registered in `BehaviorDb.DoomedMonsters.cs` with
   `InitDoomed`, which steps aside for an `Init` of the same monster: write a regular behaviour to
-  replace one (`BehaviorDb.Tomb.cs` does for the Tomb and the Elder Tomb). Elder monsters without
-  a behaviour share their regular one's (`DoomedAliases`, in `BehaviorDb.Initialize`).
+  replace one (as `BehaviorDb.Tomb.cs` does for the Tomb and the Elder Tomb). Elder monsters
+  without a behaviour share their regular one's (`DoomedAliases`, in `BehaviorDb.Initialize`).
 - **Classes, pets, minigames, the forge and the Elder dungeons:** SETUP-LOCAL.md, "Classes,
   minigames and the economy". `tools/make_elder.py` builds the Elder tiles, monsters and maps.
 - **Never spawn hostile monsters in the Nexus**: they kill low-level characters there.
 - "Failed to add behavior ... Xml data not found" at start-up is long-standing upstream noise.
 
-## Quests and achievements
+## Quests, the Realm Pass, commands
 
-- **Rules** in `Shared/quests/` (no game code, covered by `dotnet test source\Tests`), numbers in
-  `Shared/resources/data/quests.json`; the game side is `WorldServer/core/quests/QuestTracker.cs`,
-  one per player, fed through `Player.Quests.Event`.
-- **State:** the `progress` field of `account.<id>` (JSON), saved on leaving; claims save before
-  paying.
-- **Testing:** `/questadmin time <hours>`, `add <event> [n] [flags]`, `done`, `reset` (admins, on a
-  test stack only).
-
-## The Realm Pass
-
-- **Rules** in `Shared/pass/` (no game code, `PassBookTests`), everything tunable in
-  `Shared/resources/data/pass.json` (its `_about`); the game side is
-  `WorldServer/core/pass/PassTracker.cs`, one per player, fed by the same hooks as the quests.
-- **State:** the `pass` field of `account.<id>` (JSON), saved after every claim and purchase
-  (before paying), every 30 s while it changes, and on leaving.
-- **Testing:** `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>`,
-  `look <aura> [skin id]` and `petfx <id>` (admins, on a test stack only); the Rust client's
-  `--pass <tab>`.
+- **Quests and achievements:** rules in `Shared/quests/` (`QuestBookTests`), numbers in
+  `Shared/resources/data/quests.json`; the game side is `core/quests/QuestTracker.cs`, one per
+  player, fed through `Player.Quests.Event`. State is the `progress` field of `account.<id>`
+  (JSON), saved on leaving; claims save before paying. Admins test with `/questadmin time <hours>`,
+  `add <event> [n] [flags]`, `done`, `reset`.
+- **The Realm Pass:** rules in `Shared/pass/` (`PassBookTests`), everything tunable in
+  `Shared/resources/data/pass.json` (its `_about`); the game side is `core/pass/PassTracker.cs`,
+  fed by the same hooks as the quests. State is the `pass` field of `account.<id>` (JSON), saved
+  after every claim and purchase (before paying), every 30 s while it changes, and on leaving.
+  Admins test with `/passadmin xp <n>`, `tier <n>`, `gilded`, `reset [all]`, `time <hours>`,
+  `look <aura> [skin id]` and `petfx <id>`; the Rust client opens it with `--pass <tab>`.
 - **Gilded perks beyond the track:** rallying a community goal (`CommunityGoals.Rally`, Redis set
   `community:<run>:rallied` and the run hash's `boostUntil`/`boostBy`) and the dungeon guide
   (`Player.Guide.cs`, `core/guide/GuidePath.cs`, `GuidePathTests`). Try them with `/passadmin
   gilded`, `/dungeon <name>` and the Rust client's `--npc CommunityGoals`.
-
-## Commands
-
-- In `core/commands/` (`admin/`, `player/`, `supporter/`, `doomed/`): nested classes of the
-  partial `Command` class, found by `CommandManager` by reflection. Each overrides
-  `RankRequirement`; the account's `admin` flag passes every check.
-- `/sellfame` and `/openarena` are named so to stay clear of `/sell` (the market) and `/arena`.
-- `/resetcrucible` (admins) gives every account its Crucible climbs back for the UTC day, on every
-  world server sharing the Redis: on a test stack it resets the copy's accounts, on the live
-  servers everyone's (`Shared/crucible/CrucibleReset.cs`, `CrucibleResetTests`).
+- **Commands** are in `core/commands/` (`admin/`, `player/`, `supporter/`, `doomed/`): nested
+  classes of the partial `Command` class, found by `CommandManager` by reflection. Each overrides
+  `RankRequirement`; the account's `admin` flag passes every check. `/sellfame` and `/openarena`
+  are named so to stay clear of `/sell` (the market) and `/arena`.
+- **`/resetcrucible`** gives every account in the Redis its Crucible climbs back for the UTC day,
+  on every world server sharing it: on the live servers that's everyone
+  (`Shared/crucible/CrucibleReset.cs`).
 
 ## Redis data
 
 - **Accounts:** `account.<id>` hashes (`name`, `rank`, `admin`...); the `names` hash maps upper-case
-  names to ids; characters are `char.<accountId>.<charId>`. Numbers are strings, item lists
-  little-endian ushort arrays, `admin` a single byte 0x01. Ranks run 0 (regular) to 6 (admin) and
+  names to ids; characters are `char.<accountId>.<charId>`, the living ones in the set
+  `alive.<accountId>`. Numbers are strings, item lists little-endian ushort arrays, set members
+  4-byte little-endian ids, `admin` a single byte 0x01. Ranks run 0 (regular) to 6 (admin) and
   apply from the next login.
-- **Arena leaderboard:** the sorted set `doomed.arenaLeaderboard`; `/gear` claims: the set
-  `doomed.gearClaimed`. (Keep these key names: they hold live data.)
+- **Meapy (account 2) is the owner's:** don't change it or its characters without asking. Tester
+  (account 1) is the throwaway test account, used on the isolated copy.
+- **Keep these key names**, they hold live data: the Arena leaderboard `doomed.arenaLeaderboard`,
+  `/gear` claims `doomed.gearClaimed`.
 - **Discord links** (`Shared/database/DiscordLinks.cs`): the account's `discordId`, `discordName`,
   `discordReward`, the hash `discord.accounts` and the sets `discord.rewarded` and
   `discord.unlinked`; only the account server writes them, straight to Redis.
@@ -204,20 +195,18 @@ dotnet test source\Tests
   `sprites.pending` and `sprites.approved`, the lists `sprites.by.<account>`, and rate counters
   `sprites.wait.*`, `.day.*`, `.ip.*`, `.all.*`. What shipped is
   `resources/data/community_sprites.json`, written by `tools/community_sprites.py` only.
-- **Death replays** (`Shared/database/DeathReplays.cs`, recorded by
-  `WorldServer/core/replay/ReplayRecorder.cs`): `replay.<account>.<char>`, gzipped, 30 days (no
-  expiry for an all-time legend). Read one with `/fame/replay` or the client's
-  `--screen replay:<account>:<char>`.
-- **Gold store** (`Shared/database/GoldStore.cs`, `App/Controllers/GoldController.cs`): `gold.order.<id>`
-  hashes (paid ones kept for good: they're the payment records), `gold.orders.<acc>`,
-  `gold.capture.<id>`, `gold.sales`, `gold.log`, `gold.session.<token>`, `gold.made.<acc>`. Gold
-  is paid into `credits` and `totalCredits` only by its Lua scripts; never change a paid order by
-  hand. SETUP-LOCAL.md, "Gold store".
+- **Death replays** (`Shared/database/DeathReplays.cs`, recorded by `core/replay/ReplayRecorder.cs`):
+  `replay.<account>.<char>`, gzipped, 30 days (no expiry for an all-time legend). Read one with
+  `/fame/replay` or the client's `--screen replay:<account>:<char>`.
+- **Gold store** (`Shared/database/GoldStore.cs`, `App/Controllers/GoldController.cs`):
+  `gold.order.<id>` hashes (paid ones kept for good: they're the payment records),
+  `gold.orders.<acc>`, `gold.capture.<id>`, `gold.sales`, `gold.log`, `gold.session.<token>`,
+  `gold.made.<acc>`. Gold is paid into `credits` and `totalCredits` only by its Lua scripts; never
+  change a paid order by hand. SETUP-LOCAL.md, "Gold store".
 
 ```
-source\Redis\redis-cli.exe hget names MEAPY
-source\Redis\redis-cli.exe -p 6380 hgetall account.1     # isolated test copy
+source\Redis\redis-cli.exe -p 6380 hget names TESTER     # the isolated test copy
+source\Redis\redis-cli.exe -p 6380 hgetall account.1
 ```
 
-- **Accounts:** Meapy (account 2) is the owner's: don't change it or its characters without
-  asking. Tester (account 1) is the throwaway test account, best used on the isolated copy (6380).
+Editing the test copy's binary values is in client-rs/AGENTS.md, "The test copy's data".

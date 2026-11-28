@@ -5106,7 +5106,7 @@
       </AltTexture>
       <DisplayId>Void Entity</DisplayId>
       <Size>200</Size>
-      <MaxHitPoints>300000</MaxHitPoints>
+      <MaxHitPoints>250000</MaxHitPoints>
       <Exp>100000</Exp>
       <Defense>60</Defense>
       <HitSound>weapon/wand_of_dark_magic</HitSound>

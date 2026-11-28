@@ -724,6 +724,54 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Health and Magic Potions picked up from bags** (2026-11-28; `Player.AutoPickup.cs`, called
+  from `Player.Tick`): within a tile of a loot bag the player may open (`CanTakeFrom`), its Health
+  and Magic Potions move onto the potion stacks up to `MaxStackablePotions`; plain loot bags only
+  (not vault, gift, special, guild or Nexus chests), not in the Marketplace, while trading or dead.
+- **The Elder Ice Cave and Esben's Necromantic revival; the Scroll of the Unwilling; Snow Bats
+  fixed** (2026-11-28; `BehaviorDb.IceCave.cs` as one builder `IceCaveBehaviours(db, elder)`,
+  `tools/make_elder.py` `DUNGEONS` (`ElderIceCave`, `ElderInnerSanctum`), `worlds/Doomed/Elder Ice
+  Cave.jm` and `Elder The Inner Sanctum.jm`, `DoomedRealmsWorlds.xml`, both `CustomObjects.xml`
+  (0x7c10-0x7c14), `MerchantLists.ElderKeyPrices`, `community.json`, `tools/build_resurrection.py`
+  (`BOSSES`, `SIGNATURE_SHOTS`, `LATE_UTS`, `ALSO_ELDER`, `ITEM_ART`), both `Resurrection.xml`,
+  `resurrection.json`, `Resurrection8x8.png` cell 37, `EmpoweredSignatures.Esben`,
+  `Player.Unwilling.cs`, `Enemy.Death`, `BehaviorDb.DoomedAllies.cs`, the Rust client's
+  `particles/relic.rs` looks 72-73, `tools/build_wiki.py`, `tools/wiki_data.py`
+  `drops_index`, `Tests/ElderDungeonsTests.cs`): the regular Esben drops `Elder Ice Cave Portal`
+  at 50%; `Elder Ice Cave Key` (30 gold) drops from the Elder Esben (1%). Both worlds are built
+  from the regular maps (Elder copies of every monster, the spawner, the boss manager and the
+  purifier generator; braziers in the sanctum only), and the Elder spawner opens `Elder Inner
+  Sanctum Portal`. Elder-only phases (`Elder(...)`: null children in the regular fight):
+  **Frostfall** while the crosses stand (`Starfall` on players, 120, Slowed 1.5 s, every 2.6 s,
+  2.2 s in the second round), **Unbound Rend** in his 12 s vulnerable window (icicle fans, a
+  turning ring of Ice Bursts, a boomerang), and **the Cornus Unbound** at 10% instead of `die`
+  (2.5 s Invulnerable in mist back to his spawn, then 16 s Armored: counter-turning Ice Burst
+  arms, rings of 16 piercing bolts, Frostfall, up to two shielded kings; killable, else the
+  regular `die`). The fight's states are under a `fight` parent so the 10% transition doesn't
+  restart the multi-state end. Raised (`Empowered Elder ic Esben the Unwilling`, 29 bosses leave
+  remains now) the crosses' generator has decayed, so `idle` goes to the **Risen** cycle
+  (`risen1`-`risen3`: Rend 9 s, Armored icicle crosses and Frostfall 7 s, rings 6 s); his
+  signature phases are **Frozen Crosses** (70%: four arms of slowing blasts landing outward, each
+  throwing icicles across its arm, twice) and **Whiteout** (40%: shielded 2.5 s, three slow
+  spiralling arms of frost orbs, ice twice on every player); signature shots Grey Boomerang and
+  Ice Burst. Only the three new objects, the new boss and cell 37 were taken from a
+  `build_resurrection.py` run (a full run still rewrites older hand-tuned items); new Empowered
+  items go in `LATE_UTS` so older items keep their cells. **Scroll of the Unwilling** (0x8C68,
+  slot 128, the Summoner's): built on the Scroll of the Mad God at 1.2 (+9 Wis, +5 Vit, +72 HP, +92
+  MP, MP 110), its sprite hand-drawn (`ITEM_ART`); summons `Unwilling Shade Summon` (Esben's
+  sprite, 132 s, five-icicle fan of 100 every 0.9 s and a 250 boomerang every 2.4 s, about 660 a
+  second against no defense; the Mad God scroll's Oryx is 475). Its power `Unwilling`
+  (`Player.Unwilling.cs`, from `Enemy.Death` for every player in the world): an enemy dying
+  within 4 tiles of one of its Summoner's summons rises as an `Unwilling Thrall` (an ally, 140
+  slashes every 0.6 s) for 8 s, then shatters for 250 past defense within 2.5 tiles, Slowed 2 s;
+  3 at a time (a fourth shatters the oldest), one every 0.5 s. Drops: Elder Esben 0.5%, Empowered
+  3%. **Snow Bats** fired six stationary 5 s spinners every 25 ms (`Speed 0`): now a turning ring of
+  six every 1.6 s and an aimed one every 0.9 s, the spinner 60 damage, speed 45, 1.4 s, Slowed 1 s
+  (`EmbeddedData_iceCaveObjectsCXML.xml` and the client's `iceCaveObjects.xml`), and they follow
+  players. The wiki's drop index keeps a monster's better chance when it rolls an item twice (an
+  Empowered boss's own drops, then its second roll), so Empowered items show their 3%. World
+  server and client (XML, sprites, looks) deploy together; Redis unchanged.
+- **The Void Entities' health** (2026-11-27; `EmbeddedData_lostHallsObjectsCXML.xml`, both `ElderObjects.xml` and `Resurrection.xml`, `BehaviorDb.Void.cs`, `Empowered.cs` `Tunings`): the Void Entity 250,000 health, the Elder 400,000 (the Empowered 550,000 from it), each `ScaleHP2(10)` (5% in the Elder Void, `GroupScaling`); the Empowered Void Entity's shots at 0.9 times the default tuning (1.17, 1.305 enraged). World server and client.
 - **The Platinum Sword reworked as Rimebrand** (2026-11-27; `custom/DoomedRealms.xml`, both copies;
   shown as Rimebrand through `<DisplayId>`, its id `Platinum Sword` kept for loot, prices and listings;
   `BehaviorDb.IceTomb.cs`, `DoomedMonsters.cs`): the Ice Tomb's sword now, in `IceTombTreasure()`
@@ -806,6 +854,24 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   (`app/src/replay/sync.rs`, 2026-11-25): the player is shown along their recorded places a
   lead early (fitted per replay, 0-400 ms), each shot's hit when and where its shot meets them,
   and monsters' other shots fly through them.
+
+- **Deaths saved and replay comments** (2026-11-28; `Player.Death.cs` `TryResurrect` and
+  `RecordSave`, `ReplayRecorder.Finish(killer, saver)` and `LastHit`,
+  `Shared/database/leaderboard/DbSavedDeaths.cs`, `Shared/database/ReplayComments.cs`,
+  `FameController` `/fame/saved`, `/fame/feed`, `/fame/comments`, `/fame/comment` and
+  `/fame/replay`'s `saved`; the client's `screens.rs` (Deaths Saved), `replay.rs` (gold ending,
+  Comments tab) and `glass.rs` (Replays tab)): a killing blow taken wearing an amulet that
+  resurrects or a ring with Guardian Angel keeps its replay, ending with a record of kind 3 (the
+  would-be killer, the item's type and name) in place of the death (older clients pass it over).
+  Each save takes a number from `deaths:saved:next` (the count shown), its replay goes to
+  `replay.saved.<n>` for 30 days and its line to the capped list `deaths:saved` (30, JSON: who,
+  what, where, the item, the last hit's damage and the health it met). Comments are named as the
+  client names a replay (`d.<account>.<char>`, `s.<n>`), kept in `replay.comments.<name>` (the
+  newest 50, 140 characters each, one per account every 5 s, not for guests or muted IPs), and
+  expire with their replay (made permanent with an all-time legend's). `/fame/feed` is the
+  Scrying Glass's Replays tab: the 20 latest of the recent deaths and saves together, each with
+  whether its replay is kept and its comment count. In the game the replay viewer plays over the
+  world (`App::replay_over_game`), taking the keys and mouse until Back.
 
 - **The Hall of Judgement** (2026-11-25; `WorldServer/core/resurrection/TombCourtPlan.cs` (the
   layout, pure geometry) and `TombCourt.cs` (building it and the walk), called from
@@ -1452,7 +1518,14 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
   so a Realm 2 shows 11 of its 14 lands; its lands spread along the Godlands by that count.
   Their drops are UTs that had no source: the Heart of Gold Prism, Keychain Cutlass, Dueling Daggers,
   Comet of Calamity, Starlight Recurve, Moonbeam Blade, Gaseous Glaive, Corrosion Cutter and Sewer
-  Cocktail (0.6% each). Admins: `/realmevent <word> [here]` starts one of the realm's events nearby (with `here`, 8 tiles east of you),
+  Cocktail (0.6% each). A fourth, the Rime Herald (2026-11-27), opens the Ice Tomb (its portal
+  always): it raises four Herald's Sarcophagi at 65% (`TossObject`) and is Armored while any
+  stands, each `TransformOnDeath` into a Herald's Dead; it raises them again 20 s after they fall
+  (or 30 s on); below 30% a whiteout, then it stalks and charges under `Starfall` hail. Its land,
+  the Frozen Barrow (`frost`), has Barrow Mummies (with Ice Mites), Rime Wraiths and Frostfang
+  Wolves, adapted from the Ice Tomb's art (`tools/realm2/adapted.py`), and quests the Barrow
+  Colossus and Frostfang Packmother (Ice Cave Portal, 0.3); it drops the Ice Tomb's Frozen Wand,
+  Arctic Bow and Tome of Frigid Protection (0.4%). A Realm 2 shows 11 of 15 lands. Admins: `/realmevent <word> [here]` starts one of the realm's events nearby (with `here`, 8 tiles east of you),
   `/realm2 next <land>` brings that land next.
 
 - **The Necromantic items' looks** (2026-11-12; server `Player.RelicPowers.cs` `Fx`/`RelicFx`,

@@ -87,7 +87,8 @@ potion goes to your potion storage instead (the message says which). If that sto
 Potion of Oryx isn't drunk at all: it stays, and the message says which storage to empty.
 
 Health and magic potions (not stat potions) stack up to {{v:potion_stack}} in the HP and MP slots
-next to your inventory; drag one there or double-click it. <kbd>F</kbd> and <kbd>V</kbd> drink
+next to your inventory; drag one there or double-click it, or walk over a loot bag that holds them
+and they go on the stacks by themselves (what doesn't fit stays in the bag). <kbd>F</kbd> and <kbd>V</kbd> drink
 them.
 
 ## The realm
@@ -133,7 +134,8 @@ worth more loot than anything around it. They're the realm's main quests.
 Three of them play differently from the rest:
 
 - **The Gilded Thief** counts its stolen hoard until someone comes near, then runs. It stays
-  away from you, blinks off in a puff of smoke leaving a decoy that looks just like it (decoys burst
+  away from you, blinks off in a puff of smoke leaving a decoy that looks just like it (a gold ring
+  on the ground shows where it will come out, a moment before; decoys burst
   into coins when hit), and throws gold bombs that land where their mark shows. Each time it loses
   a quarter of its health it drops a **Gilded Coffer** full of potions, and a third of those are
   mimics that bite when you come close. Catch it within three minutes of being seen, or it gets
@@ -147,11 +149,17 @@ Three of them play differently from the rest:
   left to ripen, bursts into a ring of spores and a Sporeling, so someone has to weed while the
   rest fight. Her spore clouds make you Sick (no healing). At 60% she tears up her roots and stalks
   you, and at 25% every pod she has ripens at once.
+- **The Rime Herald**, the Frozen Court's herald, walks a barrow of snow and old graves throwing
+  ice lances, rings of snowflakes and hail that slows you. At 65% it raises four **Frozen
+  Sarcophagi** round it and is Armored until they are broken, each letting out one of its dead,
+  and raises them again every 20 seconds or so. Below 30% it calls a whiteout and runs you down
+  under falling hail. It always leaves the portal to the **Ice Tomb**.
 
 Each drops weapons found nowhere else: the Heart of Gold Prism, Keychain Cutlass and Dueling
 Daggers (the Gilded Thief), the Comet of Calamity, Starlight Recurve and Moonbeam Blade (the
 Starborn Colossus) and the Gaseous Glaive, Corrosion Cutter and Sewer Cocktail (the Blight
-Mother).
+Mother). The Rime Herald drops the Ice Tomb's Frozen Wand, Arctic Bow and Tome of Frigid
+Protection instead.
 
 Events scale with the players around them. An event boss has 60% of its health when 1 or 2
 players fight it, and 20% more for each extra player who comes near, up to three times its health;
@@ -337,6 +345,17 @@ what dealt it, its damage before and after defense, and the health left, with th
 killed you (and tell the staff if something looks wrong). **Download** saves the replay as a file
 that plays again when you drop it on the game's window. Replays are kept for 30 days, and for good
 when the death makes the all-time Legends.
+
+A death that doesn't happen is kept too. When an amulet that resurrects (or a ring's
+[Guardian Angel](imprints.html)) carries a character off from a killing blow, those last seconds
+are saved as a replay, and the Legends' **Deaths Saved** tab lists the server's latest 30: who,
+what would have killed them and where, the item that saved them, and the blow they lived through
+(its damage against the health they had left). Click one to watch it; it ends in gold, with what
+saved them. The tab also counts every death cheated on the server.
+
+Every replay has a **Comments** tab beside its hits (the C key switches to it): what other
+players thought of the death or the close call. Anyone signed in to an account can add a line
+(140 characters at most, one every few seconds); comments last as long as their replay does.
 
 The living have their own boards: the [Hall of Champions](champions.html) in the Nexus, whose top 10s
 hold rewards of their own.

@@ -326,10 +326,11 @@
       <ShadowSize>80</ShadowSize>
       <Projectile id="0">
          <ObjectId>Ice Sonic Bat Spinner</ObjectId>
-         <Damage>100</Damage>
-         <Speed>0</Speed>
+         <Damage>60</Damage>
+         <Speed>45</Speed>
          <Size>110</Size>
-         <LifetimeMS>5000</LifetimeMS>
+         <LifetimeMS>1400</LifetimeMS>
+         <ConditionEffect duration="1">Slowed</ConditionEffect>
       </Projectile>
    </Object>
    <Object type="0x0e59" id="Mini Yeti">

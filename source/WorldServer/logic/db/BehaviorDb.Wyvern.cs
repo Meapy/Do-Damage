@@ -161,7 +161,10 @@ namespace WorldServer.logic
                         new TossObject(N("lod Blue Soul Flame"), 8, 180, 20000),
                         new TossObject(N("lod Green Soul Flame"), 4, 180, 20000),
                         new TossObject(N("lod Black Soul Flame"), 8, 0, 20000),
-                        new EntityExistsTransition(N("lod Red Soul Flame"), 20, "30")
+                        // the flames land 1.5 s after the toss; one thrown onto a wall never comes
+                        // (the Arena's ring), so move on once they've had time to land rather than
+                        // waiting for the red one, which kept the Wyvern invulnerable and tossing forever
+                        new TimedTransition(2500, "30")
                     ),
                     new State("30",
                         new EntitiesNotExistsTransition(20, "31", N("lod Red Soul Flame"), N("lod Blue Soul Flame"), N("lod Green Soul Flame"), N("lod Black Soul Flame"))

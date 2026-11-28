@@ -164,6 +164,7 @@ namespace WorldServer.core.worlds
             "Gilded Thief" => RealmEventGrounds.ThievesHoard(),
             "Starborn Colossus" => RealmEventGrounds.StarfallCrater(),
             "Blight Mother" => RealmEventGrounds.Blightwood(),
+            "Rime Herald" => RealmEventGrounds.FrozenBarrow(),
             _ => null,
         };
 

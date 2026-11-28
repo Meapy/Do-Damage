@@ -110,8 +110,9 @@ namespace WorldServer.core.objects
                 return;
             }
 
-            if (TryResurrect())
+            if (TryResurrect(out var saver, out var angel))
             {
+                RecordSave(killer, saver, angel);
                 ReconnectToNexus();
                 return;
             }
@@ -195,15 +196,19 @@ namespace WorldServer.core.objects
                 party.WorldId = -1;
         }
 
-        private bool TryResurrect()
+        // what saved the player (an amulet that resurrects, or the ring whose Guardian Angel did),
+        // given up for it
+        private bool TryResurrect(out Item saver, out bool angel)
         {
+            angel = false;
             for (int slot = 0; slot < 4; slot++)
             {
                 var item = Inventory[slot];
                 if (item == null || !item.Resurrects)
                     continue;
                 Inventory[slot] = null;
-                World.ForeachPlayer(_ => _.SendInfo($"{Name}'s {item.DisplayName} breaks and he disappears"));
+                World.ForeachPlayer(_ => _.SendInfo($"{Name}'s {item.DisplayName} breaks and they disappear"));
+                saver = item;
                 return true;
             }
             // a ring with Guardian Angel (Player.Imprints.cs) saves its wearer the same way, and is lost
@@ -213,9 +218,58 @@ namespace WorldServer.core.objects
                 Inventory[3] = null;
                 Inventory.Data[3] = null;
                 World.ForeachPlayer(_ => _.SendInfo($"{Name}'s guardian angel carries them away, and their {ring.DisplayName} is lost"));
+                saver = ring;
+                angel = true;
                 return true;
             }
+            saver = null;
             return false;
+        }
+
+        // A death saved: its replay, ending with what saved them, and its line in the Legends'
+        // Deaths Saved (Shared/database/leaderboard/DbSavedDeaths.cs)
+        private void RecordSave(string killer, Item saver, bool angel)
+        {
+            try
+            {
+                var db = GameServer.Database.Conn;
+                var blow = Replay.LastHit;
+                var name = saver?.DisplayName ?? "";
+                var replayData = Replay.Finish(killer, ((ushort)(saver?.ObjectType ?? 0), name));
+                var id = Shared.database.leaderboard.DbSavedDeaths.NextId(db);
+                if (replayData != null)
+                    Shared.database.DeathReplays.SaveSaved(db, id, replayData);
+                Shared.database.leaderboard.DbSavedDeaths.Insert(db, new Shared.database.leaderboard.DbSavedDeath
+                {
+                    Id = id,
+                    AccountId = AccountId,
+                    CharId = Client.Character.CharId,
+                    Name = Name,
+                    ObjectType = ObjectType,
+                    Skin = Skin,
+                    Tex1 = Texture1,
+                    Tex2 = Texture2,
+                    Level = Level,
+                    Fame = Fame,
+                    Maxed = GetMaxedStats(),
+                    Killer = killer,
+                    World = World.GetDisplayName(),
+                    SaverType = (ushort)(saver?.ObjectType ?? 0),
+                    Saver = name,
+                    Angel = angel,
+                    Blow = blow.Dealt,
+                    HpBefore = blow.HpBefore,
+                    MaxHp = blow.MaxHp,
+                    HasReplay = replayData != null,
+                    Time = Shared.Utils.ToUnixTimestamp(System.DateTime.UtcNow)
+                });
+                if (replayData != null)
+                    SendInfo("Your close call was recorded: watch it in Legends, Deaths Saved.");
+            }
+            catch (System.Exception e)
+            {
+                StaticLogger.Instance.Error($"{Name}'s saved death not recorded: {e}");
+            }
         }
     }
 }

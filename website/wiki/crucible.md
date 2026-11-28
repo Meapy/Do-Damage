@@ -245,7 +245,8 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
 - **Time Fracture:** an hourglass. Six Hour Echoes of him keep the broken clock's hours: before
   each strike, each blinks onto an hour, throws a bolt down it and lights it, the warning spreading
   out from where it stands. Half the hours burn at a time, nearly three seconds after they're lit,
-  so get off them. The echoes can't be hurt and never shoot; Chronarch blinks round it, shooting
+  so get off them. The echoes can't be hurt and never shoot; Chronarch blinks round it (a cyan
+  ring closing in on the floor shows where, a moment before he lands), shooting
   less than in his other phases (but a ring of rewinding blades now and then), and sends no
   rushers.
 - **Reversal** (35%): a coil winding out from the hub to the rim; the clock turns magenta and runs
@@ -253,7 +254,8 @@ blades made of a clock's hands, and an orrery's ring wheels round him.
   ring of blades rewinds back to him.
 - **Zero Hour** (12%): the dial splits into its twelve petals again and counts down: every third
   hour burns at once, the next three a step round each time, while both hands sweep slowly round
-  over them. He blinks about, ringing out the hours in gears and throwing rewinding blades.
+  over them. He blinks about (each time marked first, as in Time Fracture), ringing out the hours
+  in gears and throwing rewinding blades.
 
 ### V. The Apex: Vaelith, the Crucible Sovereign
 

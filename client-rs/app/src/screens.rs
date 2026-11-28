@@ -12,7 +12,7 @@ use crate::stars;
 use crate::textedit::LineEdit;
 use crate::theme::{self, color, Kind};
 use bsk_data::{ObjectClass, ObjectDesc, TextureRef};
-use bsk_net::account::{CharList, CharSummary, FameSummary, Legend, RecentDeath};
+use bsk_net::account::{CharList, CharSummary, FameSummary, Legend, RecentDeath, SavedDeath};
 use bsk_render::{Quad, Tint};
 use winit::keyboard::KeyCode;
 
@@ -152,11 +152,16 @@ pub fn shown_chars<'a>(data: &bsk_data::GameData, chars: &'a [CharSummary], sear
     out
 }
 
-/// The legends' time spans: (id for the server, label). The last, "recent", is the server's
-/// latest deaths (`/fame/recent`) rather than a time span of `/fame/list`.
-pub const TIMESPANS: [(&str, &str); 4] = [("week", mark("This week")), ("month", mark("This month")), ("all", mark("All time")), ("recent", mark("Recent Deaths"))];
-/// The Recent Deaths tab's place in `TIMESPANS`.
+/// The legends' time spans: (id for the server, label). The last two aren't time spans of
+/// `/fame/list`: "recent" is the server's latest deaths (`/fame/recent`), "saved" its latest
+/// deaths saved by an amulet or a ring's Guardian Angel (`/fame/saved`).
+pub const TIMESPANS: [(&str, &str); 5] =
+    [("week", mark("This week")), ("month", mark("This month")), ("all", mark("All time")), ("recent", mark("Recent Deaths")), ("saved", mark("Deaths Saved"))];
+/// The Recent Deaths and Deaths Saved tabs' places in `TIMESPANS`.
 pub const RECENT: usize = 3;
+pub const SAVED: usize = 4;
+/// What a death saved is drawn in: the gold of a holy light.
+pub const SAVED_GOLD: u32 = 0xFFD86A;
 
 /// The game's Discord server: where the bot that links accounts is.
 pub const DISCORD_INVITE: &str = "discord.gg/YTYWTFDRCD";
@@ -211,6 +216,8 @@ enum Target {
     LegendsBar,
     /// A row of Recent Deaths (account, character): that death's fame summary.
     Fallen(i32, i32),
+    /// A row of Deaths Saved, by the save's number: its replay.
+    Saved(i64),
     SavePassword,
     Back,
     ServerPrev,
@@ -263,6 +270,8 @@ pub enum Action {
     ViewDeathOf(i32, i32),
     /// Play the death's replay.
     WatchReplay,
+    /// Play a death saved's replay (Deaths Saved), by the save's number.
+    WatchSaved(i64),
     /// Open the Changelog window.
     Changelog,
     /// Open the Options window.
@@ -306,6 +315,8 @@ pub struct Front {
     pub timespan: usize,
     /// The server's latest deaths, newest first (the Recent Deaths tab).
     pub recent: Option<Vec<RecentDeath>>,
+    /// How many deaths have been saved ever, and the latest (the Deaths Saved tab).
+    pub saved: Option<(i64, Vec<SavedDeath>)>,
     /// The legends' first row shown, when they don't all fit.
     legends_row: usize,
     /// The legends' scrollbar last frame: its track, the rows and how many fit.
@@ -383,6 +394,7 @@ impl Default for Front {
             legends: None,
             timespan: 0,
             recent: None,
+            saved: None,
             legends_row: 0,
             legends_bar: None,
             legends_grab: None,
@@ -730,6 +742,7 @@ impl Front {
             Target::Grave(id) => return Some(Action::ViewDeath(id)),
             Target::WatchReplay => return Some(Action::WatchReplay),
             Target::Fallen(account, id) => return Some(Action::ViewDeathOf(account, id)),
+            Target::Saved(id) => return Some(Action::WatchSaved(id)),
             Target::Remember => self.remember = !self.remember,
             Target::Char(id) => return Some(Action::Play(id)),
             Target::CharFilter(f) => {
@@ -781,6 +794,7 @@ impl Front {
                 self.timespan = i;
                 self.legends = None;
                 self.recent = None;
+                self.saved = None;
                 self.legends_row = 0;
                 return Some(Action::Legends(TIMESPANS[i].0));
             }
@@ -1722,16 +1736,33 @@ impl Front {
         }
         let list_r = [(w - 760.0 * s).max(16.0) / 2.0, pad + 92.0 * s, (760.0 * s).min(w - 32.0), h - pad * 2.0 - 160.0 * s];
         theme::panel(ui.renderer, list_r, s);
-        let deaths = self.timespan == RECENT;
-        let rows: Option<Vec<LegendRow>> = if deaths {
+        let saves = self.timespan == SAVED;
+        let deaths = self.timespan == RECENT || saves;
+        let rows: Option<Vec<LegendRow>> = if saves {
+            self.saved.as_ref().map(|(_, d)| d.iter().map(LegendRow::saved).collect())
+        } else if deaths {
             self.recent.as_ref().map(|d| d.iter().take(20).map(LegendRow::death).collect())
         } else {
             self.legends.as_ref().map(|l| l.iter().take(20).map(LegendRow::legend).collect())
         };
+        // Deaths Saved: just over the list, how many deaths have been cheated, softly glowing
+        if let Some((total, _)) = self.saved.as_ref().filter(|(t, _)| saves && *t > 0) {
+            let line = tn!(*total, "{n} death cheated on this server|{n} deaths cheated on this server");
+            let ls = (12.0 * s).round();
+            let lw = ui.measure(&line, ls, true);
+            let glow = 0.5 + 0.5 * ((ui_time() as f32) / 600.0).sin();
+            ui.label(&line, (w - lw) / 2.0, list_r[1] - ls * 1.3, ls, true, crate::auras::mix(SAVED_GOLD, 0xFFFFFF, glow * 0.35));
+        }
         match &rows {
             None => spinner(ui, list_r[0] + list_r[2] / 2.0, list_r[1] + list_r[3] / 2.0, 16.0 * s, ui_time(), s),
             Some(rows) if rows.is_empty() => {
-                let t = if deaths { tr("No one has died yet.") } else { tr("No legends yet. Be the first!") };
+                let t = if saves {
+                    tr("No one has been saved yet. An amulet that resurrects keeps you alive!")
+                } else if deaths {
+                    tr("No one has died yet.")
+                } else {
+                    tr("No legends yet. Be the first!")
+                };
                 let size = (16.0 * s).round();
                 let tw = ui.measure(t, size, true);
                 ui.label(t, list_r[0] + (list_r[2] - tw) / 2.0, list_r[1] + list_r[3] / 2.0, size, true, color::TEXT_DIM);
@@ -1751,7 +1782,11 @@ impl Front {
                     let y = list_r[1] + 8.0 * s + (i - first) as f32 * row_h;
                     let r = [list_r[0] + 8.0 * s, y, list_r[2] - 16.0 * s - bar_w, row_h - 4.0 * s];
                     let over = l.target.is_some() && self.legends_grab.is_none() && inside(r, mouse);
-                    if over || i % 2 == 0 {
+                    if l.saved.is_some() {
+                        // a save's row is lit gold, brighter under the mouse, with a gold edge
+                        theme::fill(ui.renderer, r, 6.0 * s, SAVED_GOLD, if over { 0.13 } else if i % 2 == 0 { 0.06 } else { 0.035 });
+                        theme::fill(ui.renderer, [r[0], r[1] + 6.0 * s, 3.0 * s, r[3] - 12.0 * s], 1.5 * s, SAVED_GOLD, if over { 0.95 } else { 0.6 });
+                    } else if over || i % 2 == 0 {
                         theme::fill(ui.renderer, r, 6.0 * s, 0xFFFFFF, if over { 0.08 } else { 0.03 });
                     }
                     // The legends are ranked; the deaths aren't, so their characters stand
@@ -1779,8 +1814,9 @@ impl Front {
                     let fame = format!("{}", l.total_fame);
                     let fs = (18.0 * s).round();
                     let fw = ui.measure(&fame, fs, true);
-                    match &l.death {
-                        None => {
+                    match (&l.death, &l.saved) {
+                        (_, Some(sv)) => self.draw_saved_row(ui, l, sv, r, left, ns, s, over),
+                        (None, None) => {
                             ui.label(class_name, r[0] + 60.0 * s + left, r[1] + 24.0 * s, (12.0 * s).round(), false, color::TEXT_DIM);
                             for (k, &item) in l.equipment.iter().take(if gear { 4 } else { 0 }).enumerate() {
                                 let side = 32.0 * s;
@@ -1794,7 +1830,7 @@ impl Front {
                             }
                             ui.label(&fame, r[0] + r[2] - fw - 14.0 * s, r[1] + (r[3] - fs * 1.22) / 2.0, fs, true, color::ACCENT);
                         }
-                        Some((level, killer, world, ago)) => {
+                        (Some((level, killer, world, ago)), None) => {
                             // Beside the name its level; under it the class, what killed it and
                             // where; on the right the fame, and how long ago.
                             let lx = r[0] + 60.0 * s + left + ui.measure(&l.name, ns, true) + 8.0 * s;
@@ -1854,6 +1890,52 @@ impl Front {
             }
         }
         self.button(ui, Target::Back, [(w - 140.0 * s) / 2.0, h - 66.0 * s, 140.0 * s, 40.0 * s], tr("Back"), Kind::Secondary, s, mouse);
+    }
+
+    /// A row of Deaths Saved, past its portrait and name: beside the name its level and stats
+    /// maxed; under it what would have killed them, where, and what saved them; on the right
+    /// what saved them as an icon, lit, the blow they lived through and how long ago.
+    #[allow(clippy::too_many_arguments)]
+    fn draw_saved_row(&self, ui: &mut Ui, l: &LegendRow, sv: &SavedRow, r: [f32; 4], left: f32, ns: f32, s: f32, over: bool) {
+        let class = ui.data.objects.get(&l.object_type);
+        let class_name = class.map_or("", |d| d.display_id.as_str()).to_owned();
+        let lx = r[0] + 60.0 * s + left + ui.measure(&l.name, ns, true) + 8.0 * s;
+        let ls = (13.0 * s).round();
+        let level = tf!("Lv {level}", level = sv.level);
+        ui.label(&level, lx, r[1] + 4.0 * s + (ns - ls) * 0.9, ls, false, color::TEXT_MUTED);
+        let mx = lx + ui.measure(&level, ls, false) + 8.0 * s;
+        ui.label(&format!("{}/8", sv.maxed), mx, r[1] + 4.0 * s + (ns - ls) * 0.9, ls, true, if sv.maxed >= 8 { SAVED_GOLD } else { color::TEXT_DIM });
+        // the item that saved them, lit, on the right
+        let side = 36.0 * s;
+        let ir = [r[0] + r[2] - side - 10.0 * s, r[1] + (r[3] - side) / 2.0, side, side];
+        let pulse = 0.5 + 0.5 * ((ui_time() as f32) / 450.0 + sv.id as f32).sin();
+        theme::fill(ui.renderer, [ir[0] - 4.0 * s, ir[1] - 4.0 * s, ir[2] + 8.0 * s, ir[3] + 8.0 * s], 10.0 * s, SAVED_GOLD, 0.10 + 0.14 * pulse + if over { 0.1 } else { 0.0 });
+        ui.slot_box(ir, Some(SAVED_GOLD), false, s);
+        if sv.saver_type > 0 {
+            ui.item_icon(sv.saver_type as i32, 80, ir[0] + side / 2.0, ir[1] + side / 2.0, s * 0.78);
+        }
+        // the blow and when, left of it
+        let right = ir[0] - 12.0 * s;
+        let bs = (15.0 * s).round();
+        let blow = if sv.blow > 0 { tf!("{dmg} dmg at {hp} HP", dmg = sv.blow, hp = sv.hp_before.max(0)) } else { tr("Saved").to_owned() };
+        let bw = ui.measure(&blow, bs, true);
+        ui.label(&blow, right - bw, r[1] + 5.0 * s, bs, true, SAVED_GOLD);
+        let when = time_ago(sv.ago);
+        let when = if sv.replay { tf!("{when} · watch", when) } else { when };
+        let ws = (12.0 * s).round();
+        let ww = ui.measure(&when, ws, false);
+        ui.label(&when, right - ww, r[1] + 26.0 * s, ws, false, if over { color::TEXT } else { color::TEXT_MUTED });
+        // under the name: from what, where, and by what
+        let mut how = saved_line(&class_name, &sv.killer, &sv.world, &sv.saver, sv.angel);
+        let hs = (12.0 * s).round();
+        let room = (right - bw.max(ww) - 12.0 * s) - (r[0] + 60.0 * s + left);
+        if ui.measure(&how, hs, false) > room {
+            while how.chars().count() > 4 && ui.measure(&format!("{how}…"), hs, false) > room {
+                how.pop();
+            }
+            how = format!("{}…", how.trim_end());
+        }
+        ui.label(&how, r[0] + 60.0 * s + left, r[1] + 25.0 * s, hs, false, color::TEXT_DIM);
     }
 
     /// `Graveyard`: the account's dead characters, newest first; each opens its fame summary.
@@ -2452,7 +2534,39 @@ struct LegendRow {
     total_fame: i32,
     /// A death's level, killer, world and seconds ago.
     death: Option<(i32, String, String, i64)>,
+    /// A death saved's.
+    saved: Option<SavedRow>,
     target: Option<Target>,
+}
+
+/// What a row of Deaths Saved shows beyond a death's.
+struct SavedRow {
+    id: i64,
+    level: i32,
+    maxed: i32,
+    killer: String,
+    world: String,
+    saver_type: u16,
+    saver: String,
+    angel: bool,
+    blow: i32,
+    hp_before: i32,
+    replay: bool,
+    ago: i64,
+}
+
+/// How a death was saved, in words: "Wizard · saved from Oryx in Realm by Amulet of Life" (the
+/// class left out when empty).
+pub fn saved_line(class: &str, killer: &str, world: &str, saver: &str, angel: bool) -> String {
+    let by = if killer.is_empty() { tr("something") } else { killer };
+    let saver = if saver.is_empty() { tr("an amulet") } else { saver };
+    let how = match (world.is_empty(), angel) {
+        (true, false) => tf!("saved from {by} by {saver}", by, saver),
+        (false, false) => tf!("saved from {by} in {world} by {saver}", by, world, saver),
+        (true, true) => tf!("saved from {by} by the Guardian Angel of {saver}", by, saver),
+        (false, true) => tf!("saved from {by} in {world} by the Guardian Angel of {saver}", by, world, saver),
+    };
+    if class.is_empty() { how } else { format!("{class} · {how}") }
 }
 
 impl LegendRow {
@@ -2467,7 +2581,38 @@ impl LegendRow {
             item_datas: l.item_datas.clone(),
             total_fame: l.total_fame,
             death: None,
+            saved: None,
             target: None,
+        }
+    }
+
+    fn saved(d: &SavedDeath) -> Self {
+        LegendRow {
+            name: d.name.clone(),
+            object_type: d.object_type,
+            tex1: d.tex1,
+            tex2: d.tex2,
+            skin: d.skin,
+            equipment: Vec::new(),
+            item_datas: Vec::new(),
+            total_fame: d.fame,
+            death: None,
+            saved: Some(SavedRow {
+                id: d.id,
+                level: d.level,
+                maxed: d.maxed,
+                killer: d.killer.clone(),
+                world: d.world.clone(),
+                saver_type: d.saver_type,
+                saver: d.saver.clone(),
+                angel: d.angel,
+                blow: d.blow,
+                hp_before: d.hp_before,
+                replay: d.replay,
+                ago: d.ago,
+            }),
+            // without a replay there's nothing to open
+            target: d.replay.then_some(Target::Saved(d.id)),
         }
     }
 
@@ -2482,13 +2627,14 @@ impl LegendRow {
             item_datas: Vec::new(),
             total_fame: d.total_fame,
             death: Some((d.level, d.killer.clone(), d.world.clone(), d.ago)),
+            saved: None,
             target: Some(Target::Fallen(d.account_id, d.char_id)),
         }
     }
 }
 
 /// How long ago, from seconds: "just now", "5 min ago", "3 h ago", "2 days ago".
-fn time_ago(secs: i64) -> String {
+pub(crate) fn time_ago(secs: i64) -> String {
     match secs.max(0) {
         0..=59 => tr("just now").into(),
         s @ 60..=3599 => tf!("{n} min ago", n = s / 60),
@@ -2599,7 +2745,7 @@ pub(crate) fn rarity_color(rarity: i32) -> u32 {
     RARITIES.get(rarity as usize).map_or(color::TEXT_DIM, |r| r.1)
 }
 
-fn ui_time() -> i32 {
+pub(crate) fn ui_time() -> i32 {
     thread_local!(static START: web_time::Instant = web_time::Instant::now());
     START.with(|t| t.elapsed().as_millis() as i32)
 }

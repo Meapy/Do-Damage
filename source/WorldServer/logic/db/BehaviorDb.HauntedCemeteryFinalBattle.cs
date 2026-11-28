@@ -21,6 +21,8 @@ namespace WorldServer.logic
             string[] Skulds() => elder ? new[] { N("Ghost of Skuld"), EmpoweredSkuld } : new[] { "Ghost of Skuld" };
             // where the regular Skuld dies at a tenth of his health, the Elder one sings his Requiem
             var dying = elder ? "requiem" : "deadTask";
+            // where he'll come back into sight after each ghostly hop (ArrivalMark)
+            const uint SkuldGlow = 0xFF2FD29A;
             return db
             .Init(E("Zombie Hulk"),
                 new State(
@@ -268,6 +270,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 24, y: 18),
+                        new ArrivalMark(24, 18, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam2")
                         ),
@@ -275,6 +278,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 17, y: 26),
+                        new ArrivalMark(17, 26, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam3")
                         ),
@@ -282,6 +286,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 29, y: 19),
+                        new ArrivalMark(29, 19, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam4")
                         ),
@@ -289,6 +294,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 29, y: 29),
+                        new ArrivalMark(29, 29, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam5")
                         ),
@@ -296,6 +302,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 24, y: 18),
+                        new ArrivalMark(24, 18, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam6")
                         ),
@@ -303,6 +310,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 25, y: 35),
+                        new ArrivalMark(25, 35, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam7")
                         ),
@@ -310,6 +318,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 20, y: 29),
+                        new ArrivalMark(20, 29, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "blam8")
                         ),
@@ -317,6 +326,7 @@ namespace WorldServer.logic
                         new SetAltTexture(11),
                         new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                         new MoveTo(speed: 2, x: 24, y: 24),
+                        new ArrivalMark(24, 24, 1000, SkuldGlow),
                         new HpLessTransition(0.1, dying),
                         new TimedTransition(1000, "gotem")
                         ),
@@ -327,6 +337,7 @@ namespace WorldServer.logic
                         new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
                         new SetAltTexture(11),
                         new MoveTo(speed: 2, x: 24, y: 24),
+                        new ArrivalMark(24, 24, 2500, SkuldGlow),
                         new Taunt(true, "Die? I am the keeper of the dead! RISE, all of you, and sing them their requiem!"),
                         new Flash(0xFF2FD29A, 0.2, 12),
                         new TimedTransition(2500, "requiem2")

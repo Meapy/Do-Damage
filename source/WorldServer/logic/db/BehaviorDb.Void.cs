@@ -51,8 +51,8 @@ namespace WorldServer.logic
                 )
             .Init(E("LH Void Entity"),
                 new State(
-                    // the Elder version gains 15% per extra player, as the other Elder bosses do
-                    new ScaleHP2(elder ? 15 : 20),
+                    // 10% of its health per extra player (5% in the Elder Void, which halves it: GroupScaling)
+                    new ScaleHP2(10),
                     new DropPortalOnDeath("Realm Portal", 1.0, timeout: 120),
                     // the regular Entity leads on to the Elder Lost Halls half the time
                     new DropPortalOnDeath("Elder Lost Halls Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),

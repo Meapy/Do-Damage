@@ -169,11 +169,23 @@ namespace WorldServer.core.worlds.realm2
                 Mobs = new[] { ("R2 Rot Shambler", 2.0), ("R2 Shroom Brute", 2.0), ("R2 Blight Webspinner", 1.5) },
                 Quests = new[] { "R2 Mycelial Horror", "R2 Rotcap Elder" },
             },
+            new Realm2Theme
+            {
+                // the Ice Tomb's barrow, broken out into the realm: snowfields and rimed ice, graves
+                // and spires of ice, pools of numbing meltwater, and the old flagstones where the
+                // Rime Herald waits to open the way to the tomb
+                Key = "frost", Name = "the Frozen Barrow", Event = "Rime Herald",
+                Ground = "R2 Snowfield", Patches = "R2 Rime Ice", Arena = "R2 Barrow Flagstones", Pools = "R2 Frigid Pool",
+                Decor = new[] { ("R2 Ice Spire", 2.0), ("R2 Frozen Grave", 2.0), ("R2 Snow Drift", 2.5), ("R2 Icicle Cluster", 2.0), ("R2 Frost Brazier", 1.0) },
+                DecorDensity = 0.05, Wall = "R2 Rime Wall",
+                Mobs = new[] { ("R2 Barrow Mummy", 2.0), ("R2 Rime Wraith", 1.5), ("R2 Frostfang Wolf", 2.0) },
+                Quests = new[] { "R2 Barrow Colossus", "R2 Frostfang Packmother" },
+            },
         };
 
         /// <summary>
         /// The lands a Realm 2 needs defeated to close (with the two Lucky gods): eleven of the
-        /// fourteen, so each Realm 2 shows a different handful of them, in a random order.
+        /// fifteen, so each Realm 2 shows a different handful of them, in a random order.
         /// </summary>
         public const int LandsToClose = 11;
 

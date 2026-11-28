@@ -12,6 +12,31 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
+## 2.6.11 (2026-11-28)
+
+### Realm
+- **A new realm event, the Rime Herald:** the Frozen Court's herald, come to open the way to the Ice Tomb. It throws ice lances and slowing hail, raises frozen sarcophagi that keep it Armored until you break them (each lets out one of its dead), and below 30% calls a whiteout and runs you down. It always leaves the Ice Tomb's portal, and drops the tomb's Frozen Wand, Arctic Bow and Tome of Frigid Protection. In the realm it comes on a patch of snow and graves; in Realm 2 it brings a land of its own, the **Frozen Barrow**, with barrow mummies, rime wraiths, frostfang wolves and two quests that can open the Ice Cave.
+
+### Dungeons
+- **The Elder Ice Cave:** Esben now leaves its portal half the time (or use an Elder Ice Cave Key, 30 gold in the Bazaar): the Ice Cave and the Inner Sanctum in their Elder versions, and an Elder Esben who throws icicles down on you while his crosses stand, fights back with fans and rings of ice while he can be hurt, and at a tenth of his health lets the cornus tear free for a last, armoured stand at the heart of the sanctum. He drops a Potion of Max Mana and the Elder key, and his remains can be raised with a Necromantic Relic: the Empowered Esben has no crosses left to hold him, freezing crosses and a whiteout of his own, and drops the Elder fight's loot again.
+- **Scroll of the Unwilling, a white bag for the Summoner:** dropped by the Elder Esben (rarely) and the Empowered one. It calls Esben's shade to fight beside you, throwing fans of icicles and a boomerang, and every enemy that dies near your summons rises as a frozen thrall that fights for you for 8 seconds, then shatters into slowing ice (three at a time).
+- **Snow Bats fixed:** they left carpets of spinning sonar that never moved and lasted five seconds; they now send out a turning ring of spinners every second and a half and one at you, which fly off and slow whoever they hit.
+- **The Frozen Court fights like the Tomb of the Ancients' gods, harder:** on top of its moving floors, the three now circle the Heart of Winter as Bes, Nut and Geb circle their tomb, each turns as its health falls behind a blue shield, sends out relics of ice that circle it firing (at 40% and 25%), and rages red below 6%, chasing you down. Kaldrun rings the hall with snowflakes and is armored while his relics are out, Ysolde weaves a cross of quieting ribbons, and Hrimgar calls his hounds and lobs hailstones; Hrimgar's Frenzy, which he nearly always skipped, now comes every time at half his health.
+- **The Ice Tomb's new look:** every creature in it, the Seal Keepers, the Frozen Court (and their pets) and all their shots are redrawn in bold, bright pixel art like the rest of the game's monsters, each with a shape of its own: no more pale blue blurs on the ice.
+- **The Void, the Elder Void and the Empowered Void Entity, softer in a group:** the Void Entity now has 250,000 health (was 300,000) and the Elder Void Entity 400,000 (was 500,000), and each extra player adds less: 10% of its health on the Void Entity (was 20%), 5% on the Elder one (was 7.5%). The Empowered Void Entity follows them down, to 550,000 (was about 667,000), and its shots hit 10% softer.
+- **Bosses that teleport show where they'll appear:** a ring in the boss's colour marks the spot, closing in until it arrives, so you can get clear first. Vesper's Starfall Waltz in the Black Between, Chronarch's blinks in the Crucible, the Ghost of Skuld's hops round his crypt, Daichi's jumps between the Mountain Temple's corners and the Gilded Thief's vanishing trick all wait on it (about a second, so their timing shifts a little).
+
+### Arena
+- **The Ivory Wyvern can be beaten again:** in the Arena it could get stuck throwing its four soul flames over and over, never taking damage. It now carries on with the fight whatever lands.
+
+### Replays
+- **Deaths saved, replayed:** when an amulet that resurrects (or a ring's Guardian Angel) carries you off from a killing blow, those last seconds are kept as a replay, as a death's are. The Legends have a new **Deaths Saved** tab listing the latest, lit in gold, with what would have killed them, where, the amulet that saved them and the blow they lived through; click one to watch it end in a burst of holy light.
+- **Comment on replays:** every replay now has a Comments tab beside its hits, where signed-in players can say what they thought of a death or a close call.
+- **Replays in the Scrying Glass:** the glass's new **Replays** tab lists the 20 latest deaths and deaths saved on the server, with how many have commented; click one to watch it right there in the Nexus, comment, and go back to the glass.
+
+### Game
+- **Health and Magic Potions pick themselves up:** walk over a loot bag and its Health and Magic Potions go straight onto your HP and MP stacks, until they're full; whatever doesn't fit stays in the bag.
+
 ## 2.6.10 (2026-11-27)
 
 ### Gold Store

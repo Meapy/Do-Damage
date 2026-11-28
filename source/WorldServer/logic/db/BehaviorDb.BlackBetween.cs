@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Shared.resources;
 using WorldServer.logic.behaviors;
@@ -243,9 +243,10 @@ namespace WorldServer.logic
                             new TimedTransition(100, "Waltz Away")
                         ),
                         new State("Waltz Away",
-                            new BlinkAround(6, PlatformR - 3),
-                            new Flash(0xFFB040FF, 0.2, 2),
-                            new TimedTransition(400, "Waltz Stand")
+                            // where she'll be is marked first, and she blinks there once it fills
+                            new BlinkAround(6, PlatformR - 3, warnMs: 900, color: 0xFFB040FF),
+                            new Flash(0xFFB040FF, 0.2, 4),
+                            new TimedTransition(1300, "Waltz Stand")
                         )
                     ),
                     VeilPhase("Veil 2", "T1 Veil Fast", 16000, "Well Kit", true),

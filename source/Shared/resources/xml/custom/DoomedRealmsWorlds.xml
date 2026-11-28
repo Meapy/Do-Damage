@@ -115,6 +115,21 @@
 		<VisibilityType>1</VisibilityType>
 		<Dungeon/>
 	</World>
+	<!-- the Elder Ice Cave: the regular Esben leads to it half the time, and its Spawner opens
+	     the Elder Inner Sanctum, where the Elder Esben waits -->
+	<World id="Elder Ice Cave">
+		<Width>113</Width>
+		<Height>112</Height>
+		<MapJM>Doomed/Elder Ice Cave.jm</MapJM>
+		<VisibilityType>1</VisibilityType>
+		<Dungeon/>
+	</World>
+	<World id="The Elder Inner Sanctum">
+		<Width>58</Width>
+		<Height>58</Height>
+		<MapJM>Doomed/Elder The Inner Sanctum.jm</MapJM>
+		<Dungeon/>
+	</World>
 	<World id="Elder Jungle">
 		<Width>28</Width>
 		<Height>28</Height>

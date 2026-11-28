@@ -970,6 +970,78 @@
 			<MultiHit />
 		</Projectile>
 	</Object>
+	<Object type="0xCA86" id="Rime Relic">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>iceTombChars16x16</File>
+			<Index>13</Index>
+		</AnimatedTexture>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>5000</MaxHitPoints>
+		<Defense>45</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Rime Shard</ObjectId>
+			<Damage>130</Damage>
+			<Speed>75</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Slowed</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xCA87" id="Aurora Relic">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>iceTombChars16x16</File>
+			<Index>14</Index>
+		</AnimatedTexture>
+		<HitSound>monster/ghosts_hit</HitSound>
+		<DeathSound>monster/ghosts_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>4000</MaxHitPoints>
+		<Defense>25</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Aurora Spark</ObjectId>
+			<Damage>120</Damage>
+			<Speed>80</Speed>
+			<LifetimeMS>1500</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1">Darkness</ConditionEffect>
+		</Projectile>
+	</Object>
+	<Object type="0xCA88" id="Reaver Relic">
+		<Class>Character</Class>
+		<Enemy />
+		<AnimatedTexture>
+			<File>iceTombChars16x16</File>
+			<Index>15</Index>
+		</AnimatedTexture>
+		<HitSound>monster/stone_walls_hit</HitSound>
+		<DeathSound>monster/stone_walls_death</DeathSound>
+		<Size>110</Size>
+		<MaxHitPoints>4500</MaxHitPoints>
+		<Defense>35</Defense>
+		<StasisImmune />
+		<XpMult>0</XpMult>
+		<Projectile id="0">
+			<ObjectId>Frost Fang</ObjectId>
+			<Damage>140</Damage>
+			<Speed>110</Speed>
+			<LifetimeMS>1000</LifetimeMS>
+			<Size>100</Size>
+			<MultiHit />
+			<ConditionEffect duration="1.5">Bleeding</ConditionEffect>
+		</Projectile>
+	</Object>
 	<Object type="0xCA6D" id="Seal of the Warden">
 		<Class>Character</Class>
 		<Enemy />

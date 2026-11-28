@@ -127,7 +127,7 @@ follow him round the room and burst when he dies.
 
 ## The Ice Tomb
 
-The Lord of the Lost Lands' portal, or an Ice Tomb Key, opens a frozen tomb laid out anew each
+The Lord of the Lost Lands' portal, the Rime Herald's (a realm event, always), or an Ice Tomb Key, opens a frozen tomb laid out anew each
 run, hanging in a polar night with the aurora rippling across the sky round it. Its rooms are
 turned about and joined by rough-hewn passages that wind from one to the next. It has twenty
 rooms, each something of their own: cross-shaped crypts whose
@@ -161,12 +161,19 @@ Glacier** (arms of avalanche turning round the hall while waves of it roll out f
 Ysolde's **Frozen Hours** (the hall cut into six hours, the aurora burning in them by turns) and
 Hrimgar's **Wolf Moon** (three of his hounds loosed in the hall while rime cracks out under
 you), each only while the one who calls it lives, and caches like the Crucible's fall in the
-hall between. Kaldrun raises a
-**Glacial Bulwark** at 60% of his health, walling himself in behind four Rime Pillars until they
-break; Ysolde's **Aurora's Grace** heals the whole Court from half her health, and again every
-30 seconds; Hrimgar hunts the nearest player, leaps on them and goes into a **Frenzy** at half
-his. Each that falls leaves its Shade fighting on, and the last one standing makes a last stand
-(**Permafrost**, **Polar Night** or the **Shattered Lake**). Each of the Court drops the tomb's
+hall between. Each of the three fights as one of the Tomb of the Ancients' gods does, harder:
+every new turn as its health falls opens with a taunt and three seconds behind a blue shield
+(nothing hurts it), its **relics** come out at 40% (two) and 25% (one more) and circle it,
+firing, until they're shot down or it falls, and below 6% it **rages**, glowing red, running you
+down with everything it has and more relics. Kaldrun (as Bes) rings the hall with snowflakes from
+80%, raises a **Glacial Bulwark** at 60%, walling himself in behind four Rime Pillars until they
+break, and is Armored while his relics are out; Ysolde (as Nut) weaves a turning cross of
+quieting ribbons from 80%, and her **Aurora's Grace** heals the whole Court from half her
+health, and again every 30 seconds; Hrimgar (as Geb) hunts the nearest player and leaps on
+them, calls his hounds and lobs hailstones from 75%, and goes into a **Frenzy** at half his
+health. Each that falls leaves its Shade fighting on, and the last one standing makes a last
+stand below 15% (**Permafrost**, **Polar Night** or the **Shattered Lake**), raging in it below
+6%. Each of the Court drops the tomb's
 treasure (the old Ice Tomb Chest's, half again as often) and, only here, **Rimebrand**
 (a long cleaving slash flanked by two frost shards that slow), two white bags for the newer
 classes, the King's **Edict of the Frozen Court** (a decree that spreads from every Condemned
@@ -248,7 +255,8 @@ The Haunted Cemetery is four worlds in a row: a graveyard whose arena calls wave
 through its gates, then the Ghost Bride's arena, the Grave Caretaker's and, at the end, the
 Ghost of Skuld in his crypt. Each arena's portal opens when its fight is won. The Grave
 Caretaker's blue flames circle him and burst on whoever comes close; once he falls, those left
-come after you.
+come after you. Between his volleys Skuld fades and drifts to another part of his crypt: a green
+ring on the floor, closing in, marks where he'll come back into sight a second later.
 
 Half the time the Ghost of Skuld leaves the portal to the **Elder Cemetery**, and an Elder
 Cemetery Key opens one anywhere: the same four worlds, every monster in its Elder version
@@ -268,6 +276,32 @@ from Skuld), better gear, and the Elder Cemetery Key; Skuld drops the Cemetery's
 twice the chance. Raised again, below, each drops an item for a class that had none: the
 Ascendant's **Halo of the Ghost Bride**, the Father's **The Gravekeeper's Censer** and the
 Assassin's **Pestilence of Skuld**, the strongest poison in the game.
+
+## The Ice Cave and the Elder Ice Cave
+
+The Ice Cave is a frozen cavern of yetis and snow bats. Kill every Big Yeti and Snow Bat Mama and
+the way opens into the **Inner Sanctum**, where Esben the Unwilling holds a demon, the cornus,
+inside himself. Untouchable while his purifier crosses stand, he can only be hurt once they are
+broken and his shielded king has fallen. Snow Bats send out rings of spinning sonar that slow
+whatever they hit.
+
+Half the time Esben leaves the portal to the **Elder Ice Cave**, and an Elder Ice Cave Key opens
+one anywhere: both worlds again, every monster in its Elder version (twice the health, harder
+hits, faster attacks), and an Elder Esben with phases of his own:
+
+- **Frostfall:** while his crosses stand, icicles are thrown down on every player, slowing
+  whoever they land on. Keep moving while you break the crosses.
+- **Unbound Rend:** while he can be hurt, he fights back as himself: fans of icicles at the
+  nearest player, a turning ring of ice and a quieting boomerang.
+- **The Cornus Unbound:** at a tenth of his health he doesn't fall. The cornus tears free: he
+  fades into mist, comes back at the heart of the sanctum armoured, and turns two arms of ice
+  against each other with rings of piercing bolts, icicles raining and two shielded kings at his
+  side, for 16 seconds or until he falls.
+
+The Elder Esben drops a Potion of Max Mana, better gear, the Elder Ice Cave Key and, rarely, his
+white bag, the Summoner's **Scroll of the Unwilling**. Raised again, below, he drops it far more
+often: it calls Esben's shade to fight for you, and every enemy that dies near your summons rises
+as a frozen thrall for a few seconds, then shatters into slowing ice.
 
 ## Raising an Elder boss
 
