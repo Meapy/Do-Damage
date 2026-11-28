@@ -34,6 +34,9 @@ details). Add to a group's line when a change adds to it, rather than adding ano
 - **Comment on replays:** every replay now has a Comments tab beside its hits, where signed-in players can say what they thought of a death or a close call.
 - **Replays in the Scrying Glass:** the glass's new **Replays** tab lists the 20 latest deaths and deaths saved on the server, with how many have commented; click one to watch it right there in the Nexus, comment, and go back to the glass.
 
+### Game
+- **Health and Magic Potions pick themselves up:** walk over a loot bag and its Health and Magic Potions go straight onto your HP and MP stacks, until they're full; whatever doesn't fit stays in the bag.
+
 ## 2.6.10 (2026-11-27)
 
 ### Gold Store

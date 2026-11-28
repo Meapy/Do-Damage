@@ -87,7 +87,8 @@ potion goes to your potion storage instead (the message says which). If that sto
 Potion of Oryx isn't drunk at all: it stays, and the message says which storage to empty.
 
 Health and magic potions (not stat potions) stack up to {{v:potion_stack}} in the HP and MP slots
-next to your inventory; drag one there or double-click it. <kbd>F</kbd> and <kbd>V</kbd> drink
+next to your inventory; drag one there or double-click it, or walk over a loot bag that holds them
+and they go on the stacks by themselves (what doesn't fit stays in the bag). <kbd>F</kbd> and <kbd>V</kbd> drink
 them.
 
 ## The realm

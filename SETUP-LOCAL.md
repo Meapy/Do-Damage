@@ -724,6 +724,10 @@ The remotes `upstream` (HaloCelsius) and `aurusenth` share no history with `main
 
 ## Changes from upstream
 
+- **Health and Magic Potions picked up from bags** (2026-11-28; `Player.AutoPickup.cs`, called
+  from `Player.Tick`): within a tile of a loot bag the player may open (`CanTakeFrom`), its Health
+  and Magic Potions move onto the potion stacks up to `MaxStackablePotions`; plain loot bags only
+  (not vault, gift, special, guild or Nexus chests), not in the Marketplace, while trading or dead.
 - **The Elder Ice Cave and Esben's Necromantic revival; the Scroll of the Unwilling; Snow Bats
   fixed** (2026-11-28; `BehaviorDb.IceCave.cs` as one builder `IceCaveBehaviours(db, elder)`,
   `tools/make_elder.py` `DUNGEONS` (`ElderIceCave`, `ElderInnerSanctum`), `worlds/Doomed/Elder Ice

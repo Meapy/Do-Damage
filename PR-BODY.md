@@ -26,6 +26,9 @@ Release 2.6.11
 - **Comments on every replay:** the replay viewer has a Comments tab beside Hits taken (or the C key): what players said, newest at the foot, and a field to add a line (signed in to an account, not a guest; 140 characters, one every 5 s). They last as long as the replay.
 - **The Scrying Glass's Replays tab:** a sixth tab beside the chats lists the server's 20 latest deaths (red edge) and deaths saved (gold edge, with the item), newest first, each with who, level, class, what and where, when, and how many comments; clicking one plays it over the game, in the Nexus, with its comments, and Back returns to the glass. The list refreshes every 30 s while shown.
 
+### Game
+- **Health and Magic Potions pick themselves up:** standing within a tile of a loot bag you may open (yours or everyone's) moves its Health and Magic Potions onto the HP and MP stacks, up to the stacks' limit (10); the rest stay in the bag. Not from vault, gift, guild or Nexus chests, not in the Marketplace, not while trading or dead. Potions in your inventory aren't touched.
+
 ## Details
 
 ### The Frozen Court on the Tomb's turns
@@ -108,7 +111,13 @@ nothing redeploys.
 - **Deploys:** world server and client together (XML, sprites, the two looks). Nobody is disconnected. Redis: nothing; the key joins the Elder key stall's rotation and the Elder Blood goal's loot.
 - **Not done:** the Elder Esben wasn't fought through to his Cornus Unbound in game, nor raised from real remains (only with `/empower`); thrall numbers may want tuning after players try it.
 
+### Health and Magic Potions picked up from bags
+- **What and why:** the owner asked for HP and MP potions to be picked up by walking over bags. Each tick, `Player.AutoPickupPotions` (new `Player.AutoPickup.cs`, called from `Player.Tick`) looks at the world's containers and, for each plain loot bag (`Container` itself, no `DbLink`, not the 0x504 vault chest) that `IMessageHandler.CanTakeFrom` allows (owner, within a tile; guild and Nexus vault rules), takes the `Health Potion` and `Magic Potion` slots that fit in one inventory transaction, then adds them to `HealthPotionStack` / `MagicPotionStack`, as dragging one onto a stack does. Stops early when both stacks are full.
+- **Deploys:** the world server only; no message changes, old clients see the stacks' counts change. Nobody is disconnected. Redis: nothing new (the stacks' counts are saved as before).
+- **Not done:** no option to turn it off.
+
 ## Checks
+- Potion pickup: the world server builds. On an isolated stack (slot 1), `/give 12 Health Potion` and `/give 3 Magic Potion` in the Nexus (soulbound bags round the player) on a character with empty stacks: the shot showed the stacks at 10 and 3 and the open bag holding the 2 Health Potions over the limit.
 
 - Elder Ice Cave: the world server and the client build; `dotnet test` passes (572, with `TheElderIceCaveLeadsToTheElderEsben` and `SnowBatSpinnersMove`); `build_wiki.py` builds and shows the Elder Ice Cave's card, Esben's raising note and the scroll at 3% / 0.5%. On an isolated stack (slot 1), a Summoner wearing the scroll: `/dungeon The Elder Inner Sanctum` loaded its map, `/empower` there ran the Empowered phases (Soul Harvest, Frozen Crosses, Whiteout among them) with no server errors; in a vault `/empower` started the Risen cycle and the client showed the scroll's sprite, the shade's icicles and the Frozen Crosses.
 
