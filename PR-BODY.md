@@ -1,4 +1,4 @@
-Release 2.6.11
+Release 2.6.11: the Elder Ice Cave and the Scroll of the Unwilling, the Rime Herald event with the Frozen Barrow, the Frozen Court reworked and the Ice Tomb redrawn, replays of deaths saved with comments, marks where teleporting bosses appear, softer Void Entities, potion pickup from bags and an Ivory Wyvern fix. Deploys the world and account servers, client and website; nobody is disconnected. The new content and replay features need the client and servers together.
 
 ## For players
 

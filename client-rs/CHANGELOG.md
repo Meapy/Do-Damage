@@ -12,7 +12,7 @@ Keep each version short: changes go under `### ` group headings (Oryx 5, Arena, 
 on), one line per change players notice, summed up rather than item by item (the wiki has the
 details). Add to a group's line when a change adds to it, rather than adding another line.
 
-## Unreleased
+## 2.6.11 (2026-11-28)
 
 ### Realm
 - **A new realm event, the Rime Herald:** the Frozen Court's herald, come to open the way to the Ice Tomb. It throws ice lances and slowing hail, raises frozen sarcophagi that keep it Armored until you break them (each lets out one of its dead), and below 30% calls a whiteout and runs you down. It always leaves the Ice Tomb's portal, and drops the tomb's Frozen Wand, Arctic Bow and Tome of Frigid Protection. In the realm it comes on a patch of snow and graves; in Realm 2 it brings a land of its own, the **Frozen Barrow**, with barrow mummies, rime wraiths, frostfang wolves and two quests that can open the Ice Cave.
