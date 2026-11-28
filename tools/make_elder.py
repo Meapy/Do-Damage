@@ -103,6 +103,9 @@ DUNGEONS = {
     "ElderCemeteryGates": ("Dungeons/Haunted Cemetery Gates.jm", "BehaviorDb.HauntedCemeteryGates.cs+BehaviorDb.HauntedCemetery.cs"),
     "ElderCemeteryGraves": ("Dungeons/Haunted Cemetery Graves.jm", "BehaviorDb.HauntedCemeteryGraves.cs+BehaviorDb.HauntedCemetery.cs"),
     "ElderCemeteryFinalBattle": ("Dungeons/Haunted Cemetery Final Battle.jm", "BehaviorDb.HauntedCemeteryFinalBattle.cs"),
+    # the Ice Cave and the Inner Sanctum it opens, where Esben waits (one behaviour file for both)
+    "ElderIceCave": ("Dungeons/Ice Cave.jm", "BehaviorDb.IceCave.cs"),
+    "ElderInnerSanctum": ("Dungeons/The Inner Sanctum.jm", "BehaviorDb.IceCave.cs"),
 }
 # Dungeons run by hidden objects that watch each other by name (the Shatters' switches, gates,
 # bridges, timers and chest spawners): every object their behaviours define gets an Elder copy,

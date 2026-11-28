@@ -404,6 +404,10 @@ namespace WorldServer.core.objects
                 foreach (var p in DamageCounter.GetHitters().Keys)
                     if (p != null && p.IsSharklord && p.World == World && !p.Dead)
                         p.FrenzyKill();
+                // the Scroll of the Unwilling raises it as a thrall (Player.Unwilling.cs)
+                if (World != null)
+                    foreach (var p in World.Players.Values)
+                        p.UnwillingDeath(this);
             }
             Dead = true;
             World.LeaveWorld(this);

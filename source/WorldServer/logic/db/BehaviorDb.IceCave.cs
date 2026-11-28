@@ -7,8 +7,30 @@ namespace WorldServer.logic
 {
     partial class BehaviorDb
     {
-        private _ IceCave = () => Behav()
-             .Init("Big Yeti",
+        // the Elder Esben's frost
+        private const uint Frost = 0xFF8FD8FF;
+
+        private _ IceCave = () => IceCaveBehaviours(Behav(), false);
+        private _ ElderIceCave = () => IceCaveBehaviours(Behav(), true);
+
+        // The Ice Cave and the Inner Sanctum, and their Elder versions (BehaviorDb.Elder.cs): the
+        // regular Esben leads to the Elder Ice Cave half the time, and the Elder Esben has phases
+        // of his own (Frostfall, Unbound Rend, the Cornus Unbound) and leaves remains a
+        // Necromantic Relic raises (core/resurrection, EmpoweredSignatures.Esben).
+        private static Ctor IceCaveBehaviours(Ctor db, bool elder)
+        {
+            string N(string id) => ElderOr(id, elder);
+            string E(string id) => ElderDefines(id, elder);
+            MobDrops ElderLoot(double threshold, params MobDrops[] drops) => new Threshold(threshold, elder ? drops : new MobDrops[0]);
+            // the Elder Esben's own (null in the regular fight: a state skips null children)
+            IStateChildren Elder(IStateChildren b) => elder ? b : null;
+            // Frostfall: icicles thrown down on the players while the crosses stand, slowing
+            // what they hit (two at a time, every `ms`)
+            IStateChildren Frostfall(int ms, int perVolley = 2) => Elder(new Starfall(Starfall.Area.Players, 18, 1.5, 120,
+                coolDown: ms, perVolley: perVolley, color: Frost, effect: ConditionEffectIndex.Slowed, effectMs: 1500,
+                fillMs: 1300, throwColor: 0xFFFFFFFF));
+            return db
+             .Init(E("Big Yeti"),
              new State(
                    new State("geticey",
                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -21,21 +43,21 @@ namespace WorldServer.logic
                         new Taunt(0.25, "Mwruuuu!"),
                        new Flash(0xFF0000, 2, 18),
                        new Shoot(10, count: 1, projectileIndex: 0, predictive: 0.5, coolDown: 2500),
-                       new Spawn("Mini Yeti", 1, 4, coolDown: 10000)
+                       new Spawn(N("Mini Yeti"), 1, 4, coolDown: 10000)
                         )
 
                   )
             )
-            .Init("Mini Yeti",
+            .Init(E("Mini Yeti"),
                 new State(
                     new Flash(0xFF0000, 2, 6),
-                     new Orbit(0.3, 3, 20, "Big Yeti", speedVariance: 0.1),
+                     new Orbit(0.3, 3, 20, N("Big Yeti"), speedVariance: 0.1),
                      new Shoot(8.4, count: 1, projectileIndex: 0, predictive: 1, coolDown: 1750),
                      new Shoot(8.4, count: 1, projectileIndex: 0, coolDown: 1200)
                     ),
                 new ItemLoot("Penguin Generator", 0.01)
             )
-           .Init("Snow Bat Mama",
+           .Init(E("Snow Bat Mama"),
              new State(
                    new State("geticey",
                        new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
@@ -47,20 +69,25 @@ namespace WorldServer.logic
                      new Shoot(8.4, count: 1, projectileIndex: 1, coolDown: 2300),
                       new Shoot(8.4, count: 1, projectileIndex: 2, coolDown: 1000),
                       new Shoot(8.4, count: 1, projectileIndex: 3, coolDown: 1250),
-                       new Spawn("Snow Bat", 1, 4, coolDown: 10000)
+                       new Spawn(N("Snow Bat"), 1, 4, coolDown: 10000)
                         )),
                new ItemLoot("Snowy Owl Generator", 0.03)
             )
-            .Init("Snow Bat",
+            // its sonar: a turning ring of six spinners every 1.6 s and one at the nearest player
+            // (it fired six spinners that never moved every 25 ms, each lasting 5 s: a carpet of
+            // hundreds of invisible-looking traps round every bat)
+            .Init(E("Snow Bat"),
                 new State(
                      new Wander(0.4),
-                     new Shoot(8.4, count: 6, projectileIndex: 0, coolDown: 25)
+                     new Follow(0.6, 9, 3),
+                     new Shoot(8.4, count: 6, projectileIndex: 0, fixedAngle: 0, rotateAngle: 17, coolDown: 1600),
+                     new Shoot(8.4, count: 1, projectileIndex: 0, predictive: 0.4, coolDown: 900, coolDownOffset: 450)
                     ),
                 new ItemLoot("Green Penguin Generator", 0.005)
             )
         // a game object, not an enemy, so it can't die: it opens the Inner Sanctum portal itself
         // once every Big Yeti and Snow Bat Mama is dead
-        .Init("ic boss spawner live",
+        .Init(E("ic boss spawner live"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible, true),
                 new State("waiting",
@@ -68,11 +95,11 @@ namespace WorldServer.logic
                     ),
                 new State(":)",
                     new Taunt("..kill the large ones....open the way....the are meaningless...."),
-                    new EntitiesNotExistsTransition(1000, "open", "Big Yeti", "Snow Bat Mama")
+                    new EntitiesNotExistsTransition(1000, "open", N("Big Yeti"), N("Snow Bat Mama"))
                     ),
                 new State("open",
                     new Taunt("Innocent souls. So delicious. You have sated me. Now come, I shall give you your reward."),
-                    new Spawn("Inner Sanctum Portal", 1, 1),
+                    new Spawn(N("Inner Sanctum Portal"), 1, 1),
                     new TimedTransition(1000, "gone")
                     ),
                 new State("gone",
@@ -80,31 +107,77 @@ namespace WorldServer.logic
                     )
                 )
             )
-        .Init("ic boss manager",
+        .Init(E("ic boss manager"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible)
                 )
             )
-        .Init("ic Esben the Unwilling",
+        .Init(E("ic Esben the Unwilling"),
             new State(
-                new ScaleHP2(20),
-                new HpLessTransition(0.1, "die"),
+                // the Elder version gains less health per extra player: its base is far higher
+                new ScaleHP2(elder ? 15 : 20),
+                // the regular Esben leads to the Elder Ice Cave half the time
+                new DropPortalOnDeath("Elder Ice Cave Portal", elder ? 0 : 0.5, xAdjustment: 3, timeout: 120),
+                // (the fight's states under one parent, so the step into the end at a tenth of his
+                // health doesn't keep firing once he's there: the Elder end has several states)
+                new State("fight",
+                new HpLessTransition(0.1, elder ? "cornus" : "die"),
                 new State("start",
                     new PlayerWithinTransition(50, "idle", true)
                     ),
                 new State("idle",
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new OrderOnce(100, "ic boss purifier generator", "spawn crosses"),
+                    new OrderOnce(100, N("ic boss purifier generator"), "spawn crosses"),
+                    // raised by a Necromantic Relic (or /empower) the crosses' generator is long
+                    // gone: the Empowered Esben fights the Risen cycle instead
+                    Elder(new EntityNotExistsTransition(N("ic boss purifier generator"), 200, "risen1")),
                     // give the crosses time to appear before checking whether any are left
                     new TimedTransition(2000, "My cross never dead <3")
                     ),
+                // The Risen cycle (Empowered): no crosses to hold him, Esben and the cornus fight
+                // as one, round the heart of the sanctum. Unbound Rend (9 s), Icicle Crosses
+                // (7 s, Armored, Frostfall), Frozen Rings (6 s), and round again
+                Elder(new State("risen1",
+                    new SetAltTexture(0),
+                    new Taunt(true, "You dragged me back? Then watch what he does with me!"),
+                    new Orbit(1.2, 6, 20, N("ic boss manager")),
+                    new Shoot(14, 5, shootAngle: 12, projectileIndex: 4, predictive: 0.5, coolDown: 1000),
+                    new Shoot(20, 12, projectileIndex: 2, fixedAngle: 0, rotateAngle: 11, coolDown: 2000, coolDownOffset: 600),
+                    new Shoot(12, 1, projectileIndex: 3, predictive: 0.7, coolDown: 3000, coolDownOffset: 1500),
+                    new TimedTransition(9000, "risen2")
+                    )),
+                Elder(new State("risen2",
+                    new SetAltTexture(2),
+                    new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                    new Taunt("Icicles, rend their flesh!"),
+                    new Orbit(0.3, 2, 20, N("ic boss manager")),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 0, coolDown: 1400),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 90, coolDown: 1400),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 180, coolDown: 1400),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 270, coolDown: 1400),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 45, coolDown: 1400, coolDownOffset: 700),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 135, coolDown: 1400, coolDownOffset: 700),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 225, coolDown: 1400, coolDownOffset: 700),
+                    new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 315, coolDown: 1400, coolDownOffset: 700),
+                    Frostfall(1400),
+                    new TimedTransition(7000, "risen3")
+                    )),
+                Elder(new State("risen3",
+                    new SetAltTexture(0),
+                    new Flash(Frost, 0.3, 3),
+                    new Shoot(20, 10, projectileIndex: 1, fixedAngle: fixedAngle_RingAttack2, coolDown: 1500),
+                    new Shoot(20, 14, projectileIndex: 2, fixedAngle: 0, coolDown: 1500, coolDownOffset: 750),
+                    new Shoot(12, 3, shootAngle: 15, projectileIndex: 0, predictive: 0.5, coolDown: 2000),
+                    new TimedTransition(6000, "risen1")
+                    )),
                 new State("My cross never dead <3",
                     new Taunt("Ah fresh meat.I must thank you for the souls..."),
                     new Taunt("Icicles, rend their flesh!"),
                     new SetAltTexture(0),
-                    new Orbit(0.1, 1, 10, "ic boss manager"),
+                    new Orbit(0.1, 1, 10, N("ic boss manager")),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new EntitiesNotExistsTransition(20, "nooo!", "ic boss purifier"),
+                    Frostfall(2600),
+                    new EntitiesNotExistsTransition(20, "nooo!", N("ic boss purifier")),
                     new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 0, coolDownOffset: 3000, coolDown: 15000),
                     new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 90, coolDownOffset: 3000, coolDown: 15000),
                     new Shoot(20, 7, shootAngle: 10, projectileIndex: 3, fixedAngle: 180, coolDownOffset: 3000, coolDown: 15000),
@@ -235,18 +308,25 @@ namespace WorldServer.logic
                    ),
                new State("spawn minions",
                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
-                   new Order(30, "ic boss purifier generator", "spawn minion plox <3"),
+                   new Order(30, N("ic boss purifier generator"), "spawn minion plox <3"),
                    new SetAltTexture(1),
                    new TimedTransition(2000, "spawn minions2")
                    ),
                new State("spawn minions2",
                    new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                    new SetAltTexture(1),
-                   new EntityNotExistsTransition("ic shielded king", 30, "kill me time...")
+                   new EntityNotExistsTransition(N("ic shielded king"), 30, "kill me time...")
                    ),
                new State("kill me time...",
-                   new Orbit(2.0, 1, 10, "ic boss manager"),
+                   new Orbit(2.0, 1, 10, N("ic boss manager")),
                    new SetAltTexture(2),
+                   // Unbound Rend (Elder): the demon lets go of him for a while and he fights
+                   // back as himself: fans of icicles at the nearest player, a turning ring of
+                   // ice bursts, and a quieting boomerang now and then
+                   Elder(new Taunt(true, "It lets go of me... only for a moment. Forgive me, I cannot stop my hands!")),
+                   Elder(new Shoot(14, 5, shootAngle: 12, projectileIndex: 4, predictive: 0.5, coolDown: 1100)),
+                   Elder(new Shoot(20, 12, projectileIndex: 2, fixedAngle: 0, rotateAngle: 11, coolDown: 2400, coolDownOffset: 800)),
+                   Elder(new Shoot(12, 1, projectileIndex: 3, predictive: 0.7, coolDown: 3600, coolDownOffset: 1800)),
                    new TimedTransition(12000, "WTF HE DO...")
                    ),
                new State("WTF HE DO...",
@@ -274,16 +354,17 @@ namespace WorldServer.logic
                    ),
               new State("EE",
                   new SetAltTexture(2),
-                  new Order(30, "ic boss purifier generator", "spawn crosses"),
+                  new Order(30, N("ic boss purifier generator"), "spawn crosses"),
                   new TimedTransition(2000, "FF")
                   ),
               new State("FF",
                     new SetAltTexture(0),
-                    new Orbit(0.1, 1, 10, "ic boss manager"),
+                    new Orbit(0.1, 1, 10, N("ic boss manager")),
+                    Frostfall(2200),
                     new Taunt("I can barely hold on. Please. Do it."),
                     new Taunt("HAHAHAHA"),
                     new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
-                    new EntitiesNotExistsTransition(20, "nooo!", "ic boss purifier"),
+                    new EntitiesNotExistsTransition(20, "nooo!", N("ic boss purifier")),
                     new Shoot(20, 1, projectileIndex: 1, fixedAngle: 0, coolDownOffset: 0, coolDown: 14000),
                     new Shoot(20, 1, projectileIndex: 1, fixedAngle: 10, coolDownOffset: 200, coolDown: 14000),
                     new Shoot(20, 1, projectileIndex: 1, fixedAngle: 20, coolDownOffset: 400, coolDown: 14000),
@@ -386,13 +467,40 @@ namespace WorldServer.logic
                     new Shoot(20, 2, shootAngle: 10, projectileIndex: 2, fixedAngle: 210, coolDownOffset: 14000, coolDown: 14000),
                     new Shoot(20, 2, shootAngle: 10, projectileIndex: 2, fixedAngle: 240, coolDownOffset: 14000, coolDown: 14000),
                     new Shoot(20, 2, shootAngle: 10, projectileIndex: 2, fixedAngle: 300, coolDownOffset: 14000, coolDown: 14000)
-                    ),
+                    )
+                ),
+              // The Cornus Unbound (Elder, at a tenth of his health): the demon he held tears
+              // free. Esben fades into mist and comes back at the heart of the sanctum, then
+              // the cornus fights through him: two arms of ice bursts turning against each
+              // other, rings of piercing bolts, icicles raining on everyone and two shielded
+              // kings at his side. He can be killed in it; if he outlasts it, the regular end
+              Elder(new State("cornus",
+                  new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable),
+                  new SetAltTexture(1),
+                  new Taunt(true, "No... NO! He is free! The cornus is FREE!"),
+                  new Flash(Frost, 0.2, 10),
+                  new ReturnToSpawn(1.5),
+                  new TimedTransition(2500, "cornus2")
+                  )),
+              Elder(new State("cornus2",
+                  new SetAltTexture(2),
+                  new ConditionEffectBehavior(ConditionEffectIndex.Armored),
+                  new Taunt(true, "THIS SHELL IS MINE. AND SO ARE YOUR SOULS."),
+                  new Flash(Frost, 0.5, 4),
+                  new Spawn(N("ic shielded king"), maxChildren: 2, initialSpawn: 0.5, coolDown: 9000),
+                  new Shoot(30, 2, shootAngle: 180, projectileIndex: 2, fixedAngle: 0, rotateAngle: 13, coolDown: 300),
+                  new Shoot(30, 2, shootAngle: 180, projectileIndex: 4, fixedAngle: 90, rotateAngle: -11, coolDown: 300),
+                  new Shoot(30, 16, projectileIndex: 1, fixedAngle: 11.25, coolDown: 2500, coolDownOffset: 1200),
+                  new Shoot(12, 3, shootAngle: 15, projectileIndex: 3, predictive: 0.6, coolDown: 3000),
+                  Frostfall(1600, 1),
+                  new TimedTransition(16000, "die")
+                  )),
               new State("die",
                   new ConditionEffectBehavior(ConditionEffectIndex.Invulnerable, duration: 2000),
                   new Taunt("You must destroy me. It is the only way to banish him."),
                   new Taunt("Noooo! Shades, come to me. Protect the cornus."),
-                  new OrderOnce(100, "ic boss purifier generator", "die"),
-                  new OrderOnce(100, "ic boss manager", "nothing"),
+                  new OrderOnce(100, N("ic boss purifier generator"), "die"),
+                  new OrderOnce(100, N("ic boss manager"), "nothing"),
                   new SetAltTexture(3),
                   new Wander(1.5)
                     )
@@ -411,20 +519,33 @@ namespace WorldServer.logic
                     new ItemLoot("An Icicle", 0.004),
                     new ItemLoot("Potion of Mana", 1)
                 ),
+                // the Elder Esben: Elder gear, a Potion of Max Mana, his key and the white bag
+                // the Empowered one drops more often (resurrection.json)
+                ElderLoot(0.01,
+                    new ItemLoot("Potion of Max Mana", 0.025),
+                    new ItemLoot("Elder Ice Cave Key", 0.01),
+                    new ItemLoot("Scroll of the Unwilling", 0.005)
+                    ),
+                ElderLoot(0.0001,
+                    new TierLoot(13, ItemType.Weapon, .1),
+                    new TierLoot(14, ItemType.Armor, .1),
+                    new TierLoot(6, ItemType.Ability, .1),
+                    new TierLoot(6, ItemType.Ring, .1)
+                    ),
             new ItemLoot("Lil' Esben Generator", 0.02))
-        .Init("ic boss purifier",
+        .Init(E("ic boss purifier"),
             new State(
                 new State(":P",
                     new PlayerWithinTransition(5, ":D")
                     ),
                 new State(":D",
-                    new Spawn("ic Whirlwind", 1, 1, coolDown: 10000),
+                    new Spawn(N("ic Whirlwind"), 1, 1, coolDown: 10000),
                     new Shoot(5, 1, 0, defaultAngle: 0, angleOffset: 0, projectileIndex: 0, predictive: 1,
                     coolDown: 5000)
                     )
                 )
             )
-        .Init("ic Whirlwind",
+        .Init(E("ic Whirlwind"),
             new State(
                 new Follow(0.5, 6, 1),
                 new State("shoot1",
@@ -437,7 +558,7 @@ namespace WorldServer.logic
                     )
                 )
             )
-        .Init("ic shielded king",
+        .Init(E("ic shielded king"),
             new State(
                 new State("idle",
                     new Taunt(probability: 0.3, text: "SKREEEEE"),
@@ -447,26 +568,27 @@ namespace WorldServer.logic
                     )
                 )
             )
-        .Init("ic CreepyTime",
+        .Init(E("ic CreepyTime"),
             new State(
-                new Protect(1, "ic Esben the Unwilling", 15, 5),
+                new Protect(1, N("ic Esben the Unwilling"), 15, 5),
                 new Wander(1)
             )
         )
-        .Init("ic boss purifier generator",
+        .Init(E("ic boss purifier generator"),
             new State(
                 new ConditionEffectBehavior(ConditionEffectIndex.Invincible),
                 new State("spawn crosses",
-                    new Spawn("ic boss purifier", 1, 1, coolDown: 10000)
+                    new Spawn(N("ic boss purifier"), 1, 1, coolDown: 10000)
                     ),
                 new State("spawn minion plox <3",
-                    new Spawn("ic shielded king", maxChildren: 1, initialSpawn: 0)
+                    new Spawn(N("ic shielded king"), maxChildren: 1, initialSpawn: 0)
                     ),
                 new State("die",
-                    new Spawn("ic CreepyTime", maxChildren: 1, initialSpawn: 0),
+                    new Spawn(N("ic CreepyTime"), maxChildren: 1, initialSpawn: 0),
                     new Decay(1000)
                     )
                 )
             );
+        }
     }
 }

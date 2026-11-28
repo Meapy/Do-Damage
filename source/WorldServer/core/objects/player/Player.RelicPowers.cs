@@ -88,7 +88,10 @@ namespace WorldServer.core.objects
             // Player.BetweenPowers.cs (DuskFx)
             // 46-47: the Realm Pass's tiers (PassTracker); 48-53: the Crucible's white bags
             // (Player.CruciblePowers.cs); 54-57: the Mechanic's turrets, sent by Turret.cs and
-            // Player.Turrets.cs
+            // Player.Turrets.cs; 58-71 the Crucible's caches, the Druid's pearls, the
+            // Mechanic's flow, the King's seal and decree and the Sharklord's maw
+            ThrallRise = 72,    // the Scroll of the Unwilling: an enemy rising as a frozen thrall (ms)
+            ThrallShatter = 73, // the Scroll of the Unwilling: a thrall shattering into ice
         }
 
         // the Ghost Bride's halo's forcefield (Forcefield.cs): pale, its petals drifting (relic.rs)

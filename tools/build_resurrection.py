@@ -112,6 +112,9 @@ SIGNATURE_SHOTS = {
                                     ("Fire Spinner", 80, 0.7, 100, 1800, [("Blind", 1.5)])],
     "Elder Ghost of Skuld": [("Ghost Cross", 55, 0.9, 100, 3200, []),
                              ("Giga Ghost X", 30, 1.3, 130, 4500, [("Paralyzed", 1)])],
+    # Esben's icicles and his frost
+    "Elder ic Esben the Unwilling": [("Grey Boomerang", 70, 0.8, 100, 2400, [("Slowed", 1)]),
+                                     ("Ice Burst", 32, 1.2, 130, 4200, [("Slowed", 2)])],
 }
 RELIC_CHANCE = 0.05         # each player past RELIC_THRESHOLD of the damage, per boss
 RELIC_THRESHOLD = 0.02
@@ -147,6 +150,7 @@ BOSSES = [
     ("Elder Arena Ghost Bride", "Elder Cemetery"),
     ("Elder Arena Grave Caretaker", "Elder Cemetery"),
     ("Elder Ghost of Skuld", "Elder Cemetery"),
+    ("Elder ic Esben the Unwilling", "The Elder Inner Sanctum"),
 ]
 # --- art ---------------------------------------------------------------------------------------
 # The relic after the design's own: a lump of dark stone, mossy on top, a soul glowing through it.
@@ -345,7 +349,17 @@ ELDER_UTS = [
      ((10, 0, 25), (60, 20, 120), (190, 120, 255)),
      "A Sourcestone the Void has eaten through. What stands near it starts to come apart."),
 ]
-for _u in UTS:
+# Empowered bosses' items added after ELDER_UTS, so the older items keep their sprite cells. Same
+# fields. Esben's is a Summoner's scroll, and the Elder Esben drops it too, more rarely
+# (BehaviorDb.IceCave.cs).
+LATE_UTS = [
+    ("Elder ic Esben the Unwilling", "Scroll of the Unwilling", "Scroll of the Mad God", 1.2, {"wis": 4, "mp": 20}, None,
+     ((10, 20, 50), (70, 150, 220), (220, 250, 255)),
+     "Esben's last prayer, written in frost on the inside of his own skin while the cornus slept. Read aloud, it calls his shade back from the ice to fight for you, as he could never fight for himself."),
+]
+ALSO_ELDER = {"Scroll of the Unwilling"}   # also dropped by the Elder boss
+UTS_EMPOWERED = UTS + LATE_UTS
+for _u in UTS_EMPOWERED:
     BASES[_u[0]], STRENGTH[_u[0]] = _u[2], _u[3]
 
 # the colour of the trail each item's shots leave (<ParticleTrail>, drawn by the Rust client)
@@ -368,9 +382,43 @@ SPRITE_FROM = {
     "Halo of the Ghost Bride": "Halo of Eternal Peace",
 }
 
+# items drawn by hand rather than recoloured from their base (8x8, PALETTE plus ART_PALETTE): the
+# Scroll of the Unwilling, a scroll of frost between two rods of blue ice, a dark rune on it with a
+# soul glinting through, icicles hanging off its foot
+ART_PALETTE = {
+    "R": (0x28, 0x46, 0x8C), "r": (0x78, 0xAA, 0xF0), "P": (0xC8, 0xEB, 0xFF), "p": (0x8C, 0xBE, 0xE6),
+    "K": (0x14, 0x1E, 0x46), "I": (0xDC, 0xFA, 0xFF),
+}
+ITEM_ART = {
+    "Scroll of the Unwilling": [
+        ".rRRRRr.",
+        ".PPpPPP.",
+        ".PKKKKp.",
+        ".PKtWKP.",
+        ".pKWtKP.",
+        ".PPKKPp.",
+        ".rRRRRr.",
+        "..I..I..",
+    ],
+}
+
+
+def draw_art(rows):
+    """An 8x8 sprite from rows of PALETTE and ART_PALETTE letters ("." clear)."""
+    colours = dict(PALETTE, **ART_PALETTE)
+    img = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.putpixel((x, y), colours[ch] + (255,))
+    return img
+
+
 # attributes an item's ability takes beyond its base's: the plague's sickly green cloud
 ACTIVATE_ATTRS = {
     "Pestilence of Skuld": {"color": "8fa547"},
+    # the Unwilling Shade (CustomObjects.xml, BehaviorDb.DoomedAllies.cs) in place of Oryx
+    "Scroll of the Unwilling": {"objectId": "Unwilling Shade", "allyDamage": "100", "allyShots": "5", "allyMs": "900"},
 }
 
 # each item's power (Player.RelicPowers.cs): its id, and its name and what it does for the tooltip
@@ -409,6 +457,7 @@ POWERS = {
     "Halo of the Ghost Bride": ("Vow", "Eternal Vow", "A hit that would kill a player in its forcefield leaves them at 1 health, untouchable for 1.5 seconds (each player once every 45 seconds)"),
     "The Gravekeeper's Censer": ("GraveFlames", "Grave Flames", "Using it lights three blue flames round you for 9 seconds: each rushes the nearest enemy within 5 tiles and bursts for 300, ignoring defense"),
     "Pestilence of Skuld": ("Contagion", "Contagion", "An enemy that dies poisoned by it bursts into a new cloud where it fell, half as strong, which spreads in turn (3 times a throw)"),
+    "Scroll of the Unwilling": ("Unwilling", "The Unwilling", "Enemies that die within 4 tiles of your summons rise as Unwilling Thralls for 8 seconds (3 at most): frozen husks that fight for you and shatter into slowing ice when they fall apart"),
 }
 # drops of one season only (a SeasonalThreshold), which the second roll leaves out
 SEASONAL = {"Ice Crown"}
@@ -479,8 +528,8 @@ def build_uts(objects, types, root, first_cell):
     sheet after SPRITES16) and {boss: item}."""
     sets = manifest_sets()
     cells, big, by_boss = [], [], {}
-    for n, (boss, name, base_id, k, extra, condition, colours, desc) in enumerate(UTS + ELDER_UTS):
-        empowered = n < len(UTS)
+    for n, (boss, name, base_id, k, extra, condition, colours, desc) in enumerate(UTS + ELDER_UTS + LATE_UTS):
+        empowered = n < len(UTS) or n >= len(UTS) + len(ELDER_UTS)
         base = objects.get(base_id)
         if base is None:
             raise SystemExit("No base item %s for %s" % (base_id, name))
@@ -495,7 +544,7 @@ def build_uts(objects, types, root, first_cell):
         large = recolour(cell, colours) if cell.size == (16, 16) else None
         if cell.size != (8, 8):
             cell = cell.resize((8, 8), Image.NEAREST)
-        cells.append(recolour(cell, colours))
+        cells.append(draw_art(ITEM_ART[name]) if name in ITEM_ART else recolour(cell, colours))
 
         item = copy.deepcopy(base)
         item.set("type", types.get(name))
@@ -525,7 +574,12 @@ def build_uts(objects, types, root, first_cell):
         if info is None:
             info = el(item, "ExtraTooltipData")
         el(info, "EffectInfo", name=title, description=what)
-        el(item, "Description", desc + (" Dropped by the Empowered " if empowered else " Dropped by the Elder ") + bare(name_of(objects[boss])) + ".")
+        who = bare(name_of(objects[boss]))
+        if name in ALSO_ELDER:
+            drop = " Dropped by the Elder %s, and more often by the Empowered one." % who
+        else:
+            drop = (" Dropped by the Empowered " if empowered else " Dropped by the Elder ") + who + "."
+        el(item, "Description", desc + drop)
         el(item, "BagType", 6)
         el(item, "FameBonus", 7)
         el(item, "feedPower", 1200)
@@ -774,7 +828,7 @@ def build(objects, types):
         # at most)
         loot = []
         for kind, item, chance in data.drops(boss_id):
-            if kind != "item" or not chance or item == RELIC or item in SEASONAL or any(item == i for i, _ in loot):
+            if kind != "item" or not chance or item == RELIC or item in SEASONAL or item == uts.get(boss_id) or any(item == i for i, _ in loot):
                 continue
             if item.startswith("Potion of Max "):
                 loot.append((item, round(min(0.25, max(0.10, chance * 4)), 4)))

@@ -102,7 +102,7 @@ namespace WorldServer.core.objects.vendors
             ("Elder Pirate Cave Key", 10), ("Elder Spider Den Key", 10), ("Elder Snake Pit Key", 15),
             ("Elder Sprite World Key", 15), ("Elder Manor Key", 15), ("Elder Beach Key", 20),
             ("Elder Jungle Key", 20), ("Elder Undead Lair Key", 25), ("Elder Davy Key", 25),
-            ("Elder Ocean Trench Key", 25), ("Elder Abyss Key", 30), ("Elder Cemetery Key", 35),
+            ("Elder Ocean Trench Key", 25), ("Elder Abyss Key", 30), ("Elder Ice Cave Key", 30), ("Elder Cemetery Key", 35),
             ("Elder Draconis Key", 40), ("Elder Ivory Wyvern Key", 40), ("Elder Tomb Key", 50),
             ("Elder Shatters Key", 75), ("Elder Lost Halls Key", 100)
         };

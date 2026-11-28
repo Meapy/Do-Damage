@@ -277,6 +277,32 @@ twice the chance. Raised again, below, each drops an item for a class that had n
 Ascendant's **Halo of the Ghost Bride**, the Father's **The Gravekeeper's Censer** and the
 Assassin's **Pestilence of Skuld**, the strongest poison in the game.
 
+## The Ice Cave and the Elder Ice Cave
+
+The Ice Cave is a frozen cavern of yetis and snow bats. Kill every Big Yeti and Snow Bat Mama and
+the way opens into the **Inner Sanctum**, where Esben the Unwilling holds a demon, the cornus,
+inside himself. Untouchable while his purifier crosses stand, he can only be hurt once they are
+broken and his shielded king has fallen. Snow Bats send out rings of spinning sonar that slow
+whatever they hit.
+
+Half the time Esben leaves the portal to the **Elder Ice Cave**, and an Elder Ice Cave Key opens
+one anywhere: both worlds again, every monster in its Elder version (twice the health, harder
+hits, faster attacks), and an Elder Esben with phases of his own:
+
+- **Frostfall:** while his crosses stand, icicles are thrown down on every player, slowing
+  whoever they land on. Keep moving while you break the crosses.
+- **Unbound Rend:** while he can be hurt, he fights back as himself: fans of icicles at the
+  nearest player, a turning ring of ice and a quieting boomerang.
+- **The Cornus Unbound:** at a tenth of his health he doesn't fall. The cornus tears free: he
+  fades into mist, comes back at the heart of the sanctum armoured, and turns two arms of ice
+  against each other with rings of piercing bolts, icicles raining and two shielded kings at his
+  side, for 16 seconds or until he falls.
+
+The Elder Esben drops a Potion of Max Mana, better gear, the Elder Ice Cave Key and, rarely, his
+white bag, the Summoner's **Scroll of the Unwilling**. Raised again, below, he drops it far more
+often: it calls Esben's shade to fight for you, and every enemy that dies near your summons rises
+as a frozen thrall for a few seconds, then shatters into slowing ice.
+
 ## Raising an Elder boss
 
 Every Elder dungeon's boss can be fought twice. When it falls it leaves its remains for a little

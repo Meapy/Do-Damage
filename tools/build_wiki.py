@@ -387,7 +387,8 @@ HIDDEN_MONSTER = re.compile(r"Admin|Test(?!Chicken)|XP\b|Spawner|spawner|Control
 # bosses a script brings in, which the dungeon's map doesn't place
 BOSS_OVERRIDE = {"Tomb of the Ancients": "Tomb Defender", "Elder Tomb of the Ancients": "Elder Tomb Defender",
                  "Ice Tomb": "Kaldrun, the Rime Warden",
-                 "Ice Cave": "ic Esben the Unwilling", "The Shatters": "shtrs The Forgotten King",
+                 "Ice Cave": "ic Esben the Unwilling", "Elder Ice Cave": "Elder ic Esben the Unwilling",
+                 "The Shatters": "shtrs The Forgotten King",
                  "The Elder Shatters": "Elder shtrs The Forgotten King",
                  "Haunted Cemetery": "Ghost of Skuld", "Elder Cemetery": "Elder Ghost of Skuld",
                  "Cultist Hideout": "LH Malus 2",
@@ -449,6 +450,13 @@ DUNGEON_FIGHT_NOTES = {
                       "a Last Burial, six blue flames thrown round him and two spirals turning. At a tenth of his "
                       "health the Ghost of Skuld doesn't die: he sings his Requiem from the centre of his crypt, "
                       "flaming skulls and the risen dead round him, until he is truly beaten.",
+    "Elder Ice Cave": "Kill every Elder Big Yeti and Snow Bat Mama to open the Elder Inner Sanctum, where the "
+                      "Elder Esben waits. While his crosses stand, icicles are thrown down on every player "
+                      "(Frostfall, slowing); while he can be hurt he fights back as himself, fans of icicles and "
+                      "a turning ring of ice (Unbound Rend). At a tenth of his health the cornus tears free: he "
+                      "fades into mist, comes back at the heart of the sanctum, armoured, and turns two arms of "
+                      "ice against each other with rings of piercing bolts, icicles raining and two shielded "
+                      "kings at his side, for 16 seconds or until he falls.",
     "The Black Between": "Every shot here goes on through whoever it hits, so nobody can take the hits for the "
                          "rest of the group: each player has to dodge them. Once the fight starts the bridge falls "
                          "away into the void, all but the landing where players arrive (anyone on it is moved onto "
@@ -468,6 +476,10 @@ RAISE_DUNGEON_NOTES = {
                           "its loot balloon held as well: there is no second balloon.",
     "Elder Cemetery": "The Ghost Bride, the Grave Caretaker and the Ghost of Skuld each leave their own remains, "
                       "in their own arena, and each needs a relic of its own.",
+    "The Elder Inner Sanctum": "Esben leaves his remains in the Elder Inner Sanctum. Raised, there are no crosses left to "
+                      "hold the cornus: he circles the heart of the sanctum fighting as one with it, round and "
+                      "round three turns (his own fans and rings of ice, then armoured with icicle crosses and "
+                      "Frostfall, then rings of piercing bolts), and the Cornus Unbound still comes at a tenth.",
     "Lair of Elder Draconis": "Each of the four Elder dragons leaves its own remains in its lair, so it takes a relic for "
                               "each: a group with four can raise them all. Like the Elder dragon, the Empowered one turns "
                               "into a loot balloon when it falls. The balloon holds the Elder dragon's loot at its "

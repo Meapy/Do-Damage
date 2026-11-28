@@ -32,6 +32,10 @@ dotnet test source\Tests                                                        
   death record, no replay). Set the character's health low on the copy
   (`redis-cli -p <port> hset char.1.<id> hp 1`) and send the bot to the Godlands
   (`--fight --say "/godlands"`): it dies within 30 s.
+- **`/empower` where the boss's helpers still stand** runs its Elder fight as if it had just
+  started: in the Elder Inner Sanctum the Empowered Esben takes the crosses' path, since the
+  generator is there. Raise a boss in a `/vault` to see what its real revival does (Esben's Risen
+  cycle).
 - **Random layouts:** `IceTombTests` with `BSK_LAYOUT_DUMP=<folder>` writes six Ice Tomb layouts
   as JSON; `python tools/ice_tomb/draw_layout.py <out.png> <folder>/seed0.json` draws one with the
   real tiles, quicker than walking them in game.

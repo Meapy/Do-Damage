@@ -1662,6 +1662,71 @@
    "item": "Pestilence of Skuld",
    "itemBase": "Grimhydra Poison",
    "itemStrength": 1.3
+  },
+  {
+   "boss": "Elder ic Esben the Unwilling",
+   "dungeon": "The Elder Inner Sanctum",
+   "name": "Esben the Unwilling",
+   "corpse": "Elder ic Esben the Unwilling Remains",
+   "empowered": "Empowered Elder ic Esben the Unwilling",
+   "soulDamage": 81,
+   "loot": [
+    [
+     "Zombie Penguin Generator",
+     0.03
+    ],
+    [
+     "Staff of Esben",
+     0.04
+    ],
+    [
+     "Frosty's Walking Stick",
+     0.01
+    ],
+    [
+     "Winter's Breath Wand",
+     0.01
+    ],
+    [
+     "Skullish Remains of Esben",
+     0.032
+    ],
+    [
+     "Esben's Wedding Ring",
+     0.032
+    ],
+    [
+     "Esben's Shaman Attire",
+     0.032
+    ],
+    [
+     "An Icicle",
+     0.008
+    ],
+    [
+     "Potion of Mana",
+     1.0
+    ],
+    [
+     "Potion of Max Mana",
+     0.1
+    ],
+    [
+     "Elder Ice Cave Key",
+     0.02
+    ],
+    [
+     "Lil' Esben Generator",
+     0.02
+    ],
+    [
+     "Scroll of the Unwilling",
+     0.03
+    ]
+   ],
+   "item": "Scroll of the Unwilling",
+   "itemBase": "Scroll of the Mad God",
+   "itemStrength": 1.2
   }
  ]
 }

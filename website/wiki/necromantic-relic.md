@@ -93,12 +93,12 @@ reached comes back every 9 to 13 seconds, one at a time, the newest first:
 
 The bosses of the raid-like dungeons (the Elder Shatters, the Elder Lost Halls, the Elder Cultist
 Hideout and the Elder Void, the Elder Tomb of the Ancients, the Lair of Elder Draconis and the
-Elder Ivory Wyvern, the Elder Cemetery) and Thessal of the Elder Ocean Trench have two more phases of their own, at 70%
+Elder Ivory Wyvern, the Elder Cemetery), Thessal of the Elder Ocean Trench and Esben of the Elder Inner Sanctum have two more phases of their own, at 70%
 and 40%, each in the boss's own style and with its own shots: the Sentinel's bridge collapsing in
 a checkerboard, Malus' blood moon ritual (kill his three cultist souls before the chant ends, or
 each heals him by 1% of his health; kill them all and his armour breaks), the Void Entity's closing event horizon,
 Pyyr's meteor shower and fire breath, the Ivory Wyvern's prismatic breath, Thessal's riptides
-and whirlpools and the Ghost Bride's procession down the aisle among them. Each boss's card below names them. Marks on the ground always fill
+and whirlpools, the Ghost Bride's procession down the aisle and Esben's frozen crosses and whiteout among them. Each boss's card below names them. Marks on the ground always fill
 before they strike: step out before they're full. No mark hits a full-health player hard enough
 to kill them outright, even a Wizard with no defense.
 

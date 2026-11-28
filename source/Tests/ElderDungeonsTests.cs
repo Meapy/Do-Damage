@@ -54,6 +54,7 @@ namespace Tests
             { "Elder Arena Ghost Bride", "Potion of Max Speed" },
             { "Elder Arena Grave Caretaker", "Potion of Max Wisdom" },
             { "Elder Ghost of Skuld", "Potion of Max Vitality" },
+            { "Elder ic Esben the Unwilling", "Potion of Max Mana" },
         };
 
         public static readonly TheoryData<string, string, double> DungeonKeys = new TheoryData<string, string, double>
@@ -79,6 +80,7 @@ namespace Tests
             { "Elder Arena Ghost Bride", "Elder Cemetery Key", 0.01 },
             { "Elder Arena Grave Caretaker", "Elder Cemetery Key", 0.01 },
             { "Elder Ghost of Skuld", "Elder Cemetery Key", 0.02 },
+            { "Elder ic Esben the Unwilling", "Elder Ice Cave Key", 0.01 },
         };
 
         // A rare drop: there, but not most kills (Doomed Realms gave some bosses one nearly every kill)
@@ -311,6 +313,75 @@ namespace Tests
             var vial = data.Items.Values.Single(i => i.ObjectId == "Vial of Pure Darkness").ActivateEffects.Single(e => e.Effect == ActivateEffects.ChangeObject);
             Assert.Equal("Lost Halls", vial.OnlyInArea);
             Assert.True(data.IdToObjectType.ContainsKey("Elder " + vial.TargetId) && data.IdToObjectType.ContainsKey("Elder " + vial.NewId));
+        }
+
+        // The Elder Ice Cave and the Elder Inner Sanctum: the way in and on, every spawner's Elder
+        // copy with its behaviour, the Elder Esben's own phases, and his white bag.
+        [Fact]
+        public void TheElderIceCaveLeadsToTheElderEsben()
+        {
+            var a = Data.Value;
+            var data = a.Data;
+            foreach (var (portal, world) in new[] { ("Elder Ice Cave Portal", "Elder Ice Cave"), ("Elder Inner Sanctum Portal", "The Elder Inner Sanctum") })
+            {
+                Assert.Equal(world, data.Portals.Values.Single(p => p.IdName == portal).DungeonName);
+                Assert.Contains(data.AllWorlds, w => w.IdName == world);
+            }
+            Assert.Contains(data.Items.Values.Single(i => i.ObjectId == "Elder Ice Cave Key").ActivateEffects, e => e.Id == "Elder Ice Cave Portal");
+
+            // the regular Esben leads there half the time, the Elder one not back again
+            bool Leads(string id) => All(a.States[data.IdToObjectType[id]]).SelectMany(s => s.Behaviors)
+                .Any(b => b.GetType().Name == "DropPortalOnDeath" && Field<ushort>(b, "_target") == data.IdToObjectType["Elder Ice Cave Portal"]
+                    && Field<float>(b, "_probability") > 0);
+            Assert.True(Leads("ic Esben the Unwilling"));
+            Assert.False(Leads("Elder ic Esben the Unwilling"));
+
+            // the spawners and helpers the fight orders about by name
+            foreach (var id in new[] { "ic boss spawner live", "ic boss manager", "ic boss purifier generator", "ic boss purifier", "Big Yeti", "Snow Bat Mama", "Snow Bat" })
+                Assert.True(a.Defined.Contains(data.IdToObjectType["Elder " + id]), $"Elder {id} has no behaviour");
+            var opens = All(a.States[data.IdToObjectType["Elder ic boss spawner live"]]).SelectMany(s => s.Behaviors)
+                .Where(b => b.GetType().Name == "Spawn").Select(b => data.ObjectTypeToId[Field<ushort>(b, "_children")]);
+            Assert.Equal(new[] { "Elder Inner Sanctum Portal" }, opens);
+
+            // his Elder phases: the Cornus Unbound at a tenth (reached from the fight's parent, so
+            // it doesn't restart every tick) and the Risen cycle of his Empowered form
+            static IEnumerable<string> Targets(State s) => s.Transitions.SelectMany(t => t.TargetState).Select(t => t.Name);
+            var regular = All(a.States[data.IdToObjectType["ic Esben the Unwilling"]]).ToList();
+            var elder = All(a.States[data.IdToObjectType["Elder ic Esben the Unwilling"]]).ToList();
+            foreach (var phase in new[] { "cornus", "risen1" })
+            {
+                Assert.DoesNotContain(phase, regular.SelectMany(Targets));
+                Assert.Contains(phase, elder.SelectMany(Targets));
+            }
+            var fight = elder.Single(s => s.Name == "fight");
+            Assert.Contains("cornus", Targets(fight));
+            Assert.DoesNotContain(elder.Single(s => s.Name == "cornus"), All(fight));
+            Assert.Equal("die", Targets(elder.Single(s => s.Name == "cornus2")).Single());
+
+            // his white bag: a Summoner's scroll with its power, its summon and thrall fighting
+            var scroll = data.Items.Values.Single(i => i.ObjectId == "Scroll of the Unwilling");
+            Assert.Equal(128, scroll.SlotType);
+            Assert.Equal("Unwilling", scroll.RelicPower);
+            Assert.Equal(6, scroll.BagType);
+            Assert.True(a.Defined.Contains(data.IdToObjectType["Unwilling Shade Summon"]));
+            Assert.True(a.Defined.Contains(data.IdToObjectType["Unwilling Thrall"]));
+            Assert.Contains(a.Loot["Elder ic Esben the Unwilling"], d => d.Item == "Scroll of the Unwilling");
+            Assert.DoesNotContain(a.Loot["ic Esben the Unwilling"], d => d.Item == "Scroll of the Unwilling");
+            Assert.Contains(a.Loot["Empowered Elder ic Esben the Unwilling"], d => d.Item == "Scroll of the Unwilling" && d.Probabilty >= 0.03);
+        }
+
+        // The Snow Bat's sonar spinners fly out and vanish (they stood still for 5 s, a carpet of
+        // them round every bat)
+        [Fact]
+        public void SnowBatSpinnersMove()
+        {
+            var data = Data.Value.Data;
+            foreach (var id in new[] { "Snow Bat", "Elder Snow Bat" })
+            {
+                var shot = data.ObjectDescs[data.IdToObjectType[id]].Projectiles[0];
+                Assert.True(shot.Speed > 0, $"{id}'s spinner stands still");
+                Assert.InRange(shot.LifetimeMS, 500, 2000);
+            }
         }
 
         private static IEnumerable<State> All(State s) => new[] { s }.Concat(s.States.SelectMany(All));
